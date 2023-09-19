@@ -133,7 +133,7 @@ inline std::vector<std::string> StringSplit(const std::string& s, char delim)
     std::string item;
     while (std::getline(ss, item, delim))
     {
-        elems.push_back(item);
+        if (!item.empty()) elems.push_back(item);
     }
     
     return elems;
@@ -177,7 +177,7 @@ inline void StringReplaceAllOccurences(const std::string& pattern, const std::st
 inline std::string FloatToString(const float val, const int decimalPlaces)
 {
     std::stringstream ss;
-    ss << std::fixed << std::setprecision(decimalPlaces - 1) << val;
+    ss << std::fixed << std::setprecision(decimalPlaces) << val;
     return ss.str();
 }
 
