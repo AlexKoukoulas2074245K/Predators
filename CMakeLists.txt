@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(BaseProject)
+project(Predators)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/build_utils")
@@ -7,8 +7,16 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/build_utils")
 # Find SDL2
 find_package(SDL2 REQUIRED COMPONENTS main)
 
+# Find OpenGL
+find_package(OpenGL REQUIRED)    
+
+# Find glm
+set(GLM_INCLUDE_DIRS "lib/glm")
+
 include_directories(source)
 include_directories(${SDL2_INCLUDE_DIRS} ${SDL2main_INCLUDE_DIRS})
+include_directories(${GLM_INCLUDE_DIRS})
+include_directories(${OPENGL_INCLUDE_DIR})
 
 # Include other CmakeLists
 add_subdirectory(source)
