@@ -1,33 +1,35 @@
 ///------------------------------------------------------------------------------------------------
-///  Game.h                                                                                          
+///  IResource.h
 ///  Predators
-///                                                                                                
-///  Created by Alex Koukoulas on 19/09/2023
+///
+///  Created by Alex Koukoulas on 20/09/2023.
 ///------------------------------------------------------------------------------------------------
 
-#ifndef Game_h
-#define Game_h
-
-///------------------------------------------------------------------------------------------------
-
-#include <string>
+#ifndef IResource_h
+#define IResource_h
 
 ///------------------------------------------------------------------------------------------------
 
-class Game final
+namespace resources
+{
+
+///------------------------------------------------------------------------------------------------
+
+class IResource
 {
 public:
-    Game(const int argc, char** argv);
-    ~Game();
+    virtual ~IResource() = default;
+    IResource(const IResource&) = delete;
+    const IResource& operator = (const IResource&) = delete;
     
-private:
-    bool InitSystems(const int argc, char** argv);
-    void Run();
-    
-private:
-    bool mIsFinished;
+protected:
+    IResource() = default;
 };
 
 ///------------------------------------------------------------------------------------------------
 
-#endif /* Game_h */
+}
+
+///------------------------------------------------------------------------------------------------
+
+#endif /* IResource_h */

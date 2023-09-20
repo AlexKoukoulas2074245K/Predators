@@ -15,6 +15,13 @@ else
   brew install SDL2
 fi
 
+if brew ls --versions sdl2_image > /dev/null; then
+  echo "-- Found SDL2 Image installation with Brew"
+else
+  echo "-- SDL2 Image was not found in the system. Installing via Brew"
+  brew install sdl2_image
+fi
+
 echo "-- Running CMAKE"
 mkdir build
 cd build

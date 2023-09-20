@@ -10,20 +10,21 @@
 
 ///-----------------------------------------------------------------------------------------------
 
-#include <cmath>                        // powf, sinf, cosf, atan2
-#include <ctime>                        // time
-#include <functional>                   // function
-#include <glm/vec2.hpp>                 // vec2
-#include <glm/vec3.hpp>                 // vec3
-#include <glm/mat4x4.hpp>               // mat4
+#include <array>
+#include <cmath>                       
+#include <ctime>                       
+#include <functional>                  
+#include <glm/vec2.hpp>                
+#include <glm/vec3.hpp>                
+#include <glm/mat4x4.hpp>              
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <glm/ext/quaternion_float.hpp> // for quat
-#include <glm/gtc/matrix_transform.hpp> // mat helpers
-#include <glm/gtc/matrix_access.hpp>    // mat helpers
-#include <vector>
+#include <glm/ext/quaternion_float.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/matrix_access.hpp>   
 #include <random>
-#include <array>
+#include <vector>
+
 
 ///-----------------------------------------------------------------------------------------------
 

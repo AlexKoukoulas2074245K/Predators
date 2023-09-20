@@ -6,6 +6,7 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <engine/rendering/OpenGL.h>
+#include <engine/resloading/ResourceLoadingService.h>
 #include <engine/utils/Logging.h>
 #include <engine/utils/MathUtils.h>
 #include <engine/utils/OSMessageBox.h>
@@ -14,10 +15,10 @@
 
 ///------------------------------------------------------------------------------------------------
 
-Game::Game()
+Game::Game(const int argc, char** argv)
     : mIsFinished(false)
 {
-    if (!InitSystems()) return;
+    if (!InitSystems(argc, argv)) return;
     Run();
 }
 
@@ -30,8 +31,14 @@ Game::~Game()
 
 ///------------------------------------------------------------------------------------------------
 
-bool Game::InitSystems()
+bool Game::InitSystems(const int argc, char** argv)
 {
+    // Log CWD
+    if (argc > 0)
+    {
+        logging::Log(logging::LogType::INFO, "Initializing from CWD : %s", argv[0]);
+    }
+    
     // Initialize SDL
     if(SDL_Init(SDL_INIT_VIDEO) < 0)
     {
@@ -68,7 +75,7 @@ bool Game::InitSystems()
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 16);
-    SDL_GL_SetSwapInterval(0);
+    SDL_GL_SetSwapInterval(1);
     
     // Enable texture blending
     GL_CALL(glEnable(GL_BLEND));
@@ -82,6 +89,8 @@ bool Game::InitSystems()
     logging::Log(logging::LogType::INFO, "Renderer   : %s", GL_NO_CHECK_CALL(glGetString(GL_RENDERER)));
     logging::Log(logging::LogType::INFO, "Version    : %s", GL_NO_CHECK_CALL(glGetString(GL_VERSION)));
     
+    resources::ResourceLoadingService::GetInstance();
+    
     return true;
 }
 
@@ -94,6 +103,9 @@ void Game::Run()
     auto lastFrameMillisSinceInit         = 0.0f;
     auto secsAccumulator                  = 0.0f;
     auto framesAccumulator                = 0LL;
+    
+    auto resId = resources::ResourceLoadingService::GetInstance().LoadResource("board.png");
+    resId++;
     
     //While application is running
     while(!mIsFinished)
@@ -138,7 +150,17 @@ void Game::Run()
         float propagatedDtMillis = math::Max(10.0f, math::Min(20.0f, dtMillis));
         (void)propagatedDtMillis;
         //scene.UpdateScene(propagatedDtMillis);
-        //scene.RenderScene();
+        
+        // Set background color
+        GL_CALL(glClearColor(1.0f, 1.0f, 1.0f, 1.0f));
+        
+        GL_CALL(glEnable(GL_DEPTH_TEST));
+        GL_CALL(glEnable(GL_BLEND));
+        
+        // Clear buffers
+        GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+        
+        GL_CALL(glDisable(GL_CULL_FACE));
         
         // Swap window buffers
         SDL_GL_SwapWindow(SDL_GL_GetCurrentWindow());

@@ -16,12 +16,12 @@ set(BINARY ${CMAKE_PROJECT_NAME})
 
 file(GLOB_RECURSE SOURCES LIST_DIRECTORIES true *.h *.cpp)
 
-assign_source_group(${SOURCES})
-
 set(SOURCES ${SOURCES})
 
 add_executable(${BINARY} ${SOURCES})
 
 add_library(${BINARY}_lib STATIC ${SOURCES})
 
-target_link_libraries(${PROJECT_NAME} ${SDL2_LIBS} ${OPENGL_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${SDL2_LIBS} ${SDL2_IMAGE_LIBRARIES} ${OPENGL_LIBRARIES})
+
+assign_source_group(${SOURCES})

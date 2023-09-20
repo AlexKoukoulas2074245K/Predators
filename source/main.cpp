@@ -9,9 +9,9 @@
 
 ///------------------------------------------------------------------------------------------------
 
-int main(int, char**)
+int main(int argc, char** argv)
 {
-    Game game;
+    Game game(argc, argv);
     exit(0);
     return 0;
 }
