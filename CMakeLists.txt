@@ -4,6 +4,9 @@ project(Predators)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/build_utils")
 
+# Enable folder use in CMake
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 # Find SDL2
 find_package(SDL2 REQUIRED COMPONENTS main)
 
@@ -44,3 +47,10 @@ if(MSVC)
 else(MSVC)
   target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -pedantic -Werror)
 endif(MSVC)
+
+# Put these targets in the 'HiddenTargets' folder in the IDE.
+set_target_properties(Predators_lib gmock gmock_main gtest gtest_main PROPERTIES FOLDER HiddenTargets)
+
+# Put these targets in the 'ProjectTargets' folder in the IDE.
+set_target_properties(Predators Predators_test PROPERTIES FOLDER ProjectTargets)
+
