@@ -14,7 +14,7 @@ endfunction(assign_source_group)
 
 set(BINARY ${CMAKE_PROJECT_NAME}_test)
 
-file(GLOB_RECURSE TEST_SOURCES LIST_DIRECTORIES false *.h *.cpp)
+file(GLOB_RECURSE TEST_SOURCES *.h *.cpp)
 
 set(SOURCES ${TEST_SOURCES})
 
