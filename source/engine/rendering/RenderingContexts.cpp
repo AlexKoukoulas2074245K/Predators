@@ -22,6 +22,14 @@ std::unique_ptr<IRenderingContext> RenderingContextHolder::sRenderingContext = n
 
 ///------------------------------------------------------------------------------------------------
 
+SDL_Window* BaseRenderingContext::GetContextWindow() const { return mWindow; }
+glm::vec2 BaseRenderingContext::GetContextRenderableDimensions() const { int w,h; SDL_GL_GetDrawableSize(mWindow, &w, &h); return glm::vec2(w, h); }
+
+void BaseRenderingContext::SetContextWindow(SDL_Window* window) { mWindow = window; }
+void BaseRenderingContext::SetContext(SDL_GLContext context) { mContext = context; }
+
+///------------------------------------------------------------------------------------------------
+
 bool MacRenderingContext::Init()
 {
     // Initialize SDL
@@ -35,8 +43,17 @@ bool MacRenderingContext::Init()
     static constexpr int windowWidth = 1000;
     static constexpr int windowHeight = 600;
     
+    // Set OpenGL desired attributes
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 16);
+    
     // Create window
-    auto* window = SDL_CreateWindow("Predators", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, windowWidth, windowHeight, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_INPUT_FOCUS);
+    auto* window = SDL_CreateWindow("Predators", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, windowWidth, windowHeight, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_RESIZABLE);
     
     if(!window)
     {
@@ -52,27 +69,9 @@ bool MacRenderingContext::Init()
         return false;
     }
     
-    // Set OpenGL desired attributes
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 16);
     SDL_GL_SetSwapInterval(1);
     
-    // Get actual render buffer width/height
-    auto renderableWidth  = 0;
-    auto renderableHeight = 0;
-    SDL_GL_GetDrawableSize(window, &renderableWidth, &renderableHeight);
-
-    glm::vec2 renderableDimensions;
-    renderableDimensions.x = static_cast<float>(renderableWidth);
-    renderableDimensions.y = static_cast<float>(renderableHeight);
-    
     BaseRenderingContext::SetContextWindow(window);
-    BaseRenderingContext::SetContextRenderableDimensions(renderableDimensions);
     BaseRenderingContext::SetContext(context);
     
     // Enable texture blending

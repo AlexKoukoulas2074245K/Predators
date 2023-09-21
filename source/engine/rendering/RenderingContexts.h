@@ -31,7 +31,7 @@ public:
     virtual ~IRenderingContext() = default;
     virtual bool Init() = 0;
     virtual SDL_Window* GetContextWindow() const = 0;
-    virtual const glm::vec2& GetContextRenderableDimensions() const = 0;
+    virtual glm::vec2 GetContextRenderableDimensions() const = 0;
 };
 
 ///------------------------------------------------------------------------------------------------
@@ -40,18 +40,16 @@ class BaseRenderingContext : public IRenderingContext
 {
 public:
     virtual ~BaseRenderingContext() = default;
-    SDL_Window* GetContextWindow() const override { return mWindow; }
-    const glm::vec2& GetContextRenderableDimensions() const override { return mRenderableDimensions; }
+    SDL_Window* GetContextWindow() const override;
+    glm::vec2 GetContextRenderableDimensions() const override;
     
 protected:
-    void SetContextWindow(SDL_Window* window) { mWindow = window; }
-    void SetContext(SDL_GLContext context) { mContext = context; }
-    void SetContextRenderableDimensions(const glm::vec2& renderableDimensions) { mRenderableDimensions = renderableDimensions; }
+    void SetContextWindow(SDL_Window* window);
+    void SetContext(SDL_GLContext context);
     
 protected:
     SDL_Window* mWindow;
     SDL_GLContext mContext;
-    glm::vec2 mRenderableDimensions;
 };
 
 ///------------------------------------------------------------------------------------------------

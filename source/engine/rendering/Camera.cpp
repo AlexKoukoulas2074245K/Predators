@@ -10,7 +10,7 @@
 
 ///------------------------------------------------------------------------------------------------
 
-const glm::vec3 Camera::DEFAULT_CAMERA_POSITION     = glm::vec3(0.0f, 0.0f, -5.0f);
+const glm::vec3 Camera::DEFAULT_CAMERA_POSITION     = glm::vec3(0.0f, -0.0087f, -5.0f);
 const glm::vec3 Camera::DEFAULT_CAMERA_FRONT_VECTOR = glm::vec3(0.0f, 0.0f, -1.0f);
 const glm::vec3 Camera::DEFAULT_CAMERA_UP_VECTOR    = glm::vec3(0.0f, 1.0f, 0.0f);
 
@@ -18,11 +18,11 @@ const float Camera::DEVICE_INVARIABLE_ASPECT = 0.46f;
 
 const float Camera::DEFAULT_CAMERA_ZNEAR       = -50.0f;
 const float Camera::DEFAULT_CAMERA_ZFAR        = 50.0f;
-const float Camera::DEFAULT_CAMERA_ZOOM_FACTOR = 16.0f/14.0f;
+const float Camera::DEFAULT_CAMERA_ZOOM_FACTOR = 60.0f;
 
 const float Camera::SHAKE_DAMPING    = 0.72f;
-const float Camera::SHAKE_MAX_RADIUS = 0.5f;
-const float Camera::SHAKE_MIN_RADIUS = 0.001f;
+const float Camera::SHAKE_MAX_RADIUS = 0.05f;
+const float Camera::SHAKE_MIN_RADIUS = 0.0001f;
 
 ///------------------------------------------------------------------------------------------------
 

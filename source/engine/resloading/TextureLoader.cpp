@@ -85,12 +85,6 @@ std::unique_ptr<IResource> TextureLoader::VCreateAndLoadResource(const std::stri
             break;
     }
     
-#ifdef _WIN32
-    const auto textureFormat = mode == 3 ? GL_RGBA : GL_RGB;
-#else
-    const auto textureFormat = GL_BGRA;
-#endif
-    
     GL_CALL(glTexImage2D
     (
         GL_TEXTURE_2D,
@@ -99,7 +93,7 @@ std::unique_ptr<IResource> TextureLoader::VCreateAndLoadResource(const std::stri
         sdlSurface->w,
         sdlSurface->h,
         0,
-        textureFormat,
+        mode,
         GL_UNSIGNED_BYTE,
         sdlSurface->pixels
      ));
@@ -118,7 +112,7 @@ std::unique_ptr<IResource> TextureLoader::VCreateAndLoadResource(const std::stri
     
     SDL_FreeSurface(sdlSurface);
     
-    return std::unique_ptr<IResource>(new TextureResource(surfaceWidth, surfaceHeight, mode, textureFormat, glTextureId));
+    return std::unique_ptr<IResource>(new TextureResource(surfaceWidth, surfaceHeight, mode, mode, glTextureId));
 }
 
 

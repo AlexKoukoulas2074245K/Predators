@@ -39,10 +39,6 @@ const std::string ResourceLoadingService::RES_TEXTURES_ROOT      = RES_ROOT + "t
 const std::string ResourceLoadingService::RES_ATLASES_ROOT       = RES_TEXTURES_ROOT + "atlases/";
 const std::string ResourceLoadingService::RES_FONT_MAP_DATA_ROOT = RES_DATA_ROOT + "font_maps/";
 
-const ResourceId ResourceLoadingService::FALLBACK_TEXTURE_ID = 0;
-const ResourceId ResourceLoadingService::FALLBACK_SHADER_ID  = 1;
-const ResourceId ResourceLoadingService::FALLBACK_MESH_ID    = 2;
-
 static const std::string ZIPPED_ASSETS_FILE_NAME = "assets.zip";
 
 ///------------------------------------------------------------------------------------------------
@@ -164,30 +160,6 @@ void ResourceLoadingService::UnloadResource(const ResourceId resourceId)
 {
     logging::Log(logging::LogType::INFO, "Unloading asset: %s", std::to_string(resourceId).c_str());
     mResourceMap.erase(resourceId);
-}
-
-///------------------------------------------------------------------------------------------------
-
-void ResourceLoadingService::SetFallbackTexture(const std::string& fallbackTexturePath)
-{
-    auto adjustedPath = AdjustResourcePath(fallbackTexturePath);
-    LoadResourceInternal(adjustedPath, FALLBACK_TEXTURE_ID);
-}
-
-///------------------------------------------------------------------------------------------------
-
-void ResourceLoadingService::SetFallbackShader(const std::string& fallbackShaderPath)
-{
-    auto adjustedPath = AdjustResourcePath(fallbackShaderPath);
-    LoadResourceInternal(adjustedPath, FALLBACK_SHADER_ID);
-}
-
-///------------------------------------------------------------------------------------------------
-
-void ResourceLoadingService::SetFallbackMesh(const std::string& fallbackMeshPath)
-{
-    auto adjustedPath = AdjustResourcePath(fallbackMeshPath);
-    LoadResourceInternal(adjustedPath, FALLBACK_MESH_ID);
 }
 
 ///------------------------------------------------------------------------------------------------
