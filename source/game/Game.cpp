@@ -164,6 +164,7 @@ void Game::Run()
             framesAccumulator = 0;
             secsAccumulator = 0.0f;
             
+            resources::ResourceLoadingService::GetInstance().UnloadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "font.png");
             resources::ResourceLoadingService::GetInstance().UnloadResource(resources::ResourceLoadingService::RES_DATA_ROOT + "font.json");
             rendering::FontRepository::GetInstance().LoadFont("font");
         }
