@@ -6,6 +6,7 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <engine/rendering/OpenGL.h>
+#include <engine/rendering/OpenGLRenderer.h>
 #include <engine/rendering/RenderingContexts.h>
 #include <engine/utils/Logging.h>
 #include <engine/utils/OSMessageBox.h>
@@ -22,11 +23,13 @@ std::unique_ptr<IRenderingContext> RenderingContextHolder::sRenderingContext = n
 
 ///------------------------------------------------------------------------------------------------
 
-SDL_Window* BaseRenderingContext::GetContextWindow() const { return mWindow; }
+SDL_Window& BaseRenderingContext::GetContextWindow() const { return *mWindow; }
 glm::vec2 BaseRenderingContext::GetContextRenderableDimensions() const { int w,h; SDL_GL_GetDrawableSize(mWindow, &w, &h); return glm::vec2(w, h); }
+IRenderer& BaseRenderingContext::GetRenderer() const { return *mRenderer; }
 
 void BaseRenderingContext::SetContextWindow(SDL_Window* window) { mWindow = window; }
 void BaseRenderingContext::SetContext(SDL_GLContext context) { mContext = context; }
+void BaseRenderingContext::SetRenderer(std::unique_ptr<IRenderer> renderer) { mRenderer = std::move(renderer); }
 
 ///------------------------------------------------------------------------------------------------
 
@@ -73,6 +76,7 @@ bool MacRenderingContext::Init()
     
     BaseRenderingContext::SetContextWindow(window);
     BaseRenderingContext::SetContext(context);
+    BaseRenderingContext::SetRenderer(std::make_unique<OpenGLRenderer>());
     
     // Enable texture blending
     GL_CALL(glEnable(GL_BLEND));

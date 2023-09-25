@@ -10,6 +10,11 @@
 
 ///------------------------------------------------------------------------------------------------
 
+namespace rendering
+{
+
+///------------------------------------------------------------------------------------------------
+
 const glm::vec3 Camera::DEFAULT_CAMERA_POSITION     = glm::vec3(0.0f, -0.0087f, -5.0f);
 const glm::vec3 Camera::DEFAULT_CAMERA_FRONT_VECTOR = glm::vec3(0.0f, 0.0f, -1.0f);
 const glm::vec3 Camera::DEFAULT_CAMERA_UP_VECTOR    = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -27,7 +32,7 @@ const float Camera::SHAKE_MIN_RADIUS = 0.0001f;
 ///------------------------------------------------------------------------------------------------
 
 Camera::Camera()
-    : Camera(30.0f)
+: Camera(30.0f)
 {
     
 }
@@ -35,8 +40,8 @@ Camera::Camera()
 ///------------------------------------------------------------------------------------------------
 
 Camera::Camera(const float cameraLenseHeight)
-    : mZoomFactor(DEFAULT_CAMERA_ZOOM_FACTOR)
-    , mPosition(DEFAULT_CAMERA_POSITION)
+: mZoomFactor(DEFAULT_CAMERA_ZOOM_FACTOR)
+, mPosition(DEFAULT_CAMERA_POSITION)
 {
     mCameraLenseWidth = cameraLenseHeight * DEVICE_INVARIABLE_ASPECT;
     mCameraLenseHeight = cameraLenseHeight;
@@ -151,6 +156,10 @@ void Camera::SetPosition(const glm::vec3& position)
 {
     mPosition = position;
     RecalculateMatrices();
+}
+
+///------------------------------------------------------------------------------------------------
+
 }
 
 ///------------------------------------------------------------------------------------------------

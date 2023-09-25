@@ -40,6 +40,12 @@ struct Glyph
 
 struct Font
 {
+    const Glyph& FindGlyph(char c) const
+    {
+        auto glyphIter = mGlyphs.find(c);
+        return glyphIter == mGlyphs.cend() ? mGlyphs.at(' ') : glyphIter->second;
+    }
+    
     strutils::StringId mFontName = strutils::StringId();
     resources::ResourceId mFontTextureResourceId;
     std::unordered_map<char, Glyph> mGlyphs;

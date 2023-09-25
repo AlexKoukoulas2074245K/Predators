@@ -11,6 +11,7 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <engine/utils/MathUtils.h>
+#include <engine/rendering/IRenderer.h>
 #include <memory>
 
 ///------------------------------------------------------------------------------------------------
@@ -30,7 +31,8 @@ class IRenderingContext
 public:
     virtual ~IRenderingContext() = default;
     virtual bool Init() = 0;
-    virtual SDL_Window* GetContextWindow() const = 0;
+    virtual IRenderer& GetRenderer() const = 0;
+    virtual SDL_Window& GetContextWindow() const = 0;
     virtual glm::vec2 GetContextRenderableDimensions() const = 0;
 };
 
@@ -40,21 +42,24 @@ class BaseRenderingContext : public IRenderingContext
 {
 public:
     virtual ~BaseRenderingContext() = default;
-    SDL_Window* GetContextWindow() const override;
+    SDL_Window& GetContextWindow() const override;
+    IRenderer& GetRenderer() const override;
     glm::vec2 GetContextRenderableDimensions() const override;
     
 protected:
     void SetContextWindow(SDL_Window* window);
     void SetContext(SDL_GLContext context);
+    void SetRenderer(std::unique_ptr<IRenderer> renderer);
     
 protected:
     SDL_Window* mWindow;
     SDL_GLContext mContext;
+    std::unique_ptr<IRenderer> mRenderer;
 };
 
 ///------------------------------------------------------------------------------------------------
 
-class MacRenderingContext : public BaseRenderingContext
+class MacRenderingContext final : public BaseRenderingContext
 {
 public:
     bool Init() override;
@@ -62,7 +67,7 @@ public:
 
 ///------------------------------------------------------------------------------------------------
 
-class RenderingContextFactory
+class RenderingContextFactory final
 {
 public:
     static void CreateRenderingContext();
@@ -73,7 +78,7 @@ private:
 
 ///------------------------------------------------------------------------------------------------
 
-class RenderingContextHolder
+class RenderingContextHolder final
 {
     friend class RenderingContextFactory;
     
