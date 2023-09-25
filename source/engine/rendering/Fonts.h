@@ -15,6 +15,7 @@
 #include <engine/utils/StringUtils.h>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -66,13 +67,15 @@ public:
     FontRepository& operator = (FontRepository&&) = delete;
     
     std::optional<std::reference_wrapper<const Font>> GetFont(const strutils::StringId& fontName) const;
-    void LoadFont(const std::string& fontName);
+    void ReloadMarkedFontsFromDisk();
+    void LoadFont(const std::string& fontName, const resources::ResourceReloadMode resourceReloadMode = resources::ResourceReloadMode::DONT_RELOAD);
     
 private:
     FontRepository() = default;
     
 private:
     std::unordered_map<strutils::StringId, Font, strutils::StringIdHasher> mFontMap;
+    std::unordered_set<strutils::StringId, strutils::StringIdHasher> mFontsToKeepReloading;
 };
 
 ///------------------------------------------------------------------------------------------------

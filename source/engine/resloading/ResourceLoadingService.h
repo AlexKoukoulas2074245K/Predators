@@ -38,6 +38,14 @@ struct ResourceIdHasher
 };
 
 ///------------------------------------------------------------------------------------------------
+/// Dictates whether a resource will be force reloaded from disk every second or not.
+/// (used for real time asset debugging)
+enum ResourceReloadMode
+{
+    DONT_RELOAD, RELOAD_EVERY_SECOND
+};
+
+///------------------------------------------------------------------------------------------------
 /// A service class aimed at providing resource loading, simple file IO, etc.
 class ResourceLoadingService final
 {
@@ -80,8 +88,9 @@ public:
     /// Both full paths, relative paths including the Resource Root, and relative
     /// paths excluding the Resource Root are supported.
     /// @param[in] resourcePath the path of the resource file.
+    /// @param[in] resourcePath the path of the resource file.
     /// @returns the loaded resource's id.
-    ResourceId LoadResource(const std::string& resourcePath);
+    ResourceId LoadResource(const std::string& resourcePath, const ResourceReloadMode resourceReloadingMode = ResourceReloadMode::DONT_RELOAD);
 
     /// Loads a collection of resources based on a given vector with their paths.
     ///
@@ -124,6 +133,9 @@ public:
     /// @param[in] resourceId the id of the resource to unload.    
     void UnloadResource(const ResourceId resourceId);
     
+    /// Unloads and then reloads all resources marked as RELOAD_EVERY_SECOND.
+    void ReloadMarkedResourcesFromDisk();
+    
     /// Gets the concrete type of the resource that was loaded based on the given path.
     ///    
     /// Both full paths, relative paths including the Resource Root, and relative
@@ -165,6 +177,7 @@ private:
 private:
     std::unordered_map<ResourceId, std::unique_ptr<IResource>, ResourceIdHasher> mResourceMap;
     std::unordered_map<strutils::StringId, IResourceLoader*, strutils::StringIdHasher> mResourceExtensionsToLoadersMap;
+    std::unordered_map<ResourceId, std::string, ResourceIdHasher> mResourceIdMapToKeepReloading;
     std::vector<std::unique_ptr<IResourceLoader>> mResourceLoaders;
     bool mInitialized = false;
 };

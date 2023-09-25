@@ -42,12 +42,22 @@ std::optional<std::reference_wrapper<const Font>> FontRepository::GetFont(const 
 
 ///------------------------------------------------------------------------------------------------
 
-void FontRepository::LoadFont(const std::string& fontName)
+void FontRepository::ReloadMarkedFontsFromDisk()
 {
-    auto fontTextureResourceId = resources::ResourceLoadingService::GetInstance().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + fontName + ".png");
+    for (const auto& fontName: mFontsToKeepReloading)
+    {
+        LoadFont(fontName.GetString());
+    }
+}
+
+///------------------------------------------------------------------------------------------------
+
+void FontRepository::LoadFont(const std::string& fontName, const resources::ResourceReloadMode resourceReloadMode /* = resources::ResourceReloadMode::DONT_RELOAD */)
+{
+    auto fontTextureResourceId = resources::ResourceLoadingService::GetInstance().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + fontName + ".png", resourceReloadMode);
     auto& fontTexture = resources::ResourceLoadingService::GetInstance().GetResource<resources::TextureResource>(fontTextureResourceId);
     
-    auto fontDefinitionJsonResourceId = resources::ResourceLoadingService::GetInstance().LoadResource(resources::ResourceLoadingService::RES_DATA_ROOT + fontName + ".json");
+    auto fontDefinitionJsonResourceId = resources::ResourceLoadingService::GetInstance().LoadResource(resources::ResourceLoadingService::RES_DATA_ROOT + fontName + ".json", resourceReloadMode);
     auto fontJson =  nlohmann::json::parse(resources::ResourceLoadingService::GetInstance().GetResource<resources::DataFileResource>(fontDefinitionJsonResourceId).GetContents());
     
     Font font;
@@ -77,6 +87,11 @@ void FontRepository::LoadFont(const std::string& fontName)
     }
     
     mFontMap[font.mFontName] = font;
+    
+    if (resourceReloadMode == resources::ResourceReloadMode::RELOAD_EVERY_SECOND)
+    {
+        mFontsToKeepReloading.insert(font.mFontName);
+    }
 }
 
 ///------------------------------------------------------------------------------------------------

@@ -100,10 +100,15 @@ ResourceId ResourceLoadingService::GetResourceIdFromPath(const std::string& path
 
 ///------------------------------------------------------------------------------------------------
 
-ResourceId ResourceLoadingService::LoadResource(const std::string& resourcePath)
+ResourceId ResourceLoadingService::LoadResource(const std::string& resourcePath, const ResourceReloadMode resourceReloadingMode /* = ResourceReloadMode::DONT_RELOAD */)
 {
     const auto adjustedPath = AdjustResourcePath(resourcePath);
     const auto resourceId = strutils::GetStringHash(adjustedPath);
+    
+    if (resourceReloadingMode == ResourceReloadMode::RELOAD_EVERY_SECOND)
+    {
+        mResourceIdMapToKeepReloading[resourceId] = adjustedPath;
+    }
     
     if (mResourceMap.count(resourceId))
     {
@@ -160,6 +165,17 @@ void ResourceLoadingService::UnloadResource(const ResourceId resourceId)
 {
     logging::Log(logging::LogType::INFO, "Unloading asset: %s", std::to_string(resourceId).c_str());
     mResourceMap.erase(resourceId);
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ResourceLoadingService::ReloadMarkedResourcesFromDisk()
+{
+    for (auto [resourceId, relativePath]: mResourceIdMapToKeepReloading)
+    {
+        UnloadResource(resourceId);
+        LoadResourceInternal(relativePath, resourceId);
+    }
 }
 
 ///------------------------------------------------------------------------------------------------

@@ -112,10 +112,11 @@ void Game::Run()
         dummyScene.mSceneObjects.back().mMeshResourceId = resources::ResourceLoadingService::GetInstance().LoadResource(resources::ResourceLoadingService::RES_MESHES_ROOT + "quad.obj");
     }
     
-    rendering::FontRepository::GetInstance().LoadFont("font");
+    rendering::FontRepository::GetInstance().LoadFont("font", resources::ResourceReloadMode::RELOAD_EVERY_SECOND);
     
     int move = 0;
     int cam = 0;
+    
     //While application is running
     while(!mIsFinished)
     {
@@ -196,9 +197,8 @@ void Game::Run()
             framesAccumulator = 0;
             secsAccumulator = 0.0f;
             
-            resources::ResourceLoadingService::GetInstance().UnloadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "font.png");
-            resources::ResourceLoadingService::GetInstance().UnloadResource(resources::ResourceLoadingService::RES_DATA_ROOT + "font.json");
-            rendering::FontRepository::GetInstance().LoadFont("font");
+            resources::ResourceLoadingService::GetInstance().ReloadMarkedResourcesFromDisk();
+            rendering::FontRepository::GetInstance().ReloadMarkedFontsFromDisk();
         }
         
         if (move == 1)
