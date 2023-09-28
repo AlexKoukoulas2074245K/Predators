@@ -59,6 +59,13 @@ protected:
 
 ///------------------------------------------------------------------------------------------------
 
+class EmptyRenderingContext final: public BaseRenderingContext
+{
+    bool Init() override;
+};
+
+///------------------------------------------------------------------------------------------------
+
 class MacRenderingContext final : public BaseRenderingContext
 {
 public:

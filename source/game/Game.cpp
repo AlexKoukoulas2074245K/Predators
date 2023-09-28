@@ -71,12 +71,24 @@ void Game::Run()
     auto secsAccumulator          = 0.0f;
     auto framesAccumulator        = 0LL;
     
-    scene::Scene dummyScene;
-    dummyScene.mSceneObjects.emplace_back();
-    dummyScene.mSceneObjects.back().mShaderResourceId = resources::ResourceLoadingService::GetInstance().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + "basic.vs");
-    dummyScene.mSceneObjects.back().mTextureResourceId = resources::ResourceLoadingService::GetInstance().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "board.png");
-    dummyScene.mSceneObjects.back().mMeshResourceId = resources::ResourceLoadingService::GetInstance().LoadResource(resources::ResourceLoadingService::RES_MESHES_ROOT + "quad.obj");
+    rendering::FontRepository::GetInstance().LoadFont("font", resources::ResourceReloadMode::DONT_RELOAD);
     
+    scene::Scene dummyScene;
+    auto boardSceneObject = dummyScene.CreateSceneObject();
+    boardSceneObject->mShaderResourceId = resources::ResourceLoadingService::GetInstance().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + "basic.vs");
+    boardSceneObject->mTextureResourceId = resources::ResourceLoadingService::GetInstance().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "board.png");
+    boardSceneObject->mMeshResourceId = resources::ResourceLoadingService::GetInstance().LoadResource(resources::ResourceLoadingService::RES_MESHES_ROOT + "quad.obj");
+    
+    auto cardFrameSceneObject = dummyScene.CreateSceneObject();
+    cardFrameSceneObject->mScale.x = cardFrameSceneObject->mScale.y = 0.1f;
+    cardFrameSceneObject->mPosition.z = 0.2f;
+    cardFrameSceneObject->mPosition.y = 0.1f;
+    cardFrameSceneObject->mShaderResourceId = resources::ResourceLoadingService::GetInstance().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + "basic.vs");
+    cardFrameSceneObject->mTextureResourceId = resources::ResourceLoadingService::GetInstance().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "card_frame.png");
+    cardFrameSceneObject->mMeshResourceId = resources::ResourceLoadingService::GetInstance().LoadResource(resources::ResourceLoadingService::RES_MESHES_ROOT + "quad.obj");
+    
+    
+    scene::Scene uiScene;
     std::string texts[6] =
     {
         "AbCdEfGhIjKlMnOpQrStUvWxYz",
@@ -99,21 +111,19 @@ void Game::Run()
     
     for (int i = 0; i < 6; ++i)
     {
-        dummyScene.mSceneObjects.emplace_back();
+        auto fontRowSceneObject = uiScene.CreateSceneObject();
         
         scene::TextSceneObjectData textData;
         textData.mFontName = strutils::StringId("font");
         textData.mText = texts[i];
         
-        dummyScene.mSceneObjects.back().mSceneObjectTypeData = std::move(textData);
+        fontRowSceneObject->mSceneObjectTypeData = std::move(textData);
         
-        dummyScene.mSceneObjects.back().mPosition = glm::vec3(-0.4f, yCursors[i], 0.1f);
-        dummyScene.mSceneObjects.back().mScale = glm::vec3(0.00058f);
-        dummyScene.mSceneObjects.back().mShaderResourceId = resources::ResourceLoadingService::GetInstance().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + "basic.vs");
-        dummyScene.mSceneObjects.back().mMeshResourceId = resources::ResourceLoadingService::GetInstance().LoadResource(resources::ResourceLoadingService::RES_MESHES_ROOT + "quad.obj");
+        fontRowSceneObject->mPosition = glm::vec3(-0.4f, yCursors[i], 0.1f);
+        fontRowSceneObject->mScale = glm::vec3(0.00058f);
+        fontRowSceneObject->mShaderResourceId = resources::ResourceLoadingService::GetInstance().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + "basic.vs");
+        fontRowSceneObject->mMeshResourceId = resources::ResourceLoadingService::GetInstance().LoadResource(resources::ResourceLoadingService::RES_MESHES_ROOT + "quad.obj");
     }
-    
-    rendering::FontRepository::GetInstance().LoadFont("font", resources::ResourceReloadMode::RELOAD_EVERY_SECOND);
     
     int move = 0;
     int cam = 0;
@@ -165,7 +175,7 @@ void Game::Run()
                     }
                     else if (e.key.keysym.sym == SDLK_x && !xDownPreviously)
                     {
-                        dummyScene.mCamera.Shake();
+                        dummyScene.GetCamera().Shake();
                         xDownPreviously = true;
                     }
                     else
@@ -177,7 +187,8 @@ void Game::Run()
                     
                 case SDL_WINDOWEVENT:
                 if(e.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
-                    dummyScene.mCamera.RecalculateMatrices();
+                    dummyScene.GetCamera().RecalculateMatrices();
+                    uiScene.GetCamera().RecalculateMatrices();
                 }
                 break;
                     
@@ -204,8 +215,8 @@ void Game::Run()
         
         if (move == 1)
         {
-            dummyScene.mCamera.SetZoomFactor(dummyScene.mCamera.GetZoomFactor() + 0.05f * dtMillis);
-            auto& rot = dummyScene.mSceneObjects.front().mRotation.z;
+            dummyScene.GetCamera().SetZoomFactor(dummyScene.GetCamera().GetZoomFactor() + 0.05f * dtMillis);
+            auto& rot = boardSceneObject->mRotation.z;
             
             rot += 0.001f * dtMillis;
             if (rot > 1.567f)
@@ -217,18 +228,19 @@ void Game::Run()
         
         switch (cam)
         {
-            case 1: dummyScene.mCamera.SetPosition(glm::vec3(dummyScene.mCamera.GetPosition().x, dummyScene.mCamera.GetPosition().y + 0.0001f * dtMillis, dummyScene.mCamera.GetPosition().z)); break;
-            case 2: dummyScene.mCamera.SetPosition(glm::vec3(dummyScene.mCamera.GetPosition().x + 0.0001f * dtMillis, dummyScene.mCamera.GetPosition().y, dummyScene.mCamera.GetPosition().z)); break;
-            case 3: dummyScene.mCamera.SetPosition(glm::vec3(dummyScene.mCamera.GetPosition().x, dummyScene.mCamera.GetPosition().y - 0.0001f * dtMillis, dummyScene.mCamera.GetPosition().z)); break;
-            case 4: dummyScene.mCamera.SetPosition(glm::vec3(dummyScene.mCamera.GetPosition().x - 0.0001f * dtMillis, dummyScene.mCamera.GetPosition().y, dummyScene.mCamera.GetPosition().z)); break;
+            case 1: dummyScene.GetCamera().SetPosition(glm::vec3(dummyScene.GetCamera().GetPosition().x, dummyScene.GetCamera().GetPosition().y + 0.0001f * dtMillis, dummyScene.GetCamera().GetPosition().z)); break;
+            case 2: dummyScene.GetCamera().SetPosition(glm::vec3(dummyScene.GetCamera().GetPosition().x + 0.0001f * dtMillis, dummyScene.GetCamera().GetPosition().y, dummyScene.GetCamera().GetPosition().z)); break;
+            case 3: dummyScene.GetCamera().SetPosition(glm::vec3(dummyScene.GetCamera().GetPosition().x, dummyScene.GetCamera().GetPosition().y - 0.0001f * dtMillis, dummyScene.GetCamera().GetPosition().z)); break;
+            case 4: dummyScene.GetCamera().SetPosition(glm::vec3(dummyScene.GetCamera().GetPosition().x - 0.0001f * dtMillis, dummyScene.GetCamera().GetPosition().y, dummyScene.GetCamera().GetPosition().z)); break;
             default: break;
         }
         
-        dummyScene.mCamera.Update(dtMillis);
+        dummyScene.GetCamera().Update(dtMillis);
         
         auto& renderer = rendering::RenderingContextHolder::GetRenderingContext().GetRenderer();
         renderer.BeginRenderPass();
         renderer.RenderScene(dummyScene);
+        renderer.RenderScene(uiScene);
         renderer.EndRenderPass();
     }
 }

@@ -42,6 +42,7 @@ struct TextSceneObjectData
 
 struct SceneObject
 {
+    strutils::StringId mName = strutils::StringId();
     std::variant<DefaultSceneObjectData, TextSceneObjectData> mSceneObjectTypeData;
     glm::vec3 mPosition = glm::vec3(0.0f, 0.0f, 0.0f);
     glm::vec3 mRotation = glm::vec3(0.0f, 0.0f, 0.0f);

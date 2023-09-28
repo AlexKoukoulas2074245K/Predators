@@ -19,7 +19,7 @@ namespace rendering
 
 ///------------------------------------------------------------------------------------------------
 
-std::unique_ptr<IRenderingContext> RenderingContextHolder::sRenderingContext = nullptr;
+std::unique_ptr<IRenderingContext> RenderingContextHolder::sRenderingContext = std::make_unique<EmptyRenderingContext>();
 
 ///------------------------------------------------------------------------------------------------
 
@@ -30,6 +30,13 @@ IRenderer& BaseRenderingContext::GetRenderer() const { return *mRenderer; }
 void BaseRenderingContext::SetContextWindow(SDL_Window* window) { mWindow = window; }
 void BaseRenderingContext::SetContext(SDL_GLContext context) { mContext = context; }
 void BaseRenderingContext::SetRenderer(std::unique_ptr<IRenderer> renderer) { mRenderer = std::move(renderer); }
+
+///------------------------------------------------------------------------------------------------
+
+bool EmptyRenderingContext::Init()
+{
+    return true;
+}
 
 ///------------------------------------------------------------------------------------------------
 

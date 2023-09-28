@@ -22,6 +22,6 @@ add_executable(${BINARY} ${TEST_SOURCES})
 
 add_test(NAME ${BINARY} COMMAND ${BINARY})
 
-target_link_libraries(${BINARY} PUBLIC ${CMAKE_PROJECT_NAME}_lib gtest)
+target_link_libraries(${BINARY} PUBLIC ${CMAKE_PROJECT_NAME}_lib gtest ${SDL2_LIBS} ${SDL2_IMAGE_LIBRARIES} ${OPENGL_LIBRARIES})
 
 assign_source_group(${TEST_SOURCES})

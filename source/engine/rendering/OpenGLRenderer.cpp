@@ -44,7 +44,7 @@ static const strutils::StringId IS_TEXTURE_SHEET_UNIFORM_NAME = strutils::String
 class SceneObjectTypeRendererVisitor
 {
 public:
-    SceneObjectTypeRendererVisitor(scene::SceneObject& sceneObject, Camera& camera)
+    SceneObjectTypeRendererVisitor(const scene::SceneObject& sceneObject, const Camera& camera)
         : mSceneObject(sceneObject)
         , mCamera(camera)
     {
@@ -133,8 +133,8 @@ public:
     }
     
 private:
-    scene::SceneObject& mSceneObject;
-    Camera mCamera;
+    const scene::SceneObject& mSceneObject;
+    const Camera& mCamera;
 };
 
 ///------------------------------------------------------------------------------------------------
@@ -162,9 +162,9 @@ void OpenGLRenderer::BeginRenderPass()
 
 void OpenGLRenderer::RenderScene(scene::Scene& scene)
 {
-    for (auto& sceneObject: scene.mSceneObjects)
+    for (const auto& sceneObject: scene.GetSceneObjects())
     {
-        std::visit(SceneObjectTypeRendererVisitor(sceneObject, scene.mCamera), sceneObject.mSceneObjectTypeData);
+        std::visit(SceneObjectTypeRendererVisitor(*sceneObject, scene.GetCamera()), sceneObject->mSceneObjectTypeData);
     }
 }
 
