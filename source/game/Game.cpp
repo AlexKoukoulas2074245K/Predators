@@ -102,12 +102,13 @@ void Game::Run()
         dummyScene.mSceneObjects.emplace_back();
         
         scene::TextSceneObjectData textData;
-        textData.mTextScale = 0.00058f;
-        textData.mTextPosition = glm::vec3(-0.4f, yCursors[i], 0.1f);
         textData.mFontName = strutils::StringId("font");
         textData.mText = texts[i];
         
         dummyScene.mSceneObjects.back().mSceneObjectTypeData = std::move(textData);
+        
+        dummyScene.mSceneObjects.back().mPosition = glm::vec3(-0.4f, yCursors[i], 0.1f);
+        dummyScene.mSceneObjects.back().mScale = glm::vec3(0.00058f);
         dummyScene.mSceneObjects.back().mShaderResourceId = resources::ResourceLoadingService::GetInstance().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + "basic.vs");
         dummyScene.mSceneObjects.back().mMeshResourceId = resources::ResourceLoadingService::GetInstance().LoadResource(resources::ResourceLoadingService::RES_MESHES_ROOT + "quad.obj");
     }
@@ -204,7 +205,7 @@ void Game::Run()
         if (move == 1)
         {
             dummyScene.mCamera.SetZoomFactor(dummyScene.mCamera.GetZoomFactor() + 0.05f * dtMillis);
-            auto& rot = std::get<scene::DefaultSceneObjectData>(dummyScene.mSceneObjects.front().mSceneObjectTypeData).mRotation.z;
+            auto& rot = dummyScene.mSceneObjects.front().mRotation.z;
             
             rot += 0.001f * dtMillis;
             if (rot > 1.567f)

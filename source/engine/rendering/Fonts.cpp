@@ -44,7 +44,7 @@ std::optional<std::reference_wrapper<const Font>> FontRepository::GetFont(const 
 
 void FontRepository::ReloadMarkedFontsFromDisk()
 {
-    for (const auto& fontName: mFontsToKeepReloading)
+    for (const auto& fontName: mFontsToAutoReload)
     {
         LoadFont(fontName.GetString());
     }
@@ -90,7 +90,7 @@ void FontRepository::LoadFont(const std::string& fontName, const resources::Reso
     
     if (resourceReloadMode == resources::ResourceReloadMode::RELOAD_EVERY_SECOND)
     {
-        mFontsToKeepReloading.insert(font.mFontName);
+        mFontsToAutoReload.insert(font.mFontName);
     }
 }
 

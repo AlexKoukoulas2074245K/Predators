@@ -27,9 +27,6 @@ namespace scene
 
 struct DefaultSceneObjectData
 {
-    glm::vec3 mPosition = glm::vec3(0.0f, 0.0f, 0.0f);
-    glm::vec3 mRotation = glm::vec3(0.0f, 0.0f, 0.0f);
-    glm::vec3 mScale = glm::vec3(1.0f, 1.0f, 1.0f);
 };
 
 ///------------------------------------------------------------------------------------------------
@@ -38,9 +35,6 @@ struct TextSceneObjectData
 {
     std::string mText;
     strutils::StringId mFontName;
-    glm::vec3 mTextPosition = glm::vec3(0.0f, 0.0f, 0.0f);
-    glm::vec3 mTextRotation = glm::vec3(0.0f, 0.0f, 0.0f);
-    float mTextScale;
 };
 
 ///------------------------------------------------------------------------------------------------
@@ -49,6 +43,9 @@ struct TextSceneObjectData
 struct SceneObject
 {
     std::variant<DefaultSceneObjectData, TextSceneObjectData> mSceneObjectTypeData;
+    glm::vec3 mPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+    glm::vec3 mRotation = glm::vec3(0.0f, 0.0f, 0.0f);
+    glm::vec3 mScale = glm::vec3(1.0f, 1.0f, 1.0f);
     resources::ResourceId mMeshResourceId;
     resources::ResourceId mTextureResourceId;
     resources::ResourceId mShaderResourceId;

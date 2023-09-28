@@ -177,7 +177,7 @@ private:
 private:
     std::unordered_map<ResourceId, std::unique_ptr<IResource>, ResourceIdHasher> mResourceMap;
     std::unordered_map<strutils::StringId, IResourceLoader*, strutils::StringIdHasher> mResourceExtensionsToLoadersMap;
-    std::unordered_map<ResourceId, std::string, ResourceIdHasher> mResourceIdMapToKeepReloading;
+    std::unordered_map<ResourceId, std::string, ResourceIdHasher> mResourceIdMapToAutoReload;
     std::vector<std::unique_ptr<IResourceLoader>> mResourceLoaders;
     bool mInitialized = false;
 };

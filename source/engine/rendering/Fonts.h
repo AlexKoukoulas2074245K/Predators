@@ -75,7 +75,7 @@ private:
     
 private:
     std::unordered_map<strutils::StringId, Font, strutils::StringIdHasher> mFontMap;
-    std::unordered_set<strutils::StringId, strutils::StringIdHasher> mFontsToKeepReloading;
+    std::unordered_set<strutils::StringId, strutils::StringIdHasher> mFontsToAutoReload;
 };
 
 ///------------------------------------------------------------------------------------------------

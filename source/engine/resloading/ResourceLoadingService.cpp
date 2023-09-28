@@ -107,7 +107,7 @@ ResourceId ResourceLoadingService::LoadResource(const std::string& resourcePath,
     
     if (resourceReloadingMode == ResourceReloadMode::RELOAD_EVERY_SECOND)
     {
-        mResourceIdMapToKeepReloading[resourceId] = adjustedPath;
+        mResourceIdMapToAutoReload[resourceId] = adjustedPath;
     }
     
     if (mResourceMap.count(resourceId))
@@ -171,7 +171,7 @@ void ResourceLoadingService::UnloadResource(const ResourceId resourceId)
 
 void ResourceLoadingService::ReloadMarkedResourcesFromDisk()
 {
-    for (auto [resourceId, relativePath]: mResourceIdMapToKeepReloading)
+    for (auto [resourceId, relativePath]: mResourceIdMapToAutoReload)
     {
         UnloadResource(resourceId);
         LoadResourceInternal(relativePath, resourceId);

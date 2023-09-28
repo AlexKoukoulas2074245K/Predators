@@ -28,10 +28,10 @@ namespace rendering
 static const strutils::StringId WORLD_MATRIX_UNIFORM_NAME = strutils::StringId("world");
 static const strutils::StringId VIEW_MATRIX_UNIFORM_NAME  = strutils::StringId("view");
 static const strutils::StringId PROJ_MATRIX_UNIFORM_NAME  = strutils::StringId("proj");
-inline const strutils::StringId MIN_U_UNIFORM_NAME = strutils::StringId("min_u");
-inline const strutils::StringId MIN_V_UNIFORM_NAME = strutils::StringId("min_v");
-inline const strutils::StringId MAX_U_UNIFORM_NAME = strutils::StringId("max_u");
-inline const strutils::StringId MAX_V_UNIFORM_NAME = strutils::StringId("max_v");
+static const strutils::StringId MIN_U_UNIFORM_NAME = strutils::StringId("min_u");
+static const strutils::StringId MIN_V_UNIFORM_NAME = strutils::StringId("min_v");
+static const strutils::StringId MAX_U_UNIFORM_NAME = strutils::StringId("max_u");
+static const strutils::StringId MAX_V_UNIFORM_NAME = strutils::StringId("max_v");
 static const strutils::StringId ACTIVE_LIGHT_COUNT_UNIFORM_NAME = strutils::StringId("active_light_count");
 static const strutils::StringId AMBIENT_LIGHT_COLOR_UNIFORM_NAME = strutils::StringId("ambient_light_color");
 static const strutils::StringId POINT_LIGHT_COLORS_UNIFORM_NAME = strutils::StringId("point_light_colors");
@@ -50,7 +50,7 @@ public:
     {
     }
     
-    void operator()(scene::DefaultSceneObjectData sceneObjectTypeData)
+    void operator()(scene::DefaultSceneObjectData)
     {
         auto& resService = resources::ResourceLoadingService::GetInstance();
         
@@ -65,11 +65,11 @@ public:
         GL_CALL(glBindTexture(GL_TEXTURE_2D, currentTexture->GetGLTextureId()));
         
         glm::mat4 world(1.0f);
-        world = glm::translate(world, sceneObjectTypeData.mPosition);
-        world = glm::rotate(world, sceneObjectTypeData.mRotation.x, math::X_AXIS);
-        world = glm::rotate(world, sceneObjectTypeData.mRotation.y, math::Y_AXIS);
-        world = glm::rotate(world, sceneObjectTypeData.mRotation.z, math::Z_AXIS);
-        world = glm::scale(world, sceneObjectTypeData.mScale);
+        world = glm::translate(world, mSceneObject.mPosition);
+        world = glm::rotate(world, mSceneObject.mRotation.x, math::X_AXIS);
+        world = glm::rotate(world, mSceneObject.mRotation.y, math::Y_AXIS);
+        world = glm::rotate(world, mSceneObject.mRotation.z, math::Z_AXIS);
+        world = glm::scale(world, mSceneObject.mScale);
         
         currentShader->SetBool(IS_TEXTURE_SHEET_UNIFORM_NAME, false);
         currentShader->SetMatrix4fv(WORLD_MATRIX_UNIFORM_NAME, world);
@@ -97,20 +97,18 @@ public:
         GL_CALL(glActiveTexture(GL_TEXTURE0));
         GL_CALL(glBindTexture(GL_TEXTURE_2D, currentTexture->GetGLTextureId()));
         
-        float xCursor = sceneObjectTypeData.mTextPosition.x;
+        float xCursor = mSceneObject.mPosition.x;
         
         for (size_t i = 0; i < sceneObjectTypeData.mText.size(); ++i)
         {
             const auto& glyph = font.FindGlyph(sceneObjectTypeData.mText[i]);
             
-            glm::vec3 textScale = glm::vec3(0.00058f, 0.00058f, 0.00058f);
-            
             float targetX = xCursor;
-            float targetY = sceneObjectTypeData.mTextPosition.y - glyph.mYOffsetPixels * textScale.y * 0.5f;
+            float targetY = mSceneObject.mPosition.y - glyph.mYOffsetPixels * mSceneObject.mScale.y * 0.5f;
             
             glm::mat4 world(1.0f);
             world = glm::translate(world, glm::vec3(targetX, targetY, 0.1f));
-            world = glm::scale(world, glm::vec3(glyph.mWidthPixels * textScale.x, glyph.mHeightPixels * textScale.y, 1.0f));
+            world = glm::scale(world, glm::vec3(glyph.mWidthPixels * mSceneObject.mScale.x, glyph.mHeightPixels * mSceneObject.mScale.y, 1.0f));
             
             currentShader->SetBool(IS_TEXTURE_SHEET_UNIFORM_NAME, true);
             currentShader->SetFloat(MIN_U_UNIFORM_NAME, glyph.minU);
@@ -128,8 +126,8 @@ public:
                 // Since each glyph is rendered with its center as the origin, we advance
                 // half this glyph's width + half the next glyph's width ahead
                 const auto& nextGlyph = font.FindGlyph(sceneObjectTypeData.mText[i + 1]);
-                xCursor += (glyph.mWidthPixels * textScale.x) * 0.5f + (nextGlyph.mWidthPixels * textScale.x) * 0.5f;
-                xCursor += glyph.mAdvancePixels * textScale.x;
+                xCursor += (glyph.mWidthPixels * mSceneObject.mScale.x) * 0.5f + (nextGlyph.mWidthPixels * mSceneObject.mScale.x) * 0.5f;
+                xCursor += glyph.mAdvancePixels * mSceneObject.mScale.x;
             }
         }
     }
