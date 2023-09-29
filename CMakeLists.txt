@@ -14,7 +14,7 @@ find_package(SDL2 REQUIRED COMPONENTS main)
 find_package(SDL2_image REQUIRED)
 
 # Find OpenGL
-find_package(OpenGL REQUIRED)    
+find_package(OpenGL REQUIRED)
 
 # Find glm
 set(GLM_INCLUDE_DIRS "lib/glm")
@@ -22,9 +22,8 @@ set(GLM_INCLUDE_DIRS "lib/glm")
 # Find json
 set(JSON_INCLUDE_DIRS "lib/json")
 
-# Find freetype (hack)
-set(FREETYPE_INCLUDE_DIRS "/opt/homebrew/include/freetype2")
-set(FREETYPE_LIBRARIES "/opt/homebrew/lib/libfreetype.dylib")
+# Find freetype
+find_package(Freetype REQUIRED)
 
 include_directories(source)
 include_directories(${SDL2_INCLUDE_DIRS} ${SDL2main_INCLUDE_DIRS})
