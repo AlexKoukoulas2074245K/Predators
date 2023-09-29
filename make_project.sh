@@ -22,6 +22,13 @@ else
   brew install sdl2_image
 fi
 
+if brew ls --versions freetype > /dev/null; then
+  echo "-- Found Freetype installation with Brew"
+else
+  echo "-- Freetype was not found in the system. Installing via Brew"
+  brew install freetype
+fi
+
 echo "-- Running CMAKE"
 mkdir build
 cd build

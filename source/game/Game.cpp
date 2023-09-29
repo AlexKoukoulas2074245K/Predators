@@ -22,6 +22,8 @@
 #include <game/Game.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <SDL.h>
+#include <imgui/backends/imgui_impl_sdl2.h>
+#include <imgui/backends/imgui_impl_opengl3.h>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -148,7 +150,6 @@ void Game::Run()
         //Handle events on queue
         while( SDL_PollEvent( &e ) != 0 )
         {
-            
             //User requests quit
             switch (e.type)
             {
@@ -205,6 +206,8 @@ void Game::Run()
                     if (e.wheel.y > 0) move = 1;
                 } break;
             }
+            
+            ImGui_ImplSDL2_ProcessEvent(&e);
         }
        
         if (secsAccumulator > 1.0f)
@@ -241,10 +244,17 @@ void Game::Run()
         
         dummyScene.GetCamera().Update(dtMillis);
         
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplSDL2_NewFrame();
+        ImGui::NewFrame();
+        ImGui::ShowDemoWindow(); // Show demo window! :)
+        
         auto& renderer = rendering::RenderingContextHolder::GetRenderingContext().VGetRenderer();
         renderer.BeginRenderPass();
         renderer.RenderScene(dummyScene);
         renderer.RenderScene(uiScene);
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         renderer.EndRenderPass();
     }
 }

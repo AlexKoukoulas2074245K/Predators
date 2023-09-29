@@ -20,7 +20,7 @@ std::string BoardState::ToString() const
     ss << "(";
     if (mPlayerStates.size() > 0)
     {
-        for (int i = 0; i < mPlayerStates[0].mPlayerHeldCards.size(); ++i)
+        for (size_t i = 0; i < mPlayerStates[0].mPlayerHeldCards.size(); ++i)
         {
             if (i != 0)
             {
@@ -34,7 +34,7 @@ std::string BoardState::ToString() const
     ss << "BOARD 0:  ";
     if (mPlayerStates.size() > 0)
     {
-        for (int i = 0; i < mPlayerStates[0].mPlayerBoardCards.size(); ++i)
+        for (size_t i = 0; i < mPlayerStates[0].mPlayerBoardCards.size(); ++i)
         {
             if (i != 0)
             {
@@ -47,7 +47,7 @@ std::string BoardState::ToString() const
     ss << "BOARD 1:  ";
     if (mPlayerStates.size() > 1)
     {
-        for (int i = 0; i < mPlayerStates[1].mPlayerBoardCards.size(); ++i)
+        for (size_t i = 0; i < mPlayerStates[1].mPlayerBoardCards.size(); ++i)
         {
             if (i != 0)
             {
@@ -61,7 +61,7 @@ std::string BoardState::ToString() const
     ss << "(";
     if (mPlayerStates.size() > 1)
     {
-        for (int i = 0; i < mPlayerStates[1].mPlayerHeldCards.size(); ++i)
+        for (size_t i = 0; i < mPlayerStates[1].mPlayerHeldCards.size(); ++i)
         {
             if (i != 0)
             {
