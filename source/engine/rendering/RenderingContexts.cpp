@@ -19,6 +19,13 @@ namespace rendering
 
 ///------------------------------------------------------------------------------------------------
 
+static constexpr int DEFAULT_WINDOW_WIDTH  = 1500;
+static constexpr int DEFAULT_WINDOW_HEIGHT = 900;
+static constexpr int MIN_WINDOW_WIDTH      = 1000;
+static constexpr int MIN_WINDOW_HEIGHT     = 600;
+
+///------------------------------------------------------------------------------------------------
+
 std::unique_ptr<IRenderingContext> RenderingContextHolder::sRenderingContext = std::make_unique<EmptyRenderingContext>();
 
 ///------------------------------------------------------------------------------------------------
@@ -49,10 +56,6 @@ bool MacRenderingContext::Init()
         return false;
     }
     
-    // .. and window dimensions
-    static constexpr int windowWidth = 1000;
-    static constexpr int windowHeight = 600;
-    
     // Set OpenGL desired attributes
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
@@ -63,7 +66,10 @@ bool MacRenderingContext::Init()
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 16);
     
     // Create window
-    auto* window = SDL_CreateWindow("Predators", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, windowWidth, windowHeight, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_RESIZABLE);
+    auto* window = SDL_CreateWindow("Predators", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_RESIZABLE);
+    
+    // Set minimum window size
+    SDL_SetWindowMinimumSize(window, MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT);
     
     if(!window)
     {
@@ -79,6 +85,7 @@ bool MacRenderingContext::Init()
         return false;
     }
     
+    // Vsync
     SDL_GL_SetSwapInterval(1);
     
     BaseRenderingContext::SetContextWindow(window);
