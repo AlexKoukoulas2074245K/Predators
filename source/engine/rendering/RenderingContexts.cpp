@@ -30,9 +30,9 @@ std::unique_ptr<IRenderingContext> RenderingContextHolder::sRenderingContext = s
 
 ///------------------------------------------------------------------------------------------------
 
-SDL_Window& BaseRenderingContext::GetContextWindow() const { return *mWindow; }
-glm::vec2 BaseRenderingContext::GetContextRenderableDimensions() const { int w,h; SDL_GL_GetDrawableSize(mWindow, &w, &h); return glm::vec2(w, h); }
-IRenderer& BaseRenderingContext::GetRenderer() const { return *mRenderer; }
+SDL_Window& BaseRenderingContext::VGetContextWindow() const { return *mWindow; }
+glm::vec2 BaseRenderingContext::VGetContextRenderableDimensions() const { int w,h; SDL_GL_GetDrawableSize(mWindow, &w, &h); return glm::vec2(w, h); }
+IRenderer& BaseRenderingContext::VGetRenderer() const { return *mRenderer; }
 
 void BaseRenderingContext::SetContextWindow(SDL_Window* window) { mWindow = window; }
 void BaseRenderingContext::SetContext(SDL_GLContext context) { mContext = context; }
@@ -40,14 +40,14 @@ void BaseRenderingContext::SetRenderer(std::unique_ptr<IRenderer> renderer) { mR
 
 ///------------------------------------------------------------------------------------------------
 
-bool EmptyRenderingContext::Init()
+bool EmptyRenderingContext::VInit()
 {
     return true;
 }
 
 ///------------------------------------------------------------------------------------------------
 
-bool MacRenderingContext::Init()
+bool MacRenderingContext::VInit()
 {
     // Initialize SDL
     if(SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -136,7 +136,7 @@ void RenderingContextFactory::CreateRenderingContext()
   #error "Unknown compiler"
 #endif
     
-    assert(renderingContext->Init());
+    assert(renderingContext->VInit());
     RenderingContextHolder::SetRenderingContext(std::move(renderingContext));
 }
 

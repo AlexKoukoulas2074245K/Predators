@@ -30,10 +30,10 @@ class IRenderingContext
 {
 public:
     virtual ~IRenderingContext() = default;
-    virtual bool Init() = 0;
-    virtual IRenderer& GetRenderer() const = 0;
-    virtual SDL_Window& GetContextWindow() const = 0;
-    virtual glm::vec2 GetContextRenderableDimensions() const = 0;
+    virtual bool VInit() = 0;
+    virtual IRenderer& VGetRenderer() const = 0;
+    virtual SDL_Window& VGetContextWindow() const = 0;
+    virtual glm::vec2 VGetContextRenderableDimensions() const = 0;
 };
 
 ///------------------------------------------------------------------------------------------------
@@ -42,9 +42,9 @@ class BaseRenderingContext : public IRenderingContext
 {
 public:
     virtual ~BaseRenderingContext() = default;
-    SDL_Window& GetContextWindow() const override;
-    IRenderer& GetRenderer() const override;
-    glm::vec2 GetContextRenderableDimensions() const override;
+    SDL_Window& VGetContextWindow() const override;
+    IRenderer& VGetRenderer() const override;
+    glm::vec2 VGetContextRenderableDimensions() const override;
     
 protected:
     void SetContextWindow(SDL_Window* window);
@@ -61,7 +61,7 @@ protected:
 
 class EmptyRenderingContext final: public BaseRenderingContext
 {
-    bool Init() override;
+    bool VInit() override;
 };
 
 ///------------------------------------------------------------------------------------------------
@@ -69,7 +69,7 @@ class EmptyRenderingContext final: public BaseRenderingContext
 class MacRenderingContext final : public BaseRenderingContext
 {
 public:
-    bool Init() override;
+    bool VInit() override;
 };
 
 ///------------------------------------------------------------------------------------------------

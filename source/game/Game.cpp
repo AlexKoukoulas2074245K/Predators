@@ -20,6 +20,7 @@
 #include <engine/utils/OSMessageBox.h>
 #include <functional>
 #include <game/Game.h>
+#include <game/gameactions/GameActionEngine.h>
 #include <SDL.h>
 
 ///------------------------------------------------------------------------------------------------
@@ -127,6 +128,9 @@ void Game::Run()
     
     int move = 0;
     int cam = 0;
+    
+    GameActionEngine gameActionEngine(GameActionEngine::EngineOperationMode::HEADLESS);
+    gameActionEngine.AddGameAction(strutils::StringId("DrawCardGameAction"));
     
     //While application is running
     while(!mIsFinished)
@@ -237,7 +241,7 @@ void Game::Run()
         
         dummyScene.GetCamera().Update(dtMillis);
         
-        auto& renderer = rendering::RenderingContextHolder::GetRenderingContext().GetRenderer();
+        auto& renderer = rendering::RenderingContextHolder::GetRenderingContext().VGetRenderer();
         renderer.BeginRenderPass();
         renderer.RenderScene(dummyScene);
         renderer.RenderScene(uiScene);

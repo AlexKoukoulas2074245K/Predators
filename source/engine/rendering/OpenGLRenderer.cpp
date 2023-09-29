@@ -141,7 +141,7 @@ private:
 
 void OpenGLRenderer::BeginRenderPass()
 {
-    auto windowDimensions = rendering::RenderingContextHolder::GetRenderingContext().GetContextRenderableDimensions();
+    auto windowDimensions = rendering::RenderingContextHolder::GetRenderingContext().VGetContextRenderableDimensions();
     
     // Set View Port
     GL_CALL(glViewport(0, 0, windowDimensions.x, windowDimensions.y));
@@ -173,7 +173,7 @@ void OpenGLRenderer::RenderScene(scene::Scene& scene)
 void OpenGLRenderer::EndRenderPass()
 {
     // Swap window buffers
-    SDL_GL_SwapWindow(&rendering::RenderingContextHolder::GetRenderingContext().GetContextWindow());
+    SDL_GL_SwapWindow(&rendering::RenderingContextHolder::GetRenderingContext().VGetContextWindow());
 }
 
 ///------------------------------------------------------------------------------------------------
