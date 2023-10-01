@@ -38,14 +38,14 @@ if(APPLE)
   include_directories(${OPENGL_INCLUDE_DIR})
 endif(APPLE)
 
+if(NOT APPLE)
+  set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+endif()
+
 # Include other CmakeLists
 add_subdirectory(source)
-
-# Only enable gtest and tests on Mac
-if(APPLE)
-  add_subdirectory(lib/googletest)
-  add_subdirectory(test)
-endif()
+add_subdirectory(lib/googletest)
+add_subdirectory(test)
 
 # Enable highest warning levels + treated as errors
 if(MSVC)
@@ -55,17 +55,10 @@ else(MSVC)
   target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -pedantic -Werror)
 endif(MSVC)
 
-# Put these targets in the 'HiddenTargets' folder in the IDE.
-if(APPLE) 
-  set_target_properties(gmock gmock_main gtest gtest_main PROPERTIES FOLDER HiddenTargets)
-else(APPLE)
-  set_target_properties(PROPERTIES FOLDER HiddenTargets)
-endif(APPLE)
+# Put these targets in the 'HiddenTargets' folder in the IDE. 
+set_target_properties(gmock gmock_main gtest gtest_main PROPERTIES FOLDER HiddenTargets)
 
 # Put these targets in the 'ProjectTargets' folder in the IDE.
-if(APPLE)
-  set_target_properties(Predators Predators_test PROPERTIES FOLDER ProjectTargets)
-else(APPLE)
-  set_target_properties(Predators PROPERTIES FOLDER ProjectTargets)
-endif(APPLE)
+set_target_properties(Predators Predators_test PROPERTIES FOLDER ProjectTargets)
+
 

@@ -19,10 +19,7 @@ file(GLOB_RECURSE SOURCES *.h *.cpp *c)
 set(SOURCES ${SOURCES})
 
 add_executable(${BINARY} ${SOURCES})
-
-if(APPLE)
-  add_library(${BINARY}_lib STATIC ${SOURCES})
-endif(APPLE)
+add_library(${BINARY}_lib STATIC ${SOURCES})
 
 if(NOT APPLE)
   set(OPENGL_LIBRARIES opengl32.lib)

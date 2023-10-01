@@ -14,13 +14,17 @@ endfunction(assign_source_group)
 
 set(BINARY ${CMAKE_PROJECT_NAME}_test)
 
-file(GLOB_RECURSE TEST_SOURCES *.h *.cpp)
+file(GLOB_RECURSE TEST_SOURCES *.h *.cpp *c)
 
 set(SOURCES ${TEST_SOURCES})
 
 add_executable(${BINARY} ${TEST_SOURCES})
 
 add_test(NAME ${BINARY} COMMAND ${BINARY})
+
+if(NOT APPLE)
+  set(OPENGL_LIBRARIES opengl32.lib)
+endif()
 
 target_link_libraries(${BINARY} PUBLIC ${CMAKE_PROJECT_NAME}_lib gtest ${SDL2_LIBS} ${SDL2_IMAGE_LIBRARIES} ${OPENGL_LIBRARIES} ${FREETYPE_LIBRARIES})
 
