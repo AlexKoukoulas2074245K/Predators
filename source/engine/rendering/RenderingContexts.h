@@ -66,16 +66,7 @@ class EmptyRenderingContext final: public BaseRenderingContext
 
 ///------------------------------------------------------------------------------------------------
 
-class MacRenderingContext final : public BaseRenderingContext
-{
-public:
-    bool VInit() override;
-};
-
-///------------------------------------------------------------------------------------------------
-
-
-class WindowsRenderingContext final : public BaseRenderingContext
+class SDLOpenGLRenderingContext final : public BaseRenderingContext
 {
 public:
     bool VInit() override;
