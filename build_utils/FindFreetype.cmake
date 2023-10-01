@@ -68,6 +68,9 @@ directory of a Freetype installation.
 set(FREETYPE_FIND_ARGS
   HINTS
     ENV FREETYPE_DIR
+    ${SDL2_ROOT}/../freetype
+    ${SDL2_ROOT}/../freetype/lib
+    ${SDL2_ROOT}/../freetype/lib/win32
   PATHS
     ENV GTKMM_BASEPATH
     [HKEY_CURRENT_USER\\SOFTWARE\\gtkmm\\2.4;Path]
@@ -202,3 +205,11 @@ if(Freetype_FOUND)
     endif()
   endif()
 endif()
+
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+  set(VC_LIB_PATH_SUFFIX lib/win64)
+else()
+  set(VC_LIB_PATH_SUFFIX lib/win32)
+endif()
+
+set(FREETYPE_DLLS ${FREETYPE_INCLUDE_DIRS}/../${VC_LIB_PATH_SUFFIX}/freetype.dll)

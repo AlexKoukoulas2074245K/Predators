@@ -14,14 +14,29 @@ endfunction(assign_source_group)
 
 set(BINARY ${CMAKE_PROJECT_NAME})
 
-file(GLOB_RECURSE SOURCES *.h *.cpp)
+file(GLOB_RECURSE SOURCES *.h *.cpp *c)
 
 set(SOURCES ${SOURCES})
 
 add_executable(${BINARY} ${SOURCES})
 
-add_library(${BINARY}_lib STATIC ${SOURCES})
+if(APPLE)
+  add_library(${BINARY}_lib STATIC ${SOURCES})
+endif(APPLE)
+
+if(NOT APPLE)
+  set(OPENGL_LIBRARIES opengl32.lib)
+endif()
 
 target_link_libraries(${PROJECT_NAME} ${SDL2_LIBS} ${SDL2_IMAGE_LIBRARIES} ${OPENGL_LIBRARIES} ${FREETYPE_LIBRARIES})
 
 assign_source_group(${SOURCES})
+
+# Copy DLLs to output folder on Windows
+if(WIN32)
+    foreach(DLL ${SDL2_DLLS} ${SDL2IMAGE_DLLS} ${FREETYPE_DLLS})
+        message("Copying ${DLL} to main output folder")
+        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND
+            ${CMAKE_COMMAND} -E copy_if_different ${DLL} $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+    endforeach()
+endif()

@@ -74,6 +74,15 @@ public:
 
 ///------------------------------------------------------------------------------------------------
 
+
+class WindowsRenderingContext final : public BaseRenderingContext
+{
+public:
+    bool VInit() override;
+};
+
+///------------------------------------------------------------------------------------------------
+
 class RenderingContextFactory final
 {
 public:

@@ -13,6 +13,7 @@
 #include <engine/utils/MathUtils.h>
 #include <engine/resloading/ResourceLoadingService.h>
 #include <engine/utils/StringUtils.h>
+#include <optional>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>

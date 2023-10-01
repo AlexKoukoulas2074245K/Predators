@@ -43,7 +43,7 @@ find_path(SDL2_IMAGE_INCLUDE_DIR SDL_image.h
   HINTS
     ENV SDL2IMAGEDIR
     ENV SDL2DIR
-    ${SDL2_DIR}
+    ${SDL2_ROOT}/../sdl2_image
   PATH_SUFFIXES SDL2
                 # path suffixes to search inside ENV{SDL2DIR}
                 include/SDL2 include
@@ -59,11 +59,11 @@ if(NOT SDL2_IMAGE_LIBRARY AND SDL2IMAGE_LIBRARY)
   set(SDL2_IMAGE_LIBRARY ${SDL2IMAGE_LIBRARY} CACHE FILEPATH "file cache entry initialized from old variable name")
 endif()
 find_library(SDL2_IMAGE_LIBRARY
-  NAMES SDL2_image
+  NAMES sdl2_image
   HINTS
     ENV SDL2IMAGEDIR
     ENV SDL2DIR
-    ${SDL2_DIR}
+    ${SDL2_ROOT}/../sdl2_image
   PATH_SUFFIXES lib ${VC_LIB_PATH_SUFFIX}
 )
 
@@ -94,5 +94,6 @@ FIND_PACKAGE_HANDLE_STANDARD_ARGS(SDL2_image
 set(SDL2IMAGE_LIBRARY ${SDL2_IMAGE_LIBRARIES})
 set(SDL2IMAGE_INCLUDE_DIR ${SDL2_IMAGE_INCLUDE_DIRS})
 set(SDL2IMAGE_FOUND ${SDL2_IMAGE_FOUND})
+set(SDL2IMAGE_DLLS ${SDL2_IMAGE_INCLUDE_DIRS}/../${VC_LIB_PATH_SUFFIX}/SDL2_image.dll)
 
 mark_as_advanced(SDL2_IMAGE_LIBRARY SDL2_IMAGE_INCLUDE_DIR)

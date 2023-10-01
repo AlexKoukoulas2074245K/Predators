@@ -25,3 +25,12 @@ add_test(NAME ${BINARY} COMMAND ${BINARY})
 target_link_libraries(${BINARY} PUBLIC ${CMAKE_PROJECT_NAME}_lib gtest ${SDL2_LIBS} ${SDL2_IMAGE_LIBRARIES} ${OPENGL_LIBRARIES} ${FREETYPE_LIBRARIES})
 
 assign_source_group(${TEST_SOURCES})
+
+# Copy DLLs to output folder on Windows
+if(WIN32)
+    foreach(DLL ${SDL2_DLLS} ${SDL2IMAGE_DLLS} ${FREETYPE_DLLS})
+        message("Copying ${DLL} to test output folder")
+        add_custom_command(TARGET  ${PROJECT_NAME}_test POST_BUILD COMMAND
+            ${CMAKE_COMMAND} -E copy_if_different ${DLL} $<TARGET_FILE_DIR:${PROJECT_NAME}_test>)
+    endforeach()
+endif()

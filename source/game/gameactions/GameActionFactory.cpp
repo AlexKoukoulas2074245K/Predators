@@ -24,6 +24,7 @@ std::unique_ptr<BaseGameAction> GameActionFactory::CreateGameAction(const struti
     ACTION_CASE(NextPlayerGameAction);
     ACTION_CASE(PlayCardGameAction);
     assert(false && "Invalid game action name");
+    return nullptr;
 }
 
 ///------------------------------------------------------------------------------------------------

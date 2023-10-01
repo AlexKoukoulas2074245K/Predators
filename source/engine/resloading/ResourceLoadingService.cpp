@@ -28,7 +28,12 @@ namespace resources
 
 ///------------------------------------------------------------------------------------------------
 
-const std::string ResourceLoadingService::RES_ROOT               = "../../../assets/";
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
+    const std::string ResourceLoadingService::RES_ROOT = "../../assets/";
+#else
+    const std::string ResourceLoadingService::RES_ROOT = "../../../assets/";
+#endif
+
 const std::string ResourceLoadingService::RES_DATA_ROOT          = RES_ROOT + "data/";
 const std::string ResourceLoadingService::RES_SCRIPTS_ROOT       = RES_ROOT + "scripts/";
 const std::string ResourceLoadingService::RES_MESHES_ROOT        = RES_ROOT + "meshes/";

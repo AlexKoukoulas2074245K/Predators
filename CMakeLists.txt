@@ -14,7 +14,9 @@ find_package(SDL2 REQUIRED COMPONENTS main)
 find_package(SDL2_image REQUIRED)
 
 # Find OpenGL
-find_package(OpenGL REQUIRED)
+if(APPLE)
+  find_package(OpenGL REQUIRED)
+endif(APPLE)
 
 # Find glm
 set(GLM_INCLUDE_DIRS "lib/glm")
@@ -28,24 +30,21 @@ find_package(Freetype REQUIRED)
 include_directories(source)
 include_directories(${SDL2_INCLUDE_DIRS} ${SDL2main_INCLUDE_DIRS})
 include_directories(${GLM_INCLUDE_DIRS})
-include_directories(${OPENGL_INCLUDE_DIR})
 include_directories(${SDL2_IMAGE_INCLUDE_DIRS})
 include_directories(${JSON_INCLUDE_DIRS})
 include_directories(${FREETYPE_INCLUDE_DIRS})
 
+if(APPLE)
+  include_directories(${OPENGL_INCLUDE_DIR})
+endif(APPLE)
+
 # Include other CmakeLists
 add_subdirectory(source)
-add_subdirectory(test)
-add_subdirectory(lib/googletest)
 
-# Copy DLLs to output folder on Windows
-if(WIN32)
-    foreach(DLL ${SDL2_DLLS})
-        message("Copying ${DLL} to output folder")
-        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND
-            ${CMAKE_COMMAND} -E copy_if_different ${DLL} $<TARGET_FILE_DIR:${PROJECT_NAME}>)
-    endforeach()
-    
+# Only enable gtest and tests on Mac
+if(APPLE)
+  add_subdirectory(lib/googletest)
+  add_subdirectory(test)
 endif()
 
 # Enable highest warning levels + treated as errors
@@ -57,8 +56,16 @@ else(MSVC)
 endif(MSVC)
 
 # Put these targets in the 'HiddenTargets' folder in the IDE.
-set_target_properties(Predators_lib gmock gmock_main gtest gtest_main PROPERTIES FOLDER HiddenTargets)
+if(APPLE) 
+  set_target_properties(gmock gmock_main gtest gtest_main PROPERTIES FOLDER HiddenTargets)
+else(APPLE)
+  set_target_properties(PROPERTIES FOLDER HiddenTargets)
+endif(APPLE)
 
 # Put these targets in the 'ProjectTargets' folder in the IDE.
-set_target_properties(Predators Predators_test PROPERTIES FOLDER ProjectTargets)
+if(APPLE)
+  set_target_properties(Predators Predators_test PROPERTIES FOLDER ProjectTargets)
+else(APPLE)
+  set_target_properties(Predators PROPERTIES FOLDER ProjectTargets)
+endif(APPLE)
 
