@@ -39,14 +39,14 @@ void MeshResource::ApplyDirectTransformToData(std::function<void(MeshData&)> tra
 
 ///------------------------------------------------------------------------------------------------
 
-GLuint MeshResource::GetVertexArrayObject() const
+const GLuint& MeshResource::GetVertexArrayObject() const
 {
     return mVertexArrayObject;
 }
 
 ///------------------------------------------------------------------------------------------------
 
-GLuint MeshResource::GetElementCount() const
+const GLuint& MeshResource::GetElementCount() const
 {
     return mElementCount;
 }

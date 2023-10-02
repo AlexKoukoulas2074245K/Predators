@@ -51,8 +51,8 @@ public:
 public:
     void ApplyDirectTransformToData(std::function<void(MeshData&)> transform);
     
-    GLuint GetVertexArrayObject() const;
-    GLuint GetElementCount() const;
+    const GLuint& GetVertexArrayObject() const;
+    const GLuint& GetElementCount() const;
     const glm::vec3& GetDimensions() const;
     const std::vector<glm::vec3>& GetMeshVertices() const;
     const std::vector<glm::vec3>& GetMeshNormals() const;

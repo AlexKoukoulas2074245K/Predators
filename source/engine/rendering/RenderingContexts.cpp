@@ -99,7 +99,7 @@ bool SDLOpenGLDesktopRenderingContext::VInit()
 #endif
     
     // Vsync
-    SDL_GL_SetSwapInterval(0);
+    SDL_GL_SetSwapInterval(1);
 
     BaseRenderingContext::SetContextWindow(window);
     BaseRenderingContext::SetContext(context);

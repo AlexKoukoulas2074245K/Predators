@@ -188,6 +188,7 @@ void OpenGLDesktopRenderer::EndRenderPass()
     mCachedScenes.clear();
     
     // Imgui end-of-frame calls
+    ImGui::EndFrame();
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 #endif
@@ -242,12 +243,12 @@ void OpenGLDesktopRenderer::CreateIMGuiWidgets()
                 ImGui::Text("Mesh: %s", resService.GetResourcePath(sceneObject->mMeshResourceId).c_str());
                 ImGui::Text("Shader: %s", resService.GetResourcePath(sceneObject->mShaderResourceId).c_str());
                 ImGui::Text("Texture: %s", resService.GetResourcePath(sceneObject->mTextureResourceId).c_str());
-                ImGui::SliderFloat("x", &sceneObject->mPosition.x, -10.0f, 10.0f);
-                ImGui::SliderFloat("y", &sceneObject->mPosition.y, -10.0f, 10.0f);
-                ImGui::SliderFloat("z", &sceneObject->mPosition.z, -10.0f, 10.0f);
-                ImGui::SliderFloat("rx", &sceneObject->mRotation.x, -10.0f, 10.0f);
-                ImGui::SliderFloat("ry", &sceneObject->mRotation.y, -10.0f, 10.0f);
-                ImGui::SliderFloat("rz", &sceneObject->mRotation.z, -10.0f, 10.0f);
+                ImGui::SliderFloat("x", &sceneObject->mPosition.x, -0.5f, 0.5f);
+                ImGui::SliderFloat("y", &sceneObject->mPosition.y, -0.5f, 0.5f);
+                ImGui::SliderFloat("z", &sceneObject->mPosition.z, -0.5f, 0.5f);
+                ImGui::SliderFloat("rx", &sceneObject->mRotation.x, -3.14f, 3.14f);
+                ImGui::SliderFloat("ry", &sceneObject->mRotation.y, -3.14f, 3.14f);
+                ImGui::SliderFloat("rz", &sceneObject->mRotation.z, -3.14f, 3.14f);
                 ImGui::SliderFloat("sx", &sceneObject->mScale.x, 0.01f, 10.0f);
                 ImGui::SliderFloat("sy", &sceneObject->mScale.y, 0.01f, 10.0f);
                 ImGui::SliderFloat("sz", &sceneObject->mScale.z, 0.01f, 10.0f);
