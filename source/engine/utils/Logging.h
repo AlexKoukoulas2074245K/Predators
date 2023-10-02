@@ -34,7 +34,7 @@ enum class LogType
 /// Logs a message to the std out, with a custom log type tag \see LogType
 /// @param[in] logType the category of logging message 
 /// @param[in] message the message itself as a c-string
-#if defined(DEBUG) || defined(LOG_IN_RELEASE)
+#if !defined(NDEBUG) || defined(LOG_IN_RELEASE)
 inline void Log(const LogType logType, const char* message, ...)
 {
     

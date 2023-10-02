@@ -20,6 +20,8 @@
 #include <imgui/backends/imgui_impl_opengl3.h>
 #include <SDL.h>
 
+//#define IMGUI_IN_RELEASE
+
 ///------------------------------------------------------------------------------------------------
 
 namespace rendering
@@ -175,7 +177,7 @@ void OpenGLDesktopRenderer::RenderScene(scene::Scene& scene)
 
 void OpenGLDesktopRenderer::EndRenderPass()
 {
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__) || defined(__APPLE__)
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__) || defined(__APPLE__) && (!defined(NDEBUG) || defined(IMGUI_IN_RELEASE))
     // Imgui start-of-frame calls
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame();
@@ -203,8 +205,7 @@ void OpenGLDesktopRenderer::SpecialEventHandling(SDL_Event& event)
 
 ///------------------------------------------------------------------------------------------------
 
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__) || defined(__APPLE__)
-
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__) || defined(__APPLE__) && (!defined(NDEBUG) || defined(IMGUI_IN_RELEASE))
 class SceneObjectDataIMGuiVisitor
 {
 public:
