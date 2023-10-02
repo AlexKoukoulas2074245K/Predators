@@ -1,12 +1,12 @@
 ///------------------------------------------------------------------------------------------------
-///  OpenGLRenderer.h                                                                                          
+///  OpenGLiOSRenderer.h
 ///  Predators                                                                                            
 ///                                                                                                
-///  Created by Alex Koukoulas on 25/09/2023                                                       
+///  Created by Alex Koukoulas on 02/10/2023
 ///------------------------------------------------------------------------------------------------
 
-#ifndef OpenGLRenderer_h
-#define OpenGLRenderer_h
+#ifndef OpenGLiOSRenderer_h
+#define OpenGLiOSRenderer_h
 
 ///------------------------------------------------------------------------------------------------
 
@@ -20,12 +20,13 @@ namespace rendering
 
 ///------------------------------------------------------------------------------------------------
 
-class OpenGLRenderer final: public IRenderer
+class OpenGLiOSRenderer final: public IRenderer
 {
 public:
     void BeginRenderPass() override;
     void RenderScene(scene::Scene& scene) override;
     void EndRenderPass() override;
+    void SpecialEventHandling(SDL_Event& event) override;
     
 };
 
@@ -35,4 +36,4 @@ public:
 
 ///------------------------------------------------------------------------------------------------
 
-#endif /* OpenGLRenderer_h */
+#endif /* OpenGLiOSRenderer_h */

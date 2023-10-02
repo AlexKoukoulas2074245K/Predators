@@ -22,8 +22,6 @@
 #include <game/Game.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <SDL.h>
-#include <imgui/backends/imgui_impl_sdl2.h>
-#include <imgui/backends/imgui_impl_opengl3.h>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -68,12 +66,6 @@ bool Game::InitSystems(const int argc, char** argv)
 
 void Game::Run()
 {
-    SDL_Event e;
-    
-    auto lastFrameMillisSinceInit = 0.0f;
-    auto secsAccumulator          = 0.0f;
-    auto framesAccumulator        = 0LL;
-    
     rendering::FontRepository::GetInstance().LoadFont("font", resources::ResourceReloadMode::DONT_RELOAD);
     
     scene::Scene dummyScene;
@@ -135,6 +127,11 @@ void Game::Run()
     gameActionEngine.AddGameAction(strutils::StringId("DrawCardGameAction"));
     
     //While application is running
+    SDL_Event event;
+    
+    auto lastFrameMillisSinceInit = 0.0f;
+    auto secsAccumulator          = 0.0f;
+    auto framesAccumulator        = 0LL;
     while(!mIsFinished)
     {
         // Calculate frame delta
@@ -148,10 +145,10 @@ void Game::Run()
         cam = 0;
         
         //Handle events on queue
-        while( SDL_PollEvent( &e ) != 0 )
+        while(SDL_PollEvent(&event) != 0)
         {
             //User requests quit
-            switch (e.type)
+            switch (event.type)
             {
                 case SDL_QUIT:
                 case SDL_APP_TERMINATING:
@@ -162,23 +159,23 @@ void Game::Run()
                 case SDL_KEYDOWN:
                 {
                     static bool xDownPreviously = false;
-                    if (e.key.keysym.sym == SDLK_w)
+                    if (event.key.keysym.sym == SDLK_w)
                     {
                         cam = 1;
                     }
-                    else if (e.key.keysym.sym == SDLK_d)
+                    else if (event.key.keysym.sym == SDLK_d)
                     {
                         cam = 2;
                     }
-                    else if (e.key.keysym.sym == SDLK_s)
+                    else if (event.key.keysym.sym == SDLK_s)
                     {
                         cam = 3;
                     }
-                    else if (e.key.keysym.sym == SDLK_a)
+                    else if (event.key.keysym.sym == SDLK_a)
                     {
                         cam = 4;
                     }
-                    else if (e.key.keysym.sym == SDLK_x && !xDownPreviously)
+                    else if (event.key.keysym.sym == SDLK_x && !xDownPreviously)
                     {
                         dummyScene.GetCamera().Shake();
                         xDownPreviously = true;
@@ -191,7 +188,7 @@ void Game::Run()
                 } break;
                     
                 case SDL_WINDOWEVENT:
-                if(e.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+                if(event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
                     dummyScene.GetCamera().RecalculateMatrices();
                     uiScene.GetCamera().RecalculateMatrices();
                 }
@@ -203,11 +200,11 @@ void Game::Run()
                     
                 case SDL_MOUSEWHEEL:
                 {
-                    if (e.wheel.y > 0) move = 1;
+                    if (event.wheel.y > 0) move = 1;
                 } break;
             }
             
-            ImGui_ImplSDL2_ProcessEvent(&e);
+            rendering::RenderingContextHolder::GetRenderingContext().VGetRenderer().SpecialEventHandling(event);
         }
        
         if (secsAccumulator > 1.0f)
@@ -244,17 +241,10 @@ void Game::Run()
         
         dummyScene.GetCamera().Update(dtMillis);
         
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplSDL2_NewFrame();
-        ImGui::NewFrame();
-        ImGui::ShowDemoWindow(); // Show demo window! :)
-        
         auto& renderer = rendering::RenderingContextHolder::GetRenderingContext().VGetRenderer();
         renderer.BeginRenderPass();
         renderer.RenderScene(dummyScene);
         renderer.RenderScene(uiScene);
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         renderer.EndRenderPass();
     }
 }

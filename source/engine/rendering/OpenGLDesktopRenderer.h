@@ -1,20 +1,17 @@
 ///------------------------------------------------------------------------------------------------
-///  IRenderer.h                                                                                          
+///  OpenGLDesktopRenderer.h                                                                                          
 ///  Predators                                                                                            
 ///                                                                                                
 ///  Created by Alex Koukoulas on 25/09/2023                                                       
 ///------------------------------------------------------------------------------------------------
 
-#ifndef IRenderer_h
-#define IRenderer_h
+#ifndef OpenGLDesktopRenderer_h
+#define OpenGLDesktopRenderer_h
 
 ///------------------------------------------------------------------------------------------------
 
-#include <SDL_events.h>
-
-///------------------------------------------------------------------------------------------------
-
-namespace scene { class Scene; }
+#include <engine/rendering/IRenderer.h>
+#include <memory>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -23,14 +20,14 @@ namespace rendering
 
 ///------------------------------------------------------------------------------------------------
 
-class IRenderer
+class OpenGLDesktopRenderer final: public IRenderer
 {
 public:
-    virtual ~IRenderer() = default;
-    virtual void BeginRenderPass() = 0;
-    virtual void RenderScene(scene::Scene& scene) = 0;
-    virtual void EndRenderPass() = 0;
-    virtual void SpecialEventHandling(SDL_Event& event) = 0;
+    void BeginRenderPass() override;
+    void RenderScene(scene::Scene& scene) override;
+    void EndRenderPass() override;
+    void SpecialEventHandling(SDL_Event& event) override;
+    
 };
 
 ///------------------------------------------------------------------------------------------------
@@ -39,4 +36,4 @@ public:
 
 ///------------------------------------------------------------------------------------------------
 
-#endif /* IRenderer_h */
+#endif /* OpenGLDesktopRenderer_h */

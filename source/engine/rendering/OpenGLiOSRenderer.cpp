@@ -1,13 +1,13 @@
 ///------------------------------------------------------------------------------------------------
-///  OpenGLRenderer.cpp                                                                                        
+///  OpenGLiOSRenderer.cpp
 ///  Predators                                                                                            
 ///                                                                                                
-///  Created by Alex Koukoulas on 25/09/2023                                                       
+///  Created by Alex Koukoulas on 02/10/2023                                                       
 ///------------------------------------------------------------------------------------------------
 
 #include <engine/rendering/Fonts.h>
 #include <engine/rendering/OpenGL.h>
-#include <engine/rendering/OpenGLRenderer.h>
+#include <engine/rendering/OpenGLDesktopRenderer.h>
 #include <engine/rendering/RenderingContexts.h>
 #include <engine/resloading/MeshResource.h>
 #include <engine/resloading/ResourceLoadingService.h>
@@ -45,8 +45,8 @@ class SceneObjectTypeRendererVisitor
 {
 public:
     SceneObjectTypeRendererVisitor(const scene::SceneObject& sceneObject, const Camera& camera)
-        : mSceneObject(sceneObject)
-        , mCamera(camera)
+    : mSceneObject(sceneObject)
+    , mCamera(camera)
     {
     }
     
@@ -139,7 +139,7 @@ private:
 
 ///------------------------------------------------------------------------------------------------
 
-void OpenGLRenderer::BeginRenderPass()
+void OpenGLDesktopRenderer::BeginRenderPass()
 {
     auto windowDimensions = rendering::RenderingContextHolder::GetRenderingContext().VGetContextRenderableDimensions();
     
@@ -160,7 +160,7 @@ void OpenGLRenderer::BeginRenderPass()
 
 ///------------------------------------------------------------------------------------------------
 
-void OpenGLRenderer::RenderScene(scene::Scene& scene)
+void OpenGLDesktopRenderer::RenderScene(scene::Scene& scene)
 {
     for (const auto& sceneObject: scene.GetSceneObjects())
     {
@@ -170,10 +170,16 @@ void OpenGLRenderer::RenderScene(scene::Scene& scene)
 
 ///------------------------------------------------------------------------------------------------
 
-void OpenGLRenderer::EndRenderPass()
+void OpenGLDesktopRenderer::EndRenderPass()
 {
     // Swap window buffers
     SDL_GL_SwapWindow(&rendering::RenderingContextHolder::GetRenderingContext().VGetContextWindow());
+}
+
+///------------------------------------------------------------------------------------------------
+
+void OpenGLDesktopRenderer::SpecialEventHandling(SDL_Event&)
+{
 }
 
 ///------------------------------------------------------------------------------------------------
