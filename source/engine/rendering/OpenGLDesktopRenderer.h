@@ -11,7 +11,9 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <engine/rendering/IRenderer.h>
+#include <functional>
 #include <memory>
+#include <vector>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -28,6 +30,11 @@ public:
     void EndRenderPass() override;
     void SpecialEventHandling(SDL_Event& event) override;
     
+private:
+    void CreateIMGuiWidgets();
+    
+private:
+    std::vector<std::reference_wrapper<scene::Scene>> mCachedScenes;
 };
 
 ///------------------------------------------------------------------------------------------------

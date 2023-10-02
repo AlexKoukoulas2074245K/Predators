@@ -14,6 +14,13 @@ namespace scene
 
 ///------------------------------------------------------------------------------------------------
 
+Scene::Scene(const strutils::StringId& sceneName)
+    : mSceneName(sceneName)
+{
+}
+
+///------------------------------------------------------------------------------------------------
+
 std::shared_ptr<SceneObject> Scene::CreateSceneObject()
 {
     mSceneObjects.emplace_back(std::make_shared<SceneObject>());
@@ -54,6 +61,10 @@ const std::vector<std::shared_ptr<SceneObject>>& Scene::GetSceneObjects() const 
 ///------------------------------------------------------------------------------------------------
 
 rendering::Camera& Scene::GetCamera() { return mCamera; }
+
+///------------------------------------------------------------------------------------------------
+
+const strutils::StringId& Scene::GetName() const { return mSceneName; }
 
 ///------------------------------------------------------------------------------------------------
 

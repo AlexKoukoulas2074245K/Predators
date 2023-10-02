@@ -207,6 +207,18 @@ IResource& ResourceLoadingService::GetResource(const ResourceId resourceId)
 
 ///------------------------------------------------------------------------------------------------
 
+std::string ResourceLoadingService::GetResourcePath(const ResourceId resourceId) const
+{
+    auto resourcePathEntryIter = mResourceIdToPaths.find(resourceId);
+    if (resourcePathEntryIter != mResourceIdToPaths.cend())
+    {
+        return resourcePathEntryIter->second;
+    }
+    return "";
+}
+
+///------------------------------------------------------------------------------------------------
+
 void ResourceLoadingService::LoadResourceInternal(const std::string& resourcePath, const ResourceId resourceId)
 {
     // Get resource extension
@@ -224,6 +236,7 @@ void ResourceLoadingService::LoadResourceInternal(const std::string& resourcePat
         auto loadedResource = selectedLoader->VCreateAndLoadResource(RES_ROOT + resourcePath);
         mResourceMap[resourceId] = std::move(loadedResource);
         logging::Log(logging::LogType::INFO, "Loading asset: %s in %s", resourcePath.c_str(), std::to_string(resourceId).c_str());
+        mResourceIdToPaths[resourceId] = resourcePath;
     }
     else
     {

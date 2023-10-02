@@ -26,6 +26,8 @@ namespace scene
 class Scene final
 {
 public:
+    Scene(const strutils::StringId& sceneName);
+    
     [[nodiscard]] std::shared_ptr<SceneObject> CreateSceneObject();
     [[nodiscard]] std::shared_ptr<SceneObject> FindSceneObject(const strutils::StringId& sceneObjectName);
     void RemoveSceneObject(const strutils::StringId& sceneObjectName);
@@ -33,8 +35,10 @@ public:
     [[nodiscard]] std::size_t GetSceneObjectCount() const;
     [[nodiscard]] const std::vector<std::shared_ptr<SceneObject>>& GetSceneObjects() const;
     [[nodiscard]] rendering::Camera& GetCamera();
+    [[nodiscard]] const strutils::StringId& GetName() const;
     
 private:
+    const strutils::StringId mSceneName;
     std::vector<std::shared_ptr<SceneObject>> mSceneObjects;
     rendering::Camera mCamera;
 };

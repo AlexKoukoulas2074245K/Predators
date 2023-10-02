@@ -160,6 +160,12 @@ public:
         return static_cast<ResourceType&>(GetResource(resourceId));
     }
     
+    /// Gets the path of a resource given its ID.
+    ///
+    /// @param[in] resourceId the id of the resource.
+    /// returns the original path of the resource
+    std::string GetResourcePath(const ResourceId resourceId) const;
+    
 private:    
     ResourceLoadingService() = default;
 
@@ -178,6 +184,7 @@ private:
     std::unordered_map<ResourceId, std::unique_ptr<IResource>, ResourceIdHasher> mResourceMap;
     std::unordered_map<strutils::StringId, IResourceLoader*, strutils::StringIdHasher> mResourceExtensionsToLoadersMap;
     std::unordered_map<ResourceId, std::string, ResourceIdHasher> mResourceIdMapToAutoReload;
+    std::unordered_map<ResourceId, std::string, ResourceIdHasher> mResourceIdToPaths;
     std::vector<std::unique_ptr<IResourceLoader>> mResourceLoaders;
     bool mInitialized = false;
 };

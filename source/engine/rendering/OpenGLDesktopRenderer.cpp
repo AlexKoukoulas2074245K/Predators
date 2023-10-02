@@ -143,12 +143,6 @@ private:
 
 void OpenGLDesktopRenderer::BeginRenderPass()
 {
-    // Imgui start-of-frame calls
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplSDL2_NewFrame();
-    ImGui::NewFrame();
-    ImGui::ShowDemoWindow(); // Show demo window! :)
-    
     auto windowDimensions = rendering::RenderingContextHolder::GetRenderingContext().VGetContextRenderableDimensions();
     
     // Set View Port
@@ -170,6 +164,7 @@ void OpenGLDesktopRenderer::BeginRenderPass()
 
 void OpenGLDesktopRenderer::RenderScene(scene::Scene& scene)
 {
+    mCachedScenes.push_back(scene);
     for (const auto& sceneObject: scene.GetSceneObjects())
     {
         std::visit(SceneObjectTypeRendererVisitor(*sceneObject, scene.GetCamera()), sceneObject->mSceneObjectTypeData);
@@ -180,9 +175,20 @@ void OpenGLDesktopRenderer::RenderScene(scene::Scene& scene)
 
 void OpenGLDesktopRenderer::EndRenderPass()
 {
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__) || defined(__APPLE__)
+    // Imgui start-of-frame calls
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplSDL2_NewFrame();
+    ImGui::NewFrame();
+    
+    // Create all custom GUIs
+    CreateIMGuiWidgets();
+    mCachedScenes.clear();
+    
     // Imgui end-of-frame calls
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+#endif
     
     // Swap window buffers
     SDL_GL_SwapWindow(&rendering::RenderingContextHolder::GetRenderingContext().VGetContextWindow());
@@ -194,6 +200,66 @@ void OpenGLDesktopRenderer::SpecialEventHandling(SDL_Event& event)
 {
     ImGui_ImplSDL2_ProcessEvent(&event);
 }
+
+///------------------------------------------------------------------------------------------------
+
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__) || defined(__APPLE__)
+
+class SceneObjectDataIMGuiVisitor
+{
+public:
+    void operator()(scene::DefaultSceneObjectData)
+    {
+        ImGui::Text("SO Type: Default");
+    }
+    void operator()(scene::TextSceneObjectData)
+    {
+        ImGui::Text("SO Type: Text");
+    }
+};
+
+static SceneObjectDataIMGuiVisitor imguiVisitor;
+
+void OpenGLDesktopRenderer::CreateIMGuiWidgets()
+{
+    //ImGui::ShowDemoWindow();
+    auto& resService = resources::ResourceLoadingService::GetInstance();
+    
+    // Create scene object viewer
+    for (auto& sceneRef: mCachedScenes)
+    {
+        auto viewerName = strutils::StringId("Scene Object Viewer (" + sceneRef.get().GetName().GetString() + ")");
+        ImGui::Begin(viewerName.GetString().c_str());
+        for (size_t i = 0; i < sceneRef.get().GetSceneObjects().size(); ++i)
+        {
+            auto& sceneObject = sceneRef.get().GetSceneObjects()[i];
+            auto sceneObjectName = sceneObject->mName.isEmpty() ? strutils::StringId("SO: " + std::to_string(i)) : strutils::StringId("SO: " + sceneObject->mName.GetString());
+            
+            if (ImGui::CollapsingHeader(sceneObjectName.GetString().c_str(), ImGuiTreeNodeFlags_None))
+            {
+                std::visit(imguiVisitor, sceneObject->mSceneObjectTypeData);
+                ImGui::Text("Mesh: %s", resService.GetResourcePath(sceneObject->mMeshResourceId).c_str());
+                ImGui::Text("Shader: %s", resService.GetResourcePath(sceneObject->mShaderResourceId).c_str());
+                ImGui::Text("Texture: %s", resService.GetResourcePath(sceneObject->mTextureResourceId).c_str());
+                ImGui::SliderFloat("x", &sceneObject->mPosition.x, -10.0f, 10.0f);
+                ImGui::SliderFloat("y", &sceneObject->mPosition.y, -10.0f, 10.0f);
+                ImGui::SliderFloat("z", &sceneObject->mPosition.z, -10.0f, 10.0f);
+                ImGui::SliderFloat("rx", &sceneObject->mRotation.x, -10.0f, 10.0f);
+                ImGui::SliderFloat("ry", &sceneObject->mRotation.y, -10.0f, 10.0f);
+                ImGui::SliderFloat("rz", &sceneObject->mRotation.z, -10.0f, 10.0f);
+                ImGui::SliderFloat("sx", &sceneObject->mScale.x, 0.01f, 10.0f);
+                ImGui::SliderFloat("sy", &sceneObject->mScale.y, 0.01f, 10.0f);
+                ImGui::SliderFloat("sz", &sceneObject->mScale.z, 0.01f, 10.0f);
+            }
+        }
+        ImGui::End();
+    }
+}
+#else
+void OpenGLDesktopRenderer::CreateIMGuiWidgets()
+{
+}
+#endif
 
 ///------------------------------------------------------------------------------------------------
 

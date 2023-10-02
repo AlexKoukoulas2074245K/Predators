@@ -68,8 +68,9 @@ void Game::Run()
 {
     rendering::FontRepository::GetInstance().LoadFont("font", resources::ResourceReloadMode::DONT_RELOAD);
     
-    scene::Scene dummyScene;
+    scene::Scene dummyScene(strutils::StringId("Dummy"));
     auto boardSceneObject = dummyScene.CreateSceneObject();
+    boardSceneObject->mName = strutils::StringId("Board");
     boardSceneObject->mShaderResourceId = resources::ResourceLoadingService::GetInstance().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + "basic.vs");
     boardSceneObject->mTextureResourceId = resources::ResourceLoadingService::GetInstance().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "board.png");
     boardSceneObject->mMeshResourceId = resources::ResourceLoadingService::GetInstance().LoadResource(resources::ResourceLoadingService::RES_MESHES_ROOT + "quad.obj");
@@ -83,7 +84,7 @@ void Game::Run()
     cardFrameSceneObject->mMeshResourceId = resources::ResourceLoadingService::GetInstance().LoadResource(resources::ResourceLoadingService::RES_MESHES_ROOT + "quad.obj");
     
     
-    scene::Scene uiScene;
+    scene::Scene uiScene(strutils::StringId("UI"));
     std::string texts[6] =
     {
         "AbCdEfGhIjKlMnOpQrStUvWxYz",
