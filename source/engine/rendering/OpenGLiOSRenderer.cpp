@@ -7,7 +7,7 @@
 
 #include <engine/rendering/Fonts.h>
 #include <engine/rendering/OpenGL.h>
-#include <engine/rendering/OpenGLDesktopRenderer.h>
+#include <engine/rendering/OpenGLiOSRenderer.h>
 #include <engine/rendering/RenderingContexts.h>
 #include <engine/resloading/MeshResource.h>
 #include <engine/resloading/ResourceLoadingService.h>
@@ -139,7 +139,7 @@ private:
 
 ///------------------------------------------------------------------------------------------------
 
-void OpenGLDesktopRenderer::BeginRenderPass()
+void OpenGLiOSRenderer::BeginRenderPass()
 {
     auto windowDimensions = rendering::RenderingContextHolder::GetRenderingContext().VGetContextRenderableDimensions();
     
@@ -160,7 +160,7 @@ void OpenGLDesktopRenderer::BeginRenderPass()
 
 ///------------------------------------------------------------------------------------------------
 
-void OpenGLDesktopRenderer::RenderScene(scene::Scene& scene)
+void OpenGLiOSRenderer::RenderScene(scene::Scene& scene)
 {
     for (const auto& sceneObject: scene.GetSceneObjects())
     {
@@ -170,7 +170,7 @@ void OpenGLDesktopRenderer::RenderScene(scene::Scene& scene)
 
 ///------------------------------------------------------------------------------------------------
 
-void OpenGLDesktopRenderer::EndRenderPass()
+void OpenGLiOSRenderer::EndRenderPass()
 {
     // Swap window buffers
     SDL_GL_SwapWindow(&rendering::RenderingContextHolder::GetRenderingContext().VGetContextWindow());
@@ -178,7 +178,7 @@ void OpenGLDesktopRenderer::EndRenderPass()
 
 ///------------------------------------------------------------------------------------------------
 
-void OpenGLDesktopRenderer::SpecialEventHandling(SDL_Event&)
+void OpenGLiOSRenderer::SpecialEventHandling(SDL_Event&)
 {
 }
 
