@@ -43,7 +43,7 @@ if(NOT APPLE)
   set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 endif()
 
-if(NOT IOS_PLATFORM)
+if(IOS_PLATFORM)
   add_subdirectory(source_ios)
 else()
   add_subdirectory(source_desktop)

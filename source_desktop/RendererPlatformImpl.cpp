@@ -178,7 +178,7 @@ void RendererPlatformImpl::RenderScene(scene::Scene& scene)
 
 void RendererPlatformImpl::EndRenderPass()
 {
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__) || defined(__APPLE__) && (!defined(NDEBUG) || defined(IMGUI_IN_RELEASE))
+#if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__) || defined(__APPLE__)) && (!defined(NDEBUG) || defined(IMGUI_IN_RELEASE))
     // Imgui start-of-frame calls
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame();
@@ -200,7 +200,7 @@ void RendererPlatformImpl::EndRenderPass()
 
 ///------------------------------------------------------------------------------------------------
 
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__) || defined(__APPLE__) && (!defined(NDEBUG) || defined(IMGUI_IN_RELEASE))
+#if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__) || defined(__APPLE__)) && (!defined(NDEBUG) || defined(IMGUI_IN_RELEASE))
 class SceneObjectDataIMGuiVisitor
 {
 public:
@@ -252,7 +252,7 @@ void RendererPlatformImpl::CreateIMGuiWidgets()
     }
 }
 #else
-void OpenGLDesktopRenderer::CreateIMGuiWidgets()
+void RendererPlatformImpl::CreateIMGuiWidgets()
 {
 }
 #endif
