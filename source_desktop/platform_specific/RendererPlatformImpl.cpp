@@ -5,8 +5,6 @@
 ///  Created by Alex Koukoulas on 03/10/2023                                                       
 ///------------------------------------------------------------------------------------------------
 
-#include "RendererPlatformImpl.h" // Intentional quotes
-
 #include <engine/CoreSystemsEngine.h>
 #include <engine/rendering/Fonts.h>
 #include <engine/rendering/OpenGL.h>
@@ -19,6 +17,7 @@
 #include <engine/utils/StringUtils.h>
 #include <imgui/backends/imgui_impl_sdl2.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
+#include <platform_specific/RendererPlatformImpl.h>
 #include <SDL.h>
 
 //#define IMGUI_IN_RELEASE
@@ -144,9 +143,9 @@ private:
 
 ///------------------------------------------------------------------------------------------------
 
-void RendererPlatformImpl::BeginRenderPass()
+void RendererPlatformImpl::VBeginRenderPass()
 {
-    auto windowDimensions = CoreSystemsEngine::GetInstance().VGetContextRenderableDimensions();
+    auto windowDimensions = CoreSystemsEngine::GetInstance().GetContextRenderableDimensions();
     
     // Set View Port
     GL_CALL(glViewport(0, 0, windowDimensions.x, windowDimensions.y));
@@ -165,7 +164,7 @@ void RendererPlatformImpl::BeginRenderPass()
 
 ///------------------------------------------------------------------------------------------------
 
-void RendererPlatformImpl::RenderScene(scene::Scene& scene)
+void RendererPlatformImpl::VRenderScene(scene::Scene& scene)
 {
     mCachedScenes.push_back(scene);
     for (const auto& sceneObject: scene.GetSceneObjects())
@@ -176,7 +175,7 @@ void RendererPlatformImpl::RenderScene(scene::Scene& scene)
 
 ///------------------------------------------------------------------------------------------------
 
-void RendererPlatformImpl::EndRenderPass()
+void RendererPlatformImpl::VEndRenderPass()
 {
 #if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__) || defined(__APPLE__)) && (!defined(NDEBUG) || defined(IMGUI_IN_RELEASE))
     // Imgui start-of-frame calls
@@ -195,7 +194,7 @@ void RendererPlatformImpl::EndRenderPass()
 #endif
     
     // Swap window buffers
-    SDL_GL_SwapWindow(&CoreSystemsEngine::GetInstance().VGetContextWindow());
+    SDL_GL_SwapWindow(&CoreSystemsEngine::GetInstance().GetContextWindow());
 }
 
 ///------------------------------------------------------------------------------------------------

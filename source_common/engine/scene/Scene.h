@@ -11,7 +11,6 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <engine/rendering/Camera.h>
-#include <engine/scene/SceneObject.h>
 #include <engine/utils/StringUtils.h>
 #include <memory>
 #include <vector>
@@ -23,13 +22,15 @@ namespace scene
 
 ///------------------------------------------------------------------------------------------------
 
+struct SceneObject;
 class Scene final
 {
 public:
     Scene(const strutils::StringId& sceneName);
     
-    [[nodiscard]] std::shared_ptr<SceneObject> CreateSceneObject();
+    [[nodiscard]] std::shared_ptr<SceneObject> CreateSceneObject(const strutils::StringId sceneObjectName = strutils::StringId());
     [[nodiscard]] std::shared_ptr<SceneObject> FindSceneObject(const strutils::StringId& sceneObjectName);
+    
     void RemoveSceneObject(const strutils::StringId& sceneObjectName);
     
     [[nodiscard]] std::size_t GetSceneObjectCount() const;

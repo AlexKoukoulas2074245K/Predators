@@ -18,52 +18,58 @@ if(APPLE)
   find_package(OpenGL REQUIRED)
 endif(APPLE)
 
-# Find glm
+# "Find" glm
 set(GLM_INCLUDE_DIRS "lib/glm")
 
-# Find json
+# "Find" json
 set(JSON_INCLUDE_DIRS "lib/json")
 
 # Find freetype
 find_package(Freetype REQUIRED)
 
+# Platform specific directories + CMakeLists
+if(IOS_PLATFORM)
+  set(PLATFORM_DIRECTORY source_ios)
+else()
+  set(PLATFORM_DIRECTORY source_desktop)
+endif()
 
+# Add common includes
 include_directories(source_common)
+include_directories(${PLATFORM_DIRECTORY})
 include_directories(${SDL2_INCLUDE_DIRS} ${SDL2main_INCLUDE_DIRS})
 include_directories(${GLM_INCLUDE_DIRS})
 include_directories(${SDL2_IMAGE_INCLUDE_DIRS})
 include_directories(${JSON_INCLUDE_DIRS})
 include_directories(${FREETYPE_INCLUDE_DIRS})
 
+# Apple doesn't need an opengl loader thankfully
 if(APPLE)
   include_directories(${OPENGL_INCLUDE_DIR})
 endif(APPLE)
 
-if(NOT APPLE)
+# Windows gtest necessity
+if(WIN32)
   set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 endif()
 
-if(IOS_PLATFORM)
-  add_subdirectory(source_ios)
-else()
-  add_subdirectory(source_desktop)
-endif()
-
+# Common directories + CMakeLists
+add_subdirectory(${PLATFORM_DIRECTORY})
 add_subdirectory(source_common)
 add_subdirectory(lib/googletest)
 add_subdirectory(source_test)
 
 # Enable highest warning levels + treated as errors
-if(MSVC)
+if(WIN32)
   target_compile_options(${PROJECT_NAME} PRIVATE /W4)
   target_compile_options(${PROJECT_NAME}_platform PRIVATE /W4)
   target_compile_options(${PROJECT_NAME}_test PRIVATE /W4)
   set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
-else(MSVC)
+else()
   target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -pedantic -Werror)
   target_compile_options(${PROJECT_NAME}_platform PRIVATE -Wall -Wextra -pedantic -Werror)
   target_compile_options(${PROJECT_NAME}_test PRIVATE -Wall -Wextra -pedantic -Werror)
-endif(MSVC)
+endif()
 
 # Put these targets in the 'HiddenTargets' folder in the IDE. 
 set_target_properties(gmock gmock_main gtest gtest_main Predators_lib PROPERTIES FOLDER HiddenTargets)

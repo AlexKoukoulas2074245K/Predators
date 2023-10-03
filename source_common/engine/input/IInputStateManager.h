@@ -1,31 +1,32 @@
 ///------------------------------------------------------------------------------------------------
-///  IRenderer.h                                                                                          
+///  IInputStateManager.h
 ///  Predators                                                                                            
 ///                                                                                                
-///  Created by Alex Koukoulas on 25/09/2023                                                       
+///  Created by Alex Koukoulas on 03/10/2023
 ///------------------------------------------------------------------------------------------------
 
-#ifndef IRenderer_h
-#define IRenderer_h
-
-///------------------------------------------------------------------------------------------------
-
-namespace scene { class Scene; }
+#ifndef IInputStateManager_h
+#define IInputStateManager_h
 
 ///------------------------------------------------------------------------------------------------
 
-namespace rendering
+#include <engine/utils/MathUtils.h>
+#include <SDL_events.h>
+
+///------------------------------------------------------------------------------------------------
+
+namespace input
 {
 
 ///------------------------------------------------------------------------------------------------
 
-class IRenderer
+class IInputStateManager
 {
 public:
-    virtual ~IRenderer() = default;
-    virtual void VBeginRenderPass() = 0;
-    virtual void VRenderScene(scene::Scene& scene) = 0;
-    virtual void VEndRenderPass() = 0;
+    virtual ~IInputStateManager() = default;
+    virtual void VProcessInputEvent(const SDL_Event& event, bool& shouldQuit, bool& windowSizeChange) = 0;
+    virtual const glm::vec2& VGetPointingPos() const = 0;
+    virtual void VUpdate(const float dtMillis) = 0;
 };
 
 ///------------------------------------------------------------------------------------------------
@@ -34,4 +35,4 @@ public:
 
 ///------------------------------------------------------------------------------------------------
 
-#endif /* IRenderer_h */
+#endif /* IInputStateManager_h */

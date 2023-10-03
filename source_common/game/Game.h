@@ -10,22 +10,13 @@
 
 ///------------------------------------------------------------------------------------------------
 
-#include <string>
-
-///------------------------------------------------------------------------------------------------
-
 class Game final
 {
 public:
     Game(const int argc, char** argv);
-    ~Game();
     
-private:
-    bool InitSystems(const int argc, char** argv);
-    void Run();
-    
-private:
-    bool mIsFinished;
+    void Init();
+    void Update(const float dtMillis);
 };
 
 ///------------------------------------------------------------------------------------------------

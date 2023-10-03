@@ -9,7 +9,7 @@ pushd .
 cd $TOP_LEVEL_DIR
 PROJECT=${PWD##*/} 
 
-cd source
+cd source_common
 mkdir -p ${2:-.}
 cd ${2:-.}
 

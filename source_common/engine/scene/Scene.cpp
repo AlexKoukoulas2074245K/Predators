@@ -6,6 +6,7 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <engine/scene/Scene.h>
+#include <engine/scene/SceneObject.h>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -21,9 +22,10 @@ Scene::Scene(const strutils::StringId& sceneName)
 
 ///------------------------------------------------------------------------------------------------
 
-std::shared_ptr<SceneObject> Scene::CreateSceneObject()
+std::shared_ptr<SceneObject> Scene::CreateSceneObject(const strutils::StringId sceneObjectName /* = strutils::StringId() */)
 {
     mSceneObjects.emplace_back(std::make_shared<SceneObject>());
+    mSceneObjects.back()->mName = sceneObjectName;
     return mSceneObjects.back();
 }
 

@@ -1,31 +1,40 @@
 ///------------------------------------------------------------------------------------------------
-///  IRenderer.h                                                                                          
+///  ActiveSceneManager.h                                                                                          
 ///  Predators                                                                                            
 ///                                                                                                
-///  Created by Alex Koukoulas on 25/09/2023                                                       
+///  Created by Alex Koukoulas on 03/10/2023                                                       
 ///------------------------------------------------------------------------------------------------
 
-#ifndef IRenderer_h
-#define IRenderer_h
-
-///------------------------------------------------------------------------------------------------
-
-namespace scene { class Scene; }
+#ifndef ActiveSceneManager_h
+#define ActiveSceneManager_h
 
 ///------------------------------------------------------------------------------------------------
 
-namespace rendering
+#include <engine/utils/StringUtils.h>
+#include <memory>
+#include <vector>
+
+///------------------------------------------------------------------------------------------------
+
+namespace scene
 {
 
 ///------------------------------------------------------------------------------------------------
 
-class IRenderer
+class Scene;
+class ActiveSceneManager final
 {
 public:
-    virtual ~IRenderer() = default;
-    virtual void VBeginRenderPass() = 0;
-    virtual void VRenderScene(scene::Scene& scene) = 0;
-    virtual void VEndRenderPass() = 0;
+    [[nodiscard]] std::shared_ptr<Scene> CreateScene(const strutils::StringId sceneName = strutils::StringId());
+    [[nodiscard]] std::shared_ptr<Scene> FindScene(const strutils::StringId& sceneName);
+    
+    void RemoveScene(const strutils::StringId& sceneName);
+    
+    [[nodiscard]] std::size_t GetSceneCount() const;
+    [[nodiscard]] const std::vector<std::shared_ptr<Scene>>& GetScenes() const;
+    
+private:
+    std::vector<std::shared_ptr<Scene>> mScenes;
 };
 
 ///------------------------------------------------------------------------------------------------
@@ -34,4 +43,4 @@ public:
 
 ///------------------------------------------------------------------------------------------------
 
-#endif /* IRenderer_h */
+#endif /* ActiveSceneManager_h */

@@ -5,15 +5,19 @@
 ///  Created by Alex Koukoulas on 03/10/2023
 ///------------------------------------------------------------------------------------------------
 
-#include "RendererPlatformImpl.h"
-
 #include <engine/CoreSystemsEngine.h>
+#include <engine/rendering/Fonts.h>
 #include <engine/rendering/OpenGL.h>
+#include <engine/resloading/ResourceLoadingService.h>
+#include <engine/scene/ActiveSceneManager.h>
+#include <engine/scene/Scene.h>
 #include <engine/utils/Logging.h>
 #include <engine/utils/OSMessageBox.h>
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_sdl2.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
+#include <platform_specific/RendererPlatformImpl.h>
+#include <platform_specific/InputStateManagerPlatformImpl.h>
 #include <SDL.h>
 
 ///------------------------------------------------------------------------------------------------
@@ -34,6 +38,13 @@ CoreSystemsEngine& CoreSystemsEngine::GetInstance()
     static CoreSystemsEngine instance;
     if (!instance.mInitialized) instance.Initialize();
     return instance;
+}
+
+///------------------------------------------------------------------------------------------------
+
+CoreSystemsEngine::~CoreSystemsEngine()
+{
+    SDL_Quit();
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -87,8 +98,14 @@ void CoreSystemsEngine::Initialize()
     // Vsync
     SDL_GL_SetSwapInterval(1);
 
+    // Systems Initialization
     mRenderer = std::make_unique<rendering::RendererPlatformImpl>();
-
+    mInputStateManager = std::make_unique<input::InputStateManagerPlatformImpl>();
+    mActiveSceneManager = std::make_unique<scene::ActiveSceneManager>();
+    
+    // Initialize resource loaders
+    resources::ResourceLoadingService::GetInstance();
+    
     // Enable texture blending
     GL_CALL(glEnable(GL_BLEND));
     GL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
@@ -117,21 +134,110 @@ void CoreSystemsEngine::Initialize()
 
 ///------------------------------------------------------------------------------------------------
 
-rendering::IRenderer& CoreSystemsEngine::VGetRenderer() const
+void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::function<void(const float)> clientUpdateFunction)
+{
+    clientInitFunction();
+    
+    //While application is running
+    SDL_Event event;
+    auto lastFrameMillisSinceInit = 0.0f;
+    auto secsAccumulator          = 0.0f;
+    auto framesAccumulator        = 0LL;
+    
+    bool shouldQuit = false;
+    bool windowSizeChanged = false;
+    
+    while(!shouldQuit)
+    {
+        // Calculate frame delta
+        const auto currentMillisSinceInit = static_cast<float>(SDL_GetTicks());  // the number of milliseconds since the SDL library
+        const auto dtMillis = currentMillisSinceInit - lastFrameMillisSinceInit; // millis diff between current and last frame
+        
+        lastFrameMillisSinceInit = currentMillisSinceInit;
+        framesAccumulator++;
+        secsAccumulator += dtMillis * 0.001f; // dt in seconds;
+        
+        //Handle events on queue
+        while(SDL_PollEvent(&event) != 0)
+        {
+            mInputStateManager->VProcessInputEvent(event, shouldQuit, windowSizeChanged);
+        }
+        
+        if (windowSizeChanged)
+        {
+            for (auto& scene: mActiveSceneManager->GetScenes())
+            {
+                scene->GetCamera().RecalculateMatrices();
+            }
+        }
+        
+        if (secsAccumulator > 1.0f)
+        {
+            logging::Log(logging::LogType::INFO, "FPS: %d", framesAccumulator);
+            framesAccumulator = 0;
+            secsAccumulator -= 1.0f;
+            
+            resources::ResourceLoadingService::GetInstance().ReloadMarkedResourcesFromDisk();
+            rendering::FontRepository::GetInstance().ReloadMarkedFontsFromDisk();
+        }
+        //
+        //        if (move == 1)
+        //        {
+        //            dummyScene.GetCamera().SetZoomFactor(dummyScene.GetCamera().GetZoomFactor() + 0.05f * dtMillis);
+        //            auto& rot = boardSceneObject->mRotation.z;
+        //
+        //            rot += 0.001f * dtMillis;
+        //            if (rot > 1.567f)
+        //            {
+        //                rot = 1.567f;
+        //                move = 0;
+        //            }
+        //        }
+
+        clientUpdateFunction(dtMillis);
+        
+        mRenderer->VBeginRenderPass();
+        
+        for (auto& scene: mActiveSceneManager->GetScenes())
+        {
+            mRenderer->VRenderScene(*scene);
+        }
+        
+        mRenderer->VEndRenderPass();
+    }
+}
+
+///------------------------------------------------------------------------------------------------
+
+rendering::IRenderer& CoreSystemsEngine::GetRenderer()
 {
     return *mRenderer;
 }
 
 ///------------------------------------------------------------------------------------------------
 
-SDL_Window& CoreSystemsEngine::VGetContextWindow() const
+input::IInputStateManager& CoreSystemsEngine::GetInputStateManager()
+{
+    return *mInputStateManager;
+}
+
+///------------------------------------------------------------------------------------------------
+
+scene::ActiveSceneManager& CoreSystemsEngine::GetActiveSceneManager()
+{
+    return *mActiveSceneManager;
+}
+
+///------------------------------------------------------------------------------------------------
+
+SDL_Window& CoreSystemsEngine::GetContextWindow() const
 {
     return *mWindow;
 }
 
 ///------------------------------------------------------------------------------------------------
 
-glm::vec2 CoreSystemsEngine::VGetContextRenderableDimensions() const
+glm::vec2 CoreSystemsEngine::GetContextRenderableDimensions() const
 {
     int w,h; SDL_GL_GetDrawableSize(mWindow, &w, &h); return glm::vec2(w, h);
 }

@@ -7,6 +7,7 @@
 
 #include <gtest/gtest.h>
 #include <engine/scene/Scene.h>
+#include <engine/scene/SceneObject.h>
 
 TEST(SceneOperationTests, TestBasicInsertionAndRetrieval)
 {

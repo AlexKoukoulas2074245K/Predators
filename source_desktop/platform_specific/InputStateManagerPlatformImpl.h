@@ -1,39 +1,30 @@
 ///------------------------------------------------------------------------------------------------
-///  RendererPlatformImpl.h
+///  InputStateManagerPlatformImpl.h
 ///  Predators                                                                                            
 ///                                                                                                
 ///  Created by Alex Koukoulas on 03/10/2023
 ///------------------------------------------------------------------------------------------------
 
-#ifndef RendererPlatformImpl_h
-#define RendererPlatformImpl_h
+#ifndef InputStateManagerPlatformImpl_h
+#define InputStateManagerPlatformImpl_h
 
 ///------------------------------------------------------------------------------------------------
 
-#include <engine/rendering/IRenderer.h>
-#include <functional>
-#include <memory>
-#include <vector>
+#include <engine/input/IInputStateManager.h>
 
 ///------------------------------------------------------------------------------------------------
 
-namespace rendering
+namespace input
 {
 
 ///------------------------------------------------------------------------------------------------
 
-class RendererPlatformImpl final: public IRenderer
+class InputStateManagerPlatformImpl final: public IInputStateManager
 {
 public:
-    void BeginRenderPass() override;
-    void RenderScene(scene::Scene& scene) override;
-    void EndRenderPass() override;
-    
-private:
-    void CreateIMGuiWidgets();
-    
-private:
-    std::vector<std::reference_wrapper<scene::Scene>> mCachedScenes;
+    void VProcessInputEvent(const SDL_Event& event, bool& shouldQuit, bool& windowSizeChange) override;
+    const glm::vec2& VGetPointingPos() const override;
+    void VUpdate(const float dtMillis) override;
 };
 
 ///------------------------------------------------------------------------------------------------
@@ -42,4 +33,4 @@ private:
 
 ///------------------------------------------------------------------------------------------------
 
-#endif /* RendererPlatformImpl_h */
+#endif /* InputStateManagerPlatformImpl_h */
