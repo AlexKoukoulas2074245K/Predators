@@ -1,19 +1,16 @@
 ///------------------------------------------------------------------------------------------------
-///  OpenGLDesktopRenderer.h                                                                                          
+///  IRenderer.h                                                                                          
 ///  Predators                                                                                            
 ///                                                                                                
 ///  Created by Alex Koukoulas on 25/09/2023                                                       
 ///------------------------------------------------------------------------------------------------
 
-#ifndef OpenGLDesktopRenderer_h
-#define OpenGLDesktopRenderer_h
+#ifndef IRenderer_h
+#define IRenderer_h
 
 ///------------------------------------------------------------------------------------------------
 
-#include <engine/rendering/IRenderer.h>
-#include <functional>
-#include <memory>
-#include <vector>
+namespace scene { class Scene; }
 
 ///------------------------------------------------------------------------------------------------
 
@@ -22,19 +19,13 @@ namespace rendering
 
 ///------------------------------------------------------------------------------------------------
 
-class OpenGLDesktopRenderer final: public IRenderer
+class IRenderer
 {
 public:
-    void BeginRenderPass() override;
-    void RenderScene(scene::Scene& scene) override;
-    void EndRenderPass() override;
-    void SpecialEventHandling(SDL_Event& event) override;
-    
-private:
-    void CreateIMGuiWidgets();
-    
-private:
-    std::vector<std::reference_wrapper<scene::Scene>> mCachedScenes;
+    virtual ~IRenderer() = default;
+    virtual void BeginRenderPass() = 0;
+    virtual void RenderScene(scene::Scene& scene) = 0;
+    virtual void EndRenderPass() = 0;
 };
 
 ///------------------------------------------------------------------------------------------------
@@ -43,4 +34,4 @@ private:
 
 ///------------------------------------------------------------------------------------------------
 
-#endif /* OpenGLDesktopRenderer_h */
+#endif /* IRenderer_h */

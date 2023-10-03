@@ -75,7 +75,7 @@ TEST(GameActionTests, TestDrawPlayNextDrawPlayActionRound)
         engine.Update(0);
     }
     
-    for (int i = 0; i < engine.GetBoardState().GetPlayerCount(); ++i)
+    for (size_t i = 0; i < engine.GetBoardState().GetPlayerCount(); ++i)
     {
         EXPECT_EQ(engine.GetBoardState().GetPlayerStates().at(i).mPlayerHeldCards.size(), 5);
         EXPECT_EQ(engine.GetBoardState().GetPlayerStates().at(i).mPlayerBoardCards.size(), 1);

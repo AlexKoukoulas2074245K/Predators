@@ -1,20 +1,19 @@
 ///------------------------------------------------------------------------------------------------
-///  IRenderer.h                                                                                          
+///  RendererPlatformImpl.h
 ///  Predators                                                                                            
 ///                                                                                                
-///  Created by Alex Koukoulas on 25/09/2023                                                       
+///  Created by Alex Koukoulas on 03/10/2023
 ///------------------------------------------------------------------------------------------------
 
-#ifndef IRenderer_h
-#define IRenderer_h
-
-///------------------------------------------------------------------------------------------------
-
-#include <SDL_events.h>
+#ifndef RendererPlatformImpl_h
+#define RendererPlatformImpl_h
 
 ///------------------------------------------------------------------------------------------------
 
-namespace scene { class Scene; }
+#include <engine/rendering/IRenderer.h>
+#include <functional>
+#include <memory>
+#include <vector>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -23,14 +22,18 @@ namespace rendering
 
 ///------------------------------------------------------------------------------------------------
 
-class IRenderer
+class RendererPlatformImpl final: public IRenderer
 {
 public:
-    virtual ~IRenderer() = default;
-    virtual void BeginRenderPass() = 0;
-    virtual void RenderScene(scene::Scene& scene) = 0;
-    virtual void EndRenderPass() = 0;
-    virtual void SpecialEventHandling(SDL_Event& event) = 0;
+    void BeginRenderPass() override;
+    void RenderScene(scene::Scene& scene) override;
+    void EndRenderPass() override;
+    
+private:
+    void CreateIMGuiWidgets();
+    
+private:
+    std::vector<std::reference_wrapper<scene::Scene>> mCachedScenes;
 };
 
 ///------------------------------------------------------------------------------------------------
@@ -39,4 +42,4 @@ public:
 
 ///------------------------------------------------------------------------------------------------
 
-#endif /* IRenderer_h */
+#endif /* RendererPlatformImpl_h */

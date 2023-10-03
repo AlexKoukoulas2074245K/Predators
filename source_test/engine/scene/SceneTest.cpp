@@ -12,7 +12,7 @@ TEST(SceneOperationTests, TestBasicInsertionAndRetrieval)
 {
     const strutils::StringId NAME("ABCD");
     
-    scene::Scene testScene;
+    scene::Scene testScene(strutils::StringId("test"));
     
     auto testSceneObject = testScene.CreateSceneObject();
     testSceneObject->mName = NAME;
@@ -30,7 +30,7 @@ TEST(SceneOperationTests, TestPointerValidityPostMassInsertion)
 {
     const strutils::StringId NAME("ABCD");
     
-    scene::Scene testScene;
+    scene::Scene testScene(strutils::StringId("test"));
     
     auto testSceneObject = testScene.CreateSceneObject();
     testSceneObject->mName = NAME;
@@ -65,7 +65,7 @@ TEST(SceneOperationTests, TestBasicInsertionAndRemoval)
 {
     const strutils::StringId NAME("ABCD");
     
-    scene::Scene testScene;
+    scene::Scene testScene(strutils::StringId("test"));
     
     auto testSceneObject = testScene.CreateSceneObject();
     testSceneObject->mName = NAME;
@@ -88,7 +88,7 @@ TEST(SceneOperationTests, TestRemovalOfEmptyName)
     const strutils::StringId EMPTY_NAME;
     const strutils::StringId NAME("ABCD");
     
-    scene::Scene testScene;
+    scene::Scene testScene(strutils::StringId("test"));
     
     auto testSceneObject = testScene.CreateSceneObject();
     testSceneObject->mName = NAME;

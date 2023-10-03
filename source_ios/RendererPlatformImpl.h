@@ -1,17 +1,19 @@
 ///------------------------------------------------------------------------------------------------
-///  OpenGLiOSRenderer.h
+///  RendererPlatformImpl.h
 ///  Predators                                                                                            
 ///                                                                                                
-///  Created by Alex Koukoulas on 02/10/2023
+///  Created by Alex Koukoulas on 03/10/2023
 ///------------------------------------------------------------------------------------------------
 
-#ifndef OpenGLiOSRenderer_h
-#define OpenGLiOSRenderer_h
+#ifndef RendererPlatformImpl_h
+#define RendererPlatformImpl_h
 
 ///------------------------------------------------------------------------------------------------
 
 #include <engine/rendering/IRenderer.h>
+#include <functional>
 #include <memory>
+#include <vector>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -20,14 +22,15 @@ namespace rendering
 
 ///------------------------------------------------------------------------------------------------
 
-class OpenGLiOSRenderer final: public IRenderer
+class RendererPlatformImpl final: public IRenderer
 {
 public:
     void BeginRenderPass() override;
     void RenderScene(scene::Scene& scene) override;
     void EndRenderPass() override;
-    void SpecialEventHandling(SDL_Event& event) override;
     
+private:
+    std::vector<std::reference_wrapper<scene::Scene>> mCachedScenes;
 };
 
 ///------------------------------------------------------------------------------------------------
@@ -36,4 +39,4 @@ public:
 
 ///------------------------------------------------------------------------------------------------
 
-#endif /* OpenGLiOSRenderer_h */
+#endif /* RendererPlatformImpl_h */

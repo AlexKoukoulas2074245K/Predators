@@ -1,14 +1,15 @@
 ///------------------------------------------------------------------------------------------------
-///  OpenGLiOSRenderer.cpp
+///  RendererPlatformImpl.cpp
 ///  Predators                                                                                            
 ///                                                                                                
-///  Created by Alex Koukoulas on 02/10/2023                                                       
+///  Created by Alex Koukoulas on 03/10/2023                                                       
 ///------------------------------------------------------------------------------------------------
 
+#include "RendererPlatformImpl.h" // Intentional quotes
+
+#include <engine/CoreSystemsEngine.h>
 #include <engine/rendering/Fonts.h>
 #include <engine/rendering/OpenGL.h>
-#include <engine/rendering/OpenGLiOSRenderer.h>
-#include <engine/rendering/RenderingContexts.h>
 #include <engine/resloading/MeshResource.h>
 #include <engine/resloading/ResourceLoadingService.h>
 #include <engine/resloading/ShaderResource.h>
@@ -16,7 +17,11 @@
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
 #include <engine/utils/StringUtils.h>
+#include <imgui/backends/imgui_impl_sdl2.h>
+#include <imgui/backends/imgui_impl_opengl3.h>
 #include <SDL.h>
+
+//#define IMGUI_IN_RELEASE
 
 ///------------------------------------------------------------------------------------------------
 
@@ -139,9 +144,9 @@ private:
 
 ///------------------------------------------------------------------------------------------------
 
-void OpenGLiOSRenderer::BeginRenderPass()
+void RendererPlatformImpl::BeginRenderPass()
 {
-    auto windowDimensions = rendering::RenderingContextHolder::GetRenderingContext().VGetContextRenderableDimensions();
+    auto windowDimensions = CoreSystemsEngine::GetInstance().VGetContextRenderableDimensions();
     
     // Set View Port
     GL_CALL(glViewport(0, 0, windowDimensions.x, windowDimensions.y));
@@ -160,8 +165,9 @@ void OpenGLiOSRenderer::BeginRenderPass()
 
 ///------------------------------------------------------------------------------------------------
 
-void OpenGLiOSRenderer::RenderScene(scene::Scene& scene)
+void RendererPlatformImpl::RenderScene(scene::Scene& scene)
 {
+    mCachedScenes.push_back(scene);
     for (const auto& sceneObject: scene.GetSceneObjects())
     {
         std::visit(SceneObjectTypeRendererVisitor(*sceneObject, scene.GetCamera()), sceneObject->mSceneObjectTypeData);
@@ -170,17 +176,86 @@ void OpenGLiOSRenderer::RenderScene(scene::Scene& scene)
 
 ///------------------------------------------------------------------------------------------------
 
-void OpenGLiOSRenderer::EndRenderPass()
+void RendererPlatformImpl::EndRenderPass()
 {
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__) || defined(__APPLE__) && (!defined(NDEBUG) || defined(IMGUI_IN_RELEASE))
+    // Imgui start-of-frame calls
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplSDL2_NewFrame();
+    ImGui::NewFrame();
+    
+    // Create all custom GUIs
+    CreateIMGuiWidgets();
+    mCachedScenes.clear();
+    
+    // Imgui end-of-frame calls
+    ImGui::EndFrame();
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+#endif
+    
     // Swap window buffers
-    SDL_GL_SwapWindow(&rendering::RenderingContextHolder::GetRenderingContext().VGetContextWindow());
+    SDL_GL_SwapWindow(&CoreSystemsEngine::GetInstance().VGetContextWindow());
 }
 
 ///------------------------------------------------------------------------------------------------
 
-void OpenGLiOSRenderer::SpecialEventHandling(SDL_Event&)
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__) || defined(__APPLE__) && (!defined(NDEBUG) || defined(IMGUI_IN_RELEASE))
+class SceneObjectDataIMGuiVisitor
+{
+public:
+    void operator()(scene::DefaultSceneObjectData)
+    {
+        ImGui::Text("SO Type: Default");
+    }
+    void operator()(scene::TextSceneObjectData)
+    {
+        ImGui::Text("SO Type: Text");
+    }
+};
+
+static SceneObjectDataIMGuiVisitor imguiVisitor;
+
+void RendererPlatformImpl::CreateIMGuiWidgets()
+{
+    //ImGui::ShowDemoWindow();
+    auto& resService = resources::ResourceLoadingService::GetInstance();
+    
+    // Create scene object viewer
+    for (auto& sceneRef: mCachedScenes)
+    {
+        auto viewerName = strutils::StringId("Scene Object Viewer (" + sceneRef.get().GetName().GetString() + ")");
+        ImGui::Begin(viewerName.GetString().c_str());
+        for (size_t i = 0; i < sceneRef.get().GetSceneObjects().size(); ++i)
+        {
+            auto& sceneObject = sceneRef.get().GetSceneObjects()[i];
+            auto sceneObjectName = sceneObject->mName.isEmpty() ? strutils::StringId("SO: " + std::to_string(i)) : strutils::StringId("SO: " + sceneObject->mName.GetString());
+            
+            if (ImGui::CollapsingHeader(sceneObjectName.GetString().c_str(), ImGuiTreeNodeFlags_None))
+            {
+                std::visit(imguiVisitor, sceneObject->mSceneObjectTypeData);
+                ImGui::Text("Mesh: %s", resService.GetResourcePath(sceneObject->mMeshResourceId).c_str());
+                ImGui::Text("Shader: %s", resService.GetResourcePath(sceneObject->mShaderResourceId).c_str());
+                ImGui::Text("Texture: %s", resService.GetResourcePath(sceneObject->mTextureResourceId).c_str());
+                ImGui::SliderFloat("x", &sceneObject->mPosition.x, -0.5f, 0.5f);
+                ImGui::SliderFloat("y", &sceneObject->mPosition.y, -0.5f, 0.5f);
+                ImGui::SliderFloat("z", &sceneObject->mPosition.z, -0.5f, 0.5f);
+                ImGui::SliderFloat("rx", &sceneObject->mRotation.x, -3.14f, 3.14f);
+                ImGui::SliderFloat("ry", &sceneObject->mRotation.y, -3.14f, 3.14f);
+                ImGui::SliderFloat("rz", &sceneObject->mRotation.z, -3.14f, 3.14f);
+                ImGui::SliderFloat("sx", &sceneObject->mScale.x, 0.01f, 10.0f);
+                ImGui::SliderFloat("sy", &sceneObject->mScale.y, 0.01f, 10.0f);
+                ImGui::SliderFloat("sz", &sceneObject->mScale.z, 0.01f, 10.0f);
+            }
+        }
+        ImGui::End();
+    }
+}
+#else
+void OpenGLDesktopRenderer::CreateIMGuiWidgets()
 {
 }
+#endif
 
 ///------------------------------------------------------------------------------------------------
 

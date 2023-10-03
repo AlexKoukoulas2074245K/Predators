@@ -5,10 +5,10 @@
 ///  Created by Alex Koukoulas on 19/09/2023
 ///------------------------------------------------------------------------------------------------
 
+#include <engine/CoreSystemsEngine.h>
 #include <engine/rendering/Camera.h>
 #include <engine/rendering/Fonts.h>
 #include <engine/rendering/OpenGL.h>
-#include <engine/rendering/RenderingContexts.h>
 #include <engine/resloading/DataFileResource.h>
 #include <engine/resloading/MeshResource.h>
 #include <engine/resloading/ResourceLoadingService.h>
@@ -53,8 +53,8 @@ bool Game::InitSystems(const int argc, char** argv)
         logging::Log(logging::LogType::INFO, "Initializing from CWD : %s", argv[0]);
     }
     
-    // Create appropriate rendering context for current platform
-    rendering::RenderingContextFactory::CreateRenderingContext();
+    // Initialize appropriate engine
+    CoreSystemsEngine::GetInstance();
     
     // Initialize resource loaders
     resources::ResourceLoadingService::GetInstance();
@@ -205,14 +205,14 @@ void Game::Run()
                 } break;
             }
             
-            rendering::RenderingContextHolder::GetRenderingContext().VGetRenderer().SpecialEventHandling(event);
+            CoreSystemsEngine::GetInstance().SpecialEventHandling(event);
         }
        
         if (secsAccumulator > 1.0f)
         {
             logging::Log(logging::LogType::INFO, "FPS: %d", framesAccumulator);
             framesAccumulator = 0;
-            secsAccumulator = 0.0f;
+            secsAccumulator -= 1.0f;
             
             resources::ResourceLoadingService::GetInstance().ReloadMarkedResourcesFromDisk();
             rendering::FontRepository::GetInstance().ReloadMarkedFontsFromDisk();
@@ -242,7 +242,7 @@ void Game::Run()
         
         dummyScene.GetCamera().Update(dtMillis);
         
-        auto& renderer = rendering::RenderingContextHolder::GetRenderingContext().VGetRenderer();
+        auto& renderer = CoreSystemsEngine::GetInstance().VGetRenderer();
         renderer.BeginRenderPass();
         renderer.RenderScene(dummyScene);
         renderer.RenderScene(uiScene);

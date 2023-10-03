@@ -5,8 +5,8 @@
 ///  Created by Alex Koukoulas on 20/09/2023
 ///------------------------------------------------------------------------------------------------
 
+#include <engine/CoreSystemsEngine.h>
 #include <engine/rendering/Camera.h>
-#include <engine/rendering/RenderingContexts.h>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -52,7 +52,7 @@ Camera::Camera(const float cameraLenseHeight)
 
 void Camera::RecalculateMatrices()
 {
-    const auto& windowDimensions = rendering::RenderingContextHolder::GetRenderingContext().VGetContextRenderableDimensions();
+    const auto& windowDimensions = CoreSystemsEngine::GetInstance().VGetContextRenderableDimensions();
     float aspect = windowDimensions.x/windowDimensions.y;
     mView = glm::lookAt(mPosition, mPosition + DEFAULT_CAMERA_FRONT_VECTOR, DEFAULT_CAMERA_UP_VECTOR);
     mProj = glm::ortho((-mCameraLenseWidth/(DEVICE_INVARIABLE_ASPECT/aspect))/2.0f/mZoomFactor, (mCameraLenseWidth/((DEVICE_INVARIABLE_ASPECT/aspect)))/2.0f/mZoomFactor, -mCameraLenseHeight/2.0f/mZoomFactor, mCameraLenseHeight/2.0f/mZoomFactor, DEFAULT_CAMERA_ZNEAR, DEFAULT_CAMERA_ZFAR);
