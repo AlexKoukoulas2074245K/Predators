@@ -11,6 +11,7 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <engine/rendering/IRenderer.h>
+#include <engine/CoreSystemsEngine.h>
 #include <functional>
 #include <memory>
 #include <vector>
@@ -24,12 +25,15 @@ namespace rendering
 
 class RendererPlatformImpl final: public IRenderer
 {
+    friend struct CoreSystemsEngine::SystemsImpl;    
 public:
     void VBeginRenderPass() override;
     void VRenderScene(scene::Scene& scene) override;
     void VEndRenderPass() override;
     
 private:
+    RendererPlatformImpl() = default;
+    
     void CreateIMGuiWidgets();
     
 private:

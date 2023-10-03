@@ -10,6 +10,7 @@
 
 ///------------------------------------------------------------------------------------------------
 
+#include <engine/CoreSystemsEngine.h>
 #include <engine/utils/StringUtils.h>
 #include <memory>
 #include <string>        
@@ -49,6 +50,7 @@ enum ResourceReloadMode
 /// A service class aimed at providing resource loading, simple file IO, etc.
 class ResourceLoadingService final
 {
+    friend struct CoreSystemsEngine::SystemsImpl;
 public:
     static const std::string RES_ROOT;    
     static const std::string RES_DATA_ROOT;
@@ -61,7 +63,6 @@ public:
     static const std::string RES_ATLASES_ROOT;
     static const std::string RES_FONT_MAP_DATA_ROOT;
     
-    ResourceLoadingService();
     ~ResourceLoadingService();
     ResourceLoadingService(const ResourceLoadingService&) = delete;
     ResourceLoadingService(ResourceLoadingService&&) = delete;
@@ -164,7 +165,8 @@ public:
     std::string GetResourcePath(const ResourceId resourceId) const;
     
 private:
-
+    ResourceLoadingService();
+    
     IResource& GetResource(const std::string& resourceRelativePath);
     IResource& GetResource(const ResourceId resourceId);    
     void LoadResourceInternal(const std::string& resourceRelativePath, const ResourceId resourceId);

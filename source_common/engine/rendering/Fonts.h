@@ -10,6 +10,7 @@
 
 ///------------------------------------------------------------------------------------------------
 
+#include <engine/CoreSystemsEngine.h>
 #include <engine/utils/MathUtils.h>
 #include <engine/resloading/ResourceLoadingService.h>
 #include <engine/utils/StringUtils.h>
@@ -58,8 +59,8 @@ struct Font
 
 class FontRepository final
 {
+    friend struct CoreSystemsEngine::SystemsImpl;
 public:
-    FontRepository() = default;
     ~FontRepository() = default;
     FontRepository(const FontRepository&) = delete;
     FontRepository(FontRepository&&) = delete;
@@ -69,6 +70,9 @@ public:
     std::optional<std::reference_wrapper<const Font>> GetFont(const strutils::StringId& fontName) const;
     void ReloadMarkedFontsFromDisk();
     void LoadFont(const std::string& fontName, const resources::ResourceReloadMode resourceReloadMode = resources::ResourceReloadMode::DONT_RELOAD);
+    
+private:
+    FontRepository() = default;
     
 private:
     std::unordered_map<strutils::StringId, Font, strutils::StringIdHasher> mFontMap;

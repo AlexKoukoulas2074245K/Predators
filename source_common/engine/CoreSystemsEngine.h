@@ -51,6 +51,9 @@ public:
     glm::vec2 GetContextRenderableDimensions() const;
     void SpecialEventHandling(SDL_Event& event);
     
+    // Public so that subsystems have visibility
+    // of this before befriending 
+    struct SystemsImpl;
 private:
     CoreSystemsEngine() = default;
     void Initialize();
@@ -61,11 +64,8 @@ private:
 private:
     SDL_Window* mWindow = nullptr;
     SDL_GLContext mContext = nullptr;
-    std::unique_ptr<rendering::IRenderer> mRenderer;
-    std::unique_ptr<rendering::FontRepository> mFontRepository;
-    std::unique_ptr<input::IInputStateManager> mInputStateManager;
-    std::unique_ptr<scene::ActiveSceneManager> mActiveSceneManager;
-    std::unique_ptr<resources::ResourceLoadingService> mResourceLoadingService;
+    
+    std::unique_ptr<SystemsImpl> mSystems;
 };
 
 ///------------------------------------------------------------------------------------------------

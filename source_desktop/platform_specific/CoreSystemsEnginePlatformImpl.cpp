@@ -33,6 +33,17 @@ bool CoreSystemsEngine::mInitialized = false;
 
 ///------------------------------------------------------------------------------------------------
 
+struct CoreSystemsEngine::SystemsImpl
+{
+    rendering::RendererPlatformImpl mRenderer;
+    rendering::FontRepository mFontRepository;
+    input::InputStateManagerPlatformImpl mInputStateManager;
+    scene::ActiveSceneManager mActiveSceneManager;
+    resources::ResourceLoadingService mResourceLoadingService;
+};
+
+///------------------------------------------------------------------------------------------------
+
 CoreSystemsEngine& CoreSystemsEngine::GetInstance()
 {
     static CoreSystemsEngine instance;
@@ -99,12 +110,8 @@ void CoreSystemsEngine::Initialize()
     SDL_GL_SetSwapInterval(1);
 
     // Systems Initialization
-    mRenderer = std::make_unique<rendering::RendererPlatformImpl>();
-    mFontRepository = std::make_unique<rendering::FontRepository>();
-    mInputStateManager = std::make_unique<input::InputStateManagerPlatformImpl>();
-    mActiveSceneManager = std::make_unique<scene::ActiveSceneManager>();
-    mResourceLoadingService = std::make_unique<resources::ResourceLoadingService>();
-    mResourceLoadingService->Initialize();
+    mSystems = std::make_unique<SystemsImpl>();
+    mSystems->mResourceLoadingService.Initialize();
     
     // Enable texture blending
     GL_CALL(glEnable(GL_BLEND));
@@ -160,12 +167,12 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
         //Handle events on queue
         while(SDL_PollEvent(&event) != 0)
         {
-            mInputStateManager->VProcessInputEvent(event, shouldQuit, windowSizeChanged);
+            mSystems->mInputStateManager.VProcessInputEvent(event, shouldQuit, windowSizeChanged);
         }
         
         if (windowSizeChanged)
         {
-            for (auto& scene: mActiveSceneManager->GetScenes())
+            for (auto& scene: mSystems->mActiveSceneManager.GetScenes())
             {
                 scene->GetCamera().RecalculateMatrices();
             }
@@ -177,8 +184,8 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
             framesAccumulator = 0;
             secsAccumulator -= 1.0f;
             
-            mResourceLoadingService->ReloadMarkedResourcesFromDisk();
-            mFontRepository->ReloadMarkedFontsFromDisk();
+            mSystems->mResourceLoadingService.ReloadMarkedResourcesFromDisk();
+            mSystems->mFontRepository.ReloadMarkedFontsFromDisk();
         }
         //
         //        if (move == 1)
@@ -196,14 +203,14 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
 
         clientUpdateFunction(dtMillis);
         
-        mRenderer->VBeginRenderPass();
+        mSystems->mRenderer.VBeginRenderPass();
         
-        for (auto& scene: mActiveSceneManager->GetScenes())
+        for (auto& scene: mSystems->mActiveSceneManager.GetScenes())
         {
-            mRenderer->VRenderScene(*scene);
+            mSystems->mRenderer.VRenderScene(*scene);
         }
         
-        mRenderer->VEndRenderPass();
+        mSystems->mRenderer.VEndRenderPass();
     }
 }
 
@@ -211,35 +218,35 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
 
 rendering::IRenderer& CoreSystemsEngine::GetRenderer()
 {
-    return *mRenderer;
+    return mSystems->mRenderer;
 }
 
 ///------------------------------------------------------------------------------------------------
 
 rendering::FontRepository& CoreSystemsEngine::GetFontRepository()
 {
-    return *mFontRepository;
+    return mSystems->mFontRepository;
 }
 
 ///------------------------------------------------------------------------------------------------
 
 input::IInputStateManager& CoreSystemsEngine::GetInputStateManager()
 {
-    return *mInputStateManager;
+    return mSystems->mInputStateManager;
 }
 
 ///------------------------------------------------------------------------------------------------
 
 scene::ActiveSceneManager& CoreSystemsEngine::GetActiveSceneManager()
 {
-    return *mActiveSceneManager;
+    return mSystems->mActiveSceneManager;
 }
 
 ///------------------------------------------------------------------------------------------------
 
 resources::ResourceLoadingService& CoreSystemsEngine::GetResourceLoadingService()
 {
-    return *mResourceLoadingService;
+    return mSystems->mResourceLoadingService;
 }
 
 ///------------------------------------------------------------------------------------------------

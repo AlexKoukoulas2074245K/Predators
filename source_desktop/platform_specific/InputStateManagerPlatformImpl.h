@@ -11,6 +11,7 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <engine/input/IInputStateManager.h>
+#include <engine/CoreSystemsEngine.h>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -21,10 +22,14 @@ namespace input
 
 class InputStateManagerPlatformImpl final: public IInputStateManager
 {
+    friend struct CoreSystemsEngine::SystemsImpl;
 public:
     void VProcessInputEvent(const SDL_Event& event, bool& shouldQuit, bool& windowSizeChange) override;
     const glm::vec2& VGetPointingPos() const override;
     void VUpdate(const float dtMillis) override;
+    
+private:
+    InputStateManagerPlatformImpl() = default;
 };
 
 ///------------------------------------------------------------------------------------------------
