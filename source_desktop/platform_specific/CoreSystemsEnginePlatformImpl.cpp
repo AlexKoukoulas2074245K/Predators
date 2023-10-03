@@ -100,11 +100,11 @@ void CoreSystemsEngine::Initialize()
 
     // Systems Initialization
     mRenderer = std::make_unique<rendering::RendererPlatformImpl>();
+    mFontRepository = std::make_unique<rendering::FontRepository>();
     mInputStateManager = std::make_unique<input::InputStateManagerPlatformImpl>();
     mActiveSceneManager = std::make_unique<scene::ActiveSceneManager>();
-    
-    // Initialize resource loaders
-    resources::ResourceLoadingService::GetInstance();
+    mResourceLoadingService = std::make_unique<resources::ResourceLoadingService>();
+    mResourceLoadingService->Initialize();
     
     // Enable texture blending
     GL_CALL(glEnable(GL_BLEND));
@@ -177,8 +177,8 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
             framesAccumulator = 0;
             secsAccumulator -= 1.0f;
             
-            resources::ResourceLoadingService::GetInstance().ReloadMarkedResourcesFromDisk();
-            rendering::FontRepository::GetInstance().ReloadMarkedFontsFromDisk();
+            mResourceLoadingService->ReloadMarkedResourcesFromDisk();
+            mFontRepository->ReloadMarkedFontsFromDisk();
         }
         //
         //        if (move == 1)
@@ -216,6 +216,13 @@ rendering::IRenderer& CoreSystemsEngine::GetRenderer()
 
 ///------------------------------------------------------------------------------------------------
 
+rendering::FontRepository& CoreSystemsEngine::GetFontRepository()
+{
+    return *mFontRepository;
+}
+
+///------------------------------------------------------------------------------------------------
+
 input::IInputStateManager& CoreSystemsEngine::GetInputStateManager()
 {
     return *mInputStateManager;
@@ -226,6 +233,13 @@ input::IInputStateManager& CoreSystemsEngine::GetInputStateManager()
 scene::ActiveSceneManager& CoreSystemsEngine::GetActiveSceneManager()
 {
     return *mActiveSceneManager;
+}
+
+///------------------------------------------------------------------------------------------------
+
+resources::ResourceLoadingService& CoreSystemsEngine::GetResourceLoadingService()
+{
+    return *mResourceLoadingService;
 }
 
 ///------------------------------------------------------------------------------------------------

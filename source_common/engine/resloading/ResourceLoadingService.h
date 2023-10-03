@@ -61,19 +61,16 @@ public:
     static const std::string RES_ATLASES_ROOT;
     static const std::string RES_FONT_MAP_DATA_ROOT;
     
-
-    /// The default method of getting a hold of this singleton.
-    ///
-    /// The single instance of this class will be lazily initialized
-    /// the first time it is needed.
-    /// @returns a reference to the single instance of this class.    
-    static ResourceLoadingService& GetInstance();
-
+    ResourceLoadingService();
     ~ResourceLoadingService();
     ResourceLoadingService(const ResourceLoadingService&) = delete;
     ResourceLoadingService(ResourceLoadingService&&) = delete;
     const ResourceLoadingService& operator = (const ResourceLoadingService&) = delete;
     ResourceLoadingService& operator = (ResourceLoadingService&&) = delete;
+    
+    // Initializes loaders for different types of assets.
+    // Called internally by the engine.
+    void Initialize();
     
     /// Computes the hashed resource id, for a given file path.
     ///
@@ -166,12 +163,7 @@ public:
     /// returns the original path of the resource
     std::string GetResourcePath(const ResourceId resourceId) const;
     
-private:    
-    ResourceLoadingService() = default;
-
-    // Initializes loaders for different types of assets. 
-    // Called internally by the engine.
-    void Initialize();
+private:
 
     IResource& GetResource(const std::string& resourceRelativePath);
     IResource& GetResource(const ResourceId resourceId);    

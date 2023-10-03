@@ -48,11 +48,9 @@ static const std::string ZIPPED_ASSETS_FILE_NAME = "assets.zip";
 
 ///------------------------------------------------------------------------------------------------
 
-ResourceLoadingService& ResourceLoadingService::GetInstance()
+ResourceLoadingService::ResourceLoadingService()
 {
-    static ResourceLoadingService instance;
-    if (!instance.mInitialized) instance.Initialize();
-    return instance;
+    
 }
 
 ///------------------------------------------------------------------------------------------------

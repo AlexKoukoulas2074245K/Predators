@@ -19,6 +19,8 @@
 
 namespace input { class IInputStateManager; }
 namespace rendering { class IRenderer; }
+namespace rendering { class FontRepository; }
+namespace resources { class ResourceLoadingService; }
 namespace scene { class ActiveSceneManager; }
 
 struct SDL_Window;
@@ -40,8 +42,10 @@ public:
     void Start(std::function<void()> clientInitFunction, std::function<void(const float)> clientUpdateFunction);
     
     rendering::IRenderer& GetRenderer();
+    rendering::FontRepository& GetFontRepository();
     input::IInputStateManager& GetInputStateManager();
     scene::ActiveSceneManager& GetActiveSceneManager();
+    resources::ResourceLoadingService& GetResourceLoadingService();
     
     SDL_Window& GetContextWindow() const;
     glm::vec2 GetContextRenderableDimensions() const;
@@ -58,8 +62,10 @@ private:
     SDL_Window* mWindow = nullptr;
     SDL_GLContext mContext = nullptr;
     std::unique_ptr<rendering::IRenderer> mRenderer;
+    std::unique_ptr<rendering::FontRepository> mFontRepository;
     std::unique_ptr<input::IInputStateManager> mInputStateManager;
     std::unique_ptr<scene::ActiveSceneManager> mActiveSceneManager;
+    std::unique_ptr<resources::ResourceLoadingService> mResourceLoadingService;
 };
 
 ///------------------------------------------------------------------------------------------------

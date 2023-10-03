@@ -5,6 +5,7 @@
 ///  Created by Alex Koukoulas on 22/09/2023
 ///------------------------------------------------------------------------------------------------
 
+#include <engine/CoreSystemsEngine.h>
 #include <engine/rendering/Fonts.h>
 #include <engine/resloading/ResourceLoadingService.h>
 #include <engine/resloading/DataFileResource.h>
@@ -17,14 +18,6 @@
 
 namespace rendering
 {
-
-///------------------------------------------------------------------------------------------------
-
-FontRepository& FontRepository::GetInstance()
-{
-    static FontRepository instance;
-    return instance;
-}
 
 ///------------------------------------------------------------------------------------------------
 
@@ -54,11 +47,11 @@ void FontRepository::ReloadMarkedFontsFromDisk()
 
 void FontRepository::LoadFont(const std::string& fontName, const resources::ResourceReloadMode resourceReloadMode /* = resources::ResourceReloadMode::DONT_RELOAD */)
 {
-    auto fontTextureResourceId = resources::ResourceLoadingService::GetInstance().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + fontName + ".png", resourceReloadMode);
-    auto& fontTexture = resources::ResourceLoadingService::GetInstance().GetResource<resources::TextureResource>(fontTextureResourceId);
+    auto fontTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + fontName + ".png", resourceReloadMode);
+    auto& fontTexture = CoreSystemsEngine::GetInstance().GetResourceLoadingService().GetResource<resources::TextureResource>(fontTextureResourceId);
     
-    auto fontDefinitionJsonResourceId = resources::ResourceLoadingService::GetInstance().LoadResource(resources::ResourceLoadingService::RES_DATA_ROOT + fontName + ".json", resourceReloadMode);
-    auto fontJson =  nlohmann::json::parse(resources::ResourceLoadingService::GetInstance().GetResource<resources::DataFileResource>(fontDefinitionJsonResourceId).GetContents());
+    auto fontDefinitionJsonResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_DATA_ROOT + fontName + ".json", resourceReloadMode);
+    auto fontJson =  nlohmann::json::parse(CoreSystemsEngine::GetInstance().GetResourceLoadingService().GetResource<resources::DataFileResource>(fontDefinitionJsonResourceId).GetContents());
     
     Font font;
     font.mFontName = strutils::StringId(fontName);

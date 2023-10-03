@@ -59,8 +59,7 @@ struct Font
 class FontRepository final
 {
 public:
-    static FontRepository& GetInstance();
-    
+    FontRepository() = default;
     ~FontRepository() = default;
     FontRepository(const FontRepository&) = delete;
     FontRepository(FontRepository&&) = delete;
@@ -70,9 +69,6 @@ public:
     std::optional<std::reference_wrapper<const Font>> GetFont(const strutils::StringId& fontName) const;
     void ReloadMarkedFontsFromDisk();
     void LoadFont(const std::string& fontName, const resources::ResourceReloadMode resourceReloadMode = resources::ResourceReloadMode::DONT_RELOAD);
-    
-private:
-    FontRepository() = default;
     
 private:
     std::unordered_map<strutils::StringId, Font, strutils::StringIdHasher> mFontMap;

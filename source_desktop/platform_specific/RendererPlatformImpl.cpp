@@ -56,7 +56,7 @@ public:
     
     void operator()(scene::DefaultSceneObjectData)
     {
-        auto& resService = resources::ResourceLoadingService::GetInstance();
+        auto& resService = CoreSystemsEngine::GetInstance().GetResourceLoadingService();
         
         auto* currentShader = &(resService.GetResource<resources::ShaderResource>(mSceneObject.mShaderResourceId));
         GL_CALL(glUseProgram(currentShader->GetProgramId()));
@@ -85,7 +85,7 @@ public:
     
     void operator()(scene::TextSceneObjectData sceneObjectTypeData)
     {
-        auto& resService = resources::ResourceLoadingService::GetInstance();
+        auto& resService = CoreSystemsEngine::GetInstance().GetResourceLoadingService();
         
         auto* currentShader = &(resService.GetResource<resources::ShaderResource>(mSceneObject.mShaderResourceId));
         GL_CALL(glUseProgram(currentShader->GetProgramId()));
@@ -93,7 +93,7 @@ public:
         auto* currentMesh = &(resService.GetResource<resources::MeshResource>(mSceneObject.mMeshResourceId));
         GL_CALL(glBindVertexArray(currentMesh->GetVertexArrayObject()));
         
-        auto fontOpt = rendering::FontRepository::GetInstance().GetFont(sceneObjectTypeData.mFontName);
+        auto fontOpt = CoreSystemsEngine::GetInstance().GetFontRepository().GetFont(sceneObjectTypeData.mFontName);
         assert(fontOpt);
         const auto& font = fontOpt->get();
         
@@ -218,7 +218,7 @@ static SceneObjectDataIMGuiVisitor imguiVisitor;
 void RendererPlatformImpl::CreateIMGuiWidgets()
 {
     //ImGui::ShowDemoWindow();
-    auto& resService = resources::ResourceLoadingService::GetInstance();
+    auto& resService = CoreSystemsEngine::GetInstance().GetResourceLoadingService();
     
     // Create scene object viewer
     for (auto& sceneRef: mCachedScenes)

@@ -24,10 +24,6 @@
 
 ///------------------------------------------------------------------------------------------------
 
-
-
-///------------------------------------------------------------------------------------------------
-
 Game::Game(const int argc, char** argv)
 {
     if (argc > 0)
@@ -42,24 +38,25 @@ Game::Game(const int argc, char** argv)
 
 void Game::Init()
 {
-    rendering::FontRepository::GetInstance().LoadFont("font", resources::ResourceReloadMode::DONT_RELOAD);
+    auto& systemsEngine = CoreSystemsEngine::GetInstance();
+    systemsEngine.GetFontRepository().LoadFont("font", resources::ResourceReloadMode::DONT_RELOAD);
     
-    auto dummyScene = CoreSystemsEngine::GetInstance().GetActiveSceneManager().CreateScene(strutils::StringId("Dummy"));
+    auto dummyScene = systemsEngine.GetActiveSceneManager().CreateScene(strutils::StringId("Dummy"));
     auto boardSceneObject = dummyScene->CreateSceneObject(strutils::StringId("Board"));
-    boardSceneObject->mShaderResourceId = resources::ResourceLoadingService::GetInstance().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + "basic.vs");
-    boardSceneObject->mTextureResourceId = resources::ResourceLoadingService::GetInstance().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "board.png");
-    boardSceneObject->mMeshResourceId = resources::ResourceLoadingService::GetInstance().LoadResource(resources::ResourceLoadingService::RES_MESHES_ROOT + "quad.obj");
+    boardSceneObject->mShaderResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + "basic.vs");
+    boardSceneObject->mTextureResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "board.png");
+    boardSceneObject->mMeshResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_MESHES_ROOT + "quad.obj");
     
     auto cardFrameSceneObject = dummyScene->CreateSceneObject(strutils::StringId("CardFrame"));
     cardFrameSceneObject->mScale.x = cardFrameSceneObject->mScale.y = 0.1f;
     cardFrameSceneObject->mPosition.z = 0.2f;
     cardFrameSceneObject->mPosition.y = 0.1f;
-    cardFrameSceneObject->mShaderResourceId = resources::ResourceLoadingService::GetInstance().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + "basic.vs");
-    cardFrameSceneObject->mTextureResourceId = resources::ResourceLoadingService::GetInstance().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "card_frame.png");
-    cardFrameSceneObject->mMeshResourceId = resources::ResourceLoadingService::GetInstance().LoadResource(resources::ResourceLoadingService::RES_MESHES_ROOT + "quad.obj");
+    cardFrameSceneObject->mShaderResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + "basic.vs");
+    cardFrameSceneObject->mTextureResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "card_frame.png");
+    cardFrameSceneObject->mMeshResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_MESHES_ROOT + "quad.obj");
     
     
-    auto uiScene = CoreSystemsEngine::GetInstance().GetActiveSceneManager().CreateScene(strutils::StringId("UI"));
+    auto uiScene = systemsEngine.GetActiveSceneManager().CreateScene(strutils::StringId("UI"));
     std::string texts[6] =
     {
         "AbCdEfGhIjKlMnOpQrStUvWxYz",
@@ -92,8 +89,8 @@ void Game::Init()
         
         fontRowSceneObject->mPosition = glm::vec3(-0.4f, yCursors[i], 0.1f);
         fontRowSceneObject->mScale = glm::vec3(0.00058f);
-        fontRowSceneObject->mShaderResourceId = resources::ResourceLoadingService::GetInstance().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + "basic.vs");
-        fontRowSceneObject->mMeshResourceId = resources::ResourceLoadingService::GetInstance().LoadResource(resources::ResourceLoadingService::RES_MESHES_ROOT + "quad.obj");
+        fontRowSceneObject->mShaderResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + "basic.vs");
+        fontRowSceneObject->mMeshResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_MESHES_ROOT + "quad.obj");
     }
     
     GameActionEngine gameActionEngine(GameActionEngine::EngineOperationMode::HEADLESS);
