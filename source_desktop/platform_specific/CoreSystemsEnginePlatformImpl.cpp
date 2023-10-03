@@ -55,7 +55,6 @@ CoreSystemsEngine& CoreSystemsEngine::GetInstance()
 
 CoreSystemsEngine::~CoreSystemsEngine()
 {
-    SDL_Quit();
 }
 
 ///------------------------------------------------------------------------------------------------

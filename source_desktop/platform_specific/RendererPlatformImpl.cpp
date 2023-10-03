@@ -148,7 +148,7 @@ void RendererPlatformImpl::VBeginRenderPass()
     auto windowDimensions = CoreSystemsEngine::GetInstance().GetContextRenderableDimensions();
     
     // Set View Port
-    GL_CALL(glViewport(0, 0, windowDimensions.x, windowDimensions.y));
+    GL_CALL(glViewport(0, 0, static_cast<int>(windowDimensions.x), static_cast<int>(windowDimensions.y)));
     
     // Set background color
     GL_CALL(glClearColor(1.0f, 1.0f, 1.0f, 1.0f));
