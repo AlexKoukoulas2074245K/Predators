@@ -202,6 +202,7 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
 
         clientUpdateFunction(dtMillis);
         
+        mSystems->mInputStateManager.VUpdate(dtMillis);
         mSystems->mRenderer.VBeginRenderPass();
         
         for (auto& scene: mSystems->mActiveSceneManager.GetScenes())

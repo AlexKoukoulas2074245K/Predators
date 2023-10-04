@@ -6,19 +6,15 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <engine/CoreSystemsEngine.h>
+#include <engine/input/IInputStateManager.h>
 #include <engine/rendering/Camera.h>
 #include <engine/rendering/Fonts.h>
-#include <engine/resloading/DataFileResource.h>
-#include <engine/resloading/MeshResource.h>
 #include <engine/resloading/ResourceLoadingService.h>
-#include <engine/resloading/ShaderResource.h>
-#include <engine/resloading/TextureResource.h>
 #include <engine/scene/ActiveSceneManager.h>
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
 #include <engine/utils/Logging.h>
 #include <engine/utils/MathUtils.h>
-#include <engine/utils/OSMessageBox.h>
 #include <game/Game.h>
 #include <game/gameactions/GameActionEngine.h>
 

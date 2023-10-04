@@ -10,8 +10,11 @@
 
 ///------------------------------------------------------------------------------------------------
 
+#include <cstdint>
 #include <engine/input/IInputStateManager.h>
 #include <engine/CoreSystemsEngine.h>
+#include <vector>
+
 
 ///------------------------------------------------------------------------------------------------
 
@@ -24,12 +27,21 @@ class InputStateManagerPlatformImpl final: public IInputStateManager
 {
     friend struct CoreSystemsEngine::SystemsImpl;
 public:
-    void VProcessInputEvent(const SDL_Event& event, bool& shouldQuit, bool& windowSizeChange) override;
     const glm::vec2& VGetPointingPos() const override;
+    bool VIsTouchInputPlatform() const override;
+    bool VButtonPressed(const Button button) const override;
+    bool VButtonTapped(const Button button) const override;
+    
+    void VProcessInputEvent(const SDL_Event& event, bool& shouldQuit, bool& windowSizeChange) override;
     void VUpdate(const float dtMillis) override;
     
 private:
     InputStateManagerPlatformImpl() = default;
+    
+private:
+    glm::vec2 mPointingPos;
+    uint8_t mCurrentFrameButtonState = 0U;
+    uint8_t mPreviousFrameButtonState = 0U;
 };
 
 ///------------------------------------------------------------------------------------------------
