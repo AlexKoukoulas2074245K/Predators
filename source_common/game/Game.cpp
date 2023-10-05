@@ -97,6 +97,11 @@ void Game::Init()
 
 void Game::Update(const float)
 {
+    auto& inputStateManager = CoreSystemsEngine::GetInstance().GetInputStateManager();
+    if (inputStateManager.VButtonPressed(input::Button::MAIN_BUTTON))
+    {
+        logging::Log(logging::LogType::INFO, "Main button down at %.3f,%.3f", inputStateManager.VGetPointingPos().x, inputStateManager.VGetPointingPos().y);
+    }
 }
 
 ///------------------------------------------------------------------------------------------------

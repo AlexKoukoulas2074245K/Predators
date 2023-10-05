@@ -67,19 +67,21 @@ void InputStateManagerPlatformImpl::VProcessInputEvent(const SDL_Event& event, b
         }
         break;
         
-        case SDL_MOUSEBUTTONUP:
+        case SDL_FINGERDOWN:
         {
-            mCurrentFrameButtonState |= (1 << event.button.button);
+            mPointingPos = glm::vec2(event.tfinger.x, event.tfinger.y);
+            mCurrentFrameButtonState |= (1 << static_cast<uint8_t>(Button::MAIN_BUTTON));
         } break;
             
-        case SDL_MOUSEBUTTONDOWN:
+        case SDL_FINGERUP:
         {
-            mCurrentFrameButtonState ^= (1 << event.button.button);
+            mPointingPos = glm::vec2(event.tfinger.x, event.tfinger.y);
+            mCurrentFrameButtonState ^= (1 << static_cast<uint8_t>(Button::MAIN_BUTTON));
         } break;
             
-        case SDL_MOUSEMOTION:
+        case SDL_FINGERMOTION:
         {
-            mPointingPos = glm::vec2(event.motion.x/renderableDimensions.x, event.motion.y/renderableDimensions.y);
+            mPointingPos = glm::vec2(event.tfinger.x, event.tfinger.y);
         } break;
             
         case SDL_MOUSEWHEEL:
