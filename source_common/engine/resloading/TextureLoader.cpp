@@ -85,6 +85,13 @@ std::unique_ptr<IResource> TextureLoader::VCreateAndLoadResource(const std::stri
             break;
     }
     
+#if __APPLE__
+    #include <TargetConditionals.h>
+    #if defined(TARGET_IPHONE_SIMULATOR) || defined(TARGET_OS_IPHONE)
+        
+    #endif
+#endif
+    
     GL_CALL(glTexImage2D
     (
         GL_TEXTURE_2D,

@@ -44,6 +44,7 @@ private:
     ShaderLoader() = default;
     
     std::string ReadFileContents(const std::string& filePath) const;
+    void PrependPreprocessorVars(std::string& shaderSource) const;
     void ReplaceIncludeDirectives(std::string& shaderSource) const;
     std::unordered_map<strutils::StringId, GLuint, strutils::StringIdHasher> GetUniformNamesToLocationsMap
     (
@@ -54,6 +55,9 @@ private:
         std::unordered_map<strutils::StringId, int, strutils::StringIdHasher>& uniformArrayElementCounts,
         std::vector<strutils::StringId>& samplerNamesInOrder
     ) const;
+    
+private:
+    std::string mGlslVersion;
 };
 
 ///------------------------------------------------------------------------------------------------

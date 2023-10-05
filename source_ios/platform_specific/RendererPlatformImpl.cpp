@@ -5,8 +5,6 @@
 ///  Created by Alex Koukoulas on 03/10/2023                                                       
 ///------------------------------------------------------------------------------------------------
 
-#include "RendererPlatformImpl.h" // Intentional quotes
-
 #include <engine/CoreSystemsEngine.h>
 #include <engine/rendering/Fonts.h>
 #include <engine/rendering/OpenGL.h>
@@ -17,7 +15,12 @@
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
 #include <engine/utils/StringUtils.h>
+#include <imgui/backends/imgui_impl_sdl2.h>
+#include <imgui/backends/imgui_impl_opengl3.h>
+#include <platform_specific/RendererPlatformImpl.h>
 #include <SDL.h>
+
+//#define IMGUI_IN_RELEASE
 
 ///------------------------------------------------------------------------------------------------
 
@@ -53,7 +56,7 @@ public:
     
     void operator()(scene::DefaultSceneObjectData)
     {
-        auto& resService = resources::ResourceLoadingService::GetInstance();
+        auto& resService = CoreSystemsEngine::GetInstance().GetResourceLoadingService();
         
         auto* currentShader = &(resService.GetResource<resources::ShaderResource>(mSceneObject.mShaderResourceId));
         GL_CALL(glUseProgram(currentShader->GetProgramId()));
@@ -82,7 +85,7 @@ public:
     
     void operator()(scene::TextSceneObjectData sceneObjectTypeData)
     {
-        auto& resService = resources::ResourceLoadingService::GetInstance();
+        auto& resService = CoreSystemsEngine::GetInstance().GetResourceLoadingService();
         
         auto* currentShader = &(resService.GetResource<resources::ShaderResource>(mSceneObject.mShaderResourceId));
         GL_CALL(glUseProgram(currentShader->GetProgramId()));
@@ -90,7 +93,7 @@ public:
         auto* currentMesh = &(resService.GetResource<resources::MeshResource>(mSceneObject.mMeshResourceId));
         GL_CALL(glBindVertexArray(currentMesh->GetVertexArrayObject()));
         
-        auto fontOpt = rendering::FontRepository::GetInstance().GetFont(sceneObjectTypeData.mFontName);
+        auto fontOpt = CoreSystemsEngine::GetInstance().GetFontRepository().GetFont(sceneObjectTypeData.mFontName);
         assert(fontOpt);
         const auto& font = fontOpt->get();
         
@@ -140,12 +143,12 @@ private:
 
 ///------------------------------------------------------------------------------------------------
 
-void RendererPlatformImpl::BeginRenderPass()
+void RendererPlatformImpl::VBeginRenderPass()
 {
-    auto windowDimensions = CoreSystemsEngine::GetInstance().VGetContextRenderableDimensions();
+    auto windowDimensions = CoreSystemsEngine::GetInstance().GetContextRenderableDimensions();
     
     // Set View Port
-    GL_CALL(glViewport(0, 0, windowDimensions.x, windowDimensions.y));
+    GL_CALL(glViewport(0, 0, static_cast<int>(windowDimensions.x), static_cast<int>(windowDimensions.y)));
     
     // Set background color
     GL_CALL(glClearColor(1.0f, 1.0f, 1.0f, 1.0f));
@@ -161,7 +164,7 @@ void RendererPlatformImpl::BeginRenderPass()
 
 ///------------------------------------------------------------------------------------------------
 
-void RendererPlatformImpl::RenderScene(scene::Scene& scene)
+void RendererPlatformImpl::VRenderScene(scene::Scene& scene)
 {
     mCachedScenes.push_back(scene);
     for (const auto& sceneObject: scene.GetSceneObjects())
@@ -172,10 +175,10 @@ void RendererPlatformImpl::RenderScene(scene::Scene& scene)
 
 ///------------------------------------------------------------------------------------------------
 
-void RendererPlatformImpl::EndRenderPass()
+void RendererPlatformImpl::VEndRenderPass()
 {
     // Swap window buffers
-    SDL_GL_SwapWindow(&CoreSystemsEngine::GetInstance().VGetContextWindow());
+    SDL_GL_SwapWindow(&CoreSystemsEngine::GetInstance().GetContextWindow());
 }
 
 ///------------------------------------------------------------------------------------------------

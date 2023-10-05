@@ -13,7 +13,7 @@
 #include <assert.h>
 
 #ifdef __APPLE__
-    #if __has_include(<OpenGLES/OpenGLES.h>)
+    #if __has_include(<OpenGLES/ES3/gl.h>)
         #define GLES_SILENCE_DEPRECATION
         #include <OpenGLES/ES3/gl.h>
     #else

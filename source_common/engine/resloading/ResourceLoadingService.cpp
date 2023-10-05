@@ -30,6 +30,15 @@ namespace resources
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
     const std::string ResourceLoadingService::RES_ROOT = "../../assets/";
+#elif __APPLE__
+    #include <TargetConditionals.h>
+    #if TARGET_IPHONE_SIMULATOR
+        const std::string ResourceLoadingService::RES_ROOT = "assets/";
+    #elif TARGET_OS_IPHONE
+        const std::string ResourceLoadingService::RES_ROOT = "assets/";
+    #else
+        const std::string ResourceLoadingService::RES_ROOT = "../../../assets/";
+    #endif
 #else
     const std::string ResourceLoadingService::RES_ROOT = "../../../assets/";
 #endif

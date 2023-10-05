@@ -11,6 +11,7 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <engine/rendering/IRenderer.h>
+#include <engine/CoreSystemsEngine.h>
 #include <functional>
 #include <memory>
 #include <vector>
@@ -24,10 +25,14 @@ namespace rendering
 
 class RendererPlatformImpl final: public IRenderer
 {
+    friend struct CoreSystemsEngine::SystemsImpl;    
 public:
-    void BeginRenderPass() override;
-    void RenderScene(scene::Scene& scene) override;
-    void EndRenderPass() override;
+    void VBeginRenderPass() override;
+    void VRenderScene(scene::Scene& scene) override;
+    void VEndRenderPass() override;
+    
+private:
+    RendererPlatformImpl() = default;
     
 private:
     std::vector<std::reference_wrapper<scene::Scene>> mCachedScenes;

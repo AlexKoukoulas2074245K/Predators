@@ -1,5 +1,3 @@
-#version 330 core
-
 precision mediump float;
 
 in vec2 uv_frag;
@@ -21,6 +19,12 @@ void main()
     frag_color = texture(tex, vec2(final_uv_x, final_uv_y));
 
     if (frag_color.a < 0.1) discard;
+    
+#if defined(IOS)
+    float temp = frag_color.r;
+    frag_color.r = frag_color.b;
+    frag_color.b = temp;
+#endif
     
     if (affected_by_light)
     {

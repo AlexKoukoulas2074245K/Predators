@@ -17,6 +17,10 @@
 
 ///------------------------------------------------------------------------------------------------
 
+//#define DEBUG_SHADER_LOADING
+
+///------------------------------------------------------------------------------------------------
+
 namespace resources
 {
 
@@ -33,6 +37,8 @@ static void ExtractUniformFromLine(const std::string& line, const std::string& s
 
 void ShaderLoader::VInitialize()
 {
+    mGlslVersion = reinterpret_cast<const char*>(GL_NO_CHECK_CALL(glGetString(GL_SHADING_LANGUAGE_VERSION)));
+    strutils::StringReplaceAllOccurences("\\.", "", mGlslVersion);
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -48,7 +54,13 @@ std::unique_ptr<IResource> ShaderLoader::VCreateAndLoadResource(const std::strin
     
     // Read vertex shader source
     auto vertexShaderFileContents = ReadFileContents(resourcePath + VERTEX_SHADER_FILE_EXTENSION);
+    PrependPreprocessorVars(vertexShaderFileContents);
     ReplaceIncludeDirectives(vertexShaderFileContents);
+    
+#if defined(DEBUG_SHADER_LOADING)
+    logging::Log(logging::LogType::INFO, "Postprocessed contents of %s%s", (resourcePath + VERTEX_SHADER_FILE_EXTENSION).c_str(), vertexShaderFileContents.c_str());
+#endif
+    
     const char* vertexShaderFileContentsPtr = vertexShaderFileContents.c_str();
 
     // Compile vertex shader
@@ -72,7 +84,13 @@ std::unique_ptr<IResource> ShaderLoader::VCreateAndLoadResource(const std::strin
     
     // Read vertex shader source
     auto fragmentShaderFileContents = ReadFileContents(resourcePath + FRAGMENT_SHADER_FILE_EXTENSION);
+    PrependPreprocessorVars(fragmentShaderFileContents);
     ReplaceIncludeDirectives(fragmentShaderFileContents);
+    
+#if defined(DEBUG_SHADER_LOADING)
+    logging::Log(logging::LogType::INFO, "Postprocessed contents of %s%s", (resourcePath + FRAGMENT_SHADER_FILE_EXTENSION).c_str(), fragmentShaderFileContents.c_str());
+#endif
+    
     const char* fragmentShaderFileContentsPtr = fragmentShaderFileContents.c_str();
     
     GL_CALL(glShaderSource(fragmentShaderId, 1, &fragmentShaderFileContentsPtr, nullptr));
@@ -131,6 +149,30 @@ std::string ShaderLoader::ReadFileContents(const std::string& filePath) const
                std::istreambuf_iterator<char>());
     
     return contents;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ShaderLoader::PrependPreprocessorVars(std::string& shaderSource) const
+{
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
+    std::string platform = "#define WIN32\n";
+    std::string version = "#version " + mGlslVersion + " core\n";
+#elif __APPLE__
+    #include <TargetConditionals.h>
+    #if TARGET_IPHONE_SIMULATOR
+        std::string platform = "#define IOS\n";
+        std::string version = "#version 300 core\n";
+    #elif TARGET_OS_IPHONE
+        std::string platform = "#define IOS\n";
+        std::string version = "#version 300 core\n";
+    #else //MAC
+        std::string platform = "#define MAC\n";
+        std::string version = "#version " + mGlslVersion + " core\n";
+    #endif
+#endif
+    
+    shaderSource = version + platform + shaderSource;
 }
 
 ///------------------------------------------------------------------------------------------------
