@@ -133,10 +133,11 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
     auto framesAccumulator        = 0LL;
     
     bool shouldQuit = false;
-    bool windowSizeChanged = false;
     
     while(!shouldQuit)
     {
+        bool windowSizeChanged = false;
+        
         // Calculate frame delta
         const auto currentMillisSinceInit = static_cast<float>(SDL_GetTicks());  // the number of milliseconds since the SDL library
         const auto dtMillis = currentMillisSinceInit - lastFrameMillisSinceInit; // millis diff between current and last frame

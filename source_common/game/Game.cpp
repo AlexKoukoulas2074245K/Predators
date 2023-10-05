@@ -43,6 +43,13 @@ void Game::Init()
     boardSceneObject->mTextureResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "board.png");
     boardSceneObject->mMeshResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_MESHES_ROOT + "quad.obj");
     
+#if __APPLE__
+    #include <TargetConditionals.h>
+    #if defined(TARGET_IPHONE_SIMULATOR) || defined(TARGET_OS_IPHONE)
+        dummyScene->GetCamera().SetZoomFactor(dummyScene->GetCamera().GetZoomFactor()*2);
+    #endif
+#endif
+
     auto cardFrameSceneObject = dummyScene->CreateSceneObject(strutils::StringId("CardFrame"));
     cardFrameSceneObject->mScale.x = cardFrameSceneObject->mScale.y = 0.1f;
     cardFrameSceneObject->mPosition.z = 0.2f;
