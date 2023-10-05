@@ -67,12 +67,12 @@ void InputStateManagerPlatformImpl::VProcessInputEvent(const SDL_Event& event, b
         }
         break;
         
-        case SDL_MOUSEBUTTONUP:
+        case SDL_MOUSEBUTTONDOWN:
         {
             mCurrentFrameButtonState |= (1 << event.button.button);
         } break;
             
-        case SDL_MOUSEBUTTONDOWN:
+        case SDL_MOUSEBUTTONUP:
         {
             mCurrentFrameButtonState ^= (1 << event.button.button);
         } break;
