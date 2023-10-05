@@ -10,6 +10,20 @@ project = Xcodeproj::Project.open(project_path)
 #find all relevant source files
 files = Dir.glob(["../source_common/**/*.cpp", "../source_common/**/*.h", "../source_ios/**/*.cpp", "../source_ios/**/*.h", "../source_ios/**/*.m", "../source_ios/**/*.mm"]).select{|file| !file.include? "imgui" and !file.include? "main.cpp"}
 
+#delete refs to non-existent files
+for f in project.files do
+  full_path = f.full_path.to_s[3..-1]
+  if !full_path.include? ".cpp" and !full_path.include? ".h" and !full_path.include? ".m" and !full_path.include? ".mm" or full_path.include? "main.cpp"
+    next
+  end
+  
+  if !files.include? full_path
+    f.remove_from_project
+    puts "Removing reference to deleted file #{full_path}"
+  end
+end
+
+#create new refs for new files
 for f in files do
   f = "../" + f 
   file_reference_exists = project.files.find { |file| file.full_path.to_s == f }
