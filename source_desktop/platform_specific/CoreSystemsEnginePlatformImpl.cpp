@@ -22,10 +22,10 @@
 
 ///------------------------------------------------------------------------------------------------
 
-static constexpr int DEFAULT_WINDOW_WIDTH  = 1500;
-static constexpr int DEFAULT_WINDOW_HEIGHT = 900;
-static constexpr int MIN_WINDOW_WIDTH      = 1000;
-static constexpr int MIN_WINDOW_HEIGHT     = 600;
+static constexpr int DEFAULT_WINDOW_WIDTH  = 1688;
+static constexpr int DEFAULT_WINDOW_HEIGHT = 780;
+static constexpr int MIN_WINDOW_WIDTH      = 844;
+static constexpr int MIN_WINDOW_HEIGHT     = 390;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -152,10 +152,11 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
     auto framesAccumulator        = 0LL;
     
     bool shouldQuit = false;
-    bool windowSizeChanged = false;
     
     while(!shouldQuit)
     {
+        bool windowSizeChanged = false;
+        
         // Calculate frame delta
         const auto currentMillisSinceInit = static_cast<float>(SDL_GetTicks());  // the number of milliseconds since the SDL library
         const auto dtMillis = currentMillisSinceInit - lastFrameMillisSinceInit; // millis diff between current and last frame
@@ -187,19 +188,6 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
             mSystems->mResourceLoadingService.ReloadMarkedResourcesFromDisk();
             mSystems->mFontRepository.ReloadMarkedFontsFromDisk();
         }
-        //
-        //        if (move == 1)
-        //        {
-        //            dummyScene.GetCamera().SetZoomFactor(dummyScene.GetCamera().GetZoomFactor() + 0.05f * dtMillis);
-        //            auto& rot = boardSceneObject->mRotation.z;
-        //
-        //            rot += 0.001f * dtMillis;
-        //            if (rot > 1.567f)
-        //            {
-        //                rot = 1.567f;
-        //                move = 0;
-        //            }
-        //        }
 
         clientUpdateFunction(dtMillis);
         

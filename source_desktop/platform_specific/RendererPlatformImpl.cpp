@@ -220,11 +220,33 @@ void RendererPlatformImpl::CreateIMGuiWidgets()
     //ImGui::ShowDemoWindow();
     auto& resService = CoreSystemsEngine::GetInstance().GetResourceLoadingService();
     
-    // Create scene object viewer
+    // Create scene data viewer
     for (auto& sceneRef: mCachedScenes)
     {
-        auto viewerName = strutils::StringId("Scene Object Viewer (" + sceneRef.get().GetName().GetString() + ")");
+        auto viewerName = strutils::StringId("Scene Data Viewer (" + sceneRef.get().GetName().GetString() + ")");
         ImGui::Begin(viewerName.GetString().c_str());
+        
+        // Camera properties
+        if (ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_None))
+        {
+            static glm::vec3 cameraPos(0.0f);
+            cameraPos = sceneRef.get().GetCamera().GetPosition();
+            if(ImGui::SliderFloat("x", &cameraPos.x , -0.5f, 0.5f) ||
+               ImGui::SliderFloat("y", &cameraPos.y, -0.5f, 0.5f) ||
+               ImGui::SliderFloat("z", &cameraPos.z, -0.5f, 0.5f))
+            {
+                sceneRef.get().GetCamera().SetPosition(cameraPos);
+            }
+            
+            static float cameraZoomFactor(0.0f);
+            cameraZoomFactor = sceneRef.get().GetCamera().GetZoomFactor();
+            if (ImGui::SliderFloat("zoom", &cameraZoomFactor, 10.0f, 200.0f))
+            {
+                sceneRef.get().GetCamera().SetZoomFactor(cameraZoomFactor);
+            }
+        }
+        
+        // SO Properties
         for (size_t i = 0; i < sceneRef.get().GetSceneObjects().size(); ++i)
         {
             auto& sceneObject = sceneRef.get().GetSceneObjects()[i];

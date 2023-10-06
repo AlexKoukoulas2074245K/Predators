@@ -47,7 +47,7 @@ bool InputStateManagerPlatformImpl::VButtonTapped(const Button button) const
 void InputStateManagerPlatformImpl::VProcessInputEvent(const SDL_Event& event, bool& shouldQuit, bool& windowSizeChange)
 {
     const auto& renderableDimensions = CoreSystemsEngine::GetInstance().GetContextRenderableDimensions();
-    shouldQuit = windowSizeChange = false;
+    shouldQuit = false;
     
     //User requests quit
     switch (event.type)
