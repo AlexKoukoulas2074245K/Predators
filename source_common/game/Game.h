@@ -10,13 +10,23 @@
 
 ///------------------------------------------------------------------------------------------------
 
+#include <memory>
+
+///------------------------------------------------------------------------------------------------
+
+class GameActionEngine;
 class Game final
 {
 public:
     Game(const int argc, char** argv);
+    ~Game();
     
     void Init();
     void Update(const float dtMillis);
+    void CreateDebugWidgets();
+    
+private:
+    std::unique_ptr<GameActionEngine> mActionEngine;
 };
 
 ///------------------------------------------------------------------------------------------------

@@ -18,6 +18,8 @@ static const strutils::StringId IDLE_GAME_ACTION_NAME = strutils::StringId("Idle
 GameActionEngine::GameActionEngine(const EngineOperationMode operationMode)
     : mOperationMode(operationMode)
 {
+    GameActionFactory::RegisterGameActions();
+    
     mBoardState.GetPlayerStates().emplace_back();
     mBoardState.GetPlayerStates().back().mPlayerHeldCards = {1,2,3,4,5};
     mBoardState.GetPlayerStates().emplace_back();

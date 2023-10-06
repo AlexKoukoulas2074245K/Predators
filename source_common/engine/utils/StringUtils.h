@@ -97,6 +97,25 @@ inline bool StringEndsWith(const std::string& s, const std::string& pattern)
 }
 
 ///-----------------------------------------------------------------------------------------------
+/// Returns a string representation of a vector.
+/// @param[in] vec the vector of string-covertible objects
+/// @returns a copy of the input vector transformed to a string.
+template <typename T>
+inline std::string VecToString(const std::vector<T>& vec)
+{
+    std::stringstream ss;
+    ss << "[";
+    for(size_t i = 0; i <vec.size(); ++i)
+    {
+        ss << vec[i]; // <- no template param list
+        if(i != vec.size() - 1)
+            ss<<", ";
+    }
+    ss << "]";
+    return ss.str();
+}
+
+///-----------------------------------------------------------------------------------------------
 /// Returns a copy of the given string in uppercase.
 /// @param[in] s the input string.
 /// @returns a copy of the input string transformed to uppercase.

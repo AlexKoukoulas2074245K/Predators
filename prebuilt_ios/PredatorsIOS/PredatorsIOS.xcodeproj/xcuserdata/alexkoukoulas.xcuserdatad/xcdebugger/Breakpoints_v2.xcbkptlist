@@ -20,53 +20,5 @@
             landmarkType = "0">
          </BreakpointContent>
       </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "D4C6C300-3D04-46FA-94B0-DEE7FD26F8D5"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../../source_ios/platform_specific/RendererPlatformImpl.cpp"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "151"
-            endingLineNumber = "151"
-            landmarkName = "RendererPlatformImpl::VBeginRenderPass()"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "D4C6C300-3D04-46FA-94B0-DEE7FD26F8D5 - ce72547dbce892a1"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "rendering::RendererPlatformImpl::VBeginRenderPass()"
-                  moduleName = "PredatorsIOS"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/Code/Predators/source_ios/platform_specific/RendererPlatformImpl.cpp"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "151"
-                  endingLineNumber = "151"
-                  offsetFromSymbolStart = "592">
-               </Location>
-               <Location
-                  uuid = "D4C6C300-3D04-46FA-94B0-DEE7FD26F8D5 - ce72547dbce892a1"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "rendering::RendererPlatformImpl::VBeginRenderPass()"
-                  moduleName = "PredatorsIOS"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/Code/Predators/source_ios/platform_specific/RendererPlatformImpl.cpp"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "151"
-                  endingLineNumber = "151"
-                  offsetFromSymbolStart = "608">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
    </Breakpoints>
 </Bucket>

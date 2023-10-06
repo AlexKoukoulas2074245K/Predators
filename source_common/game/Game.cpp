@@ -17,6 +17,7 @@
 #include <engine/utils/MathUtils.h>
 #include <game/Game.h>
 #include <game/gameactions/GameActionEngine.h>
+#include <game/gameactions/GameActionFactory.h>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -27,7 +28,14 @@ Game::Game(const int argc, char** argv)
         logging::Log(logging::LogType::INFO, "Initializing from CWD : %s", argv[0]);
     }
     
-    CoreSystemsEngine::GetInstance().Start([&](){ Init(); }, [&](const float dtMillis){ Update(dtMillis); });
+    CoreSystemsEngine::GetInstance().Start([&](){ Init(); }, [&](const float dtMillis){ Update(dtMillis); }, [&](){ CreateDebugWidgets(); });
+}
+
+///------------------------------------------------------------------------------------------------
+
+Game::~Game()
+{
+    
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -96,19 +104,97 @@ void Game::Init()
         fontRowSceneObject->mMeshResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_MESHES_ROOT + "quad.obj");
     }
     
-    GameActionEngine gameActionEngine(GameActionEngine::EngineOperationMode::HEADLESS);
-    gameActionEngine.AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine = std::make_unique<GameActionEngine>(GameActionEngine::EngineOperationMode::HEADLESS);
 }
 
 ///------------------------------------------------------------------------------------------------
 
-void Game::Update(const float)
+void Game::Update(const float dtMillis)
 {
-    auto& inputStateManager = CoreSystemsEngine::GetInstance().GetInputStateManager();
-    if (inputStateManager.VButtonPressed(input::Button::MAIN_BUTTON))
-    {
-        logging::Log(logging::LogType::INFO, "Main button down at %.3f,%.3f", inputStateManager.VGetPointingPos().x, inputStateManager.VGetPointingPos().y);
-    }
+    mActionEngine->Update(dtMillis);
 }
+
+///------------------------------------------------------------------------------------------------
+
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
+    #define CREATE_DEBUG_WIDGETS
+#elif __APPLE__
+    #include <TargetConditionals.h>
+    #if TARGET_IPHONE_SIMULATOR || TARGET_OS_IPHONE
+        #undef CREATE_DEBUG_WIDGETS
+    #else
+        #define CREATE_DEBUG_WIDGETS
+    #endif
+#endif
+
+#if (!defined(NDEBUG)) && (defined(CREATE_DEBUG_WIDGETS))
+#include <imgui/backends/imgui_impl_sdl2.h>
+void Game::CreateDebugWidgets()
+{
+    // Create action generator
+    ImGui::Begin("Action Generator");
+    const auto& actions = GameActionFactory::GetRegisteredActions();
+    
+    static size_t currentIndex = 0;
+    static std::string activePlayerIndex = "";
+    static std::string topPlayerHealth = "";
+    static std::string topPlayerHand = "";
+    static std::string topPlayerBoard = "";
+    static std::string botPlayerHealth = "";
+    static std::string botPlayerBoard = "";
+    static std::string botPlayerHand = "";
+    
+    if (ImGui::BeginCombo(" ", actions.at(currentIndex).GetString().c_str()))
+    {
+        for (size_t n = 0U; n < actions.size(); n++)
+        {
+            const bool isSelected = (currentIndex == n);
+            if (ImGui::Selectable(actions.at(n).GetString().c_str(), isSelected))
+                currentIndex = n;
+            if (isSelected)
+                ImGui::SetItemDefaultFocus();
+        }
+        ImGui::EndCombo();
+    }
+    
+    ImGui::SameLine();
+    ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(3 / 7.0f, 0.6f, 0.6f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(3 / 7.0f, 0.7f, 0.7f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(3 / 7.0f, 0.8f, 0.8f));
+    if (ImGui::Button("Create"))
+    {
+        mActionEngine->AddGameAction(strutils::StringId(actions.at(currentIndex)));
+        mActionEngine->Update(1);
+        const auto& boardState = mActionEngine->GetBoardState();
+        activePlayerIndex = std::to_string(boardState.GetActivePlayerIndex());
+        topPlayerHealth = std::to_string(boardState.GetPlayerStates().front().mPlayerHealth);
+        topPlayerHand = strutils::VecToString(boardState.GetPlayerStates().front().mPlayerHeldCards);
+        topPlayerBoard = strutils::VecToString(boardState.GetPlayerStates().front().mPlayerBoardCards);
+        botPlayerBoard = strutils::VecToString(boardState.GetPlayerStates().back().mPlayerBoardCards);
+        botPlayerHand = strutils::VecToString(boardState.GetPlayerStates().back().mPlayerHeldCards);
+        botPlayerHealth = std::to_string(boardState.GetPlayerStates().back().mPlayerHealth);
+    }
+    ImGui::PopStyleColor(3);
+    ImGui::SeparatorText("Output");
+    ImGui::TextWrapped("Active Player %s", activePlayerIndex.c_str());
+    ImGui::SeparatorText("Top Player Health");
+    ImGui::TextWrapped("%s", topPlayerHealth.c_str());
+    ImGui::SeparatorText("Top Player Hand");
+    ImGui::TextWrapped("%s", topPlayerHand.c_str());
+    ImGui::SeparatorText("Top Player Board");
+    ImGui::TextWrapped("%s", topPlayerBoard.c_str());
+    ImGui::SeparatorText("Bot Player Board");
+    ImGui::TextWrapped("%s", botPlayerBoard.c_str());
+    ImGui::SeparatorText("Bot Player Hand");
+    ImGui::TextWrapped("%s", botPlayerHand.c_str());
+    ImGui::SeparatorText("Bot Player Health");
+    ImGui::TextWrapped("%s", botPlayerHealth.c_str());
+    ImGui::End();
+}
+#else
+void Game::CreateDebugWidgets()
+{
+}
+#endif
 
 ///------------------------------------------------------------------------------------------------

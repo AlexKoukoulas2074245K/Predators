@@ -12,6 +12,7 @@
 
 #include <engine/utils/StringUtils.h>
 #include <memory>
+#include <unordered_set>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -20,9 +21,13 @@ class GameActionFactory final
 {
     friend class GameActionEngine;
     
+public:
+    static const std::vector<strutils::StringId>& GetRegisteredActions();
+    
 private:
     GameActionFactory() = delete;
     
+    static void RegisterGameActions();
     static std::unique_ptr<BaseGameAction> CreateGameAction(const strutils::StringId& actionName);
 };
 

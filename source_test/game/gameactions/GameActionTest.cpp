@@ -82,7 +82,4 @@ TEST(GameActionTests, TestDrawPlayNextDrawPlayActionRound)
     }
     
     EXPECT_EQ(engine.GetBoardState().GetActivePlayerIndex(), 0);
-    
-    logging::Log(logging::LogType::INFO, "%s", engine.GetBoardState().ToString().c_str());
-    
 }

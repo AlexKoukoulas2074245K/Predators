@@ -160,6 +160,13 @@ void RendererPlatformImpl::VBeginRenderPass()
     GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
     
     GL_CALL(glDisable(GL_CULL_FACE));
+    
+#if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__) || defined(__APPLE__)) && (!defined(NDEBUG) || defined(IMGUI_IN_RELEASE))
+    // Imgui start-of-frame calls
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplSDL2_NewFrame();
+    ImGui::NewFrame();
+#endif
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -177,12 +184,7 @@ void RendererPlatformImpl::VRenderScene(scene::Scene& scene)
 
 void RendererPlatformImpl::VEndRenderPass()
 {
-#if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__) || defined(__APPLE__)) && (!defined(NDEBUG) || defined(IMGUI_IN_RELEASE))
-    // Imgui start-of-frame calls
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplSDL2_NewFrame();
-    ImGui::NewFrame();
-    
+#if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__) || defined(__APPLE__)) && (!defined(NDEBUG) || defined(IMGUI_IN_RELEASE))    
     // Create all custom GUIs
     CreateIMGuiWidgets();
     mCachedScenes.clear();
@@ -218,6 +220,7 @@ static SceneObjectDataIMGuiVisitor imguiVisitor;
 void RendererPlatformImpl::CreateIMGuiWidgets()
 {
     //ImGui::ShowDemoWindow();
+    
     auto& resService = CoreSystemsEngine::GetInstance().GetResourceLoadingService();
     
     // Create scene data viewer

@@ -33,6 +33,11 @@ bool CoreSystemsEngine::mInitialized = false;
 
 ///------------------------------------------------------------------------------------------------
 
+static bool sPrintFPS = false;
+static void CreateEngineDebugWidgets();
+
+///------------------------------------------------------------------------------------------------
+
 struct CoreSystemsEngine::SystemsImpl
 {
     rendering::RendererPlatformImpl mRenderer;
@@ -141,7 +146,7 @@ void CoreSystemsEngine::Initialize()
 
 ///------------------------------------------------------------------------------------------------
 
-void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::function<void(const float)> clientUpdateFunction)
+void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::function<void(const float)> clientUpdateFunction, std::function<void()> clientCreateDebugWidgetsFunction)
 {
     clientInitFunction();
     
@@ -181,7 +186,11 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
         
         if (secsAccumulator > 1.0f)
         {
-            logging::Log(logging::LogType::INFO, "FPS: %d", framesAccumulator);
+            if (sPrintFPS)
+            {
+                logging::Log(logging::LogType::INFO, "FPS: %d", framesAccumulator);
+            }
+            
             framesAccumulator = 0;
             secsAccumulator -= 1.0f;
             
@@ -193,6 +202,9 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
         
         mSystems->mInputStateManager.VUpdate(dtMillis);
         mSystems->mRenderer.VBeginRenderPass();
+        
+        clientCreateDebugWidgetsFunction();
+        CreateEngineDebugWidgets();
         
         for (auto& scene: mSystems->mActiveSceneManager.GetScenes())
         {
@@ -257,6 +269,17 @@ glm::vec2 CoreSystemsEngine::GetContextRenderableDimensions() const
 void CoreSystemsEngine::SpecialEventHandling(SDL_Event& event)
 {
     ImGui_ImplSDL2_ProcessEvent(&event);
+}
+
+///------------------------------------------------------------------------------------------------
+
+void CreateEngineDebugWidgets()
+{
+    // Create runtime configs
+    ImGui::Begin("Runtime Config");
+    ImGui::SeparatorText("General");
+    ImGui::Checkbox("Print FPS", &sPrintFPS);
+    ImGui::End();
 }
 
 ///------------------------------------------------------------------------------------------------

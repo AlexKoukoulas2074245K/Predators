@@ -10,10 +10,41 @@
 #include <game/gameactions/IdleGameAction.h>
 #include <game/gameactions/NextPlayerGameAction.h>
 #include <game/gameactions/PlayCardGameAction.h>
+#include <algorithm>
+#include <vector>
 
 ///------------------------------------------------------------------------------------------------
 
+#define REGISTER_ACTION(name) REGISTERED_ACTION_NAMES.push_back(strutils::StringId(#name))
 #define ACTION_CASE(name) if (actionName == strutils::StringId(#name)) { return std::make_unique<name>(); }
+
+///------------------------------------------------------------------------------------------------
+
+static std::vector<strutils::StringId> REGISTERED_ACTION_NAMES;
+
+///------------------------------------------------------------------------------------------------
+
+void GameActionFactory::RegisterGameActions()
+{
+    REGISTERED_ACTION_NAMES.clear();
+    
+    REGISTER_ACTION(IdleGameAction);
+    REGISTER_ACTION(DrawCardGameAction);
+    REGISTER_ACTION(NextPlayerGameAction);
+    REGISTER_ACTION(PlayCardGameAction);
+    
+    std::sort(REGISTERED_ACTION_NAMES.begin(), REGISTERED_ACTION_NAMES.end(), [&](const strutils::StringId& lhs, const strutils::StringId& rhs)
+    {
+        return lhs.GetString() < rhs.GetString();
+    });
+}
+
+///------------------------------------------------------------------------------------------------
+
+const std::vector<strutils::StringId>& GameActionFactory::GetRegisteredActions()
+{
+    return REGISTERED_ACTION_NAMES;
+}
 
 ///------------------------------------------------------------------------------------------------
 

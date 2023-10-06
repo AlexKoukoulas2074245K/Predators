@@ -122,7 +122,7 @@ void CoreSystemsEngine::Initialize()
 
 ///------------------------------------------------------------------------------------------------
 
-void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::function<void(const float)> clientUpdateFunction)
+void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::function<void(const float)> clientUpdateFunction, std::function<void()>)
 {
     clientInitFunction();
     
@@ -169,19 +169,6 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
             mSystems->mResourceLoadingService.ReloadMarkedResourcesFromDisk();
             mSystems->mFontRepository.ReloadMarkedFontsFromDisk();
         }
-        //
-        //        if (move == 1)
-        //        {
-        //            dummyScene.GetCamera().SetZoomFactor(dummyScene.GetCamera().GetZoomFactor() + 0.05f * dtMillis);
-        //            auto& rot = boardSceneObject->mRotation.z;
-        //
-        //            rot += 0.001f * dtMillis;
-        //            if (rot > 1.567f)
-        //            {
-        //                rot = 1.567f;
-        //                move = 0;
-        //            }
-        //        }
 
         clientUpdateFunction(dtMillis);
         

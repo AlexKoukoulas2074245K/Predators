@@ -27,7 +27,6 @@ struct PlayerState
 class BoardState
 {
 public:
-    std::string ToString() const;
     const std::vector<PlayerState>& GetPlayerStates() const { return mPlayerStates; }
     std::vector<PlayerState>& GetPlayerStates() { return mPlayerStates; }
     const PlayerState& GetActivePlayerState() const { return mPlayerStates.at(mActivePlayerIndex); }

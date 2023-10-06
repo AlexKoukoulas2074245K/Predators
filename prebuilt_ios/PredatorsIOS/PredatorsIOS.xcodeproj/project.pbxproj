@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		92043B0E2A0947A4007CC7DE /* AVFAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92043B022A0947A4007CC7DE /* AVFAudio.framework */; };
-		9206EBC72ACDC3FF00198337 /* BoardState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9206EAEF2ACDC3FE00198337 /* BoardState.cpp */; };
 		9206EBC82ACDC3FF00198337 /* IdleGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9206EAF12ACDC3FE00198337 /* IdleGameAction.cpp */; };
 		9206EBC92ACDC3FF00198337 /* DrawCardGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9206EAF62ACDC3FE00198337 /* DrawCardGameAction.cpp */; };
 		9206EBCA2ACDC3FF00198337 /* NextPlayerGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9206EAF92ACDC3FE00198337 /* NextPlayerGameAction.cpp */; };
@@ -179,7 +178,6 @@
 
 /* Begin PBXFileReference section */
 		92043B022A0947A4007CC7DE /* AVFAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFAudio.framework; path = System/Library/Frameworks/AVFAudio.framework; sourceTree = SDKROOT; };
-		9206EAEF2ACDC3FE00198337 /* BoardState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BoardState.cpp; sourceTree = "<group>"; };
 		9206EAF12ACDC3FE00198337 /* IdleGameAction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IdleGameAction.cpp; sourceTree = "<group>"; };
 		9206EAF22ACDC3FE00198337 /* IGameAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGameAction.h; sourceTree = "<group>"; };
 		9206EAF32ACDC3FE00198337 /* NextPlayerGameAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NextPlayerGameAction.h; sourceTree = "<group>"; };
@@ -312,7 +310,6 @@
 		9206EAEE2ACDC3FE00198337 /* game */ = {
 			isa = PBXGroup;
 			children = (
-				9206EAEF2ACDC3FE00198337 /* BoardState.cpp */,
 				9206EAF02ACDC3FE00198337 /* gameactions */,
 				9206EAFF2ACDC3FE00198337 /* BoardState.h */,
 				9206EB002ACDC3FE00198337 /* Game.h */,
@@ -806,7 +803,6 @@
 				9206EBDC2ACDC3FF00198337 /* ActiveSceneManager.cpp in Sources */,
 				9206EBD02ACDC3FF00198337 /* TextureLoader.cpp in Sources */,
 				9206EBD92ACDC3FF00198337 /* Camera.cpp in Sources */,
-				9206EBC72ACDC3FF00198337 /* BoardState.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

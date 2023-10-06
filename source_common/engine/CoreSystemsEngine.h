@@ -39,7 +39,7 @@ public:
     const CoreSystemsEngine& operator = (const CoreSystemsEngine&) = delete;
     CoreSystemsEngine& operator = (CoreSystemsEngine&&) = delete;
     
-    void Start(std::function<void()> clientInitFunction, std::function<void(const float)> clientUpdateFunction);
+    void Start(std::function<void()> clientInitFunction, std::function<void(const float)> clientUpdateFunction, std::function<void()> clientCreateDebugWidgetsFunction);
     
     rendering::IRenderer& GetRenderer();
     rendering::FontRepository& GetFontRepository();
