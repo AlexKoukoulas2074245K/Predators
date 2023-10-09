@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		081A9A06DFDB6D2DCCCAE343 /* AnimationManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EBF846548488DC5997004413 /* AnimationManager.cpp */; };
+		2DEEC97E3FA3C0533CF8B865 /* AnimationManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 36BA43D12A116F9CEDEEC5BB /* AnimationManager.h */; };
+		786063C15D9206FCF4754A11 /* Animations.h in Sources */ = {isa = PBXBuildFile; fileRef = 64A0A7BE4A8B84A02E685B42 /* Animations.h */; };
 		92043B0E2A0947A4007CC7DE /* AVFAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92043B022A0947A4007CC7DE /* AVFAudio.framework */; };
 		9206EBC82ACDC3FF00198337 /* IdleGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9206EAF12ACDC3FE00198337 /* IdleGameAction.cpp */; };
 		9206EBC92ACDC3FF00198337 /* DrawCardGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9206EAF62ACDC3FE00198337 /* DrawCardGameAction.cpp */; };
@@ -44,6 +47,7 @@
 		92C851B72969A9680021923F /* SDL2.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 92C851A12969A8D00021923F /* SDL2.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		92C851BA2969A9D70021923F /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 92C851B92969A9D70021923F /* main.cpp */; };
 		92E96A6B29803597004A3120 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92E96A5F29803597004A3120 /* OpenGLES.framework */; };
+		F5518A662447F238CCCAFE51 /* Animations.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C6B01E95D9ABF46EECA93F96 /* Animations.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -177,6 +181,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		36BA43D12A116F9CEDEEC5BB /* AnimationManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = AnimationManager.h; path = AnimationManager.h; sourceTree = "<group>"; };
+		64A0A7BE4A8B84A02E685B42 /* Animations.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Animations.h; path = Animations.h; sourceTree = "<group>"; };
 		92043B022A0947A4007CC7DE /* AVFAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFAudio.framework; path = System/Library/Frameworks/AVFAudio.framework; sourceTree = SDKROOT; };
 		9206EAF12ACDC3FE00198337 /* IdleGameAction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IdleGameAction.cpp; sourceTree = "<group>"; };
 		9206EAF22ACDC3FE00198337 /* IGameAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGameAction.h; sourceTree = "<group>"; };
@@ -256,6 +262,8 @@
 		92C851902969A8D00021923F /* SDL.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SDL.xcodeproj; path = "ThirdParty/SDL-source/Xcode/SDL/SDL.xcodeproj"; sourceTree = "<group>"; };
 		92C851B92969A9D70021923F /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		92E96A5F29803597004A3120 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
+		C6B01E95D9ABF46EECA93F96 /* Animations.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = Animations.cpp; path = Animations.cpp; sourceTree = "<group>"; };
+		EBF846548488DC5997004413 /* AnimationManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = AnimationManager.cpp; path = AnimationManager.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -411,6 +419,10 @@
 				9206EB282ACDC3FE00198337 /* Camera.h */,
 				9206EB292ACDC3FE00198337 /* IRenderer.h */,
 				9206EB2A2ACDC3FE00198337 /* glew */,
+				EBF846548488DC5997004413 /* AnimationManager.cpp */,
+				C6B01E95D9ABF46EECA93F96 /* Animations.cpp */,
+				36BA43D12A116F9CEDEEC5BB /* AnimationManager.h */,
+				64A0A7BE4A8B84A02E685B42 /* Animations.h */,
 			);
 			path = rendering;
 			sourceTree = "<group>";
@@ -803,6 +815,10 @@
 				9206EBDC2ACDC3FF00198337 /* ActiveSceneManager.cpp in Sources */,
 				9206EBD02ACDC3FF00198337 /* TextureLoader.cpp in Sources */,
 				9206EBD92ACDC3FF00198337 /* Camera.cpp in Sources */,
+				081A9A06DFDB6D2DCCCAE343 /* AnimationManager.cpp in Sources */,
+				F5518A662447F238CCCAFE51 /* Animations.cpp in Sources */,
+				2DEEC97E3FA3C0533CF8B865 /* AnimationManager.h in Sources */,
+				786063C15D9206FCF4754A11 /* Animations.h in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

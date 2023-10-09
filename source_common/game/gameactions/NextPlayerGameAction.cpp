@@ -16,3 +16,16 @@ void NextPlayerGameAction::VSetNewGameState()
 }
 
 ///------------------------------------------------------------------------------------------------
+
+void NextPlayerGameAction::VInitAnimation()
+{
+}
+
+///------------------------------------------------------------------------------------------------
+
+ActionAnimationUpdateResult NextPlayerGameAction::VUpdateAnimation(const float)
+{
+    return ActionAnimationUpdateResult::FINISHED;
+}
+
+///------------------------------------------------------------------------------------------------

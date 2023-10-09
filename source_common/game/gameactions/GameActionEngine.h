@@ -35,16 +35,22 @@ public:
     
     void AddGameAction(const strutils::StringId& actionName);
     
+    void SetLoggingActionTransitions(const bool logActionTransitions);
+    
     const BoardState& GetBoardState() const;
     const strutils::StringId& GetActiveGameActionName() const;
+    bool LoggingActionTransitions() const;
     
 private:
     void CreateAndPushGameAction(const strutils::StringId& actionName);
+    void LogActionTransition(const std::string& actionTransition);
     
 private:
     const EngineOperationMode mOperationMode;
     BoardState mBoardState;
     std::queue<std::unique_ptr<IGameAction>> mGameActions;
+    bool mActiveActionHasSetState;
+    bool mLoggingActionTransitions;
 };
 
 ///------------------------------------------------------------------------------------------------

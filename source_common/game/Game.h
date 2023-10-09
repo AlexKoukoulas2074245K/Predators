@@ -24,7 +24,7 @@ public:
     void Init();
     void Update(const float dtMillis);
     void CreateDebugWidgets();
-    
+    void CreateDebugCards(const int cardCount);
 private:
     std::unique_ptr<GameActionEngine> mActionEngine;
 };

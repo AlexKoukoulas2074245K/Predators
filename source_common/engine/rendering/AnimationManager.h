@@ -1,33 +1,48 @@
 ///------------------------------------------------------------------------------------------------
-///  PlayCardGameAction.cpp                                                                                        
+///  AnimationManager.h
 ///  Predators                                                                                            
 ///                                                                                                
-///  Created by Alex Koukoulas on 29/09/2023                                                       
+///  Created by Alex Koukoulas on 09/10/2023
 ///------------------------------------------------------------------------------------------------
 
-#include <game/gameactions/PlayCardGameAction.h>
+#ifndef AnimationManager_h
+#define AnimationManager_h
 
 ///------------------------------------------------------------------------------------------------
 
-void PlayCardGameAction::VSetNewGameState()
+#include <engine/rendering/Animations.h>
+#include <functional>
+#include <memory>
+#include <unordered_map>
+#include <vector>
+
+///------------------------------------------------------------------------------------------------
+
+namespace rendering
 {
-    auto& activePlayerState = mBoardState->GetActivePlayerState();
-    assert(!activePlayerState.mPlayerHeldCards.empty());
-    activePlayerState.mPlayerBoardCards.push_back(activePlayerState.mPlayerHeldCards.back());
-    activePlayerState.mPlayerHeldCards.pop_back();
+
+///------------------------------------------------------------------------------------------------
+
+class AnimationManager final
+{
+public:  
+    void StartAnimation(std::unique_ptr<IAnimation> animation, std::function<void()> onCompleteCallback);
+    void Update(const float dtMillis);
+    
+private:
+    struct AnimationEntry
+    {
+        std::unique_ptr<IAnimation> mAnimation;
+        std::function<void()> mCompletionCallback;
+    };
+    
+    std::vector<AnimationEntry> mAnimations;
+};
+
+///------------------------------------------------------------------------------------------------
+
 }
 
 ///------------------------------------------------------------------------------------------------
 
-void PlayCardGameAction::VInitAnimation()
-{
-}
-
-///------------------------------------------------------------------------------------------------
-
-ActionAnimationUpdateResult PlayCardGameAction::VUpdateAnimation(const float)
-{
-    return ActionAnimationUpdateResult::FINISHED;
-}
-
-///------------------------------------------------------------------------------------------------
+#endif /* AnimationManager_h */

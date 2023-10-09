@@ -6,6 +6,7 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <engine/CoreSystemsEngine.h>
+#include <engine/rendering/AnimationManager.h>
 #include <engine/rendering/Fonts.h>
 #include <engine/rendering/OpenGL.h>
 #include <engine/resloading/ResourceLoadingService.h>
@@ -40,6 +41,7 @@ static void CreateEngineDebugWidgets();
 
 struct CoreSystemsEngine::SystemsImpl
 {
+    rendering::AnimationManager mAnimationManager;
     rendering::RendererPlatformImpl mRenderer;
     rendering::FontRepository mFontRepository;
     input::InputStateManagerPlatformImpl mInputStateManager;
@@ -201,6 +203,7 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
         clientUpdateFunction(dtMillis);
         
         mSystems->mInputStateManager.VUpdate(dtMillis);
+        mSystems->mAnimationManager.Update(dtMillis);
         mSystems->mRenderer.VBeginRenderPass();
         
         clientCreateDebugWidgetsFunction();
@@ -213,6 +216,13 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
         
         mSystems->mRenderer.VEndRenderPass();
     }
+}
+
+///------------------------------------------------------------------------------------------------
+
+rendering::AnimationManager& CoreSystemsEngine::GetAnimationManager()
+{
+    return mSystems->mAnimationManager;
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -276,9 +286,13 @@ void CoreSystemsEngine::SpecialEventHandling(SDL_Event& event)
 void CreateEngineDebugWidgets()
 {
     // Create runtime configs
-    ImGui::Begin("Runtime Config");
+    ImGui::Begin("Engine Runtime");
     ImGui::SeparatorText("General");
     ImGui::Checkbox("Print FPS", &sPrintFPS);
+    
+    ImGui::SeparatorText("Input");
+    const auto& cursorPos = CoreSystemsEngine::GetInstance().GetInputStateManager().VGetPointingPos();
+    ImGui::Text("Cursor %.3f,%.3f",cursorPos.x, cursorPos.y);
     ImGui::End();
 }
 

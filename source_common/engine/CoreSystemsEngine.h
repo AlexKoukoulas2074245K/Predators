@@ -18,6 +18,7 @@
 ///------------------------------------------------------------------------------------------------
 
 namespace input { class IInputStateManager; }
+namespace rendering { class AnimationManager; }
 namespace rendering { class IRenderer; }
 namespace rendering { class FontRepository; }
 namespace resources { class ResourceLoadingService; }
@@ -41,6 +42,7 @@ public:
     
     void Start(std::function<void()> clientInitFunction, std::function<void(const float)> clientUpdateFunction, std::function<void()> clientCreateDebugWidgetsFunction);
     
+    rendering::AnimationManager& GetAnimationManager();
     rendering::IRenderer& GetRenderer();
     rendering::FontRepository& GetFontRepository();
     input::IInputStateManager& GetInputStateManager();

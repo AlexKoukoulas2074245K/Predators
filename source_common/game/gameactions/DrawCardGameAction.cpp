@@ -17,3 +17,16 @@ void DrawCardGameAction::VSetNewGameState()
 }
 
 ///------------------------------------------------------------------------------------------------
+
+void DrawCardGameAction::VInitAnimation()
+{
+}
+
+///------------------------------------------------------------------------------------------------
+
+ActionAnimationUpdateResult DrawCardGameAction::VUpdateAnimation(const float)
+{
+    return ActionAnimationUpdateResult::FINISHED;
+}
+
+///------------------------------------------------------------------------------------------------

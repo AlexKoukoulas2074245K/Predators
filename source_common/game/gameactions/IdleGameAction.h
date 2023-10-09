@@ -18,6 +18,10 @@ class IdleGameAction final: public BaseGameAction
 {
 public:
     void VSetNewGameState() override;
+    
+    void VInitAnimation() override;
+    
+    ActionAnimationUpdateResult VUpdateAnimation(const float dtMillis) override;
 };
 
 ///------------------------------------------------------------------------------------------------

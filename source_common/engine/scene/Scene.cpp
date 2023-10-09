@@ -43,6 +43,18 @@ std::shared_ptr<SceneObject> Scene::FindSceneObject(const strutils::StringId& sc
 
 ///------------------------------------------------------------------------------------------------
 
+[[nodiscard]] std::vector<std::shared_ptr<SceneObject>> Scene::FindAllSceneObjectsWithNamePrefixedBy(const std::string& sceneObjectNamePrefix)
+{
+    std::vector<std::shared_ptr<SceneObject>> result;
+    std::copy_if(mSceneObjects.begin(), mSceneObjects.end(), std::back_inserter(result), [&](const std::shared_ptr<SceneObject>& sceneObject)
+    {
+        return strutils::StringStartsWith(sceneObject->mName.GetString(), sceneObjectNamePrefix);
+    });
+    return result;
+}
+
+///------------------------------------------------------------------------------------------------
+
 void Scene::RemoveSceneObject(const strutils::StringId& sceneObjectName)
 {
     auto findIter = std::find_if(mSceneObjects.begin(), mSceneObjects.end(), [&](const std::shared_ptr<SceneObject>& sceneObject)

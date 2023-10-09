@@ -14,3 +14,16 @@ void IdleGameAction::VSetNewGameState()
 }
 
 ///------------------------------------------------------------------------------------------------
+
+void IdleGameAction::VInitAnimation()
+{
+}
+
+///------------------------------------------------------------------------------------------------
+
+ActionAnimationUpdateResult IdleGameAction::VUpdateAnimation(const float)
+{
+    return ActionAnimationUpdateResult::FINISHED;
+}
+
+///------------------------------------------------------------------------------------------------

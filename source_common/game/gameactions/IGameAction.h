@@ -14,6 +14,14 @@
 
 ///------------------------------------------------------------------------------------------------
 
+enum class ActionAnimationUpdateResult
+{
+    ONGOING,
+    FINISHED
+};
+
+///------------------------------------------------------------------------------------------------
+
 class IGameAction
 {
 public:
@@ -24,7 +32,11 @@ public:
     // To be called directly by the engine. This
     // needs to set the final board/game state post this action
     // (before the animations actually run) for game integrity purposes.
-    virtual void VSetNewGameState() = 0;    
+    virtual void VSetNewGameState() = 0;
+    
+    virtual void VInitAnimation() = 0;
+    
+    virtual ActionAnimationUpdateResult VUpdateAnimation(const float dtMillis) = 0;
 };
 
 ///------------------------------------------------------------------------------------------------

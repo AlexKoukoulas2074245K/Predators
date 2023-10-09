@@ -1,33 +1,44 @@
 ///------------------------------------------------------------------------------------------------
-///  PlayCardGameAction.cpp                                                                                        
+///  AnimationManager.cpp
 ///  Predators                                                                                            
 ///                                                                                                
-///  Created by Alex Koukoulas on 29/09/2023                                                       
+///  Created by Alex Koukoulas on 09/10/2023
 ///------------------------------------------------------------------------------------------------
 
-#include <game/gameactions/PlayCardGameAction.h>
+#include <engine/rendering/AnimationManager.h>
 
 ///------------------------------------------------------------------------------------------------
 
-void PlayCardGameAction::VSetNewGameState()
+namespace rendering
 {
-    auto& activePlayerState = mBoardState->GetActivePlayerState();
-    assert(!activePlayerState.mPlayerHeldCards.empty());
-    activePlayerState.mPlayerBoardCards.push_back(activePlayerState.mPlayerHeldCards.back());
-    activePlayerState.mPlayerHeldCards.pop_back();
+
+///------------------------------------------------------------------------------------------------
+
+void AnimationManager::StartAnimation(std::unique_ptr<IAnimation> animation, std::function<void()> onCompleteCallback)
+{
+    mAnimations.emplace_back(AnimationEntry{ std::move(animation), onCompleteCallback });
 }
 
 ///------------------------------------------------------------------------------------------------
 
-void PlayCardGameAction::VInitAnimation()
+void AnimationManager::Update(const float dtMillis)
 {
+    for(auto iter = mAnimations.begin(); iter != mAnimations.end();)
+    {
+       if (iter->mAnimation->VUpdate(dtMillis) == AnimationUpdateResult::FINISHED)
+       {
+           iter->mCompletionCallback();
+           iter = mAnimations.erase(iter);
+       }
+       else
+       {
+          ++iter;
+       }
+    }
 }
 
 ///------------------------------------------------------------------------------------------------
 
-ActionAnimationUpdateResult PlayCardGameAction::VUpdateAnimation(const float)
-{
-    return ActionAnimationUpdateResult::FINISHED;
 }
 
 ///------------------------------------------------------------------------------------------------

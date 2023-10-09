@@ -6,6 +6,7 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <engine/CoreSystemsEngine.h>
+#include <engine/rendering/AnimationManager.h>
 #include <engine/rendering/Fonts.h>
 #include <engine/rendering/OpenGL.h>
 #include <engine/resloading/ResourceLoadingService.h>
@@ -32,6 +33,7 @@ bool CoreSystemsEngine::mInitialized = false;
 
 struct CoreSystemsEngine::SystemsImpl
 {
+    rendering::AnimationManager mAnimationManager;
     rendering::RendererPlatformImpl mRenderer;
     rendering::FontRepository mFontRepository;
     input::InputStateManagerPlatformImpl mInputStateManager;
@@ -173,6 +175,7 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
         clientUpdateFunction(dtMillis);
         
         mSystems->mInputStateManager.VUpdate(dtMillis);
+        mSystems->mAnimationManager.Update(dtMillis);
         mSystems->mRenderer.VBeginRenderPass();
         
         for (auto& scene: mSystems->mActiveSceneManager.GetScenes())
@@ -182,6 +185,13 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
         
         mSystems->mRenderer.VEndRenderPass();
     }
+}
+
+///------------------------------------------------------------------------------------------------
+
+rendering::AnimationManager& CoreSystemsEngine::GetAnimationManager()
+{
+    return mSystems->mAnimationManager;
 }
 
 ///------------------------------------------------------------------------------------------------

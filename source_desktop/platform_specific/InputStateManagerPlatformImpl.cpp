@@ -80,6 +80,8 @@ void InputStateManagerPlatformImpl::VProcessInputEvent(const SDL_Event& event, b
         case SDL_MOUSEMOTION:
         {
             mPointingPos = glm::vec2(event.motion.x/renderableDimensions.x, event.motion.y/renderableDimensions.y);
+            mPointingPos.x = (mPointingPos.x - 0.5f) * 2;
+            mPointingPos.y = -(mPointingPos.y - 0.5f) * 2;
         } break;
             
         case SDL_MOUSEWHEEL:
