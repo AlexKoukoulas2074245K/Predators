@@ -22,6 +22,9 @@ public:
     void VInitAnimation() override;
     
     ActionAnimationUpdateResult VUpdateAnimation(const float dtMillis) override;
+    
+private:
+    int mPendingAnimations;
 };
 
 ///------------------------------------------------------------------------------------------------

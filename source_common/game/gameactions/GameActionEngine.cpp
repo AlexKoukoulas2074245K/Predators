@@ -24,9 +24,8 @@ GameActionEngine::GameActionEngine(const EngineOperationMode operationMode)
     GameActionFactory::RegisterGameActions();
     
     mBoardState.GetPlayerStates().emplace_back();
-    mBoardState.GetPlayerStates().back().mPlayerHeldCards = {1,2,3,4,5};
     mBoardState.GetPlayerStates().emplace_back();
-    mBoardState.GetPlayerStates().back().mPlayerHeldCards = {1,2,3,4,5};
+    mBoardState.GetActivePlayerIndex() = 1;
     
     CreateAndPushGameAction(IDLE_GAME_ACTION_NAME);
 }
@@ -60,8 +59,9 @@ void GameActionEngine::Update(const float dtMillis)
         {
             if (!mActiveActionHasSetState)
             {
-                LogActionTransition("Setting state of action " + mGameActions.front()->VGetName().GetString());
+                LogActionTransition("Setting state and initializing animation of action " + mGameActions.front()->VGetName().GetString());
                 mGameActions.front()->VSetNewGameState();
+                mGameActions.front()->VInitAnimation();
                 mActiveActionHasSetState = true;
             }
             
@@ -69,16 +69,12 @@ void GameActionEngine::Update(const float dtMillis)
             {
                 LogActionTransition("Removing post finished animation action " + mGameActions.front()->VGetName().GetString());
                 mGameActions.pop();
+                mActiveActionHasSetState = false;
             }
             
             if (mGameActions.empty())
             {
                 CreateAndPushGameAction(IDLE_GAME_ACTION_NAME);
-            }
-            else
-            {
-                mGameActions.front()->VInitAnimation();
-                LogActionTransition("Initialized animation of action " + mGameActions.front()->VGetName().GetString());
             }
         }
     }
@@ -88,19 +84,12 @@ void GameActionEngine::Update(const float dtMillis)
 
 void GameActionEngine::AddGameAction(const strutils::StringId& actionName)
 {
-    bool firstNonIdleAction = false;
     if (GetActiveGameActionName() == IDLE_GAME_ACTION_NAME)
     {
         mGameActions.pop();
-        firstNonIdleAction = true;
     }
     
     CreateAndPushGameAction(actionName);
-    if (firstNonIdleAction)
-    {
-        mGameActions.front()->VInitAnimation();
-        LogActionTransition("Initialized animation of action " + actionName.GetString());
-    }
 }
 
 ///------------------------------------------------------------------------------------------------

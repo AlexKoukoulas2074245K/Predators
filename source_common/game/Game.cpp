@@ -107,17 +107,6 @@ void Game::Init()
 
 void Game::Update(const float dtMillis)
 {
-    if (CoreSystemsEngine::GetInstance().GetInputStateManager().VButtonTapped(input::Button::MAIN_BUTTON))
-    {
-        auto& systemsEngine = CoreSystemsEngine::GetInstance();
-        auto dummyScene = systemsEngine.GetActiveSceneManager().FindScene(strutils::StringId("Dummy"));
-        
-        auto existingCards = dummyScene->FindAllSceneObjectsWithNamePrefixedBy("CardFrame");
-        assert(existingCards.size() > 0);
-        
-        auto nextCount = existingCards.size() + 1;
-        CreateDebugCards(static_cast<int>(nextCount));
-    }
     mActionEngine->Update(dtMillis);
 }
 
@@ -125,55 +114,7 @@ void Game::Update(const float dtMillis)
 
 void Game::CreateDebugCards(const int cardCount)
 {
-    auto& systemsEngine = CoreSystemsEngine::GetInstance();
-    auto& animationManager = systemsEngine.GetAnimationManager();
-    
-    auto dummyScene = systemsEngine.GetActiveSceneManager().FindScene(strutils::StringId("Dummy"));
-    
-    auto existingCards = dummyScene->FindAllSceneObjectsWithNamePrefixedBy("CardFrame");
-    for (auto existingCard: existingCards)
-    {
-        dummyScene->RemoveSceneObject(existingCard->mName);
-    }
-    
-    float cardWidth = 0.055f;
-    
-    float cardBlockWidth = cardWidth * cardCount;
-    float cardStartX = -cardBlockWidth/2.0f;
-    
-    for (int i = 0; i < cardCount; ++i)
-    {
-        auto cardFrameSceneObject = dummyScene->CreateSceneObject(strutils::StringId(std::string("CardFrame") + std::to_string(i)));
-        cardFrameSceneObject->mScale.x = cardFrameSceneObject->mScale.y = 0.1f;
-        auto targetPosition = cardStartX + i * cardWidth + cardWidth/2;
-        
-        if (cardCount > 4)
-        {
-            float pushX = (cardCount - 4) * 0.003f * (math::Abs(i - cardCount/2));
-            bool oddCardCount = cardCount % 2 != 0;
-            if ((oddCardCount && i != cardCount/2) || !oddCardCount)
-            {
-                targetPosition += (i < cardCount/2) ? pushX : -pushX;
-            }
-        }
-        
-        cardFrameSceneObject->mPosition.x = 0.274f + i * cardWidth/2;
-        cardFrameSceneObject->mPosition.y = -0.1f; // -0.064 selected
-        cardFrameSceneObject->mPosition.z = 0.2f;
-        
-        auto midPos = cardFrameSceneObject->mPosition;
-        midPos.x = math::Abs(cardFrameSceneObject->mPosition.x - targetPosition)/2.0f;
-        midPos.y = 0.1f;
-        
-        math::BezierCurve curve(std::vector<glm::vec3>{cardFrameSceneObject->mPosition, midPos, glm::vec3(targetPosition, -0.1f, 0.2f)});
-
-        animationManager.StartAnimation(std::make_unique<rendering::BezierCurveAnimation>(std::vector<std::shared_ptr<scene::SceneObject>>{cardFrameSceneObject}, curve, 1.0f, 0.5f * i), [](){ logging::Log(logging::LogType::INFO, "Finished"); });
-//        animationManager.StartAnimation(std::make_unique<rendering::TweenAnimation>(std::vector<std::shared_ptr<scene::SceneObject>>{cardFrameSceneObject}, glm::vec3(targetPosition, -0.1f, 0.2f), 2.0f, math::BounceFunction), [](){ logging::Log(logging::LogType::INFO, "Finished"); });
-        
-        cardFrameSceneObject->mShaderResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + "basic.vs");
-        cardFrameSceneObject->mTextureResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "card_frame.png");
-        cardFrameSceneObject->mMeshResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_MESHES_ROOT + "quad.obj");
-    }
+    (void)cardCount;
 }
 
 ///------------------------------------------------------------------------------------------------
