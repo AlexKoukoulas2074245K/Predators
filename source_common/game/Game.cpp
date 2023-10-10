@@ -177,15 +177,17 @@ void Game::CreateDebugWidgets()
     {
         mActionEngine->AddGameAction(strutils::StringId(actions.at(currentIndex)));
         mActionEngine->Update(1);
-        const auto& boardState = mActionEngine->GetBoardState();
-        activePlayerIndex = std::to_string(boardState.GetActivePlayerIndex());
-        topPlayerHealth = std::to_string(boardState.GetPlayerStates().front().mPlayerHealth);
-        topPlayerHand = strutils::VecToString(boardState.GetPlayerStates().front().mPlayerHeldCards);
-        topPlayerBoard = strutils::VecToString(boardState.GetPlayerStates().front().mPlayerBoardCards);
-        botPlayerBoard = strutils::VecToString(boardState.GetPlayerStates().back().mPlayerBoardCards);
-        botPlayerHand = strutils::VecToString(boardState.GetPlayerStates().back().mPlayerHeldCards);
-        botPlayerHealth = std::to_string(boardState.GetPlayerStates().back().mPlayerHealth);
     }
+    
+    const auto& boardState = mActionEngine->GetBoardState();
+    activePlayerIndex = std::to_string(boardState.GetActivePlayerIndex());
+    topPlayerHealth = std::to_string(boardState.GetPlayerStates().front().mPlayerHealth);
+    topPlayerHand = strutils::VecToString(boardState.GetPlayerStates().front().mPlayerHeldCards);
+    topPlayerBoard = strutils::VecToString(boardState.GetPlayerStates().front().mPlayerBoardCards);
+    botPlayerBoard = strutils::VecToString(boardState.GetPlayerStates().back().mPlayerBoardCards);
+    botPlayerHand = strutils::VecToString(boardState.GetPlayerStates().back().mPlayerHeldCards);
+    botPlayerHealth = std::to_string(boardState.GetPlayerStates().back().mPlayerHealth);
+    
     ImGui::PopStyleColor(3);
     ImGui::SeparatorText("Output");
     ImGui::TextWrapped("Active Player %s", activePlayerIndex.c_str());
