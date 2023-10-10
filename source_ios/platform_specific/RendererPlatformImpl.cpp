@@ -111,7 +111,7 @@ public:
             float targetY = mSceneObject.mPosition.y - glyph.mYOffsetPixels * mSceneObject.mScale.y * 0.5f;
             
             glm::mat4 world(1.0f);
-            world = glm::translate(world, glm::vec3(targetX, targetY, 0.1f));
+            world = glm::translate(world, glm::vec3(targetX, targetY, mSceneObject.mPosition.z));
             world = glm::scale(world, glm::vec3(glyph.mWidthPixels * mSceneObject.mScale.x, glyph.mHeightPixels * mSceneObject.mScale.y, 1.0f));
             
             currentShader->SetBool(IS_TEXTURE_SHEET_UNIFORM_NAME, true);

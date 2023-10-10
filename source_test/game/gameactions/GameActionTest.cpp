@@ -20,14 +20,14 @@ static const strutils::StringId NEXT_PLAYER_GAME_ACTION_NAME = strutils::StringI
 
 TEST(GameActionTests, TestIdleGameActionExistsByDefault)
 {
-    GameActionEngine engine(GameActionEngine::EngineOperationMode::HEADLESS);
+    GameActionEngine engine(GameActionEngine::EngineOperationMode::HEADLESS, 0);
     
     EXPECT_EQ(engine.GetActiveGameActionName(), IDLE_GAME_ACTION_NAME);
 }
 
 TEST(GameActionTests, TestPushedGameActionIsActive)
 {
-    GameActionEngine engine(GameActionEngine::EngineOperationMode::HEADLESS);
+    GameActionEngine engine(GameActionEngine::EngineOperationMode::HEADLESS, 0);
     
     engine.AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
     
@@ -36,32 +36,32 @@ TEST(GameActionTests, TestPushedGameActionIsActive)
 
 TEST(GameActionTests, TestBoardStatePostDrawAction)
 {
-    GameActionEngine engine(GameActionEngine::EngineOperationMode::HEADLESS);
+    GameActionEngine engine(GameActionEngine::EngineOperationMode::HEADLESS, 0);
     
     engine.AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
     engine.Update(0);
     
-    EXPECT_EQ(engine.GetBoardState().GetActivePlayerState().mPlayerHeldCards.size(), 6);
+    EXPECT_EQ(engine.GetBoardState().GetActivePlayerState().mPlayerHeldCards.size(), 1);
     EXPECT_EQ(engine.GetActiveGameActionName(), IDLE_GAME_ACTION_NAME);
 }
 
 TEST(GameActionTests, TestBoardStatePostDrawAndPlayAction)
 {
-    GameActionEngine engine(GameActionEngine::EngineOperationMode::HEADLESS);
+    GameActionEngine engine(GameActionEngine::EngineOperationMode::HEADLESS, 0);
     
     engine.AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
     engine.AddGameAction(PLAY_CARD_GAME_ACTION_NAME);
     engine.Update(0);
     engine.Update(0);
     
-    EXPECT_EQ(engine.GetBoardState().GetActivePlayerState().mPlayerHeldCards.size(), 5);
+    EXPECT_EQ(engine.GetBoardState().GetActivePlayerState().mPlayerHeldCards.size(), 0);
     EXPECT_EQ(engine.GetBoardState().GetActivePlayerState().mPlayerBoardCards.size(), 1);
     EXPECT_EQ(engine.GetActiveGameActionName(), IDLE_GAME_ACTION_NAME);
 }
 
 TEST(GameActionTests, TestDrawPlayNextDrawPlayActionRound)
 {
-    GameActionEngine engine(GameActionEngine::EngineOperationMode::HEADLESS);
+    GameActionEngine engine(GameActionEngine::EngineOperationMode::HEADLESS, 0);
     
     engine.AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
     engine.AddGameAction(PLAY_CARD_GAME_ACTION_NAME);
@@ -77,9 +77,9 @@ TEST(GameActionTests, TestDrawPlayNextDrawPlayActionRound)
     
     for (size_t i = 0; i < engine.GetBoardState().GetPlayerCount(); ++i)
     {
-        EXPECT_EQ(engine.GetBoardState().GetPlayerStates().at(i).mPlayerHeldCards.size(), 5);
+        EXPECT_EQ(engine.GetBoardState().GetPlayerStates().at(i).mPlayerHeldCards.size(), 0);
         EXPECT_EQ(engine.GetBoardState().GetPlayerStates().at(i).mPlayerBoardCards.size(), 1);
     }
     
-    EXPECT_EQ(engine.GetBoardState().GetActivePlayerIndex(), 0);
+    EXPECT_EQ(engine.GetBoardState().GetActivePlayerIndex(), 1);
 }

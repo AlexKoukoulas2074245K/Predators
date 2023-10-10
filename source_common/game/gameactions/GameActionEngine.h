@@ -27,7 +27,7 @@ public:
     };
     
 public:
-    GameActionEngine(const EngineOperationMode operationMode);
+    GameActionEngine(const EngineOperationMode operationMode, const int gameSeed);
     
     ~GameActionEngine();
     
@@ -47,6 +47,7 @@ private:
     
 private:
     const EngineOperationMode mOperationMode;
+    const int mGameSeed;
     BoardState mBoardState;
     std::queue<std::unique_ptr<IGameAction>> mGameActions;
     bool mActiveActionHasSetState;

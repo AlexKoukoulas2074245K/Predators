@@ -286,7 +286,7 @@ void CoreSystemsEngine::SpecialEventHandling(SDL_Event& event)
 void CreateEngineDebugWidgets()
 {
     // Create runtime configs
-    ImGui::Begin("Engine Runtime");
+    ImGui::Begin("Engine Runtime", nullptr, ImGuiWindowFlags_NoMove);
     ImGui::SeparatorText("General");
     ImGui::Checkbox("Print FPS", &sPrintFPS);
     

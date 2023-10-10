@@ -17,6 +17,7 @@
 #include <engine/utils/Logging.h>
 #include <engine/utils/MathUtils.h>
 #include <game/Game.h>
+#include <game/Cards.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/GameActionFactory.h>
 
@@ -43,14 +44,14 @@ Game::~Game()
 
 void Game::Init()
 {
+    CardRepository::GetInstance().LoadCards();
+    
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
     systemsEngine.GetFontRepository().LoadFont("font", resources::ResourceReloadMode::DONT_RELOAD);
     
     auto dummyScene = systemsEngine.GetActiveSceneManager().CreateScene(strutils::StringId("Dummy"));
     auto boardSceneObject = dummyScene->CreateSceneObject(strutils::StringId("Board"));
-    boardSceneObject->mShaderResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + "basic.vs");
     boardSceneObject->mTextureResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "board.png");
-    boardSceneObject->mMeshResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_MESHES_ROOT + "quad.obj");
     
 #if __APPLE__
     #include <TargetConditionals.h>
@@ -100,7 +101,7 @@ void Game::Init()
 //    }
 //
     CreateDebugCards(1);
-    mActionEngine = std::make_unique<GameActionEngine>(GameActionEngine::EngineOperationMode::ANIMATED);
+    mActionEngine = std::make_unique<GameActionEngine>(GameActionEngine::EngineOperationMode::ANIMATED, 0);
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -137,14 +138,14 @@ void Game::CreateDebugWidgets()
     // Create game configs
     static bool printGameActionTransitions = false;
     printGameActionTransitions = mActionEngine->LoggingActionTransitions();
-    ImGui::Begin("Game Runtime");
+    ImGui::Begin("Game Runtime", nullptr, ImGuiWindowFlags_NoMove);
     ImGui::SeparatorText("General");
     ImGui::Checkbox("Print Action Transitions", &printGameActionTransitions);
     mActionEngine->SetLoggingActionTransitions(printGameActionTransitions);
     ImGui::End();
     
     // Create action generator
-    ImGui::Begin("Action Generator");
+    ImGui::Begin("Action Generator", nullptr, ImGuiWindowFlags_NoMove);
     const auto& actions = GameActionFactory::GetRegisteredActions();
     
     static size_t currentIndex = 0;

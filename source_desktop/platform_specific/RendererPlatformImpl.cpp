@@ -111,7 +111,7 @@ public:
             float targetY = mSceneObject.mPosition.y - glyph.mYOffsetPixels * mSceneObject.mScale.y * 0.5f;
             
             glm::mat4 world(1.0f);
-            world = glm::translate(world, glm::vec3(targetX, targetY, 0.1f));
+            world = glm::translate(world, glm::vec3(targetX, targetY, mSceneObject.mPosition.z));
             world = glm::scale(world, glm::vec3(glyph.mWidthPixels * mSceneObject.mScale.x, glyph.mHeightPixels * mSceneObject.mScale.y, 1.0f));
             
             currentShader->SetBool(IS_TEXTURE_SHEET_UNIFORM_NAME, true);
@@ -209,9 +209,10 @@ public:
     {
         ImGui::Text("SO Type: Default");
     }
-    void operator()(scene::TextSceneObjectData)
+    void operator()(scene::TextSceneObjectData textData)
     {
         ImGui::Text("SO Type: Text");
+        ImGui::Text("Text: %s", textData.mText.c_str());
     }
 };
 
@@ -227,7 +228,8 @@ void RendererPlatformImpl::CreateIMGuiWidgets()
     for (auto& sceneRef: mCachedScenes)
     {
         auto viewerName = strutils::StringId("Scene Data Viewer (" + sceneRef.get().GetName().GetString() + ")");
-        ImGui::Begin(viewerName.GetString().c_str());
+        
+        ImGui::Begin(viewerName.GetString().c_str(), nullptr, ImGuiWindowFlags_NoMove);
         
         // Camera properties
         if (ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_None))
@@ -268,9 +270,9 @@ void RendererPlatformImpl::CreateIMGuiWidgets()
                 ImGui::SliderFloat("rx", &sceneObject->mRotation.x, -3.14f, 3.14f);
                 ImGui::SliderFloat("ry", &sceneObject->mRotation.y, -3.14f, 3.14f);
                 ImGui::SliderFloat("rz", &sceneObject->mRotation.z, -3.14f, 3.14f);
-                ImGui::SliderFloat("sx", &sceneObject->mScale.x, 0.01f, 10.0f);
-                ImGui::SliderFloat("sy", &sceneObject->mScale.y, 0.01f, 10.0f);
-                ImGui::SliderFloat("sz", &sceneObject->mScale.z, 0.01f, 10.0f);
+                ImGui::SliderFloat("sx", &sceneObject->mScale.x, 0.00001f, 1.0f);
+                ImGui::SliderFloat("sy", &sceneObject->mScale.y, 0.00001f, 1.0f);
+                ImGui::SliderFloat("sz", &sceneObject->mScale.z, 0.00001f, 1.0f);
                 ImGui::PopID();
             }
         }

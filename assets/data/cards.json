@@ -1,0 +1,19 @@
+{
+    "cards": [
+        {
+            "id": 0,
+            "damage": 2,
+            "name": "Bunny",
+            "texture": "bunny.png",
+            "shader": "basic.vs"
+        },
+        
+        {
+            "id": 1,
+            "damage": 1,
+            "name": "Bee",
+            "texture": "bee.png",
+            "shader": "basic.vs"
+        }
+    ]
+}

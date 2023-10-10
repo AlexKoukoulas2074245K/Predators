@@ -37,14 +37,14 @@ inline void ShowMessageBox
 (
     const MessageBoxType messageBoxType,
     const std::string& title,
-    const std::string& description
+    const std::string description = ""
 )
 {
     SDL_ShowSimpleMessageBox
     (
         static_cast<SDL_MessageBoxFlags>(messageBoxType),
         title.c_str(),
-        description.c_str(),
+        description.empty() ? title.c_str() : description.c_str(),
         nullptr
     );
 }

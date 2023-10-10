@@ -6,6 +6,7 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <engine/utils/Logging.h>
+#include <engine/utils/MathUtils.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/GameActionFactory.h>
 #include <game/gameactions/BaseGameAction.h>
@@ -16,11 +17,14 @@ static const strutils::StringId IDLE_GAME_ACTION_NAME = strutils::StringId("Idle
 
 ///------------------------------------------------------------------------------------------------
 
-GameActionEngine::GameActionEngine(const EngineOperationMode operationMode)
+GameActionEngine::GameActionEngine(const EngineOperationMode operationMode, const int gameSeed)
     : mOperationMode(operationMode)
+    , mGameSeed(gameSeed)
     , mActiveActionHasSetState(false)
     , mLoggingActionTransitions(true)
 {
+    math::SetControlSeed(mGameSeed);
+    
     GameActionFactory::RegisterGameActions();
     
     mBoardState.GetPlayerStates().emplace_back();
