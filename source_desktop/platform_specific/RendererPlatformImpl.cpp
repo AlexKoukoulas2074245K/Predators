@@ -234,9 +234,9 @@ void RendererPlatformImpl::CreateIMGuiWidgets()
         {
             static glm::vec3 cameraPos(0.0f);
             cameraPos = sceneRef.get().GetCamera().GetPosition();
-            if(ImGui::SliderFloat("x", &cameraPos.x , -0.5f, 0.5f) ||
-               ImGui::SliderFloat("y", &cameraPos.y, -0.5f, 0.5f) ||
-               ImGui::SliderFloat("z", &cameraPos.z, -0.5f, 0.5f))
+            if(ImGui::SliderFloat("camX", &cameraPos.x , -0.5f, 0.5f) ||
+               ImGui::SliderFloat("camY", &cameraPos.y, -0.5f, 0.5f) ||
+               ImGui::SliderFloat("camZ", &cameraPos.z, -0.5f, 0.5f))
             {
                 sceneRef.get().GetCamera().SetPosition(cameraPos);
             }
@@ -261,6 +261,7 @@ void RendererPlatformImpl::CreateIMGuiWidgets()
                 ImGui::Text("Mesh: %s", resService.GetResourcePath(sceneObject->mMeshResourceId).c_str());
                 ImGui::Text("Shader: %s", resService.GetResourcePath(sceneObject->mShaderResourceId).c_str());
                 ImGui::Text("Texture: %s", resService.GetResourcePath(sceneObject->mTextureResourceId).c_str());
+                ImGui::PushID(sceneObjectName.GetString().c_str());
                 ImGui::SliderFloat("x", &sceneObject->mPosition.x, -0.5f, 0.5f);
                 ImGui::SliderFloat("y", &sceneObject->mPosition.y, -0.5f, 0.5f);
                 ImGui::SliderFloat("z", &sceneObject->mPosition.z, -0.5f, 0.5f);
@@ -270,6 +271,7 @@ void RendererPlatformImpl::CreateIMGuiWidgets()
                 ImGui::SliderFloat("sx", &sceneObject->mScale.x, 0.01f, 10.0f);
                 ImGui::SliderFloat("sy", &sceneObject->mScale.y, 0.01f, 10.0f);
                 ImGui::SliderFloat("sz", &sceneObject->mScale.z, 0.01f, 10.0f);
+                ImGui::PopID();
             }
         }
         ImGui::End();
