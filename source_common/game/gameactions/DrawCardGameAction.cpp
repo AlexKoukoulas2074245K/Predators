@@ -13,6 +13,7 @@
 #include <engine/scene/SceneObject.h>
 #include <engine/utils/MathUtils.h>
 #include <game/Cards.h>
+#include <game/CardUtils.h>
 #include <game/GameConstants.h>
 #include <game/gameactions/DrawCardGameAction.h>
 
@@ -63,13 +64,7 @@ void DrawCardGameAction::VInitAnimation()
             auto cardName = strutils::StringId(game_constants::TOP_PLAYER_CARD_SO_NAME_PREFIX + std::to_string(i) + game_constants::CARD_BASE_SO_NAME_POST_FIX);
             if (i == cardCount - 1)
             {
-                cardComponents.push_back(dummyScene->CreateSceneObject(cardName));
-                cardComponents.back()->mTextureResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "card_back.png");
-                cardComponents.back()->mScale.x = cardComponents.back()->mScale.y = game_constants::IN_GAME_CARD_SCALE;
-                cardComponents.back()->mPosition.x = game_constants::IN_GAME_DRAW_CARD_INIT_X + i * game_constants::IN_GAME_CARD_WIDTH/2;
-                cardComponents.back()->mPosition.y = game_constants::IN_GAME_TOP_PLAYER_HELD_CARD_Y;
-                cardComponents.back()->mPosition.z = game_constants::IN_GAME_PLAYER_HELD_CARD_BASE_Z;
-                cardComponents.back()->mRotation.z = math::PI;
+                cardComponents = card_utils::CreateCardComponentSceneObjects(nullptr, glm::vec3(game_constants::IN_GAME_DRAW_CARD_INIT_X + i * game_constants::IN_GAME_CARD_WIDTH/2, game_constants::IN_GAME_TOP_PLAYER_HELD_CARD_Y, game_constants::IN_GAME_HELD_CARD_Z), game_constants::TOP_PLAYER_CARD_SO_NAME_PREFIX + std::to_string(i), CardOrientation::BACK_FACE, *dummyScene);
             }
             else
             {
@@ -92,34 +87,7 @@ void DrawCardGameAction::VInitAnimation()
                 if (cardOpt)
                 {
                     auto card = cardOpt->get();
-                    
-                    // Create card base
-                    cardComponents.push_back(dummyScene->CreateSceneObject(sceneObjectComponentNames[0]));
-                    cardComponents.back()->mTextureResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "card_frame.png");
-                    cardComponents.back()->mScale.x = cardComponents.back()->mScale.y = game_constants::IN_GAME_CARD_SCALE;
-                    cardComponents.back()->mPosition.x = game_constants::IN_GAME_DRAW_CARD_INIT_X + i * game_constants::IN_GAME_CARD_WIDTH/2;
-                    cardComponents.back()->mPosition.y = game_constants::IN_GAME_BOT_PLAYER_HELD_CARD_Y;
-                    cardComponents.back()->mPosition.z = game_constants::IN_GAME_PLAYER_HELD_CARD_BASE_Z;
-                    
-                    // Create portrait
-                    cardComponents.push_back(dummyScene->CreateSceneObject(sceneObjectComponentNames[1]));
-                    cardComponents.back()->mShaderResourceId = card.mCardShaderResourceId;
-                    cardComponents.back()->mTextureResourceId = card.mCardTextureResourceId;
-                    cardComponents.back()->mScale.x = cardComponents.back()->mScale.y = game_constants::IN_GAME_CARD_PORTRAIT_SCALE;
-                    cardComponents.back()->mPosition.x = game_constants::IN_GAME_DRAW_CARD_INIT_X + i * game_constants::IN_GAME_CARD_WIDTH/2;
-                    cardComponents.back()->mPosition.y = game_constants::IN_GAME_BOT_PLAYER_HELD_CARD_Y + game_constants::IN_GAME_CARD_PORTRAIT_Y_OFFSET;
-                    cardComponents.back()->mPosition.z = game_constants::IN_GAME_PLAYER_HELD_CARD_COMPONENT_Z;
-                    
-                    // Create damage
-                    cardComponents.push_back(dummyScene->CreateSceneObject(sceneObjectComponentNames[2]));
-                    scene::TextSceneObjectData textData;
-                    textData.mFontName = strutils::StringId("font");
-                    textData.mText = std::to_string(card.mCardDamage);
-                    cardComponents.back()->mSceneObjectTypeData = std::move(textData);
-                    cardComponents.back()->mScale = glm::vec3(game_constants::IN_GAME_CARD_DAMAGE_SCALE);
-                    cardComponents.back()->mPosition.x = game_constants::IN_GAME_DRAW_CARD_INIT_X + i * game_constants::IN_GAME_CARD_WIDTH/2;
-                    cardComponents.back()->mPosition.y = game_constants::IN_GAME_BOT_PLAYER_HELD_CARD_Y + game_constants::IN_GAME_CARD_DAMAGE_Y_OFFSET;
-                    cardComponents.back()->mPosition.z = game_constants::IN_GAME_PLAYER_HELD_CARD_COMPONENT_Z;
+                    cardComponents = card_utils::CreateCardComponentSceneObjects(&card, glm::vec3(game_constants::IN_GAME_DRAW_CARD_INIT_X + i * game_constants::IN_GAME_CARD_WIDTH/2, game_constants::IN_GAME_BOT_PLAYER_HELD_CARD_Y, game_constants::IN_GAME_HELD_CARD_Z), game_constants::BOT_PLAYER_CARD_SO_NAME_PREFIX + std::to_string(i), CardOrientation::FRONT_FACE, *dummyScene);
                 }
             }
             else
@@ -137,7 +105,7 @@ void DrawCardGameAction::VInitAnimation()
             midPos.x = math::Abs(cardComponents.front()->mPosition.x - targetX)/2.0f;
             midPos.y = topPlayerActive ? game_constants::IN_GAME_DRAW_CARD_TOP_PLAYER_MID_POINT_Y : game_constants::IN_GAME_DRAW_CARD_BOT_PLAYER_MID_POINT_Y;
             
-            math::BezierCurve curve(std::vector<glm::vec3>{cardComponents.front()->mPosition, midPos, glm::vec3(targetX, cardComponents.front()->mPosition.y, game_constants::IN_GAME_PLAYER_HELD_CARD_BASE_Z)});
+            math::BezierCurve curve(std::vector<glm::vec3>{cardComponents.front()->mPosition, midPos, glm::vec3(targetX, cardComponents.front()->mPosition.y, game_constants::IN_GAME_HELD_CARD_Z)});
 
             animationManager.StartAnimation(std::make_unique<rendering::BezierCurveAnimation>(cardComponents, curve, game_constants::IN_GAME_DRAW_CARD_ANIMATION_DURATION_SECS, true), [&](){ mPendingAnimations--; });
             mPendingAnimations++;

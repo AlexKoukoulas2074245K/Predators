@@ -17,6 +17,7 @@
 #include <engine/utils/Logging.h>
 #include <engine/utils/MathUtils.h>
 #include <game/Game.h>
+#include <game/GameConstants.h>
 #include <game/Cards.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/GameActionFactory.h>

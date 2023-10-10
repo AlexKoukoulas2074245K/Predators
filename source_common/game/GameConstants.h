@@ -19,15 +19,18 @@ namespace game_constants
     inline const std::string DEFAULT_MESH_NAME = "quad.obj";
     inline const std::string DEFAULT_SHADER_NAME = "basic.vs";
     inline const std::string DEFAULT_TEXTURE_NAME = "debug.png";
-
     inline const std::string TOP_PLAYER_CARD_SO_NAME_PREFIX = "TOP_PLAYER_CARD_";
     inline const std::string BOT_PLAYER_CARD_SO_NAME_PREFIX = "BOT_PLAYER_CARD_";
     inline const std::string CARD_BASE_SO_NAME_POST_FIX = "_CARD_BASE";
     inline const std::string CARD_PORTRAIT_SO_NAME_POST_FIX = "_CARD_PORTRAIT";
     inline const std::string CARD_DAMAGE_SO_NAME_POST_FIX = "_CARD_DAMAGE";
 
+    inline const strutils::StringId DEFAULT_FONT_NAME = strutils::StringId("font");
+
     inline const int IN_GAME_CARD_PUSH_THRESHOLD = 4;
 
+    inline const float CARD_COMPONENT_Z_OFFSET = 0.1f;
+    inline const float IN_GAME_HELD_CARD_Z = 0.1f;
     inline const float IN_GAME_CARD_SCALE = 0.1f;
     inline const float IN_GAME_CARD_PORTRAIT_SCALE = 0.03f;
     inline const float IN_GAME_CARD_PORTRAIT_Y_OFFSET = 0.014f;
@@ -35,8 +38,6 @@ namespace game_constants
     inline const float IN_GAME_CARD_DAMAGE_Y_OFFSET = -0.026f;
     inline const float IN_GAME_CARD_WIDTH = 0.055f;
     inline const float IN_GAME_CARD_PUSH_VALUE = 0.003f;
-    inline const float IN_GAME_PLAYER_HELD_CARD_BASE_Z = 0.2f;
-    inline const float IN_GAME_PLAYER_HELD_CARD_COMPONENT_Z = 0.3f;
     inline const float IN_GAME_TOP_PLAYER_HELD_CARD_Y = 0.1f;
     inline const float IN_GAME_BOT_PLAYER_HELD_CARD_Y = -0.1f;
     inline const float IN_GAME_DRAW_CARD_INIT_X = 0.274f;
