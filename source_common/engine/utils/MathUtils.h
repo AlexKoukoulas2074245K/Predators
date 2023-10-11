@@ -471,12 +471,6 @@ bool IsMeshInsideFrustum(const glm::vec3& meshPosition, const glm::vec3& meshSca
 /// @returns whether the point is inside the rectangle.
 bool IsPointInsideRectangle(const glm::vec2& rectangleBottomLeft, const glm::vec2& rectangleTopRight, const glm::vec2& point);
 
-///-----------------------------------------------------------------------------------------------
-/// Computes and returns the touch position in world space
-/// @param[in] touchPosition touch position (x, y) in the [0..1] range where 0,0 is the top-left corner.
-/// @returns the touch position in world space.
-glm::vec3 ComputeTouchCoordsInWorldSpace(const glm::vec2& touchPosition, const glm::mat4& viewMatrix, const glm::mat4& projMatrix);
-
 ///------------------------------------------------------------------------------------------------
 
 class BezierCurve

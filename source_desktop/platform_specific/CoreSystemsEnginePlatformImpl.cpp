@@ -35,6 +35,8 @@ bool CoreSystemsEngine::mInitialized = false;
 ///------------------------------------------------------------------------------------------------
 
 static bool sPrintFPS = false;
+static float sGameSpeed = 1.0f;
+
 static void CreateEngineDebugWidgets();
 
 ///------------------------------------------------------------------------------------------------
@@ -200,10 +202,10 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
             mSystems->mFontRepository.ReloadMarkedFontsFromDisk();
         }
 
-        clientUpdateFunction(dtMillis);
+        clientUpdateFunction(dtMillis * sGameSpeed);
         
-        mSystems->mInputStateManager.VUpdate(dtMillis);
-        mSystems->mAnimationManager.Update(dtMillis);
+        mSystems->mInputStateManager.VUpdate(dtMillis * sGameSpeed);
+        mSystems->mAnimationManager.Update(dtMillis * sGameSpeed);
         mSystems->mRenderer.VBeginRenderPass();
         
         clientCreateDebugWidgetsFunction();
@@ -289,7 +291,7 @@ void CreateEngineDebugWidgets()
     ImGui::Begin("Engine Runtime", nullptr, ImGuiWindowFlags_NoMove);
     ImGui::SeparatorText("General");
     ImGui::Checkbox("Print FPS", &sPrintFPS);
-    
+    ImGui::SliderFloat("Game Speed", &sGameSpeed, 0.01f, 10.0f);
     ImGui::SeparatorText("Input");
     const auto& cursorPos = CoreSystemsEngine::GetInstance().GetInputStateManager().VGetPointingPos();
     ImGui::Text("Cursor %.3f,%.3f",cursorPos.x, cursorPos.y);

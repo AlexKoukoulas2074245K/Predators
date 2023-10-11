@@ -8,7 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		081A9A06DFDB6D2DCCCAE343 /* AnimationManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EBF846548488DC5997004413 /* AnimationManager.cpp */; };
+		13DD705AD4AF85B73F76F0CC /* CardUtils.h in Sources */ = {isa = PBXBuildFile; fileRef = 857303E925CD89F2799E2777 /* CardUtils.h */; };
 		2DEEC97E3FA3C0533CF8B865 /* AnimationManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 36BA43D12A116F9CEDEEC5BB /* AnimationManager.h */; };
+		7425F5ED59CE1E2D351D66C9 /* Cards.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D2CDD004F2E6D189785B5F62 /* Cards.cpp */; };
 		786063C15D9206FCF4754A11 /* Animations.h in Sources */ = {isa = PBXBuildFile; fileRef = 64A0A7BE4A8B84A02E685B42 /* Animations.h */; };
 		92043B0E2A0947A4007CC7DE /* AVFAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92043B022A0947A4007CC7DE /* AVFAudio.framework */; };
 		9206EBC82ACDC3FF00198337 /* IdleGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9206EAF12ACDC3FE00198337 /* IdleGameAction.cpp */; };
@@ -47,7 +49,10 @@
 		92C851B72969A9680021923F /* SDL2.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 92C851A12969A8D00021923F /* SDL2.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		92C851BA2969A9D70021923F /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 92C851B92969A9D70021923F /* main.cpp */; };
 		92E96A6B29803597004A3120 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92E96A5F29803597004A3120 /* OpenGLES.framework */; };
+		D2E26E81223DD805B0E519C0 /* CardUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F62DA25CEC2725420792B4BA /* CardUtils.cpp */; };
+		E7764760DE60263102BC16BD /* Cards.h in Sources */ = {isa = PBXBuildFile; fileRef = 7213B89F1A8AC4B38238ECEB /* Cards.h */; };
 		F5518A662447F238CCCAFE51 /* Animations.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C6B01E95D9ABF46EECA93F96 /* Animations.cpp */; };
+		FBD1FF1BF1985E3606DD20ED /* GameConstants.h in Sources */ = {isa = PBXBuildFile; fileRef = B3A902E2D8B1AD656D561A89 /* GameConstants.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -183,6 +188,8 @@
 /* Begin PBXFileReference section */
 		36BA43D12A116F9CEDEEC5BB /* AnimationManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = AnimationManager.h; path = AnimationManager.h; sourceTree = "<group>"; };
 		64A0A7BE4A8B84A02E685B42 /* Animations.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Animations.h; path = Animations.h; sourceTree = "<group>"; };
+		7213B89F1A8AC4B38238ECEB /* Cards.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Cards.h; path = Cards.h; sourceTree = "<group>"; };
+		857303E925CD89F2799E2777 /* CardUtils.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = CardUtils.h; path = CardUtils.h; sourceTree = "<group>"; };
 		92043B022A0947A4007CC7DE /* AVFAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFAudio.framework; path = System/Library/Frameworks/AVFAudio.framework; sourceTree = SDKROOT; };
 		9206EAF12ACDC3FE00198337 /* IdleGameAction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IdleGameAction.cpp; sourceTree = "<group>"; };
 		9206EAF22ACDC3FE00198337 /* IGameAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGameAction.h; sourceTree = "<group>"; };
@@ -262,8 +269,11 @@
 		92C851902969A8D00021923F /* SDL.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SDL.xcodeproj; path = "ThirdParty/SDL-source/Xcode/SDL/SDL.xcodeproj"; sourceTree = "<group>"; };
 		92C851B92969A9D70021923F /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		92E96A5F29803597004A3120 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
+		B3A902E2D8B1AD656D561A89 /* GameConstants.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = GameConstants.h; path = GameConstants.h; sourceTree = "<group>"; };
 		C6B01E95D9ABF46EECA93F96 /* Animations.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = Animations.cpp; path = Animations.cpp; sourceTree = "<group>"; };
+		D2CDD004F2E6D189785B5F62 /* Cards.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = Cards.cpp; path = Cards.cpp; sourceTree = "<group>"; };
 		EBF846548488DC5997004413 /* AnimationManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = AnimationManager.cpp; path = AnimationManager.cpp; sourceTree = "<group>"; };
+		F62DA25CEC2725420792B4BA /* CardUtils.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = CardUtils.cpp; path = CardUtils.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -322,6 +332,11 @@
 				9206EAFF2ACDC3FE00198337 /* BoardState.h */,
 				9206EB002ACDC3FE00198337 /* Game.h */,
 				9206EB012ACDC3FE00198337 /* Game.cpp */,
+				D2CDD004F2E6D189785B5F62 /* Cards.cpp */,
+				F62DA25CEC2725420792B4BA /* CardUtils.cpp */,
+				B3A902E2D8B1AD656D561A89 /* GameConstants.h */,
+				857303E925CD89F2799E2777 /* CardUtils.h */,
+				7213B89F1A8AC4B38238ECEB /* Cards.h */,
 			);
 			path = game;
 			sourceTree = "<group>";
@@ -819,6 +834,11 @@
 				F5518A662447F238CCCAFE51 /* Animations.cpp in Sources */,
 				2DEEC97E3FA3C0533CF8B865 /* AnimationManager.h in Sources */,
 				786063C15D9206FCF4754A11 /* Animations.h in Sources */,
+				7425F5ED59CE1E2D351D66C9 /* Cards.cpp in Sources */,
+				D2E26E81223DD805B0E519C0 /* CardUtils.cpp in Sources */,
+				FBD1FF1BF1985E3606DD20ED /* GameConstants.h in Sources */,
+				13DD705AD4AF85B73F76F0CC /* CardUtils.h in Sources */,
+				E7764760DE60263102BC16BD /* Cards.h in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

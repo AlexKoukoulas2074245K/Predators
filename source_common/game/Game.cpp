@@ -100,7 +100,7 @@ void Game::Init()
 //        fontRowSceneObject->mShaderResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + "basic.vs");
 //        fontRowSceneObject->mMeshResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_MESHES_ROOT + "quad.obj");
 //    }
-//
+
     CreateDebugCards(1);
     mActionEngine = std::make_unique<GameActionEngine>(GameActionEngine::EngineOperationMode::ANIMATED, 0);
 }
@@ -109,6 +109,10 @@ void Game::Init()
 
 void Game::Update(const float dtMillis)
 {
+    auto& systemsEngine = CoreSystemsEngine::GetInstance();
+    auto dummyScene = systemsEngine.GetActiveSceneManager().FindScene(strutils::StringId("Dummy"));
+    auto worldTouchPos = systemsEngine.GetInputStateManager().VGetPointingPosInWorldSpace(dummyScene->GetCamera().GetViewMatrix(), dummyScene->GetCamera().GetProjMatrix());
+    logging::Log(logging::LogType::INFO, "World pos %.3f, %.3f", worldTouchPos.x, worldTouchPos.y);
     mActionEngine->Update(dtMillis);
 }
 

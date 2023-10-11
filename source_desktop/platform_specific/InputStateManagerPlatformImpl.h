@@ -28,6 +28,8 @@ class InputStateManagerPlatformImpl final: public IInputStateManager
     friend struct CoreSystemsEngine::SystemsImpl;
 public:
     const glm::vec2& VGetPointingPos() const override;
+    glm::vec2 VGetPointingPosInWorldSpace(const glm::mat4& viewMatrix, const glm::mat4& projMatrix) const override;
+    
     bool VIsTouchInputPlatform() const override;
     bool VButtonPressed(const Button button) const override;
     bool VButtonTapped(const Button button) const override;

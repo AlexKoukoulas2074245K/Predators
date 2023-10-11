@@ -23,6 +23,16 @@ const glm::vec2& InputStateManagerPlatformImpl::VGetPointingPos() const
 
 ///------------------------------------------------------------------------------------------------
 
+glm::vec2 InputStateManagerPlatformImpl::VGetPointingPosInWorldSpace(const glm::mat4& viewMatrix, const glm::mat4& projMatrix) const
+{
+    const auto& invVP = glm::inverse(projMatrix * viewMatrix);
+    const auto& screenPos = glm::vec4(mPointingPos.x, mPointingPos.y, 1.0f, 1.0f);
+    const auto& worldPos = invVP * screenPos;
+    return glm::vec2(worldPos.x, worldPos.y);
+}
+
+///------------------------------------------------------------------------------------------------
+
 bool InputStateManagerPlatformImpl::VIsTouchInputPlatform() const
 {
     return false;
