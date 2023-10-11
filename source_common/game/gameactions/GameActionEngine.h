@@ -11,12 +11,12 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <engine/utils/StringUtils.h>
-#include <game/BoardState.h>
 #include <memory>
 #include <queue>
 
 ///------------------------------------------------------------------------------------------------
 
+class BoardState;
 class IGameAction;
 class GameActionEngine final
 {
@@ -27,7 +27,7 @@ public:
     };
     
 public:
-    GameActionEngine(const EngineOperationMode operationMode, const int gameSeed);
+    GameActionEngine(const EngineOperationMode operationMode, const int gameSeed, BoardState* boardState);
     
     ~GameActionEngine();
     
@@ -37,7 +37,6 @@ public:
     
     void SetLoggingActionTransitions(const bool logActionTransitions);
     
-    const BoardState& GetBoardState() const;
     const strutils::StringId& GetActiveGameActionName() const;
     bool LoggingActionTransitions() const;
     
@@ -48,7 +47,7 @@ private:
 private:
     const EngineOperationMode mOperationMode;
     const int mGameSeed;
-    BoardState mBoardState;
+    BoardState* mBoardState;
     std::queue<std::unique_ptr<IGameAction>> mGameActions;
     bool mActiveActionHasSetState;
     bool mLoggingActionTransitions;

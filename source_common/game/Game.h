@@ -10,11 +10,11 @@
 
 ///------------------------------------------------------------------------------------------------
 
+#include <game/GameSessionManager.h>
 #include <memory>
 
 ///------------------------------------------------------------------------------------------------
 
-class GameActionEngine;
 class Game final
 {
 public:
@@ -24,9 +24,9 @@ public:
     void Init();
     void Update(const float dtMillis);
     void CreateDebugWidgets();
-    void CreateDebugCards(const int cardCount);
+    
 private:
-    std::unique_ptr<GameActionEngine> mActionEngine;
+    GameSessionManager mGameSessionManager;
 };
 
 ///------------------------------------------------------------------------------------------------

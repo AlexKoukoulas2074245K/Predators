@@ -64,6 +64,7 @@ std::vector<std::shared_ptr<scene::SceneObject>> CreateCardComponentSceneObjects
         cardComponents.push_back(scene.CreateSceneObject(sceneObjectComponentNames[0]));
         cardComponents.back()->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CARD_BACK_TEXTURE_FILE_NAME);
         cardComponents.back()->mScale.x = cardComponents.back()->mScale.y = game_constants::IN_GAME_CARD_SCALE;
+        cardComponents.back()->mBoundingRectMultiplier.x = game_constants::CARD_BOUNDING_RECT_X_MULTIPLIER;
         cardComponents.back()->mPosition = position;
     }
     else
@@ -74,6 +75,7 @@ std::vector<std::shared_ptr<scene::SceneObject>> CreateCardComponentSceneObjects
         cardComponents.push_back(scene.CreateSceneObject(sceneObjectComponentNames[0]));
         cardComponents.back()->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CARD_FRAME_TEXTURE_FILE_NAME);
         cardComponents.back()->mScale.x = cardComponents.back()->mScale.y = game_constants::IN_GAME_CARD_SCALE;
+        cardComponents.back()->mBoundingRectMultiplier.x = game_constants::CARD_BOUNDING_RECT_X_MULTIPLIER;
         cardComponents.back()->mPosition = position;
         cardComponents.back()->mRotation.z = math::PI;
         
@@ -82,6 +84,7 @@ std::vector<std::shared_ptr<scene::SceneObject>> CreateCardComponentSceneObjects
         cardComponents.back()->mTextureResourceId = card->mCardTextureResourceId;
         cardComponents.back()->mShaderResourceId = card->mCardShaderResourceId;
         cardComponents.back()->mScale.x = cardComponents.back()->mScale.y = game_constants::IN_GAME_CARD_PORTRAIT_SCALE;
+        cardComponents.back()->mBoundingRectMultiplier.x = game_constants::CARD_BOUNDING_RECT_X_MULTIPLIER;
         cardComponents.back()->mPosition = position;
         cardComponents.back()->mPosition.y += game_constants::IN_GAME_CARD_PORTRAIT_Y_OFFSET;
         cardComponents.back()->mPosition.z += game_constants::CARD_COMPONENT_Z_OFFSET;
@@ -90,6 +93,7 @@ std::vector<std::shared_ptr<scene::SceneObject>> CreateCardComponentSceneObjects
         cardComponents.push_back(scene.CreateSceneObject(sceneObjectComponentNames[2]));
         cardComponents.back()->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CARD_DAMAGE_ICON_TEXTURE_FILE_NAME);
         cardComponents.back()->mScale.x = cardComponents.back()->mScale.y = game_constants::IN_GAME_CARD_DAMAGE_ICON_SCALE;
+        cardComponents.back()->mBoundingRectMultiplier.x = game_constants::CARD_BOUNDING_RECT_X_MULTIPLIER;
         cardComponents.back()->mPosition = position;
         cardComponents.back()->mPosition.x += game_constants::IN_GAME_CARD_DAMAGE_ICON_X_OFFSET;
         cardComponents.back()->mPosition.y += game_constants::IN_GAME_CARD_DAMAGE_ICON_Y_OFFSET;
@@ -121,7 +125,7 @@ std::vector<std::shared_ptr<scene::SceneObject>> CreateCardComponentSceneObjects
             scaleDeduct += CARD_NAME_TEST_DEDUCT_INCREMENTS;
             cardComponents.back()->mScale = glm::vec3(game_constants::IN_GAME_CARD_NAME_SCALE - scaleDeduct);
             cardComponents.back()->mPosition = position + game_constants::IN_GAME_CARD_NAME_X_OFFSET;
-            auto boundingRect = scene_object_utils::GetTextSceneObjectBoundingRect(*cardComponents.back());
+            auto boundingRect = scene_object_utils::GetSceneObjectBoundingRect(*cardComponents.back());
             textLength = boundingRect.topRight.x - boundingRect.bottomLeft.x;
             cardComponents.back()->mPosition.x -= textLength/2.0f;
         } while (textLength > CARD_NAME_AREA_LENGTH);

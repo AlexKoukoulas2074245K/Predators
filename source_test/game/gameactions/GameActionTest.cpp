@@ -7,6 +7,7 @@
 
 #include <gtest/gtest.h>
 #include <engine/utils/Logging.h>
+#include <game/BoardState.h>
 #include <game/gameactions/GameActionEngine.h>
 
 ///------------------------------------------------------------------------------------------------
@@ -20,14 +21,20 @@ static const strutils::StringId NEXT_PLAYER_GAME_ACTION_NAME = strutils::StringI
 
 TEST(GameActionTests, TestIdleGameActionExistsByDefault)
 {
-    GameActionEngine engine(GameActionEngine::EngineOperationMode::HEADLESS, 0);
+    BoardState boardState;
+    boardState.GetPlayerStates().emplace_back();
+    boardState.GetPlayerStates().emplace_back();
+    GameActionEngine engine(GameActionEngine::EngineOperationMode::HEADLESS, 0, &boardState);
     
     EXPECT_EQ(engine.GetActiveGameActionName(), IDLE_GAME_ACTION_NAME);
 }
 
 TEST(GameActionTests, TestPushedGameActionIsActive)
 {
-    GameActionEngine engine(GameActionEngine::EngineOperationMode::HEADLESS, 0);
+    BoardState boardState;
+    boardState.GetPlayerStates().emplace_back();
+    boardState.GetPlayerStates().emplace_back();
+    GameActionEngine engine(GameActionEngine::EngineOperationMode::HEADLESS, 0, &boardState);
     
     engine.AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
     
@@ -36,32 +43,41 @@ TEST(GameActionTests, TestPushedGameActionIsActive)
 
 TEST(GameActionTests, TestBoardStatePostDrawAction)
 {
-    GameActionEngine engine(GameActionEngine::EngineOperationMode::HEADLESS, 0);
+    BoardState boardState;
+    boardState.GetPlayerStates().emplace_back();
+    boardState.GetPlayerStates().emplace_back();
+    GameActionEngine engine(GameActionEngine::EngineOperationMode::HEADLESS, 0, &boardState);
     
     engine.AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
     engine.Update(0);
     
-    EXPECT_EQ(engine.GetBoardState().GetActivePlayerState().mPlayerHeldCards.size(), 1);
+    EXPECT_EQ(boardState.GetActivePlayerState().mPlayerHeldCards.size(), 1);
     EXPECT_EQ(engine.GetActiveGameActionName(), IDLE_GAME_ACTION_NAME);
 }
 
 TEST(GameActionTests, TestBoardStatePostDrawAndPlayAction)
 {
-    GameActionEngine engine(GameActionEngine::EngineOperationMode::HEADLESS, 0);
+    BoardState boardState;
+    boardState.GetPlayerStates().emplace_back();
+    boardState.GetPlayerStates().emplace_back();
+    GameActionEngine engine(GameActionEngine::EngineOperationMode::HEADLESS, 0, &boardState);
     
     engine.AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
     engine.AddGameAction(PLAY_CARD_GAME_ACTION_NAME);
     engine.Update(0);
     engine.Update(0);
     
-    EXPECT_EQ(engine.GetBoardState().GetActivePlayerState().mPlayerHeldCards.size(), 0);
-    EXPECT_EQ(engine.GetBoardState().GetActivePlayerState().mPlayerBoardCards.size(), 1);
+    EXPECT_EQ(boardState.GetActivePlayerState().mPlayerHeldCards.size(), 0);
+    EXPECT_EQ(boardState.GetActivePlayerState().mPlayerBoardCards.size(), 1);
     EXPECT_EQ(engine.GetActiveGameActionName(), IDLE_GAME_ACTION_NAME);
 }
 
 TEST(GameActionTests, TestDrawPlayNextDrawPlayActionRound)
 {
-    GameActionEngine engine(GameActionEngine::EngineOperationMode::HEADLESS, 0);
+    BoardState boardState;
+    boardState.GetPlayerStates().emplace_back();
+    boardState.GetPlayerStates().emplace_back();
+    GameActionEngine engine(GameActionEngine::EngineOperationMode::HEADLESS, 0, &boardState);
     
     engine.AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
     engine.AddGameAction(PLAY_CARD_GAME_ACTION_NAME);
@@ -75,11 +91,11 @@ TEST(GameActionTests, TestDrawPlayNextDrawPlayActionRound)
         engine.Update(0);
     }
     
-    for (size_t i = 0; i < engine.GetBoardState().GetPlayerCount(); ++i)
+    for (size_t i = 0; i < boardState.GetPlayerCount(); ++i)
     {
-        EXPECT_EQ(engine.GetBoardState().GetPlayerStates().at(i).mPlayerHeldCards.size(), 0);
-        EXPECT_EQ(engine.GetBoardState().GetPlayerStates().at(i).mPlayerBoardCards.size(), 1);
+        EXPECT_EQ(boardState.GetPlayerStates().at(i).mPlayerHeldCards.size(), 0);
+        EXPECT_EQ(boardState.GetPlayerStates().at(i).mPlayerBoardCards.size(), 1);
     }
     
-    EXPECT_EQ(engine.GetBoardState().GetActivePlayerIndex(), 1);
+    EXPECT_EQ(boardState.GetActivePlayerIndex(), 0);
 }

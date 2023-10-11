@@ -61,6 +61,7 @@ void DrawCardGameAction::VInitAnimation()
         std::vector<std::shared_ptr<scene::SceneObject>> cardComponents;
         const auto& sceneObjectComponentNames = card_utils::GetCardComponentSceneObjectNames((topPlayerActive ? game_constants::TOP_PLAYER_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_CARD_SO_NAME_PREFIX) + std::to_string(i), topPlayerActive ? CardOrientation::BACK_FACE : CardOrientation::FRONT_FACE);
         
+        auto cardAnimationName = strutils::StringId(game_constants::CARD_ANIMATION_PREFIX + std::to_string(i));
         
         // The latest added card components need to be created from scratch
         if (i == cardCount - 1)
@@ -86,7 +87,7 @@ void DrawCardGameAction::VInitAnimation()
             
             math::BezierCurve curve(std::vector<glm::vec3>{cardComponents.front()->mPosition, midPos, glm::vec3(targetX, cardComponents.front()->mPosition.y, game_constants::IN_GAME_HELD_CARD_Z)});
 
-            animationManager.StartAnimation(std::make_unique<rendering::BezierCurveAnimation>(cardComponents, curve, game_constants::IN_GAME_DRAW_CARD_ANIMATION_DURATION_SECS, true), [&](){ mPendingAnimations--; });
+            animationManager.StartAnimation(std::make_unique<rendering::BezierCurveAnimation>(cardComponents, curve, game_constants::IN_GAME_DRAW_CARD_ANIMATION_DURATION_SECS, true), [&](){ mPendingAnimations--; }, cardAnimationName);
             mPendingAnimations++;
         }
         
@@ -98,7 +99,7 @@ void DrawCardGameAction::VInitAnimation()
                 cardComponents.push_back(dummyScene->FindSceneObject(sceneObjectComponentName));
             }
             
-            animationManager.StartAnimation(std::make_unique<rendering::TweenAnimation>(cardComponents, glm::vec3(targetX, cardComponents.front()->mPosition.y, cardComponents.front()->mPosition.z), game_constants::IN_GAME_DRAW_CARD_PUSH_EXISTING_CARDS_ANIMATION_DURATION_SECS, true, game_constants::IN_GAME_DRAW_CARD_PUSH_EXISTING_CARDS_ANIMATION_DELAY_SECS, math::QuadFunction), [&](){ mPendingAnimations--; });
+            animationManager.StartAnimation(std::make_unique<rendering::TweenAnimation>(cardComponents, glm::vec3(targetX, cardComponents.front()->mPosition.y, cardComponents.front()->mPosition.z), game_constants::IN_GAME_DRAW_CARD_PUSH_EXISTING_CARDS_ANIMATION_DURATION_SECS, true, game_constants::IN_GAME_DRAW_CARD_PUSH_EXISTING_CARDS_ANIMATION_DELAY_SECS, math::QuadFunction), [&](){ mPendingAnimations--; }, cardAnimationName);
             mPendingAnimations++;
         }
     }

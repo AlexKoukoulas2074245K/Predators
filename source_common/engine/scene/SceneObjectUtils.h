@@ -24,7 +24,7 @@ namespace scene_object_utils
 
 ///------------------------------------------------------------------------------------------------
 
-math::Rectangle GetTextSceneObjectBoundingRect(const scene::SceneObject& sceneObject);
+math::Rectangle GetSceneObjectBoundingRect(const scene::SceneObject& sceneObject);
 
 ///------------------------------------------------------------------------------------------------
 

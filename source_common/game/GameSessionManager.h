@@ -10,10 +10,33 @@
 
 ///------------------------------------------------------------------------------------------------
 
+#include <memory>
+
+///------------------------------------------------------------------------------------------------
+
+class BoardState;
+class GameActionEngine;
+
+///------------------------------------------------------------------------------------------------
+
 class GameSessionManager final
 {
 public:
+    GameSessionManager();
+    ~GameSessionManager();
     
+    void InitGameSession();
+    void Update(const float dtMillis);
+    
+    const BoardState& GetBoardState() const;
+    GameActionEngine& GetActionEngine();
+    
+private:
+    void HandleTouchInput();
+    
+private:
+    std::unique_ptr<BoardState> mBoardState;
+    std::unique_ptr<GameActionEngine> mActionEngine;
 };
 
 ///------------------------------------------------------------------------------------------------

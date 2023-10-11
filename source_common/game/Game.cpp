@@ -16,6 +16,7 @@
 #include <engine/scene/SceneObject.h>
 #include <engine/utils/Logging.h>
 #include <engine/utils/MathUtils.h>
+#include <game/BoardState.h>
 #include <game/Game.h>
 #include <game/GameConstants.h>
 #include <game/Cards.h>
@@ -101,26 +102,18 @@ void Game::Init()
 //        fontRowSceneObject->mMeshResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_MESHES_ROOT + "quad.obj");
 //    }
 
-    CreateDebugCards(1);
-    mActionEngine = std::make_unique<GameActionEngine>(GameActionEngine::EngineOperationMode::ANIMATED, 0);
+    mGameSessionManager.InitGameSession();
 }
 
 ///------------------------------------------------------------------------------------------------
 
 void Game::Update(const float dtMillis)
 {
-    auto& systemsEngine = CoreSystemsEngine::GetInstance();
-    auto dummyScene = systemsEngine.GetActiveSceneManager().FindScene(strutils::StringId("Dummy"));
-    auto worldTouchPos = systemsEngine.GetInputStateManager().VGetPointingPosInWorldSpace(dummyScene->GetCamera().GetViewMatrix(), dummyScene->GetCamera().GetProjMatrix());
-    logging::Log(logging::LogType::INFO, "World pos %.3f, %.3f", worldTouchPos.x, worldTouchPos.y);
-    mActionEngine->Update(dtMillis);
-}
-
-///------------------------------------------------------------------------------------------------
-
-void Game::CreateDebugCards(const int cardCount)
-{
-    (void)cardCount;
+//    auto& systemsEngine = CoreSystemsEngine::GetInstance();
+//    auto dummyScene = systemsEngine.GetActiveSceneManager().FindScene(strutils::StringId("Dummy"));
+//    auto worldTouchPos = systemsEngine.GetInputStateManager().VGetPointingPosInWorldSpace(dummyScene->GetCamera().GetViewMatrix(), dummyScene->GetCamera().GetProjMatrix());
+//    logging::Log(logging::LogType::INFO, "World pos %.3f, %.3f", worldTouchPos.x, worldTouchPos.y);
+    mGameSessionManager.Update(dtMillis);
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -142,11 +135,11 @@ void Game::CreateDebugWidgets()
 {
     // Create game configs
     static bool printGameActionTransitions = false;
-    printGameActionTransitions = mActionEngine->LoggingActionTransitions();
+    printGameActionTransitions = mGameSessionManager.GetActionEngine().LoggingActionTransitions();
     ImGui::Begin("Game Runtime", nullptr, ImGuiWindowFlags_NoMove);
     ImGui::SeparatorText("General");
     ImGui::Checkbox("Print Action Transitions", &printGameActionTransitions);
-    mActionEngine->SetLoggingActionTransitions(printGameActionTransitions);
+    mGameSessionManager.GetActionEngine().SetLoggingActionTransitions(printGameActionTransitions);
     ImGui::End();
     
     // Create action generator
@@ -181,11 +174,11 @@ void Game::CreateDebugWidgets()
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(3 / 7.0f, 0.8f, 0.8f));
     if (ImGui::Button("Create"))
     {
-        mActionEngine->AddGameAction(strutils::StringId(actions.at(currentIndex)));
-        mActionEngine->Update(1);
+        mGameSessionManager.GetActionEngine().AddGameAction(strutils::StringId(actions.at(currentIndex)));
+        mGameSessionManager.GetActionEngine().Update(1);
     }
     
-    const auto& boardState = mActionEngine->GetBoardState();
+    const auto& boardState = mGameSessionManager.GetBoardState();
     activePlayerIndex = std::to_string(boardState.GetActivePlayerIndex());
     topPlayerHealth = std::to_string(boardState.GetPlayerStates().front().mPlayerHealth);
     topPlayerHand = strutils::VecToString(boardState.GetPlayerStates().front().mPlayerHeldCards);

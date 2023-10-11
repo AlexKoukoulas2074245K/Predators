@@ -17,19 +17,16 @@ static const strutils::StringId IDLE_GAME_ACTION_NAME = strutils::StringId("Idle
 
 ///------------------------------------------------------------------------------------------------
 
-GameActionEngine::GameActionEngine(const EngineOperationMode operationMode, const int gameSeed)
+GameActionEngine::GameActionEngine(const EngineOperationMode operationMode, const int gameSeed, BoardState* boardState)
     : mOperationMode(operationMode)
     , mGameSeed(gameSeed)
+    , mBoardState(boardState)
     , mActiveActionHasSetState(false)
     , mLoggingActionTransitions(true)
 {
     math::SetControlSeed(mGameSeed);
     
     GameActionFactory::RegisterGameActions();
-    
-    mBoardState.GetPlayerStates().emplace_back();
-    mBoardState.GetPlayerStates().emplace_back();
-    mBoardState.GetActivePlayerIndex() = 1;
     
     CreateAndPushGameAction(IDLE_GAME_ACTION_NAME);
 }
@@ -105,13 +102,6 @@ void GameActionEngine::SetLoggingActionTransitions(const bool logActionTransitio
 
 ///------------------------------------------------------------------------------------------------
 
-const BoardState& GameActionEngine::GetBoardState() const
-{
-    return mBoardState;
-}
-
-///------------------------------------------------------------------------------------------------
-
 const strutils::StringId& GameActionEngine::GetActiveGameActionName() const
 {
     return mGameActions.front()->VGetName();
@@ -130,7 +120,7 @@ void GameActionEngine::CreateAndPushGameAction(const strutils::StringId& actionN
 {
     auto action = GameActionFactory::CreateGameAction(actionName);
     action->SetName(actionName);
-    action->SetBoardState(&mBoardState);
+    action->SetBoardState(mBoardState);
     mGameActions.push(std::move(action));
     
     LogActionTransition("Pushed action " + actionName.GetString());
