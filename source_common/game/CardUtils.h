@@ -29,6 +29,10 @@ namespace card_utils
 
 ///------------------------------------------------------------------------------------------------
 
+std::vector<strutils::StringId> GetCardComponentSceneObjectNames(const std::string& cardComponentsNamePrefix, const CardOrientation cardOrientation);
+
+///------------------------------------------------------------------------------------------------
+
 std::vector<std::shared_ptr<scene::SceneObject>> CreateCardComponentSceneObjects(const Card* card, const glm::vec3& position, const std::string& cardComponentsNamePrefix, const CardOrientation cardOrientation, scene::Scene& scene);
 
 ///------------------------------------------------------------------------------------------------
