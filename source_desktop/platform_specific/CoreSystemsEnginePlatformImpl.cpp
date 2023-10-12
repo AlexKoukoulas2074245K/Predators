@@ -88,7 +88,8 @@ void CoreSystemsEngine::Initialize()
 
     // Set minimum window size
     SDL_SetWindowMinimumSize(mWindow, MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT);
-
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
+        
     if (!mWindow)
     {
         ospopups::ShowMessageBox(ospopups::MessageBoxType::ERROR, "SDL could not initialize!", SDL_GetError());
