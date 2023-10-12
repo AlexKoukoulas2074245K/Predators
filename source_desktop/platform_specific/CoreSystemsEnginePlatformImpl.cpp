@@ -84,7 +84,7 @@ void CoreSystemsEngine::Initialize()
     }
 
     // Create window
-    mWindow = SDL_CreateWindow("Predators", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_RESIZABLE);
+    mWindow = SDL_CreateWindow("Predators", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
 
     // Set minimum window size
     SDL_SetWindowMinimumSize(mWindow, MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT);
@@ -310,7 +310,7 @@ SDL_Window& CoreSystemsEngine::GetContextWindow() const
 
 glm::vec2 CoreSystemsEngine::GetContextRenderableDimensions() const
 {
-    int w,h; SDL_GL_GetDrawableSize(mWindow, &w, &h); return glm::vec2(w, h);
+    int w,h; SDL_GetWindowSize(mWindow, &w, &h); return glm::vec2(w, h);
 }
 
 ///------------------------------------------------------------------------------------------------

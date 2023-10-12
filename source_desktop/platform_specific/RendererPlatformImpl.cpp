@@ -151,10 +151,10 @@ void RendererPlatformImpl::VBeginRenderPass()
 {
     sDrawCallCounter = 0;
     
-    auto windowDimensions = CoreSystemsEngine::GetInstance().GetContextRenderableDimensions();
-    
     // Set View Port
-    GL_CALL(glViewport(0, 0, static_cast<int>(windowDimensions.x), static_cast<int>(windowDimensions.y)));
+    int w, h;
+    SDL_GL_GetDrawableSize(&CoreSystemsEngine::GetInstance().GetContextWindow(), &w, &h);
+    GL_CALL(glViewport(0, 0, w, h));
     
     // Set background color
     GL_CALL(glClearColor(1.0f, 1.0f, 1.0f, 1.0f));
