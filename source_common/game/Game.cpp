@@ -119,31 +119,32 @@ void Game::Update(const float dtMillis)
 ///------------------------------------------------------------------------------------------------
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
+    #include <imgui/backends/imgui_impl_sdl2.h>
     #define CREATE_DEBUG_WIDGETS
 #elif __APPLE__
     #include <TargetConditionals.h>
     #if TARGET_IPHONE_SIMULATOR || TARGET_OS_IPHONE
         #undef CREATE_DEBUG_WIDGETS
     #else
+        #include <imgui/backends/imgui_impl_sdl2.h>
         #define CREATE_DEBUG_WIDGETS
     #endif
 #endif
 
-#if (!defined(NDEBUG)) && (defined(CREATE_DEBUG_WIDGETS))
-#include <imgui/backends/imgui_impl_sdl2.h>
+#if ((!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)) && (defined(CREATE_DEBUG_WIDGETS))
 void Game::CreateDebugWidgets()
 {
     // Create game configs
     static bool printGameActionTransitions = false;
     printGameActionTransitions = mGameSessionManager.GetActionEngine().LoggingActionTransitions();
-    ImGui::Begin("Game Runtime", nullptr, ImGuiWindowFlags_NoMove);
+    ImGui::Begin("Game Runtime", nullptr, GLOBAL_WINDOW_LOCKING);
     ImGui::SeparatorText("General");
     ImGui::Checkbox("Print Action Transitions", &printGameActionTransitions);
     mGameSessionManager.GetActionEngine().SetLoggingActionTransitions(printGameActionTransitions);
     ImGui::End();
     
     // Create action generator
-    ImGui::Begin("Action Generator", nullptr, ImGuiWindowFlags_NoMove);
+    ImGui::Begin("Action Generator", nullptr, GLOBAL_WINDOW_LOCKING);
     const auto& actions = GameActionFactory::GetRegisteredActions();
     
     static size_t currentIndex = 0;

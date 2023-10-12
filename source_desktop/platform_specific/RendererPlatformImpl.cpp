@@ -20,8 +20,6 @@
 #include <platform_specific/RendererPlatformImpl.h>
 #include <SDL.h>
 
-//#define IMGUI_IN_RELEASE
-
 ///------------------------------------------------------------------------------------------------
 
 namespace rendering
@@ -42,6 +40,10 @@ static const strutils::StringId POINT_LIGHT_COLORS_UNIFORM_NAME = strutils::Stri
 static const strutils::StringId POINT_LIGHT_POSITIONS_UNIFORM_NAME = strutils::StringId("point_light_positions");
 static const strutils::StringId POINT_LIGHT_POWERS_UNIFORM_NAME = strutils::StringId("point_light_powers");
 static const strutils::StringId IS_TEXTURE_SHEET_UNIFORM_NAME = strutils::StringId("texture_sheet");
+
+///------------------------------------------------------------------------------------------------
+
+static int sDrawCallCounter = 0;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -81,6 +83,7 @@ public:
         currentShader->SetMatrix4fv(PROJ_MATRIX_UNIFORM_NAME, mCamera.GetProjMatrix());
         
         GL_CALL(glDrawElements(GL_TRIANGLES, currentMesh->GetElementCount(), GL_UNSIGNED_SHORT, (void*)0));
+        sDrawCallCounter++;
     }
     
     void operator()(scene::TextSceneObjectData sceneObjectTypeData)
@@ -124,6 +127,7 @@ public:
             currentShader->SetMatrix4fv(PROJ_MATRIX_UNIFORM_NAME, mCamera.GetProjMatrix());
             
             GL_CALL(glDrawElements(GL_TRIANGLES, currentMesh->GetElementCount(), GL_UNSIGNED_SHORT, (void*)0));
+            sDrawCallCounter++;
             
             if (i != sceneObjectTypeData.mText.size() - 1)
             {
@@ -145,6 +149,8 @@ private:
 
 void RendererPlatformImpl::VBeginRenderPass()
 {
+    sDrawCallCounter = 0;
+    
     auto windowDimensions = CoreSystemsEngine::GetInstance().GetContextRenderableDimensions();
     
     // Set View Port
@@ -161,7 +167,7 @@ void RendererPlatformImpl::VBeginRenderPass()
     
     GL_CALL(glDisable(GL_CULL_FACE));
     
-#if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__) || defined(__APPLE__)) && (!defined(NDEBUG) || defined(IMGUI_IN_RELEASE))
+#if (!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)
     // Imgui start-of-frame calls
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame();
@@ -184,7 +190,7 @@ void RendererPlatformImpl::VRenderScene(scene::Scene& scene)
 
 void RendererPlatformImpl::VEndRenderPass()
 {
-#if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__) || defined(__APPLE__)) && (!defined(NDEBUG) || defined(IMGUI_IN_RELEASE))    
+#if (!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)
     // Create all custom GUIs
     CreateIMGuiWidgets();
     mCachedScenes.clear();
@@ -201,7 +207,7 @@ void RendererPlatformImpl::VEndRenderPass()
 
 ///------------------------------------------------------------------------------------------------
 
-#if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__) || defined(__APPLE__)) && (!defined(NDEBUG) || defined(IMGUI_IN_RELEASE))
+#if (!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)
 class SceneObjectDataIMGuiVisitor
 {
 public:
@@ -224,12 +230,16 @@ void RendererPlatformImpl::CreateIMGuiWidgets()
     
     auto& resService = CoreSystemsEngine::GetInstance().GetResourceLoadingService();
     
+    ImGui::Begin("Rendering", nullptr, GLOBAL_WINDOW_LOCKING);
+    ImGui::Text("Draw Calls %d", sDrawCallCounter);
+    ImGui::End();
+    
     // Create scene data viewer
     for (auto& sceneRef: mCachedScenes)
     {
         auto viewerName = strutils::StringId("Scene Data Viewer (" + sceneRef.get().GetName().GetString() + ")");
         
-        ImGui::Begin(viewerName.GetString().c_str(), nullptr, ImGuiWindowFlags_NoMove);
+        ImGui::Begin(viewerName.GetString().c_str(), nullptr, GLOBAL_WINDOW_LOCKING);
         
         // Camera properties
         if (ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_None))

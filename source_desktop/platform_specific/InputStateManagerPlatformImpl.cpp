@@ -99,7 +99,9 @@ void InputStateManagerPlatformImpl::VProcessInputEvent(const SDL_Event& event, b
         } break;
     }
     
+#if (!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)
     ImGui_ImplSDL2_ProcessEvent(&event);
+#endif
 }
 
 ///------------------------------------------------------------------------------------------------

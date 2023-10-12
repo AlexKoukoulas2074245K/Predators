@@ -5,6 +5,7 @@
 ///  Created by Alex Koukoulas on 03/10/2023
 ///------------------------------------------------------------------------------------------------
 
+#include <chrono>
 #include <engine/CoreSystemsEngine.h>
 #include <engine/rendering/AnimationManager.h>
 #include <engine/rendering/Fonts.h>
@@ -34,10 +35,15 @@ bool CoreSystemsEngine::mInitialized = false;
 
 ///------------------------------------------------------------------------------------------------
 
-static bool sPrintFPS = false;
 static float sGameSpeed = 1.0f;
+static bool sPrintFPS = false;
 
+#if (!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)
+static const int PROFILLING_SAMPLE_COUNT = 300;
+static float sUpdateLogicMillisSamples[PROFILLING_SAMPLE_COUNT];
+static float sRenderingMillisSamples[PROFILLING_SAMPLE_COUNT];
 static void CreateEngineDebugWidgets();
+#endif
 
 ///------------------------------------------------------------------------------------------------
 
@@ -134,6 +140,7 @@ void CoreSystemsEngine::Initialize()
     logging::Log(logging::LogType::INFO, "Version    : %s", GL_NO_CHECK_CALL(glGetString(GL_VERSION)));
     logging::Log(logging::LogType::INFO, "Version    : %s", GL_NO_CHECK_CALL(glGetString(GL_SHADING_LANGUAGE_VERSION)));
 
+#if (!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -144,6 +151,8 @@ void CoreSystemsEngine::Initialize()
     // Setup Platform/Renderer backends
     ImGui_ImplSDL2_InitForOpenGL(mWindow, mContext);
     ImGui_ImplOpenGL3_Init();
+    logging::Log(logging::LogType::INFO, "Hello");
+#endif
     
     mInitialized = true;
 }
@@ -201,20 +210,47 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
             mSystems->mResourceLoadingService.ReloadMarkedResourcesFromDisk();
             mSystems->mFontRepository.ReloadMarkedFontsFromDisk();
         }
-
+    
+#if (!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)
+        const auto logicUpdateTimeStart = std::chrono::system_clock::now();
+#endif
+        
         clientUpdateFunction(dtMillis * sGameSpeed);
         
         mSystems->mInputStateManager.VUpdate(dtMillis * sGameSpeed);
         mSystems->mAnimationManager.Update(dtMillis * sGameSpeed);
+        
+#if (!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)
+        const auto logicUpdateTimeEnd = std::chrono::system_clock::now();
+        sUpdateLogicMillisSamples[PROFILLING_SAMPLE_COUNT - 1] = std::chrono::duration_cast<std::chrono::milliseconds>(logicUpdateTimeEnd - logicUpdateTimeStart).count();
+#endif
+        
         mSystems->mRenderer.VBeginRenderPass();
         
+#if (!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)
         clientCreateDebugWidgetsFunction();
         CreateEngineDebugWidgets();
+        
+        const auto renderingTimeStart = std::chrono::system_clock::now();
+#endif
         
         for (auto& scene: mSystems->mActiveSceneManager.GetScenes())
         {
             mSystems->mRenderer.VRenderScene(*scene);
         }
+        
+#if (!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)
+        const auto renderingTimeEnd = std::chrono::system_clock::now();
+        sRenderingMillisSamples[PROFILLING_SAMPLE_COUNT - 1] = std::chrono::duration_cast<std::chrono::milliseconds>(renderingTimeEnd - renderingTimeStart).count();
+        
+        for (int i = 0; i < PROFILLING_SAMPLE_COUNT - 1; ++i)
+        {
+            sUpdateLogicMillisSamples[i] = sUpdateLogicMillisSamples[i + 1];
+            sRenderingMillisSamples[i] = sRenderingMillisSamples[i + 1];
+        }
+#else
+        (void)clientCreateDebugWidgetsFunction;
+#endif
         
         mSystems->mRenderer.VEndRenderPass();
     }
@@ -287,15 +323,20 @@ void CoreSystemsEngine::SpecialEventHandling(SDL_Event& event)
 
 void CreateEngineDebugWidgets()
 {
+#if (!defined(NDEBUG) || defined(IMGUI_IN_RELEASE))
     // Create runtime configs
-    ImGui::Begin("Engine Runtime", nullptr, ImGuiWindowFlags_NoMove);
+    ImGui::Begin("Engine Runtime", nullptr, GLOBAL_WINDOW_LOCKING);
     ImGui::SeparatorText("General");
     ImGui::Checkbox("Print FPS", &sPrintFPS);
     ImGui::SliderFloat("Game Speed", &sGameSpeed, 0.01f, 10.0f);
+    ImGui::SeparatorText("Profilling");
+    ImGui::PlotLines("Update Logic Samples", sUpdateLogicMillisSamples, PROFILLING_SAMPLE_COUNT);
+    ImGui::PlotLines("Rendering Samples", sRenderingMillisSamples, PROFILLING_SAMPLE_COUNT);
     ImGui::SeparatorText("Input");
     const auto& cursorPos = CoreSystemsEngine::GetInstance().GetInputStateManager().VGetPointingPos();
     ImGui::Text("Cursor %.3f,%.3f",cursorPos.x, cursorPos.y);
     ImGui::End();
+#endif
 }
 
 ///------------------------------------------------------------------------------------------------
