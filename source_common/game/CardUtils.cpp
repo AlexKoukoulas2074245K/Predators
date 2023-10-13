@@ -23,6 +23,28 @@ static const std::string CARD_DAMAGE_ICON_TEXTURE_FILE_NAME = "damage_icon.png";
 
 static const float CARD_NAME_AREA_LENGTH = 0.042f;
 static const float CARD_NAME_TEST_DEDUCT_INCREMENTS = 0.00001f;
+static const float CARD_INDEX_Z_OFFSET = 1.0f;
+
+///------------------------------------------------------------------------------------------------
+
+glm::vec3 CalculateHeldCardPosition(const int cardIndex, const int playerCardCount, bool forOpponentPlayer)
+{
+    float cardBlockWidth = game_constants::IN_GAME_CARD_WIDTH * playerCardCount;
+    float cardStartX = -cardBlockWidth/2.0f;
+    
+    auto targetX = cardStartX + cardIndex * game_constants::IN_GAME_CARD_WIDTH + game_constants::IN_GAME_CARD_WIDTH/2;
+    if (playerCardCount > game_constants::IN_GAME_CARD_PUSH_THRESHOLD)
+    {
+        float pushX = (playerCardCount - game_constants::IN_GAME_CARD_PUSH_THRESHOLD) * game_constants::IN_GAME_CARD_PUSH_VALUE * (math::Abs(cardIndex - playerCardCount/2));
+        bool oddCardCount = playerCardCount % 2 != 0;
+        if ((oddCardCount && cardIndex != playerCardCount/2) || !oddCardCount)
+        {
+            targetX += (cardIndex < playerCardCount/2) ? pushX : -pushX;
+        }
+    }
+    
+    return glm::vec3(targetX, forOpponentPlayer ? game_constants::IN_GAME_TOP_PLAYER_HELD_CARD_Y : game_constants::IN_GAME_BOT_PLAYER_HELD_CARD_Y, game_constants::IN_GAME_HELD_CARD_Z + cardIndex * CARD_INDEX_Z_OFFSET);
+}
 
 ///------------------------------------------------------------------------------------------------
 
@@ -50,13 +72,16 @@ std::vector<strutils::StringId> GetCardComponentSceneObjectNames(const std::stri
 
 ///------------------------------------------------------------------------------------------------
 
-std::vector<std::shared_ptr<scene::SceneObject>> CreateCardComponentSceneObjects(const Card* card, const glm::vec3& position, const std::string& cardComponentsNamePrefix, const CardOrientation cardOrientation, scene::Scene& scene)
+std::shared_ptr<CardSoWrapper> CreateCardSoWrapper(const CardData* cardData, const glm::vec3& position, const std::string& cardComponentsNamePrefix, const CardOrientation cardOrientation, scene::Scene& scene)
 {
+    auto cardSoWrapper = std::make_shared<CardSoWrapper>();
+    auto& cardComponents = cardSoWrapper->mSceneObjectComponents;
+    
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
     auto& resService = systemsEngine.GetResourceLoadingService();
     
     const auto& sceneObjectComponentNames = GetCardComponentSceneObjectNames(cardComponentsNamePrefix, cardOrientation);
-    std::vector<std::shared_ptr<scene::SceneObject>> cardComponents;
+    
     
     if (cardOrientation == CardOrientation::BACK_FACE)
     {
@@ -69,7 +94,7 @@ std::vector<std::shared_ptr<scene::SceneObject>> CreateCardComponentSceneObjects
     }
     else
     {
-        assert(card);
+        assert(cardData);
         
         // Create card base
         cardComponents.push_back(scene.CreateSceneObject(sceneObjectComponentNames[0]));
@@ -81,8 +106,8 @@ std::vector<std::shared_ptr<scene::SceneObject>> CreateCardComponentSceneObjects
         
         // Create portrait
         cardComponents.push_back(scene.CreateSceneObject(sceneObjectComponentNames[1]));
-        cardComponents.back()->mTextureResourceId = card->mCardTextureResourceId;
-        cardComponents.back()->mShaderResourceId = card->mCardShaderResourceId;
+        cardComponents.back()->mTextureResourceId = cardData->mCardTextureResourceId;
+        cardComponents.back()->mShaderResourceId = cardData->mCardShaderResourceId;
         cardComponents.back()->mScale.x = cardComponents.back()->mScale.y = game_constants::IN_GAME_CARD_PORTRAIT_SCALE;
         cardComponents.back()->mBoundingRectMultiplier.x = game_constants::CARD_BOUNDING_RECT_X_MULTIPLIER;
         cardComponents.back()->mPosition = position;
@@ -103,7 +128,7 @@ std::vector<std::shared_ptr<scene::SceneObject>> CreateCardComponentSceneObjects
         cardComponents.push_back(scene.CreateSceneObject(sceneObjectComponentNames[3]));
         scene::TextSceneObjectData damageTextData;
         damageTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
-        damageTextData.mText = std::to_string(card->mCardDamage);
+        damageTextData.mText = std::to_string(cardData->mCardDamage);
         cardComponents.back()->mSceneObjectTypeData = std::move(damageTextData);
         cardComponents.back()->mScale = glm::vec3(game_constants::IN_GAME_CARD_DAMAGE_SCALE);
         cardComponents.back()->mPosition = position;
@@ -115,7 +140,7 @@ std::vector<std::shared_ptr<scene::SceneObject>> CreateCardComponentSceneObjects
         cardComponents.push_back(scene.CreateSceneObject(sceneObjectComponentNames[4]));
         scene::TextSceneObjectData cardNameTextData;
         cardNameTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
-        cardNameTextData.mText = card->mCardName;
+        cardNameTextData.mText = cardData->mCardName;
         cardComponents.back()->mSceneObjectTypeData = std::move(cardNameTextData);
         
         float scaleDeduct = CARD_NAME_TEST_DEDUCT_INCREMENTS;
@@ -132,9 +157,11 @@ std::vector<std::shared_ptr<scene::SceneObject>> CreateCardComponentSceneObjects
         
         cardComponents.back()->mPosition.y += game_constants::IN_GAME_CARD_NAME_Y_OFFSET;
         cardComponents.back()->mPosition.z += game_constants::CARD_COMPONENT_Z_OFFSET;
+        
+        cardSoWrapper->mCardData = cardData;
     }
- 
-    return cardComponents;
+    
+    return cardSoWrapper;
 }
 
 ///------------------------------------------------------------------------------------------------

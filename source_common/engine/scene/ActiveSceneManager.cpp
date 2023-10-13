@@ -23,7 +23,7 @@ std::shared_ptr<Scene> ActiveSceneManager::CreateScene(const strutils::StringId 
 
 ///------------------------------------------------------------------------------------------------
 
-std::shared_ptr<Scene> ActiveSceneManager::FindScene(const strutils::StringId& sceneName)
+std::shared_ptr<Scene> ActiveSceneManager::FindScene(const strutils::StringId& sceneName) const
 {
     auto findIter = std::find_if(mScenes.begin(), mScenes.end(), [&](const std::shared_ptr<Scene>& scene)
                                  {

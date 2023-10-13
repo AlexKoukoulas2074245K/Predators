@@ -11,8 +11,14 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <engine/resloading/ResourceLoadingService.h>
+#include <memory>
 #include <optional>
 #include <unordered_map>
+#include <vector>
+
+///------------------------------------------------------------------------------------------------
+
+namespace scene { struct SceneObject; }
 
 ///------------------------------------------------------------------------------------------------
 
@@ -23,7 +29,17 @@ enum class CardOrientation
 
 ///------------------------------------------------------------------------------------------------
 
-struct Card
+enum class CardSoState
+{
+    MOVING_TO_SET_POSITION,
+    IDLE,
+    HIGHLIGHTED,
+    FREE_MOVING
+};
+
+///------------------------------------------------------------------------------------------------
+
+struct CardData
 {
     int mCardId;
     int mCardDamage;
@@ -34,26 +50,35 @@ struct Card
 
 ///------------------------------------------------------------------------------------------------
 
-class CardRepository final
+struct CardSoWrapper
+{
+    CardSoState mState = CardSoState::IDLE;
+    const CardData* mCardData = nullptr;
+    std::vector<std::shared_ptr<scene::SceneObject>> mSceneObjectComponents;
+};
+
+///------------------------------------------------------------------------------------------------
+
+class CardDataRepository final
 {
 public:
-    static CardRepository& GetInstance();
+    static CardDataRepository& GetInstance();
     
-    ~CardRepository() = default;
-    CardRepository(const CardRepository&) = delete;
-    CardRepository(CardRepository&&) = delete;
-    const CardRepository& operator = (const CardRepository&) = delete;
-    CardRepository& operator = (CardRepository&&) = delete;
+    ~CardDataRepository() = default;
+    CardDataRepository(const CardDataRepository&) = delete;
+    CardDataRepository(CardDataRepository&&) = delete;
+    const CardDataRepository& operator = (const CardDataRepository&) = delete;
+    CardDataRepository& operator = (CardDataRepository&&) = delete;
     
-    size_t GetCardCount() const;
-    std::optional<std::reference_wrapper<const Card>> GetCard(const int cardId) const;
-    void LoadCards();
-    
-private:
-    CardRepository() = default;
+    size_t GetCardDataCount() const;
+    std::optional<std::reference_wrapper<const CardData>> GetCard(const int cardId) const;
+    void LoadCardData();
     
 private:
-    std::unordered_map<int, Card> mCardMap;
+    CardDataRepository() = default;
+    
+private:
+    std::unordered_map<int, CardData> mCardDataMap;
 };
 
 ///------------------------------------------------------------------------------------------------

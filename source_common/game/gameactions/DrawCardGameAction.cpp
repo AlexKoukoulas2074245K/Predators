@@ -15,6 +15,7 @@
 #include <game/Cards.h>
 #include <game/CardUtils.h>
 #include <game/GameConstants.h>
+#include <game/GameSessionManager.h>
 #include <game/gameactions/DrawCardGameAction.h>
 
 ///------------------------------------------------------------------------------------------------
@@ -22,8 +23,8 @@
 void DrawCardGameAction::VSetNewGameState()
 {
     auto& activePlayerState = mBoardState->GetActivePlayerState();
-    auto availableCardCount = static_cast<int>(CardRepository::GetInstance().GetCardCount());
-    activePlayerState.mPlayerHeldCards.push_back(math::ControlledRandomInt() % availableCardCount);
+    auto availableCardDataCount = static_cast<int>(CardDataRepository::GetInstance().GetCardDataCount());
+    activePlayerState.mPlayerHeldCards.push_back(math::ControlledRandomInt() % availableCardDataCount);
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -38,69 +39,67 @@ void DrawCardGameAction::VInitAnimation()
     auto dummyScene = activeSceneManager.FindScene(strutils::StringId("Dummy"));
     
     const int cardCount = static_cast<int>(mBoardState->GetActivePlayerState().mPlayerHeldCards.size());
-    
-    float cardBlockWidth = game_constants::IN_GAME_CARD_WIDTH * cardCount;
-    float cardStartX = -cardBlockWidth/2.0f;
-    
-    bool topPlayerActive = mBoardState->GetActivePlayerIndex() == 0;
+    bool opponentPlayerActive = mBoardState->GetActivePlayerIndex() == 0;
     
     for (int i = 0; i < cardCount; ++i)
     {
-        // Calculate positioning vars
-        auto targetX = cardStartX + i * game_constants::IN_GAME_CARD_WIDTH + game_constants::IN_GAME_CARD_WIDTH/2;
-        if (cardCount > game_constants::IN_GAME_CARD_PUSH_THRESHOLD)
-        {
-            float pushX = (cardCount - game_constants::IN_GAME_CARD_PUSH_THRESHOLD) * game_constants::IN_GAME_CARD_PUSH_VALUE * (math::Abs(i - cardCount/2));
-            bool oddCardCount = cardCount % 2 != 0;
-            if ((oddCardCount && i != cardCount/2) || !oddCardCount)
-            {
-                targetX += (i < cardCount/2) ? pushX : -pushX;
-            }
-        }
-        
-        std::vector<std::shared_ptr<scene::SceneObject>> cardComponents;
-        const auto& sceneObjectComponentNames = card_utils::GetCardComponentSceneObjectNames((topPlayerActive ? game_constants::TOP_PLAYER_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_CARD_SO_NAME_PREFIX) + std::to_string(i), topPlayerActive ? CardOrientation::BACK_FACE : CardOrientation::FRONT_FACE);
-        
-        auto cardAnimationName = strutils::StringId(game_constants::CARD_ANIMATION_PREFIX + std::to_string(i));
+        auto finalCardPosition = card_utils::CalculateHeldCardPosition(i, cardCount, opponentPlayerActive);
         
         // The latest added card components need to be created from scratch
         if (i == cardCount - 1)
         {
             int cardId = mBoardState->GetActivePlayerState().mPlayerHeldCards.back();
-            auto cardOpt = CardRepository::GetInstance().GetCard(cardId);
-            if (cardOpt)
+            auto cardOpt = CardDataRepository::GetInstance().GetCard(cardId);
+            assert(cardOpt);
+            
+            auto cardSoWrapper = card_utils::CreateCardSoWrapper(
+                &cardOpt->get(), glm::vec3(game_constants::IN_GAME_DRAW_CARD_INIT_X + i * game_constants::IN_GAME_CARD_WIDTH/2,
+                opponentPlayerActive ? game_constants::IN_GAME_TOP_PLAYER_HELD_CARD_Y : game_constants::IN_GAME_BOT_PLAYER_HELD_CARD_Y, finalCardPosition.z),
+                (opponentPlayerActive ? game_constants::TOP_PLAYER_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_CARD_SO_NAME_PREFIX) + std::to_string(i),
+                (opponentPlayerActive ? CardOrientation::BACK_FACE : CardOrientation::FRONT_FACE), *dummyScene);
+            
+            cardSoWrapper->mState = CardSoState::MOVING_TO_SET_POSITION;
+            mGameSessionManager->OnCardCreation(cardSoWrapper, opponentPlayerActive);
+            
+            auto midPos = cardSoWrapper->mSceneObjectComponents.front()->mPosition;
+            midPos.x = math::Abs(cardSoWrapper->mSceneObjectComponents.front()->mPosition.x - finalCardPosition.x)/2.0f;
+            midPos.y = opponentPlayerActive ? game_constants::IN_GAME_DRAW_CARD_TOP_PLAYER_MID_POINT_Y : game_constants::IN_GAME_DRAW_CARD_BOT_PLAYER_MID_POINT_Y;
+            
+            math::BezierCurve curve(std::vector<glm::vec3>{cardSoWrapper->mSceneObjectComponents.front()->mPosition, midPos, finalCardPosition});
+            
+            animationManager.StartAnimation(std::make_unique<rendering::BezierCurveAnimation>(cardSoWrapper->mSceneObjectComponents, curve, game_constants::IN_GAME_DRAW_CARD_ANIMATION_DURATION_SECS, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT | animation_flags::IGNORE_Z_COMPONENT), [=]()
             {
-                if (topPlayerActive)
+                mPendingAnimations--;
+                if (cardSoWrapper->mState != CardSoState::FREE_MOVING)
                 {
-                    cardComponents = card_utils::CreateCardComponentSceneObjects(&cardOpt->get(), glm::vec3(game_constants::IN_GAME_DRAW_CARD_INIT_X + i * game_constants::IN_GAME_CARD_WIDTH/2, game_constants::IN_GAME_TOP_PLAYER_HELD_CARD_Y, game_constants::IN_GAME_HELD_CARD_Z), game_constants::TOP_PLAYER_CARD_SO_NAME_PREFIX + std::to_string(i), CardOrientation::BACK_FACE, *dummyScene);
+                    cardSoWrapper->mState = CardSoState::IDLE;
                 }
-                else
-                {
-                    auto card = cardOpt->get();
-                    cardComponents = card_utils::CreateCardComponentSceneObjects(&card, glm::vec3(game_constants::IN_GAME_DRAW_CARD_INIT_X + i * game_constants::IN_GAME_CARD_WIDTH/2, game_constants::IN_GAME_BOT_PLAYER_HELD_CARD_Y, game_constants::IN_GAME_HELD_CARD_Z), game_constants::BOT_PLAYER_CARD_SO_NAME_PREFIX + std::to_string(i), CardOrientation::FRONT_FACE, *dummyScene);
-                }
-            }
-            
-            auto midPos = cardComponents.front()->mPosition;
-            midPos.x = math::Abs(cardComponents.front()->mPosition.x - targetX)/2.0f;
-            midPos.y = topPlayerActive ? game_constants::IN_GAME_DRAW_CARD_TOP_PLAYER_MID_POINT_Y : game_constants::IN_GAME_DRAW_CARD_BOT_PLAYER_MID_POINT_Y;
-            
-            math::BezierCurve curve(std::vector<glm::vec3>{cardComponents.front()->mPosition, midPos, glm::vec3(targetX, cardComponents.front()->mPosition.y, game_constants::IN_GAME_HELD_CARD_Z)});
-
-            animationManager.StartAnimation(std::make_unique<rendering::BezierCurveAnimation>(cardComponents, curve, game_constants::IN_GAME_DRAW_CARD_ANIMATION_DURATION_SECS, true), [&](){ mPendingAnimations--; }, cardAnimationName);
+            });
             mPendingAnimations++;
         }
-        
         // .. The rest can be looked up
         else
         {
-            for (const auto& sceneObjectComponentName: sceneObjectComponentNames)
-            {
-                cardComponents.push_back(dummyScene->FindSceneObject(sceneObjectComponentName));
-            }
             
-            animationManager.StartAnimation(std::make_unique<rendering::TweenAnimation>(cardComponents, glm::vec3(targetX, cardComponents.front()->mPosition.y, cardComponents.front()->mPosition.z), game_constants::IN_GAME_DRAW_CARD_PUSH_EXISTING_CARDS_ANIMATION_DURATION_SECS, true, game_constants::IN_GAME_DRAW_CARD_PUSH_EXISTING_CARDS_ANIMATION_DELAY_SECS, math::QuadFunction), [&](){ mPendingAnimations--; }, cardAnimationName);
-            mPendingAnimations++;
+            auto cardSoWrapper = mGameSessionManager->GetCardSoWrappers()[(opponentPlayerActive ? 0 : 1)][i];
+            
+            if (cardSoWrapper->mState != CardSoState::FREE_MOVING)
+            {
+                if (cardSoWrapper->mState != CardSoState::HIGHLIGHTED)
+                {
+                    cardSoWrapper->mState = CardSoState::MOVING_TO_SET_POSITION;
+                }
+                
+                animationManager.StartAnimation(std::make_unique<rendering::TweenAnimation>(cardSoWrapper->mSceneObjectComponents, finalCardPosition, game_constants::IN_GAME_DRAW_CARD_PUSH_EXISTING_CARDS_ANIMATION_DURATION_SECS, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT | animation_flags::IGNORE_Y_COMPONENT, game_constants::IN_GAME_DRAW_CARD_PUSH_EXISTING_CARDS_ANIMATION_DELAY_SECS, math::QuadFunction), [=]()
+                {
+                    mPendingAnimations--;
+                    if (cardSoWrapper->mState != CardSoState::FREE_MOVING && cardSoWrapper->mState != CardSoState::HIGHLIGHTED)
+                    {
+                        cardSoWrapper->mState = CardSoState::IDLE;
+                    }
+                });
+                mPendingAnimations++;
+            }
         }
     }
 }

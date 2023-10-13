@@ -21,12 +21,12 @@ namespace game_constants
     inline const std::string DEFAULT_TEXTURE_NAME = "debug.png";
     inline const std::string TOP_PLAYER_CARD_SO_NAME_PREFIX = "TOP_PLAYER_CARD_";
     inline const std::string BOT_PLAYER_CARD_SO_NAME_PREFIX = "BOT_PLAYER_CARD_";
+    inline const std::string CARD_FREE_MOVING_ANIMATION_NAME_PRE_FIX = "FREE_MOVING_CARD_";
     inline const std::string CARD_BASE_SO_NAME_POST_FIX = "_CARD_BASE";
     inline const std::string CARD_NAME_SO_NAME_POST_FIX = "_CARD_NAME";
     inline const std::string CARD_PORTRAIT_SO_NAME_POST_FIX = "_CARD_PORTRAIT";
     inline const std::string CARD_DAMAGE_ICON_SO_NAME_POST_FIX = "_CARD_DAMAGE_ICON";
     inline const std::string CARD_DAMAGE_TEXT_SO_NAME_POST_FIX = "_CARD_DAMAGE";
-    inline const std::string CARD_ANIMATION_PREFIX = "ANIMATED_CARD_";
 
     inline const strutils::StringId DEFAULT_FONT_NAME = strutils::StringId("font");
 
@@ -55,8 +55,12 @@ namespace game_constants
     inline const float IN_GAME_DRAW_CARD_TOP_PLAYER_MID_POINT_Y = -0.075f;
     inline const float IN_GAME_DRAW_CARD_BOT_PLAYER_MID_POINT_Y = 0.075f;
     inline const float IN_GAME_DRAW_CARD_ANIMATION_DURATION_SECS = 0.75f;
+    inline const float IN_GAME_HIGHLIGHTED_CARD_Z = 20.0f;
+    inline const float IN_GAME_CARD_FREE_MOVEMENT_ANIMATION_DURATION_SECS = 0.075f;
     inline const float IN_GAME_DRAW_CARD_PUSH_EXISTING_CARDS_ANIMATION_DURATION_SECS = 0.25f;
     inline const float IN_GAME_DRAW_CARD_PUSH_EXISTING_CARDS_ANIMATION_DELAY_SECS = 0.5f;
+    inline const float IN_GAME_MOBILE_ONLY_FREE_MOVING_CARD_Y_OFFSET = 0.05f;
+
 }
 
 ///------------------------------------------------------------------------------------------------

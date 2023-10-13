@@ -21,6 +21,17 @@ void AnimationManager::StartAnimation(std::unique_ptr<IAnimation> animation, std
 
 ///------------------------------------------------------------------------------------------------
 
+void AnimationManager::StopAnimation(const strutils::StringId& animationName)
+{
+    auto findIter = std::find_if(mAnimations.cbegin(), mAnimations.cend(), [&](const AnimationEntry& entry) { return entry.mAnimationName == animationName; });
+    if (findIter != mAnimations.cend())
+    {
+        mAnimations.erase(findIter);
+    }
+}
+
+///------------------------------------------------------------------------------------------------
+
 void AnimationManager::Update(const float dtMillis)
 {
     for(auto iter = mAnimations.begin(); iter != mAnimations.end();)

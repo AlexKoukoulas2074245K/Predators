@@ -26,7 +26,7 @@ class ActiveSceneManager final
 {
 public:
     [[nodiscard]] std::shared_ptr<Scene> CreateScene(const strutils::StringId sceneName = strutils::StringId());
-    [[nodiscard]] std::shared_ptr<Scene> FindScene(const strutils::StringId& sceneName);
+    [[nodiscard]] std::shared_ptr<Scene> FindScene(const strutils::StringId& sceneName) const;
     
     void RemoveScene(const strutils::StringId& sceneName);
     

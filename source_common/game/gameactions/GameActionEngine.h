@@ -18,6 +18,7 @@
 
 class BoardState;
 class IGameAction;
+class GameSessionManager;
 class GameActionEngine final
 {
 public:
@@ -27,7 +28,7 @@ public:
     };
     
 public:
-    GameActionEngine(const EngineOperationMode operationMode, const int gameSeed, BoardState* boardState);
+    GameActionEngine(const EngineOperationMode operationMode, const int gameSeed, BoardState* boardState, GameSessionManager* gameSessionManager);
     
     ~GameActionEngine();
     
@@ -48,6 +49,7 @@ private:
     const EngineOperationMode mOperationMode;
     const int mGameSeed;
     BoardState* mBoardState;
+    GameSessionManager* mGameSessionManager;
     std::queue<std::unique_ptr<IGameAction>> mGameActions;
     bool mActiveActionHasSetState;
     bool mLoggingActionTransitions;

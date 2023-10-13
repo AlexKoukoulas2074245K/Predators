@@ -15,6 +15,7 @@
 
 ///------------------------------------------------------------------------------------------------
 
+class GameSessionManager;
 class BaseGameAction: public IGameAction
 {
     friend class GameActionEngine;
@@ -27,10 +28,12 @@ public:
 protected:
     void SetName(const strutils::StringId& name) { mName = name; }
     void SetBoardState(BoardState* boardState) { mBoardState = boardState; }
+    void SetGameSessionManager(GameSessionManager* gameSessionManager) { mGameSessionManager = gameSessionManager; }
     
 protected:
     strutils::StringId mName = strutils::StringId();
     BoardState* mBoardState = nullptr;
+    GameSessionManager* mGameSessionManager = nullptr;
 };
 
 ///------------------------------------------------------------------------------------------------

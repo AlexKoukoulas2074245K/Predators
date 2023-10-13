@@ -15,27 +15,27 @@
 
 ///------------------------------------------------------------------------------------------------
 
-CardRepository& CardRepository::GetInstance()
+CardDataRepository& CardDataRepository::GetInstance()
 {
-    static CardRepository cardRepository;
-    return cardRepository;
+    static CardDataRepository CardDataRepository;
+    return CardDataRepository;
 }
 
 ///------------------------------------------------------------------------------------------------
 
-size_t CardRepository::GetCardCount() const
+size_t CardDataRepository::GetCardDataCount() const
 {
-    return mCardMap.size();
+    return mCardDataMap.size();
 }
 
 ///------------------------------------------------------------------------------------------------
 
-std::optional<std::reference_wrapper<const Card>> CardRepository::GetCard(const int cardId) const
+std::optional<std::reference_wrapper<const CardData>> CardDataRepository::GetCard(const int cardId) const
 {
-    auto findIter = mCardMap.find(cardId);
-    if (findIter != mCardMap.end())
+    auto findIter = mCardDataMap.find(cardId);
+    if (findIter != mCardDataMap.end())
     {
-        return std::optional<std::reference_wrapper<const Card>>{findIter->second};
+        return std::optional<std::reference_wrapper<const CardData>>{findIter->second};
     }
     
     ospopups::ShowMessageBox(ospopups::MessageBoxType::ERROR, ("Cannot find card with id " + std::to_string(cardId)).c_str());
@@ -44,22 +44,22 @@ std::optional<std::reference_wrapper<const Card>> CardRepository::GetCard(const 
 
 ///------------------------------------------------------------------------------------------------
 
-void CardRepository::LoadCards()
+void CardDataRepository::LoadCardData()
 {
-    auto cardsDefinitionJsonResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_DATA_ROOT + "cards.json");
+    auto cardsDefinitionJsonResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_DATA_ROOT + "card_data.json");
     auto& resourceService = CoreSystemsEngine::GetInstance().GetResourceLoadingService();
     auto fontJson =  nlohmann::json::parse(CoreSystemsEngine::GetInstance().GetResourceLoadingService().GetResource<resources::DataFileResource>(cardsDefinitionJsonResourceId).GetContents());
     
-    for (const auto& cardObject: fontJson["cards"])
+    for (const auto& cardObject: fontJson["card_data"])
     {
-        Card card;
-        card.mCardId = cardObject["id"].get<int>();
-        card.mCardDamage = cardObject["damage"].get<int>();
-        card.mCardName = cardObject["name"].get<std::string>();
-        card.mCardTextureResourceId = resourceService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + cardObject["texture"].get<std::string>());
-        card.mCardShaderResourceId = resourceService.LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + cardObject["shader"].get<std::string>());
+        CardData cardData;
+        cardData.mCardId = cardObject["id"].get<int>();
+        cardData.mCardDamage = cardObject["damage"].get<int>();
+        cardData.mCardName = cardObject["name"].get<std::string>();
+        cardData.mCardTextureResourceId = resourceService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + cardObject["texture"].get<std::string>());
+        cardData.mCardShaderResourceId = resourceService.LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + cardObject["shader"].get<std::string>());
         
-        mCardMap[card.mCardId] = card;
+        mCardDataMap[cardData.mCardId] = cardData;
     }
 }
 

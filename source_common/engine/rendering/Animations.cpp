@@ -10,13 +10,18 @@
 
 ///------------------------------------------------------------------------------------------------
 
+#define IS_FLAG_SET(flag) ((mAnimationFlags & flag) != 0)
+
+///------------------------------------------------------------------------------------------------
+
 namespace rendering
 {
 
 ///------------------------------------------------------------------------------------------------
 
-BaseAnimation::BaseAnimation(const float secsDuration, const float secsDelay /* = 0.0f */)
-    : mSecsDuration(secsDuration)
+BaseAnimation::BaseAnimation(const uint8_t animationFlags, const float secsDuration, const float secsDelay /* = 0.0f */)
+    : mAnimationFlags(animationFlags)
+    , mSecsDuration(secsDuration)
     , mSecsDelay(secsDelay)
     , mSecsAccumulator(0.0f)
     , mAnimationT(0.0f)
@@ -48,8 +53,8 @@ AnimationUpdateResult BaseAnimation::VUpdate(const float dtMillis)
 
 ///------------------------------------------------------------------------------------------------
 
-TweenAnimation::TweenAnimation(const SceneObjectTargets& sceneObjectTargets, const glm::vec3& targetPosition, const float secsDuration, const bool offsetsBasedAdjustment, const float secsDelay /* = 0.0f */, const std::function<float(const float)> tweeningFunc /* = math::LinearFunction */, const math::TweeningMode tweeningMode /* = math::TweeningMode::EASE_IN */)
-    : BaseAnimation(secsDuration, secsDelay)
+TweenAnimation::TweenAnimation(const SceneObjectTargets& sceneObjectTargets, const glm::vec3& targetPosition, const float secsDuration, const uint8_t animationFlags /* = animation_flags::NONE */, const float secsDelay /* = 0.0f */, const std::function<float(const float)> tweeningFunc /* = math::LinearFunction */, const math::TweeningMode tweeningMode /* = math::TweeningMode::EASE_IN */)
+    : BaseAnimation(animationFlags, secsDuration, secsDelay)
     , mSceneObjectTargets(sceneObjectTargets)
     , mInitPosition(sceneObjectTargets.front()->mPosition)
     , mTargetPosition(targetPosition)
@@ -58,13 +63,13 @@ TweenAnimation::TweenAnimation(const SceneObjectTargets& sceneObjectTargets, con
 {
     for (auto sceneObject: sceneObjectTargets)
     {
-        if (!offsetsBasedAdjustment)
+        if (IS_FLAG_SET(animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT))
         {
-            mSceneObjectOffsets.emplace_back(glm::vec3(0.0f));
+            mSceneObjectOffsets.emplace_back(sceneObject->mPosition - sceneObjectTargets.front()->mPosition);
         }
         else
         {
-            mSceneObjectOffsets.emplace_back(sceneObject->mPosition - sceneObjectTargets.front()->mPosition);
+            mSceneObjectOffsets.emplace_back(glm::vec3(0.0f));
         }
     }
 }
@@ -78,11 +83,14 @@ AnimationUpdateResult TweenAnimation::VUpdate(const float dtMillis)
         auto sceneObject = mSceneObjectTargets.at(i);
         auto offset = mSceneObjectOffsets.at(i);
         
+        float x = sceneObject->mPosition.x;
         float z = sceneObject->mPosition.z;
+        float y = sceneObject->mPosition.y;
+        
         sceneObject->mPosition = math::Lerp(mInitPosition, mTargetPosition, math::TweenValue(mAnimationT, mTweeningFunc, mTweeningMode));
-        sceneObject->mPosition.z = z;
-        sceneObject->mPosition.x += offset.x;
-        sceneObject->mPosition.y += offset.y;
+        sceneObject->mPosition.z = IS_FLAG_SET(animation_flags::IGNORE_Z_COMPONENT) ? z : sceneObject->mPosition.z + offset.z;
+        sceneObject->mPosition.x = IS_FLAG_SET(animation_flags::IGNORE_X_COMPONENT) ? x : sceneObject->mPosition.x + offset.x;
+        sceneObject->mPosition.y = IS_FLAG_SET(animation_flags::IGNORE_Y_COMPONENT) ? y : sceneObject->mPosition.y + offset.y;
     }
     
     return animationUpdateResult;
@@ -90,20 +98,20 @@ AnimationUpdateResult TweenAnimation::VUpdate(const float dtMillis)
 
 ///------------------------------------------------------------------------------------------------
 
-BezierCurveAnimation::BezierCurveAnimation(const SceneObjectTargets& sceneObjectTargets, const math::BezierCurve& curve, const float secsDuration, const bool offsetsBasedAdjustment, const float secsDelay /* = 0.0f */)
-    : BaseAnimation(secsDuration, secsDelay)
+BezierCurveAnimation::BezierCurveAnimation(const SceneObjectTargets& sceneObjectTargets, const math::BezierCurve& curve, const float secsDuration, const uint8_t animationFlags /* = animation_flags::NONE */, const float secsDelay /* = 0.0f */)
+    : BaseAnimation(animationFlags, secsDuration, secsDelay)
     , mSceneObjectTargets(sceneObjectTargets)
     , mCurve(curve)
 {
     for (auto sceneObject: sceneObjectTargets)
     {
-        if (!offsetsBasedAdjustment)
+        if (IS_FLAG_SET(animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT))
         {
-            mSceneObjectOffsets.emplace_back(glm::vec3(0.0f));
+            mSceneObjectOffsets.emplace_back(sceneObject->mPosition - sceneObjectTargets.front()->mPosition);
         }
         else
         {
-            mSceneObjectOffsets.emplace_back(sceneObject->mPosition - sceneObjectTargets.front()->mPosition);
+            mSceneObjectOffsets.emplace_back(glm::vec3(0.0f));
         }
     }
 }
@@ -117,11 +125,14 @@ AnimationUpdateResult BezierCurveAnimation::VUpdate(const float dtMillis)
         auto sceneObject = mSceneObjectTargets.at(i);
         auto offset = mSceneObjectOffsets.at(i);
         
+        float x = sceneObject->mPosition.x;
         float z = sceneObject->mPosition.z;
+        float y = sceneObject->mPosition.y;
+        
         sceneObject->mPosition = mCurve.ComputePointForT(mAnimationT);
-        sceneObject->mPosition.z = z;
-        sceneObject->mPosition.x += offset.x;
-        sceneObject->mPosition.y += offset.y;
+        sceneObject->mPosition.z = IS_FLAG_SET(animation_flags::IGNORE_Z_COMPONENT) ? z : sceneObject->mPosition.z + offset.z;
+        sceneObject->mPosition.x = IS_FLAG_SET(animation_flags::IGNORE_X_COMPONENT) ? x : sceneObject->mPosition.x + offset.x;
+        sceneObject->mPosition.y = IS_FLAG_SET(animation_flags::IGNORE_Y_COMPONENT) ? y : sceneObject->mPosition.y + offset.y;
     }
     
     return animationUpdateResult;

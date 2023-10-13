@@ -86,7 +86,6 @@ public:
     /// Both full paths, relative paths including the Resource Root, and relative
     /// paths excluding the Resource Root are supported.
     /// @param[in] resourcePath the path of the resource file.
-    /// @param[in] resourcePath the path of the resource file.
     /// @returns the loaded resource's id.
     ResourceId LoadResource(const std::string& resourcePath, const ResourceReloadMode resourceReloadingMode = ResourceReloadMode::DONT_RELOAD);
 

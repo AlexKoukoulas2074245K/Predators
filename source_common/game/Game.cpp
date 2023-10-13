@@ -46,7 +46,7 @@ Game::~Game()
 
 void Game::Init()
 {
-    CardRepository::GetInstance().LoadCards();
+    CardDataRepository::GetInstance().LoadCardData();
     
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
     systemsEngine.GetFontRepository().LoadFont("font", resources::ResourceReloadMode::DONT_RELOAD);
@@ -54,13 +54,6 @@ void Game::Init()
     auto dummyScene = systemsEngine.GetActiveSceneManager().CreateScene(strutils::StringId("Dummy"));
     auto boardSceneObject = dummyScene->CreateSceneObject(strutils::StringId("Board"));
     boardSceneObject->mTextureResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "board.png");
-    
-#if __APPLE__
-    #include <TargetConditionals.h>
-    #if defined(TARGET_IPHONE_SIMULATOR) || defined(TARGET_OS_IPHONE)
-        dummyScene->GetCamera().SetZoomFactor(dummyScene->GetCamera().GetZoomFactor()*2);
-    #endif
-#endif
     
     boardSceneObject->mRotation.z = math::PI/2.0f;
     dummyScene->GetCamera().SetZoomFactor(150.0f);
@@ -143,18 +136,41 @@ void Game::CreateDebugWidgets()
     mGameSessionManager.GetActionEngine().SetLoggingActionTransitions(printGameActionTransitions);
     ImGui::End();
     
+    // Create Card State Viewer
+    ImGui::Begin("Card State Viewer", nullptr, GLOBAL_WINDOW_LOCKING);
+    static std::string cardStateName;
+    const auto& localPlayerCardSoWrappers = mGameSessionManager.GetCardSoWrappers();
+    for (size_t i = 0; i < localPlayerCardSoWrappers.size(); ++i)
+    {
+        ImGui::SeparatorText(i == 0 ? "Opponent Player" : "Local Player");
+        for (size_t j = 0; j < localPlayerCardSoWrappers[i].size(); ++j)
+        {
+            switch (localPlayerCardSoWrappers[i][j]->mState)
+            {
+                case CardSoState::MOVING_TO_SET_POSITION: cardStateName = "MOVING_TO_SET_POSITION"; break;
+                case CardSoState::IDLE:                   cardStateName = "IDLE"; break;
+                case CardSoState::HIGHLIGHTED:            cardStateName = "HIGHLIGHTED"; break;
+                case CardSoState::FREE_MOVING:            cardStateName = "FREE_MOVING"; break;
+            }
+            
+            ImGui::Text("%d Card State: %s", static_cast<int>(j), cardStateName.c_str());
+        }
+    }
+    
+    ImGui::End();
+    
     // Create action generator
     ImGui::Begin("Action Generator", nullptr, GLOBAL_WINDOW_LOCKING);
     const auto& actions = GameActionFactory::GetRegisteredActions();
     
     static size_t currentIndex = 0;
     static std::string activePlayerIndex = "";
-    static std::string topPlayerHealth = "";
-    static std::string topPlayerHand = "";
-    static std::string topPlayerBoard = "";
-    static std::string botPlayerHealth = "";
-    static std::string botPlayerBoard = "";
-    static std::string botPlayerHand = "";
+    static std::string opponentPlayerHealth = "";
+    static std::string opponentPlayerHand = "";
+    static std::string opponentPlayerBoard = "";
+    static std::string localPlayerHealth = "";
+    static std::string localPlayerBoard = "";
+    static std::string localPlayerHand = "";
     
     if (ImGui::BeginCombo(" ", actions.at(currentIndex).GetString().c_str()))
     {
@@ -181,28 +197,28 @@ void Game::CreateDebugWidgets()
     
     const auto& boardState = mGameSessionManager.GetBoardState();
     activePlayerIndex = std::to_string(boardState.GetActivePlayerIndex());
-    topPlayerHealth = std::to_string(boardState.GetPlayerStates().front().mPlayerHealth);
-    topPlayerHand = strutils::VecToString(boardState.GetPlayerStates().front().mPlayerHeldCards);
-    topPlayerBoard = strutils::VecToString(boardState.GetPlayerStates().front().mPlayerBoardCards);
-    botPlayerBoard = strutils::VecToString(boardState.GetPlayerStates().back().mPlayerBoardCards);
-    botPlayerHand = strutils::VecToString(boardState.GetPlayerStates().back().mPlayerHeldCards);
-    botPlayerHealth = std::to_string(boardState.GetPlayerStates().back().mPlayerHealth);
+    opponentPlayerHealth = std::to_string(boardState.GetPlayerStates().front().mPlayerHealth);
+    opponentPlayerHand = strutils::VecToString(boardState.GetPlayerStates().front().mPlayerHeldCards);
+    opponentPlayerBoard = strutils::VecToString(boardState.GetPlayerStates().front().mPlayerBoardCards);
+    localPlayerBoard = strutils::VecToString(boardState.GetPlayerStates().back().mPlayerBoardCards);
+    localPlayerHand = strutils::VecToString(boardState.GetPlayerStates().back().mPlayerHeldCards);
+    localPlayerHealth = std::to_string(boardState.GetPlayerStates().back().mPlayerHealth);
     
     ImGui::PopStyleColor(3);
     ImGui::SeparatorText("Output");
     ImGui::TextWrapped("Active Player %s", activePlayerIndex.c_str());
-    ImGui::SeparatorText("Top Player Health");
-    ImGui::TextWrapped("%s", topPlayerHealth.c_str());
-    ImGui::SeparatorText("Top Player Hand");
-    ImGui::TextWrapped("%s", topPlayerHand.c_str());
-    ImGui::SeparatorText("Top Player Board");
-    ImGui::TextWrapped("%s", topPlayerBoard.c_str());
-    ImGui::SeparatorText("Bot Player Board");
-    ImGui::TextWrapped("%s", botPlayerBoard.c_str());
-    ImGui::SeparatorText("Bot Player Hand");
-    ImGui::TextWrapped("%s", botPlayerHand.c_str());
-    ImGui::SeparatorText("Bot Player Health");
-    ImGui::TextWrapped("%s", botPlayerHealth.c_str());
+    ImGui::SeparatorText("Opponent Player Health");
+    ImGui::TextWrapped("%s", opponentPlayerHealth.c_str());
+    ImGui::SeparatorText("Opponent Player Hand");
+    ImGui::TextWrapped("%s", opponentPlayerHand.c_str());
+    ImGui::SeparatorText("Opponent Player Board");
+    ImGui::TextWrapped("%s", opponentPlayerBoard.c_str());
+    ImGui::SeparatorText("Local Player Board");
+    ImGui::TextWrapped("%s", localPlayerBoard.c_str());
+    ImGui::SeparatorText("Local Player Hand");
+    ImGui::TextWrapped("%s", localPlayerHand.c_str());
+    ImGui::SeparatorText("Local Player Health");
+    ImGui::TextWrapped("%s", localPlayerHealth.c_str());
     ImGui::End();
 }
 #else

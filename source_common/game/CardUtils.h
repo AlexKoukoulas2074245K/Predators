@@ -20,7 +20,7 @@
 
 namespace scene { class Scene; }
 namespace scene { struct SceneObject; }
-struct Card;
+struct CardData;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -29,11 +29,15 @@ namespace card_utils
 
 ///------------------------------------------------------------------------------------------------
 
+glm::vec3 CalculateHeldCardPosition(const int cardIndex, const int playerCardCount, bool forOpponentPlayer);
+
+///------------------------------------------------------------------------------------------------
+
 std::vector<strutils::StringId> GetCardComponentSceneObjectNames(const std::string& cardComponentsNamePrefix, const CardOrientation cardOrientation);
 
 ///------------------------------------------------------------------------------------------------
 
-std::vector<std::shared_ptr<scene::SceneObject>> CreateCardComponentSceneObjects(const Card* card, const glm::vec3& position, const std::string& cardComponentsNamePrefix, const CardOrientation cardOrientation, scene::Scene& scene);
+std::shared_ptr<CardSoWrapper> CreateCardSoWrapper(const CardData* card, const glm::vec3& position, const std::string& cardComponentsNamePrefix, const CardOrientation cardOrientation, scene::Scene& scene);
 
 ///------------------------------------------------------------------------------------------------
 
