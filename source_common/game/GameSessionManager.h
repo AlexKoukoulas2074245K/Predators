@@ -37,15 +37,22 @@ public:
     GameActionEngine& GetActionEngine();
     
     void OnCardCreation(std::shared_ptr<CardSoWrapper>, const bool forOpponentPlayer);
+    void OnLastCardPlayedFinalized();
+    
     const std::vector<std::vector<std::shared_ptr<CardSoWrapper>>>& GetCardSoWrappers() const;
+    std::shared_ptr<CardSoWrapper> GetLastPlayedCardSceneObjectWrapper() const;
+    int GetLastPlayedCardIndex() const;
     
 private:
-    void HandleTouchInput();
+    void HandleTouchInput(const float dtMillis);
+    void OnFreeMovingCardRelease(std::shared_ptr<CardSoWrapper> cardSoWrapper);
     
 private:
     std::unique_ptr<BoardState> mBoardState;
     std::unique_ptr<GameActionEngine> mActionEngine;
     std::vector<std::vector<std::shared_ptr<CardSoWrapper>>> mPlayerCardSceneObjectWrappers;
+    std::shared_ptr<CardSoWrapper> mLastPlayedCardSoWrapper;
+    int mLastPlayedCardIndex;
 };
 
 ///------------------------------------------------------------------------------------------------

@@ -36,7 +36,7 @@ void DrawCardGameAction::VInitAnimation()
     auto& animationManager = systemsEngine.GetAnimationManager();
     auto& activeSceneManager = systemsEngine.GetActiveSceneManager();
     
-    auto dummyScene = activeSceneManager.FindScene(strutils::StringId("Dummy"));
+    auto dummyScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
     
     const int cardCount = static_cast<int>(mBoardState->GetActivePlayerState().mPlayerHeldCards.size());
     bool opponentPlayerActive = mBoardState->GetActivePlayerIndex() == 0;

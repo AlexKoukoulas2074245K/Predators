@@ -13,6 +13,7 @@
 #include <engine/CoreSystemsEngine.h>
 #include <engine/input/IInputStateManager.h>
 #include <engine/rendering/AnimationManager.h>
+#include <engine/resloading/ResourceLoadingService.h>
 #include <engine/scene/ActiveSceneManager.h>
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
@@ -21,11 +22,35 @@
 
 ///------------------------------------------------------------------------------------------------
 
+#if __APPLE__
+    #include <TargetConditionals.h>
+    #if TARGET_IPHONE_SIMULATOR || TARGET_OS_IPHONE
+        #define IOS_FLOW
+    #endif
+#endif
+
+///------------------------------------------------------------------------------------------------
+
+static const strutils::StringId BATTLE_ICON_SCENE_OBJECT_NAME = strutils::StringId("BATTLE_ICON");
+
+static const std::string BATTLE_ICON_TEXTURE_FILE_NAME = "battle_icon.png";
+
 static const float CARD_SELECTION_ANIMATION_DURATION = 0.2f;
+static const float BATTLE_ICON_TARGET_ALPHA = 0.6f;
+inline const float IN_GAME_BATTLE_ICON_SCALE = 0.1f;
+inline const float IN_GAME_BATTLE_ICON_Z = 0.05f;
+inline const float IN_GAME_BATTLE_ICON_ALPHA_SPEED = 0.003f;
+
+#if defined(IOS_FLOW)
+static const float BATTLE_ICON_PROMPT_MOBILE_DISTANCE_FROM_CENTER_THRESHOLD = 0.05f;
+#else
+static const float BATTLE_ICON_PROMPT_DISTANCE_FROM_CENTER_THRESHOLD = 0.07f;
+#endif
 
 ///------------------------------------------------------------------------------------------------
 
 GameSessionManager::GameSessionManager()
+    : mLastPlayedCardIndex(-1)
 {
     
 }
@@ -69,13 +94,21 @@ void GameSessionManager::InitGameSession()
 //    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
 //    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
     
+    const auto& activeSceneManager = CoreSystemsEngine::GetInstance().GetActiveSceneManager();
+    auto activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto battleIcon = activeScene->CreateSceneObject(BATTLE_ICON_SCENE_OBJECT_NAME);
+    battleIcon->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + BATTLE_ICON_TEXTURE_FILE_NAME);
+    battleIcon->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + game_constants::CUSTOM_ALPHA_SHADER_NAME);
+    battleIcon->mScale.x = battleIcon->mScale.y = IN_GAME_BATTLE_ICON_SCALE;
+    battleIcon->mPosition.z = IN_GAME_BATTLE_ICON_Z;
+    battleIcon->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
 }
 
 ///------------------------------------------------------------------------------------------------
 
 void GameSessionManager::Update(const float dtMillis)
 {
-    HandleTouchInput();
+    HandleTouchInput(dtMillis);
     mActionEngine->Update(dtMillis);
 }
 
@@ -107,6 +140,16 @@ void GameSessionManager::OnCardCreation(std::shared_ptr<CardSoWrapper> cardSoWra
 
 ///------------------------------------------------------------------------------------------------
 
+void GameSessionManager::OnLastCardPlayedFinalized()
+{
+    auto& playerCardSoWrappers = mPlayerCardSceneObjectWrappers[mBoardState->GetActivePlayerIndex()];
+    playerCardSoWrappers.erase(playerCardSoWrappers.begin() + mLastPlayedCardIndex);
+    mLastPlayedCardIndex = -1;
+    mLastPlayedCardSoWrapper = nullptr;
+}
+
+///------------------------------------------------------------------------------------------------
+
 const std::vector<std::vector<std::shared_ptr<CardSoWrapper>>>& GameSessionManager::GetCardSoWrappers() const
 {
     return mPlayerCardSceneObjectWrappers;
@@ -114,26 +157,35 @@ const std::vector<std::vector<std::shared_ptr<CardSoWrapper>>>& GameSessionManag
 
 ///------------------------------------------------------------------------------------------------
 
-#if __APPLE__
-    #include <TargetConditionals.h>
-    #if TARGET_IPHONE_SIMULATOR || TARGET_OS_IPHONE
-        #define IOS_FLOW
-    #endif
-#endif
+std::shared_ptr<CardSoWrapper> GameSessionManager::GetLastPlayedCardSceneObjectWrapper() const
+{
+    return mLastPlayedCardSoWrapper;
+}
 
-void GameSessionManager::HandleTouchInput()
+///------------------------------------------------------------------------------------------------
+
+int GameSessionManager::GetLastPlayedCardIndex() const
+{
+    return mLastPlayedCardIndex;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void GameSessionManager::HandleTouchInput(const float dtMillis)
 {
     const auto& activeSceneManager = CoreSystemsEngine::GetInstance().GetActiveSceneManager();
     const auto& inputStateManager = CoreSystemsEngine::GetInstance().GetInputStateManager();
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
     
-    auto activeScene = activeSceneManager.FindScene(strutils::StringId("Dummy"));
+    auto activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
     auto worldTouchPos = inputStateManager.VGetPointingPosInWorldSpace(activeScene->GetCamera().GetViewMatrix(), activeScene->GetCamera().GetProjMatrix());
     
     auto& localPlayerCards = mPlayerCardSceneObjectWrappers[1];
     const auto localPlayerCardCount = static_cast<int>(localPlayerCards.size());
     
     std::vector<int> candidateHighlightIndices;
+    
+    bool battleIconFadingIn = false;
     
     for (int i = 0; i < localPlayerCardCount; ++i)
     {
@@ -156,6 +208,9 @@ void GameSessionManager::HandleTouchInput()
         {
             currentCardSoWrapper->mState = CardSoState::FREE_MOVING;
             animationManager.StartAnimation(std::make_unique<rendering::TweenAnimation>(currentCardSoWrapper->mSceneObjectComponents, glm::vec3(worldTouchPos.x, worldTouchPos.y + game_constants::IN_GAME_MOBILE_ONLY_FREE_MOVING_CARD_Y_OFFSET, game_constants::IN_GAME_HIGHLIGHTED_CARD_Z), game_constants::IN_GAME_CARD_FREE_MOVEMENT_ANIMATION_DURATION_SECS, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [](){});
+            
+            auto distanceFromCenter = math::Abs(currentCardSoWrapper->mSceneObjectComponents.front()->mPosition.y);
+            battleIconFadingIn = distanceFromCenter <= BATTLE_ICON_PROMPT_MOBILE_DISTANCE_FROM_CENTER_THRESHOLD;
         }
         else if (inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON) && cursorInSceneObject && !otherHighlightedCardExists)
         {
@@ -167,9 +222,7 @@ void GameSessionManager::HandleTouchInput()
             {
                 case CardSoState::FREE_MOVING:
                 {
-                    auto originalCardPosition = card_utils::CalculateHeldCardPosition(i, localPlayerCardCount, false);
-                    animationManager.StartAnimation(std::make_unique<rendering::TweenAnimation>(currentCardSoWrapper->mSceneObjectComponents, originalCardPosition, CARD_SELECTION_ANIMATION_DURATION, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){currentCardSoWrapper->mState = CardSoState::IDLE; });
-                    currentCardSoWrapper->mState = CardSoState::MOVING_TO_SET_POSITION;
+                    OnFreeMovingCardRelease(currentCardSoWrapper);
                 } break;
                 case CardSoState::HIGHLIGHTED:
                 {
@@ -189,6 +242,9 @@ void GameSessionManager::HandleTouchInput()
         if (inputStateManager.VButtonPressed(input::Button::MAIN_BUTTON) && currentCardSoWrapper->mState == CardSoState::FREE_MOVING)
         {
             animationManager.StartAnimation(std::make_unique<rendering::TweenAnimation>(currentCardSoWrapper->mSceneObjectComponents, glm::vec3(worldTouchPos.x, worldTouchPos.y, game_constants::IN_GAME_HIGHLIGHTED_CARD_Z), game_constants::IN_GAME_CARD_FREE_MOVEMENT_ANIMATION_DURATION_SECS, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [](){});
+            
+            auto distanceFromCenter = math::Abs(currentCardSoWrapper->mSceneObjectComponents.front()->mPosition.y);
+            battleIconFadingIn = distanceFromCenter <= BATTLE_ICON_PROMPT_DISTANCE_FROM_CENTER_THRESHOLD;
         }
         else if (inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON) && cursorInSceneObject && !otherHighlightedCardExists && currentCardSoWrapper->mState == CardSoState::HIGHLIGHTED)
         {
@@ -200,9 +256,7 @@ void GameSessionManager::HandleTouchInput()
             {
                 case CardSoState::FREE_MOVING:
                 {
-                    auto originalCardPosition = card_utils::CalculateHeldCardPosition(i, localPlayerCardCount, false);
-                    animationManager.StartAnimation(std::make_unique<rendering::TweenAnimation>(currentCardSoWrapper->mSceneObjectComponents, originalCardPosition, CARD_SELECTION_ANIMATION_DURATION, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){currentCardSoWrapper->mState = CardSoState::IDLE; });
-                    currentCardSoWrapper->mState = CardSoState::MOVING_TO_SET_POSITION;
+                    OnFreeMovingCardRelease(currentCardSoWrapper);
                 } break;
                 
                 case CardSoState::IDLE:
@@ -250,6 +304,58 @@ void GameSessionManager::HandleTouchInput()
         }
         
         currentCardSoWrapper->mState = CardSoState::HIGHLIGHTED;
+    }
+    
+    // Battle Icon
+    auto battleIconSceneObject = activeScene->FindSceneObject(BATTLE_ICON_SCENE_OBJECT_NAME);
+    if (battleIconFadingIn)
+    {
+        battleIconSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] += dtMillis * IN_GAME_BATTLE_ICON_ALPHA_SPEED;
+        if (battleIconSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] >= BATTLE_ICON_TARGET_ALPHA)
+        {
+            battleIconSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = BATTLE_ICON_TARGET_ALPHA;
+        }
+    }
+    else
+    {
+        battleIconSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] -= dtMillis * IN_GAME_BATTLE_ICON_ALPHA_SPEED;
+        if (battleIconSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] <= 0.0f)
+        {
+            battleIconSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+        }
+    }
+}
+
+///------------------------------------------------------------------------------------------------
+
+void GameSessionManager::OnFreeMovingCardRelease(std::shared_ptr<CardSoWrapper> cardSoWrapper)
+{
+    auto& localPlayerCards = mPlayerCardSceneObjectWrappers[1];
+    auto cardIndex = std::find_if(localPlayerCards.begin(), localPlayerCards.end(), [=](const std::shared_ptr<CardSoWrapper>& otherCard)
+    {
+        return otherCard.get() == cardSoWrapper.get();
+    }) - localPlayerCards.begin();
+    
+    auto distanceFromCenter = math::Abs(cardSoWrapper->mSceneObjectComponents.front()->mPosition.y);
+    
+#if defined(IOS_FLOW)
+    bool inBoardDropThreshold = distanceFromCenter <= BATTLE_ICON_PROMPT_MOBILE_DISTANCE_FROM_CENTER_THRESHOLD;
+#else
+    bool inBoardDropThreshold = distanceFromCenter <= BATTLE_ICON_PROMPT_DISTANCE_FROM_CENTER_THRESHOLD;
+#endif
+    
+    if (inBoardDropThreshold)
+    {
+        mLastPlayedCardIndex = static_cast<int>(cardIndex);
+        mLastPlayedCardSoWrapper = cardSoWrapper;
+        mActionEngine->AddGameAction(strutils::StringId("PlayCardGameAction"));
+    }
+    else
+    {
+        auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+        auto originalCardPosition = card_utils::CalculateHeldCardPosition(static_cast<int>(cardIndex), static_cast<int>(localPlayerCards.size()), false);
+        animationManager.StartAnimation(std::make_unique<rendering::TweenAnimation>(cardSoWrapper->mSceneObjectComponents, originalCardPosition, CARD_SELECTION_ANIMATION_DURATION, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){cardSoWrapper->mState = CardSoState::IDLE; });
+        cardSoWrapper->mState = CardSoState::MOVING_TO_SET_POSITION;
     }
 }
 

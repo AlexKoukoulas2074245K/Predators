@@ -14,6 +14,7 @@
 #include <engine/utils/MathUtils.h>
 #include <engine/utils/StringUtils.h>
 #include <game/GameConstants.h>
+#include <unordered_map>
 #include <variant>
 
 ///------------------------------------------------------------------------------------------------
@@ -46,6 +47,7 @@ struct SceneObject
 {
     strutils::StringId mName = strutils::StringId();
     std::variant<DefaultSceneObjectData, TextSceneObjectData> mSceneObjectTypeData;
+    std::unordered_map<strutils::StringId, float, strutils::StringIdHasher> mShaderFloatUniformValues;
     glm::vec3 mPosition = glm::vec3(0.0f, 0.0f, 0.0f);
     glm::vec3 mRotation = glm::vec3(0.0f, 0.0f, 0.0f);
     glm::vec3 mScale = glm::vec3(1.0f, 1.0f, 1.0f);

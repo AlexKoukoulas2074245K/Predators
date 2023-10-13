@@ -18,6 +18,7 @@ namespace game_constants
 {
     inline const std::string DEFAULT_MESH_NAME = "quad.obj";
     inline const std::string DEFAULT_SHADER_NAME = "basic.vs";
+    inline const std::string CUSTOM_ALPHA_SHADER_NAME = "custom_alpha.vs";
     inline const std::string DEFAULT_TEXTURE_NAME = "debug.png";
     inline const std::string TOP_PLAYER_CARD_SO_NAME_PREFIX = "TOP_PLAYER_CARD_";
     inline const std::string BOT_PLAYER_CARD_SO_NAME_PREFIX = "BOT_PLAYER_CARD_";
@@ -29,7 +30,9 @@ namespace game_constants
     inline const std::string CARD_DAMAGE_TEXT_SO_NAME_POST_FIX = "_CARD_DAMAGE";
 
     inline const strutils::StringId DEFAULT_FONT_NAME = strutils::StringId("font");
-
+    inline const strutils::StringId CUSTOM_ALPHA_UNIFORM_NAME = strutils::StringId("custom_alpha");
+    inline const strutils::StringId IN_GAME_BATTLE_SCENE = strutils::StringId("BATTLE");
+    
     inline const int IN_GAME_CARD_PUSH_THRESHOLD = 4;
 
     inline const float CARD_COMPONENT_Z_OFFSET = 0.1f;
