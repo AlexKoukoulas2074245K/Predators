@@ -176,6 +176,12 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
         
         mSystems->mInputStateManager.VUpdate(dtMillis);
         mSystems->mAnimationManager.Update(dtMillis);
+        
+        for (auto& scene: mSystems->mActiveSceneManager.GetScenes())
+        {
+            scene->GetCamera().Update(dtMillis);
+        }
+        
         mSystems->mRenderer.VBeginRenderPass();
         
         for (auto& scene: mSystems->mActiveSceneManager.GetScenes())

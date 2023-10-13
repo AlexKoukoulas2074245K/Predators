@@ -48,7 +48,24 @@ glm::vec3 CalculateHeldCardPosition(const int cardIndex, const int playerCardCou
 
 ///------------------------------------------------------------------------------------------------
 
-
+glm::vec3 CalculateBoardCardPosition(const int cardIndex, const int playerCardCount, bool forOpponentPlayer)
+{
+    float cardBlockWidth = game_constants::IN_GAME_CARD_ON_BOARD_WIDTH * playerCardCount;
+    float cardStartX = -cardBlockWidth/2.0f;
+    
+    auto targetX = cardStartX + cardIndex * game_constants::IN_GAME_CARD_ON_BOARD_WIDTH + game_constants::IN_GAME_CARD_ON_BOARD_WIDTH/2;
+    if (playerCardCount > game_constants::IN_GAME_CARD_PUSH_THRESHOLD)
+    {
+        float pushX = (playerCardCount - game_constants::IN_GAME_CARD_PUSH_THRESHOLD) * game_constants::IN_GAME_CARD_PUSH_VALUE * (math::Abs(cardIndex - playerCardCount/2));
+        bool oddCardCount = playerCardCount % 2 != 0;
+        if ((oddCardCount && cardIndex != playerCardCount/2) || !oddCardCount)
+        {
+            targetX += (cardIndex < playerCardCount/2) ? pushX : -pushX;
+        }
+    }
+    
+    return glm::vec3(targetX, forOpponentPlayer ? game_constants::IN_GAME_TOP_PLAYER_BOARD_CARD_Y : game_constants::IN_GAME_BOT_PLAYER_BOARD_CARD_Y, game_constants::IN_GAME_PLAYED_CARD_Z);
+}
 
 ///------------------------------------------------------------------------------------------------
 

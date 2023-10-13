@@ -6,9 +6,12 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <game/Cards.h>
+#include <game/CardUtils.h>
 #include <game/gameactions/PlayCardGameAction.h>
 #include <game/GameSessionManager.h>
 #include <engine/rendering/AnimationManager.h>
+#include <engine/scene/ActiveSceneManager.h>
+#include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
 
 ///------------------------------------------------------------------------------------------------
@@ -36,19 +39,27 @@ void PlayCardGameAction::VSetNewGameState()
 
 void PlayCardGameAction::VInitAnimation()
 {
-//    mLastPlayedCardSoWrapper->mSceneObjectComponents[1]->mPosition.y = mLastPlayedCardSoWrapper->mSceneObjectComponents[0]->mPosition.y + 0.007f;
-//    mLastPlayedCardSoWrapper->mSceneObjectComponents[2]->mPosition.x = mLastPlayedCardSoWrapper->mSceneObjectComponents[0]->mPosition.x - 0.007f;
-//    mLastPlayedCardSoWrapper->mSceneObjectComponents[2]->mPosition.y = mLastPlayedCardSoWrapper->mSceneObjectComponents[0]->mPosition.y + 0.0175f;
-//
+    mPendingAnimations = 0;
+    
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
-    animationManager.StartAnimation(std::make_unique<rendering::TweenAnimation>(mLastPlayedCardSoWrapper->mSceneObjectComponents, glm::vec3(0.0f, 0.0f, 0.04f), mLastPlayedCardSoWrapper->mSceneObjectComponents[0]->mScale * 0.666f, 0.5f, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [](){});
+
+    // Rename played card
+    auto newComponentNames = card_utils::GetCardComponentSceneObjectNames((mBoardState->GetActivePlayerIndex() == 0 ? game_constants::TOP_PLAYER_BOARD_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_BOARD_CARD_SO_NAME_PREFIX) + std::to_string(mBoardState->GetActivePlayerState().mPlayerBoardCards.size() - 1), CardOrientation::FRONT_FACE);
+    for (size_t i = 0; i < mLastPlayedCardSoWrapper->mSceneObjectComponents.size(); ++i)
+    {
+        mLastPlayedCardSoWrapper->mSceneObjectComponents[i]->mName = newComponentNames[i];
+    }
+    
+    // Animate played card to board
+    auto targetPosition = card_utils::CalculateBoardCardPosition(static_cast<int>(mBoardState->GetActivePlayerState().mPlayerBoardCards.size() - 1), static_cast<int>(mBoardState->GetActivePlayerState().mPlayerBoardCards.size()), mBoardState->GetActivePlayerIndex() == 0);
+    animationManager.StartAnimation(std::make_unique<rendering::TweenAnimation>(mLastPlayedCardSoWrapper->mSceneObjectComponents, targetPosition, mLastPlayedCardSoWrapper->mSceneObjectComponents[0]->mScale * game_constants::IN_GAME_PLAYED_CARD_SCALE_FACTOR, game_constants::IN_GAME_PLAYED_CARD_ANIMATION_DURATION, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [](){ CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE)->GetCamera().Shake(); });
 }
 
 ///------------------------------------------------------------------------------------------------
 
 ActionAnimationUpdateResult PlayCardGameAction::VUpdateAnimation(const float)
 {
-    return ActionAnimationUpdateResult::FINISHED;
+    return mPendingAnimations == 0 ? ActionAnimationUpdateResult::FINISHED : ActionAnimationUpdateResult::ONGOING;
 }
 
 ///------------------------------------------------------------------------------------------------

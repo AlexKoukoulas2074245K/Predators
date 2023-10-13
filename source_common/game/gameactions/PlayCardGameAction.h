@@ -27,6 +27,7 @@ public:
     
 private:
     std::shared_ptr<CardSoWrapper> mLastPlayedCardSoWrapper;
+    int mPendingAnimations;
 };
 
 ///------------------------------------------------------------------------------------------------

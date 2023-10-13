@@ -55,7 +55,7 @@ void DrawCardGameAction::VInitAnimation()
             auto cardSoWrapper = card_utils::CreateCardSoWrapper(
                 &cardOpt->get(), glm::vec3(game_constants::IN_GAME_DRAW_CARD_INIT_X + i * game_constants::IN_GAME_CARD_WIDTH/2,
                 opponentPlayerActive ? game_constants::IN_GAME_TOP_PLAYER_HELD_CARD_Y : game_constants::IN_GAME_BOT_PLAYER_HELD_CARD_Y, finalCardPosition.z),
-                (opponentPlayerActive ? game_constants::TOP_PLAYER_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_CARD_SO_NAME_PREFIX) + std::to_string(i),
+                (opponentPlayerActive ? game_constants::TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_HELD_CARD_SO_NAME_PREFIX) + std::to_string(i),
                 (opponentPlayerActive ? CardOrientation::BACK_FACE : CardOrientation::FRONT_FACE), *dummyScene);
             
             cardSoWrapper->mState = CardSoState::MOVING_TO_SET_POSITION;
@@ -80,8 +80,7 @@ void DrawCardGameAction::VInitAnimation()
         // .. The rest can be looked up
         else
         {
-            
-            auto cardSoWrapper = mGameSessionManager->GetCardSoWrappers()[(opponentPlayerActive ? 0 : 1)][i];
+            auto cardSoWrapper = mGameSessionManager->GetHeldCardSoWrappers()[(opponentPlayerActive ? 0 : 1)][i];
             
             if (cardSoWrapper->mState != CardSoState::FREE_MOVING)
             {

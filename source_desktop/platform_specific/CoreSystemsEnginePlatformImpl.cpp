@@ -221,6 +221,11 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
         mSystems->mInputStateManager.VUpdate(dtMillis * sGameSpeed);
         mSystems->mAnimationManager.Update(dtMillis * sGameSpeed);
         
+        for (auto& scene: mSystems->mActiveSceneManager.GetScenes())
+        {
+            scene->GetCamera().Update(dtMillis * sGameSpeed);
+        }
+        
 #if (!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)
         const auto logicUpdateTimeEnd = std::chrono::system_clock::now();
         sUpdateLogicMillisSamples[PROFILLING_SAMPLE_COUNT - 1] = std::chrono::duration_cast<std::chrono::milliseconds>(logicUpdateTimeEnd - logicUpdateTimeStart).count();

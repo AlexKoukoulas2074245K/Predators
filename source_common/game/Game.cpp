@@ -139,7 +139,7 @@ void Game::CreateDebugWidgets()
     // Create Card State Viewer
     ImGui::Begin("Card State Viewer", nullptr, GLOBAL_WINDOW_LOCKING);
     static std::string cardStateName;
-    const auto& localPlayerCardSoWrappers = mGameSessionManager.GetCardSoWrappers();
+    const auto& localPlayerCardSoWrappers = mGameSessionManager.GetHeldCardSoWrappers();
     for (size_t i = 0; i < localPlayerCardSoWrappers.size(); ++i)
     {
         ImGui::SeparatorText(i == 0 ? "Opponent Player" : "Local Player");

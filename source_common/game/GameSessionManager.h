@@ -39,7 +39,9 @@ public:
     void OnCardCreation(std::shared_ptr<CardSoWrapper>, const bool forOpponentPlayer);
     void OnLastCardPlayedFinalized();
     
-    const std::vector<std::vector<std::shared_ptr<CardSoWrapper>>>& GetCardSoWrappers() const;
+    const std::vector<std::vector<std::shared_ptr<CardSoWrapper>>>& GetHeldCardSoWrappers() const;
+    const std::vector<std::vector<std::shared_ptr<CardSoWrapper>>>& GetBoardCardSoWrappers() const;
+    
     std::shared_ptr<CardSoWrapper> GetLastPlayedCardSceneObjectWrapper() const;
     int GetLastPlayedCardIndex() const;
     
@@ -50,7 +52,8 @@ private:
 private:
     std::unique_ptr<BoardState> mBoardState;
     std::unique_ptr<GameActionEngine> mActionEngine;
-    std::vector<std::vector<std::shared_ptr<CardSoWrapper>>> mPlayerCardSceneObjectWrappers;
+    std::vector<std::vector<std::shared_ptr<CardSoWrapper>>> mPlayerHeldCardSceneObjectWrappers;
+    std::vector<std::vector<std::shared_ptr<CardSoWrapper>>> mPlayerBoardCardSceneObjectWrappers;
     std::shared_ptr<CardSoWrapper> mLastPlayedCardSoWrapper;
     int mLastPlayedCardIndex;
 };
