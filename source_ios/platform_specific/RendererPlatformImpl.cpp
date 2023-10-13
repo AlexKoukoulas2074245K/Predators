@@ -75,6 +75,8 @@ public:
         world = glm::rotate(world, mSceneObject.mRotation.z, math::Z_AXIS);
         world = glm::scale(world, mSceneObject.mScale);
         
+        for (const auto& floatEntry: mSceneObject.mShaderFloatUniformValues) currentShader->SetFloat(floatEntry.first, floatEntry.second);
+        
         currentShader->SetBool(IS_TEXTURE_SHEET_UNIFORM_NAME, false);
         currentShader->SetMatrix4fv(WORLD_MATRIX_UNIFORM_NAME, world);
         currentShader->SetMatrix4fv(VIEW_MATRIX_UNIFORM_NAME, mCamera.GetViewMatrix());
@@ -113,6 +115,8 @@ public:
             glm::mat4 world(1.0f);
             world = glm::translate(world, glm::vec3(targetX, targetY, mSceneObject.mPosition.z));
             world = glm::scale(world, glm::vec3(glyph.mWidthPixels * mSceneObject.mScale.x, glyph.mHeightPixels * mSceneObject.mScale.y, 1.0f));
+            
+            for (const auto& floatEntry: mSceneObject.mShaderFloatUniformValues) currentShader->SetFloat(floatEntry.first, floatEntry.second);
             
             currentShader->SetBool(IS_TEXTURE_SHEET_UNIFORM_NAME, true);
             currentShader->SetFloat(MIN_U_UNIFORM_NAME, glyph.minU);
@@ -169,6 +173,7 @@ void RendererPlatformImpl::VRenderScene(scene::Scene& scene)
     mCachedScenes.push_back(scene);
     for (const auto& sceneObject: scene.GetSceneObjects())
     {
+        if (sceneObject->mInvisible) continue;
         std::visit(SceneObjectTypeRendererVisitor(*sceneObject, scene.GetCamera()), sceneObject->mSceneObjectTypeData);
     }
 }

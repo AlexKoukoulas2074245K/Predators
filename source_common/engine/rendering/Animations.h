@@ -77,7 +77,7 @@ using SceneObjectTargets = std::vector<std::shared_ptr<scene::SceneObject>>;
 class TweenAnimation final: public BaseAnimation
 {
 public:
-    TweenAnimation(const SceneObjectTargets& sceneObjectTargets, const glm::vec3& targetPosition, const float secsDuration, const uint8_t animationFlags = animation_flags::NONE, const float secsDelay = 0.0f, const std::function<float(const float)> tweeningFunc = math::LinearFunction , const math::TweeningMode tweeningMode = math::TweeningMode::EASE_IN);
+    TweenAnimation(const SceneObjectTargets& sceneObjectTargets, const glm::vec3& targetPosition, const glm::vec3& targetScale, const float secsDuration, const uint8_t animationFlags = animation_flags::NONE, const float secsDelay = 0.0f, const std::function<float(const float)> tweeningFunc = math::LinearFunction , const math::TweeningMode tweeningMode = math::TweeningMode::EASE_IN);
     AnimationUpdateResult VUpdate(const float dtMillis);
     
 private:
@@ -87,6 +87,8 @@ private:
     const std::function<float(const float)> mTweeningFunc;
     const math::TweeningMode mTweeningMode;
     std::vector<glm::vec3> mSceneObjectOffsets;
+    std::vector<glm::vec3> mInitScales;
+    std::vector<glm::vec3> mTargetScales;
 };
 
 ///------------------------------------------------------------------------------------------------

@@ -90,7 +90,7 @@ void DrawCardGameAction::VInitAnimation()
                     cardSoWrapper->mState = CardSoState::MOVING_TO_SET_POSITION;
                 }
                 
-                animationManager.StartAnimation(std::make_unique<rendering::TweenAnimation>(cardSoWrapper->mSceneObjectComponents, finalCardPosition, game_constants::IN_GAME_DRAW_CARD_PUSH_EXISTING_CARDS_ANIMATION_DURATION_SECS, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT | animation_flags::IGNORE_Y_COMPONENT, game_constants::IN_GAME_DRAW_CARD_PUSH_EXISTING_CARDS_ANIMATION_DELAY_SECS, math::QuadFunction), [=]()
+                animationManager.StartAnimation(std::make_unique<rendering::TweenAnimation>(cardSoWrapper->mSceneObjectComponents, finalCardPosition, cardSoWrapper->mSceneObjectComponents[0]->mScale, game_constants::IN_GAME_DRAW_CARD_PUSH_EXISTING_CARDS_ANIMATION_DURATION_SECS, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT | animation_flags::IGNORE_Y_COMPONENT, game_constants::IN_GAME_DRAW_CARD_PUSH_EXISTING_CARDS_ANIMATION_DELAY_SECS, math::QuadFunction), [=]()
                 {
                     mPendingAnimations--;
                     if (cardSoWrapper->mState != CardSoState::FREE_MOVING && cardSoWrapper->mState != CardSoState::HIGHLIGHTED)

@@ -24,7 +24,7 @@ TEST(GameActionTests, TestIdleGameActionExistsByDefault)
     BoardState boardState;
     boardState.GetPlayerStates().emplace_back();
     boardState.GetPlayerStates().emplace_back();
-    GameActionEngine engine(GameActionEngine::EngineOperationMode::HEADLESS, 0, &boardState);
+    GameActionEngine engine(GameActionEngine::EngineOperationMode::HEADLESS, 0, &boardState, nullptr);
     
     EXPECT_EQ(engine.GetActiveGameActionName(), IDLE_GAME_ACTION_NAME);
 }
@@ -34,7 +34,7 @@ TEST(GameActionTests, TestPushedGameActionIsActive)
     BoardState boardState;
     boardState.GetPlayerStates().emplace_back();
     boardState.GetPlayerStates().emplace_back();
-    GameActionEngine engine(GameActionEngine::EngineOperationMode::HEADLESS, 0, &boardState);
+    GameActionEngine engine(GameActionEngine::EngineOperationMode::HEADLESS, 0, &boardState, nullptr);
     
     engine.AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
     
@@ -46,7 +46,7 @@ TEST(GameActionTests, TestBoardStatePostDrawAction)
     BoardState boardState;
     boardState.GetPlayerStates().emplace_back();
     boardState.GetPlayerStates().emplace_back();
-    GameActionEngine engine(GameActionEngine::EngineOperationMode::HEADLESS, 0, &boardState);
+    GameActionEngine engine(GameActionEngine::EngineOperationMode::HEADLESS, 0, &boardState, nullptr);
     
     engine.AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
     engine.Update(0);
@@ -60,7 +60,7 @@ TEST(GameActionTests, TestBoardStatePostDrawAndPlayAction)
     BoardState boardState;
     boardState.GetPlayerStates().emplace_back();
     boardState.GetPlayerStates().emplace_back();
-    GameActionEngine engine(GameActionEngine::EngineOperationMode::HEADLESS, 0, &boardState);
+    GameActionEngine engine(GameActionEngine::EngineOperationMode::HEADLESS, 0, &boardState, nullptr);
     
     engine.AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
     engine.AddGameAction(PLAY_CARD_GAME_ACTION_NAME);
@@ -77,7 +77,7 @@ TEST(GameActionTests, TestDrawPlayNextDrawPlayActionRound)
     BoardState boardState;
     boardState.GetPlayerStates().emplace_back();
     boardState.GetPlayerStates().emplace_back();
-    GameActionEngine engine(GameActionEngine::EngineOperationMode::HEADLESS, 0, &boardState);
+    GameActionEngine engine(GameActionEngine::EngineOperationMode::HEADLESS, 0, &boardState, nullptr);
     
     engine.AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
     engine.AddGameAction(PLAY_CARD_GAME_ACTION_NAME);

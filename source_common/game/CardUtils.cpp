@@ -48,6 +48,10 @@ glm::vec3 CalculateHeldCardPosition(const int cardIndex, const int playerCardCou
 
 ///------------------------------------------------------------------------------------------------
 
+
+
+///------------------------------------------------------------------------------------------------
+
 std::vector<strutils::StringId> GetCardComponentSceneObjectNames(const std::string& cardComponentsNamePrefix, const CardOrientation cardOrientation)
 {
     if (cardOrientation == CardOrientation::BACK_FACE)
@@ -81,7 +85,6 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper(const CardData* cardData, con
     auto& resService = systemsEngine.GetResourceLoadingService();
     
     const auto& sceneObjectComponentNames = GetCardComponentSceneObjectNames(cardComponentsNamePrefix, cardOrientation);
-    
     
     if (cardOrientation == CardOrientation::BACK_FACE)
     {

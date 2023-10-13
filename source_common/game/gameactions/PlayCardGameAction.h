@@ -11,9 +11,11 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <game/gameactions/BaseGameAction.h>
+#include <memory>
 
 ///------------------------------------------------------------------------------------------------
 
+struct CardSoWrapper;
 class PlayCardGameAction final: public BaseGameAction
 {
 public:
@@ -22,6 +24,9 @@ public:
     void VInitAnimation() override;
     
     ActionAnimationUpdateResult VUpdateAnimation(const float dtMillis) override;
+    
+private:
+    std::shared_ptr<CardSoWrapper> mLastPlayedCardSoWrapper;
 };
 
 ///------------------------------------------------------------------------------------------------

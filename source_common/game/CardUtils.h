@@ -33,6 +33,10 @@ glm::vec3 CalculateHeldCardPosition(const int cardIndex, const int playerCardCou
 
 ///------------------------------------------------------------------------------------------------
 
+glm::vec3 CalculateBoardCardPosition(const int cardIndex, const int playerCardCount, bool forOpponentPlayer);
+
+///------------------------------------------------------------------------------------------------
+
 std::vector<strutils::StringId> GetCardComponentSceneObjectNames(const std::string& cardComponentsNamePrefix, const CardOrientation cardOrientation);
 
 ///------------------------------------------------------------------------------------------------
