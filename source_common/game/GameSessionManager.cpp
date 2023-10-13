@@ -146,6 +146,18 @@ void GameSessionManager::OnLastCardPlayedFinalized()
     playerCardSoWrappers.erase(playerCardSoWrappers.begin() + mLastPlayedCardIndex);
     mLastPlayedCardIndex = -1;
     mLastPlayedCardSoWrapper = nullptr;
+    
+    auto& localPlayerCards = mPlayerCardSceneObjectWrappers[1];
+    const auto localPlayerCardCount = static_cast<int>(localPlayerCards.size());
+    auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+    for (int i = 0; i < localPlayerCardCount; ++i)
+    {
+        auto& currentCardSoWrapper = localPlayerCards.at(i);
+        auto originalCardPosition = card_utils::CalculateHeldCardPosition(i, localPlayerCardCount, false);
+        animationManager.StartAnimation(std::make_unique<rendering::TweenAnimation>(currentCardSoWrapper->mSceneObjectComponents, originalCardPosition, currentCardSoWrapper->mSceneObjectComponents[0]->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){ currentCardSoWrapper->mState = CardSoState::IDLE; });
+        currentCardSoWrapper->mState = CardSoState::MOVING_TO_SET_POSITION;
+    }
+    
 }
 
 ///------------------------------------------------------------------------------------------------
