@@ -55,6 +55,7 @@ struct CardSoWrapper
     CardSoState mState = CardSoState::IDLE;
     const CardData* mCardData = nullptr;
     std::vector<std::shared_ptr<scene::SceneObject>> mSceneObjectComponents;
+    bool mCanBeHighlighted = false;
 };
 
 ///------------------------------------------------------------------------------------------------

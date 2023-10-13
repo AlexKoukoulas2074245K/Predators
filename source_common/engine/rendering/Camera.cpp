@@ -49,10 +49,12 @@ Camera::Camera(const float cameraLenseHeight)
 }
 
 ///------------------------------------------------------------------------------------------------
-
+#include <engine/utils/Logging.h>
 void Camera::RecalculateMatrices()
 {
     const auto& windowDimensions = CoreSystemsEngine::GetInstance().GetContextRenderableDimensions();
+    logging::Log(logging::LogType::INFO, "Recalculating Matrices for %.3f, %.3f (AR %.6f)", windowDimensions.x, windowDimensions.y, windowDimensions.x/windowDimensions.y);
+    
     float aspect = windowDimensions.x/windowDimensions.y;
     mView = glm::lookAt(mPosition, mPosition + DEFAULT_CAMERA_FRONT_VECTOR, DEFAULT_CAMERA_UP_VECTOR);
     mProj = glm::ortho((-mCameraLenseWidth/(DEVICE_INVARIABLE_ASPECT/aspect))/2.0f/mZoomFactor, (mCameraLenseWidth/((DEVICE_INVARIABLE_ASPECT/aspect)))/2.0f/mZoomFactor, -mCameraLenseHeight/2.0f/mZoomFactor, mCameraLenseHeight/2.0f/mZoomFactor, DEFAULT_CAMERA_ZNEAR, DEFAULT_CAMERA_ZFAR);

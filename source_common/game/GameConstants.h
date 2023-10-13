@@ -48,8 +48,8 @@ namespace game_constants
     inline const float IN_GAME_CARD_NAME_SCALE = 0.00012f;
     inline const float IN_GAME_CARD_WIDTH = 0.055f;
     inline const float IN_GAME_CARD_PUSH_VALUE = 0.003f;
-    inline const float IN_GAME_TOP_PLAYER_HELD_CARD_Y = 0.1f;
-    inline const float IN_GAME_BOT_PLAYER_HELD_CARD_Y = -0.1f;
+    inline const float IN_GAME_TOP_PLAYER_HELD_CARD_Y = 0.125f;
+    inline const float IN_GAME_BOT_PLAYER_HELD_CARD_Y = -0.125f;
     inline const float IN_GAME_BOT_PLAYER_SELECTED_CARD_Y_OFFSET = 0.032f;
     inline const float IN_GAME_DRAW_CARD_INIT_X = 0.274f;
     inline const float IN_GAME_DRAW_CARD_TOP_PLAYER_MID_POINT_Y = -0.075f;

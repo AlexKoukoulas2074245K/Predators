@@ -56,7 +56,7 @@ void Game::Init()
     boardSceneObject->mTextureResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "board.png");
     
     boardSceneObject->mRotation.z = math::PI/2.0f;
-    dummyScene->GetCamera().SetZoomFactor(150.0f);
+    dummyScene->GetCamera().SetZoomFactor(120.0f);
     
 //    auto uiScene = systemsEngine.GetActiveSceneManager().CreateScene(strutils::StringId("UI"));
 //    std::string texts[6] =

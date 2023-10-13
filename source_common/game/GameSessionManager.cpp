@@ -58,13 +58,17 @@ void GameSessionManager::InitGameSession()
     mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
     mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
     mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+//    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+//    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+//    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+//    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+//    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+//    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+//    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+//    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+//    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+//    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -93,6 +97,11 @@ GameActionEngine& GameSessionManager::GetActionEngine()
 
 void GameSessionManager::OnCardCreation(std::shared_ptr<CardSoWrapper> cardSoWrapper, const bool forOpponentPlayer)
 {
+    if (!forOpponentPlayer)
+    {
+        cardSoWrapper->mCanBeHighlighted = true;
+    }
+    
     mPlayerCardSceneObjectWrappers[(forOpponentPlayer ? 0 : 1)].push_back(cardSoWrapper);
 }
 
@@ -136,7 +145,12 @@ void GameSessionManager::HandleTouchInput()
         auto sceneObjectRect = scene_object_utils::GetSceneObjectBoundingRect(*cardBaseSceneObject);
         
         bool cursorInSceneObject = math::IsPointInsideRectangle(sceneObjectRect.bottomLeft, sceneObjectRect.topRight, worldTouchPos);
-
+        
+        if (!cursorInSceneObject)
+        {
+            currentCardSoWrapper->mCanBeHighlighted = true;
+        }
+        
 #if defined(IOS_FLOW)
         if (inputStateManager.VButtonPressed(input::Button::MAIN_BUTTON) && (currentCardSoWrapper->mState == CardSoState::HIGHLIGHTED || currentCardSoWrapper->mState == CardSoState::FREE_MOVING))
         {
@@ -190,7 +204,7 @@ void GameSessionManager::HandleTouchInput()
                     animationManager.StartAnimation(std::make_unique<rendering::TweenAnimation>(currentCardSoWrapper->mSceneObjectComponents, originalCardPosition, CARD_SELECTION_ANIMATION_DURATION, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){currentCardSoWrapper->mState = CardSoState::IDLE; });
                     currentCardSoWrapper->mState = CardSoState::MOVING_TO_SET_POSITION;
                 } break;
-                    
+                
                 case CardSoState::IDLE:
                 {
                     if (cursorInSceneObject && !otherHighlightedCardExists)
@@ -198,6 +212,7 @@ void GameSessionManager::HandleTouchInput()
                         candidateHighlightIndices.push_back(i);
                     }
                 } break;
+                    
                 case CardSoState::HIGHLIGHTED:
                 {
                     if (!cursorInSceneObject)
@@ -228,7 +243,12 @@ void GameSessionManager::HandleTouchInput()
         originalCardPosition.y += game_constants::IN_GAME_BOT_PLAYER_SELECTED_CARD_Y_OFFSET;
         originalCardPosition.z = game_constants::IN_GAME_HIGHLIGHTED_CARD_Z;
         
-        animationManager.StartAnimation(std::make_unique<rendering::TweenAnimation>(currentCardSoWrapper->mSceneObjectComponents, originalCardPosition, CARD_SELECTION_ANIMATION_DURATION, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT | animation_flags::IGNORE_X_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [](){});
+        if (currentCardSoWrapper->mCanBeHighlighted)
+        {
+            animationManager.StartAnimation(std::make_unique<rendering::TweenAnimation>(currentCardSoWrapper->mSceneObjectComponents, originalCardPosition, CARD_SELECTION_ANIMATION_DURATION, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT | animation_flags::IGNORE_X_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [](){});
+            currentCardSoWrapper->mCanBeHighlighted = false;
+        }
+        
         currentCardSoWrapper->mState = CardSoState::HIGHLIGHTED;
     }
 }
