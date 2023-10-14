@@ -7,6 +7,7 @@
 
 #include <engine/CoreSystemsEngine.h>
 #include <engine/rendering/Camera.h>
+#include <engine/utils/Logging.h>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -49,7 +50,7 @@ Camera::Camera(const float cameraLenseHeight)
 }
 
 ///------------------------------------------------------------------------------------------------
-#include <engine/utils/Logging.h>
+
 void Camera::RecalculateMatrices()
 {
     const auto& windowDimensions = CoreSystemsEngine::GetInstance().GetContextRenderableDimensions();

@@ -22,7 +22,12 @@ static const char* PROGRESS_SAVE_FILE_NAME = "progress_save.json";
 
 std::string GetProgressSaveFilePath()
 {
-    return std::string(getenv("HOME")) + "/Documents/" + PROGRESS_SAVE_FILE_NAME;
+ #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
+    auto appDataLocation = getenv("APPDATA");
+#else
+    auto appDataLocation = getenv("HOME");
+#endif
+    return std::string(appDataLocation) + "/Documents/" + PROGRESS_SAVE_FILE_NAME;
 }
 
 ///------------------------------------------------------------------------------------------------
