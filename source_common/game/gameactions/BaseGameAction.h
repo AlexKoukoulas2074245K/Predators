@@ -12,6 +12,7 @@
 
 #include <game/gameactions/IGameAction.h>
 #include <game/BoardState.h>
+#include <unordered_map>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -28,8 +29,10 @@ public:
 protected:
     void SetName(const strutils::StringId& name) { mName = name; }
     void SetDependencies(BoardState* boardState, GameSessionManager* gameSessionManager) { mBoardState = boardState; mGameSessionManager = gameSessionManager; }
+    void SetExtraActionParams(const std::unordered_map<std::string, std::string>& extraActionParams) { mExtraActionParams = extraActionParams; };
     
 protected:
+    std::unordered_map<std::string, std::string> mExtraActionParams;
     strutils::StringId mName = strutils::StringId();
     BoardState* mBoardState = nullptr;
     GameSessionManager* mGameSessionManager = nullptr;

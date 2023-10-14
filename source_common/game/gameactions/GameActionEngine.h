@@ -13,6 +13,7 @@
 #include <engine/utils/StringUtils.h>
 #include <memory>
 #include <queue>
+#include <unordered_map>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -27,6 +28,8 @@ public:
         ANIMATED, HEADLESS
     };
     
+    using ExtraActionParams = std::unordered_map<std::string, std::string>;
+    
 public:
     GameActionEngine(const EngineOperationMode operationMode, const int gameSeed, BoardState* boardState, GameSessionManager* gameSessionManager);
     
@@ -34,7 +37,7 @@ public:
     
     void Update(const float dtMillis);
     
-    void AddGameAction(const strutils::StringId& actionName);
+    void AddGameAction(const strutils::StringId& actionName, const ExtraActionParams extraActionParams = {});
     
     void SetLoggingActionTransitions(const bool logActionTransitions);
     
@@ -42,7 +45,7 @@ public:
     bool LoggingActionTransitions() const;
     
 private:
-    void CreateAndPushGameAction(const strutils::StringId& actionName);
+    void CreateAndPushGameAction(const strutils::StringId& actionName, const ExtraActionParams& extraActionParams);
     void LogActionTransition(const std::string& actionTransition);
     
 private:

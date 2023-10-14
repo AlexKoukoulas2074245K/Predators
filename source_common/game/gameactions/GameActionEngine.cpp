@@ -29,7 +29,7 @@ GameActionEngine::GameActionEngine(const EngineOperationMode operationMode, cons
     
     GameActionFactory::RegisterGameActions();
     
-    CreateAndPushGameAction(IDLE_GAME_ACTION_NAME);
+    CreateAndPushGameAction(IDLE_GAME_ACTION_NAME, {});
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -51,7 +51,7 @@ void GameActionEngine::Update(const float dtMillis)
             
             if (mGameActions.empty())
             {
-                CreateAndPushGameAction(IDLE_GAME_ACTION_NAME);
+                CreateAndPushGameAction(IDLE_GAME_ACTION_NAME, {});
             }
         }
     }
@@ -76,7 +76,7 @@ void GameActionEngine::Update(const float dtMillis)
             
             if (mGameActions.empty())
             {
-                CreateAndPushGameAction(IDLE_GAME_ACTION_NAME);
+                CreateAndPushGameAction(IDLE_GAME_ACTION_NAME, {});
             }
         }
     }
@@ -84,14 +84,14 @@ void GameActionEngine::Update(const float dtMillis)
 
 ///------------------------------------------------------------------------------------------------
 
-void GameActionEngine::AddGameAction(const strutils::StringId& actionName)
+void GameActionEngine::AddGameAction(const strutils::StringId& actionName, const std::unordered_map<std::string, std::string> extraActionParams /* = {} */)
 {
     if (GetActiveGameActionName() == IDLE_GAME_ACTION_NAME)
     {
         mGameActions.pop();
     }
     
-    CreateAndPushGameAction(actionName);
+    CreateAndPushGameAction(actionName, extraActionParams);
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -117,11 +117,12 @@ bool GameActionEngine::LoggingActionTransitions() const
 
 ///------------------------------------------------------------------------------------------------
 
-void GameActionEngine::CreateAndPushGameAction(const strutils::StringId& actionName)
+void GameActionEngine::CreateAndPushGameAction(const strutils::StringId& actionName, const ExtraActionParams& extraActionParams)
 {
     auto action = GameActionFactory::CreateGameAction(actionName);
     action->SetName(actionName);
     action->SetDependencies(mBoardState, mGameSessionManager);
+    action->SetExtraActionParams(extraActionParams);
     mGameActions.push(std::move(action));
     
     LogActionTransition("Pushed action " + actionName.GetString());
