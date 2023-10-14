@@ -27,8 +27,7 @@ public:
     
 protected:
     void SetName(const strutils::StringId& name) { mName = name; }
-    void SetBoardState(BoardState* boardState) { mBoardState = boardState; }
-    void SetGameSessionManager(GameSessionManager* gameSessionManager) { mGameSessionManager = gameSessionManager; }
+    void SetDependencies(BoardState* boardState, GameSessionManager* gameSessionManager) { mBoardState = boardState; mGameSessionManager = gameSessionManager; }
     
 protected:
     strutils::StringId mName = strutils::StringId();

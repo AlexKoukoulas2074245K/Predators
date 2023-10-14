@@ -121,8 +121,7 @@ void GameActionEngine::CreateAndPushGameAction(const strutils::StringId& actionN
 {
     auto action = GameActionFactory::CreateGameAction(actionName);
     action->SetName(actionName);
-    action->SetBoardState(mBoardState);
-    action->SetGameSessionManager(mGameSessionManager);
+    action->SetDependencies(mBoardState, mGameSessionManager);
     mGameActions.push(std::move(action));
     
     LogActionTransition("Pushed action " + actionName.GetString());

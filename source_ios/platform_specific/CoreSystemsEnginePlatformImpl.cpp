@@ -93,14 +93,6 @@ void CoreSystemsEngine::Initialize()
         ospopups::ShowMessageBox(ospopups::MessageBoxType::ERROR, "SDL could not initialize!", SDL_GetError());
         return;
     }
-
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
-    if (glewInit() != GLEW_OK)
-    {
-        ospopups::ShowMessageBox(ospopups::MessageBoxType::ERROR, "GLEW could not initialize!", "GLEW Fatal Error");
-        return;
-    }
-#endif
     
     // Vsync
     SDL_GL_SetSwapInterval(0);
