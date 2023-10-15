@@ -26,8 +26,8 @@ const float Camera::DEFAULT_CAMERA_ZNEAR       = -50.0f;
 const float Camera::DEFAULT_CAMERA_ZFAR        = 50.0f;
 const float Camera::DEFAULT_CAMERA_ZOOM_FACTOR = 60.0f;
 
-const float Camera::SHAKE_MAX_RADIUS = 0.05f;
-const float Camera::SHAKE_MIN_RADIUS = 0.0001f;
+const float Camera::DEFAULT_SHAKE_STRENGTH_RADIUS = 0.05f;
+const float Camera::SHAKE_MIN_RADIUS = 0.00001f;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -53,7 +53,7 @@ Camera::Camera(const float cameraLenseHeight)
 void Camera::RecalculateMatrices()
 {
     const auto& windowDimensions = CoreSystemsEngine::GetInstance().GetContextRenderableDimensions();
-    logging::Log(logging::LogType::INFO, "Recalculating Matrices for %.3f, %.3f (AR %.6f)", windowDimensions.x, windowDimensions.y, windowDimensions.x/windowDimensions.y);
+    //logging::Log(logging::LogType::INFO, "Recalculating Matrices for %.3f, %.3f (AR %.6f)", windowDimensions.x, windowDimensions.y, windowDimensions.x/windowDimensions.y);
     
     float aspect = windowDimensions.x/windowDimensions.y;
     mView = glm::lookAt(mPosition, mPosition + DEFAULT_CAMERA_FRONT_VECTOR, DEFAULT_CAMERA_UP_VECTOR);
@@ -104,17 +104,20 @@ const glm::mat4& Camera::GetProjMatrix() const
 
 ///------------------------------------------------------------------------------------------------
 
-void Camera::Shake(const float duration)
+void Camera::Shake(const float targetDurationSecs, const float shakeStrengthRadius /* = DEFAULT_SHAKE_STRENGTH_RADIUS */, const float shakeInterTremmorDelaySecs /* = 0.0f */)
 {
-    if (mShakeData.mShakeRadius <= SHAKE_MIN_RADIUS)
+    if (mShakeData.mShakeCurrentRadius <= SHAKE_MIN_RADIUS)
     {
         mShakeData.mPreShakePosition = mPosition;
-        mShakeData.mShakeTimeAccumulator = 0.0f;
-        mShakeData.mShakeTargetDuration = duration * 1000.0f;
-        mShakeData.mShakeRadius = SHAKE_MAX_RADIUS;
+        mShakeData.mShakeTimeAccumulatorMillis = 0.0f;
+        mShakeData.mShakeTargetDurationMillis = targetDurationSecs * 1000.0f;
+        mShakeData.mShakeStrengthRadius = shakeStrengthRadius;
+        mShakeData.mShakeCurrentRadius = shakeStrengthRadius;
+        mShakeData.mShakeInterTremmorAccumMillis = 0.0;
+        mShakeData.mShakeInterTremmorDelayMillis = shakeInterTremmorDelaySecs * 1000.0f;
         
         mShakeData.mShakeRandomAngle = math::RandomFloat(0.0f, 2.0f * math::PI);
-        auto offset = glm::vec2(math::Sinf(mShakeData.mShakeRandomAngle) * mShakeData.mShakeRadius, math::Cosf(mShakeData.mShakeRandomAngle) * mShakeData.mShakeRadius);
+        auto offset = glm::vec2(math::Sinf(mShakeData.mShakeRandomAngle) * mShakeData.mShakeCurrentRadius, math::Cosf(mShakeData.mShakeRandomAngle) * mShakeData.mShakeCurrentRadius);
         
         SetPosition(glm::vec3(mShakeData.mPreShakePosition.x + offset.x, mShakeData.mPreShakePosition.y + offset.y, GetPosition().z));
     }
@@ -124,22 +127,33 @@ void Camera::Shake(const float duration)
 
 void Camera::Update(const float dtMillis)
 {
-    if (mShakeData.mShakeRadius > SHAKE_MIN_RADIUS)
+    if (mShakeData.mShakeCurrentRadius > SHAKE_MIN_RADIUS)
     {
-        auto damping = 1.0f - (mShakeData.mShakeTimeAccumulator/mShakeData.mShakeTargetDuration);
-        logging::Log(logging::LogType::INFO, "Damping: %.6f", damping);
-        mShakeData.mShakeRadius *= damping;
-        mShakeData.mShakeTimeAccumulator += dtMillis;
-        
-        if (mShakeData.mShakeRadius <= SHAKE_MIN_RADIUS)
+        if (mShakeData.mShakeInterTremmorDelayMillis > 0.0f)
         {
-            mShakeData.mShakeRadius = SHAKE_MIN_RADIUS;
+            mShakeData.mShakeInterTremmorAccumMillis += dtMillis;
+            if (mShakeData.mShakeInterTremmorAccumMillis < mShakeData.mShakeInterTremmorDelayMillis)
+            {
+                return;
+            }
+            else
+            {
+                mShakeData.mShakeInterTremmorAccumMillis -= mShakeData.mShakeInterTremmorDelayMillis;
+            }
+        }
+        
+        mShakeData.mShakeCurrentRadius = mShakeData.mShakeStrengthRadius * (1.0f - (mShakeData.mShakeTimeAccumulatorMillis/mShakeData.mShakeTargetDurationMillis));
+        mShakeData.mShakeTimeAccumulatorMillis += dtMillis;
+        
+        if (mShakeData.mShakeCurrentRadius <= SHAKE_MIN_RADIUS)
+        {
+            mShakeData.mShakeCurrentRadius = SHAKE_MIN_RADIUS;
             SetPosition(mShakeData.mPreShakePosition);
         }
         else
         {
             mShakeData.mShakeRandomAngle = math::RandomFloat(0.0f, 2.0f * math::PI);
-            auto offset = glm::vec2(math::Sinf(mShakeData.mShakeRandomAngle) * mShakeData.mShakeRadius, math::Cosf(mShakeData.mShakeRandomAngle) * mShakeData.mShakeRadius);
+            auto offset = glm::vec2(math::Sinf(mShakeData.mShakeRandomAngle) * mShakeData.mShakeCurrentRadius, math::Cosf(mShakeData.mShakeRandomAngle) * mShakeData.mShakeCurrentRadius);
             
             SetPosition(glm::vec3(mShakeData.mPreShakePosition.x + offset.x, mShakeData.mPreShakePosition.y + offset.y, GetPosition().z));
         }
