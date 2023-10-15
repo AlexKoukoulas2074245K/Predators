@@ -26,7 +26,6 @@ const float Camera::DEFAULT_CAMERA_ZNEAR       = -50.0f;
 const float Camera::DEFAULT_CAMERA_ZFAR        = 50.0f;
 const float Camera::DEFAULT_CAMERA_ZOOM_FACTOR = 60.0f;
 
-const float Camera::SHAKE_DAMPING    = 0.22f;
 const float Camera::SHAKE_MAX_RADIUS = 0.05f;
 const float Camera::SHAKE_MIN_RADIUS = 0.0001f;
 
@@ -105,13 +104,13 @@ const glm::mat4& Camera::GetProjMatrix() const
 
 ///------------------------------------------------------------------------------------------------
 
-void Camera::Shake()
+void Camera::Shake(const float duration)
 {
     if (mShakeData.mShakeRadius <= SHAKE_MIN_RADIUS)
     {
-        mShakeData.mIsShaking = true;
         mShakeData.mPreShakePosition = mPosition;
-        
+        mShakeData.mShakeTimeAccumulator = 0.0f;
+        mShakeData.mShakeTargetDuration = duration * 1000.0f;
         mShakeData.mShakeRadius = SHAKE_MAX_RADIUS;
         
         mShakeData.mShakeRandomAngle = math::RandomFloat(0.0f, 2.0f * math::PI);
@@ -123,15 +122,17 @@ void Camera::Shake()
 
 ///------------------------------------------------------------------------------------------------
 
-void Camera::Update(const float)
+void Camera::Update(const float dtMillis)
 {
-    if (mShakeData.mIsShaking)
+    if (mShakeData.mShakeRadius > SHAKE_MIN_RADIUS)
     {
-        mShakeData.mShakeRadius *= SHAKE_DAMPING;
+        auto damping = 1.0f - (mShakeData.mShakeTimeAccumulator/mShakeData.mShakeTargetDuration);
+        logging::Log(logging::LogType::INFO, "Damping: %.6f", damping);
+        mShakeData.mShakeRadius *= damping;
+        mShakeData.mShakeTimeAccumulator += dtMillis;
         
         if (mShakeData.mShakeRadius <= SHAKE_MIN_RADIUS)
         {
-            mShakeData.mIsShaking = false;
             mShakeData.mShakeRadius = SHAKE_MIN_RADIUS;
             SetPosition(mShakeData.mPreShakePosition);
         }

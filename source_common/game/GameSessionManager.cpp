@@ -88,9 +88,9 @@ void GameSessionManager::InitGameSession()
     mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
     mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
     mActionEngine->AddGameAction(strutils::StringId("PlayCardGameAction"), {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "4" }});
-    mActionEngine->AddGameAction(strutils::StringId("PlayCardGameAction"), {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "1" }});
+    //mActionEngine->AddGameAction(strutils::StringId("PlayCardGameAction"), {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "1" }});
     mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"), {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "0" }});
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
     mActionEngine->AddGameAction(strutils::StringId("NextPlayerGameAction"));
     mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
     mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
