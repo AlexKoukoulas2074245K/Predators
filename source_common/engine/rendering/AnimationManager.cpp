@@ -58,6 +58,13 @@ bool AnimationManager::IsAnimationPlaying(const strutils::StringId& animationNam
 
 ///------------------------------------------------------------------------------------------------
 
+int AnimationManager::GetAnimationsPlayingCount() const
+{
+    return static_cast<int>(mAnimations.size());
+}
+
+///------------------------------------------------------------------------------------------------
+
 }
 
 ///------------------------------------------------------------------------------------------------

@@ -19,6 +19,9 @@ struct CardSoWrapper;
 class PlayCardGameAction final: public BaseGameAction
 {
 public:
+    static const std::string LAST_PLAYED_CARD_INDEX_PARAM;
+
+public:
     void VSetNewGameState() override;
     
     void VInitAnimation() override;

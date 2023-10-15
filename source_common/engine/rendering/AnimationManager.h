@@ -32,6 +32,8 @@ public:
     void Update(const float dtMillis);
     
     bool IsAnimationPlaying(const strutils::StringId& animationName) const;
+    int GetAnimationsPlayingCount() const;
+    
 private:
     struct AnimationEntry
     {

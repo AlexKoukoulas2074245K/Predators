@@ -9,6 +9,7 @@
 #include <game/CardUtils.h>
 #include <game/GameConstants.h>
 #include <game/GameSessionManager.h>
+#include <game/gameactions/PlayCardGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <engine/CoreSystemsEngine.h>
 #include <engine/input/IInputStateManager.h>
@@ -32,6 +33,7 @@
 ///------------------------------------------------------------------------------------------------
 
 static const strutils::StringId BATTLE_ICON_SCENE_OBJECT_NAME = strutils::StringId("BATTLE_ICON");
+static const strutils::StringId IDLE_GAME_ACTION_NAME = strutils::StringId("IdleGameAction");
 
 static const std::string BATTLE_ICON_TEXTURE_FILE_NAME = "battle_icon.png";
 
@@ -50,7 +52,6 @@ static const float BATTLE_ICON_PROMPT_DISTANCE_FROM_CENTER_THRESHOLD = 0.07f;
 ///------------------------------------------------------------------------------------------------
 
 GameSessionManager::GameSessionManager()
-    : mLastPlayedCardIndex(-1)
 {
     
 }
@@ -86,6 +87,20 @@ void GameSessionManager::InitGameSession()
     mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
     mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
     mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("PlayCardGameAction"), {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "4" }});
+    mActionEngine->AddGameAction(strutils::StringId("PlayCardGameAction"), {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "1" }});
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"), {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "0" }});
+    mActionEngine->AddGameAction(strutils::StringId("NextPlayerGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("PlayCardGameAction"), {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "1" }});
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("PlayCardGameAction"), {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "1" }});
+    mActionEngine->AddGameAction(strutils::StringId("PlayCardGameAction"), {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "2" }});
 //    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
 //    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
 //    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
@@ -143,16 +158,13 @@ void GameSessionManager::OnCardCreation(std::shared_ptr<CardSoWrapper> cardSoWra
 
 ///------------------------------------------------------------------------------------------------
 
-void GameSessionManager::OnLastCardPlayedFinalized()
+void GameSessionManager::OnLastCardPlayedFinalized(int cardIndex)
 {
     auto& playerHeldCardSoWrappers = mPlayerHeldCardSceneObjectWrappers[mBoardState->GetActivePlayerIndex()];
     auto& playerBoardCardSoWrappers = mPlayerBoardCardSceneObjectWrappers[mBoardState->GetActivePlayerIndex()];
     
-    playerBoardCardSoWrappers.push_back(mLastPlayedCardSoWrapper);
-    playerHeldCardSoWrappers.erase(playerHeldCardSoWrappers.begin() + mLastPlayedCardIndex);
-    
-    mLastPlayedCardIndex = -1;
-    mLastPlayedCardSoWrapper = nullptr;
+    playerBoardCardSoWrappers.push_back(playerHeldCardSoWrappers[cardIndex]);
+    playerHeldCardSoWrappers.erase(playerHeldCardSoWrappers.begin() + cardIndex);
     
     const auto currentPlayerHeldCardCount = static_cast<int>(playerHeldCardSoWrappers.size());
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
@@ -168,7 +180,7 @@ void GameSessionManager::OnLastCardPlayedFinalized()
         }
         
         // Reposition held cards for different indices
-        auto originalCardPosition = card_utils::CalculateHeldCardPosition(i, currentPlayerHeldCardCount, false);
+        auto originalCardPosition = card_utils::CalculateHeldCardPosition(i, currentPlayerHeldCardCount, mBoardState->GetActivePlayerIndex() == 0);
         animationManager.StartAnimation(std::make_unique<rendering::TweenAnimation>(currentCardSoWrapper->mSceneObjectComponents, originalCardPosition, currentCardSoWrapper->mSceneObjectComponents[0]->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){ currentCardSoWrapper->mState = CardSoState::IDLE; });
         currentCardSoWrapper->mState = CardSoState::MOVING_TO_SET_POSITION;
     }
@@ -179,7 +191,7 @@ void GameSessionManager::OnLastCardPlayedFinalized()
     for (int i = 0; i < currentBoardCardCount - 1; ++i)
     {
         auto& currentCardSoWrapper = playerBoardCardSoWrappers.at(i);
-        auto originalCardPosition = card_utils::CalculateBoardCardPosition(i, currentBoardCardCount, false);
+        auto originalCardPosition = card_utils::CalculateBoardCardPosition(i, currentBoardCardCount, mBoardState->GetActivePlayerIndex() == 0);
         animationManager.StartAnimation(std::make_unique<rendering::TweenAnimation>(currentCardSoWrapper->mSceneObjectComponents, originalCardPosition, currentCardSoWrapper->mSceneObjectComponents[0]->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){});
     }
 }
@@ -196,20 +208,6 @@ const std::vector<std::vector<std::shared_ptr<CardSoWrapper>>>& GameSessionManag
 const std::vector<std::vector<std::shared_ptr<CardSoWrapper>>>& GameSessionManager::GetBoardCardSoWrappers() const
 {
     return mPlayerBoardCardSceneObjectWrappers;
-}
-
-///------------------------------------------------------------------------------------------------
-
-std::shared_ptr<CardSoWrapper> GameSessionManager::GetLastPlayedCardSceneObjectWrapper() const
-{
-    return mLastPlayedCardSoWrapper;
-}
-
-///------------------------------------------------------------------------------------------------
-
-int GameSessionManager::GetLastPlayedCardIndex() const
-{
-    return mLastPlayedCardIndex;
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -232,8 +230,6 @@ void GameSessionManager::HandleTouchInput(const float dtMillis)
     
     for (int i = 0; i < localPlayerCardCount; ++i)
     {
-        if (mLastPlayedCardIndex == i) continue;
-        
         auto& currentCardSoWrapper = localPlayerCards.at(i);
         
         bool otherHighlightedCardExists = std::find_if(localPlayerCards.begin(), localPlayerCards.end(), [&](const std::shared_ptr<CardSoWrapper>& cardSoWrapper){ return cardSoWrapper.get() != currentCardSoWrapper.get() && cardSoWrapper->mState == CardSoState::HIGHLIGHTED; }) != localPlayerCards.cend();
@@ -349,9 +345,13 @@ void GameSessionManager::HandleTouchInput(const float dtMillis)
         }
         
         currentCardSoWrapper->mState = CardSoState::HIGHLIGHTED;
+        
     }
     
+    
     // Battle Icon
+    battleIconFadingIn &= mActionEngine->GetActiveGameActionName() == IDLE_GAME_ACTION_NAME;
+    battleIconFadingIn &= mBoardState->GetActivePlayerIndex() == 1;
     auto battleIconSceneObject = activeScene->FindSceneObject(BATTLE_ICON_SCENE_OBJECT_NAME);
     if (battleIconFadingIn)
     {
@@ -391,11 +391,9 @@ void GameSessionManager::OnFreeMovingCardRelease(std::shared_ptr<CardSoWrapper> 
     bool inBoardDropThreshold = distanceFromCenter <= BATTLE_ICON_PROMPT_DISTANCE_FROM_CENTER_THRESHOLD;
 #endif
     
-    if (inBoardDropThreshold && mLastPlayedCardIndex == -1)
+    if (inBoardDropThreshold && mActionEngine->GetActiveGameActionName() == IDLE_GAME_ACTION_NAME && mBoardState->GetActivePlayerIndex() == 1)
     {
-        mLastPlayedCardIndex = static_cast<int>(cardIndex);
-        mLastPlayedCardSoWrapper = cardSoWrapper;
-        mActionEngine->AddGameAction(strutils::StringId("PlayCardGameAction"));
+        mActionEngine->AddGameAction(strutils::StringId("PlayCardGameAction"), {{PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, std::to_string(cardIndex)}});
     }
     else
     {

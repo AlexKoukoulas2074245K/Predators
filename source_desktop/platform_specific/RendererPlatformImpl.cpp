@@ -6,6 +6,7 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <engine/CoreSystemsEngine.h>
+#include <engine/rendering/AnimationManager.h>
 #include <engine/rendering/Fonts.h>
 #include <engine/rendering/OpenGL.h>
 #include <engine/resloading/MeshResource.h>
@@ -237,6 +238,7 @@ void RendererPlatformImpl::CreateIMGuiWidgets()
     
     ImGui::Begin("Rendering", nullptr, GLOBAL_WINDOW_LOCKING);
     ImGui::Text("Draw Calls %d", sDrawCallCounter);
+    ImGui::Text("Anims Live %d", CoreSystemsEngine::GetInstance().GetAnimationManager().GetAnimationsPlayingCount());
     ImGui::End();
     
     // Create scene data viewer

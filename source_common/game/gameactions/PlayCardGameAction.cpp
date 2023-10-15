@@ -16,22 +16,24 @@
 
 ///------------------------------------------------------------------------------------------------
 
+const std::string PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM = "lastPlayedCardIndex";
+
+///------------------------------------------------------------------------------------------------
+
 void PlayCardGameAction::VSetNewGameState()
 {
     auto& activePlayerState = mBoardState->GetActivePlayerState();
     assert(!activePlayerState.mPlayerHeldCards.empty());
+    assert(mExtraActionParams.count(LAST_PLAYED_CARD_INDEX_PARAM) != 0);
+    
+    auto lastPlayedCardIndex = std::stoi(mExtraActionParams.at(LAST_PLAYED_CARD_INDEX_PARAM));
+    activePlayerState.mPlayerBoardCards.push_back(activePlayerState.mPlayerHeldCards[lastPlayedCardIndex]);
+    activePlayerState.mPlayerHeldCards.erase(activePlayerState.mPlayerHeldCards.begin() + lastPlayedCardIndex);
     
     if (mGameSessionManager)
     {
-        activePlayerState.mPlayerBoardCards.push_back(activePlayerState.mPlayerHeldCards[mGameSessionManager->GetLastPlayedCardIndex()]);
-        activePlayerState.mPlayerHeldCards.erase(activePlayerState.mPlayerHeldCards.begin() + mGameSessionManager->GetLastPlayedCardIndex());
-        mLastPlayedCardSoWrapper = mGameSessionManager->GetLastPlayedCardSceneObjectWrapper();
-        mGameSessionManager->OnLastCardPlayedFinalized();
-    }
-    else
-    {
-        activePlayerState.mPlayerBoardCards.push_back(activePlayerState.mPlayerHeldCards.back());
-        activePlayerState.mPlayerHeldCards.pop_back();
+        mLastPlayedCardSoWrapper = mGameSessionManager->GetHeldCardSoWrappers()[mBoardState->GetActivePlayerIndex()].at(lastPlayedCardIndex);
+        mGameSessionManager->OnLastCardPlayedFinalized(lastPlayedCardIndex);
     }
 }
 
@@ -52,7 +54,12 @@ void PlayCardGameAction::VInitAnimation()
     
     // Animate played card to board
     auto targetPosition = card_utils::CalculateBoardCardPosition(static_cast<int>(mBoardState->GetActivePlayerState().mPlayerBoardCards.size() - 1), static_cast<int>(mBoardState->GetActivePlayerState().mPlayerBoardCards.size()), mBoardState->GetActivePlayerIndex() == 0);
-    animationManager.StartAnimation(std::make_unique<rendering::TweenAnimation>(mLastPlayedCardSoWrapper->mSceneObjectComponents, targetPosition, mLastPlayedCardSoWrapper->mSceneObjectComponents[0]->mScale * game_constants::IN_GAME_PLAYED_CARD_SCALE_FACTOR, game_constants::IN_GAME_PLAYED_CARD_ANIMATION_DURATION, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [](){ CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE)->GetCamera().Shake(); });
+    animationManager.StartAnimation(std::make_unique<rendering::TweenAnimation>(mLastPlayedCardSoWrapper->mSceneObjectComponents, targetPosition, mLastPlayedCardSoWrapper->mSceneObjectComponents[0]->mScale * game_constants::IN_GAME_PLAYED_CARD_SCALE_FACTOR, game_constants::IN_GAME_PLAYED_CARD_ANIMATION_DURATION, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [&]()
+    {
+        mPendingAnimations--;
+        CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE)->GetCamera().Shake();
+    });
+    mPendingAnimations++;
 }
 
 ///------------------------------------------------------------------------------------------------

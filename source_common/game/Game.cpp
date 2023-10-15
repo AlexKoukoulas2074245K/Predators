@@ -34,7 +34,6 @@ Game::Game(const int argc, char** argv)
         logging::Log(logging::LogType::INFO, "Initializing from CWD : %s", argv[0]);
     }
     
-    ospopups::ShowMessageBox(ospopups::MessageBoxType::INFO, "Path", persistence_utils::GetProgressSaveFilePath());
     CoreSystemsEngine::GetInstance().Start([&](){ Init(); }, [&](const float dtMillis){ Update(dtMillis); }, [&](){ CreateDebugWidgets(); });
 }
 

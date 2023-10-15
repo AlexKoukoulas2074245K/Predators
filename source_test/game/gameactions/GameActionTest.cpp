@@ -9,6 +9,7 @@
 #include <engine/utils/Logging.h>
 #include <game/BoardState.h>
 #include <game/gameactions/GameActionEngine.h>
+#include <game/gameactions/PlayCardGameAction.h>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -63,7 +64,7 @@ TEST(GameActionTests, TestBoardStatePostDrawAndPlayAction)
     GameActionEngine engine(GameActionEngine::EngineOperationMode::HEADLESS, 0, &boardState, nullptr);
     
     engine.AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
-    engine.AddGameAction(PLAY_CARD_GAME_ACTION_NAME);
+    engine.AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "0" }});
     engine.Update(0);
     engine.Update(0);
     
@@ -80,10 +81,10 @@ TEST(GameActionTests, TestDrawPlayNextDrawPlayActionRound)
     GameActionEngine engine(GameActionEngine::EngineOperationMode::HEADLESS, 0, &boardState, nullptr);
     
     engine.AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
-    engine.AddGameAction(PLAY_CARD_GAME_ACTION_NAME);
+    engine.AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "0" }});
     engine.AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     engine.AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
-    engine.AddGameAction(PLAY_CARD_GAME_ACTION_NAME);
+    engine.AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "0" }});
     engine.AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     
     while (engine.GetActiveGameActionName() != IDLE_GAME_ACTION_NAME)
