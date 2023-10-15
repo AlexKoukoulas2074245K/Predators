@@ -10,16 +10,21 @@
 
 ///------------------------------------------------------------------------------------------------
 
+#include <engine/utils/MathUtils.h>
 #include <engine/utils/StringUtils.h>
 
 ///------------------------------------------------------------------------------------------------
 
 namespace game_constants
 {
+    // Resources
     inline const std::string DEFAULT_MESH_NAME = "quad.obj";
     inline const std::string DEFAULT_SHADER_NAME = "basic.vs";
     inline const std::string CUSTOM_ALPHA_SHADER_NAME = "custom_alpha.vs";
+    inline const std::string PERLIN_NOISE_SHADER_NAME = "perlin.vs";
     inline const std::string DEFAULT_TEXTURE_NAME = "debug.png";
+
+    // SO Name Prefixes/Postfixes
     inline const std::string TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX = "TOP_PLAYER_HELD_CARD_";
     inline const std::string BOT_PLAYER_HELD_CARD_SO_NAME_PREFIX = "BOT_PLAYER_HELD_CARD_";
     inline const std::string TOP_PLAYER_BOARD_CARD_SO_NAME_PREFIX = "TOP_PLAYER_BOARD_CARD_";
@@ -31,12 +36,22 @@ namespace game_constants
     inline const std::string CARD_DAMAGE_ICON_SO_NAME_POST_FIX = "_CARD_DAMAGE_ICON";
     inline const std::string CARD_DAMAGE_TEXT_SO_NAME_POST_FIX = "_CARD_DAMAGE";
 
+    // Fonts
     inline const strutils::StringId DEFAULT_FONT_NAME = strutils::StringId("font");
+
+    // Uniforms
     inline const strutils::StringId CUSTOM_ALPHA_UNIFORM_NAME = strutils::StringId("custom_alpha");
+    inline const strutils::StringId TIME_UNIFORM_NAME = strutils::StringId("time");
+    inline const strutils::StringId PERLIN_TIME_SPEED_UNIFORM_NAME = strutils::StringId("time_speed");
+    inline const strutils::StringId PERLIN_RESOLUTION_X_UNIFORM_NAME = strutils::StringId("perlin_resolution_x");
+    inline const strutils::StringId PERLIN_RESOLUTION_Y_UNIFORM_NAME = strutils::StringId("perlin_resolution_y");
+    inline const strutils::StringId PERLIN_CLARITY_UNIFORM_NAME = strutils::StringId("perlin_clarity");
+    
+    // Scenes
     inline const strutils::StringId IN_GAME_BATTLE_SCENE = strutils::StringId("BATTLE");
     
+    // General Game Constants
     inline const int IN_GAME_CARD_PUSH_THRESHOLD = 4;
-
     inline const float CARD_COMPONENT_Z_OFFSET = 0.1f;
     inline const float CARD_BOUNDING_RECT_X_MULTIPLIER = 0.5f;
     inline const float IN_GAME_PLAYED_CARD_Z = 0.1f;
@@ -71,6 +86,13 @@ namespace game_constants
     inline const float IN_GAME_MOBILE_ONLY_FREE_MOVING_CARD_Y_OFFSET = 0.05f;
     inline const float IN_GAME_PLAYED_CARD_SCALE_FACTOR = 0.666f;
     inline const float IN_GAME_PLAYED_CARD_ANIMATION_DURATION = 0.5f;
+    inline const float CARD_HIGLIGHTER_Z_OFFSET = -0.1f;
+    inline const float CARD_HIGLIGHTER_PERLIN_TIME_SPEED = 6.595f;
+    inline const float CARD_HIGLIGHTER_PERLIN_RESOLUTION = 300.0f;
+    inline const float CARD_HIGLIGHTER_PERLIN_CLARITY = 5.23f;
+
+    inline const glm::vec3 CARD_HIGHLIGHTER_SCALE = glm::vec3(0.08f, 0.13f, 1.0f);
+    
 
 }
 

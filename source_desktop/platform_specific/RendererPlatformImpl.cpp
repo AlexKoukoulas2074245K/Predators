@@ -20,6 +20,7 @@
 #include <imgui/backends/imgui_impl_opengl3.h>
 #include <platform_specific/RendererPlatformImpl.h>
 #include <SDL.h>
+#include <unordered_map>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -214,6 +215,8 @@ void RendererPlatformImpl::VEndRenderPass()
 ///------------------------------------------------------------------------------------------------
 
 #if (!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)
+static std::unordered_map<strutils::StringId, glm::vec2, strutils::StringIdHasher> sUniformMinMaxValues;
+
 class SceneObjectDataIMGuiVisitor
 {
 public:
@@ -276,11 +279,11 @@ void RendererPlatformImpl::CreateIMGuiWidgets()
             
             if (ImGui::CollapsingHeader(sceneObjectName.GetString().c_str(), ImGuiTreeNodeFlags_None))
             {
+                ImGui::PushID(sceneObjectName.GetString().c_str());
                 std::visit(imguiVisitor, sceneObject->mSceneObjectTypeData);
                 ImGui::Text("Mesh: %s", resService.GetResourcePath(sceneObject->mMeshResourceId).c_str());
                 ImGui::Text("Shader: %s", resService.GetResourcePath(sceneObject->mShaderResourceId).c_str());
                 ImGui::Text("Texture: %s", resService.GetResourcePath(sceneObject->mTextureResourceId).c_str());
-                ImGui::PushID(sceneObjectName.GetString().c_str());
                 ImGui::SliderFloat("x", &sceneObject->mPosition.x, -0.5f, 0.5f);
                 ImGui::SliderFloat("y", &sceneObject->mPosition.y, -0.5f, 0.5f);
                 ImGui::SliderFloat("z", &sceneObject->mPosition.z, -0.5f, 0.5f);
@@ -290,6 +293,17 @@ void RendererPlatformImpl::CreateIMGuiWidgets()
                 ImGui::SliderFloat("sx", &sceneObject->mScale.x, 0.00001f, 1.0f);
                 ImGui::SliderFloat("sy", &sceneObject->mScale.y, 0.00001f, 1.0f);
                 ImGui::SliderFloat("sz", &sceneObject->mScale.z, 0.00001f, 1.0f);
+                ImGui::SeparatorText("Uniforms (floats)");
+                for (auto& uniformFloatEntry: sceneObject->mShaderFloatUniformValues)
+                {
+                    if (sUniformMinMaxValues.count(uniformFloatEntry.first) == 0)
+                    {
+                        sUniformMinMaxValues[uniformFloatEntry.first] = glm::vec2(uniformFloatEntry.second/100.0f, uniformFloatEntry.second*10.0f);
+                    }
+                    
+                    auto uniformMinMaxValues = sUniformMinMaxValues.at(uniformFloatEntry.first);
+                    ImGui::SliderFloat(uniformFloatEntry.first.GetString().c_str(), &uniformFloatEntry.second, uniformMinMaxValues.x, uniformMinMaxValues.y);
+                }
                 ImGui::PopID();
             }
         }

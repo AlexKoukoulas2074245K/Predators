@@ -66,6 +66,19 @@ void Scene::RemoveSceneObject(const strutils::StringId& sceneObjectName)
 
 ///------------------------------------------------------------------------------------------------
 
+void Scene::RemoveAllSceneObjectsWithName(const strutils::StringId& sceneObjectName)
+{
+    while (true)
+    {
+        const auto sizeBefore = GetSceneObjectCount();
+        RemoveSceneObject(sceneObjectName);
+        if (GetSceneObjectCount() == sizeBefore)
+        {
+            break;
+        }
+    }
+}
+
 [[nodiscard]] std::size_t Scene::GetSceneObjectCount() const { return mSceneObjects.size(); }
 
 ///------------------------------------------------------------------------------------------------

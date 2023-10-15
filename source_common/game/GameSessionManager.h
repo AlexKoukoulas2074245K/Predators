@@ -10,7 +10,10 @@
 
 ///------------------------------------------------------------------------------------------------
 
+#include <engine/scene/SceneObject.h>
+#include <engine/utils/MathUtils.h>
 #include <memory>
+#include <unordered_map>
 #include <vector>
 
 ///------------------------------------------------------------------------------------------------
@@ -45,14 +48,18 @@ public:
     int GetLastPlayedCardIndex() const;
     
 private:
-    void HandleTouchInput(const float dtMillis);
+    void HandleTouchInput();
+    void UpdateMiscSceneObjects(const float dtMillis);
     void OnFreeMovingCardRelease(std::shared_ptr<CardSoWrapper> cardSoWrapper);
+    void CreateCardHighlighterAtPosition();
+    void DestroyCardHighlighterAtIndex(const int index);
     
 private:
     std::unique_ptr<BoardState> mBoardState;
     std::unique_ptr<GameActionEngine> mActionEngine;
     std::vector<std::vector<std::shared_ptr<CardSoWrapper>>> mPlayerHeldCardSceneObjectWrappers;
     std::vector<std::vector<std::shared_ptr<CardSoWrapper>>> mPlayerBoardCardSceneObjectWrappers;
+    bool mBoardCardDropConditionsSatisfied;
 };
 
 ///------------------------------------------------------------------------------------------------

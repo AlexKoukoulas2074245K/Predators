@@ -59,6 +59,7 @@ void Game::Init()
     boardSceneObject->mTextureResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "board.png");
     
     boardSceneObject->mRotation.z = math::PI/2.0f;
+    
     dummyScene->GetCamera().SetZoomFactor(120.0f);
     
 //    auto uiScene = systemsEngine.GetActiveSceneManager().CreateScene(strutils::StringId("UI"));
@@ -105,10 +106,7 @@ void Game::Init()
 
 void Game::Update(const float dtMillis)
 {
-//    auto& systemsEngine = CoreSystemsEngine::GetInstance();
-//    auto dummyScene = systemsEngine.GetActiveSceneManager().FindScene(strutils::StringId("Dummy"));
-//    auto worldTouchPos = systemsEngine.GetInputStateManager().VGetPointingPosInWorldSpace(dummyScene->GetCamera().GetViewMatrix(), dummyScene->GetCamera().GetProjMatrix());
-//    logging::Log(logging::LogType::INFO, "World pos %.3f, %.3f", worldTouchPos.x, worldTouchPos.y);
+    //auto& systemsEngine = CoreSystemsEngine::GetInstance();
     mGameSessionManager.Update(dtMillis);
 }
 

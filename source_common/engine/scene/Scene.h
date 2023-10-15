@@ -33,6 +33,7 @@ public:
     [[nodiscard]] std::vector<std::shared_ptr<SceneObject>> FindAllSceneObjectsWithNamePrefixedBy(const std::string& sceneObjectNamePrefix);
     
     void RemoveSceneObject(const strutils::StringId& sceneObjectName);
+    void RemoveAllSceneObjectsWithName(const strutils::StringId& sceneObjectName);
     
     [[nodiscard]] std::size_t GetSceneObjectCount() const;
     [[nodiscard]] const std::vector<std::shared_ptr<SceneObject>>& GetSceneObjects() const;
