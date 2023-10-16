@@ -20,6 +20,13 @@ const std::string PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM = "lastPlayed
 
 ///------------------------------------------------------------------------------------------------
 
+static const std::vector<std::string> sRequiredExtraParamNames =
+{
+    PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM
+};
+
+///------------------------------------------------------------------------------------------------
+
 void PlayCardGameAction::VSetNewGameState()
 {
     auto& activePlayerState = mBoardState->GetActivePlayerState();
@@ -67,6 +74,13 @@ void PlayCardGameAction::VInitAnimation()
 ActionAnimationUpdateResult PlayCardGameAction::VUpdateAnimation(const float)
 {
     return mPendingAnimations == 0 ? ActionAnimationUpdateResult::FINISHED : ActionAnimationUpdateResult::ONGOING;
+}
+
+///------------------------------------------------------------------------------------------------
+
+const std::vector<std::string>& PlayCardGameAction::VGetRequiredExtraParamNames() const
+{
+    return sRequiredExtraParamNames;
 }
 
 ///------------------------------------------------------------------------------------------------

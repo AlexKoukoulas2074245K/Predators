@@ -111,3 +111,11 @@ ActionAnimationUpdateResult DrawCardGameAction::VUpdateAnimation(const float)
 }
 
 ///------------------------------------------------------------------------------------------------
+
+const std::vector<std::string>& DrawCardGameAction::VGetRequiredExtraParamNames() const
+{
+    static std::vector<std::string> v;
+    return v;
+}
+
+///------------------------------------------------------------------------------------------------

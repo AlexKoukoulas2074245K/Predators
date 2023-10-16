@@ -29,3 +29,11 @@ ActionAnimationUpdateResult NextPlayerGameAction::VUpdateAnimation(const float)
 }
 
 ///------------------------------------------------------------------------------------------------
+
+const std::vector<std::string>& NextPlayerGameAction::VGetRequiredExtraParamNames() const
+{
+    static std::vector<std::string> v;
+    return v;
+}
+
+///------------------------------------------------------------------------------------------------

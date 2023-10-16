@@ -11,6 +11,7 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <engine/utils/StringUtils.h>
+#include <vector>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -37,6 +38,10 @@ public:
     virtual void VInitAnimation() = 0;
     
     virtual ActionAnimationUpdateResult VUpdateAnimation(const float dtMillis) = 0;
+    
+    // To be used primarily by IMGUI debug widgets for properly generating
+    // actions that require extra params
+    virtual const std::vector<std::string>& VGetRequiredExtraParamNames() const = 0;
 };
 
 ///------------------------------------------------------------------------------------------------

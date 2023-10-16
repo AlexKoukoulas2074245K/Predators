@@ -20,6 +20,7 @@ class BaseGameAction;
 class GameActionFactory final
 {
     friend class GameActionEngine;
+    friend class Game;
     
 public:
     static const std::vector<strutils::StringId>& GetRegisteredActions();

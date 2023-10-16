@@ -21,6 +21,7 @@
 #include <game/Game.h>
 #include <game/GameConstants.h>
 #include <game/Cards.h>
+#include <game/gameactions/BaseGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/GameActionFactory.h>
 #include <game/utils/PersistenceUtils.h>
@@ -172,6 +173,7 @@ void Game::CreateDebugWidgets()
     static std::string localPlayerHealth = "";
     static std::string localPlayerBoard = "";
     static std::string localPlayerHand = "";
+    static std::unordered_map<std::string, std::string> actionExtraParams;
     
     if (ImGui::BeginCombo(" ", actions.at(currentIndex).GetString().c_str()))
     {
@@ -179,9 +181,14 @@ void Game::CreateDebugWidgets()
         {
             const bool isSelected = (currentIndex == n);
             if (ImGui::Selectable(actions.at(n).GetString().c_str(), isSelected))
+            {
                 currentIndex = n;
+                actionExtraParams.clear();
+            }
             if (isSelected)
+            {
                 ImGui::SetItemDefaultFocus();
+            }
         }
         ImGui::EndCombo();
     }
@@ -192,8 +199,25 @@ void Game::CreateDebugWidgets()
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(3 / 7.0f, 0.8f, 0.8f));
     if (ImGui::Button("Create"))
     {
-        mGameSessionManager.GetActionEngine().AddGameAction(strutils::StringId(actions.at(currentIndex)));
+        mGameSessionManager.GetActionEngine().AddGameAction(strutils::StringId(actions.at(currentIndex)), actionExtraParams);
         mGameSessionManager.GetActionEngine().Update(1);
+    }
+    
+    // Hacky way of getting all action required params
+    auto requiredGameActionExtraParams = GameActionFactory::CreateGameAction(actions.at(currentIndex))->VGetRequiredExtraParamNames();
+    for (size_t i = 0; i < requiredGameActionExtraParams.size(); ++i)
+    {
+        const auto& requiredExtraParam = requiredGameActionExtraParams.at(i);
+        ImGui::PushID(("RequiredExtraParam" + std::to_string(i)).c_str());
+        if (actionExtraParams.count(requiredExtraParam) == 0)
+        {
+            actionExtraParams[requiredExtraParam].resize(128);
+        }
+        
+        ImGui::Text("%s", requiredExtraParam.c_str());
+        ImGui::SameLine();
+        ImGui::InputText("##hidelabel", &actionExtraParams[requiredExtraParam][0], actionExtraParams[requiredExtraParam].size());
+        ImGui::PopID();
     }
     
     const auto& boardState = mGameSessionManager.GetBoardState();

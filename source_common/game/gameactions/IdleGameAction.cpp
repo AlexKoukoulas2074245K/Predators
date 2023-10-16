@@ -27,3 +27,11 @@ ActionAnimationUpdateResult IdleGameAction::VUpdateAnimation(const float)
 }
 
 ///------------------------------------------------------------------------------------------------
+
+const std::vector<std::string>& IdleGameAction::VGetRequiredExtraParamNames() const
+{
+    static std::vector<std::string> v;
+    return v;
+}
+
+///------------------------------------------------------------------------------------------------
