@@ -6,7 +6,6 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <engine/scene/Scene.h>
-#include <engine/scene/SceneObject.h>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -24,9 +23,10 @@ Scene::Scene(const strutils::StringId& sceneName)
 
 std::shared_ptr<SceneObject> Scene::CreateSceneObject(const strutils::StringId sceneObjectName /* = strutils::StringId() */)
 {
-    mSceneObjects.emplace_back(std::make_shared<SceneObject>());
-    mSceneObjects.back()->mName = sceneObjectName;
-    return mSceneObjects.back();
+    auto newSceneObject = std::make_shared<SceneObject>();
+    newSceneObject->mName = sceneObjectName;
+    mSceneObjects.insert(newSceneObject);
+    return newSceneObject;
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -39,18 +39,6 @@ std::shared_ptr<SceneObject> Scene::FindSceneObject(const strutils::StringId& sc
     });
     
     return findIter != mSceneObjects.end() ? *findIter : nullptr;
-}
-
-///------------------------------------------------------------------------------------------------
-
-[[nodiscard]] std::vector<std::shared_ptr<SceneObject>> Scene::FindAllSceneObjectsWithNamePrefixedBy(const std::string& sceneObjectNamePrefix)
-{
-    std::vector<std::shared_ptr<SceneObject>> result;
-    std::copy_if(mSceneObjects.begin(), mSceneObjects.end(), std::back_inserter(result), [&](const std::shared_ptr<SceneObject>& sceneObject)
-    {
-        return strutils::StringStartsWith(sceneObject->mName.GetString(), sceneObjectNamePrefix);
-    });
-    return result;
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -79,11 +67,13 @@ void Scene::RemoveAllSceneObjectsWithName(const strutils::StringId& sceneObjectN
     }
 }
 
+///------------------------------------------------------------------------------------------------
+
 [[nodiscard]] std::size_t Scene::GetSceneObjectCount() const { return mSceneObjects.size(); }
 
 ///------------------------------------------------------------------------------------------------
 
-const std::vector<std::shared_ptr<SceneObject>>& Scene::GetSceneObjects() const { return mSceneObjects; }
+const std::multiset<std::shared_ptr<SceneObject>, SceneObjectComparator>& Scene::GetSceneObjects() const { return mSceneObjects; }
 
 ///------------------------------------------------------------------------------------------------
 

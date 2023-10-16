@@ -170,18 +170,10 @@ void RendererPlatformImpl::VBeginRenderPass()
 
 void RendererPlatformImpl::VRenderScene(scene::Scene& scene)
 {
-    auto sceneReverse = scene;
-    auto sceneReverseSceneObjects = sceneReverse.GetSceneObjects();
-    std::sort(sceneReverseSceneObjects.begin(), sceneReverseSceneObjects.end(), [](const std::shared_ptr<scene::SceneObject>& lhs, const std::shared_ptr<scene::SceneObject>& rhs)
-    {
-        return lhs->mPosition.z < rhs->mPosition.z;
-    });
-    
-    mCachedScenes.push_back(scene);
-    for (const auto& sceneObject: sceneReverseSceneObjects)
+    for (const auto& sceneObject: scene.GetSceneObjects())
     {
         if (sceneObject->mInvisible) continue;
-        std::visit(SceneObjectTypeRendererVisitor(*sceneObject, sceneReverse.GetCamera()), sceneObject->mSceneObjectTypeData);
+        std::visit(SceneObjectTypeRendererVisitor(*sceneObject, scene.GetCamera()), sceneObject->mSceneObjectTypeData);
     }
 }
 
