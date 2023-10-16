@@ -15,6 +15,7 @@
 #include <engine/resloading/TextureResource.h>
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
+#include <engine/utils/Logging.h>
 #include <engine/utils/StringUtils.h>
 #include <imgui/backends/imgui_impl_sdl2.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
@@ -185,11 +186,18 @@ void RendererPlatformImpl::VBeginRenderPass()
 
 void RendererPlatformImpl::VRenderScene(scene::Scene& scene)
 {
+    auto sceneReverse = scene;
+    auto sceneReverseSceneObjects = sceneReverse.GetSceneObjects();
+    std::sort(sceneReverseSceneObjects.begin(), sceneReverseSceneObjects.end(), [](const std::shared_ptr<scene::SceneObject>& lhs, const std::shared_ptr<scene::SceneObject>& rhs)
+    {
+        return lhs->mPosition.z < rhs->mPosition.z;
+    });
+    
     mCachedScenes.push_back(scene);
-    for (const auto& sceneObject: scene.GetSceneObjects())
+    for (const auto& sceneObject: sceneReverseSceneObjects)
     {
         if (sceneObject->mInvisible) continue;
-        std::visit(SceneObjectTypeRendererVisitor(*sceneObject, scene.GetCamera()), sceneObject->mSceneObjectTypeData);
+        std::visit(SceneObjectTypeRendererVisitor(*sceneObject, sceneReverse.GetCamera()), sceneObject->mSceneObjectTypeData);
     }
 }
 

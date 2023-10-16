@@ -89,6 +89,136 @@ void GameSessionManager::InitGameSession()
     mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
     mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
     mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
 //    mActionEngine->AddGameAction(strutils::StringId("PlayCardGameAction"), {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "4" }});
 //    mActionEngine->AddGameAction(strutils::StringId("PlayCardGameAction"), {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "1" }});
 //    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
@@ -270,7 +400,11 @@ void GameSessionManager::HandleTouchInput()
             auto distanceFromCenter = math::Abs(currentCardSoWrapper->mSceneObjectComponents.front()->mPosition.y);
             mBoardCardDropConditionsSatisfied = distanceFromCenter <= BATTLE_ICON_PROMPT_DISTANCE_FROM_CENTER_THRESHOLD;
         }
-        else if (inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON) && cursorInSceneObject && !otherHighlightedCardExists && currentCardSoWrapper->mState == CardSoState::HIGHLIGHTED)
+        else if (inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON) &&
+                 cursorInSceneObject &&
+                 !otherHighlightedCardExists &&
+                 currentCardSoWrapper->mState == CardSoState::HIGHLIGHTED &&
+                 activeScene->FindSceneObject(strutils::StringId(CARD_HIGHLIGHTER_SCENE_OBJECT_NAME_PREFIX + std::to_string(i))) != nullptr)
         {
             currentCardSoWrapper->mState = CardSoState::FREE_MOVING;
         }
@@ -326,10 +460,8 @@ void GameSessionManager::HandleTouchInput()
         {
             CreateCardHighlighterAtPosition();
         });
-         
         
         currentCardSoWrapper->mState = CardSoState::HIGHLIGHTED;
-        
     }
     
     mBoardCardDropConditionsSatisfied &= mActionEngine->GetActiveGameActionName() == IDLE_GAME_ACTION_NAME;
@@ -353,6 +485,7 @@ void GameSessionManager::UpdateMiscSceneObjects(const float dtMillis)
         auto cardHighlighterObject = activeScene->FindSceneObject(strutils::StringId(CARD_HIGHLIGHTER_SCENE_OBJECT_NAME_PREFIX + std::to_string(i)));
         if (cardHighlighterObject)
         {
+            cardHighlighterObject->mInvisible = false;
             cardHighlighterObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
             cardHighlighterObject->mPosition = localPlayerCards[i]->mSceneObjectComponents[0]->mPosition;
             cardHighlighterObject->mPosition.z += game_constants::CARD_HIGLIGHTER_Z_OFFSET;
@@ -430,7 +563,7 @@ void GameSessionManager::CreateCardHighlighterAtPosition()
     auto highlightedCardIter = std::find_if(localPlayerCards.begin(), localPlayerCards.end(), [&](const std::shared_ptr<CardSoWrapper>& cardSoWrapper)
     {
 #if defined(IOS_FLOW)
-        return cardSoWrapper->mState == CardSoState::HIGHLIGHTED || cardSoWrapper->mState == CardSoState::FREE_MOVING;
+        return cardSoWrapper->mState == CardSoState::FREE_MOVING;
 #else
         return cardSoWrapper->mState == CardSoState::HIGHLIGHTED;
 #endif
@@ -448,6 +581,7 @@ void GameSessionManager::CreateCardHighlighterAtPosition()
         cardHighlighterSo->mPosition = (*highlightedCardIter)->mSceneObjectComponents[0]->mPosition;
         cardHighlighterSo->mPosition.z += game_constants::CARD_HIGLIGHTER_Z_OFFSET;
         cardHighlighterSo->mScale = game_constants::CARD_HIGHLIGHTER_SCALE;
+        cardHighlighterSo->mInvisible = true;
     }
 }
 
