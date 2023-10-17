@@ -36,12 +36,6 @@ void PlayCardGameAction::VSetNewGameState()
     auto lastPlayedCardIndex = std::stoi(mExtraActionParams.at(LAST_PLAYED_CARD_INDEX_PARAM));
     activePlayerState.mPlayerBoardCards.push_back(activePlayerState.mPlayerHeldCards[lastPlayedCardIndex]);
     activePlayerState.mPlayerHeldCards.erase(activePlayerState.mPlayerHeldCards.begin() + lastPlayedCardIndex);
-    
-    if (mGameSessionManager)
-    {
-        mLastPlayedCardSoWrapper = mGameSessionManager->GetHeldCardSoWrappers()[mBoardState->GetActivePlayerIndex()].at(lastPlayedCardIndex);
-        mGameSessionManager->OnLastCardPlayedFinalized(lastPlayedCardIndex);
-    }
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -51,8 +45,24 @@ void PlayCardGameAction::VInitAnimation()
     mPendingAnimations = 0;
     
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
-
-    // Rename played card
+    auto& activeSceneManager = CoreSystemsEngine::GetInstance().GetActiveSceneManager();
+    auto activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    const auto lastPlayedCardIndex = std::stoi(mExtraActionParams.at(LAST_PLAYED_CARD_INDEX_PARAM));
+    
+    mLastPlayedCardSoWrapper = mGameSessionManager->GetHeldCardSoWrappers()[mBoardState->GetActivePlayerIndex()].at(lastPlayedCardIndex);
+    
+    // For opponent plays, the front face card components also need to be created
+    if (mBoardState->GetActivePlayerIndex() == 0)
+    {
+        activeScene->RemoveSceneObject(mLastPlayedCardSoWrapper->mSceneObjectComponents[0]->mName);
+        mLastPlayedCardSoWrapper = card_utils::CreateCardSoWrapper(mLastPlayedCardSoWrapper->mCardData, mLastPlayedCardSoWrapper->mSceneObjectComponents[0]->mPosition, game_constants::TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX + std::to_string(mBoardState->GetActivePlayerState().mPlayerBoardCards.size() - 1), CardOrientation::FRONT_FACE, *activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE));
+        mGameSessionManager->OnHeldCardSwap(mLastPlayedCardSoWrapper, lastPlayedCardIndex, true);
+    }
+    
+    mGameSessionManager->OnLastCardPlayedFinalized(lastPlayedCardIndex);
+    
+    
+    // Rename played card components
     auto newComponentNames = card_utils::GetCardComponentSceneObjectNames((mBoardState->GetActivePlayerIndex() == 0 ? game_constants::TOP_PLAYER_BOARD_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_BOARD_CARD_SO_NAME_PREFIX) + std::to_string(mBoardState->GetActivePlayerState().mPlayerBoardCards.size() - 1), CardOrientation::FRONT_FACE);
     for (size_t i = 0; i < mLastPlayedCardSoWrapper->mSceneObjectComponents.size(); ++i)
     {

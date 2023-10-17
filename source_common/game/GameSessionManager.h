@@ -39,8 +39,9 @@ public:
     const BoardState& GetBoardState() const;
     GameActionEngine& GetActionEngine();
     
-    void OnCardCreation(std::shared_ptr<CardSoWrapper>, const bool forOpponentPlayer);
-    void OnLastCardPlayedFinalized(int cardIndex);
+    void OnCardCreation(std::shared_ptr<CardSoWrapper> cardSoWrapper, const bool forOpponentPlayer);
+    void OnHeldCardSwap(std::shared_ptr<CardSoWrapper> cardSoWrapper, const int cardIndex, const bool forOpponentPlayer);
+    void OnLastCardPlayedFinalized(const int cardIndex);
     
     const std::vector<std::vector<std::shared_ptr<CardSoWrapper>>>& GetHeldCardSoWrappers() const;
     const std::vector<std::vector<std::shared_ptr<CardSoWrapper>>>& GetBoardCardSoWrappers() const;

@@ -177,9 +177,9 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper(const CardData* cardData, con
         
         cardComponents.back()->mPosition.y += game_constants::IN_GAME_CARD_NAME_Y_OFFSET;
         cardComponents.back()->mPosition.z += game_constants::CARD_COMPONENT_Z_OFFSET;
-        
-        cardSoWrapper->mCardData = cardData;
     }
+    
+    cardSoWrapper->mCardData = cardData;
     
     return cardSoWrapper;
 }
