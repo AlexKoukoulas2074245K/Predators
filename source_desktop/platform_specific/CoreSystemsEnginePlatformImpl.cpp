@@ -10,6 +10,7 @@
 #include <engine/rendering/AnimationManager.h>
 #include <engine/rendering/Fonts.h>
 #include <engine/rendering/OpenGL.h>
+#include <engine/rendering/ParticleUpdater.h>
 #include <engine/resloading/ResourceLoadingService.h>
 #include <engine/scene/ActiveSceneManager.h>
 #include <engine/scene/Scene.h>
@@ -51,6 +52,7 @@ struct CoreSystemsEngine::SystemsImpl
 {
     rendering::AnimationManager mAnimationManager;
     rendering::RendererPlatformImpl mRenderer;
+    rendering::ParticleUpdater mParticleUpdater;
     rendering::FontRepository mFontRepository;
     input::InputStateManagerPlatformImpl mInputStateManager;
     scene::ActiveSceneManager mActiveSceneManager;
@@ -224,6 +226,7 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
         for (auto& scene: mSystems->mActiveSceneManager.GetScenes())
         {
             scene->GetCamera().Update(dtMillis * sGameSpeed);
+            mSystems->mParticleUpdater.UpdateSceneParticles(dtMillis * sGameSpeed, *scene);
         }
         
 #if (!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)

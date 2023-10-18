@@ -77,6 +77,10 @@ const std::multiset<std::shared_ptr<SceneObject>, SceneObjectComparator>& Scene:
 
 ///------------------------------------------------------------------------------------------------
 
+[[nodiscard]] std::multiset<std::shared_ptr<SceneObject>, SceneObjectComparator>& Scene::GetSceneObjects() { return mSceneObjects;}
+
+///------------------------------------------------------------------------------------------------
+
 rendering::Camera& Scene::GetCamera() { return mCamera; }
 
 ///------------------------------------------------------------------------------------------------

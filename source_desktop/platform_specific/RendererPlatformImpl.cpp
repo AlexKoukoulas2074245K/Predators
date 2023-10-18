@@ -47,6 +47,7 @@ static const strutils::StringId IS_TEXTURE_SHEET_UNIFORM_NAME = strutils::String
 ///------------------------------------------------------------------------------------------------
 
 static int sDrawCallCounter = 0;
+static int sParticleCounter = 0;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -147,6 +148,78 @@ public:
         }
     }
     
+    void operator()(scene::ParticleEmitterObjectData particleEmitterData)
+    {
+        auto& resService = CoreSystemsEngine::GetInstance().GetResourceLoadingService();
+        
+        auto* currentShader = &(resService.GetResource<resources::ShaderResource>(mSceneObject.mShaderResourceId));
+        GL_CALL(glUseProgram(currentShader->GetProgramId()));
+        
+        auto* currentTexture = &(resService.GetResource<resources::TextureResource>(mSceneObject.mTextureResourceId));
+        GL_CALL(glActiveTexture(GL_TEXTURE0));
+        GL_CALL(glBindTexture(GL_TEXTURE_2D, currentTexture->GetGLTextureId()));
+        
+        currentShader->SetMatrix4fv(VIEW_MATRIX_UNIFORM_NAME, mCamera.GetViewMatrix());
+        currentShader->SetMatrix4fv(PROJ_MATRIX_UNIFORM_NAME, mCamera.GetProjMatrix());
+        
+        GL_CALL(glBindVertexArray(particleEmitterData.mParticleVertexArrayObject));
+        
+        GL_CALL(glEnableVertexAttribArray(0));
+        GL_CALL(glEnableVertexAttribArray(1));
+        GL_CALL(glEnableVertexAttribArray(2));
+        GL_CALL(glEnableVertexAttribArray(3));
+        GL_CALL(glEnableVertexAttribArray(4));
+        
+        // update the position buffer
+        GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, particleEmitterData.mParticlePositionsBuffer));
+        GL_CALL(glBufferSubData(GL_ARRAY_BUFFER, 0, particleEmitterData.mParticlePositions.size() * sizeof(glm::vec3), particleEmitterData.mParticlePositions.data()));
+        
+        // update the lifetime buffer
+        GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, particleEmitterData.mParticleLifetimeSecsBuffer));
+        GL_CALL(glBufferSubData(GL_ARRAY_BUFFER, 0, particleEmitterData.mParticlePositions.size() * sizeof(float), particleEmitterData.mParticleLifetimeSecs.data()));
+        
+        // update the scale buffer
+        GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, particleEmitterData.mParticleSizesBuffer));
+        GL_CALL(glBufferSubData(GL_ARRAY_BUFFER, 0, particleEmitterData.mParticleSizes.size() * sizeof(float), particleEmitterData.mParticleSizes.data()));
+        
+        // vertex buffer
+        GL_CALL(glBindBuffer(GL_ARRAY_BUFFER , particleEmitterData.mParticleVertexBuffer));
+        GL_CALL(glVertexAttribPointer(0, 3 , GL_FLOAT, GL_FALSE , 0 , nullptr));
+        
+        // uv buffer
+        GL_CALL(glBindBuffer(GL_ARRAY_BUFFER , particleEmitterData.mParticleUVBuffer));
+        GL_CALL(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE , 0 , nullptr));
+        
+        // position buffer
+        GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, particleEmitterData.mParticlePositionsBuffer));
+        GL_CALL(glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE , 0 , nullptr));
+        GL_CALL(glVertexAttribDivisor(2, 1));
+        
+        // lifetime buffer
+        GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, particleEmitterData.mParticleLifetimeSecsBuffer));
+        GL_CALL(glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE , 0 , nullptr));
+        GL_CALL(glVertexAttribDivisor(3, 1));
+        
+        // size buffer
+        GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, particleEmitterData.mParticleSizesBuffer));
+        GL_CALL(glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE , 0 , nullptr));
+        GL_CALL(glVertexAttribDivisor(4, 1));
+        
+        // draw triangles
+        GL_CALL(glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, static_cast<int>(particleEmitterData.mParticlePositions.size())));
+        
+        GL_CALL(glDisableVertexAttribArray(0));
+        GL_CALL(glDisableVertexAttribArray(1));
+        GL_CALL(glDisableVertexAttribArray(2));
+        GL_CALL(glDisableVertexAttribArray(3));
+        GL_CALL(glDisableVertexAttribArray(4));
+        
+        GL_CALL(glBindVertexArray(0));
+        
+        sParticleCounter += particleEmitterData.mParticleCount;
+        sDrawCallCounter++;
+    }
+
 private:
     const scene::SceneObject& mSceneObject;
     const Camera& mCamera;
@@ -157,6 +230,7 @@ private:
 void RendererPlatformImpl::VBeginRenderPass()
 {
     sDrawCallCounter = 0;
+    sParticleCounter = 0;
     
     // Set View Port
     int w, h;
@@ -230,6 +304,10 @@ public:
         ImGui::Text("SO Type: Text");
         ImGui::Text("Text: %s", textData.mText.c_str());
     }
+    void operator()(scene::ParticleEmitterObjectData)
+    {
+        ImGui::Text("SO Type: Particle Emitter");
+    }
 };
 
 static SceneObjectDataIMGuiVisitor imguiVisitor;
@@ -242,6 +320,7 @@ void RendererPlatformImpl::CreateIMGuiWidgets()
     
     ImGui::Begin("Rendering", nullptr, GLOBAL_WINDOW_LOCKING);
     ImGui::Text("Draw Calls %d", sDrawCallCounter);
+    ImGui::Text("Particle Count %d", sParticleCounter);
     ImGui::Text("Anims Live %d", CoreSystemsEngine::GetInstance().GetAnimationManager().GetAnimationsPlayingCount());
     ImGui::End();
     

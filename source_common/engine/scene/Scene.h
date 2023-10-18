@@ -48,6 +48,7 @@ public:
     
     [[nodiscard]] std::size_t GetSceneObjectCount() const;
     [[nodiscard]] const std::multiset<std::shared_ptr<SceneObject>, SceneObjectComparator>& GetSceneObjects() const;
+    [[nodiscard]] std::multiset<std::shared_ptr<SceneObject>, SceneObjectComparator>& GetSceneObjects();
     [[nodiscard]] rendering::Camera& GetCamera();
     [[nodiscard]] const strutils::StringId& GetName() const;
     

@@ -21,7 +21,7 @@ namespace game_constants
     inline const std::string DEFAULT_MESH_NAME = "quad.obj";
     inline const std::string DEFAULT_SHADER_NAME = "basic.vs";
     inline const std::string CUSTOM_ALPHA_SHADER_NAME = "custom_alpha.vs";
-    inline const std::string PERLIN_NOISE_SHADER_NAME = "perlin.vs";
+    inline const std::string CARD_HIGHLIGHTER_SHADER_NAME = "card_highlighter_perlin_noise.vs";
     inline const std::string DEFAULT_TEXTURE_NAME = "debug.png";
 
     // SO Name Prefixes/Postfixes
@@ -56,7 +56,7 @@ namespace game_constants
     inline const float CARD_BOUNDING_RECT_X_MULTIPLIER = 0.5f;
     inline const float IN_GAME_PLAYED_CARD_Z = 0.1f;
     inline const float IN_GAME_HELD_CARD_Z = 0.1f;
-    inline const float IN_GAME_CARD_SCALE = 0.1f;
+    inline const float IN_GAME_CARD_BASE_SCALE = 0.1f;
     inline const float IN_GAME_CARD_PORTRAIT_SCALE = 0.03f;
     inline const float IN_GAME_CARD_PORTRAIT_Y_OFFSET = 0.014f;
     inline const float IN_GAME_CARD_DAMAGE_ICON_SCALE = 0.03f;

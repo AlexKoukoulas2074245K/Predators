@@ -42,11 +42,35 @@ struct TextSceneObjectData
 
 ///------------------------------------------------------------------------------------------------
 
+struct ParticleEmitterObjectData
+{
+    size_t mParticleCount;
+    uint8_t mParticleFlags;
+    
+    std::vector<glm::vec3> mParticlePositions;
+    std::vector<glm::vec3> mParticleDirections;
+    std::vector<float> mParticleLifetimeSecs;
+    std::vector<float> mParticleSizes;
+    
+    glm::vec2 mParticleLifetimeRangeSecs;
+    glm::vec2 mParticlePositionXOffsetRange;
+    glm::vec2 mParticlePositionYOffsetRange;
+    glm::vec2 mParticleSizeRange;
+    
+    unsigned int mParticleVertexArrayObject;
+    unsigned int mParticleVertexBuffer;
+    unsigned int mParticleUVBuffer;
+    unsigned int mParticlePositionsBuffer;
+    unsigned int mParticleLifetimeSecsBuffer;
+    unsigned int mParticleSizesBuffer;
+};
+
+///------------------------------------------------------------------------------------------------
 
 struct SceneObject
 {
     strutils::StringId mName = strutils::StringId();
-    std::variant<DefaultSceneObjectData, TextSceneObjectData> mSceneObjectTypeData;
+    std::variant<DefaultSceneObjectData, TextSceneObjectData, ParticleEmitterObjectData> mSceneObjectTypeData;
     std::unordered_map<strutils::StringId, float, strutils::StringIdHasher> mShaderFloatUniformValues;
     glm::vec3 mPosition = glm::vec3(0.0f, 0.0f, 0.0f);
     glm::vec3 mRotation = glm::vec3(0.0f, 0.0f, 0.0f);

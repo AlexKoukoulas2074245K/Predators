@@ -108,7 +108,7 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper(const CardData* cardData, con
         // Create card back
         cardComponents.push_back(scene.CreateSceneObject(sceneObjectComponentNames[0]));
         cardComponents.back()->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CARD_BACK_TEXTURE_FILE_NAME);
-        cardComponents.back()->mScale.x = cardComponents.back()->mScale.y = game_constants::IN_GAME_CARD_SCALE;
+        cardComponents.back()->mScale.x = cardComponents.back()->mScale.y = game_constants::IN_GAME_CARD_BASE_SCALE;
         cardComponents.back()->mBoundingRectMultiplier.x = game_constants::CARD_BOUNDING_RECT_X_MULTIPLIER;
         cardComponents.back()->mPosition = position;
     }
@@ -119,7 +119,7 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper(const CardData* cardData, con
         // Create card base
         cardComponents.push_back(scene.CreateSceneObject(sceneObjectComponentNames[0]));
         cardComponents.back()->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CARD_FRAME_TEXTURE_FILE_NAME);
-        cardComponents.back()->mScale.x = cardComponents.back()->mScale.y = game_constants::IN_GAME_CARD_SCALE;
+        cardComponents.back()->mScale.x = cardComponents.back()->mScale.y = game_constants::IN_GAME_CARD_BASE_SCALE;
         cardComponents.back()->mBoundingRectMultiplier.x = game_constants::CARD_BOUNDING_RECT_X_MULTIPLIER;
         cardComponents.back()->mPosition = position;
         cardComponents.back()->mRotation.z = math::PI;

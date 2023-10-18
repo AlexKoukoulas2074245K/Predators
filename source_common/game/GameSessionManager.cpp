@@ -84,6 +84,7 @@ void GameSessionManager::InitGameSession()
 //    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
 //    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
 //    mActionEngine->AddGameAction(strutils::StringId("NextPlayerGameAction"));
+    
     mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
     mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
     mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
@@ -454,7 +455,7 @@ void GameSessionManager::CreateCardHighlighterAtPosition()
         auto cardIndex = highlightedCardIter - localPlayerCards.cbegin();
         auto cardHighlighterSo = activeScene->CreateSceneObject(strutils::StringId(CARD_HIGHLIGHTER_SCENE_OBJECT_NAME_PREFIX + std::to_string(cardIndex)));
         
-        cardHighlighterSo->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + game_constants::PERLIN_NOISE_SHADER_NAME);
+        cardHighlighterSo->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + game_constants::CARD_HIGHLIGHTER_SHADER_NAME);
         cardHighlighterSo->mShaderFloatUniformValues[game_constants::PERLIN_TIME_SPEED_UNIFORM_NAME] = game_constants::CARD_HIGLIGHTER_PERLIN_TIME_SPEED;
         cardHighlighterSo->mShaderFloatUniformValues[game_constants::PERLIN_RESOLUTION_X_UNIFORM_NAME] = game_constants::CARD_HIGLIGHTER_PERLIN_RESOLUTION;
         cardHighlighterSo->mShaderFloatUniformValues[game_constants::PERLIN_RESOLUTION_Y_UNIFORM_NAME] = game_constants::CARD_HIGLIGHTER_PERLIN_RESOLUTION;
