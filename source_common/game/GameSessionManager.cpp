@@ -32,28 +32,27 @@
 
 ///------------------------------------------------------------------------------------------------
 
-static const strutils::StringId BATTLE_ICON_SCENE_OBJECT_NAME = strutils::StringId("BATTLE_ICON");
+static const strutils::StringId CARD_LOCATION_INDICATOR_SCENE_OBJECT_NAME = strutils::StringId("CARD_LOCATION_INDICATOR");
 static const strutils::StringId IDLE_GAME_ACTION_NAME = strutils::StringId("IdleGameAction");
 
 static const std::string BATTLE_ICON_TEXTURE_FILE_NAME = "battle_icon.png";
 static const std::string CARD_HIGHLIGHTER_SCENE_OBJECT_NAME_PREFIX = "HIGHLIGHTER_CARD_";
 
 static const float CARD_SELECTION_ANIMATION_DURATION = 0.2f;
-static const float BATTLE_ICON_TARGET_ALPHA = 0.6f;
-inline const float IN_GAME_BATTLE_ICON_SCALE = 0.1f;
-inline const float IN_GAME_BATTLE_ICON_Z = 10.0f;
-inline const float IN_GAME_BATTLE_ICON_ALPHA_SPEED = 0.003f;
+static const float CARD_LOCATION_EFFECT_MIN_TARGET_ALPHA = 0.25f;
+static const float CARD_LOCATION_EFFECT_MAX_TARGET_ALPHA = 1.0f;
+inline const float CARD_LOCATION_EFFECT_ALPHA_SPEED = 0.003f;
 
 #if defined(IOS_FLOW)
-static const float BATTLE_ICON_PROMPT_MOBILE_DISTANCE_FROM_CENTER_THRESHOLD = 0.05f;
+static const float MOBILE_DISTANCE_FROM_CARD_LOCATION_INDICATOR = 0.003f;
 #else
-static const float BATTLE_ICON_PROMPT_DISTANCE_FROM_CENTER_THRESHOLD = 0.07f;
+static const float DESKTOP_DISTANCE_FROM_CARD_LOCATION_INDICATOR = 0.004f;
 #endif
 
 ///------------------------------------------------------------------------------------------------
 
 GameSessionManager::GameSessionManager()
-    : mBoardCardDropConditionsSatisfied(false)
+    : mShouldShowCardLocationIndicator(false)
 {
     
 }
@@ -89,34 +88,38 @@ void GameSessionManager::InitGameSession()
     mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
     mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
     mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+//    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
     //mActionEngine->AddGameAction(strutils::StringId("PlayCardGameAction"), {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "4" }});
     //mActionEngine->AddGameAction(strutils::StringId("PlayCardGameAction"), {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "1" }});
-    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    //mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    //mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
     //mActionEngine->AddGameAction(strutils::StringId("PlayCardGameAction"), {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "4" }});
     //mActionEngine->AddGameAction(strutils::StringId("PlayCardGameAction"), {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "1" }});
-    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    //mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    //mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
     //mActionEngine->AddGameAction(strutils::StringId("NextPlayerGameAction"));
-    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    //mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    //mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    //mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
     //mActionEngine->AddGameAction(strutils::StringId("PlayCardGameAction"), {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "1" }});
-    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    //mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    //mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    //mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
     //mActionEngine->AddGameAction(strutils::StringId("PlayCardGameAction"), {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "1" }});
     //mActionEngine->AddGameAction(strutils::StringId("PlayCardGameAction"), {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "2" }});
     
     const auto& activeSceneManager = CoreSystemsEngine::GetInstance().GetActiveSceneManager();
     auto activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
-    auto battleIcon = activeScene->CreateSceneObject(BATTLE_ICON_SCENE_OBJECT_NAME);
-    battleIcon->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + BATTLE_ICON_TEXTURE_FILE_NAME);
-    battleIcon->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + game_constants::CUSTOM_ALPHA_SHADER_NAME);
-    battleIcon->mScale.x = battleIcon->mScale.y = IN_GAME_BATTLE_ICON_SCALE;
-    battleIcon->mPosition.z = IN_GAME_BATTLE_ICON_Z;
-    battleIcon->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+    auto cardLocationIndicatorSo = activeScene->CreateSceneObject(CARD_LOCATION_INDICATOR_SCENE_OBJECT_NAME);
+    cardLocationIndicatorSo->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + game_constants::CARD_LOCATION_MASK_TEXTURE_NAME);
+    cardLocationIndicatorSo->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + game_constants::BOARD_CARD_LOCATION_SHADER_NAME);
+    cardLocationIndicatorSo->mShaderFloatUniformValues[game_constants::PERLIN_TIME_SPEED_UNIFORM_NAME] = game_constants::CARD_LOCATION_EFFECT_TIME_SPEED;
+    cardLocationIndicatorSo->mShaderFloatUniformValues[game_constants::PERLIN_RESOLUTION_X_UNIFORM_NAME] = game_constants::CARD_LOCATION_EFFECT_PERLIN_RESOLUTION;
+    cardLocationIndicatorSo->mShaderFloatUniformValues[game_constants::PERLIN_RESOLUTION_Y_UNIFORM_NAME] = game_constants::CARD_LOCATION_EFFECT_PERLIN_RESOLUTION;
+    cardLocationIndicatorSo->mScale = glm::vec3(game_constants::IN_GAME_CARD_BASE_SCALE * game_constants::IN_GAME_PLAYED_CARD_SCALE_FACTOR);
+    cardLocationIndicatorSo->mPosition.z = game_constants::CARD_LOCATION_EFFECT_Z;
+    cardLocationIndicatorSo->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+    cardLocationIndicatorSo->mInvisible = true;
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -232,7 +235,7 @@ void GameSessionManager::HandleTouchInput()
     const auto localPlayerCardCount = static_cast<int>(localPlayerCards.size());
     
     std::vector<int> candidateHighlightIndices;
-    mBoardCardDropConditionsSatisfied = false;
+    mShouldShowCardLocationIndicator = false;
     
     for (int i = 0; i < localPlayerCardCount; ++i)
     {
@@ -250,9 +253,11 @@ void GameSessionManager::HandleTouchInput()
         {
             currentCardSoWrapper->mState = CardSoState::FREE_MOVING;
             animationManager.StartAnimation(std::make_unique<rendering::TweenAnimation>(currentCardSoWrapper->mSceneObjectComponents, glm::vec3(worldTouchPos.x, worldTouchPos.y + game_constants::IN_GAME_MOBILE_ONLY_FREE_MOVING_CARD_Y_OFFSET, game_constants::IN_GAME_HIGHLIGHTED_CARD_Z), currentCardSoWrapper->mSceneObjectComponents[0]->mScale, game_constants::IN_GAME_CARD_FREE_MOVEMENT_ANIMATION_DURATION_SECS, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [](){});
-            
-            auto distanceFromCenter = math::Abs(currentCardSoWrapper->mSceneObjectComponents.front()->mPosition.y);
-            mBoardCardDropConditionsSatisfied = distanceFromCenter <= BATTLE_ICON_PROMPT_MOBILE_DISTANCE_FROM_CENTER_THRESHOLD;
+            auto currentLocalPlayerBoardCardCount = static_cast<int>(mPlayerBoardCardSceneObjectWrappers[1].size());
+            auto cardLocationIndicatorSo = activeScene->FindSceneObject(CARD_LOCATION_INDICATOR_SCENE_OBJECT_NAME);
+            cardLocationIndicatorSo->mPosition = card_utils::CalculateBoardCardPosition(currentLocalPlayerBoardCardCount, currentLocalPlayerBoardCardCount + 1, false);
+            cardLocationIndicatorSo->mPosition.z = game_constants::CARD_LOCATION_EFFECT_Z;
+            mShouldShowCardLocationIndicator = true;
         }
         else if (inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON) && cursorInSceneObject && !otherHighlightedCardExists)
         {
@@ -286,8 +291,11 @@ void GameSessionManager::HandleTouchInput()
         {
             animationManager.StartAnimation(std::make_unique<rendering::TweenAnimation>(currentCardSoWrapper->mSceneObjectComponents, glm::vec3(worldTouchPos.x, worldTouchPos.y, game_constants::IN_GAME_HIGHLIGHTED_CARD_Z), currentCardSoWrapper->mSceneObjectComponents[0]->mScale, game_constants::IN_GAME_CARD_FREE_MOVEMENT_ANIMATION_DURATION_SECS, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [](){});
             
-            auto distanceFromCenter = math::Abs(currentCardSoWrapper->mSceneObjectComponents.front()->mPosition.y);
-            mBoardCardDropConditionsSatisfied = distanceFromCenter <= BATTLE_ICON_PROMPT_DISTANCE_FROM_CENTER_THRESHOLD;
+            auto currentLocalPlayerBoardCardCount = static_cast<int>(mPlayerBoardCardSceneObjectWrappers[1].size());
+            auto cardLocationIndicatorSo = activeScene->FindSceneObject(CARD_LOCATION_INDICATOR_SCENE_OBJECT_NAME);
+            cardLocationIndicatorSo->mPosition = card_utils::CalculateBoardCardPosition(currentLocalPlayerBoardCardCount, currentLocalPlayerBoardCardCount + 1, false);
+            cardLocationIndicatorSo->mPosition.z = game_constants::CARD_LOCATION_EFFECT_Z;
+            mShouldShowCardLocationIndicator = true;
         }
         else if (inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON) &&
                  cursorInSceneObject &&
@@ -353,8 +361,9 @@ void GameSessionManager::HandleTouchInput()
         currentCardSoWrapper->mState = CardSoState::HIGHLIGHTED;
     }
     
-    mBoardCardDropConditionsSatisfied &= mActionEngine->GetActiveGameActionName() == IDLE_GAME_ACTION_NAME;
-    mBoardCardDropConditionsSatisfied &= mBoardState->GetActivePlayerIndex() == 1;
+    // Additional constraints on showing the card location indicator
+    mShouldShowCardLocationIndicator &= mActionEngine->GetActiveGameActionName() == IDLE_GAME_ACTION_NAME;
+    mShouldShowCardLocationIndicator &= mBoardState->GetActivePlayerIndex() == 1;
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -381,24 +390,54 @@ void GameSessionManager::UpdateMiscSceneObjects(const float dtMillis)
         }
     }
     
-    // Battle Icon
-    auto battleIconSceneObject = activeScene->FindSceneObject(BATTLE_ICON_SCENE_OBJECT_NAME);
-    if (mBoardCardDropConditionsSatisfied)
+    // Card Location
+    auto cardLocationIndicatorSo = activeScene->FindSceneObject(CARD_LOCATION_INDICATOR_SCENE_OBJECT_NAME);
+    auto currentSoWrapperIter = std::find_if(localPlayerCards.begin(), localPlayerCards.end(), [&](const std::shared_ptr<CardSoWrapper>& cardSoWrapper){ return cardSoWrapper->mState == CardSoState::FREE_MOVING; });
+    
+    if (mShouldShowCardLocationIndicator && currentSoWrapperIter != localPlayerCards.end())
     {
-        battleIconSceneObject->mInvisible = false;
-        battleIconSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] += dtMillis * IN_GAME_BATTLE_ICON_ALPHA_SPEED;
-        if (battleIconSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] >= BATTLE_ICON_TARGET_ALPHA)
+        cardLocationIndicatorSo->mInvisible = false;
+        cardLocationIndicatorSo->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
+        
+        auto distanceFromCardLocationSo = math::Distance2IgnoreZ((*currentSoWrapperIter)->mSceneObjectComponents.front()->mPosition, cardLocationIndicatorSo->mPosition);
+#if defined(IOS_FLOW)
+        bool inBoardDropThreshold = distanceFromCardLocationSo <= MOBILE_DISTANCE_FROM_CARD_LOCATION_INDICATOR;
+#else
+        bool inBoardDropThreshold = distanceFromCardLocationSo <= DESKTOP_DISTANCE_FROM_CARD_LOCATION_INDICATOR;
+#endif
+        
+        // If in drop threshold we lerp to max target location alpha
+        if (inBoardDropThreshold)
         {
-            battleIconSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = BATTLE_ICON_TARGET_ALPHA;
+            cardLocationIndicatorSo->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] += dtMillis * CARD_LOCATION_EFFECT_ALPHA_SPEED;
+            if (cardLocationIndicatorSo->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] >= CARD_LOCATION_EFFECT_MAX_TARGET_ALPHA)
+            {
+                cardLocationIndicatorSo->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = CARD_LOCATION_EFFECT_MAX_TARGET_ALPHA;
+            }
+        }
+        else
+        {
+            // Else if not, we constrain the alpha to the min target
+            if (math::Abs(cardLocationIndicatorSo->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] - CARD_LOCATION_EFFECT_MIN_TARGET_ALPHA) > dtMillis * CARD_LOCATION_EFFECT_ALPHA_SPEED)
+            {
+                if (cardLocationIndicatorSo->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] > CARD_LOCATION_EFFECT_MIN_TARGET_ALPHA)
+                {
+                    cardLocationIndicatorSo->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] -= dtMillis * CARD_LOCATION_EFFECT_ALPHA_SPEED;
+                }
+                else
+                {
+                    cardLocationIndicatorSo->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] += dtMillis * CARD_LOCATION_EFFECT_ALPHA_SPEED;
+                }
+            }
         }
     }
     else
     {
-        battleIconSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] -= dtMillis * IN_GAME_BATTLE_ICON_ALPHA_SPEED;
-        if (battleIconSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] <= 0.0f)
+        cardLocationIndicatorSo->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] -= dtMillis * CARD_LOCATION_EFFECT_ALPHA_SPEED;
+        if (cardLocationIndicatorSo->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] <= 0.0f)
         {
-            battleIconSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
-            battleIconSceneObject->mInvisible = true;
+            cardLocationIndicatorSo->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+            cardLocationIndicatorSo->mInvisible = true;
         }
     }
 }
@@ -407,6 +446,9 @@ void GameSessionManager::UpdateMiscSceneObjects(const float dtMillis)
 
 void GameSessionManager::OnFreeMovingCardRelease(std::shared_ptr<CardSoWrapper> cardSoWrapper)
 {
+    const auto& activeSceneManager = CoreSystemsEngine::GetInstance().GetActiveSceneManager();
+    auto activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    
     auto& localPlayerCards = mPlayerHeldCardSceneObjectWrappers[1];
     auto cardIndex = std::find_if(localPlayerCards.begin(), localPlayerCards.end(), [=](const std::shared_ptr<CardSoWrapper>& otherCard)
     {
@@ -415,12 +457,13 @@ void GameSessionManager::OnFreeMovingCardRelease(std::shared_ptr<CardSoWrapper> 
     
     DestroyCardHighlighterAtIndex(static_cast<int>(cardIndex));
     
-    auto distanceFromCenter = math::Abs(cardSoWrapper->mSceneObjectComponents.front()->mPosition.y);
+    auto cardLocationIndicatorSo = activeScene->FindSceneObject(CARD_LOCATION_INDICATOR_SCENE_OBJECT_NAME);
+    auto distanceFromCardLocationSo = math::Distance2IgnoreZ(cardSoWrapper->mSceneObjectComponents.front()->mPosition, cardLocationIndicatorSo->mPosition);
     
 #if defined(IOS_FLOW)
-    bool inBoardDropThreshold = distanceFromCenter <= BATTLE_ICON_PROMPT_MOBILE_DISTANCE_FROM_CENTER_THRESHOLD;
+    bool inBoardDropThreshold = distanceFromCardLocationSo <= MOBILE_DISTANCE_FROM_CARD_LOCATION_INDICATOR;
 #else
-    bool inBoardDropThreshold = distanceFromCenter <= BATTLE_ICON_PROMPT_DISTANCE_FROM_CENTER_THRESHOLD;
+    bool inBoardDropThreshold = distanceFromCardLocationSo <= DESKTOP_DISTANCE_FROM_CARD_LOCATION_INDICATOR;
 #endif
     
     if (inBoardDropThreshold && mActionEngine->GetActiveGameActionName() == IDLE_GAME_ACTION_NAME && mBoardState->GetActivePlayerIndex() == 1)

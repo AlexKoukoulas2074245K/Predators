@@ -63,8 +63,7 @@ void Game::Init()
     boardSceneObject->mRotation.z = math::PI/2.0f;
     
     dummyScene->GetCamera().SetZoomFactor(120.0f);
-                                    
-                                                
+    
 //    auto uiScene = systemsEngine.GetActiveSceneManager().CreateScene(strutils::StringId("UI"));
 //    std::string texts[6] =
 //    {
@@ -101,7 +100,7 @@ void Game::Init()
 //        fontRowSceneObject->mShaderResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + "basic.vs");
 //        fontRowSceneObject->mMeshResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_MESHES_ROOT + "quad.obj");
 //    }
-
+    
     mGameSessionManager.InitGameSession();
 }
 
@@ -111,6 +110,9 @@ void Game::Update(const float dtMillis)
 {
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
     auto activeScene = systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    
+//    static float time = 0.0f;
+//    time += dtMillis * 0.001f;
     
     if (systemsEngine.GetInputStateManager().VButtonTapped(input::Button::MAIN_BUTTON))
     {

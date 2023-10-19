@@ -82,7 +82,7 @@ public:
         world = glm::scale(world, mSceneObject.mScale);
         
         for (const auto& floatEntry: mSceneObject.mShaderFloatUniformValues) currentShader->SetFloat(floatEntry.first, floatEntry.second);
-        
+       
         currentShader->SetBool(IS_TEXTURE_SHEET_UNIFORM_NAME, false);
         currentShader->SetMatrix4fv(WORLD_MATRIX_UNIFORM_NAME, world);
         currentShader->SetMatrix4fv(VIEW_MATRIX_UNIFORM_NAME, mCamera.GetViewMatrix());
@@ -353,9 +353,8 @@ void RendererPlatformImpl::CreateIMGuiWidgets()
         
         // SO Properties
         size_t i = 0;
-        for (auto iter = sceneRef.get().GetSceneObjects().begin(); iter != sceneRef.get().GetSceneObjects().end(); ++iter)
+        for (auto sceneObject: sceneRef.get().GetSceneObjects())
         {
-            auto& sceneObject = *iter;
             auto sceneObjectName = sceneObject->mName.isEmpty() ? strutils::StringId("SO: " + std::to_string(i)) : strutils::StringId("SO: " + sceneObject->mName.GetString());
             
             if (ImGui::CollapsingHeader(sceneObjectName.GetString().c_str(), ImGuiTreeNodeFlags_None))

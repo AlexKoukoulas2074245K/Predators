@@ -14,7 +14,7 @@
 #include <engine/scene/SceneObject.h>
 #include <engine/utils/StringUtils.h>
 #include <memory>
-#include <set>
+#include <vector>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -47,14 +47,14 @@ public:
     void RemoveAllSceneObjectsWithName(const strutils::StringId& sceneObjectName);
     
     [[nodiscard]] std::size_t GetSceneObjectCount() const;
-    [[nodiscard]] const std::multiset<std::shared_ptr<SceneObject>, SceneObjectComparator>& GetSceneObjects() const;
-    [[nodiscard]] std::multiset<std::shared_ptr<SceneObject>, SceneObjectComparator>& GetSceneObjects();
+    [[nodiscard]] const std::vector<std::shared_ptr<SceneObject>>& GetSceneObjects() const;
+    [[nodiscard]] std::vector<std::shared_ptr<SceneObject>>& GetSceneObjects();
     [[nodiscard]] rendering::Camera& GetCamera();
     [[nodiscard]] const strutils::StringId& GetName() const;
     
 private:
     const strutils::StringId mSceneName;
-    std::multiset<std::shared_ptr<SceneObject>, SceneObjectComparator> mSceneObjects;
+    std::vector<std::shared_ptr<SceneObject>> mSceneObjects;
     rendering::Camera mCamera;
 };
 

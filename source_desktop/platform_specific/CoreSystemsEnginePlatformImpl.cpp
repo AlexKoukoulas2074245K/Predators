@@ -214,6 +214,7 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
             mSystems->mFontRepository.ReloadMarkedFontsFromDisk();
         }
     
+        // Update logic
 #if (!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)
         const auto logicUpdateTimeStart = std::chrono::system_clock::now();
 #endif
@@ -226,6 +227,7 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
         {
             scene->GetCamera().Update(dtMillis * sGameSpeed);
             mSystems->mParticleUpdater.UpdateSceneParticles(dtMillis * sGameSpeed, *scene);
+            mSystems->mActiveSceneManager.SortSceneObjects(scene);
         }
         
 #if (!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)
@@ -233,6 +235,7 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
         sUpdateLogicMillisSamples[PROFILLING_SAMPLE_COUNT - 1] = std::chrono::duration_cast<std::chrono::milliseconds>(logicUpdateTimeEnd - logicUpdateTimeStart).count();
 #endif
         
+        // Rendering Logic
         mSystems->mRenderer.VBeginRenderPass();
         
 #if (!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)

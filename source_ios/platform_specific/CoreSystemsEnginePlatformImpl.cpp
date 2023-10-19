@@ -176,6 +176,7 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
         {
             scene->GetCamera().Update(dtMillis);
             mSystems->mParticleUpdater.UpdateSceneParticles(dtMillis, *scene);
+            mSystems->mActiveSceneManager.SortSceneObjects(scene);
         }
         
         mSystems->mRenderer.VBeginRenderPass();

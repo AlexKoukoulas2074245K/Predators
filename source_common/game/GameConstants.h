@@ -22,7 +22,9 @@ namespace game_constants
     inline const std::string DEFAULT_SHADER_NAME = "basic.vs";
     inline const std::string CUSTOM_ALPHA_SHADER_NAME = "custom_alpha.vs";
     inline const std::string CARD_HIGHLIGHTER_SHADER_NAME = "card_highlighter_perlin_noise.vs";
+    inline const std::string BOARD_CARD_LOCATION_SHADER_NAME = "card_board_location_perlin_noise.vs";
     inline const std::string DEFAULT_TEXTURE_NAME = "debug.png";
+    inline const std::string CARD_LOCATION_MASK_TEXTURE_NAME =  "card_location_mask.png";
 
     // SO Name Prefixes/Postfixes
     inline const std::string TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX = "TOP_PLAYER_HELD_CARD_";
@@ -87,9 +89,12 @@ namespace game_constants
     inline const float IN_GAME_PLAYED_CARD_SCALE_FACTOR = 0.666f;
     inline const float IN_GAME_PLAYED_CARD_ANIMATION_DURATION = 0.5f;
     inline const float CARD_HIGLIGHTER_Z_OFFSET = -0.1f;
-    inline const float CARD_HIGLIGHTER_PERLIN_TIME_SPEED = 6.595f;
-    inline const float CARD_HIGLIGHTER_PERLIN_RESOLUTION = 300.0f;
+    inline const float CARD_HIGLIGHTER_PERLIN_TIME_SPEED = 12.595f;
+    inline const float CARD_HIGLIGHTER_PERLIN_RESOLUTION = 312.0f;
     inline const float CARD_HIGLIGHTER_PERLIN_CLARITY = 5.23f;
+    inline const float CARD_LOCATION_EFFECT_Z = 1.0f;
+    inline const float CARD_LOCATION_EFFECT_TIME_SPEED = 1.0f;
+    inline const float CARD_LOCATION_EFFECT_PERLIN_RESOLUTION = 70.0f;
 
     inline const glm::vec3 CARD_HIGHLIGHTER_SCALE = glm::vec3(0.08f, 0.13f, 1.0f);
     

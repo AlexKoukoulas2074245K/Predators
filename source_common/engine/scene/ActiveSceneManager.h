@@ -28,6 +28,7 @@ public:
     [[nodiscard]] std::shared_ptr<Scene> CreateScene(const strutils::StringId sceneName = strutils::StringId());
     [[nodiscard]] std::shared_ptr<Scene> FindScene(const strutils::StringId& sceneName) const;
     
+    void SortSceneObjects(std::shared_ptr<Scene> scene);
     void RemoveScene(const strutils::StringId& sceneName);
     
     [[nodiscard]] std::size_t GetSceneCount() const;

@@ -60,7 +60,7 @@ private:
     std::unique_ptr<GameActionEngine> mActionEngine;
     std::vector<std::vector<std::shared_ptr<CardSoWrapper>>> mPlayerHeldCardSceneObjectWrappers;
     std::vector<std::vector<std::shared_ptr<CardSoWrapper>>> mPlayerBoardCardSceneObjectWrappers;
-    bool mBoardCardDropConditionsSatisfied;
+    bool mShouldShowCardLocationIndicator;
 };
 
 ///------------------------------------------------------------------------------------------------

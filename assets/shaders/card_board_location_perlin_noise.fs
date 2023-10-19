@@ -3,16 +3,16 @@ precision mediump float;
 in vec2 uv_frag;
 in vec3 frag_unprojected_pos;
 
-uniform sampler2D tex;
+uniform sampler2D effect_mask_tex;
 uniform vec4 ambient_light_color;
 uniform vec4 point_light_colors[32];
 uniform vec3 point_light_positions[32];
 uniform float point_light_powers[32];
 uniform float time;
 uniform float time_speed;
+uniform float custom_alpha;
 uniform float perlin_resolution_x;
 uniform float perlin_resolution_y;
-uniform float perlin_clarity;
 uniform bool affected_by_light;
 uniform int active_light_count;
 out vec4 frag_color;
@@ -43,6 +43,12 @@ vec2 quintic(vec2 p)
 
 void main()
 {
+    float final_uv_x = uv_frag.x;
+    float final_uv_y = 1.0 - uv_frag.y;
+    vec4 mask_color = texture(effect_mask_tex, vec2(final_uv_x, final_uv_y));
+
+    if (mask_color.r < 0.99) discard;
+    
     // part 0 - basic shader setup
     vec2 res = vec2(perlin_resolution_x, perlin_resolution_y);
     vec2 uv = gl_FragCoord.xy/res;
@@ -99,21 +105,11 @@ void main()
     // color = vec3(billow);
 
     // part 5.2 - ridged noise
-     //float ridgedNoise = 1.0 - abs(perlin);
-     //ridgedNoise = ridgedNoise * ridgedNoise;
-    // color = vec3(ridgedNoise);
+    float ridgedNoise = 1.0 - abs(perlin);
+    ridgedNoise = ridgedNoise * ridgedNoise;
     
-    float distanceFromCenter = 1.0f - distance(uv_frag, vec2(0.5f, 0.5f));
-    distanceFromCenter -= 0.5f;
-    
-    color = vec3(perlin + perlin_clarity);
-    frag_color = vec4(0.0f, color.g, 0.0f, (perlin + perlin_clarity) * distanceFromCenter);
-    
-#if defined(IOS)
-    float temp = frag_color.r;
-    frag_color.r = frag_color.b;
-    frag_color.b = temp;
-#endif
+    color = vec3(ridgedNoise);
+    frag_color = vec4(color, (ridgedNoise) * mask_color.r * custom_alpha);
     
     if (affected_by_light)
     {

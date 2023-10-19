@@ -182,6 +182,16 @@ inline float Distance2(const glm::vec3& vec1, const glm::vec3& vec2)
 }
 
 ///-----------------------------------------------------------------------------------------------
+/// Returns the square distance of two vectors without taking into account the z component.
+/// @param[in] vec1 first vector.
+/// @param[in] vec2 second vector.
+/// @returns the square distance of the two vectors.
+inline float Distance2IgnoreZ(const glm::vec3& vec1, const glm::vec3& vec2)
+{
+    return (vec2.x - vec1.x) * (vec2.x - vec1.x) + (vec2.y - vec1.y) * (vec2.y - vec1.y);
+}
+
+///-----------------------------------------------------------------------------------------------
 /// Clamps the given 3d  vector to a maximum cap.
 /// @param[in] vec the vector to clamp.
 /// @param[in] maxVec the vector holding the maximum values.

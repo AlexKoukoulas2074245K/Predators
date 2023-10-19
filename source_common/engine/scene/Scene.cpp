@@ -25,7 +25,7 @@ std::shared_ptr<SceneObject> Scene::CreateSceneObject(const strutils::StringId s
 {
     auto newSceneObject = std::make_shared<SceneObject>();
     newSceneObject->mName = sceneObjectName;
-    mSceneObjects.insert(newSceneObject);
+    mSceneObjects.push_back(newSceneObject);
     return newSceneObject;
 }
 
@@ -73,11 +73,11 @@ void Scene::RemoveAllSceneObjectsWithName(const strutils::StringId& sceneObjectN
 
 ///------------------------------------------------------------------------------------------------
 
-const std::multiset<std::shared_ptr<SceneObject>, SceneObjectComparator>& Scene::GetSceneObjects() const { return mSceneObjects; }
+const std::vector<std::shared_ptr<SceneObject>>& Scene::GetSceneObjects() const { return mSceneObjects; }
 
 ///------------------------------------------------------------------------------------------------
 
-[[nodiscard]] std::multiset<std::shared_ptr<SceneObject>, SceneObjectComparator>& Scene::GetSceneObjects() { return mSceneObjects;}
+[[nodiscard]] std::vector<std::shared_ptr<SceneObject>>& Scene::GetSceneObjects() { return mSceneObjects;}
 
 ///------------------------------------------------------------------------------------------------
 
