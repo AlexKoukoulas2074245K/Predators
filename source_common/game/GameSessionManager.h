@@ -52,7 +52,7 @@ private:
     void HandleTouchInput();
     void UpdateMiscSceneObjects(const float dtMillis);
     void OnFreeMovingCardRelease(std::shared_ptr<CardSoWrapper> cardSoWrapper);
-    void CreateCardHighlighterAtPosition();
+    void CreateCardHighlighter();
     void DestroyCardHighlighterAtIndex(const int index);
     
 private:

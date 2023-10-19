@@ -168,10 +168,9 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
             mSystems->mFontRepository.ReloadMarkedFontsFromDisk();
         }
 
-        clientUpdateFunction(dtMillis);
-        
-        mSystems->mInputStateManager.VUpdate(dtMillis);
         mSystems->mAnimationManager.Update(dtMillis);
+        clientUpdateFunction(dtMillis);
+        mSystems->mInputStateManager.VUpdate(dtMillis);
         
         for (auto& scene: mSystems->mActiveSceneManager.GetScenes())
         {

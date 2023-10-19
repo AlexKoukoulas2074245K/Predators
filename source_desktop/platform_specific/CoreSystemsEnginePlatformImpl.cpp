@@ -218,10 +218,9 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
         const auto logicUpdateTimeStart = std::chrono::system_clock::now();
 #endif
         
-        clientUpdateFunction(dtMillis * sGameSpeed);
-        
-        mSystems->mInputStateManager.VUpdate(dtMillis * sGameSpeed);
         mSystems->mAnimationManager.Update(dtMillis * sGameSpeed);
+        clientUpdateFunction(dtMillis * sGameSpeed);
+        mSystems->mInputStateManager.VUpdate(dtMillis * sGameSpeed);
         
         for (auto& scene: mSystems->mActiveSceneManager.GetScenes())
         {

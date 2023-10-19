@@ -16,8 +16,8 @@ void main()
     // Get texture color
     frag_color = texture(tex, vec2(finalUvX, finalUvY));
     frag_color.r = frag_color.r * min(1.0f, frag_lifetime);
-    frag_color.g = frag_color.r * min(1.0f, frag_lifetime);
-    frag_color.b = frag_color.r * min(1.0f, frag_lifetime);
+    frag_color.g = frag_color.g * min(1.0f, frag_lifetime);
+    frag_color.b = frag_color.b * min(1.0f, frag_lifetime);
     frag_color.a = frag_color.r * min(1.0f, frag_lifetime);
     
     if (frag_color.a < 0.1) discard;

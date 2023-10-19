@@ -83,31 +83,31 @@ void GameSessionManager::InitGameSession()
 //    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
 //    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
 //    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-//    mActionEngine->AddGameAction(strutils::StringId("NextPlayerGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("NextPlayerGameAction"));
     
     mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
     mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
     mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
     mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
     mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-    mActionEngine->AddGameAction(strutils::StringId("PlayCardGameAction"), {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "4" }});
-    mActionEngine->AddGameAction(strutils::StringId("PlayCardGameAction"), {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "1" }});
+    //mActionEngine->AddGameAction(strutils::StringId("PlayCardGameAction"), {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "4" }});
+    //mActionEngine->AddGameAction(strutils::StringId("PlayCardGameAction"), {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "1" }});
     mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
     mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-    mActionEngine->AddGameAction(strutils::StringId("PlayCardGameAction"), {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "4" }});
-    mActionEngine->AddGameAction(strutils::StringId("PlayCardGameAction"), {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "1" }});
+    //mActionEngine->AddGameAction(strutils::StringId("PlayCardGameAction"), {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "4" }});
+    //mActionEngine->AddGameAction(strutils::StringId("PlayCardGameAction"), {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "1" }});
     mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
     mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-    mActionEngine->AddGameAction(strutils::StringId("NextPlayerGameAction"));
-    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-    mActionEngine->AddGameAction(strutils::StringId("PlayCardGameAction"), {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "1" }});
+    //mActionEngine->AddGameAction(strutils::StringId("NextPlayerGameAction"));
     mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
     mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
     mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-    mActionEngine->AddGameAction(strutils::StringId("PlayCardGameAction"), {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "1" }});
-    mActionEngine->AddGameAction(strutils::StringId("PlayCardGameAction"), {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "2" }});
+    //mActionEngine->AddGameAction(strutils::StringId("PlayCardGameAction"), {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "1" }});
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    //mActionEngine->AddGameAction(strutils::StringId("PlayCardGameAction"), {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "1" }});
+    //mActionEngine->AddGameAction(strutils::StringId("PlayCardGameAction"), {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "2" }});
     
     const auto& activeSceneManager = CoreSystemsEngine::GetInstance().GetActiveSceneManager();
     auto activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
@@ -160,6 +160,10 @@ void GameSessionManager::OnHeldCardSwap(std::shared_ptr<CardSoWrapper> cardSoWra
 
 void GameSessionManager::OnLastCardPlayedFinalized(const int cardIndex)
 {
+    const auto& activeSceneManager = CoreSystemsEngine::GetInstance().GetActiveSceneManager();
+    auto activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    activeScene->RemoveSceneObject(strutils::StringId(CARD_HIGHLIGHTER_SCENE_OBJECT_NAME_PREFIX + std::to_string(cardIndex)));
+    
     auto& playerHeldCardSoWrappers = mPlayerHeldCardSceneObjectWrappers[mBoardState->GetActivePlayerIndex()];
     auto& playerBoardCardSoWrappers = mPlayerBoardCardSceneObjectWrappers[mBoardState->GetActivePlayerIndex()];
     
@@ -180,9 +184,12 @@ void GameSessionManager::OnLastCardPlayedFinalized(const int cardIndex)
         }
         
         // Reposition held cards for different indices
-        auto originalCardPosition = card_utils::CalculateHeldCardPosition(i, currentPlayerHeldCardCount, mBoardState->GetActivePlayerIndex() == 0);
-        animationManager.StartAnimation(std::make_unique<rendering::TweenAnimation>(currentCardSoWrapper->mSceneObjectComponents, originalCardPosition, currentCardSoWrapper->mSceneObjectComponents[0]->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){ currentCardSoWrapper->mState = CardSoState::IDLE; });
-        currentCardSoWrapper->mState = CardSoState::MOVING_TO_SET_POSITION;
+        if (currentCardSoWrapper->mState != CardSoState::FREE_MOVING)
+        {
+            auto originalCardPosition = card_utils::CalculateHeldCardPosition(i, currentPlayerHeldCardCount, mBoardState->GetActivePlayerIndex() == 0);
+            animationManager.StartAnimation(std::make_unique<rendering::TweenAnimation>(currentCardSoWrapper->mSceneObjectComponents, originalCardPosition, currentCardSoWrapper->mSceneObjectComponents[0]->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){ currentCardSoWrapper->mState = CardSoState::IDLE; });
+            currentCardSoWrapper->mState = CardSoState::MOVING_TO_SET_POSITION;
+        }
     }
     
     const auto currentBoardCardCount = static_cast<int>(playerBoardCardSoWrappers.size());
@@ -340,7 +347,7 @@ void GameSessionManager::HandleTouchInput()
         
         animationManager.StartAnimation(std::make_unique<rendering::TweenAnimation>(currentCardSoWrapper->mSceneObjectComponents, originalCardPosition, currentCardSoWrapper->mSceneObjectComponents[0]->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT | animation_flags::IGNORE_X_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
         {
-            CreateCardHighlighterAtPosition();
+            CreateCardHighlighter();
         });
         
         currentCardSoWrapper->mState = CardSoState::HIGHLIGHTED;
@@ -431,7 +438,7 @@ void GameSessionManager::OnFreeMovingCardRelease(std::shared_ptr<CardSoWrapper> 
 
 ///------------------------------------------------------------------------------------------------
 
-void GameSessionManager::CreateCardHighlighterAtPosition()
+void GameSessionManager::CreateCardHighlighter()
 {
     const auto& activeSceneManager = CoreSystemsEngine::GetInstance().GetActiveSceneManager();
     auto activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
@@ -463,10 +470,8 @@ void GameSessionManager::CreateCardHighlighterAtPosition()
         cardHighlighterSo->mPosition = (*highlightedCardIter)->mSceneObjectComponents[0]->mPosition;
         cardHighlighterSo->mPosition.z += game_constants::CARD_HIGLIGHTER_Z_OFFSET;
         cardHighlighterSo->mScale = game_constants::CARD_HIGHLIGHTER_SCALE;
-        
-#if defined(IOS_FLOW)
         cardHighlighterSo->mInvisible = true;
-#endif
+
     }
 }
 
