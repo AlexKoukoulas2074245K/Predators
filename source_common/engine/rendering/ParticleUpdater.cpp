@@ -9,6 +9,7 @@
 #include <engine/rendering/ParticleUpdater.h>
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
+#include <numeric>
 
 #define IS_FLAG_SET(flag) ((particleEmitterData.mParticleFlags & flag) != 0)
 

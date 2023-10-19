@@ -21,6 +21,8 @@ namespace scene_object_utils
 math::Rectangle GetSceneObjectBoundingRect(const scene::SceneObject& sceneObject)
 {
     math::Rectangle boundingRect;
+    boundingRect.bottomLeft = glm::vec2(0.0f);
+    boundingRect.topRight = glm::vec2(0.0f);
     
     if (std::holds_alternative<scene::TextSceneObjectData>(sceneObject.mSceneObjectTypeData))
     {

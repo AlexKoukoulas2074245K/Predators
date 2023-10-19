@@ -76,7 +76,7 @@ void FontRepository::LoadFont(const std::string& fontName, const resources::Reso
         glyph.mYOffsetPixels = std::stof(charObject["yoffset"].get<std::string>());
         glyph.mAdvancePixels = std::stof(charObject["xadvance"].get<std::string>());
         
-        font.mGlyphs[std::stoi(charObject["id"].get<std::string>())] = glyph;
+        font.mGlyphs[static_cast<char>(std::stoi(charObject["id"].get<std::string>()))] = glyph;
     }
     
     mFontMap[font.mFontName] = font;
