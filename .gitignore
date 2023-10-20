@@ -1,6 +1,7 @@
 # Project Specifics
 *.DS_Store
 /build/*
+*.xcuserstate
 
 # Temporaries
 *.*~
