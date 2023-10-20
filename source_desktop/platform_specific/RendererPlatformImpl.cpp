@@ -43,11 +43,19 @@ static const strutils::StringId POINT_LIGHT_COLORS_UNIFORM_NAME = strutils::Stri
 static const strutils::StringId POINT_LIGHT_POSITIONS_UNIFORM_NAME = strutils::StringId("point_light_positions");
 static const strutils::StringId POINT_LIGHT_POWERS_UNIFORM_NAME = strutils::StringId("point_light_powers");
 static const strutils::StringId IS_TEXTURE_SHEET_UNIFORM_NAME = strutils::StringId("texture_sheet");
+static const strutils::StringId CUSTOM_ALPHA_UNIFORM_NAME = strutils::StringId("custom_alpha");
 
 ///------------------------------------------------------------------------------------------------
 
 static int sDrawCallCounter = 0;
 static int sParticleCounter = 0;
+
+struct SceneObjectDebugOverrideData
+{
+    bool mOverrideVisibility = false;
+};
+
+static std::unordered_map<strutils::StringId, std::unique_ptr<SceneObjectDebugOverrideData>, strutils::StringIdHasher> sSceneObjectOverrideData;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -83,6 +91,12 @@ public:
         
         for (const auto& floatEntry: mSceneObject.mShaderFloatUniformValues) currentShader->SetFloat(floatEntry.first, floatEntry.second);
        
+#if (!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)
+        if (sSceneObjectOverrideData.at(mSceneObject.mName)->mOverrideVisibility)
+        {
+            currentShader->SetFloat(strutils::StringId(CUSTOM_ALPHA_UNIFORM_NAME), 1.0f);
+        }
+#endif
         currentShader->SetBool(IS_TEXTURE_SHEET_UNIFORM_NAME, false);
         currentShader->SetMatrix4fv(WORLD_MATRIX_UNIFORM_NAME, world);
         currentShader->SetMatrix4fv(VIEW_MATRIX_UNIFORM_NAME, mCamera.GetViewMatrix());
@@ -261,9 +275,35 @@ void RendererPlatformImpl::VBeginRenderPass()
 void RendererPlatformImpl::VRenderScene(scene::Scene& scene)
 {
     mCachedScenes.push_back(scene);
+
+#if (!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)
+    for (auto iter = sSceneObjectOverrideData.begin(); iter != sSceneObjectOverrideData.end();)
+    {
+        if (scene.FindSceneObject(iter->first) == nullptr)
+        {
+            iter = sSceneObjectOverrideData.erase(iter);
+        }
+        else
+        {
+            ++iter;
+        }
+    }
+#else
+    (void)sSceneObjectOverrideData;
+#endif
+    
     for (const auto& sceneObject: scene.GetSceneObjects())
     {
+#if (!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)
+        if (sSceneObjectOverrideData.count(sceneObject->mName) == 0)
+        {
+            sSceneObjectOverrideData[sceneObject->mName] = std::make_unique<SceneObjectDebugOverrideData>();
+        }
+        
+        if (!sSceneObjectOverrideData.at(sceneObject->mName)->mOverrideVisibility && sceneObject->mInvisible) continue;
+#else
         if (sceneObject->mInvisible) continue;
+#endif
         std::visit(SceneObjectTypeRendererVisitor(*sceneObject, scene.GetCamera()), sceneObject->mSceneObjectTypeData);
     }
 }
@@ -364,6 +404,7 @@ void RendererPlatformImpl::CreateIMGuiWidgets()
                 ImGui::Text("Mesh: %s", resService.GetResourcePath(sceneObject->mMeshResourceId).c_str());
                 ImGui::Text("Shader: %s", resService.GetResourcePath(sceneObject->mShaderResourceId).c_str());
                 ImGui::Text("Texture: %s", resService.GetResourcePath(sceneObject->mTextureResourceId).c_str());
+                ImGui::Checkbox("Override Visibility", &(sSceneObjectOverrideData.at(sceneObject->mName)->mOverrideVisibility));
                 ImGui::SliderFloat("x", &sceneObject->mPosition.x, -0.5f, 0.5f);
                 ImGui::SliderFloat("y", &sceneObject->mPosition.y, -0.5f, 0.5f);
                 ImGui::SliderFloat("z", &sceneObject->mPosition.z, -0.5f, 0.5f);

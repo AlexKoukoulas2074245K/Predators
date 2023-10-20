@@ -41,10 +41,12 @@ static const std::string CARD_HIGHLIGHTER_SCENE_OBJECT_NAME_PREFIX = "HIGHLIGHTE
 static const float CARD_SELECTION_ANIMATION_DURATION = 0.2f;
 static const float CARD_LOCATION_EFFECT_MIN_TARGET_ALPHA = 0.25f;
 static const float CARD_LOCATION_EFFECT_MAX_TARGET_ALPHA = 1.0f;
-inline const float CARD_LOCATION_EFFECT_ALPHA_SPEED = 0.003f;
+static const float CARD_LOCATION_EFFECT_ALPHA_SPEED = 0.003f;
+static const glm::vec3 CARD_LOCATION_INDICATOR_POSITION = glm::vec3(0.004f, -0.045f, 0.01f);
+static const glm::vec3 CARD_LOCATION_INDICATOR_SCALE = glm::vec3(0.414f, 0.354f, 1.0f);
 
 #if defined(IOS_FLOW)
-static const float MOBILE_DISTANCE_FROM_CARD_LOCATION_INDICATOR = 0.003f;
+static const float MOBILE_DISTANCE_FROM_CARD_LOCATION_INDICATOR = 0.004f;
 #else
 static const float DESKTOP_DISTANCE_FROM_CARD_LOCATION_INDICATOR = 0.004f;
 #endif
@@ -116,8 +118,8 @@ void GameSessionManager::InitGameSession()
     cardLocationIndicatorSo->mShaderFloatUniformValues[game_constants::PERLIN_TIME_SPEED_UNIFORM_NAME] = game_constants::CARD_LOCATION_EFFECT_TIME_SPEED;
     cardLocationIndicatorSo->mShaderFloatUniformValues[game_constants::PERLIN_RESOLUTION_X_UNIFORM_NAME] = game_constants::CARD_LOCATION_EFFECT_PERLIN_RESOLUTION;
     cardLocationIndicatorSo->mShaderFloatUniformValues[game_constants::PERLIN_RESOLUTION_Y_UNIFORM_NAME] = game_constants::CARD_LOCATION_EFFECT_PERLIN_RESOLUTION;
-    cardLocationIndicatorSo->mScale = glm::vec3(game_constants::IN_GAME_CARD_BASE_SCALE * game_constants::IN_GAME_PLAYED_CARD_SCALE_FACTOR);
-    cardLocationIndicatorSo->mPosition.z = game_constants::CARD_LOCATION_EFFECT_Z;
+    cardLocationIndicatorSo->mScale = CARD_LOCATION_INDICATOR_SCALE;
+    cardLocationIndicatorSo->mPosition = CARD_LOCATION_INDICATOR_POSITION;
     cardLocationIndicatorSo->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
     cardLocationIndicatorSo->mInvisible = true;
 }
@@ -253,10 +255,6 @@ void GameSessionManager::HandleTouchInput()
         {
             currentCardSoWrapper->mState = CardSoState::FREE_MOVING;
             animationManager.StartAnimation(std::make_unique<rendering::TweenAnimation>(currentCardSoWrapper->mSceneObjectComponents, glm::vec3(worldTouchPos.x, worldTouchPos.y + game_constants::IN_GAME_MOBILE_ONLY_FREE_MOVING_CARD_Y_OFFSET, game_constants::IN_GAME_HIGHLIGHTED_CARD_Z), currentCardSoWrapper->mSceneObjectComponents[0]->mScale, game_constants::IN_GAME_CARD_FREE_MOVEMENT_ANIMATION_DURATION_SECS, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [](){});
-            auto currentLocalPlayerBoardCardCount = static_cast<int>(mPlayerBoardCardSceneObjectWrappers[1].size());
-            auto cardLocationIndicatorSo = activeScene->FindSceneObject(CARD_LOCATION_INDICATOR_SCENE_OBJECT_NAME);
-            cardLocationIndicatorSo->mPosition = card_utils::CalculateBoardCardPosition(currentLocalPlayerBoardCardCount, currentLocalPlayerBoardCardCount + 1, false);
-            cardLocationIndicatorSo->mPosition.z = game_constants::CARD_LOCATION_EFFECT_Z;
             mShouldShowCardLocationIndicator = true;
         }
         else if (inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON) && cursorInSceneObject && !otherHighlightedCardExists)
@@ -290,11 +288,6 @@ void GameSessionManager::HandleTouchInput()
         if (inputStateManager.VButtonPressed(input::Button::MAIN_BUTTON) && currentCardSoWrapper->mState == CardSoState::FREE_MOVING)
         {
             animationManager.StartAnimation(std::make_unique<rendering::TweenAnimation>(currentCardSoWrapper->mSceneObjectComponents, glm::vec3(worldTouchPos.x, worldTouchPos.y, game_constants::IN_GAME_HIGHLIGHTED_CARD_Z), currentCardSoWrapper->mSceneObjectComponents[0]->mScale, game_constants::IN_GAME_CARD_FREE_MOVEMENT_ANIMATION_DURATION_SECS, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [](){});
-            
-            auto currentLocalPlayerBoardCardCount = static_cast<int>(mPlayerBoardCardSceneObjectWrappers[1].size());
-            auto cardLocationIndicatorSo = activeScene->FindSceneObject(CARD_LOCATION_INDICATOR_SCENE_OBJECT_NAME);
-            cardLocationIndicatorSo->mPosition = card_utils::CalculateBoardCardPosition(currentLocalPlayerBoardCardCount, currentLocalPlayerBoardCardCount + 1, false);
-            cardLocationIndicatorSo->mPosition.z = game_constants::CARD_LOCATION_EFFECT_Z;
             mShouldShowCardLocationIndicator = true;
         }
         else if (inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON) &&
