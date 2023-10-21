@@ -195,7 +195,9 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
         
         if (mSystems->mInputStateManager.VButtonTapped(input::Button::SECONDARY_BUTTON))
         {
+#if (!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)
             freezeGame = !freezeGame;
+#endif
         }
         
         if (windowSizeChanged)
