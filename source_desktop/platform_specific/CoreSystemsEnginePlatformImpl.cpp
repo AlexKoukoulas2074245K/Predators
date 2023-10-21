@@ -173,6 +173,7 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
     auto framesAccumulator        = 0LL;
     
     bool shouldQuit = false;
+    bool freezeGame = false;
     
     while(!shouldQuit)
     {
@@ -190,6 +191,11 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
         while(SDL_PollEvent(&event) != 0)
         {
             mSystems->mInputStateManager.VProcessInputEvent(event, shouldQuit, windowSizeChanged);
+        }
+        
+        if (mSystems->mInputStateManager.VButtonTapped(input::Button::SECONDARY_BUTTON))
+        {
+            freezeGame = !freezeGame;
         }
         
         if (windowSizeChanged)
@@ -219,15 +225,22 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
         const auto logicUpdateTimeStart = std::chrono::system_clock::now();
 #endif
         
-        mSystems->mAnimationManager.Update(dtMillis * sGameSpeed);
-        clientUpdateFunction(dtMillis * sGameSpeed);
+        if (!freezeGame)
+        {
+            mSystems->mAnimationManager.Update(dtMillis * sGameSpeed);
+            clientUpdateFunction(dtMillis * sGameSpeed);
+        }
+        
         mSystems->mInputStateManager.VUpdate(dtMillis * sGameSpeed);
         
-        for (auto& scene: mSystems->mActiveSceneManager.GetScenes())
+        if (!freezeGame)
         {
-            scene->GetCamera().Update(dtMillis * sGameSpeed);
-            mSystems->mParticleUpdater.UpdateSceneParticles(dtMillis * sGameSpeed, *scene);
-            mSystems->mActiveSceneManager.SortSceneObjects(scene);
+            for (auto& scene: mSystems->mActiveSceneManager.GetScenes())
+            {
+                scene->GetCamera().Update(dtMillis * sGameSpeed);
+                mSystems->mParticleUpdater.UpdateSceneParticles(dtMillis * sGameSpeed, *scene);
+                mSystems->mActiveSceneManager.SortSceneObjects(scene);
+            }
         }
         
 #if (!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)
