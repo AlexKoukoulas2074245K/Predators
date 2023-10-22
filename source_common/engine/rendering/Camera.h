@@ -39,7 +39,7 @@ public:
     
     ///-----------------------------------------------------------------------------------------------
     /// Performs a camera shake.
-    /// @param[in] durationSecs the target (to be exceeded if shakeInterTremmorDelaySecs is set to a value > 0) seconds the shake will run for
+    /// @param[in] targetDurationSecs the target (to be exceeded if shakeInterTremmorDelaySecs is set to a value > 0) seconds the shake will run for
     /// @param[in] shakeStrengthRadius (optional) sets the starting radius offset for the camera shake. defaults to 0.05f
     /// @param[in] shakeInterTremmorDelaySecs (optional) specifies the delay in between shake tremmors. Will also naturally lengthen the shake duration
     /// specified by durationSecs. Sane values are around 0.01f - 0.1f

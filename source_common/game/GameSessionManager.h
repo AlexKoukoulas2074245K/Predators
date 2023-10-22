@@ -56,10 +56,17 @@ private:
     void DestroyCardHighlighterAtIndex(const int index);
     
 private:
+    enum class ProspectiveBoardCardsPushState
+    {
+        NONE, MAKE_SPACE_FOR_NEW_CARD, REVERT_TO_ORIGINAL_POSITION
+    };
+    
+private:
     std::unique_ptr<BoardState> mBoardState;
     std::unique_ptr<GameActionEngine> mActionEngine;
     std::vector<std::vector<std::shared_ptr<CardSoWrapper>>> mPlayerHeldCardSceneObjectWrappers;
     std::vector<std::vector<std::shared_ptr<CardSoWrapper>>> mPlayerBoardCardSceneObjectWrappers;
+    ProspectiveBoardCardsPushState mPreviousProspectiveBoardCardsPushState;
     bool mShouldShowCardLocationIndicator;
 };
 

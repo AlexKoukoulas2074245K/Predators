@@ -88,7 +88,7 @@ namespace game_constants
     inline const float IN_GAME_MOBILE_ONLY_FREE_MOVING_CARD_Y_OFFSET = 0.05f;
     inline const float IN_GAME_PLAYED_CARD_SCALE_FACTOR = 0.666f;
     inline const float IN_GAME_PLAYED_CARD_ANIMATION_DURATION = 0.5f;
-    inline const float CARD_HIGLIGHTER_Z_OFFSET = -0.001f;
+    inline const float CARD_HIGLIGHTER_Z_OFFSET = -0.05f;
     inline const float CARD_HIGLIGHTER_PERLIN_TIME_SPEED = 12.595f;
     inline const float CARD_HIGLIGHTER_PERLIN_RESOLUTION = 312.0f;
     inline const float CARD_HIGLIGHTER_PERLIN_CLARITY = 5.23f;

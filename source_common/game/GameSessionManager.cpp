@@ -34,7 +34,9 @@
 
 static const strutils::StringId CARD_LOCATION_INDICATOR_SCENE_OBJECT_NAME = strutils::StringId("CARD_LOCATION_INDICATOR");
 static const strutils::StringId IDLE_GAME_ACTION_NAME = strutils::StringId("IdleGameAction");
+static const strutils::StringId PLAY_CARD_ACTION_NAME = strutils::StringId("PlayCardGameAction");
 
+static const std::string MAKE_SPACE_REVERT_TO_POSITION_ANIMATION_NAME_PREFIX = "MAKE_SPACE_REVERT_";
 static const std::string BATTLE_ICON_TEXTURE_FILE_NAME = "battle_icon.png";
 static const std::string CARD_HIGHLIGHTER_SCENE_OBJECT_NAME_PREFIX = "HIGHLIGHTER_CARD_";
 
@@ -52,7 +54,8 @@ static const float DESKTOP_DISTANCE_FROM_CARD_LOCATION_INDICATOR = 0.004f;
 ///------------------------------------------------------------------------------------------------
 
 GameSessionManager::GameSessionManager()
-    : mShouldShowCardLocationIndicator(false)
+    : mPreviousProspectiveBoardCardsPushState(ProspectiveBoardCardsPushState::NONE)
+    , mShouldShowCardLocationIndicator(false)
 {
     
 }
@@ -390,6 +393,24 @@ void GameSessionManager::UpdateMiscSceneObjects(const float dtMillis)
         }
     }
     
+    // Lambda to make space/revert to original position board cards
+    auto prospectiveMakeSpaceRevertToPositionLambda = [&](int prospectiveCardCount)
+    {
+        auto& boardCardSoWrappers = mPlayerBoardCardSceneObjectWrappers[1];
+        auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+        
+        const auto currentBoardCardCount = static_cast<int>(boardCardSoWrappers.size());
+        
+        for (int i = 0; i < currentBoardCardCount; ++i)
+        {
+            auto animationName = strutils::StringId(MAKE_SPACE_REVERT_TO_POSITION_ANIMATION_NAME_PREFIX + std::to_string(i));
+            auto& currentCardSoWrapper = boardCardSoWrappers.at(i);
+            auto originalCardPosition = card_utils::CalculateBoardCardPosition(i, prospectiveCardCount, false);
+            animationManager.StopAnimation(animationName);
+            animationManager.StartAnimation(std::make_unique<rendering::TweenAnimation>(currentCardSoWrapper->mSceneObjectComponents, originalCardPosition, currentCardSoWrapper->mSceneObjectComponents[0]->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){}, animationName);
+        }
+    };
+    
     // Card Location
     auto cardLocationIndicatorSo = activeScene->FindSceneObject(CARD_LOCATION_INDICATOR_SCENE_OBJECT_NAME);
     auto currentSoWrapperIter = std::find_if(localPlayerCards.begin(), localPlayerCards.end(), [&](const std::shared_ptr<CardSoWrapper>& cardSoWrapper){ return cardSoWrapper->mState == CardSoState::FREE_MOVING; });
@@ -414,6 +435,12 @@ void GameSessionManager::UpdateMiscSceneObjects(const float dtMillis)
             {
                 cardLocationIndicatorSo->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = CARD_LOCATION_EFFECT_MAX_TARGET_ALPHA;
             }
+            
+            if (mPreviousProspectiveBoardCardsPushState == ProspectiveBoardCardsPushState::MAKE_SPACE_FOR_NEW_CARD)
+            {
+                prospectiveMakeSpaceRevertToPositionLambda(static_cast<int>(mPlayerBoardCardSceneObjectWrappers[1].size() + 1));
+            }
+            mPreviousProspectiveBoardCardsPushState = ProspectiveBoardCardsPushState::MAKE_SPACE_FOR_NEW_CARD;
         }
         else
         {
@@ -429,6 +456,12 @@ void GameSessionManager::UpdateMiscSceneObjects(const float dtMillis)
                     cardLocationIndicatorSo->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] += dtMillis * CARD_LOCATION_EFFECT_ALPHA_SPEED;
                 }
             }
+            
+            if (mPreviousProspectiveBoardCardsPushState != ProspectiveBoardCardsPushState::REVERT_TO_ORIGINAL_POSITION)
+            {
+                prospectiveMakeSpaceRevertToPositionLambda(static_cast<int>(mPlayerBoardCardSceneObjectWrappers[1].size()));
+            }
+            mPreviousProspectiveBoardCardsPushState = ProspectiveBoardCardsPushState::REVERT_TO_ORIGINAL_POSITION;
         }
     }
     else
@@ -439,6 +472,8 @@ void GameSessionManager::UpdateMiscSceneObjects(const float dtMillis)
             cardLocationIndicatorSo->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
             cardLocationIndicatorSo->mInvisible = true;
         }
+        
+        mPreviousProspectiveBoardCardsPushState = ProspectiveBoardCardsPushState::NONE;
     }
 }
 
@@ -468,7 +503,7 @@ void GameSessionManager::OnFreeMovingCardRelease(std::shared_ptr<CardSoWrapper> 
     
     if (inBoardDropThreshold && mActionEngine->GetActiveGameActionName() == IDLE_GAME_ACTION_NAME && mBoardState->GetActivePlayerIndex() == 1)
     {
-        mActionEngine->AddGameAction(strutils::StringId("PlayCardGameAction"), {{PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, std::to_string(cardIndex)}});
+        mActionEngine->AddGameAction(PLAY_CARD_ACTION_NAME, {{PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, std::to_string(cardIndex)}});
     }
     else
     {

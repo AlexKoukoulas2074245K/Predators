@@ -154,7 +154,6 @@ void CoreSystemsEngine::Initialize()
     // Setup Platform/Renderer backends
     ImGui_ImplSDL2_InitForOpenGL(mWindow, mContext);
     ImGui_ImplOpenGL3_Init();
-    logging::Log(logging::LogType::INFO, "Hello");
 #endif
     
     mInitialized = true;
