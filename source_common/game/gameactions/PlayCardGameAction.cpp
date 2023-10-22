@@ -10,6 +10,7 @@
 #include <game/gameactions/PlayCardGameAction.h>
 #include <game/GameSessionManager.h>
 #include <engine/rendering/AnimationManager.h>
+#include <engine/rendering/Particles.h>
 #include <engine/scene/ActiveSceneManager.h>
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
@@ -17,6 +18,19 @@
 ///------------------------------------------------------------------------------------------------
 
 const std::string PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM = "lastPlayedCardIndex";
+
+static const std::string CARD_PLAY_PARTICLE_TEXTURE_FILE_NAME = "smoke.png";
+
+static const float CARD_CAMERA_SHAKE_DURATION = 0.25f;
+static const float CARD_CAMERA_SHAKE_STRENGTH = 0.005f;
+static const float CARD_PLAY_PARTICLE_EMITTER_Z = 0.01f;
+
+static const int CARD_PLAY_PARTICLE_COUNT = 20;
+
+static const glm::vec2 CARD_PLAY_PARTICLE_LIFETIME_RANGE = {0.5f, 1.0f};
+static const glm::vec2 CARD_PLAY_PARTICLE_X_OFFSET_RANGE = {-0.04f, -0.02f};
+static const glm::vec2 CARD_PLAY_PARTICLE_Y_OFFSET_RANGE = {-0.05f, -0.01f};
+static const glm::vec2 CARD_PLAY_PARTICLE_SIZE_RANGE     = {0.03f, 0.06f};
 
 ///------------------------------------------------------------------------------------------------
 
@@ -71,10 +85,23 @@ void PlayCardGameAction::VInitAnimation()
     
     // Animate played card to board
     auto targetPosition = card_utils::CalculateBoardCardPosition(static_cast<int>(mBoardState->GetActivePlayerState().mPlayerBoardCards.size() - 1), static_cast<int>(mBoardState->GetActivePlayerState().mPlayerBoardCards.size()), mBoardState->GetActivePlayerIndex() == 0);
-    animationManager.StartAnimation(std::make_unique<rendering::TweenAnimation>(mLastPlayedCardSoWrapper->mSceneObjectComponents, targetPosition, mLastPlayedCardSoWrapper->mSceneObjectComponents[0]->mScale * game_constants::IN_GAME_PLAYED_CARD_SCALE_FACTOR, game_constants::IN_GAME_PLAYED_CARD_ANIMATION_DURATION, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [&]()
+    animationManager.StartAnimation(std::make_unique<rendering::TweenAnimation>(mLastPlayedCardSoWrapper->mSceneObjectComponents, targetPosition, mLastPlayedCardSoWrapper->mSceneObjectComponents[0]->mScale * game_constants::IN_GAME_PLAYED_CARD_SCALE_FACTOR, game_constants::IN_GAME_PLAYED_CARD_ANIMATION_DURATION, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
     {
         mPendingAnimations--;
-        CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE)->GetCamera().Shake(0.25f, 0.005f);
+        CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE)->GetCamera().Shake(CARD_CAMERA_SHAKE_DURATION, CARD_CAMERA_SHAKE_STRENGTH);
+        
+        rendering::CreateParticleEmitterAtPosition
+        (
+            glm::vec3(targetPosition.x, targetPosition.y, CARD_PLAY_PARTICLE_EMITTER_Z), // pos
+            CARD_PLAY_PARTICLE_LIFETIME_RANGE,         // particleLifetimeRange
+            CARD_PLAY_PARTICLE_X_OFFSET_RANGE,         // particlePositionXOffsetRange
+            CARD_PLAY_PARTICLE_Y_OFFSET_RANGE,         // particlePositionYOffsetRange
+            CARD_PLAY_PARTICLE_SIZE_RANGE,             // particleSizeRange
+            CARD_PLAY_PARTICLE_COUNT,                  // particleCount
+            CARD_PLAY_PARTICLE_TEXTURE_FILE_NAME,      // particleTextureFilename
+            *CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE), // scene
+            particle_flags::PREFILLED                  // particleFlags
+         );
     });
     mPendingAnimations++;
 }
