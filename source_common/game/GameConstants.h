@@ -96,9 +96,7 @@ namespace game_constants
     inline const float CARD_LOCATION_EFFECT_TIME_SPEED = 1.0f;
     inline const float CARD_LOCATION_EFFECT_PERLIN_RESOLUTION = 70.0f;
 
-    inline const glm::vec3 CARD_HIGHLIGHTER_SCALE = glm::vec3(0.08f, 0.13f, 1.0f);
-    
-
+    inline const glm::vec3 CARD_HIGHLIGHTER_SCALE = {0.08f, 0.13f, 1.0f};
 }
 
 ///------------------------------------------------------------------------------------------------

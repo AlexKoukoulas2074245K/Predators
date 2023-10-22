@@ -16,9 +16,9 @@ namespace rendering
 
 ///------------------------------------------------------------------------------------------------
 
-const glm::vec3 Camera::DEFAULT_CAMERA_POSITION     = glm::vec3(0.0f, -0.0087f, -5.0f);
-const glm::vec3 Camera::DEFAULT_CAMERA_FRONT_VECTOR = glm::vec3(0.0f, 0.0f, -1.0f);
-const glm::vec3 Camera::DEFAULT_CAMERA_UP_VECTOR    = glm::vec3(0.0f, 1.0f, 0.0f);
+const glm::vec3 Camera::DEFAULT_CAMERA_POSITION     = {0.0f, -0.0087f, -5.0f};
+const glm::vec3 Camera::DEFAULT_CAMERA_FRONT_VECTOR = {0.0f, 0.0f, -1.0f};
+const glm::vec3 Camera::DEFAULT_CAMERA_UP_VECTOR    = {0.0f, 1.0f, 0.0f};
 
 const float Camera::DEVICE_INVARIABLE_ASPECT = 0.46f;
 
