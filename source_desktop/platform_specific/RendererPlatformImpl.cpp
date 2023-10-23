@@ -354,7 +354,7 @@ static SceneObjectDataIMGuiVisitor imguiVisitor;
 
 void RendererPlatformImpl::CreateIMGuiWidgets()
 {
-    ImGui::ShowDemoWindow();
+    //ImGui::ShowDemoWindow();
     
     auto& resService = CoreSystemsEngine::GetInstance().GetResourceLoadingService();
     
