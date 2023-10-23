@@ -61,11 +61,11 @@ namespace game_constants
     inline const float IN_GAME_CARD_BASE_SCALE = 0.1f;
     inline const float IN_GAME_CARD_PORTRAIT_SCALE = 0.025f;
     inline const float IN_GAME_CARD_PORTRAIT_Y_OFFSET = 0.008f;
-    inline const float IN_GAME_CARD_DAMAGE_ICON_SCALE = 0.04f;
-    inline const float IN_GAME_CARD_DAMAGE_ICON_X_OFFSET = -0.014f;
-    inline const float IN_GAME_CARD_DAMAGE_ICON_Y_OFFSET = 0.03f;
+    inline const float IN_GAME_CARD_DAMAGE_ICON_SCALE = 0.05f;
+    inline const float IN_GAME_CARD_DAMAGE_ICON_X_OFFSET = -0.022f;
+    inline const float IN_GAME_CARD_DAMAGE_ICON_Y_OFFSET = 0.02f;
     inline const float IN_GAME_CARD_DAMAGE_SCALE = 0.00018f;
-    inline const float IN_GAME_CARD_DAMAGE_Y_OFFSET = 0.0335f;
+    inline const float IN_GAME_CARD_DAMAGE_Y_OFFSET = 0.0367f;
     inline const float IN_GAME_CARD_NAME_X_OFFSET = 0.002f;
     inline const float IN_GAME_CARD_NAME_Y_OFFSET = -0.0145f;
     inline const float IN_GAME_CARD_NAME_SCALE = 0.00012f;
