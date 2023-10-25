@@ -37,6 +37,8 @@ namespace game_constants
     inline const std::string CARD_PORTRAIT_SO_NAME_POST_FIX = "_CARD_PORTRAIT";
     inline const std::string CARD_DAMAGE_ICON_SO_NAME_POST_FIX = "_CARD_DAMAGE_ICON";
     inline const std::string CARD_DAMAGE_TEXT_SO_NAME_POST_FIX = "_CARD_DAMAGE";
+    inline const std::string CARD_WEIGHT_ICON_SO_NAME_POST_FIX = "_CARD_WEIGHT_ICON";
+    inline const std::string CARD_WEIGHT_TEXT_SO_NAME_POST_FIX = "_CARD_WEIGHT";
 
     // Fonts
     inline const strutils::StringId DEFAULT_FONT_NAME = strutils::StringId("font");

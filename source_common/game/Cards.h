@@ -43,6 +43,7 @@ struct CardData
 {
     int mCardId;
     int mCardDamage;
+    int mCardWeight;
     std::string mCardName;
     resources::ResourceId mCardTextureResourceId;
     resources::ResourceId mCardShaderResourceId;

@@ -55,6 +55,7 @@ void CardDataRepository::LoadCardData()
         CardData cardData;
         cardData.mCardId = cardObject["id"].get<int>();
         cardData.mCardDamage = cardObject["damage"].get<int>();
+        cardData.mCardWeight = cardObject["weight"].get<int>();
         cardData.mCardName = cardObject["name"].get<std::string>();
         cardData.mCardTextureResourceId = resourceService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + cardObject["texture"].get<std::string>());
         cardData.mCardShaderResourceId = resourceService.LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + cardObject["shader"].get<std::string>());
