@@ -17,9 +17,6 @@ namespace card_utils
 
 ///------------------------------------------------------------------------------------------------
 
-static const strutils::StringId WEIGHT_VALUE_UNIFORM_NAME = strutils::StringId("weight_value");
-
-static const std::string WEIGHT_ICON_SHADER_FILE_NAME = "weight_icon_shader.vs";
 static const std::string CARD_FRAME_TEXTURE_FILE_NAME = "card_frame.png";
 static const std::string CARD_BACK_TEXTURE_FILE_NAME = "card_back.png";
 static const std::string CARD_DAMAGE_ICON_TEXTURE_FILE_NAME = "damage_icon.png";
@@ -164,7 +161,6 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper(const CardData* cardData, con
         
         // Create weight icon
         cardComponents.push_back(scene.CreateSceneObject(sceneObjectComponentNames[4]));
-        cardComponents.back()->mShaderResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + WEIGHT_ICON_SHADER_FILE_NAME);
         cardComponents.back()->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CARD_WEIGHT_ICON_TEXTURE_FILE_NAME);
         cardComponents.back()->mScale.x = cardComponents.back()->mScale.y = game_constants::IN_GAME_CARD_PROPERTY_ICON_SCALE;
         cardComponents.back()->mBoundingRectMultiplier.x = game_constants::CARD_BOUNDING_RECT_X_MULTIPLIER;
@@ -172,7 +168,6 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper(const CardData* cardData, con
         cardComponents.back()->mPosition.x -= game_constants::IN_GAME_CARD_PROPERTY_ICON_X_OFFSET;
         cardComponents.back()->mPosition.y += game_constants::IN_GAME_CARD_PROPERTY_ICON_Y_OFFSET;
         cardComponents.back()->mPosition.z += 2 * game_constants::CARD_COMPONENT_Z_OFFSET;
-        cardComponents.back()->mShaderFloatUniformValues[WEIGHT_VALUE_UNIFORM_NAME] = cardData->mCardWeight;
         
         // Create weight
         cardComponents.push_back(scene.CreateSceneObject(sceneObjectComponentNames[5]));

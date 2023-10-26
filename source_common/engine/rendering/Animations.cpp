@@ -109,6 +109,51 @@ AnimationUpdateResult TweenAnimation::VUpdate(const float dtMillis)
 
 ///------------------------------------------------------------------------------------------------
 
+TweenRotationAnimation::TweenRotationAnimation(const SceneObjectTargets& sceneObjectTargets, const glm::vec3& targetRotation, const float secsDuration, const uint8_t animationFlags /* = animation_flags::NONE */, const float secsDelay /* = 0.0f */, const std::function<float(const float)> tweeningFunc /* = math::LinearFunction */, const math::TweeningMode tweeningMode /* = math::TweeningMode::EASE_IN */)
+    : BaseAnimation(animationFlags, secsDuration, secsDelay)
+    , mSceneObjectTargets(sceneObjectTargets)
+    , mInitRotation(sceneObjectTargets.front()->mRotation)
+    , mTargetRotation(targetRotation)
+    , mTweeningFunc(tweeningFunc)
+    , mTweeningMode(tweeningMode)
+{    
+    for (auto sceneObject: sceneObjectTargets)
+    {
+        if (IS_FLAG_SET(animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT))
+        {
+            mSceneObjectRotationOffsets.emplace_back(sceneObject->mRotation - sceneObjectTargets.front()->mRotation);
+        }
+        else
+        {
+            mSceneObjectRotationOffsets.emplace_back(glm::vec3(0.0f));
+        }
+    }
+}
+
+AnimationUpdateResult TweenRotationAnimation::VUpdate(const float dtMillis)
+{
+    auto animationUpdateResult = BaseAnimation::VUpdate(dtMillis);
+    
+    for (size_t i = 0; i < mSceneObjectTargets.size(); ++i)
+    {
+        auto sceneObject = mSceneObjectTargets.at(i);
+        auto offset = mSceneObjectRotationOffsets.at(i);
+        
+        float x = sceneObject->mPosition.x;
+        float z = sceneObject->mPosition.z;
+        float y = sceneObject->mPosition.y;
+        
+        sceneObject->mRotation = math::Lerp(mInitRotation, mTargetRotation, math::TweenValue(mAnimationT, mTweeningFunc, mTweeningMode));
+        sceneObject->mRotation.z = IS_FLAG_SET(animation_flags::IGNORE_Z_COMPONENT) ? z : sceneObject->mRotation.z + offset.z;
+        sceneObject->mRotation.x = IS_FLAG_SET(animation_flags::IGNORE_X_COMPONENT) ? x : sceneObject->mRotation.x + offset.x;
+        sceneObject->mRotation.y = IS_FLAG_SET(animation_flags::IGNORE_Y_COMPONENT) ? y : sceneObject->mRotation.y + offset.y;
+    }
+    
+    return animationUpdateResult;
+}
+
+///------------------------------------------------------------------------------------------------
+
 BezierCurveAnimation::BezierCurveAnimation(const SceneObjectTargets& sceneObjectTargets, const math::BezierCurve& curve, const float secsDuration, const uint8_t animationFlags /* = animation_flags::NONE */, const float secsDelay /* = 0.0f */)
     : BaseAnimation(animationFlags, secsDuration, secsDelay)
     , mSceneObjectTargets(sceneObjectTargets)

@@ -40,6 +40,9 @@ namespace game_constants
     inline const std::string CARD_WEIGHT_ICON_SO_NAME_POST_FIX = "_CARD_WEIGHT_ICON";
     inline const std::string CARD_WEIGHT_TEXT_SO_NAME_POST_FIX = "_CARD_WEIGHT";
 
+    // SO Names
+    inline const strutils::StringId TURN_POINTER_SCENE_OBJECT_NAME = strutils::StringId("TURN_POINTER_SCENE_OBJECT_NAME");
+
     // Fonts
     inline const strutils::StringId DEFAULT_FONT_NAME = strutils::StringId("font");
 

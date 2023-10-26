@@ -5,6 +5,8 @@
 ///  Created by Alex Koukoulas on 29/09/2023                                                       
 ///------------------------------------------------------------------------------------------------
 
+#include <engine/rendering/Animations.h>
+#include <game/GameConstants.h>
 #include <game/gameactions/NextPlayerGameAction.h>
 
 ///------------------------------------------------------------------------------------------------
@@ -24,6 +26,8 @@ void NextPlayerGameAction::VSetNewGameState()
 
 void NextPlayerGameAction::VInitAnimation()
 {
+    mPendingAnimations = 0;
+    
 }
 
 ///------------------------------------------------------------------------------------------------

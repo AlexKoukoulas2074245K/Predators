@@ -93,6 +93,23 @@ private:
 
 ///------------------------------------------------------------------------------------------------
 
+class TweenRotationAnimation final: public BaseAnimation
+{
+public:
+    TweenRotationAnimation(const SceneObjectTargets& sceneObjectTargets, const glm::vec3& targetPosition, const float secsDuration, const uint8_t animationFlags = animation_flags::NONE, const float secsDelay = 0.0f, const std::function<float(const float)> tweeningFunc = math::LinearFunction , const math::TweeningMode tweeningMode = math::TweeningMode::EASE_IN);
+    AnimationUpdateResult VUpdate(const float dtMillis);
+    
+private:
+    SceneObjectTargets mSceneObjectTargets;
+    const glm::vec3 mInitRotation;
+    const glm::vec3 mTargetRotation;
+    const std::function<float(const float)> mTweeningFunc;
+    const math::TweeningMode mTweeningMode;
+    std::vector<glm::vec3> mSceneObjectRotationOffsets;
+};
+
+///------------------------------------------------------------------------------------------------
+
 class BezierCurveAnimation final: public BaseAnimation
 {
 public:

@@ -39,7 +39,11 @@ static const strutils::StringId PLAY_CARD_ACTION_NAME = strutils::StringId("Play
 
 static const std::string MAKE_SPACE_REVERT_TO_POSITION_ANIMATION_NAME_PREFIX = "MAKE_SPACE_REVERT_";
 static const std::string BATTLE_ICON_TEXTURE_FILE_NAME = "battle_icon.png";
+static const std::string TURN_POINTER_TEXTURE_FILE_NAME = "turn_pointer.png";
 static const std::string CARD_HIGHLIGHTER_SCENE_OBJECT_NAME_PREFIX = "HIGHLIGHTER_CARD_";
+
+static const glm::vec3 TURN_POINTER_POSITION = {0.2f, 0.0f, 0.1f};
+static const glm::vec3 TURN_POINTER_SCALE = {0.08f, 0.08f, 0.08f};
 
 static const float CARD_SELECTION_ANIMATION_DURATION = 0.2f;
 static const float CARD_LOCATION_EFFECT_MIN_TARGET_ALPHA = 0.25f;
@@ -115,6 +119,8 @@ void GameSessionManager::InitGameSession()
     
     const auto& activeSceneManager = CoreSystemsEngine::GetInstance().GetActiveSceneManager();
     auto activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    
+    // Card Location Indicator
     auto cardLocationIndicatorSo = activeScene->CreateSceneObject(CARD_LOCATION_INDICATOR_SCENE_OBJECT_NAME);
     cardLocationIndicatorSo->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + game_constants::CARD_LOCATION_MASK_TEXTURE_NAME);
     cardLocationIndicatorSo->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + game_constants::BOARD_CARD_LOCATION_SHADER_NAME);
@@ -123,9 +129,14 @@ void GameSessionManager::InitGameSession()
     cardLocationIndicatorSo->mShaderFloatUniformValues[game_constants::PERLIN_RESOLUTION_Y_UNIFORM_NAME] = game_constants::CARD_LOCATION_EFFECT_PERLIN_RESOLUTION;
     cardLocationIndicatorSo->mScale = glm::vec3(game_constants::IN_GAME_CARD_BASE_SCALE * game_constants::IN_GAME_PLAYED_CARD_SCALE_FACTOR);
     cardLocationIndicatorSo->mPosition.z = game_constants::CARD_LOCATION_EFFECT_Z;
-    
     cardLocationIndicatorSo->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
     cardLocationIndicatorSo->mInvisible = true;
+    
+    // Turn pointer
+    auto turnPointerSo = activeScene->CreateSceneObject(game_constants::TURN_POINTER_SCENE_OBJECT_NAME);
+    turnPointerSo->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + TURN_POINTER_TEXTURE_FILE_NAME);
+    turnPointerSo->mPosition = TURN_POINTER_POSITION;
+    turnPointerSo->mScale = TURN_POINTER_SCALE;
 }
 
 ///------------------------------------------------------------------------------------------------

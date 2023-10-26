@@ -24,6 +24,9 @@ public:
     ActionAnimationUpdateResult VUpdateAnimation(const float dtMillis) override;
     
     const std::vector<std::string>& VGetRequiredExtraParamNames() const override;
+
+private:
+    int mPendingAnimations;
 };
 
 ///------------------------------------------------------------------------------------------------
