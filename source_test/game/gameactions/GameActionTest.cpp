@@ -8,6 +8,7 @@
 #include <gtest/gtest.h>
 #include <engine/utils/Logging.h>
 #include <game/BoardState.h>
+#include <game/Cards.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/PlayCardGameAction.h>
 
@@ -20,127 +21,121 @@ static const strutils::StringId NEXT_PLAYER_GAME_ACTION_NAME = strutils::StringI
 
 ///------------------------------------------------------------------------------------------------
 
-TEST(GameActionTests, TestIdleGameActionExistsByDefault)
+class GameActionTests : public testing::Test
 {
-    BoardState boardState;
-    boardState.GetPlayerStates().emplace_back();
-    boardState.GetPlayerStates().emplace_back();
-    GameActionEngine engine(GameActionEngine::EngineOperationMode::HEADLESS, 0, &boardState, nullptr);
-    
-    EXPECT_EQ(engine.GetActiveGameActionName(), IDLE_GAME_ACTION_NAME);
-}
-
-TEST(GameActionTests, TestPushedGameActionIsActive)
-{
-    BoardState boardState;
-    boardState.GetPlayerStates().emplace_back();
-    boardState.GetPlayerStates().emplace_back();
-    GameActionEngine engine(GameActionEngine::EngineOperationMode::HEADLESS, 0, &boardState, nullptr);
-    
-    engine.AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
-    
-    EXPECT_EQ(engine.GetActiveGameActionName(), DRAW_CARD_GAME_ACTION_NAME);
-}
-
-TEST(GameActionTests, TestBoardStatePostDrawAction)
-{
-    BoardState boardState;
-    boardState.GetPlayerStates().emplace_back();
-    boardState.GetPlayerStates().emplace_back();
-    GameActionEngine engine(GameActionEngine::EngineOperationMode::HEADLESS, 0, &boardState, nullptr);
-    
-    engine.AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
-    engine.Update(0);
-    
-    engine.AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
-    engine.Update(0);
-    
-    EXPECT_EQ(boardState.GetActivePlayerState().mPlayerHeldCards.size(), 1);
-    EXPECT_EQ(engine.GetActiveGameActionName(), IDLE_GAME_ACTION_NAME);
-}
-
-TEST(GameActionTests, TestBoardStatePostDrawAndPlayAction)
-{
-    BoardState boardState;
-    boardState.GetPlayerStates().emplace_back();
-    boardState.GetPlayerStates().emplace_back();
-    GameActionEngine engine(GameActionEngine::EngineOperationMode::HEADLESS, 0, &boardState, nullptr);
-    
-    engine.AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
-    engine.AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
-    engine.AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "0" }});
-    engine.Update(0);
-    engine.Update(0);
-    engine.Update(0);
-    
-    EXPECT_EQ(boardState.GetActivePlayerState().mPlayerHeldCards.size(), 0);
-    EXPECT_EQ(boardState.GetActivePlayerState().mPlayerBoardCards.size(), 1);
-    EXPECT_EQ(engine.GetActiveGameActionName(), IDLE_GAME_ACTION_NAME);
-}
-
-TEST(GameActionTests, TestDrawPlayNextDrawPlayActionRound)
-{
-    BoardState boardState;
-    boardState.GetPlayerStates().emplace_back();
-    boardState.GetPlayerStates().emplace_back();
-    GameActionEngine engine(GameActionEngine::EngineOperationMode::HEADLESS, 0, &boardState, nullptr);
-    
-    engine.AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
-    engine.AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
-    engine.AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "0" }});
-    engine.AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
-    engine.AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
-    engine.AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "0" }});
-    engine.AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
-    
-    while (engine.GetActiveGameActionName() != IDLE_GAME_ACTION_NAME)
+protected:
+    GameActionTests()
+        : mBoardState()
+        , mActionEngine(GameActionEngine::EngineOperationMode::HEADLESS, 0, &mBoardState, nullptr)
     {
-        engine.Update(0);
+        
     }
     
-    for (size_t i = 0; i < boardState.GetPlayerCount(); ++i)
+    void SetUp() override
     {
-        EXPECT_EQ(boardState.GetPlayerStates().at(i).mPlayerHeldCards.size(), 0);
-        EXPECT_EQ(boardState.GetPlayerStates().at(i).mPlayerBoardCards.size(), 1);
+        CardDataRepository::GetInstance().LoadCardData();
+        mBoardState.GetPlayerStates().emplace_back();
+        mBoardState.GetPlayerStates().emplace_back();
     }
     
-    EXPECT_EQ(boardState.GetActivePlayerIndex(), 0);
+protected:
+    BoardState mBoardState;
+    GameActionEngine mActionEngine;
+};
+
+///------------------------------------------------------------------------------------------------
+
+TEST_F(GameActionTests, TestIdleGameActionExistsByDefault)
+{
+    EXPECT_EQ(mActionEngine.GetActiveGameActionName(), IDLE_GAME_ACTION_NAME);
 }
 
-TEST(GameActionTests, TestWeightAmmoIncrements)
+TEST_F(GameActionTests, TestPushedGameActionIsActive)
 {
-    BoardState boardState;
-    boardState.GetPlayerStates().emplace_back();
-    boardState.GetPlayerStates().emplace_back();
-    GameActionEngine engine(GameActionEngine::EngineOperationMode::HEADLESS, 0, &boardState, nullptr);
+    mActionEngine.AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
     
-    for (size_t i = 0; i < boardState.GetPlayerCount(); ++i)
+    EXPECT_EQ(mActionEngine.GetActiveGameActionName(), DRAW_CARD_GAME_ACTION_NAME);
+}
+
+TEST_F(GameActionTests, TestBoardStatePostDrawAction)
+{
+    mActionEngine.AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    mActionEngine.Update(0);
+    
+    mActionEngine.AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
+    mActionEngine.Update(0);
+    
+    EXPECT_EQ(mBoardState.GetActivePlayerState().mPlayerHeldCards.size(), 1);
+    EXPECT_EQ(mActionEngine.GetActiveGameActionName(), IDLE_GAME_ACTION_NAME);
+}
+
+TEST_F(GameActionTests, TestBoardStatePostDrawAndPlayAction)
+{
+    mActionEngine.AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    mActionEngine.AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
+    mActionEngine.AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "0" }});
+    mActionEngine.Update(0);
+    mActionEngine.Update(0);
+    mActionEngine.Update(0);
+    
+    EXPECT_EQ(mBoardState.GetActivePlayerState().mPlayerHeldCards.size(), 0);
+    EXPECT_EQ(mBoardState.GetActivePlayerState().mPlayerBoardCards.size(), 1);
+    EXPECT_EQ(mActionEngine.GetActiveGameActionName(), IDLE_GAME_ACTION_NAME);
+}
+
+TEST_F(GameActionTests, TestDrawPlayNextDrawPlayActionRound)
+{
+    mActionEngine.AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    mActionEngine.AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
+    mActionEngine.AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "0" }});
+    mActionEngine.AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    mActionEngine.AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
+    mActionEngine.AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "0" }});
+    mActionEngine.AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    
+    while (mActionEngine.GetActiveGameActionName() != IDLE_GAME_ACTION_NAME)
     {
-        EXPECT_EQ(boardState.GetPlayerStates().at(i).mPlayerTotalWeightAmmo, 0);
-        EXPECT_EQ(boardState.GetPlayerStates().at(i).mPlayerCurrentWeightAmmo, 0);
+        mActionEngine.Update(0);
     }
     
-    engine.AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
-    engine.Update(0);
+    for (size_t i = 0; i < mBoardState.GetPlayerCount(); ++i)
+    {
+        EXPECT_EQ(mBoardState.GetPlayerStates().at(i).mPlayerHeldCards.size(), 0);
+        EXPECT_EQ(mBoardState.GetPlayerStates().at(i).mPlayerBoardCards.size(), 1);
+    }
     
-    EXPECT_EQ(boardState.GetPlayerStates().at(0).mPlayerTotalWeightAmmo, 1);
-    EXPECT_EQ(boardState.GetPlayerStates().at(1).mPlayerCurrentWeightAmmo, 0);
+    EXPECT_EQ(mBoardState.GetActivePlayerIndex(), 0);
+}
+
+TEST_F(GameActionTests, TestWeightAmmoIncrements)
+{
+    for (size_t i = 0; i < mBoardState.GetPlayerCount(); ++i)
+    {
+        EXPECT_EQ(mBoardState.GetPlayerStates().at(i).mPlayerTotalWeightAmmo, 0);
+        EXPECT_EQ(mBoardState.GetPlayerStates().at(i).mPlayerCurrentWeightAmmo, 0);
+    }
     
-    engine.AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
-    engine.Update(0);
+    mActionEngine.AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    mActionEngine.Update(0);
     
-    EXPECT_EQ(boardState.GetPlayerStates().at(0).mPlayerTotalWeightAmmo, 1);
-    EXPECT_EQ(boardState.GetPlayerStates().at(1).mPlayerCurrentWeightAmmo, 1);
+    EXPECT_EQ(mBoardState.GetPlayerStates().at(0).mPlayerTotalWeightAmmo, 1);
+    EXPECT_EQ(mBoardState.GetPlayerStates().at(1).mPlayerCurrentWeightAmmo, 0);
     
-    engine.AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
-    engine.Update(0);
+    mActionEngine.AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    mActionEngine.Update(0);
     
-    EXPECT_EQ(boardState.GetPlayerStates().at(0).mPlayerTotalWeightAmmo, 2);
-    EXPECT_EQ(boardState.GetPlayerStates().at(1).mPlayerCurrentWeightAmmo, 1);
+    EXPECT_EQ(mBoardState.GetPlayerStates().at(0).mPlayerTotalWeightAmmo, 1);
+    EXPECT_EQ(mBoardState.GetPlayerStates().at(1).mPlayerCurrentWeightAmmo, 1);
     
-    engine.AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
-    engine.Update(0);
+    mActionEngine.AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    mActionEngine.Update(0);
     
-    EXPECT_EQ(boardState.GetPlayerStates().at(0).mPlayerTotalWeightAmmo, 2);
-    EXPECT_EQ(boardState.GetPlayerStates().at(1).mPlayerCurrentWeightAmmo, 2);
+    EXPECT_EQ(mBoardState.GetPlayerStates().at(0).mPlayerTotalWeightAmmo, 2);
+    EXPECT_EQ(mBoardState.GetPlayerStates().at(1).mPlayerCurrentWeightAmmo, 1);
+    
+    mActionEngine.AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    mActionEngine.Update(0);
+    
+    EXPECT_EQ(mBoardState.GetPlayerStates().at(0).mPlayerTotalWeightAmmo, 2);
+    EXPECT_EQ(mBoardState.GetPlayerStates().at(1).mPlayerCurrentWeightAmmo, 2);
 }

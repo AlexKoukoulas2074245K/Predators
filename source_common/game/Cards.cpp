@@ -30,7 +30,7 @@ size_t CardDataRepository::GetCardDataCount() const
 
 ///------------------------------------------------------------------------------------------------
 
-std::optional<std::reference_wrapper<const CardData>> CardDataRepository::GetCard(const int cardId) const
+std::optional<std::reference_wrapper<const CardData>> CardDataRepository::GetCardData(const int cardId) const
 {
     auto findIter = mCardDataMap.find(cardId);
     if (findIter != mCardDataMap.end())

@@ -49,7 +49,7 @@ void DrawCardGameAction::VInitAnimation()
         if (i == cardCount - 1)
         {
             int cardId = mBoardState->GetActivePlayerState().mPlayerHeldCards.back();
-            auto cardOpt = CardDataRepository::GetInstance().GetCard(cardId);
+            auto cardOpt = CardDataRepository::GetInstance().GetCardData(cardId);
             assert(cardOpt);
             
             auto cardSoWrapper = card_utils::CreateCardSoWrapper(

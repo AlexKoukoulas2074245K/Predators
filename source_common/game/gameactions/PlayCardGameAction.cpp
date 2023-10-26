@@ -52,7 +52,7 @@ void PlayCardGameAction::VSetNewGameState()
     
     activePlayerState.mPlayerBoardCards.push_back(cardId);
     activePlayerState.mPlayerHeldCards.erase(activePlayerState.mPlayerHeldCards.begin() + lastPlayedCardIndex);
-    activePlayerState.mPlayerCurrentWeightAmmo -= CardDataRepository::GetInstance().GetCard(cardId)->get().mCardWeight;
+    activePlayerState.mPlayerCurrentWeightAmmo -= CardDataRepository::GetInstance().GetCardData(cardId)->get().mCardWeight;
 }
 
 ///------------------------------------------------------------------------------------------------

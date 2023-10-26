@@ -72,7 +72,7 @@ public:
     CardDataRepository& operator = (CardDataRepository&&) = delete;
     
     size_t GetCardDataCount() const;
-    std::optional<std::reference_wrapper<const CardData>> GetCard(const int cardId) const;
+    std::optional<std::reference_wrapper<const CardData>> GetCardData(const int cardId) const;
     void LoadCardData();
     
 private:

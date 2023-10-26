@@ -50,7 +50,6 @@ Game::~Game()
 
 void Game::Init()
 {
-    
     CardDataRepository::GetInstance().LoadCardData();
     
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
