@@ -108,29 +108,29 @@ void Game::Init()
 
 void Game::Update(const float dtMillis)
 {
-    auto& systemsEngine = CoreSystemsEngine::GetInstance();
-    auto activeScene = systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
-    
-//    static float time = 0.0f;
-//    time += dtMillis * 0.001f;
-    
-    if (systemsEngine.GetInputStateManager().VButtonTapped(input::Button::MAIN_BUTTON))
-    {
-        auto touchPos = systemsEngine.GetInputStateManager().VGetPointingPosInWorldSpace(activeScene->GetCamera().GetViewMatrix(), activeScene->GetCamera().GetProjMatrix());
-        
-        rendering::CreateParticleEmitterAtPosition
-        (
-            glm::vec3(touchPos.x, touchPos.y, 1.0f),   // pos
-            {0.5f, 1.0f},                              // particleLifetimeRange
-            {-0.003f, 0.003f},                         // particlePositionXOffsetRange
-            {-0.003f, 0.003f},                         // particlePositionYOffsetRange
-            {0.002f, 0.004f},                          // particleSizeRange
-            10,                                        // particleCount
-            "smoke.png",                               // particleTextureFilename
-            *systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE), // scene
-            particle_flags::PREFILLED                  // particleFlags
-         );
-    }
+//    auto& systemsEngine = CoreSystemsEngine::GetInstance();
+//    auto activeScene = systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+//
+////    static float time = 0.0f;
+////    time += dtMillis * 0.001f;
+//
+//    if (systemsEngine.GetInputStateManager().VButtonTapped(input::Button::MAIN_BUTTON))
+//    {
+//        auto touchPos = systemsEngine.GetInputStateManager().VGetPointingPosInWorldSpace(activeScene->GetCamera().GetViewMatrix(), activeScene->GetCamera().GetProjMatrix());
+//
+//        rendering::CreateParticleEmitterAtPosition
+//        (
+//            glm::vec3(touchPos.x, touchPos.y, 1.0f),   // pos
+//            {0.5f, 1.0f},                              // particleLifetimeRange
+//            {-0.003f, 0.003f},                         // particlePositionXOffsetRange
+//            {-0.003f, 0.003f},                         // particlePositionYOffsetRange
+//            {0.002f, 0.004f},                          // particleSizeRange
+//            10,                                        // particleCount
+//            "smoke.png",                               // particleTextureFilename
+//            *systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE), // scene
+//            particle_flags::PREFILLED                  // particleFlags
+//         );
+//    }
     
     mGameSessionManager.Update(dtMillis);
 }
@@ -191,10 +191,10 @@ void Game::CreateDebugWidgets()
     
     static size_t currentIndex = 0;
     static std::string activePlayerIndex = "";
-    static std::string opponentPlayerHealth = "";
+    static std::string opponentPlayerStats = "";
     static std::string opponentPlayerHand = "";
     static std::string opponentPlayerBoard = "";
-    static std::string localPlayerHealth = "";
+    static std::string localPlayerStats = "";
     static std::string localPlayerBoard = "";
     static std::string localPlayerHand = "";
     static std::unordered_map<std::string, std::string> actionExtraParams;
@@ -246,18 +246,23 @@ void Game::CreateDebugWidgets()
     
     const auto& boardState = mGameSessionManager.GetBoardState();
     activePlayerIndex = std::to_string(boardState.GetActivePlayerIndex());
-    opponentPlayerHealth = std::to_string(boardState.GetPlayerStates().front().mPlayerHealth);
+    opponentPlayerStats = "Health: " + std::to_string(boardState.GetPlayerStates().front().mPlayerHealth) +
+                       " | Total Weight Ammo: " + std::to_string(boardState.GetPlayerStates().front().mPlayerTotalWeightAmmo) +
+                       " | Current Weight Ammo: " + std::to_string(boardState.GetPlayerStates().front().mPlayerCurrentWeightAmmo);
     opponentPlayerHand = strutils::VecToString(boardState.GetPlayerStates().front().mPlayerHeldCards);
     opponentPlayerBoard = strutils::VecToString(boardState.GetPlayerStates().front().mPlayerBoardCards);
     localPlayerBoard = strutils::VecToString(boardState.GetPlayerStates().back().mPlayerBoardCards);
     localPlayerHand = strutils::VecToString(boardState.GetPlayerStates().back().mPlayerHeldCards);
-    localPlayerHealth = std::to_string(boardState.GetPlayerStates().back().mPlayerHealth);
+    localPlayerStats = "Health: " + std::to_string(boardState.GetPlayerStates().back().mPlayerHealth) +
+                    " | Total Weight Ammo: " + std::to_string(boardState.GetPlayerStates().back().mPlayerTotalWeightAmmo) +
+                    " | Current Weight Ammo: " + std::to_string(boardState.GetPlayerStates().back().mPlayerCurrentWeightAmmo);
     
     ImGui::PopStyleColor(3);
     ImGui::SeparatorText("Output");
+    ImGui::TextWrapped("Turn Counter %d", boardState.GetTurnCounter());
     ImGui::TextWrapped("Active Player %s", activePlayerIndex.c_str());
-    ImGui::SeparatorText("Opponent Player Health");
-    ImGui::TextWrapped("%s", opponentPlayerHealth.c_str());
+    ImGui::SeparatorText("Opponent Player Stats");
+    ImGui::TextWrapped("%s", opponentPlayerStats.c_str());
     ImGui::SeparatorText("Opponent Player Hand");
     ImGui::TextWrapped("%s", opponentPlayerHand.c_str());
     ImGui::SeparatorText("Opponent Player Board");
@@ -266,8 +271,8 @@ void Game::CreateDebugWidgets()
     ImGui::TextWrapped("%s", localPlayerBoard.c_str());
     ImGui::SeparatorText("Local Player Hand");
     ImGui::TextWrapped("%s", localPlayerHand.c_str());
-    ImGui::SeparatorText("Local Player Health");
-    ImGui::TextWrapped("%s", localPlayerHealth.c_str());
+    ImGui::SeparatorText("Local Player Stats");
+    ImGui::TextWrapped("%s", localPlayerStats.c_str());
     ImGui::End();
 }
 #else

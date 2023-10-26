@@ -49,6 +49,9 @@ TEST(GameActionTests, TestBoardStatePostDrawAction)
     boardState.GetPlayerStates().emplace_back();
     GameActionEngine engine(GameActionEngine::EngineOperationMode::HEADLESS, 0, &boardState, nullptr);
     
+    engine.AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    engine.Update(0);
+    
     engine.AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
     engine.Update(0);
     
@@ -63,8 +66,10 @@ TEST(GameActionTests, TestBoardStatePostDrawAndPlayAction)
     boardState.GetPlayerStates().emplace_back();
     GameActionEngine engine(GameActionEngine::EngineOperationMode::HEADLESS, 0, &boardState, nullptr);
     
+    engine.AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     engine.AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
     engine.AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "0" }});
+    engine.Update(0);
     engine.Update(0);
     engine.Update(0);
     
@@ -80,6 +85,7 @@ TEST(GameActionTests, TestDrawPlayNextDrawPlayActionRound)
     boardState.GetPlayerStates().emplace_back();
     GameActionEngine engine(GameActionEngine::EngineOperationMode::HEADLESS, 0, &boardState, nullptr);
     
+    engine.AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     engine.AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
     engine.AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "0" }});
     engine.AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
@@ -99,4 +105,42 @@ TEST(GameActionTests, TestDrawPlayNextDrawPlayActionRound)
     }
     
     EXPECT_EQ(boardState.GetActivePlayerIndex(), 0);
+}
+
+TEST(GameActionTests, TestWeightAmmoIncrements)
+{
+    BoardState boardState;
+    boardState.GetPlayerStates().emplace_back();
+    boardState.GetPlayerStates().emplace_back();
+    GameActionEngine engine(GameActionEngine::EngineOperationMode::HEADLESS, 0, &boardState, nullptr);
+    
+    for (size_t i = 0; i < boardState.GetPlayerCount(); ++i)
+    {
+        EXPECT_EQ(boardState.GetPlayerStates().at(i).mPlayerTotalWeightAmmo, 0);
+        EXPECT_EQ(boardState.GetPlayerStates().at(i).mPlayerCurrentWeightAmmo, 0);
+    }
+    
+    engine.AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    engine.Update(0);
+    
+    EXPECT_EQ(boardState.GetPlayerStates().at(0).mPlayerTotalWeightAmmo, 1);
+    EXPECT_EQ(boardState.GetPlayerStates().at(1).mPlayerCurrentWeightAmmo, 0);
+    
+    engine.AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    engine.Update(0);
+    
+    EXPECT_EQ(boardState.GetPlayerStates().at(0).mPlayerTotalWeightAmmo, 1);
+    EXPECT_EQ(boardState.GetPlayerStates().at(1).mPlayerCurrentWeightAmmo, 1);
+    
+    engine.AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    engine.Update(0);
+    
+    EXPECT_EQ(boardState.GetPlayerStates().at(0).mPlayerTotalWeightAmmo, 2);
+    EXPECT_EQ(boardState.GetPlayerStates().at(1).mPlayerCurrentWeightAmmo, 1);
+    
+    engine.AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    engine.Update(0);
+    
+    EXPECT_EQ(boardState.GetPlayerStates().at(0).mPlayerTotalWeightAmmo, 2);
+    EXPECT_EQ(boardState.GetPlayerStates().at(1).mPlayerCurrentWeightAmmo, 2);
 }

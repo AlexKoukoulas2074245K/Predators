@@ -71,7 +71,6 @@ void GameSessionManager::InitGameSession()
     mBoardState = std::make_unique<BoardState>();
     mBoardState->GetPlayerStates().emplace_back();
     mBoardState->GetPlayerStates().emplace_back();
-    mBoardState->GetActivePlayerIndex() = 0;
     
     mPlayerHeldCardSceneObjectWrappers.emplace_back();
     mPlayerHeldCardSceneObjectWrappers.emplace_back();
@@ -81,6 +80,7 @@ void GameSessionManager::InitGameSession()
     
     mActionEngine = std::make_unique<GameActionEngine>(GameActionEngine::EngineOperationMode::ANIMATED, 0, mBoardState.get(), this);
     
+    mActionEngine->AddGameAction(strutils::StringId("NextPlayerGameAction"));
 //    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
 //    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
 //    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));

@@ -13,6 +13,11 @@ void NextPlayerGameAction::VSetNewGameState()
 {
     size_t& activePlayerIndex = mBoardState->GetActivePlayerIndex();
     activePlayerIndex = (activePlayerIndex + 1) % mBoardState->GetPlayerCount();
+    
+    mBoardState->GetTurnCounter()++;
+    auto& targetPlayerState = mBoardState->GetPlayerStates()[mBoardState->GetTurnCounter() % mBoardState->GetPlayerCount()];
+    targetPlayerState.mPlayerTotalWeightAmmo++;
+    targetPlayerState.mPlayerCurrentWeightAmmo = targetPlayerState.mPlayerTotalWeightAmmo;
 }
 
 ///------------------------------------------------------------------------------------------------

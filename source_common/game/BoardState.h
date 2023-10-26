@@ -20,6 +20,8 @@ struct PlayerState
     std::vector<int> mPlayerHeldCards;
     std::vector<int> mPlayerBoardCards;
     int mPlayerHealth = 0;
+    int mPlayerTotalWeightAmmo = 0;
+    int mPlayerCurrentWeightAmmo = 0;
 };
 
 ///------------------------------------------------------------------------------------------------
@@ -33,11 +35,14 @@ public:
     PlayerState& GetActivePlayerState() { return mPlayerStates[mActivePlayerIndex]; }
     size_t GetActivePlayerIndex() const { return mActivePlayerIndex; }
     size_t& GetActivePlayerIndex() { return mActivePlayerIndex; }
+    int& GetTurnCounter() { return mTurnCounter; }
+    int GetTurnCounter() const { return mTurnCounter; }
     size_t GetPlayerCount() const { return mPlayerStates.size(); }
     
 private:
     std::vector<PlayerState> mPlayerStates;
-    size_t mActivePlayerIndex = 0;
+    size_t mActivePlayerIndex = -1;
+    int mTurnCounter = -1;
 };
 
 ///------------------------------------------------------------------------------------------------
