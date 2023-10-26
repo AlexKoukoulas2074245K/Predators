@@ -53,7 +53,7 @@ AnimationUpdateResult BaseAnimation::VUpdate(const float dtMillis)
 
 ///------------------------------------------------------------------------------------------------
 
-TweenAnimation::TweenAnimation(const SceneObjectTargets& sceneObjectTargets, const glm::vec3& targetPosition, const glm::vec3& targetScale, const float secsDuration, const uint8_t animationFlags /* = animation_flags::NONE */, const float secsDelay /* = 0.0f */, const std::function<float(const float)> tweeningFunc /* = math::LinearFunction */, const math::TweeningMode tweeningMode /* = math::TweeningMode::EASE_IN */)
+TweenPositionScaleAnimation::TweenPositionScaleAnimation(const SceneObjectTargets& sceneObjectTargets, const glm::vec3& targetPosition, const glm::vec3& targetScale, const float secsDuration, const uint8_t animationFlags /* = animation_flags::NONE */, const float secsDelay /* = 0.0f */, const std::function<float(const float)> tweeningFunc /* = math::LinearFunction */, const math::TweeningMode tweeningMode /* = math::TweeningMode::EASE_IN */)
     : BaseAnimation(animationFlags, secsDuration, secsDelay)
     , mSceneObjectTargets(sceneObjectTargets)
     , mTweeningFunc(tweeningFunc)
@@ -78,7 +78,7 @@ TweenAnimation::TweenAnimation(const SceneObjectTargets& sceneObjectTargets, con
     }
 }
 
-AnimationUpdateResult TweenAnimation::VUpdate(const float dtMillis)
+AnimationUpdateResult TweenPositionScaleAnimation::VUpdate(const float dtMillis)
 {
     auto animationUpdateResult = BaseAnimation::VUpdate(dtMillis);
     
@@ -141,6 +141,48 @@ AnimationUpdateResult TweenRotationAnimation::VUpdate(const float dtMillis)
         sceneObject->mRotation.z = IS_FLAG_SET(animation_flags::IGNORE_Z_COMPONENT) ? z : sceneObject->mRotation.z + offset.z;
         sceneObject->mRotation.x = IS_FLAG_SET(animation_flags::IGNORE_X_COMPONENT) ? x : sceneObject->mRotation.x + offset.x;
         sceneObject->mRotation.y = IS_FLAG_SET(animation_flags::IGNORE_Y_COMPONENT) ? y : sceneObject->mRotation.y + offset.y;
+    }
+    
+    return animationUpdateResult;
+}
+
+///------------------------------------------------------------------------------------------------
+
+TweenAlphaAnimation::TweenAlphaAnimation(const SceneObjectTargets& sceneObjectTargets, const float targetAlpha, const float secsDuration, const uint8_t animationFlags /* = animation_flags::NONE */, const float secsDelay /* = 0.0f */, const std::function<float(const float)> tweeningFunc /* = math::LinearFunction */, const math::TweeningMode tweeningMode /* = math::TweeningMode::EASE_IN */)
+    : BaseAnimation(animationFlags, secsDuration, secsDelay)
+    , mSceneObjectTargets(sceneObjectTargets)
+    , mInitAlpha(sceneObjectTargets.front()->mShaderFloatUniformValues.at(game_constants::CUSTOM_ALPHA_UNIFORM_NAME))
+    , mTargetAlpha(targetAlpha)
+    , mTweeningFunc(tweeningFunc)
+    , mTweeningMode(tweeningMode)
+{
+    assert(!IS_FLAG_SET(animation_flags::IGNORE_X_COMPONENT));
+    assert(!IS_FLAG_SET(animation_flags::IGNORE_Y_COMPONENT));
+    assert(!IS_FLAG_SET(animation_flags::IGNORE_Z_COMPONENT));
+    
+    for (auto sceneObject: sceneObjectTargets)
+    {
+        if (IS_FLAG_SET(animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT))
+        {
+            mSceneObjectAlphaOffsets.emplace_back(sceneObject->mShaderFloatUniformValues.at(game_constants::CUSTOM_ALPHA_UNIFORM_NAME) - sceneObjectTargets.front()->mShaderFloatUniformValues.at(game_constants::CUSTOM_ALPHA_UNIFORM_NAME));
+        }
+        else
+        {
+            mSceneObjectAlphaOffsets.emplace_back(0.0f);
+        }
+    }
+}
+
+AnimationUpdateResult TweenAlphaAnimation::VUpdate(const float dtMillis)
+{
+    auto animationUpdateResult = BaseAnimation::VUpdate(dtMillis);
+    
+    for (size_t i = 0; i < mSceneObjectTargets.size(); ++i)
+    {
+        auto sceneObject = mSceneObjectTargets.at(i);
+        auto offset = mSceneObjectAlphaOffsets.at(i);
+        
+        sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = math::Lerp(mInitAlpha, mTargetAlpha, math::TweenValue(mAnimationT, mTweeningFunc, mTweeningMode)) + offset;
     }
     
     return animationUpdateResult;

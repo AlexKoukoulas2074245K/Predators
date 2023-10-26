@@ -9,6 +9,7 @@ uniform vec4 point_light_colors[32];
 uniform vec3 point_light_positions[32];
 uniform float point_light_powers[32];
 uniform float time;
+uniform float custom_alpha;
 uniform float time_speed;
 uniform float perlin_resolution_x;
 uniform float perlin_resolution_y;
@@ -129,4 +130,6 @@ void main()
         
         frag_color = frag_color * ambient_light_color + light_accumulator;
     }
+    
+    frag_color.a *= custom_alpha;
 }

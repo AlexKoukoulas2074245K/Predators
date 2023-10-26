@@ -5,6 +5,7 @@ in vec2 uv_frag;
 
 out vec4 frag_color;
 
+uniform float custom_alpha;
 uniform sampler2D tex;
 
 void main()
@@ -21,4 +22,6 @@ void main()
     frag_color.a = frag_color.r * min(1.0f, frag_lifetime);
     
     if (frag_color.a < 0.1) discard;
+    
+    frag_color.a *= custom_alpha;
 }

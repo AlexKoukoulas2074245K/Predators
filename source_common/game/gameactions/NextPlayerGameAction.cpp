@@ -45,6 +45,9 @@ void NextPlayerGameAction::VInitAnimation()
     {
         mPendingAnimations--;
     });
+    
+    auto turnPointerHighlighterSo = activeScene->FindSceneObject(game_constants::TURN_POINTER_HIGHLIGHTER_SCENE_OBJECT_NAME);
+    animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(std::vector<std::shared_ptr<scene::SceneObject>>{turnPointerHighlighterSo}, static_cast<float>(mBoardState->GetActivePlayerIndex()), TURN_POINTER_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), [](){});
 }
 
 ///------------------------------------------------------------------------------------------------

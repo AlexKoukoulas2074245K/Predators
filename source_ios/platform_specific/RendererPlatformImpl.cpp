@@ -42,6 +42,7 @@ static const strutils::StringId POINT_LIGHT_COLORS_UNIFORM_NAME = strutils::Stri
 static const strutils::StringId POINT_LIGHT_POSITIONS_UNIFORM_NAME = strutils::StringId("point_light_positions");
 static const strutils::StringId POINT_LIGHT_POWERS_UNIFORM_NAME = strutils::StringId("point_light_powers");
 static const strutils::StringId IS_TEXTURE_SHEET_UNIFORM_NAME = strutils::StringId("texture_sheet");
+static const strutils::StringId CUSTOM_ALPHA_UNIFORM_NAME = strutils::StringId("custom_alpha");
 
 ///------------------------------------------------------------------------------------------------
 
@@ -75,12 +76,13 @@ public:
         world = glm::rotate(world, mSceneObject.mRotation.z, math::Z_AXIS);
         world = glm::scale(world, mSceneObject.mScale);
         
-        for (const auto& floatEntry: mSceneObject.mShaderFloatUniformValues) currentShader->SetFloat(floatEntry.first, floatEntry.second);
-        
+        currentShader->SetFloat(CUSTOM_ALPHA_UNIFORM_NAME, 1.0f);
         currentShader->SetBool(IS_TEXTURE_SHEET_UNIFORM_NAME, false);
         currentShader->SetMatrix4fv(WORLD_MATRIX_UNIFORM_NAME, world);
         currentShader->SetMatrix4fv(VIEW_MATRIX_UNIFORM_NAME, mCamera.GetViewMatrix());
         currentShader->SetMatrix4fv(PROJ_MATRIX_UNIFORM_NAME, mCamera.GetProjMatrix());
+        
+        for (const auto& floatEntry: mSceneObject.mShaderFloatUniformValues) currentShader->SetFloat(floatEntry.first, floatEntry.second);
         
         GL_CALL(glDrawElements(GL_TRIANGLES, currentMesh->GetElementCount(), GL_UNSIGNED_SHORT, (void*)0));
     }
@@ -116,8 +118,7 @@ public:
             world = glm::translate(world, glm::vec3(targetX, targetY, mSceneObject.mPosition.z));
             world = glm::scale(world, glm::vec3(glyph.mWidthPixels * mSceneObject.mScale.x, glyph.mHeightPixels * mSceneObject.mScale.y, 1.0f));
             
-            for (const auto& floatEntry: mSceneObject.mShaderFloatUniformValues) currentShader->SetFloat(floatEntry.first, floatEntry.second);
-            
+            currentShader->SetFloat(CUSTOM_ALPHA_UNIFORM_NAME, 1.0f);
             currentShader->SetBool(IS_TEXTURE_SHEET_UNIFORM_NAME, true);
             currentShader->SetFloat(MIN_U_UNIFORM_NAME, glyph.minU);
             currentShader->SetFloat(MIN_V_UNIFORM_NAME, glyph.minV);
@@ -126,6 +127,8 @@ public:
             currentShader->SetMatrix4fv(WORLD_MATRIX_UNIFORM_NAME, world);
             currentShader->SetMatrix4fv(VIEW_MATRIX_UNIFORM_NAME, mCamera.GetViewMatrix());
             currentShader->SetMatrix4fv(PROJ_MATRIX_UNIFORM_NAME, mCamera.GetProjMatrix());
+            
+            for (const auto& floatEntry: mSceneObject.mShaderFloatUniformValues) currentShader->SetFloat(floatEntry.first, floatEntry.second);
             
             GL_CALL(glDrawElements(GL_TRIANGLES, currentMesh->GetElementCount(), GL_UNSIGNED_SHORT, (void*)0));
             
@@ -151,8 +154,11 @@ public:
         GL_CALL(glActiveTexture(GL_TEXTURE0));
         GL_CALL(glBindTexture(GL_TEXTURE_2D, currentTexture->GetGLTextureId()));
         
+        currentShader->SetFloat(CUSTOM_ALPHA_UNIFORM_NAME, 1.0f);
         currentShader->SetMatrix4fv(VIEW_MATRIX_UNIFORM_NAME, mCamera.GetViewMatrix());
         currentShader->SetMatrix4fv(PROJ_MATRIX_UNIFORM_NAME, mCamera.GetProjMatrix());
+        
+        for (const auto& floatEntry: mSceneObject.mShaderFloatUniformValues) currentShader->SetFloat(floatEntry.first, floatEntry.second);
         
         GL_CALL(glBindVertexArray(particleEmitterData.mParticleVertexArrayObject));
         

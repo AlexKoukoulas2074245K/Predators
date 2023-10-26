@@ -8,6 +8,7 @@ uniform vec4 ambient_light_color;
 uniform vec4 point_light_colors[32];
 uniform vec3 point_light_positions[32];
 uniform float point_light_powers[32];
+uniform float custom_alpha;
 uniform bool affected_by_light;
 uniform int active_light_count;
 out vec4 frag_color;
@@ -40,4 +41,6 @@ void main()
         
         frag_color = frag_color * ambient_light_color + light_accumulator;
     }
+    
+    frag_color.a *= custom_alpha;
 }
