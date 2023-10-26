@@ -22,7 +22,7 @@ static const strutils::StringId WEIGHT_VALUE_UNIFORM_NAME = strutils::StringId("
 static const std::string WEIGHT_ICON_SHADER_FILE_NAME = "weight_icon_shader.vs";
 static const std::string CARD_FRAME_TEXTURE_FILE_NAME = "card_frame.png";
 static const std::string CARD_BACK_TEXTURE_FILE_NAME = "card_back.png";
-static const std::string CARD_DAMAGE_ICON_TEXTURE_FILE_NAME = "damage_icon_low.png";
+static const std::string CARD_DAMAGE_ICON_TEXTURE_FILE_NAME = "damage_icon.png";
 static const std::string CARD_WEIGHT_ICON_TEXTURE_FILE_NAME = "feather_icon.png";
 
 static const float CARD_NAME_AREA_LENGTH = 0.042f;

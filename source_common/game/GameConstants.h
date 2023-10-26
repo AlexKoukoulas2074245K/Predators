@@ -66,9 +66,9 @@ namespace game_constants
     inline const float IN_GAME_CARD_PROPERTY_ICON_SCALE = 0.04f;
     inline const float IN_GAME_CARD_PROPERTY_ICON_X_OFFSET = -0.015f;
     inline const float IN_GAME_CARD_PROPERTY_ICON_Y_OFFSET = 0.03f;
-    inline const float IN_GAME_CARD_PROPERTY_X_OFFSET = -0.016f;
+    inline const float IN_GAME_CARD_PROPERTY_X_OFFSET = -0.0158f;
     inline const float IN_GAME_CARD_PROPERTY_SCALE = 0.00015f;
-    inline const float IN_GAME_CARD_PROPERTY_Y_OFFSET = 0.0275f;
+    inline const float IN_GAME_CARD_PROPERTY_Y_OFFSET = 0.0285f;
     inline const float IN_GAME_CARD_NAME_X_OFFSET = 0.002f;
     inline const float IN_GAME_CARD_NAME_Y_OFFSET = -0.0145f;
     inline const float IN_GAME_CARD_NAME_SCALE = 0.00012f;
