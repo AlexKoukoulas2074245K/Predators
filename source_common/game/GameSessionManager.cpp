@@ -46,7 +46,7 @@ static const std::string CARD_HIGHLIGHTER_SCENE_OBJECT_NAME_PREFIX = "HIGHLIGHTE
 static const glm::vec3 TURN_POINTER_POSITION = {0.2f, 0.0f, 0.1f};
 static const glm::vec3 TURN_POINTER_SCALE = {0.08f, 0.08f, 0.08f};
 
-static const float CARD_SELECTION_ANIMATION_DURATION = 0.2f;
+static const float CARD_SELECTION_ANIMATION_DURATION = 0.15f;
 static const float CARD_LOCATION_EFFECT_MIN_TARGET_ALPHA = 0.25f;
 static const float CARD_LOCATION_EFFECT_MAX_TARGET_ALPHA = 1.0f;
 static const float CARD_LOCATION_EFFECT_ALPHA_SPEED = 0.003f;
