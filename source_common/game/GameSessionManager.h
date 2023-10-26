@@ -20,6 +20,7 @@
 
 class BoardState;
 class GameActionEngine;
+class GameRuleEngine;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -64,6 +65,7 @@ private:
 private:
     std::unique_ptr<BoardState> mBoardState;
     std::unique_ptr<GameActionEngine> mActionEngine;
+    std::unique_ptr<GameRuleEngine> mRuleEngine;
     std::vector<std::vector<std::shared_ptr<CardSoWrapper>>> mPlayerHeldCardSceneObjectWrappers;
     std::vector<std::vector<std::shared_ptr<CardSoWrapper>>> mPlayerBoardCardSceneObjectWrappers;
     ProspectiveBoardCardsPushState mPreviousProspectiveBoardCardsPushState;

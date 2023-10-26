@@ -8,6 +8,7 @@
 #include <game/BoardState.h>
 #include <game/CardUtils.h>
 #include <game/GameConstants.h>
+#include <game/GameRuleEngine.h>
 #include <game/GameSessionManager.h>
 #include <game/gameactions/PlayCardGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
@@ -78,6 +79,7 @@ void GameSessionManager::InitGameSession()
     mPlayerBoardCardSceneObjectWrappers.emplace_back();
     mPlayerBoardCardSceneObjectWrappers.emplace_back();
     
+    mRuleEngine = std::make_unique<GameRuleEngine>(mBoardState.get());
     mActionEngine = std::make_unique<GameActionEngine>(GameActionEngine::EngineOperationMode::ANIMATED, 0, mBoardState.get(), this);
     
     mActionEngine->AddGameAction(strutils::StringId("NextPlayerGameAction"));
@@ -153,14 +155,14 @@ GameActionEngine& GameSessionManager::GetActionEngine()
 
 void GameSessionManager::OnCardCreation(std::shared_ptr<CardSoWrapper> cardSoWrapper, const bool forOpponentPlayer)
 {
-    mPlayerHeldCardSceneObjectWrappers[(forOpponentPlayer ? 0 : 1)].push_back(cardSoWrapper);
+    mPlayerHeldCardSceneObjectWrappers[(forOpponentPlayer ? game_constants::OPPONENT_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)].push_back(cardSoWrapper);
 }
 
 ///------------------------------------------------------------------------------------------------
 
 void GameSessionManager::OnHeldCardSwap(std::shared_ptr<CardSoWrapper> cardSoWrapper, const int cardIndex, const bool forOpponentPlayer)
 {
-    mPlayerHeldCardSceneObjectWrappers[(forOpponentPlayer ? 0 : 1)][cardIndex] = cardSoWrapper;
+    mPlayerHeldCardSceneObjectWrappers[(forOpponentPlayer ? game_constants::OPPONENT_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)][cardIndex] = cardSoWrapper;
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -235,7 +237,7 @@ void GameSessionManager::HandleTouchInput()
     auto activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
     auto worldTouchPos = inputStateManager.VGetPointingPosInWorldSpace(activeScene->GetCamera().GetViewMatrix(), activeScene->GetCamera().GetProjMatrix());
     
-    auto& localPlayerCards = mPlayerHeldCardSceneObjectWrappers[1];
+    auto& localPlayerCards = mPlayerHeldCardSceneObjectWrappers[game_constants::LOCAL_PLAYER_INDEX];
     const auto localPlayerCardCount = static_cast<int>(localPlayerCards.size());
     
     std::vector<int> candidateHighlightIndices;
@@ -257,7 +259,7 @@ void GameSessionManager::HandleTouchInput()
         {
             currentCardSoWrapper->mState = CardSoState::FREE_MOVING;
             animationManager.StartAnimation(std::make_unique<rendering::TweenAnimation>(currentCardSoWrapper->mSceneObjectComponents, glm::vec3(worldTouchPos.x, worldTouchPos.y + game_constants::IN_GAME_MOBILE_ONLY_FREE_MOVING_CARD_Y_OFFSET, game_constants::IN_GAME_HIGHLIGHTED_CARD_Z), currentCardSoWrapper->mSceneObjectComponents[0]->mScale, game_constants::IN_GAME_CARD_FREE_MOVEMENT_ANIMATION_DURATION_SECS, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [](){});
-            auto currentLocalPlayerBoardCardCount = static_cast<int>(mPlayerBoardCardSceneObjectWrappers[1].size());
+            auto currentLocalPlayerBoardCardCount = static_cast<int>(mPlayerBoardCardSceneObjectWrappers[game_constants::LOCAL_PLAYER_INDEX].size());
             auto cardLocationIndicatorSo = activeScene->FindSceneObject(CARD_LOCATION_INDICATOR_SCENE_OBJECT_NAME);
             cardLocationIndicatorSo->mPosition = card_utils::CalculateBoardCardPosition(currentLocalPlayerBoardCardCount, currentLocalPlayerBoardCardCount + 1, false);
             cardLocationIndicatorSo->mPosition.z = game_constants::CARD_LOCATION_EFFECT_Z;
@@ -294,7 +296,7 @@ void GameSessionManager::HandleTouchInput()
         if (inputStateManager.VButtonPressed(input::Button::MAIN_BUTTON) && currentCardSoWrapper->mState == CardSoState::FREE_MOVING)
         {
             animationManager.StartAnimation(std::make_unique<rendering::TweenAnimation>(currentCardSoWrapper->mSceneObjectComponents, glm::vec3(worldTouchPos.x, worldTouchPos.y, game_constants::IN_GAME_HIGHLIGHTED_CARD_Z), currentCardSoWrapper->mSceneObjectComponents[0]->mScale, game_constants::IN_GAME_CARD_FREE_MOVEMENT_ANIMATION_DURATION_SECS, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [](){});
-            auto currentLocalPlayerBoardCardCount = static_cast<int>(mPlayerBoardCardSceneObjectWrappers[1].size());
+            auto currentLocalPlayerBoardCardCount = static_cast<int>(mPlayerBoardCardSceneObjectWrappers[game_constants::LOCAL_PLAYER_INDEX].size());
             auto cardLocationIndicatorSo = activeScene->FindSceneObject(CARD_LOCATION_INDICATOR_SCENE_OBJECT_NAME);
             cardLocationIndicatorSo->mPosition = card_utils::CalculateBoardCardPosition(currentLocalPlayerBoardCardCount, currentLocalPlayerBoardCardCount + 1, false);
             cardLocationIndicatorSo->mPosition.z = game_constants::CARD_LOCATION_EFFECT_Z;
@@ -352,16 +354,20 @@ void GameSessionManager::HandleTouchInput()
     if (!candidateHighlightIndices.empty())
     {
         auto currentCardSoWrapper = localPlayerCards[candidateHighlightIndices.front()];
-        auto originalCardPosition = card_utils::CalculateHeldCardPosition(candidateHighlightIndices.front(), localPlayerCardCount, false);
-        originalCardPosition.y += game_constants::IN_GAME_BOT_PLAYER_SELECTED_CARD_Y_OFFSET;
-        originalCardPosition.z = game_constants::IN_GAME_HIGHLIGHTED_CARD_Z;
         
-        animationManager.StartAnimation(std::make_unique<rendering::TweenAnimation>(currentCardSoWrapper->mSceneObjectComponents, originalCardPosition, currentCardSoWrapper->mSceneObjectComponents[0]->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT | animation_flags::IGNORE_X_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+        if (mRuleEngine->CanCardBePlayed(currentCardSoWrapper->mCardData, 1))
         {
-            CreateCardHighlighter();
-        });
-        
-        currentCardSoWrapper->mState = CardSoState::HIGHLIGHTED;
+            auto originalCardPosition = card_utils::CalculateHeldCardPosition(candidateHighlightIndices.front(), localPlayerCardCount, false);
+            originalCardPosition.y += game_constants::IN_GAME_BOT_PLAYER_SELECTED_CARD_Y_OFFSET;
+            originalCardPosition.z = game_constants::IN_GAME_HIGHLIGHTED_CARD_Z;
+            
+            animationManager.StartAnimation(std::make_unique<rendering::TweenAnimation>(currentCardSoWrapper->mSceneObjectComponents, originalCardPosition, currentCardSoWrapper->mSceneObjectComponents[0]->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT | animation_flags::IGNORE_X_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+            {
+                CreateCardHighlighter();
+            });
+            
+            currentCardSoWrapper->mState = CardSoState::HIGHLIGHTED;
+        }
     }
     
     // Additional constraints on showing the card location indicator
@@ -380,7 +386,7 @@ void GameSessionManager::UpdateMiscSceneObjects(const float dtMillis)
     auto activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
     
     // Card Highlighters
-    auto& localPlayerCards = mPlayerHeldCardSceneObjectWrappers[1];
+    auto& localPlayerCards = mPlayerHeldCardSceneObjectWrappers[game_constants::LOCAL_PLAYER_INDEX];
     for (size_t i = 0U; i < localPlayerCards.size(); ++i)
     {
         auto cardHighlighterObject = activeScene->FindSceneObject(strutils::StringId(CARD_HIGHLIGHTER_SCENE_OBJECT_NAME_PREFIX + std::to_string(i)));
@@ -396,7 +402,7 @@ void GameSessionManager::UpdateMiscSceneObjects(const float dtMillis)
     // Lambda to make space/revert to original position board cards
     auto prospectiveMakeSpaceRevertToPositionLambda = [&](int prospectiveCardCount)
     {
-        auto& boardCardSoWrappers = mPlayerBoardCardSceneObjectWrappers[1];
+        auto& boardCardSoWrappers = mPlayerBoardCardSceneObjectWrappers[game_constants::LOCAL_PLAYER_INDEX];
         auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
         
         const auto currentBoardCardCount = static_cast<int>(boardCardSoWrappers.size());
@@ -438,7 +444,7 @@ void GameSessionManager::UpdateMiscSceneObjects(const float dtMillis)
             
             if (mPreviousProspectiveBoardCardsPushState == ProspectiveBoardCardsPushState::MAKE_SPACE_FOR_NEW_CARD)
             {
-                prospectiveMakeSpaceRevertToPositionLambda(static_cast<int>(mPlayerBoardCardSceneObjectWrappers[1].size() + 1));
+                prospectiveMakeSpaceRevertToPositionLambda(static_cast<int>(mPlayerBoardCardSceneObjectWrappers[game_constants::LOCAL_PLAYER_INDEX].size() + 1));
             }
             mPreviousProspectiveBoardCardsPushState = ProspectiveBoardCardsPushState::MAKE_SPACE_FOR_NEW_CARD;
         }
@@ -459,7 +465,7 @@ void GameSessionManager::UpdateMiscSceneObjects(const float dtMillis)
             
             if (mPreviousProspectiveBoardCardsPushState != ProspectiveBoardCardsPushState::REVERT_TO_ORIGINAL_POSITION)
             {
-                prospectiveMakeSpaceRevertToPositionLambda(static_cast<int>(mPlayerBoardCardSceneObjectWrappers[1].size()));
+                prospectiveMakeSpaceRevertToPositionLambda(static_cast<int>(mPlayerBoardCardSceneObjectWrappers[game_constants::LOCAL_PLAYER_INDEX].size()));
             }
             mPreviousProspectiveBoardCardsPushState = ProspectiveBoardCardsPushState::REVERT_TO_ORIGINAL_POSITION;
         }
@@ -484,7 +490,7 @@ void GameSessionManager::OnFreeMovingCardRelease(std::shared_ptr<CardSoWrapper> 
     const auto& activeSceneManager = CoreSystemsEngine::GetInstance().GetActiveSceneManager();
     auto activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
     
-    auto& localPlayerCards = mPlayerHeldCardSceneObjectWrappers[1];
+    auto& localPlayerCards = mPlayerHeldCardSceneObjectWrappers[game_constants::LOCAL_PLAYER_INDEX];
     auto cardIndex = std::find_if(localPlayerCards.begin(), localPlayerCards.end(), [=](const std::shared_ptr<CardSoWrapper>& otherCard)
     {
         return otherCard.get() == cardSoWrapper.get();
@@ -521,7 +527,7 @@ void GameSessionManager::CreateCardHighlighter()
     const auto& activeSceneManager = CoreSystemsEngine::GetInstance().GetActiveSceneManager();
     auto activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
     
-    auto& localPlayerCards = mPlayerHeldCardSceneObjectWrappers[1];
+    auto& localPlayerCards = mPlayerHeldCardSceneObjectWrappers[game_constants::LOCAL_PLAYER_INDEX];
     for (size_t i = 0U; i < localPlayerCards.size(); ++i)
     {
         activeScene->RemoveSceneObject(strutils::StringId(CARD_HIGHLIGHTER_SCENE_OBJECT_NAME_PREFIX + std::to_string(i)));

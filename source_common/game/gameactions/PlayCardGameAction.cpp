@@ -48,8 +48,11 @@ void PlayCardGameAction::VSetNewGameState()
     assert(mExtraActionParams.count(LAST_PLAYED_CARD_INDEX_PARAM) != 0);
     
     auto lastPlayedCardIndex = std::stoi(mExtraActionParams.at(LAST_PLAYED_CARD_INDEX_PARAM));
-    activePlayerState.mPlayerBoardCards.push_back(activePlayerState.mPlayerHeldCards[lastPlayedCardIndex]);
+    auto cardId = activePlayerState.mPlayerHeldCards[lastPlayedCardIndex];
+    
+    activePlayerState.mPlayerBoardCards.push_back(cardId);
     activePlayerState.mPlayerHeldCards.erase(activePlayerState.mPlayerHeldCards.begin() + lastPlayedCardIndex);
+    activePlayerState.mPlayerCurrentWeightAmmo -= CardDataRepository::GetInstance().GetCard(cardId)->get().mCardWeight;
 }
 
 ///------------------------------------------------------------------------------------------------
