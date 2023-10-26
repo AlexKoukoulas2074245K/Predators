@@ -320,6 +320,19 @@ inline float BounceFunction(const float t)
 }
 
 ///-----------------------------------------------------------------------------------------------
+/// Elastic Tweening function to be used by clients of the TweenValue function. \see TweenValue()
+/// @param[in] t the input value to the tween function.
+/// @returns the transformed t value based on the bounce function.
+inline float ElasticFunction(const float t)
+{
+    const float c4 = (2.0f * PI) / 3.0f;
+
+    if (t <= 0.0f) return 0.0f;
+    else if (t >= 1.0f) return 1.0f;
+    else return std::powf(2.0f, -10.0f * t) * std::sinf((t * 10.0f -0.75f) * c4) + 1.0f;
+}
+
+///-----------------------------------------------------------------------------------------------
 /// Tweens the given value based on the tweening function and the tweening mode.
 /// @param[in] val the value to be tweened in [0..1] range.
 /// @param[in] tweeningFunc the tweening function to be used (defaults to linear).
