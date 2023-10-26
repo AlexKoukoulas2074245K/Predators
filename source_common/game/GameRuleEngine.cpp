@@ -20,8 +20,12 @@ GameRuleEngine::GameRuleEngine(BoardState* boardState)
 
 bool GameRuleEngine::CanCardBePlayed(const CardData* cardData, const size_t forPlayerIndex) const
 {
-    auto& activePlayerState = mBoardState->GetPlayerStates()[forPlayerIndex];
-    return activePlayerState.mPlayerCurrentWeightAmmo >= cardData->mCardWeight;
+//    auto& activePlayerState = mBoardState->GetPlayerStates()[forPlayerIndex];
+//    return activePlayerState.mPlayerCurrentWeightAmmo >= cardData->mCardWeight;
+    (void)cardData;
+    (void)forPlayerIndex;
+    (void)mBoardState;
+    return true;
 }
 
 ///------------------------------------------------------------------------------------------------

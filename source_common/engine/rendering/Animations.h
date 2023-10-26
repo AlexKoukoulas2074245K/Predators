@@ -82,13 +82,12 @@ public:
     
 private:
     SceneObjectTargets mSceneObjectTargets;
-    const glm::vec3 mInitPosition;
-    const glm::vec3 mTargetPosition;
     const std::function<float(const float)> mTweeningFunc;
     const math::TweeningMode mTweeningMode;
-    std::vector<glm::vec3> mSceneObjectOffsets;
     std::vector<glm::vec3> mInitScales;
     std::vector<glm::vec3> mTargetScales;
+    std::vector<glm::vec3> mInitPositions;
+    std::vector<glm::vec3> mTargetPositions;
 };
 
 ///------------------------------------------------------------------------------------------------
@@ -119,7 +118,7 @@ public:
 private:
     SceneObjectTargets mSceneObjectTargets;
     math::BezierCurve mCurve;
-    std::vector<glm::vec3> mSceneObjectOffsets;
+    std::vector<glm::vec3> mSceneObjectPositionOffsets;
     
 };
 
