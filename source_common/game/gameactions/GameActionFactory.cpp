@@ -5,6 +5,7 @@
 ///  Created by Alex Koukoulas on 29/09/2023                                                       
 ///------------------------------------------------------------------------------------------------
 
+#include <game/gameactions/CardAttackGameAction.h>
 #include <game/gameactions/DrawCardGameAction.h>
 #include <game/gameactions/GameActionFactory.h>
 #include <game/gameactions/IdleGameAction.h>
@@ -29,6 +30,7 @@ void GameActionFactory::RegisterGameActions()
     REGISTERED_ACTION_NAMES.clear();
     
     REGISTER_ACTION(IdleGameAction);
+    REGISTER_ACTION(CardAttackGameAction);
     REGISTER_ACTION(DrawCardGameAction);
     REGISTER_ACTION(NextPlayerGameAction);
     REGISTER_ACTION(PlayCardGameAction);
@@ -51,6 +53,7 @@ const std::vector<strutils::StringId>& GameActionFactory::GetRegisteredActions()
 std::unique_ptr<BaseGameAction> GameActionFactory::CreateGameAction(const strutils::StringId& actionName)
 {
     ACTION_CASE(IdleGameAction);
+    ACTION_CASE(CardAttackGameAction);
     ACTION_CASE(DrawCardGameAction);
     ACTION_CASE(NextPlayerGameAction);
     ACTION_CASE(PlayCardGameAction);

@@ -21,26 +21,33 @@ void GameReplayEngine::ReplayActionsFromGameFile(const std::string& filename, Ga
     std::ifstream gameFile(filename);
     std::stringstream buffer;
     buffer << gameFile.rdbuf();
-    gameJson = nlohmann::json::parse(buffer.str());
+    auto contents = buffer.str();
+    if (contents.size() > 1)
+    {
+        gameJson = nlohmann::json::parse(buffer.str());
+        
 #else
     std::ifstream gameFile(filename, std::ios::binary);
     std::vector<std::uint8_t> contents((std::istreambuf_iterator<char>(gameFile)), std::istreambuf_iterator<char>());
-    gameJson = nlohmann::json::from_bson(contents);
-#endif
-    
-    //TODO: Handle SEED
-    for (const auto& actionEntry: gameJson["actions"])
+    if (contents.size() > 1)
     {
-        std::unordered_map<std::string, std::string> extraActionParams;
-        if (actionEntry.count("extraActionParams") != 0)
+        gameJson = nlohmann::json::from_bson(contents);
+#endif
+        
+        //TODO: Handle SEED
+        for (const auto& actionEntry: gameJson["actions"])
         {
-            auto extraActionParamsJson = actionEntry["extraActionParams"];
-            for(auto it = extraActionParamsJson.begin(); it != extraActionParamsJson.end(); ++it)
+            std::unordered_map<std::string, std::string> extraActionParams;
+            if (actionEntry.count("extraActionParams") != 0)
             {
-                extraActionParams[it.key()] = it.value();
+                auto extraActionParamsJson = actionEntry["extraActionParams"];
+                for(auto it = extraActionParamsJson.begin(); it != extraActionParamsJson.end(); ++it)
+                {
+                    extraActionParams[it.key()] = it.value();
+                }
             }
+            gameActionEngine->AddGameAction(strutils::StringId(actionEntry["name"]), extraActionParams);
         }
-        gameActionEngine->AddGameAction(strutils::StringId(actionEntry["name"]), extraActionParams);
     }
 }
 

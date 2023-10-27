@@ -48,6 +48,7 @@ public:
 private:
     void CreateAndPushGameAction(const strutils::StringId& actionName, const ExtraActionParams& extraActionParams);
     void LogActionTransition(const std::string& actionTransition);
+    void ReadjustActionQueue(const size_t sizeBeforeNewState);
     
 private:
     const EngineOperationMode mOperationMode;

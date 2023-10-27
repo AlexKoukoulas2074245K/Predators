@@ -11,9 +11,13 @@
 #include <engine/scene/ActiveSceneManager.h>
 #include <engine/scene/Scene.h>
 #include <game/GameConstants.h>
+#include <game/gameactions/CardAttackGameAction.h>
+#include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/NextPlayerGameAction.h>
 
 ///------------------------------------------------------------------------------------------------
+
+static const strutils::StringId CARD_ATTACK_GAME_ACTION_NAME = strutils::StringId("CardAttackGameAction");
 
 static const float TURN_POINTER_ANIMATION_DURATION_SECS = 1.0f;
 
@@ -21,13 +25,28 @@ static const float TURN_POINTER_ANIMATION_DURATION_SECS = 1.0f;
 
 void NextPlayerGameAction::VSetNewGameState()
 {
-    size_t& activePlayerIndex = mBoardState->GetActivePlayerIndex();
+    int& activePlayerIndex = mBoardState->GetActivePlayerIndex();
+    const auto previousPlayerIndex = activePlayerIndex;
     activePlayerIndex = (activePlayerIndex + 1) % mBoardState->GetPlayerCount();
     
     mBoardState->GetTurnCounter()++;
     auto& targetPlayerState = mBoardState->GetPlayerStates()[mBoardState->GetTurnCounter() % mBoardState->GetPlayerCount()];
     targetPlayerState.mPlayerTotalWeightAmmo++;
     targetPlayerState.mPlayerCurrentWeightAmmo = targetPlayerState.mPlayerTotalWeightAmmo;
+    
+    // Potentially generate card attack actions for player whose turn was just ended
+    if (previousPlayerIndex != -1)
+    {
+        auto& boardCards = mBoardState->GetPlayerStates()[previousPlayerIndex].mPlayerBoardCards;
+        for (size_t i = 0; i < boardCards.size(); ++i)
+        {
+            mGameActionEngine->AddGameAction(CARD_ATTACK_GAME_ACTION_NAME,
+            {
+                { CardAttackGameAction::PLAYER_INDEX_PARAM, std::to_string(previousPlayerIndex) },
+                { CardAttackGameAction::CARD_INDEX_PARAM, std::to_string(i) }
+            });
+        }
+    }
 }
 
 ///------------------------------------------------------------------------------------------------

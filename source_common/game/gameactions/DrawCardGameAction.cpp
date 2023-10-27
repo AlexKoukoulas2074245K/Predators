@@ -36,7 +36,7 @@ void DrawCardGameAction::VInitAnimation()
     auto& animationManager = systemsEngine.GetAnimationManager();
     auto& activeSceneManager = systemsEngine.GetActiveSceneManager();
     
-    auto dummyScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
     
     const int cardCount = static_cast<int>(mBoardState->GetActivePlayerState().mPlayerHeldCards.size());
     bool opponentPlayerActive = mBoardState->GetActivePlayerIndex() == 0;
@@ -56,7 +56,7 @@ void DrawCardGameAction::VInitAnimation()
                 &cardOpt->get(), glm::vec3(game_constants::IN_GAME_DRAW_CARD_INIT_X + i * game_constants::IN_GAME_CARD_WIDTH/2,
                 opponentPlayerActive ? game_constants::IN_GAME_TOP_PLAYER_HELD_CARD_Y : game_constants::IN_GAME_BOT_PLAYER_HELD_CARD_Y, finalCardPosition.z),
                 (opponentPlayerActive ? game_constants::TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_HELD_CARD_SO_NAME_PREFIX) + std::to_string(i),
-                (opponentPlayerActive ? CardOrientation::BACK_FACE : CardOrientation::FRONT_FACE), *dummyScene);
+                (opponentPlayerActive ? CardOrientation::BACK_FACE : CardOrientation::FRONT_FACE), *activeScene);
             
             cardSoWrapper->mState = CardSoState::MOVING_TO_SET_POSITION;
             mGameSessionManager->OnCardCreation(cardSoWrapper, opponentPlayerActive);

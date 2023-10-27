@@ -48,7 +48,10 @@ void GameActionEngine::Update(const float dtMillis)
     {
         if (GetActiveGameActionName() != IDLE_GAME_ACTION_NAME)
         {
+            auto sizeBefore = mGameActions.size();
             mGameActions.front()->VSetNewGameState();
+            ReadjustActionQueue(sizeBefore);
+            
             mGameActions.pop();
             
             if (mGameActions.empty())
@@ -65,9 +68,11 @@ void GameActionEngine::Update(const float dtMillis)
             {
                 LogActionTransition("Setting state and initializing animation of action " + mGameActions.front()->VGetName().GetString());
                 
+                auto sizeBefore = mGameActions.size();
                 mGameActions.front()->VSetNewGameState();
                 mGameActions.front()->VInitAnimation();
                 mActiveActionHasSetState = true;
+                ReadjustActionQueue(sizeBefore);
             }
             
             if (mGameActions.front()->VUpdateAnimation(dtMillis) == ActionAnimationUpdateResult::FINISHED)
@@ -128,7 +133,7 @@ void GameActionEngine::CreateAndPushGameAction(const strutils::StringId& actionN
     action->SetExtraActionParams(extraActionParams);
     mGameActions.push(std::move(action));
     
-    if (mGameSerializer && mGameActions.front()->VShouldBeSerialized())
+    if (mGameSerializer && mGameActions.back()->VShouldBeSerialized())
     {
         mGameSerializer->OnGameAction(actionName, extraActionParams);
     }
@@ -144,6 +149,54 @@ void GameActionEngine::LogActionTransition(const std::string& actionTransition)
     {
         logging::Log(logging::LogType::INFO, "%s", actionTransition.c_str());
     }
+}
+
+///------------------------------------------------------------------------------------------------
+
+void GameActionEngine::ReadjustActionQueue(const size_t sizeBeforeNewState)
+{
+    if (sizeBeforeNewState == mGameActions.size()) return;
+    
+    // On replay scenarios in particular, dynamically added actions
+    // could be pushed to the end of the queue erroneously, if more
+    // actions have been registered between the creator action and the createe,
+    // hence the need for readjustment
+    assert(sizeBeforeNewState < mGameActions.size());
+    
+    auto actionsToInterjectCount = static_cast<int>(mGameActions.size() - sizeBeforeNewState);
+    auto intermediateActionCount = static_cast<int>(mGameActions.size() - 1 - actionsToInterjectCount);
+    
+    assert(intermediateActionCount >= 0);
+    
+    std::queue<std::unique_ptr<IGameAction>> intermediateActions;
+    std::queue<std::unique_ptr<IGameAction>> finalActionQueue;
+    
+    // Push current action to final queue
+    finalActionQueue.push(std::move(mGameActions.front()));
+    mGameActions.pop();
+    
+    // Push intermediate actions to midActions queue
+    for (int i = 0; i < intermediateActionCount; ++i)
+    {
+        intermediateActions.push(std::move(mGameActions.front()));
+        mGameActions.pop();
+    }
+    
+    // Add the dynamically created actions to the final queue
+    for (int i = 0; i < actionsToInterjectCount; ++i)
+    {
+        finalActionQueue.push(std::move(mGameActions.front()));
+        mGameActions.pop();
+    }
+    
+    // Finally add all intermediate actions to the final queue
+    while (!intermediateActions.empty())
+    {
+        finalActionQueue.push(std::move(intermediateActions.front()));
+        intermediateActions.pop();
+    }
+    
+    mGameActions = std::move(finalActionQueue);
 }
 
 ///------------------------------------------------------------------------------------------------
