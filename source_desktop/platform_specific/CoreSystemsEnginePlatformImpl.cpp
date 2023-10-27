@@ -161,7 +161,7 @@ void CoreSystemsEngine::Initialize()
 
 ///------------------------------------------------------------------------------------------------
 
-void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::function<void(const float)> clientUpdateFunction, std::function<void()> clientCreateDebugWidgetsFunction)
+void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::function<void(const float)> clientUpdateFunction, std::function<void()> clientApplicationMovingToBackgroundFunction, std::function<void()> clientCreateDebugWidgetsFunction)
 {
     clientInitFunction();
     
@@ -177,6 +177,7 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
     while(!shouldQuit)
     {
         bool windowSizeChanged = false;
+        bool applicationMovingToBackground = false;
         
         // Calculate frame delta
         const auto currentMillisSinceInit = static_cast<float>(SDL_GetTicks());  // the number of milliseconds since the SDL library
@@ -189,7 +190,7 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
         //Handle events on queue
         while(SDL_PollEvent(&event) != 0)
         {
-            mSystems->mInputStateManager.VProcessInputEvent(event, shouldQuit, windowSizeChanged);
+            mSystems->mInputStateManager.VProcessInputEvent(event, shouldQuit, windowSizeChanged, applicationMovingToBackground);
         }
         
         if (mSystems->mInputStateManager.VButtonTapped(input::Button::SECONDARY_BUTTON))
@@ -279,6 +280,8 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
         
         mSystems->mRenderer.VEndRenderPass();
     }
+    
+    clientApplicationMovingToBackgroundFunction();
 }
 
 ///------------------------------------------------------------------------------------------------

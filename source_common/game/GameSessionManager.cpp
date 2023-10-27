@@ -9,6 +9,7 @@
 #include <game/CardUtils.h>
 #include <game/GameConstants.h>
 #include <game/GameRuleEngine.h>
+#include <game/GameSerializer.h>
 #include <game/GameSessionManager.h>
 #include <game/gameactions/PlayCardGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
@@ -84,8 +85,9 @@ void GameSessionManager::InitGameSession()
     mPlayerBoardCardSceneObjectWrappers.emplace_back();
     mPlayerBoardCardSceneObjectWrappers.emplace_back();
     
+    mGameSerializer = std::make_unique<GameSerializer>(0);
     mRuleEngine = std::make_unique<GameRuleEngine>(mBoardState.get());
-    mActionEngine = std::make_unique<GameActionEngine>(GameActionEngine::EngineOperationMode::ANIMATED, 0, mBoardState.get(), this);
+    mActionEngine = std::make_unique<GameActionEngine>(GameActionEngine::EngineOperationMode::ANIMATED, 0, mBoardState.get(), this, mGameSerializer.get());
     
     mActionEngine->AddGameAction(strutils::StringId("NextPlayerGameAction"));
 //    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
@@ -172,6 +174,13 @@ const BoardState& GameSessionManager::GetBoardState() const
 GameActionEngine& GameSessionManager::GetActionEngine()
 {
     return *mActionEngine;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void GameSessionManager::OnApplicationMovedToBackground()
+{
+    mGameSerializer->FlushStateToFile();
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -405,7 +414,6 @@ void GameSessionManager::HandleTouchInput()
         if (cursorInSceneObject && inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON))
         {
             mActionEngine->AddGameAction(NEXT_PLAYER_ACTION_NAME);
-            //TODO: DAMAGE STEP ACTIONS
         }
     }
     

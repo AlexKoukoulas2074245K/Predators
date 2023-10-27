@@ -54,10 +54,11 @@ bool InputStateManagerPlatformImpl::VButtonTapped(const Button button) const
 
 ///------------------------------------------------------------------------------------------------
 
-void InputStateManagerPlatformImpl::VProcessInputEvent(const SDL_Event& event, bool& shouldQuit, bool& windowSizeChange)
+void InputStateManagerPlatformImpl::VProcessInputEvent(const SDL_Event& event, bool& shouldQuit, bool& windowSizeChange, bool& applicationMovingToBackground)
 {
     const auto& renderableDimensions = CoreSystemsEngine::GetInstance().GetContextRenderableDimensions();
     shouldQuit = false;
+    applicationMovingToBackground = false;
     
     //User requests quit
     switch (event.type)
@@ -65,6 +66,7 @@ void InputStateManagerPlatformImpl::VProcessInputEvent(const SDL_Event& event, b
         case SDL_QUIT:
         case SDL_APP_TERMINATING:
         {
+            applicationMovingToBackground = true;
             shouldQuit = true;
         } break;
         

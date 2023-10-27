@@ -14,7 +14,6 @@
 int main(int argc, char** argv)
 {
     Game game(argc, argv);
-    exit(0);
     return 0;
 }
 

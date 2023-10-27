@@ -21,6 +21,7 @@
 class BoardState;
 class GameActionEngine;
 class GameRuleEngine;
+class GameSerializer;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -40,6 +41,7 @@ public:
     const BoardState& GetBoardState() const;
     GameActionEngine& GetActionEngine();
     
+    void OnApplicationMovedToBackground();
     void OnCardCreation(std::shared_ptr<CardSoWrapper> cardSoWrapper, const bool forOpponentPlayer);
     void OnHeldCardSwap(std::shared_ptr<CardSoWrapper> cardSoWrapper, const int cardIndex, const bool forOpponentPlayer);
     void OnLastCardPlayedFinalized(const int cardIndex);
@@ -66,6 +68,7 @@ private:
     std::unique_ptr<BoardState> mBoardState;
     std::unique_ptr<GameActionEngine> mActionEngine;
     std::unique_ptr<GameRuleEngine> mRuleEngine;
+    std::unique_ptr<GameSerializer> mGameSerializer;
     std::vector<std::vector<std::shared_ptr<CardSoWrapper>>> mPlayerHeldCardSceneObjectWrappers;
     std::vector<std::vector<std::shared_ptr<CardSoWrapper>>> mPlayerBoardCardSceneObjectWrappers;
     ProspectiveBoardCardsPushState mPreviousProspectiveBoardCardsPushState;

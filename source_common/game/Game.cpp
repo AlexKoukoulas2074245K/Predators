@@ -36,7 +36,7 @@ Game::Game(const int argc, char** argv)
         logging::Log(logging::LogType::INFO, "Initializing from CWD : %s", argv[0]);
     }
     
-    CoreSystemsEngine::GetInstance().Start([&](){ Init(); }, [&](const float dtMillis){ Update(dtMillis); }, [&](){ CreateDebugWidgets(); });
+    CoreSystemsEngine::GetInstance().Start([&](){ Init(); }, [&](const float dtMillis){ Update(dtMillis); }, [&](){ ApplicationMovedToBackground(); }, [&](){ CreateDebugWidgets(); });
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -132,6 +132,13 @@ void Game::Update(const float dtMillis)
 //    }
     
     mGameSessionManager.Update(dtMillis);
+}
+
+///------------------------------------------------------------------------------------------------
+
+void Game::ApplicationMovedToBackground()
+{
+    mGameSessionManager.OnApplicationMovedToBackground();
 }
 
 ///------------------------------------------------------------------------------------------------

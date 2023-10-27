@@ -118,6 +118,13 @@ ActionAnimationUpdateResult PlayCardGameAction::VUpdateAnimation(const float)
 
 ///------------------------------------------------------------------------------------------------
 
+bool PlayCardGameAction::VShouldBeSerialized() const
+{
+    return true;
+}
+
+///------------------------------------------------------------------------------------------------
+
 const std::vector<std::string>& PlayCardGameAction::VGetRequiredExtraParamNames() const
 {
     return sRequiredExtraParamNames;

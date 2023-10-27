@@ -26,7 +26,7 @@ class GameActionTests : public testing::Test
 protected:
     GameActionTests()
         : mBoardState()
-        , mActionEngine(GameActionEngine::EngineOperationMode::HEADLESS, 0, &mBoardState, nullptr)
+        , mActionEngine(GameActionEngine::EngineOperationMode::HEADLESS, 0, &mBoardState, nullptr, nullptr)
     {
         
     }

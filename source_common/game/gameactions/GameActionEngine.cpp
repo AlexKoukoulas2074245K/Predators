@@ -7,6 +7,7 @@
 
 #include <engine/utils/Logging.h>
 #include <engine/utils/MathUtils.h>
+#include <game/GameSerializer.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/GameActionFactory.h>
 #include <game/gameactions/BaseGameAction.h>
@@ -17,11 +18,12 @@ static const strutils::StringId IDLE_GAME_ACTION_NAME = strutils::StringId("Idle
 
 ///------------------------------------------------------------------------------------------------
 
-GameActionEngine::GameActionEngine(const EngineOperationMode operationMode, const int gameSeed, BoardState* boardState, GameSessionManager* gameSessionManager)
+GameActionEngine::GameActionEngine(const EngineOperationMode operationMode, const int gameSeed, BoardState* boardState, GameSessionManager* gameSessionManager, GameSerializer* gameSerializer)
     : mOperationMode(operationMode)
     , mGameSeed(gameSeed)
     , mBoardState(boardState)
     , mGameSessionManager(gameSessionManager)
+    , mGameSerializer(gameSerializer)
     , mActiveActionHasSetState(false)
     , mLoggingActionTransitions(true)
 {
@@ -62,6 +64,7 @@ void GameActionEngine::Update(const float dtMillis)
             if (!mActiveActionHasSetState)
             {
                 LogActionTransition("Setting state and initializing animation of action " + mGameActions.front()->VGetName().GetString());
+                
                 mGameActions.front()->VSetNewGameState();
                 mGameActions.front()->VInitAnimation();
                 mActiveActionHasSetState = true;
@@ -121,11 +124,16 @@ void GameActionEngine::CreateAndPushGameAction(const strutils::StringId& actionN
 {
     auto action = GameActionFactory::CreateGameAction(actionName);
     action->SetName(actionName);
-    action->SetDependencies(mBoardState, mGameSessionManager);
+    action->SetDependencies(mBoardState, mGameSessionManager, this);
     action->SetExtraActionParams(extraActionParams);
     mGameActions.push(std::move(action));
     
-    LogActionTransition("Pushed action " + actionName.GetString());
+    if (mGameSerializer && mGameActions.front()->VShouldBeSerialized())
+    {
+        mGameSerializer->OnGameAction(actionName, extraActionParams);
+    }
+    
+    LogActionTransition("Pushed and logged action " + actionName.GetString());
 }
 
 ///------------------------------------------------------------------------------------------------

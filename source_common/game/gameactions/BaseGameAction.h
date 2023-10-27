@@ -17,6 +17,7 @@
 ///------------------------------------------------------------------------------------------------
 
 class GameSessionManager;
+class GameActionEngine;
 class BaseGameAction: public IGameAction
 {
     friend class GameActionEngine;
@@ -28,7 +29,7 @@ public:
     
 protected:
     void SetName(const strutils::StringId& name) { mName = name; }
-    void SetDependencies(BoardState* boardState, GameSessionManager* gameSessionManager) { mBoardState = boardState; mGameSessionManager = gameSessionManager; }
+    void SetDependencies(BoardState* boardState, GameSessionManager* gameSessionManager, GameActionEngine* gameActionEngine) { mBoardState = boardState; mGameSessionManager = gameSessionManager; mGameActionEngine = gameActionEngine; }
     void SetExtraActionParams(const std::unordered_map<std::string, std::string>& extraActionParams) { mExtraActionParams = extraActionParams; };
     
 protected:
@@ -36,6 +37,7 @@ protected:
     strutils::StringId mName = strutils::StringId();
     BoardState* mBoardState = nullptr;
     GameSessionManager* mGameSessionManager = nullptr;
+    GameActionEngine* mGameActionEngine = nullptr;
 };
 
 ///------------------------------------------------------------------------------------------------

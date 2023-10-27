@@ -23,6 +23,8 @@ public:
     
     ActionAnimationUpdateResult VUpdateAnimation(const float dtMillis) override;
     
+    bool VShouldBeSerialized() const override;
+    
     const std::vector<std::string>& VGetRequiredExtraParamNames() const override;
 
 private:

@@ -28,6 +28,13 @@ ActionAnimationUpdateResult IdleGameAction::VUpdateAnimation(const float)
 
 ///------------------------------------------------------------------------------------------------
 
+bool IdleGameAction::VShouldBeSerialized() const
+{
+    return false;
+}
+
+///------------------------------------------------------------------------------------------------
+
 const std::vector<std::string>& IdleGameAction::VGetRequiredExtraParamNames() const
 {
     static std::vector<std::string> v;

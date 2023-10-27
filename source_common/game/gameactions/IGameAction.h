@@ -39,6 +39,11 @@ public:
     
     virtual ActionAnimationUpdateResult VUpdateAnimation(const float dtMillis) = 0;
     
+    // Used to deferentiate between actions that are automatically created on the fly
+    // by other actions (win conditions, attacks) and which themselves should not be serialized
+    // to a game file otherwise they would be duplicated by the replay flow
+    virtual bool VShouldBeSerialized() const = 0;
+    
     // To be used primarily by IMGUI debug widgets for properly generating
     // actions that require extra params
     virtual const std::vector<std::string>& VGetRequiredExtraParamNames() const = 0;

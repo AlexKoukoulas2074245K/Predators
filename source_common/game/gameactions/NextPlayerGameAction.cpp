@@ -59,6 +59,13 @@ ActionAnimationUpdateResult NextPlayerGameAction::VUpdateAnimation(const float)
 
 ///------------------------------------------------------------------------------------------------
 
+bool NextPlayerGameAction::VShouldBeSerialized() const
+{
+    return true;
+}
+
+///------------------------------------------------------------------------------------------------
+
 const std::vector<std::string>& NextPlayerGameAction::VGetRequiredExtraParamNames() const
 {
     static std::vector<std::string> v;

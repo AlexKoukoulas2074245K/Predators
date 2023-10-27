@@ -16,6 +16,7 @@
 
 namespace persistence_utils
 {
+    std::string GetProgressDirectoryPath();
     std::string GetProgressSaveFilePath();
     bool ProgressSaveFileExists();
     void LoadFromProgressSaveFile();

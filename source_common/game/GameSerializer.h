@@ -1,33 +1,30 @@
 ///------------------------------------------------------------------------------------------------
-///  IdleGameAction.h                                                                                          
+///  GameSerializer.h                                                                                          
 ///  Predators                                                                                            
 ///                                                                                                
-///  Created by Alex Koukoulas on 29/09/2023                                                       
+///  Created by Alex Koukoulas on 27/10/2023                                                       
 ///------------------------------------------------------------------------------------------------
 
-#ifndef IdleGameAction_h
-#define IdleGameAction_h
-
-///------------------------------------------------------------------------------------------------
-
-#include <game/gameactions/BaseGameAction.h>
+#ifndef GameSerializer_h
+#define GameSerializer_h
 
 ///------------------------------------------------------------------------------------------------
 
-class IdleGameAction final: public BaseGameAction
+#include <engine/utils/StringUtils.h>
+#include <unordered_map>
+
+///------------------------------------------------------------------------------------------------
+
+using ExtraActionParams = std::unordered_map<std::string, std::string>;
+class GameSerializer final
 {
 public:
-    void VSetNewGameState() override;
+    GameSerializer(const int gameSeed);
     
-    void VInitAnimation() override;
-    
-    ActionAnimationUpdateResult VUpdateAnimation(const float dtMillis) override;
-    
-    bool VShouldBeSerialized() const override;
-    
-    const std::vector<std::string>& VGetRequiredExtraParamNames() const override;
+    void FlushStateToFile();
+    void OnGameAction(const strutils::StringId& gameActionName, const ExtraActionParams& extraActionParams);
 };
 
 ///------------------------------------------------------------------------------------------------
 
-#endif /* IdleGameAction_h */
+#endif /* GameSerializer_h */

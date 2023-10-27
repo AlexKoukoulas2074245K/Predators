@@ -40,7 +40,7 @@ public:
     virtual bool VButtonTapped(const Button button) const = 0;
     virtual bool VIsTouchInputPlatform() const = 0;
     
-    virtual void VProcessInputEvent(const SDL_Event& event, bool& shouldQuit, bool& windowSizeChange) = 0;
+    virtual void VProcessInputEvent(const SDL_Event& event, bool& shouldQuit, bool& windowSizeChange, bool& applicationMovingToBackground) = 0;
     virtual void VUpdate(const float dtMillis) = 0;
 };
 

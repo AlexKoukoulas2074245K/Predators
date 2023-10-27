@@ -23,6 +23,7 @@ public:
     
     void Init();
     void Update(const float dtMillis);
+    void ApplicationMovedToBackground();
     void CreateDebugWidgets();
     
 private:
