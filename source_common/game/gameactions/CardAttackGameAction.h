@@ -10,6 +10,7 @@
 
 ///------------------------------------------------------------------------------------------------
 
+#include <engine/utils/MathUtils.h>
 #include <game/gameactions/BaseGameAction.h>
 #include <memory>
 
@@ -32,8 +33,11 @@ public:
     bool VShouldBeSerialized() const override;
     
     const std::vector<std::string>& VGetRequiredExtraParamNames() const override;
+    
 private:
     int mPendingAnimations;
+    glm::vec3 mOriginalCardPosition;
+    glm::vec3 mOriginalCardScale;
 };
 
 ///------------------------------------------------------------------------------------------------
