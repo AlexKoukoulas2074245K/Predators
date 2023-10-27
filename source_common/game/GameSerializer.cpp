@@ -65,7 +65,7 @@ void GameSerializer::FlushStateToFile()
     #if !defined(NDEBUG)
         sFile << sGameState.dump(4);
     #else
-        const auto binVec = nlohmann::json::to_ubjson(sGameState);
+        const auto binVec = nlohmann::json::to_bson(sGameState);
         sFile.write(reinterpret_cast<const char*>(&binVec[0]), binVec.size() * sizeof(std::uint8_t));
     #endif
         sFile.close();
@@ -93,8 +93,7 @@ void GameSerializer::OnGameAction(const strutils::StringId& gameActionName, cons
     nlohmann::json actionExtraParamsJson;
     for (const auto& extraActionParam: extraActionParams)
     {
-        actionExtraParamsJson["name"] = extraActionParam.first;
-        actionExtraParamsJson["value"] = extraActionParam.second;
+        actionExtraParamsJson[extraActionParam.first] = extraActionParam.second;
     }
     
     if (!actionExtraParamsJson.empty())

@@ -8,11 +8,13 @@
 #include <game/BoardState.h>
 #include <game/CardUtils.h>
 #include <game/GameConstants.h>
+#include <game/GameReplayEngine.h>
 #include <game/GameRuleEngine.h>
 #include <game/GameSerializer.h>
 #include <game/GameSessionManager.h>
 #include <game/gameactions/PlayCardGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
+#include <game/utils/PersistenceUtils.h>
 #include <engine/CoreSystemsEngine.h>
 #include <engine/input/IInputStateManager.h>
 #include <engine/rendering/AnimationManager.h>
@@ -89,13 +91,15 @@ void GameSessionManager::InitGameSession()
     mRuleEngine = std::make_unique<GameRuleEngine>(mBoardState.get());
     mActionEngine = std::make_unique<GameActionEngine>(GameActionEngine::EngineOperationMode::ANIMATED, 0, mBoardState.get(), this, mGameSerializer.get());
     
-    mActionEngine->AddGameAction(strutils::StringId("NextPlayerGameAction"));
-//    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-//    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-//    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-//    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-    mActionEngine->AddGameAction(strutils::StringId("NextPlayerGameAction"));
+    //GameReplayEngine().ReplayActionsFromGameFile(persistence_utils::GetProgressDirectoryPath() + "game.bin", mActionEngine.get());
     
+    mActionEngine->AddGameAction(strutils::StringId("NextPlayerGameAction"));
+//    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+//    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+//    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+//    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("NextPlayerGameAction"));
+
     mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
     mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
     mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
