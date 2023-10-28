@@ -28,6 +28,9 @@ static const std::string ATTACKING_CARD_PARTICLE_TEXTURE_FILE_NAME = "smoke.png"
 static const float ATTACKING_CARD_CAMERA_SHAKE_DURATION = 0.25f;
 static const float ATTACKING_CARD_CAMERA_SHAKE_STRENGTH = 0.005f;
 static const float ATTACKING_CARD_PARTICLE_EMITTER_Z = 0.01f;
+static const float ATTACKING_CARD_SHORT_ANIMATION_DURATION = 0.25f;
+static const float ATTACKING_CARD_LONG_ANIMATION_DURATION = 0.4f;
+static const float ATTACKING_CARD_ANIMATION_ELEVATED_Z = 20.0f;
 
 static const int ATTACKING_CARD_PARTICLE_COUNT = 20;
 
@@ -91,9 +94,9 @@ void CardAttackGameAction::VInitAnimation()
     {
         auto targetScale = mOriginalCardScale * 1.2f;
         auto targetPos = cardSoWrapper->mSceneObjectComponents[0]->mPosition;
-        targetPos.z += 20.0f;
+        targetPos.z += ATTACKING_CARD_ANIMATION_ELEVATED_Z;
         
-        animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObjectComponents, targetPos, targetScale, 0.25f, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [&]()
+        animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObjectComponents, targetPos, targetScale, ATTACKING_CARD_SHORT_ANIMATION_DURATION, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [&]()
         {
             mPendingAnimations--;
             
@@ -106,7 +109,7 @@ void CardAttackGameAction::VInitAnimation()
                 auto targetPos = cardSoWrapper->mSceneObjectComponents[0]->mPosition;
                 targetPos.y += attackingPayerIndex == game_constants::LOCAL_PLAYER_INDEX ? ATTACKING_CARD_ANIMATION_Y_OFFSET : - ATTACKING_CARD_ANIMATION_Y_OFFSET;
                 
-                animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObjectComponents, targetPos, cardSoWrapper->mSceneObjectComponents.front()->mScale, 0.25f, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [&]()
+                animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObjectComponents, targetPos, cardSoWrapper->mSceneObjectComponents.front()->mScale, ATTACKING_CARD_SHORT_ANIMATION_DURATION, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [&]()
                 {
                     mPendingAnimations--;
                     
@@ -129,7 +132,7 @@ void CardAttackGameAction::VInitAnimation()
                         particle_flags::PREFILLED                  // particleFlags
                      );
                     
-                    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObjectComponents, mOriginalCardPosition, mOriginalCardScale, 0.5f, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [&]()
+                    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObjectComponents, mOriginalCardPosition, mOriginalCardScale, ATTACKING_CARD_LONG_ANIMATION_DURATION, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [&]()
                     {
                         mPendingAnimations--;
                     });

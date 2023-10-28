@@ -1,20 +1,156 @@
 {
-    "card_data": [
+    "card_data":
+    [
         {
             "id": 0,
             "damage": 1,
-            "weight": 2,
-            "name": "Bunny",
-            "texture": "bunny.png",
+            "weight": 3,
+            "name": "Beaver",
+            "texture": "beaver.png",
             "shader": "basic.vs"
         },
-        
         {
             "id": 1,
             "damage": 1,
             "weight": 1,
             "name": "Bee",
             "texture": "bee.png",
+            "shader": "basic.vs"
+        },
+        {
+            "id": 2,
+            "damage": 1,
+            "weight": 1,
+            "name": "Beetle",
+            "texture": "beetle.png",
+            "shader": "basic.vs"
+        },
+        {
+            "id": 3,
+            "damage": 9,
+            "weight": 9,
+            "name": "Brachiosaurus",
+            "texture": "brachiosaurus.png",
+            "shader": "basic.vs"
+        },
+        {
+            "id": 4,
+            "damage": 1,
+            "weight": 1,
+            "name": "Bunny",
+            "texture": "bunny.png",
+            "shader": "basic.vs"
+        },
+        {
+            "id": 5,
+            "damage": 7,
+            "weight": 6,
+            "name": "Dilophosaurus",
+            "texture": "dilophosaurus.png",
+            "shader": "basic.vs"
+        },
+        {
+            "id": 6,
+            "damage": 1,
+            "weight": 1,
+            "name": "Dragonfly",
+            "texture": "dragonfly.png",
+            "shader": "basic.vs"
+        },
+        {
+            "id": 7,
+            "damage": 1,
+            "weight": 1,
+            "name": "Fly",
+            "texture": "fly.png",
+            "shader": "basic.vs"
+        },
+        {
+            "id": 8,
+            "damage": 2,
+            "weight": 4,
+            "name": "Ground Hog",
+            "texture": "ground_hog.png",
+            "shader": "basic.vs"
+        },
+        {
+            "id": 9,
+            "damage": 1,
+            "weight": 2,
+            "name": "Guinea Pig",
+            "texture": "guinea_pig.png",
+            "shader": "basic.vs"
+        },
+        {
+            "id": 10,
+            "damage": 1,
+            "weight": 1,
+            "name": "Ladybug",
+            "texture": "ladybug.png",
+            "shader": "basic.vs"
+        },
+        {
+            "id": 11,
+            "damage": 3,
+            "weight": 1,
+            "name": "Mantis",
+            "texture": "mantis.png",
+            "shader": "basic.vs"
+        },
+        {
+            "id": 12,
+            "damage": 1,
+            "weight": 1,
+            "name": "Mosquito",
+            "texture": "mosquito.png",
+            "shader": "basic.vs"
+        },
+        {
+            "id": 13,
+            "damage": 2,
+            "weight": 2,
+            "name": "Rat",
+            "texture": "rat.png",
+            "shader": "basic.vs"
+        },
+        {
+            "id": 14,
+            "damage": 9,
+            "weight": 8,
+            "name": "Rex",
+            "texture": "rex.png",
+            "shader": "basic.vs"
+        },
+        {
+            "id": 15,
+            "damage": 2,
+            "weight": 3,
+            "name": "Squirrel",
+            "texture": "squirrel.png",
+            "shader": "basic.vs"
+        },
+        {
+            "id": 16,
+            "damage": 8,
+            "weight": 7,
+            "name": "Stegosaurus",
+            "texture": "stegosaurus.png",
+            "shader": "basic.vs"
+        },
+        {
+            "id": 17,
+            "damage": 9,
+            "weight": 9,
+            "name": "Triceratops",
+            "texture": "triceratops.png",
+            "shader": "basic.vs"
+        },
+        {
+            "id": 18,
+            "damage": 6,
+            "weight": 5,
+            "name": "Velociraptor",
+            "texture": "velociraptor.png",
             "shader": "basic.vs"
         }
     ]

@@ -93,9 +93,9 @@ void GameSessionManager::InitGameSession()
     mActionEngine = std::make_unique<GameActionEngine>(GameActionEngine::EngineOperationMode::ANIMATED, 0, mBoardState.get(), this, mGameSerializer.get());
     mRemotePlayerActionEngine = std::make_unique<RemotePlayerActionEngine>(mRuleEngine.get(), mActionEngine.get());
     
-    GameReplayEngine().ReplayActionsFromGameFile(persistence_utils::GetProgressDirectoryPath() + "game.json", mActionEngine.get());
+    //GameReplayEngine().ReplayActionsFromGameFile(persistence_utils::GetProgressDirectoryPath() + "game.json", mActionEngine.get());
 //
-    //mActionEngine->AddGameAction(strutils::StringId("NextPlayerGameAction"));
+    mActionEngine->AddGameAction(strutils::StringId("NextPlayerGameAction"));
     //mActionEngine->AddGameAction(strutils::StringId("NextPlayerGameAction"));
 //
 //    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
@@ -159,7 +159,8 @@ void GameSessionManager::InitGameSession()
 
 void GameSessionManager::Update(const float dtMillis)
 {
-    if (mActionEngine->GetActiveGameActionName() == IDLE_GAME_ACTION_NAME && mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX)
+    if (mActionEngine->GetActiveGameActionName() == IDLE_GAME_ACTION_NAME &&
+        mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX)
     {
         mRemotePlayerActionEngine->DecideAndPushNextActions(mBoardState.get());
     }

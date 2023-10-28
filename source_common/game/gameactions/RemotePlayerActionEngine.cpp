@@ -39,14 +39,14 @@ void RemotePlayerActionEngine::DecideAndPushNextActions(BoardState* currentBoard
     
     auto currentHeldCardsCopySorted = currentHeldCards;
     
-    // Sort all held cards by descending weight
+    // Sort all held cards by descending damage
     const auto& cardRepository = CardDataRepository::GetInstance();
     std::sort(currentHeldCardsCopySorted.begin(), currentHeldCardsCopySorted.end(), [&](const int& lhs, const int& rhs)
     {
-        return cardRepository.GetCardData(lhs)->get().mCardWeight >
-               cardRepository.GetCardData(rhs)->get().mCardWeight;
+        return cardRepository.GetCardData(lhs)->get().mCardDamage >
+               cardRepository.GetCardData(rhs)->get().mCardDamage;
     });
-    
+   
     // Play every card possible (from highest weights to lowest)
     for (auto iter = currentHeldCardsCopySorted.cbegin(); iter != currentHeldCardsCopySorted.cend();)
     {
@@ -54,7 +54,7 @@ void RemotePlayerActionEngine::DecideAndPushNextActions(BoardState* currentBoard
         if (mGameRuleEngine->CanCardBePlayed(cardData, game_constants::REMOTE_PLAYER_INDEX, &boardStateCopy))
         {
             // Find index of card in original vector
-            auto originalHeldCardIter = std::find(currentHeldCards.cbegin(), currentHeldCards.cend(), currentHeldCardsCopySorted.front());
+            auto originalHeldCardIter = std::find(currentHeldCards.cbegin(), currentHeldCards.cend(), cardData->mCardId);
             assert(originalHeldCardIter != currentHeldCards.cend());
             
             mGameActionEngine->AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, std::to_string(originalHeldCardIter - currentHeldCards.cbegin())}});

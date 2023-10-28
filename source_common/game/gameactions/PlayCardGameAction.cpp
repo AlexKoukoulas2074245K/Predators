@@ -66,14 +66,14 @@ void PlayCardGameAction::VInitAnimation()
     auto activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
     const auto lastPlayedCardIndex = std::stoi(mExtraActionParams.at(LAST_PLAYED_CARD_INDEX_PARAM));
     
-    mLastPlayedCardSoWrapper = mGameSessionManager->GetHeldCardSoWrappers()[mBoardState->GetActivePlayerIndex()].at(lastPlayedCardIndex);
+    auto lastPlayedCardSoWrapper = mGameSessionManager->GetHeldCardSoWrappers()[mBoardState->GetActivePlayerIndex()].at(lastPlayedCardIndex);
     
     // For opponent plays, the front face card components also need to be created
     if (mBoardState->GetActivePlayerIndex() == 0)
     {
-        activeScene->RemoveSceneObject(mLastPlayedCardSoWrapper->mSceneObjectComponents[0]->mName);
-        mLastPlayedCardSoWrapper = card_utils::CreateCardSoWrapper(mLastPlayedCardSoWrapper->mCardData, mLastPlayedCardSoWrapper->mSceneObjectComponents[0]->mPosition, game_constants::TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX + std::to_string(mBoardState->GetActivePlayerState().mPlayerBoardCards.size() - 1), CardOrientation::FRONT_FACE, *activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE));
-        mGameSessionManager->OnHeldCardSwap(mLastPlayedCardSoWrapper, lastPlayedCardIndex, true);
+        activeScene->RemoveSceneObject(lastPlayedCardSoWrapper->mSceneObjectComponents[0]->mName);
+        lastPlayedCardSoWrapper = card_utils::CreateCardSoWrapper(lastPlayedCardSoWrapper->mCardData, lastPlayedCardSoWrapper->mSceneObjectComponents[0]->mPosition, game_constants::TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX + std::to_string(mBoardState->GetActivePlayerState().mPlayerBoardCards.size() - 1), CardOrientation::FRONT_FACE, *activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE));
+        mGameSessionManager->OnHeldCardSwap(lastPlayedCardSoWrapper, lastPlayedCardIndex, true);
     }
     
     mGameSessionManager->OnLastCardPlayedFinalized(lastPlayedCardIndex);
@@ -81,14 +81,14 @@ void PlayCardGameAction::VInitAnimation()
     
     // Rename played card components
     auto newComponentNames = card_utils::GetCardComponentSceneObjectNames((mBoardState->GetActivePlayerIndex() == 0 ? game_constants::TOP_PLAYER_BOARD_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_BOARD_CARD_SO_NAME_PREFIX) + std::to_string(mBoardState->GetActivePlayerState().mPlayerBoardCards.size() - 1), CardOrientation::FRONT_FACE);
-    for (size_t i = 0; i < mLastPlayedCardSoWrapper->mSceneObjectComponents.size(); ++i)
+    for (size_t i = 0; i < lastPlayedCardSoWrapper->mSceneObjectComponents.size(); ++i)
     {
-        mLastPlayedCardSoWrapper->mSceneObjectComponents[i]->mName = newComponentNames[i];
+        lastPlayedCardSoWrapper->mSceneObjectComponents[i]->mName = newComponentNames[i];
     }
     
     // Animate played card to board
     auto targetPosition = card_utils::CalculateBoardCardPosition(static_cast<int>(mBoardState->GetActivePlayerState().mPlayerBoardCards.size() - 1), static_cast<int>(mBoardState->GetActivePlayerState().mPlayerBoardCards.size()), mBoardState->GetActivePlayerIndex() == 0);
-    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(mLastPlayedCardSoWrapper->mSceneObjectComponents, targetPosition, mLastPlayedCardSoWrapper->mSceneObjectComponents[0]->mScale * game_constants::IN_GAME_PLAYED_CARD_SCALE_FACTOR, game_constants::IN_GAME_PLAYED_CARD_ANIMATION_DURATION, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(lastPlayedCardSoWrapper->mSceneObjectComponents, targetPosition, lastPlayedCardSoWrapper->mSceneObjectComponents[0]->mScale * game_constants::IN_GAME_PLAYED_CARD_SCALE_FACTOR, game_constants::IN_GAME_PLAYED_CARD_ANIMATION_DURATION, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
     {
         mPendingAnimations--;
         CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE)->GetCamera().Shake(CARD_CAMERA_SHAKE_DURATION, CARD_CAMERA_SHAKE_STRENGTH);

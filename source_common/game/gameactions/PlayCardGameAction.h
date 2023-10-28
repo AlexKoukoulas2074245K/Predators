@@ -32,7 +32,6 @@ public:
     
     const std::vector<std::string>& VGetRequiredExtraParamNames() const override;
 private:
-    std::shared_ptr<CardSoWrapper> mLastPlayedCardSoWrapper;
     int mPendingAnimations;
 };
 
