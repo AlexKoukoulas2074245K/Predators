@@ -22,7 +22,7 @@ class BoardState;
 class GameActionEngine;
 class GameRuleEngine;
 class GameSerializer;
-class RemotePlayerActionEngine;
+class PlayerActionGenerationEngine;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -70,7 +70,7 @@ private:
     std::unique_ptr<GameActionEngine> mActionEngine;
     std::unique_ptr<GameRuleEngine> mRuleEngine;
     std::unique_ptr<GameSerializer> mGameSerializer;
-    std::unique_ptr<RemotePlayerActionEngine> mRemotePlayerActionEngine;
+    std::unique_ptr<PlayerActionGenerationEngine> mPlayerActionGenerationEngine;
     std::vector<std::vector<std::shared_ptr<CardSoWrapper>>> mPlayerHeldCardSceneObjectWrappers;
     std::vector<std::vector<std::shared_ptr<CardSoWrapper>>> mPlayerBoardCardSceneObjectWrappers;
     ProspectiveBoardCardsPushState mPreviousProspectiveBoardCardsPushState;

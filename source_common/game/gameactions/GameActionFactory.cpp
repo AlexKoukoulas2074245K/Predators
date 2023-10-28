@@ -8,6 +8,7 @@
 #include <game/gameactions/CardAttackGameAction.h>
 #include <game/gameactions/DrawCardGameAction.h>
 #include <game/gameactions/GameActionFactory.h>
+#include <game/gameactions/GameOverGameAction.h>
 #include <game/gameactions/IdleGameAction.h>
 #include <game/gameactions/NextPlayerGameAction.h>
 #include <game/gameactions/PlayCardGameAction.h>
@@ -32,6 +33,7 @@ void GameActionFactory::RegisterGameActions()
     REGISTER_ACTION(IdleGameAction);
     REGISTER_ACTION(CardAttackGameAction);
     REGISTER_ACTION(DrawCardGameAction);
+    REGISTER_ACTION(GameOverGameAction);
     REGISTER_ACTION(NextPlayerGameAction);
     REGISTER_ACTION(PlayCardGameAction);
     
@@ -55,6 +57,7 @@ std::unique_ptr<BaseGameAction> GameActionFactory::CreateGameAction(const struti
     ACTION_CASE(IdleGameAction);
     ACTION_CASE(CardAttackGameAction);
     ACTION_CASE(DrawCardGameAction);
+    ACTION_CASE(GameOverGameAction);
     ACTION_CASE(NextPlayerGameAction);
     ACTION_CASE(PlayCardGameAction);
     assert(false && "Invalid game action name");

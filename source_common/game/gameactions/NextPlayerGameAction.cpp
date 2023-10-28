@@ -47,11 +47,23 @@ void NextPlayerGameAction::VSetNewGameState()
                 { CardAttackGameAction::CARD_INDEX_PARAM, std::to_string(i) }
             });
         }
-        
-        //TODO: handle death
     }
     
     mGameActionEngine->AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
+    
+    // First time top player gets 2 cards in total
+    if (previousPlayerIndex == -1)
+    {
+        mGameActionEngine->AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
+    }
+    
+    // First time bot player gets 3 cards in total
+    if (previousPlayerIndex == 0 && mBoardState->GetActivePlayerState().mPlayerTotalWeightAmmo == 1)
+    {
+        mGameActionEngine->AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
+        mGameActionEngine->AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
+        mGameActionEngine->AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
+    }
 }
 
 ///------------------------------------------------------------------------------------------------

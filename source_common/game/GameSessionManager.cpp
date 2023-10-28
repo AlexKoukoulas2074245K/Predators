@@ -14,7 +14,7 @@
 #include <game/GameSessionManager.h>
 #include <game/gameactions/PlayCardGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
-#include <game/gameactions/RemotePlayerActionEngine.h>
+#include <game/gameactions/PlayerActionGenerationEngine.h>
 #include <game/utils/PersistenceUtils.h>
 #include <engine/CoreSystemsEngine.h>
 #include <engine/input/IInputStateManager.h>
@@ -91,7 +91,7 @@ void GameSessionManager::InitGameSession()
     mGameSerializer = std::make_unique<GameSerializer>(0);
     mRuleEngine = std::make_unique<GameRuleEngine>(mBoardState.get());
     mActionEngine = std::make_unique<GameActionEngine>(GameActionEngine::EngineOperationMode::ANIMATED, 0, mBoardState.get(), this, mGameSerializer.get());
-    mRemotePlayerActionEngine = std::make_unique<RemotePlayerActionEngine>(mRuleEngine.get(), mActionEngine.get());
+    mPlayerActionGenerationEngine = std::make_unique<PlayerActionGenerationEngine>(mRuleEngine.get(), mActionEngine.get());
     
     //GameReplayEngine().ReplayActionsFromGameFile(persistence_utils::GetProgressDirectoryPath() + "game.json", mActionEngine.get());
 //
@@ -162,7 +162,7 @@ void GameSessionManager::Update(const float dtMillis)
     if (mActionEngine->GetActiveGameActionName() == IDLE_GAME_ACTION_NAME &&
         mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX)
     {
-        mRemotePlayerActionEngine->DecideAndPushNextActions(mBoardState.get());
+        mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get());
     }
     
     HandleTouchInput();

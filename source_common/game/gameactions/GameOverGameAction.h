@@ -1,12 +1,12 @@
 ///------------------------------------------------------------------------------------------------
-///  PlayCardGameAction.h                                                                                          
+///  GameOverGameAction.h                                                                                          
 ///  Predators                                                                                            
 ///                                                                                                
-///  Created by Alex Koukoulas on 29/09/2023                                                       
+///  Created by Alex Koukoulas on 28/10/2023                                                       
 ///------------------------------------------------------------------------------------------------
 
-#ifndef PlayCardGameAction_h
-#define PlayCardGameAction_h
+#ifndef GameOverGameAction_h
+#define GameOverGameAction_h
 
 ///------------------------------------------------------------------------------------------------
 
@@ -14,11 +14,11 @@
 
 ///------------------------------------------------------------------------------------------------
 
-class PlayCardGameAction final: public BaseGameAction
+class GameOverGameAction final: public BaseGameAction
 {
 public:
-    static const std::string LAST_PLAYED_CARD_INDEX_PARAM;
-
+    static const std::string VICTORIOUS_PLAYER_INDEX_PARAM;
+    
 public:
     void VSetNewGameState() override;
     
@@ -29,10 +29,8 @@ public:
     bool VShouldBeSerialized() const override;
     
     const std::vector<std::string>& VGetRequiredExtraParamNames() const override;
-private:
-    int mPendingAnimations;
 };
 
 ///------------------------------------------------------------------------------------------------
 
-#endif /* PlayCardGameAction_h */
+#endif /* GameOverGameAction_h */

@@ -25,7 +25,7 @@ GameActionEngine::GameActionEngine(const EngineOperationMode operationMode, cons
     , mGameSessionManager(gameSessionManager)
     , mGameSerializer(gameSerializer)
     , mActiveActionHasSetState(false)
-    , mLoggingActionTransitions(true)
+    , mLoggingActionTransitions(false)
 {
     math::SetControlSeed(mGameSeed);
     

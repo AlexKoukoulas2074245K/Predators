@@ -8,6 +8,8 @@
 #include <game/Cards.h>
 #include <game/CardUtils.h>
 #include <game/gameactions/CardAttackGameAction.h>
+#include <game/gameactions/GameActionEngine.h>
+#include <game/gameactions/GameOverGameAction.h>
 #include <game/GameSessionManager.h>
 #include <engine/rendering/AnimationManager.h>
 #include <engine/rendering/Particles.h>
@@ -20,6 +22,7 @@
 const std::string CardAttackGameAction::CARD_INDEX_PARAM = "cardIndex";
 const std::string CardAttackGameAction::PLAYER_INDEX_PARAM = "playerIndex";
 
+static const strutils::StringId GAME_OVER_GAME_ACTION_NAME = strutils::StringId("GameOverGameAction");
 static const float ATTACKING_CARD_ANIMATION_Y_OFFSET = 0.16f;
 //static const float ATTACKING_CARD_ANIMATION_DURATION_SECS = 0.5f;
 
@@ -66,7 +69,7 @@ void CardAttackGameAction::VSetNewGameState()
     
     if (activePlayerState.mPlayerHealth <= 0.0f)
     {
-        //TODO: handle death
+        mGameActionEngine->AddGameAction(GAME_OVER_GAME_ACTION_NAME, {{ GameOverGameAction::VICTORIOUS_PLAYER_INDEX_PARAM, std::to_string(attackingPayerIndex)}});
     }
     else
     {

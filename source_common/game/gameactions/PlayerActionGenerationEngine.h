@@ -1,22 +1,22 @@
 ///------------------------------------------------------------------------------------------------
-///  RemotePlayerActionEngine.h                                                                                          
+///  PlayerActionGenerationEngine.h                                                                                          
 ///  Predators                                                                                            
 ///                                                                                                
 ///  Created by Alex Koukoulas on 28/10/2023                                                       
 ///------------------------------------------------------------------------------------------------
 
-#ifndef RemotePlayerActionEngine_h
-#define RemotePlayerActionEngine_h
+#ifndef PlayerActionGenerationEngine_h
+#define PlayerActionGenerationEngine_h
 
 ///------------------------------------------------------------------------------------------------
 
 class GameRuleEngine;
 class GameActionEngine;
 class BoardState;
-class RemotePlayerActionEngine final
+class PlayerActionGenerationEngine final
 {
 public:
-    RemotePlayerActionEngine(GameRuleEngine* gameRuleEngine, GameActionEngine* gameActionEngine);
+    PlayerActionGenerationEngine(GameRuleEngine* gameRuleEngine, GameActionEngine* gameActionEngine);
     
     void DecideAndPushNextActions(BoardState* currentBoardState);
     
@@ -27,4 +27,4 @@ private:
 
 ///------------------------------------------------------------------------------------------------
 
-#endif /* RemotePlayerActionEngine_h */
+#endif /* PlayerActionGenerationEngine_h */

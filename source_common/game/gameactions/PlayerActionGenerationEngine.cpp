@@ -1,5 +1,5 @@
 ///------------------------------------------------------------------------------------------------
-///  RemotePlayerActionEngine.cpp                                                                                        
+///  PlayerActionGenerationEngine.cpp                                                                                        
 ///  Predators                                                                                            
 ///                                                                                                
 ///  Created by Alex Koukoulas on 28/10/2023                                                       
@@ -11,7 +11,7 @@
 #include <game/GameRuleEngine.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/PlayCardGameAction.h>
-#include <game/gameactions/RemotePlayerActionEngine.h>
+#include <game/gameactions/PlayerActionGenerationEngine.h>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -20,7 +20,7 @@ static const strutils::StringId NEXT_PLAYER_GAME_ACTION_NAME = strutils::StringI
 
 ///------------------------------------------------------------------------------------------------
 
-RemotePlayerActionEngine::RemotePlayerActionEngine(GameRuleEngine* gameRuleEngine, GameActionEngine* gameActionEngine)
+PlayerActionGenerationEngine::PlayerActionGenerationEngine(GameRuleEngine* gameRuleEngine, GameActionEngine* gameActionEngine)
     : mGameRuleEngine(gameRuleEngine)
     , mGameActionEngine(gameActionEngine)
 {
@@ -29,10 +29,8 @@ RemotePlayerActionEngine::RemotePlayerActionEngine(GameRuleEngine* gameRuleEngin
 
 ///------------------------------------------------------------------------------------------------
 
-void RemotePlayerActionEngine::DecideAndPushNextActions(BoardState* currentBoardState)
+void PlayerActionGenerationEngine::DecideAndPushNextActions(BoardState* currentBoardState)
 {
-    assert(currentBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
-    
     BoardState boardStateCopy = *currentBoardState;
     auto& currentHeldCards = boardStateCopy.GetActivePlayerState().mPlayerHeldCards;
     auto& currentBoardCards = boardStateCopy.GetActivePlayerState().mPlayerBoardCards;
@@ -51,7 +49,7 @@ void RemotePlayerActionEngine::DecideAndPushNextActions(BoardState* currentBoard
     for (auto iter = currentHeldCardsCopySorted.cbegin(); iter != currentHeldCardsCopySorted.cend();)
     {
         const auto* cardData = &cardRepository.GetCardData(*iter)->get();
-        if (mGameRuleEngine->CanCardBePlayed(cardData, game_constants::REMOTE_PLAYER_INDEX, &boardStateCopy))
+        if (mGameRuleEngine->CanCardBePlayed(cardData, boardStateCopy.GetActivePlayerIndex(), &boardStateCopy))
         {
             // Find index of card in original vector
             auto originalHeldCardIter = std::find(currentHeldCards.cbegin(), currentHeldCards.cend(), cardData->mCardId);
