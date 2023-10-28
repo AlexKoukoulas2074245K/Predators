@@ -58,9 +58,10 @@ namespace game_constants
     inline const strutils::StringId IN_GAME_BATTLE_SCENE = strutils::StringId("BATTLE");
     
     // General Game Constants
-    inline const int OPPONENT_PLAYER_INDEX = 0;
+    inline const int REMOTE_PLAYER_INDEX = 0;
     inline const int LOCAL_PLAYER_INDEX = 1;
-    
+    inline const int MAX_BOARD_CARDS = 5;
+
     inline const int IN_GAME_CARD_PUSH_THRESHOLD = 4;
     inline const float CARD_COMPONENT_Z_OFFSET = 0.1f;
     inline const float CARD_BOUNDING_RECT_X_MULTIPLIER = 0.5f;

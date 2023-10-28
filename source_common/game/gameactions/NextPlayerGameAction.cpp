@@ -18,6 +18,7 @@
 ///------------------------------------------------------------------------------------------------
 
 static const strutils::StringId CARD_ATTACK_GAME_ACTION_NAME = strutils::StringId("CardAttackGameAction");
+static const strutils::StringId DRAW_CARD_GAME_ACTION_NAME = strutils::StringId("DrawCardGameAction");
 
 static const float TURN_POINTER_ANIMATION_DURATION_SECS = 1.0f;
 
@@ -46,7 +47,11 @@ void NextPlayerGameAction::VSetNewGameState()
                 { CardAttackGameAction::CARD_INDEX_PARAM, std::to_string(i) }
             });
         }
+        
+        //TODO: handle death
     }
+    
+    mGameActionEngine->AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
 }
 
 ///------------------------------------------------------------------------------------------------

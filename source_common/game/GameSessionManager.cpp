@@ -14,6 +14,7 @@
 #include <game/GameSessionManager.h>
 #include <game/gameactions/PlayCardGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
+#include <game/gameactions/RemotePlayerActionEngine.h>
 #include <game/utils/PersistenceUtils.h>
 #include <engine/CoreSystemsEngine.h>
 #include <engine/input/IInputStateManager.h>
@@ -90,19 +91,12 @@ void GameSessionManager::InitGameSession()
     mGameSerializer = std::make_unique<GameSerializer>(0);
     mRuleEngine = std::make_unique<GameRuleEngine>(mBoardState.get());
     mActionEngine = std::make_unique<GameActionEngine>(GameActionEngine::EngineOperationMode::ANIMATED, 0, mBoardState.get(), this, mGameSerializer.get());
+    mRemotePlayerActionEngine = std::make_unique<RemotePlayerActionEngine>(mRuleEngine.get(), mActionEngine.get());
     
     GameReplayEngine().ReplayActionsFromGameFile(persistence_utils::GetProgressDirectoryPath() + "game.json", mActionEngine.get());
 //
-//    mActionEngine->AddGameAction(strutils::StringId("NextPlayerGameAction"));
-//    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-//    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-//    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-//    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-//    mActionEngine->AddGameAction(strutils::StringId("NextPlayerGameAction"));
-//    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-//    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-//    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-//    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
+    //mActionEngine->AddGameAction(strutils::StringId("NextPlayerGameAction"));
+    //mActionEngine->AddGameAction(strutils::StringId("NextPlayerGameAction"));
 //
 //    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
 //    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
@@ -165,6 +159,11 @@ void GameSessionManager::InitGameSession()
 
 void GameSessionManager::Update(const float dtMillis)
 {
+    if (mActionEngine->GetActiveGameActionName() == IDLE_GAME_ACTION_NAME && mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX)
+    {
+        mRemotePlayerActionEngine->DecideAndPushNextActions(mBoardState.get());
+    }
+    
     HandleTouchInput();
     UpdateMiscSceneObjects(dtMillis);
     mActionEngine->Update(dtMillis);
@@ -195,14 +194,14 @@ void GameSessionManager::OnApplicationMovedToBackground()
 
 void GameSessionManager::OnCardCreation(std::shared_ptr<CardSoWrapper> cardSoWrapper, const bool forOpponentPlayer)
 {
-    mPlayerHeldCardSceneObjectWrappers[(forOpponentPlayer ? game_constants::OPPONENT_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)].push_back(cardSoWrapper);
+    mPlayerHeldCardSceneObjectWrappers[(forOpponentPlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)].push_back(cardSoWrapper);
 }
 
 ///------------------------------------------------------------------------------------------------
 
 void GameSessionManager::OnHeldCardSwap(std::shared_ptr<CardSoWrapper> cardSoWrapper, const int cardIndex, const bool forOpponentPlayer)
 {
-    mPlayerHeldCardSceneObjectWrappers[(forOpponentPlayer ? game_constants::OPPONENT_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)][cardIndex] = cardSoWrapper;
+    mPlayerHeldCardSceneObjectWrappers[(forOpponentPlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)][cardIndex] = cardSoWrapper;
 }
 
 ///------------------------------------------------------------------------------------------------

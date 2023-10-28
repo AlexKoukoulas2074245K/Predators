@@ -114,7 +114,7 @@ ActionAnimationUpdateResult DrawCardGameAction::VUpdateAnimation(const float)
 
 bool DrawCardGameAction::VShouldBeSerialized() const
 {
-    return true;
+    return false;
 }
 
 ///------------------------------------------------------------------------------------------------

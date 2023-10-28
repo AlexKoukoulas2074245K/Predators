@@ -8,6 +8,7 @@
 #include <game/BoardState.h>
 #include <game/Cards.h>
 #include <game/GameRuleEngine.h>
+#include <game/GameConstants.h>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -18,10 +19,11 @@ GameRuleEngine::GameRuleEngine(BoardState* boardState)
 
 ///------------------------------------------------------------------------------------------------
 
-bool GameRuleEngine::CanCardBePlayed(const CardData* cardData, const size_t forPlayerIndex) const
+bool GameRuleEngine::CanCardBePlayed(const CardData* cardData, const size_t forPlayerIndex, BoardState* customBoardStateOverride /* = nullptr */) const
 {
-    auto& activePlayerState = mBoardState->GetPlayerStates()[forPlayerIndex];
-    return activePlayerState.mPlayerCurrentWeightAmmo >= cardData->mCardWeight;
+    auto* boardStateToUse = customBoardStateOverride ? customBoardStateOverride : mBoardState;
+    auto& activePlayerState = boardStateToUse->GetPlayerStates()[forPlayerIndex];
+    return activePlayerState.mPlayerCurrentWeightAmmo >= cardData->mCardWeight && activePlayerState.mPlayerBoardCards.size() < game_constants::MAX_BOARD_CARDS;
 }
 
 ///------------------------------------------------------------------------------------------------
