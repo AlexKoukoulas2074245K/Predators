@@ -49,7 +49,7 @@ void GameOverGameAction::VInitAnimation()
     damageTextData.mText = "Player " + mExtraActionParams.at(VICTORIOUS_PLAYER_INDEX_PARAM) + " won!";
     
     victorTextSo->mSceneObjectTypeData = std::move(damageTextData);
-    victorTextSo->mScale = glm::vec3(game_constants::IN_GAME_CARD_PROPERTY_SCALE * 10);
+    victorTextSo->mScale = glm::vec3(game_constants::IN_GAME_CARD_PROPERTY_SCALE * 3);
     victorTextSo->mPosition = glm::vec3(-0.1f, 0.0f, 5.0f);
 }
 

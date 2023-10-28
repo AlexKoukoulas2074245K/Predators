@@ -88,39 +88,26 @@ void GameSessionManager::InitGameSession()
     mPlayerBoardCardSceneObjectWrappers.emplace_back();
     mPlayerBoardCardSceneObjectWrappers.emplace_back();
     
-    mGameSerializer = std::make_unique<GameSerializer>(0);
     mRuleEngine = std::make_unique<GameRuleEngine>(mBoardState.get());
-    mActionEngine = std::make_unique<GameActionEngine>(GameActionEngine::EngineOperationMode::ANIMATED, 0, mBoardState.get(), this, mGameSerializer.get());
+    
+#define REPLAY_FLOW
+    
+#if defined(REPLAY_FLOW)
+    GameReplayEngine replayEngine(persistence_utils::GetProgressDirectoryPath() + "game.json");
+    auto seed = replayEngine.GetGameFileSeed();
+#else
+    auto seed = math::RandomInt();
+#endif
+    
+    mGameSerializer = std::make_unique<GameSerializer>(seed);
+    mActionEngine = std::make_unique<GameActionEngine>(GameActionEngine::EngineOperationMode::ANIMATED, seed, mBoardState.get(), this, mGameSerializer.get());
     mPlayerActionGenerationEngine = std::make_unique<PlayerActionGenerationEngine>(mRuleEngine.get(), mActionEngine.get());
     
-    //GameReplayEngine().ReplayActionsFromGameFile(persistence_utils::GetProgressDirectoryPath() + "game.json", mActionEngine.get());
-//
+#if defined(REPLAY_FLOW)
+    replayEngine.ReplayActions(mActionEngine.get());
+#else
     mActionEngine->AddGameAction(strutils::StringId("NextPlayerGameAction"));
-    //mActionEngine->AddGameAction(strutils::StringId("NextPlayerGameAction"));
-//
-//    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-//    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-//    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-//    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-//    mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-    //mActionEngine->AddGameAction(strutils::StringId("PlayCardGameAction"), {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "4" }});
-    //mActionEngine->AddGameAction(strutils::StringId("PlayCardGameAction"), {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "1" }});
-    //mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-    //mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-    //mActionEngine->AddGameAction(strutils::StringId("PlayCardGameAction"), {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "4" }});
-    //mActionEngine->AddGameAction(strutils::StringId("PlayCardGameAction"), {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "1" }});
-    //mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-    //mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-    //mActionEngine->AddGameAction(strutils::StringId("NextPlayerGameAction"));
-    //mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-    //mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-    //mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-    //mActionEngine->AddGameAction(strutils::StringId("PlayCardGameAction"), {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "1" }});
-    //mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-    //mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-    //mActionEngine->AddGameAction(strutils::StringId("DrawCardGameAction"));
-    //mActionEngine->AddGameAction(strutils::StringId("PlayCardGameAction"), {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "1" }});
-    //mActionEngine->AddGameAction(strutils::StringId("PlayCardGameAction"), {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "2" }});
+#endif
     
     const auto& activeSceneManager = CoreSystemsEngine::GetInstance().GetActiveSceneManager();
     auto activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);

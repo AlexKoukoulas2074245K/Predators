@@ -57,7 +57,7 @@ void NextPlayerGameAction::VSetNewGameState()
         mGameActionEngine->AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
     }
     
-    // First time bot player gets 3 cards in total
+    // First time bot player gets 4 cards in total
     if (previousPlayerIndex == 0 && mBoardState->GetActivePlayerState().mPlayerTotalWeightAmmo == 1)
     {
         mGameActionEngine->AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
