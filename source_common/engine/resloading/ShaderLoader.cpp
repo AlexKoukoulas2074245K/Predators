@@ -76,7 +76,13 @@ std::unique_ptr<IResource> ShaderLoader::VCreateAndLoadResource(const std::strin
         vertexShaderInfoLog.clear();
         vertexShaderInfoLog.reserve(vertexShaderInfoLogLength);
         GL_CALL(glGetShaderInfoLog(vertexShaderId, vertexShaderInfoLogLength, nullptr, &vertexShaderInfoLog[0]));
-        ospopups::ShowMessageBox(ospopups::MessageBoxType::ERROR, "Error Compiling Vertex Shader: " +  std::string(resourcePath.c_str()), vertexShaderInfoLog.c_str());
+        
+        bool containsError = strutils::StringContains(std::string(vertexShaderInfoLog.c_str()), "ERROR:");
+        if (containsError)
+        {
+            ospopups::ShowMessageBox(ospopups::MessageBoxType::ERROR, "Error Compiling Vertex Shader: " +  std::string(resourcePath.c_str()), vertexShaderInfoLog.c_str());
+        }
+        logging::Log((containsError ? logging::LogType::ERROR : logging::LogType::WARNING), "%s Compiling Vertex Shader: %s\n%s", (containsError ? "Error" : "Warning"), resourcePath.c_str(), vertexShaderInfoLog.c_str());
     }
     
     // Generate fragment shader id
@@ -104,7 +110,13 @@ std::unique_ptr<IResource> ShaderLoader::VCreateAndLoadResource(const std::strin
         fragmentShaderInfoLog.clear();
         fragmentShaderInfoLog.reserve(fragmentShaderInfoLogLength);
         GL_CALL(glGetShaderInfoLog(fragmentShaderId, fragmentShaderInfoLogLength, nullptr, &fragmentShaderInfoLog[0]));
-        ospopups::ShowMessageBox(ospopups::MessageBoxType::ERROR, "Error Compiling Fragment Shader: " +  std::string(resourcePath.c_str()), fragmentShaderInfoLog.c_str());
+        
+        bool containsError = strutils::StringContains(std::string(fragmentShaderInfoLog.c_str()), "ERROR:");
+        if (containsError)
+        {
+            ospopups::ShowMessageBox(ospopups::MessageBoxType::ERROR, "Error Compiling Fragment Shader: " +  std::string(resourcePath.c_str()), fragmentShaderInfoLog.c_str());
+        }
+        logging::Log((containsError ? logging::LogType::ERROR : logging::LogType::WARNING), "%s Compiling Fragment Shader: %s\n%s", (containsError ? "Error" : "Warning"), resourcePath.c_str(), fragmentShaderInfoLog.c_str());
     }
 
     // Link shader program

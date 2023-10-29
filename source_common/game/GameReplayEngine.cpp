@@ -5,6 +5,7 @@
 ///  Created by Alex Koukoulas on 27/10/2023                                                       
 ///------------------------------------------------------------------------------------------------
 
+#include <engine/utils/OSMessageBox.h>
 #include <fstream>
 #include <game/GameReplayEngine.h>
 #include <game/gameactions/GameActionEngine.h>
@@ -21,23 +22,32 @@ GameReplayEngine::GameReplayEngine(const std::string& filename)
 {
 #if !defined(NDEBUG)
     std::ifstream gameFile(filename);
-    std::stringstream buffer;
-    buffer << gameFile.rdbuf();
-    auto contents = buffer.str();
-    if (contents.size() > 1)
+    if (gameFile.is_open())
     {
-        sGameJson = nlohmann::json::parse(buffer.str());
-        
+        std::stringstream buffer;
+        buffer << gameFile.rdbuf();
+        auto contents = buffer.str();
+        if (contents.size() > 1)
+        {
+            sGameJson = nlohmann::json::parse(buffer.str());
 #else
     std::ifstream gameFile(filename, std::ios::binary);
-    std::vector<std::uint8_t> contents((std::istreambuf_iterator<char>(gameFile)), std::istreambuf_iterator<char>());
-    if (contents.size() > 1)
+    if (gameFile.is_open())
     {
-        sGameJson = nlohmann::json::from_bson(contents);
+        std::vector<std::uint8_t> contents((std::istreambuf_iterator<char>(gameFile)), std::istreambuf_iterator<char>());
+        if (contents.size() > 1)
+        {
+            sGameJson = nlohmann::json::from_bson(contents);
 #endif
-    }
+            mGameFileSeed = static_cast<int>(sGameJson["seed"]);
+        }
         
-    mGameFileSeed = static_cast<int>(sGameJson["seed"]);
+        
+    }
+    else
+    {
+        ospopups::ShowMessageBox(ospopups::MessageBoxType::ERROR, "File not found", ("Game File " + filename + " not found.").c_str());
+    }
 }
 
 ///------------------------------------------------------------------------------------------------
