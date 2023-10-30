@@ -63,6 +63,8 @@
 		92C851BA2969A9D70021923F /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 92C851B92969A9D70021923F /* main.cpp */; };
 		92E96A6B29803597004A3120 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92E96A5F29803597004A3120 /* OpenGLES.framework */; };
 		A546A01450E839443B41CA7C /* PlayerActionGenerationEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 412405F5A340366C4088FC72 /* PlayerActionGenerationEngine.cpp */; };
+		AB54A5905F3A5259C0730F07 /* CardDestructionGameAction.h in Sources */ = {isa = PBXBuildFile; fileRef = 93AE986D787BD40CD2934725 /* CardDestructionGameAction.h */; };
+		B3635684978AFF0F4C6AE38E /* CardDestructionGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD346EFDC613D39305CC6BD2 /* CardDestructionGameAction.cpp */; };
 		B4646BE5AB02E3828791D61E /* SceneObjectUtils.h in Sources */ = {isa = PBXBuildFile; fileRef = 4D44F8A7427AB83EA69F0455 /* SceneObjectUtils.h */; };
 		B53BB940C66AA4E0C9B6570C /* GameOverGameAction.h in Sources */ = {isa = PBXBuildFile; fileRef = B525211824678482C123E701 /* GameOverGameAction.h */; };
 		B73026FB68E0DD48367CBE82 /* Particles.h in Sources */ = {isa = PBXBuildFile; fileRef = BFA875DD1BB1DB816488BD34 /* Particles.h */; };
@@ -303,6 +305,7 @@
 		92C851902969A8D00021923F /* SDL.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SDL.xcodeproj; path = "ThirdParty/SDL-source/Xcode/SDL/SDL.xcodeproj"; sourceTree = "<group>"; };
 		92C851B92969A9D70021923F /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		92E96A5F29803597004A3120 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
+		93AE986D787BD40CD2934725 /* CardDestructionGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = CardDestructionGameAction.h; path = CardDestructionGameAction.h; sourceTree = "<group>"; };
 		9BFB08A618CB5789C48A0632 /* GameSerializer.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = GameSerializer.cpp; path = GameSerializer.cpp; sourceTree = "<group>"; };
 		A2CCA4D2AD48F6DE2B766E4B /* GameSessionManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = GameSessionManager.cpp; path = GameSessionManager.cpp; sourceTree = "<group>"; };
 		B3A902E2D8B1AD656D561A89 /* GameConstants.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = GameConstants.h; path = GameConstants.h; sourceTree = "<group>"; };
@@ -312,6 +315,7 @@
 		C2440AC9D2351884CB46159D /* PlayerActionGenerationEngine.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = PlayerActionGenerationEngine.h; path = PlayerActionGenerationEngine.h; sourceTree = "<group>"; };
 		C37D93E8181A0316F39E2D64 /* GameSessionManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = GameSessionManager.h; path = GameSessionManager.h; sourceTree = "<group>"; };
 		C6B01E95D9ABF46EECA93F96 /* Animations.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = Animations.cpp; path = Animations.cpp; sourceTree = "<group>"; };
+		CD346EFDC613D39305CC6BD2 /* CardDestructionGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = CardDestructionGameAction.cpp; path = CardDestructionGameAction.cpp; sourceTree = "<group>"; };
 		CE73A6308D9C05803C2DD962 /* CardAttackGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = CardAttackGameAction.cpp; path = CardAttackGameAction.cpp; sourceTree = "<group>"; };
 		D2CDD004F2E6D189785B5F62 /* Cards.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = Cards.cpp; path = Cards.cpp; sourceTree = "<group>"; };
 		E084FB11819A0AFC14DE50F6 /* ParticleUpdater.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ParticleUpdater.h; path = ParticleUpdater.h; sourceTree = "<group>"; };
@@ -427,6 +431,8 @@
 				412405F5A340366C4088FC72 /* PlayerActionGenerationEngine.cpp */,
 				C2440AC9D2351884CB46159D /* PlayerActionGenerationEngine.h */,
 				B525211824678482C123E701 /* GameOverGameAction.h */,
+				CD346EFDC613D39305CC6BD2 /* CardDestructionGameAction.cpp */,
+				93AE986D787BD40CD2934725 /* CardDestructionGameAction.h */,
 			);
 			path = gameactions;
 			sourceTree = "<group>";
@@ -936,6 +942,8 @@
 				A546A01450E839443B41CA7C /* PlayerActionGenerationEngine.cpp in Sources */,
 				DD1336F32DE09C22CF5258DE /* PlayerActionGenerationEngine.h in Sources */,
 				B53BB940C66AA4E0C9B6570C /* GameOverGameAction.h in Sources */,
+				B3635684978AFF0F4C6AE38E /* CardDestructionGameAction.cpp in Sources */,
+				AB54A5905F3A5259C0730F07 /* CardDestructionGameAction.h in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

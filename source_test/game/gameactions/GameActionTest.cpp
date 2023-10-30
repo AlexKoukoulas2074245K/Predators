@@ -108,10 +108,10 @@ TEST_F(GameActionTests, TestDrawPlayNextDrawPlayActionRound)
     }
     
     EXPECT_EQ(mBoardState->GetPlayerStates().at(0).mPlayerHeldCards.size(), 2);
-    EXPECT_EQ(mBoardState->GetPlayerStates().at(0).mPlayerBoardCards.size(), 1);
+    EXPECT_EQ(mBoardState->GetPlayerStates().at(0).mPlayerBoardCards.size(), 0);
     
     EXPECT_EQ(mBoardState->GetPlayerStates().at(1).mPlayerHeldCards.size(), 3);
-    EXPECT_EQ(mBoardState->GetPlayerStates().at(1).mPlayerBoardCards.size(), 1);
+    EXPECT_EQ(mBoardState->GetPlayerStates().at(1).mPlayerBoardCards.size(), 0);
     
     EXPECT_EQ(mBoardState->GetActivePlayerIndex(), 0);
 }
@@ -167,7 +167,7 @@ TEST_F(GameActionTests, TestWeightAmmoIncrements)
 
 TEST_F(GameActionTests, BattleSimulation)
 {
-    constexpr int GAME_COUNT = 1000;
+    constexpr int GAME_COUNT = 10000;
     
     std::stringstream statistics;
     int gamesTopPlayerWonCounter = 0;
@@ -175,15 +175,19 @@ TEST_F(GameActionTests, BattleSimulation)
     int weightAmmoCounter = 0;
     std::vector<std::pair<int, int>> winnerGameCountsAndCardIds;
     std::vector<std::pair<int, int>> looserGameCountsAndCardIds;
-    std::set<int> uniqueWinnerBoardCardIds;
-    std::set<int> uniqueLooserBoardCardIds;
+    std::set<int> uniquePlayedCardIds[2];
     
     for (int i = 0; i < GAME_COUNT; ++i)
     {
+        uniquePlayedCardIds[0].clear();
+        uniquePlayedCardIds[1].clear();
+        
         Init();
         mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
-        mActionEngine->Update(0);
-        mActionEngine->Update(0);
+        while (mActionEngine->GetActiveGameActionName() != IDLE_GAME_ACTION_NAME && mActionEngine->GetActiveGameActionName() != GAME_OVER_GAME_ACTION_NAME)
+        {
+            mActionEngine->Update(0);
+        }
         
         while (mActionEngine->GetActiveGameActionName() != GAME_OVER_GAME_ACTION_NAME)
         {
@@ -191,6 +195,16 @@ TEST_F(GameActionTests, BattleSimulation)
             while (mActionEngine->GetActiveGameActionName() != IDLE_GAME_ACTION_NAME && mActionEngine->GetActiveGameActionName() != GAME_OVER_GAME_ACTION_NAME)
             {
                 mActionEngine->Update(0);
+                
+                for (const auto cardId: mBoardState->GetPlayerStates()[0].mPlayerBoardCards)
+                {
+                    uniquePlayedCardIds[0].insert(cardId);
+                }
+                
+                for (const auto cardId: mBoardState->GetPlayerStates()[1].mPlayerBoardCards)
+                {
+                    uniquePlayedCardIds[1].insert(cardId);
+                }
             }
         }
         
@@ -203,13 +217,7 @@ TEST_F(GameActionTests, BattleSimulation)
         auto winnerPlayerIndex = mBoardState->GetPlayerStates()[0].mPlayerHealth > 0 ? 0 : 1;
         auto looserPlayerIndex = mBoardState->GetPlayerStates()[0].mPlayerHealth <= 0 ? 0 : 1;
         
-        uniqueWinnerBoardCardIds.clear();
-        for (const auto cardId: mBoardState->GetPlayerStates()[winnerPlayerIndex].mPlayerBoardCards)
-        {
-            uniqueWinnerBoardCardIds.insert(cardId);
-        }
-        
-        for (auto cardId: uniqueWinnerBoardCardIds)
+        for (auto cardId: uniquePlayedCardIds[winnerPlayerIndex])
         {
             auto foundInWinnerGamesIter = std::find_if(winnerGameCountsAndCardIds.begin(), winnerGameCountsAndCardIds.end(), [&](const std::pair<int,int>& entry)
             {
@@ -226,13 +234,7 @@ TEST_F(GameActionTests, BattleSimulation)
             }
         }
         
-        uniqueLooserBoardCardIds.clear();
-        for (const auto cardId: mBoardState->GetPlayerStates()[looserPlayerIndex].mPlayerBoardCards)
-        {
-            uniqueLooserBoardCardIds.insert(cardId);
-        }
-        
-        for (const auto cardId: uniqueLooserBoardCardIds)
+        for (const auto cardId: uniquePlayedCardIds[looserPlayerIndex])
         {
             auto foundInLosserGamesIter = std::find_if(looserGameCountsAndCardIds.begin(), looserGameCountsAndCardIds.end(), [&](const std::pair<int,int>& entry)
             {

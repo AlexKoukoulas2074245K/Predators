@@ -6,6 +6,7 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <game/gameactions/CardAttackGameAction.h>
+#include <game/gameactions/CardDestructionGameAction.h>
 #include <game/gameactions/DrawCardGameAction.h>
 #include <game/gameactions/GameActionFactory.h>
 #include <game/gameactions/GameOverGameAction.h>
@@ -36,6 +37,7 @@ void GameActionFactory::RegisterGameActions()
     REGISTER_ACTION(GameOverGameAction);
     REGISTER_ACTION(NextPlayerGameAction);
     REGISTER_ACTION(PlayCardGameAction);
+    REGISTER_ACTION(CardDestructionGameAction);
     
     std::sort(REGISTERED_ACTION_NAMES.begin(), REGISTERED_ACTION_NAMES.end(), [&](const strutils::StringId& lhs, const strutils::StringId& rhs)
     {
@@ -56,6 +58,7 @@ std::unique_ptr<BaseGameAction> GameActionFactory::CreateGameAction(const struti
 {
     ACTION_CASE(IdleGameAction);
     ACTION_CASE(CardAttackGameAction);
+    ACTION_CASE(CardDestructionGameAction);
     ACTION_CASE(DrawCardGameAction);
     ACTION_CASE(GameOverGameAction);
     ACTION_CASE(NextPlayerGameAction);

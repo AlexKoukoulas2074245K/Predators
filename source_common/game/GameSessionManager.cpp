@@ -90,7 +90,7 @@ void GameSessionManager::InitGameSession()
     
     mRuleEngine = std::make_unique<GameRuleEngine>(mBoardState.get());
     
-#define REPLAY_FLOW
+//#define REPLAY_FLOW
     
 #if defined(REPLAY_FLOW)
     GameReplayEngine replayEngine(persistence_utils::GetProgressDirectoryPath() + "game.json");
@@ -183,6 +183,22 @@ void GameSessionManager::OnApplicationMovedToBackground()
 void GameSessionManager::OnCardCreation(std::shared_ptr<CardSoWrapper> cardSoWrapper, const bool forOpponentPlayer)
 {
     mPlayerHeldCardSceneObjectWrappers[(forOpponentPlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)].push_back(cardSoWrapper);
+}
+
+///------------------------------------------------------------------------------------------------
+
+void GameSessionManager::OnBoardCardDestruction(const int cardIndex, const bool forOpponentPlayer)
+{
+    const auto& activeSceneManager = CoreSystemsEngine::GetInstance().GetActiveSceneManager();
+    auto activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    
+    auto& boardSoWrappers = mPlayerBoardCardSceneObjectWrappers[(forOpponentPlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)];
+    for (auto sceneObject: boardSoWrappers[cardIndex]->mSceneObjectComponents)
+    {
+        activeScene->RemoveSceneObject(sceneObject->mName);
+    }
+    
+    boardSoWrappers.erase(boardSoWrappers.begin() + cardIndex);
 }
 
 ///------------------------------------------------------------------------------------------------

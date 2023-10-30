@@ -44,6 +44,7 @@ public:
     
     void OnApplicationMovedToBackground();
     void OnCardCreation(std::shared_ptr<CardSoWrapper> cardSoWrapper, const bool forOpponentPlayer);
+    void OnBoardCardDestruction(const int cardIndex, const bool forOpponentPlayer);
     void OnHeldCardSwap(std::shared_ptr<CardSoWrapper> cardSoWrapper, const int cardIndex, const bool forOpponentPlayer);
     void OnLastCardPlayedFinalized(const int cardIndex);
     

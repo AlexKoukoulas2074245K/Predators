@@ -60,23 +60,23 @@ void Game::Init()
     boardSceneObject->mTextureResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "board.png");
     boardSceneObject->mRotation.z = math::PI/2.0f;
     
-    auto flameSceneObject = dummyScene->CreateSceneObject(strutils::StringId("Fire"));
-    flameSceneObject->mTextureResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "fire.png");
-    flameSceneObject->mShaderResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + "fire.vs");
-    flameSceneObject->mPosition.z = 3.0f;
-    flameSceneObject->mScale = glm::vec3(0.1f, 0.1f, 0.1f);
-    flameSceneObject->mShaderFloatUniformValues[strutils::StringId("time_speed")] = 1.0f;
-    flameSceneObject->mShaderFloatUniformValues[strutils::StringId("color_factor_r")] = 1.0f;
-    flameSceneObject->mShaderFloatUniformValues[strutils::StringId("color_factor_g")] = 1.0f;
-    flameSceneObject->mShaderFloatUniformValues[strutils::StringId("color_factor_b")] = 1.0f;
-    flameSceneObject->mShaderFloatUniformValues[strutils::StringId("perturbation_factor")] = 1.0f;
-    flameSceneObject->mShaderFloatUniformValues[strutils::StringId("noise_0_factor")] = 1.0f;
-    flameSceneObject->mShaderFloatUniformValues[strutils::StringId("noise_1_factor")] = 1.0f;
-    flameSceneObject->mShaderFloatUniformValues[strutils::StringId("noise_2_factor")] = 1.0f;
-    flameSceneObject->mShaderFloatUniformValues[strutils::StringId("noise_3_factor")] = 1.0f;
-    flameSceneObject->mShaderFloatUniformValues[strutils::StringId("noise_4_factor")] = 1.0f;
-    flameSceneObject->mShaderFloatUniformValues[strutils::StringId("noise_5_factor")] = 1.0f;
-    
+//    auto flameSceneObject = dummyScene->CreateSceneObject(strutils::StringId("Fire"));
+//    flameSceneObject->mTextureResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "fire.png");
+//    flameSceneObject->mShaderResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + "card_dissolve.vs");
+//    flameSceneObject->mPosition.z = 3.0f;
+//    flameSceneObject->mScale = glm::vec3(0.1f, 0.1f, 0.1f);
+//    flameSceneObject->mShaderFloatUniformValues[strutils::StringId("time_speed")] = 1.0f;
+//    flameSceneObject->mShaderFloatUniformValues[strutils::StringId("color_factor_r")] = 1.0f;
+//    flameSceneObject->mShaderFloatUniformValues[strutils::StringId("color_factor_g")] = 1.0f;
+//    flameSceneObject->mShaderFloatUniformValues[strutils::StringId("color_factor_b")] = 1.0f;
+//    flameSceneObject->mShaderFloatUniformValues[strutils::StringId("perturbation_factor")] = 1.0f;
+//    flameSceneObject->mShaderFloatUniformValues[strutils::StringId("noise_0_factor")] = 1.0f;
+//    flameSceneObject->mShaderFloatUniformValues[strutils::StringId("noise_1_factor")] = 1.0f;
+//    flameSceneObject->mShaderFloatUniformValues[strutils::StringId("noise_2_factor")] = 1.0f;
+//    flameSceneObject->mShaderFloatUniformValues[strutils::StringId("noise_3_factor")] = 1.0f;
+//    flameSceneObject->mShaderFloatUniformValues[strutils::StringId("noise_4_factor")] = 1.0f;
+//    flameSceneObject->mShaderFloatUniformValues[strutils::StringId("noise_5_factor")] = 1.0f;
+ //   flameSceneObject->mInvisible = true;
     dummyScene->GetCamera().SetZoomFactor(120.0f);
     
 //    auto uiScene = systemsEngine.GetActiveSceneManager().CreateScene(strutils::StringId("UI"));
@@ -123,13 +123,13 @@ void Game::Init()
 
 void Game::Update(const float dtMillis)
 {
-    auto& systemsEngine = CoreSystemsEngine::GetInstance();
-    auto activeScene = systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    //auto& systemsEngine = CoreSystemsEngine::GetInstance();
+    //auto activeScene = systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+//    static float time = 0.0f;
+//    time += dtMillis * 0.001f;
+//    auto fireSo = activeScene->FindSceneObject(strutils::StringId("Fire"));
+//    fireSo->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
 //
-    static float time = 0.0f;
-    time += dtMillis * 0.001f;
-    auto fireSo = activeScene->FindSceneObject(strutils::StringId("Fire"));
-    fireSo->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
 //
 //    if (systemsEngine.GetInputStateManager().VButtonTapped(input::Button::MAIN_BUTTON))
 //    {

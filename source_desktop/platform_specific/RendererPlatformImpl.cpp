@@ -75,12 +75,24 @@ public:
         auto* currentShader = &(resService.GetResource<resources::ShaderResource>(mSceneObject.mShaderResourceId));
         GL_CALL(glUseProgram(currentShader->GetProgramId()));
         
+        for (size_t i = 0; i < currentShader->GetUniformSamplerNames().size(); ++i)
+        {
+            currentShader->SetInt(currentShader->GetUniformSamplerNames().at(i), static_cast<int>(i));
+        }
+        
         auto* currentMesh = &(resService.GetResource<resources::MeshResource>(mSceneObject.mMeshResourceId));
         GL_CALL(glBindVertexArray(currentMesh->GetVertexArrayObject()));
         
         auto* currentTexture = &(resService.GetResource<resources::TextureResource>(mSceneObject.mTextureResourceId));
         GL_CALL(glActiveTexture(GL_TEXTURE0));
         GL_CALL(glBindTexture(GL_TEXTURE_2D, currentTexture->GetGLTextureId()));
+        
+        if (mSceneObject.mEffectTextureResourceId != 0)
+        {
+            auto* currentEffectTexture = &(resService.GetResource<resources::TextureResource>(mSceneObject.mEffectTextureResourceId));
+            GL_CALL(glActiveTexture(GL_TEXTURE1));
+            GL_CALL(glBindTexture(GL_TEXTURE_2D, currentEffectTexture->GetGLTextureId()));
+        }
         
         glm::mat4 world(1.0f);
         world = glm::translate(world, mSceneObject.mPosition);
@@ -115,6 +127,11 @@ public:
         auto* currentShader = &(resService.GetResource<resources::ShaderResource>(mSceneObject.mShaderResourceId));
         GL_CALL(glUseProgram(currentShader->GetProgramId()));
         
+        for (size_t i = 0; i < currentShader->GetUniformSamplerNames().size(); ++i)
+        {
+            currentShader->SetInt(currentShader->GetUniformSamplerNames().at(i), static_cast<int>(i));
+        }
+        
         auto* currentMesh = &(resService.GetResource<resources::MeshResource>(mSceneObject.mMeshResourceId));
         GL_CALL(glBindVertexArray(currentMesh->GetVertexArrayObject()));
         
@@ -125,6 +142,13 @@ public:
         auto* currentTexture = &(resService.GetResource<resources::TextureResource>(font.mFontTextureResourceId));
         GL_CALL(glActiveTexture(GL_TEXTURE0));
         GL_CALL(glBindTexture(GL_TEXTURE_2D, currentTexture->GetGLTextureId()));
+        
+        if (mSceneObject.mEffectTextureResourceId != 0)
+        {
+            auto* currentEffectTexture = &(resService.GetResource<resources::TextureResource>(mSceneObject.mEffectTextureResourceId));
+            GL_CALL(glActiveTexture(GL_TEXTURE1));
+            GL_CALL(glBindTexture(GL_TEXTURE_2D, currentEffectTexture->GetGLTextureId()));
+        }
         
         float xCursor = mSceneObject.mPosition.x;
         
@@ -157,7 +181,6 @@ public:
                 currentShader->SetFloat(strutils::StringId(CUSTOM_ALPHA_UNIFORM_NAME), 1.0f);
             }
 #endif
-            
             GL_CALL(glDrawElements(GL_TRIANGLES, currentMesh->GetElementCount(), GL_UNSIGNED_SHORT, (void*)0));
             sDrawCallCounter++;
             
@@ -179,9 +202,21 @@ public:
         auto* currentShader = &(resService.GetResource<resources::ShaderResource>(mSceneObject.mShaderResourceId));
         GL_CALL(glUseProgram(currentShader->GetProgramId()));
         
+        for (size_t i = 0; i < currentShader->GetUniformSamplerNames().size(); ++i)
+        {
+            currentShader->SetInt(currentShader->GetUniformSamplerNames().at(i), static_cast<int>(i));
+        }
+        
         auto* currentTexture = &(resService.GetResource<resources::TextureResource>(mSceneObject.mTextureResourceId));
         GL_CALL(glActiveTexture(GL_TEXTURE0));
         GL_CALL(glBindTexture(GL_TEXTURE_2D, currentTexture->GetGLTextureId()));
+        
+        if (mSceneObject.mEffectTextureResourceId != 0)
+        {
+            auto* currentEffectTexture = &(resService.GetResource<resources::TextureResource>(mSceneObject.mEffectTextureResourceId));
+            GL_CALL(glActiveTexture(GL_TEXTURE1));
+            GL_CALL(glBindTexture(GL_TEXTURE_2D, currentEffectTexture->GetGLTextureId()));
+        }
         
         currentShader->SetFloat(CUSTOM_ALPHA_UNIFORM_NAME, 1.0f);
         currentShader->SetMatrix4fv(VIEW_MATRIX_UNIFORM_NAME, mCamera.GetViewMatrix());
@@ -195,7 +230,6 @@ public:
             currentShader->SetFloat(strutils::StringId(CUSTOM_ALPHA_UNIFORM_NAME), 1.0f);
         }
 #endif
-        
         GL_CALL(glBindVertexArray(particleEmitterData.mParticleVertexArrayObject));
         
         GL_CALL(glEnableVertexAttribArray(0));
@@ -324,6 +358,7 @@ void RendererPlatformImpl::VRenderScene(scene::Scene& scene)
 #else
         if (sceneObject->mInvisible) continue;
 #endif
+
         std::visit(SceneObjectTypeRendererVisitor(*sceneObject, scene.GetCamera()), sceneObject->mSceneObjectTypeData);
     }
 }
