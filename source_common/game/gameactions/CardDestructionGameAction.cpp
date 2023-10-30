@@ -28,8 +28,8 @@ static const strutils::StringId CARD_ORIGIN_X_UNIFORM_NAME = strutils::StringId(
 static const strutils::StringId CARD_ORIGIN_Y_UNIFORM_NAME = strutils::StringId("card_origin_y");
 
 static const std::string DISSOLVE_TEXTURE_FILE_NAME = "dissolve.png";
-static const float CARD_DISSOLVE_SPEED = 0.0008f;
-static const float MAX_CARD_DISSOLVE_VALUE = 1.5f;
+static const float CARD_DISSOLVE_SPEED = 0.001f;
+static const float MAX_CARD_DISSOLVE_VALUE = 1.2f;
 
 ///------------------------------------------------------------------------------------------------
 

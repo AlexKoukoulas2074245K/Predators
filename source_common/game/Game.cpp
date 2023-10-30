@@ -57,6 +57,8 @@ void Game::Init()
     
     auto dummyScene = systemsEngine.GetActiveSceneManager().CreateScene(game_constants::IN_GAME_BATTLE_SCENE);
     auto boardSceneObject = dummyScene->CreateSceneObject(strutils::StringId("Board"));
+    boardSceneObject->mPosition.x = -0.007f;
+    boardSceneObject->mPosition.y = 0.011f;
     boardSceneObject->mTextureResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "board.png");
     boardSceneObject->mRotation.z = math::PI/2.0f;
     

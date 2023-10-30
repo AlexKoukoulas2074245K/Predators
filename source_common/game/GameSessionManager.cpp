@@ -38,6 +38,15 @@
 ///------------------------------------------------------------------------------------------------
 
 static const strutils::StringId CARD_LOCATION_INDICATOR_SCENE_OBJECT_NAME = strutils::StringId("CARD_LOCATION_INDICATOR");
+static const strutils::StringId HEALTH_CRYSTAL_TOP_SCENE_OBJECT_NAME = strutils::StringId("HEALTH_CRYSTAL_TOP");
+static const strutils::StringId HEALTH_CRYSTAL_BOT_SCENE_OBJECT_NAME = strutils::StringId("HEALTH_CRYSTAL_BOT");
+static const strutils::StringId WEIGHT_CRYSTAL_TOP_SCENE_OBJECT_NAME = strutils::StringId("WEIGHT_CRYSTAL_TOP");
+static const strutils::StringId WEIGHT_CRYSTAL_BOT_SCENE_OBJECT_NAME = strutils::StringId("WEIGHT_CRYSTAL_BOT");
+static const strutils::StringId HEALTH_CRYSTAL_TOP_VALUE_SCENE_OBJECT_NAME = strutils::StringId("HEALTH_CRYSTAL_TOP_VALUE");
+static const strutils::StringId HEALTH_CRYSTAL_BOT_VALUE_SCENE_OBJECT_NAME = strutils::StringId("HEALTH_CRYSTAL_BOT_VALUE");
+static const strutils::StringId WEIGHT_CRYSTAL_TOP_VALUE_SCENE_OBJECT_NAME = strutils::StringId("WEIGHT_CRYSTAL_TOP_VALUE");
+static const strutils::StringId WEIGHT_CRYSTAL_BOT_VALUE_SCENE_OBJECT_NAME = strutils::StringId("WEIGHT_CRYSTAL_BOT_VALUE");
+
 static const strutils::StringId IDLE_GAME_ACTION_NAME = strutils::StringId("IdleGameAction");
 static const strutils::StringId PLAY_CARD_ACTION_NAME = strutils::StringId("PlayCardGameAction");
 static const strutils::StringId NEXT_PLAYER_ACTION_NAME = strutils::StringId("NextPlayerGameAction");
@@ -45,11 +54,19 @@ static const strutils::StringId NEXT_PLAYER_ACTION_NAME = strutils::StringId("Ne
 static const std::string MAKE_SPACE_REVERT_TO_POSITION_ANIMATION_NAME_PREFIX = "MAKE_SPACE_REVERT_";
 static const std::string BATTLE_ICON_TEXTURE_FILE_NAME = "battle_icon.png";
 static const std::string TURN_POINTER_TEXTURE_FILE_NAME = "turn_pointer.png";
+static const std::string HEALTH_CRYSTAL_TEXTURE_FILE_NAME = "health_crystal.png";
+static const std::string WEIGHT_CRYSTAL_TEXTURE_FILE_NAME = "weight_crystal.png";
 static const std::string CARD_HIGHLIGHTER_SCENE_OBJECT_NAME_PREFIX = "HIGHLIGHTER_CARD_";
 
+static const glm::vec3 HEALTH_CRYSTAL_TOP_POSITION = {-0.118f, 0.07f, 0.1f};
+static const glm::vec3 HEALTH_CRYSTAL_BOT_POSITION = {-0.118f, -0.07f, 0.1f};
+static const glm::vec3 WEIGHT_CRYSTAL_TOP_POSITION = {0.118f, 0.07f, 0.1f};
+static const glm::vec3 WEIGHT_CRYSTAL_BOT_POSITION = {0.118f, -0.07f, 0.1f};
+static const glm::vec3 STAT_CRYSTAL_SCALE = {0.05f, 0.05f, 1.0f};
+static const glm::vec3 STAT_CRYSTAL_VALUE_SCALE = {0.00015f, 0.00015f, 1.0f};
 static const glm::vec3 TURN_POINTER_POSITION = {0.2f, 0.0f, 0.1f};
 static const glm::vec3 TURN_POINTER_SCALE = {0.08f, 0.08f, 0.08f};
-
+static const glm::vec3 STAT_CRYSTAL_VALUE_POSITION_OFFSET = {-0.003, 0.002, 0.1f};
 static const float CARD_SELECTION_ANIMATION_DURATION = 0.15f;
 static const float CARD_LOCATION_EFFECT_MIN_TARGET_ALPHA = 0.25f;
 static const float CARD_LOCATION_EFFECT_MAX_TARGET_ALPHA = 1.0f;
@@ -140,6 +157,60 @@ void GameSessionManager::InitGameSession()
     tunPointerHighlighterSo->mPosition = turnPointerSo->mPosition;
     tunPointerHighlighterSo->mPosition.z += game_constants::ACTION_HIGLIGHTER_Z_OFFSET;
     tunPointerHighlighterSo->mScale = game_constants::TURN_POINTER_HIGHLIGHTER_SCALE;
+    
+    // Stat Crystals
+    auto healthCrystalTop = activeScene->CreateSceneObject(HEALTH_CRYSTAL_TOP_SCENE_OBJECT_NAME);
+    healthCrystalTop->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + HEALTH_CRYSTAL_TEXTURE_FILE_NAME);
+    healthCrystalTop->mPosition = HEALTH_CRYSTAL_TOP_POSITION;
+    healthCrystalTop->mScale = STAT_CRYSTAL_SCALE;
+    
+    auto healthCrystalTopValue = activeScene->CreateSceneObject(HEALTH_CRYSTAL_TOP_VALUE_SCENE_OBJECT_NAME);
+    scene::TextSceneObjectData healthCrystalTopValueTextData;
+    healthCrystalTopValueTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
+    healthCrystalTopValueTextData.mText = "30";
+    healthCrystalTopValue->mSceneObjectTypeData = std::move(healthCrystalTopValueTextData);
+    healthCrystalTopValue->mScale = STAT_CRYSTAL_VALUE_SCALE;
+    healthCrystalTopValue->mPosition = healthCrystalTop->mPosition + STAT_CRYSTAL_VALUE_POSITION_OFFSET;
+    
+    auto healthCrystalBot = activeScene->CreateSceneObject(HEALTH_CRYSTAL_BOT_SCENE_OBJECT_NAME);
+    healthCrystalBot->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + HEALTH_CRYSTAL_TEXTURE_FILE_NAME);
+    healthCrystalBot->mPosition = HEALTH_CRYSTAL_BOT_POSITION;
+    healthCrystalBot->mScale = STAT_CRYSTAL_SCALE;
+    
+    auto healthCrystalBotValue = activeScene->CreateSceneObject(HEALTH_CRYSTAL_BOT_VALUE_SCENE_OBJECT_NAME);
+    scene::TextSceneObjectData healthCrystalBotValueTextData;
+    healthCrystalBotValueTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
+    healthCrystalBotValueTextData.mText = "30";
+    healthCrystalBotValue->mSceneObjectTypeData = std::move(healthCrystalBotValueTextData);
+    healthCrystalBotValue->mScale = STAT_CRYSTAL_VALUE_SCALE;
+    healthCrystalBotValue->mPosition = healthCrystalBot->mPosition + STAT_CRYSTAL_VALUE_POSITION_OFFSET;
+    
+    auto weightCrystalTop = activeScene->CreateSceneObject(WEIGHT_CRYSTAL_TOP_SCENE_OBJECT_NAME);
+    weightCrystalTop->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + WEIGHT_CRYSTAL_TEXTURE_FILE_NAME);
+    weightCrystalTop->mPosition = WEIGHT_CRYSTAL_TOP_POSITION;
+    weightCrystalTop->mScale = STAT_CRYSTAL_SCALE;
+    
+    auto weightCrystalTopValue = activeScene->CreateSceneObject(WEIGHT_CRYSTAL_TOP_VALUE_SCENE_OBJECT_NAME);
+    scene::TextSceneObjectData weightCrystalTopValueTextData;
+    weightCrystalTopValueTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
+    weightCrystalTopValueTextData.mText = "0";
+    weightCrystalTopValue->mSceneObjectTypeData = std::move(weightCrystalTopValueTextData);
+    weightCrystalTopValue->mScale = STAT_CRYSTAL_VALUE_SCALE;
+    weightCrystalTopValue->mPosition = weightCrystalTop->mPosition + STAT_CRYSTAL_VALUE_POSITION_OFFSET;
+    
+    auto weightCrystalBot = activeScene->CreateSceneObject(WEIGHT_CRYSTAL_BOT_SCENE_OBJECT_NAME);
+    weightCrystalBot->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + WEIGHT_CRYSTAL_TEXTURE_FILE_NAME);
+    weightCrystalBot->mPosition = WEIGHT_CRYSTAL_BOT_POSITION;
+    weightCrystalBot->mScale = STAT_CRYSTAL_SCALE;
+    
+    auto weightCrystalBotValue = activeScene->CreateSceneObject(WEIGHT_CRYSTAL_BOT_VALUE_SCENE_OBJECT_NAME);
+    scene::TextSceneObjectData weightCrystalBotValueTextData;
+    weightCrystalBotValueTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
+    weightCrystalBotValueTextData.mText = "0";
+    weightCrystalBotValue->mSceneObjectTypeData = std::move(weightCrystalBotValueTextData);
+    weightCrystalBotValue->mScale = STAT_CRYSTAL_VALUE_SCALE;
+    weightCrystalBotValue->mPosition = weightCrystalBot->mPosition + STAT_CRYSTAL_VALUE_POSITION_OFFSET;
+    
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -543,6 +614,12 @@ void GameSessionManager::UpdateMiscSceneObjects(const float dtMillis)
         
         mPreviousProspectiveBoardCardsPushState = ProspectiveBoardCardsPushState::NONE;
     }
+    
+    // Stat Crystal Values
+    std::get<scene::TextSceneObjectData>(activeScene->FindSceneObject(HEALTH_CRYSTAL_TOP_VALUE_SCENE_OBJECT_NAME)->mSceneObjectTypeData).mText = std::to_string(mBoardState->GetPlayerStates()[0].mPlayerHealth);
+    std::get<scene::TextSceneObjectData>(activeScene->FindSceneObject(HEALTH_CRYSTAL_BOT_VALUE_SCENE_OBJECT_NAME)->mSceneObjectTypeData).mText = std::to_string(mBoardState->GetPlayerStates()[1].mPlayerHealth);
+    std::get<scene::TextSceneObjectData>(activeScene->FindSceneObject(WEIGHT_CRYSTAL_TOP_VALUE_SCENE_OBJECT_NAME)->mSceneObjectTypeData).mText = std::to_string(mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo);
+    std::get<scene::TextSceneObjectData>(activeScene->FindSceneObject(WEIGHT_CRYSTAL_BOT_VALUE_SCENE_OBJECT_NAME)->mSceneObjectTypeData).mText = std::to_string(mBoardState->GetPlayerStates()[1].mPlayerCurrentWeightAmmo);
 }
 
 ///------------------------------------------------------------------------------------------------
