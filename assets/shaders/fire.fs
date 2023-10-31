@@ -55,18 +55,10 @@ void main()
     
     vec4 color = texture(tex, final_noise);
 
-#if defined(IOS)
-    color = vec4(color.b * 2.0f * color_factor_r, color.g * 0.9f * color_factor_g, (color.g/color.b) * 0.2f * color_factor_b, 1.0f);
-    final_noise = clamp(final_noise, 0.05f, 1.0f);
-    color.a = texture(tex, final_noise).r * 2.0f;
-    color.a = color.a * texture(tex, vec2(final_uv_x, final_uv_y)).r;
-#else
     color = vec4(color.r * 2.0f * color_factor_r, color.g * 0.9f * color_factor_g, (color.g/color.r) * 0.2f * color_factor_b, 1.0f);
     final_noise = clamp(final_noise, 0.05f, 1.0f);
     color.a = texture(tex, final_noise).b * 2.0f;
     color.a = color.w * texture(tex, vec2(final_uv_x, final_uv_y)).b;
-#endif
-    
     
     frag_color = color;
     

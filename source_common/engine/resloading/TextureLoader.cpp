@@ -22,6 +22,19 @@
 
 ///------------------------------------------------------------------------------------------------
 
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
+    #define DESKTOP_FLOW
+#elif __APPLE__
+    #include <TargetConditionals.h>
+    #if TARGET_IPHONE_SIMULATOR || TARGET_OS_IPHONE
+        #undef DESKTOP_FLOW
+    #else
+        #define DESKTOP_FLOW
+    #endif
+#endif
+
+///------------------------------------------------------------------------------------------------
+
 namespace resources
 {
 
@@ -86,6 +99,20 @@ std::unique_ptr<IResource> TextureLoader::VCreateAndLoadResource(const std::stri
             break;
     }
 
+#if !defined(DESKTOP_FLOW)
+    // OpenGL ES 3.0 format shenanigans
+    SDL_LockSurface(sdlSurface);
+    for (int y = 0; y < sdlSurface->h; ++y)
+    {
+        for (int x = 0; x < sdlSurface->w; ++x)
+        {
+            Uint32 * const pixel = (Uint32 *) ((Uint8 *) sdlSurface->pixels + y * sdlSurface->pitch + x * sdlSurface->format->BytesPerPixel);
+            *pixel = (*pixel & 0xFF000000) + ((*pixel & 0x000000FF) << 16) + (*pixel & 0x0000FF00) + ((*pixel & 0x00FF0000) >> 16);
+        }
+    }
+    SDL_UnlockSurface(sdlSurface);
+#endif
+    
     GL_CALL(glTexImage2D
     (
         GL_TEXTURE_2D,

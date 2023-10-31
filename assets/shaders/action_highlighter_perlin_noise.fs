@@ -110,12 +110,6 @@ void main()
     color = vec3(perlin + perlin_clarity);
     frag_color = vec4(0.0f, color.g, 0.0f, (perlin + perlin_clarity) * distanceFromCenter);
     
-#if defined(IOS)
-    float temp = frag_color.r;
-    frag_color.r = frag_color.b;
-    frag_color.b = temp;
-#endif
-    
     if (affected_by_light)
     {
         vec4 light_accumulator = vec4(0.0f, 0.0f, 0.0f, 0.0f);

@@ -23,12 +23,6 @@ void main()
     float final_uv_y = 1.0 - uv_frag.y;
     frag_color = texture(tex, vec2(final_uv_x, final_uv_y));
 
-#if defined(IOS)
-    float temp = frag_color.r;
-    frag_color.r = frag_color.b;
-    frag_color.b = temp;
-#endif
-    
     float distance_uv_x = (frag_unprojected_pos.x - card_origin_x) * 13.0f;
     float distance_uv_y = (frag_unprojected_pos.y - card_origin_y) * 13.0f;
 
