@@ -69,7 +69,7 @@ void Scene::RemoveAllSceneObjectsWithName(const strutils::StringId& sceneObjectN
 
 ///------------------------------------------------------------------------------------------------
 
-[[nodiscard]] std::size_t Scene::GetSceneObjectCount() const { return mSceneObjects.size(); }
+std::size_t Scene::GetSceneObjectCount() const { return mSceneObjects.size(); }
 
 ///------------------------------------------------------------------------------------------------
 
@@ -77,11 +77,15 @@ const std::vector<std::shared_ptr<SceneObject>>& Scene::GetSceneObjects() const 
 
 ///------------------------------------------------------------------------------------------------
 
-[[nodiscard]] std::vector<std::shared_ptr<SceneObject>>& Scene::GetSceneObjects() { return mSceneObjects;}
+std::vector<std::shared_ptr<SceneObject>>& Scene::GetSceneObjects() { return mSceneObjects;}
 
 ///------------------------------------------------------------------------------------------------
 
 rendering::Camera& Scene::GetCamera() { return mCamera; }
+
+///------------------------------------------------------------------------------------------------
+
+const rendering::Camera& Scene::GetCamera() const { return mCamera; }
 
 ///------------------------------------------------------------------------------------------------
 

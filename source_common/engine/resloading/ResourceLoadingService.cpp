@@ -12,6 +12,7 @@
 #include <engine/resloading/ResourceLoadingService.h>
 #include <engine/resloading/ShaderLoader.h>
 #include <engine/resloading/TextureLoader.h>
+#include <engine/resloading/TextureResource.h>
 #include <engine/utils/FileUtils.h>
 #include <engine/utils/Logging.h>
 #include <engine/utils/OSMessageBox.h>
@@ -141,6 +142,19 @@ void ResourceLoadingService::LoadResources(const std::vector<std::string>& resou
     {
         LoadResource(path);
     }
+}
+
+///------------------------------------------------------------------------------------------------
+
+ResourceId ResourceLoadingService::AddedDynamicallyCreatedTextureResourceId(const std::string& resourceName, unsigned int textureId, const int width, const int height)
+{
+    const auto resourceId = strutils::GetStringHash(resourceName);
+    if (!mResourceMap.count(resourceId))
+    {
+        mResourceIdToPaths[resourceId] = resourceName;
+        mResourceMap[resourceId] = std::unique_ptr<TextureResource>(new TextureResource(width, height, 0, 0, textureId));
+    }
+    return resourceId;
 }
 
 ///------------------------------------------------------------------------------------------------

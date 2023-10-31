@@ -5,6 +5,7 @@
 ///  Created by Alex Koukoulas on 10/10/2023                                                       
 ///------------------------------------------------------------------------------------------------
 
+#include <engine/rendering/RenderingUtils.h>
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
 #include <engine/scene/SceneObjectUtils.h>
@@ -21,6 +22,9 @@ static const std::string CARD_FRAME_TEXTURE_FILE_NAME = "card_frame.png";
 static const std::string CARD_BACK_TEXTURE_FILE_NAME = "card_back.png";
 static const std::string CARD_DAMAGE_ICON_TEXTURE_FILE_NAME = "damage_icon.png";
 static const std::string CARD_WEIGHT_ICON_TEXTURE_FILE_NAME = "feather_icon.png";
+static const std::string GENERATED_R2T_NAME_PREFIX = "generated_card_texture_id=";
+
+static const glm::vec3 RENDER_TO_TEXTURE_UPSCALE_FACTOR = {-1.365f, 1.256f, 1.0f};
 
 static const float CARD_NAME_AREA_LENGTH = 0.042f;
 static const float CARD_NAME_TEST_DEDUCT_INCREMENTS = 0.00001f;
@@ -202,6 +206,10 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper(const CardData* cardData, con
         
         cardComponents.back()->mPosition.y += game_constants::IN_GAME_CARD_NAME_Y_OFFSET;
         cardComponents.back()->mPosition.z += game_constants::CARD_COMPONENT_Z_OFFSET;
+        
+        rendering::CollateSceneObjectsIntoOne(GENERATED_R2T_NAME_PREFIX + std::to_string(cardData->mCardId), position, cardComponents, scene);
+        cardComponents.front()->mPosition += position;
+        cardComponents.front()->mScale *= RENDER_TO_TEXTURE_UPSCALE_FACTOR;
     }
     
     cardSoWrapper->mCardData = cardData;

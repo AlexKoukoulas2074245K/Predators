@@ -14,11 +14,13 @@
 #include <engine/resloading/TextureResource.h>
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
+#include <engine/utils/Logging.h>
 #include <engine/utils/StringUtils.h>
 #include <imgui/backends/imgui_impl_sdl2.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
 #include <platform_specific/RendererPlatformImpl.h>
 #include <SDL.h>
+#include <SDL_syswm.h>
 
 //#define IMGUI_IN_RELEASE
 
@@ -43,6 +45,9 @@ static const strutils::StringId POINT_LIGHT_POSITIONS_UNIFORM_NAME = strutils::S
 static const strutils::StringId POINT_LIGHT_POWERS_UNIFORM_NAME = strutils::StringId("point_light_powers");
 static const strutils::StringId IS_TEXTURE_SHEET_UNIFORM_NAME = strutils::StringId("texture_sheet");
 static const strutils::StringId CUSTOM_ALPHA_UNIFORM_NAME = strutils::StringId("custom_alpha");
+
+static const glm::ivec4 RENDER_TO_TEXTURE_VIEWPORT = {-768, -512, 2048, 2048};
+static const glm::vec4 RENDER_TO_TEXTURE_CLEAR_COLOR = {1.0f, 1.0f, 1.0f, 0.0f};
 
 ///------------------------------------------------------------------------------------------------
 
@@ -97,6 +102,7 @@ public:
         for (const auto& floatEntry: mSceneObject.mShaderFloatUniformValues) currentShader->SetFloat(floatEntry.first, floatEntry.second);
         
         GL_CALL(glDrawElements(GL_TRIANGLES, currentMesh->GetElementCount(), GL_UNSIGNED_SHORT, (void*)0));
+        GL_CALL(glBindVertexArray(0));
     }
     
     void operator()(scene::TextSceneObjectData sceneObjectTypeData)
@@ -165,6 +171,8 @@ public:
                 xCursor += glyph.mAdvancePixels * mSceneObject.mScale.x;
             }
         }
+        
+        GL_CALL(glBindVertexArray(0));
     }
     
     void operator()(scene::ParticleEmitterObjectData particleEmitterData)
@@ -273,7 +281,7 @@ void RendererPlatformImpl::VBeginRenderPass()
     
     // Clear buffers
     GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-    
+
     GL_CALL(glDisable(GL_CULL_FACE));
 }
 
@@ -285,6 +293,30 @@ void RendererPlatformImpl::VRenderScene(scene::Scene& scene)
     {
         if (sceneObject->mInvisible) continue;
         std::visit(SceneObjectTypeRendererVisitor(*sceneObject, scene.GetCamera()), sceneObject->mSceneObjectTypeData);
+    }
+}
+
+///------------------------------------------------------------------------------------------------
+
+void RendererPlatformImpl::VRenderSceneObjectsToTexture(const std::vector<std::shared_ptr<scene::SceneObject>>& sceneObjects, const rendering::Camera& camera)
+{
+    // Set custom viewport
+    GL_CALL(glViewport(RENDER_TO_TEXTURE_VIEWPORT.x, RENDER_TO_TEXTURE_VIEWPORT.y, RENDER_TO_TEXTURE_VIEWPORT.z, RENDER_TO_TEXTURE_VIEWPORT.w));
+    
+    // Set background color
+    GL_CALL(glClearColor(RENDER_TO_TEXTURE_CLEAR_COLOR.r, RENDER_TO_TEXTURE_CLEAR_COLOR.g, RENDER_TO_TEXTURE_CLEAR_COLOR.b, RENDER_TO_TEXTURE_CLEAR_COLOR.a));
+    
+    GL_CALL(glEnable(GL_DEPTH_TEST));
+    GL_CALL(glEnable(GL_BLEND));
+    
+    // Clear buffers
+    GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+    
+    GL_CALL(glDisable(GL_CULL_FACE));
+    
+    for (auto sceneObject: sceneObjects)
+    {
+        std::visit(SceneObjectTypeRendererVisitor(*sceneObject, camera), sceneObject->mSceneObjectTypeData);
     }
 }
 

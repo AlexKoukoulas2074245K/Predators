@@ -29,13 +29,11 @@ class RendererPlatformImpl final: public IRenderer
 public:
     void VBeginRenderPass() override;
     void VRenderScene(scene::Scene& scene) override;
+    void VRenderSceneObjectsToTexture(const std::vector<std::shared_ptr<scene::SceneObject>>& sceneObjects, const rendering::Camera& camera) override;
     void VEndRenderPass() override;
     
 private:
     RendererPlatformImpl() = default;
-    
-private:
-    std::vector<std::reference_wrapper<scene::Scene>> mCachedScenes;
 };
 
 ///------------------------------------------------------------------------------------------------

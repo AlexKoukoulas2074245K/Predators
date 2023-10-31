@@ -61,6 +61,7 @@ std::unique_ptr<IResource> TextureLoader::VCreateAndLoadResource(const std::stri
     }
     
     auto* sdlSurface = IMG_Load(resourcePath.c_str());
+    
     if (!sdlSurface)
     {
         ospopups::ShowMessageBox(ospopups::MessageBoxType::ERROR, "SDL_image could not load texture", IMG_GetError());
@@ -84,7 +85,7 @@ std::unique_ptr<IResource> TextureLoader::VCreateAndLoadResource(const std::stri
             throw std::runtime_error("Image with unknown channel profile");
             break;
     }
-        
+
     GL_CALL(glTexImage2D
     (
         GL_TEXTURE_2D,

@@ -29,8 +29,8 @@ void main()
     frag_color.b = temp;
 #endif
     
-    float distance_uv_x = (frag_unprojected_pos.x - card_origin_x) * 20.0f;
-    float distance_uv_y = (frag_unprojected_pos.y - card_origin_y) * 20.0f;
+    float distance_uv_x = (frag_unprojected_pos.x - card_origin_x) * 13.0f;
+    float distance_uv_y = (frag_unprojected_pos.y - card_origin_y) * 13.0f;
 
     vec4 dissolve_color = texture(dissolve_tex, vec2(distance_uv_x, distance_uv_y));
     if (dissolve_color.r <= dissolve_threshold)

@@ -45,6 +45,10 @@ static const strutils::StringId POINT_LIGHT_POWERS_UNIFORM_NAME = strutils::Stri
 static const strutils::StringId IS_TEXTURE_SHEET_UNIFORM_NAME = strutils::StringId("texture_sheet");
 static const strutils::StringId CUSTOM_ALPHA_UNIFORM_NAME = strutils::StringId("custom_alpha");
 
+static const glm::ivec4 RENDER_TO_TEXTURE_VIEWPORT = {-768, -512, 2048, 2048};
+static const glm::vec4 RENDER_TO_TEXTURE_CLEAR_COLOR = {1.0f, 1.0f, 1.0f, 0.0f};
+
+
 ///------------------------------------------------------------------------------------------------
 
 static int sDrawCallCounter = 0;
@@ -87,7 +91,7 @@ public:
         GL_CALL(glActiveTexture(GL_TEXTURE0));
         GL_CALL(glBindTexture(GL_TEXTURE_2D, currentTexture->GetGLTextureId()));
         
-        if (mSceneObject.mEffectTextureResourceId != 0)
+        if (mSceneObject.mEffectTextureResourceId != 0 && mSceneObject.mEffectTextureResourceId != 2)
         {
             auto* currentEffectTexture = &(resService.GetResource<resources::TextureResource>(mSceneObject.mEffectTextureResourceId));
             GL_CALL(glActiveTexture(GL_TEXTURE1));
@@ -365,6 +369,35 @@ void RendererPlatformImpl::VRenderScene(scene::Scene& scene)
 
 ///------------------------------------------------------------------------------------------------
 
+void RendererPlatformImpl::VRenderSceneObjectsToTexture(const std::vector<std::shared_ptr<scene::SceneObject>>& sceneObjects, const rendering::Camera& camera)
+{
+    // Set custom viewport
+    GL_CALL(glViewport(RENDER_TO_TEXTURE_VIEWPORT.x, RENDER_TO_TEXTURE_VIEWPORT.y, RENDER_TO_TEXTURE_VIEWPORT.z, RENDER_TO_TEXTURE_VIEWPORT.w));
+    
+    // Set background color
+    GL_CALL(glClearColor(RENDER_TO_TEXTURE_CLEAR_COLOR.r, RENDER_TO_TEXTURE_CLEAR_COLOR.g, RENDER_TO_TEXTURE_CLEAR_COLOR.b, RENDER_TO_TEXTURE_CLEAR_COLOR.a));
+    
+    GL_CALL(glEnable(GL_DEPTH_TEST));
+    GL_CALL(glEnable(GL_BLEND));
+    
+    // Clear buffers
+    GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+    
+    GL_CALL(glDisable(GL_CULL_FACE));
+    
+    for (auto sceneObject: sceneObjects)
+    {
+        if (sSceneObjectOverrideData.count(sceneObject->mName) == 0)
+        {
+            sSceneObjectOverrideData[sceneObject->mName] = std::make_unique<SceneObjectDebugOverrideData>();
+        }
+        
+        std::visit(SceneObjectTypeRendererVisitor(*sceneObject, camera), sceneObject->mSceneObjectTypeData);
+    }
+}
+
+///------------------------------------------------------------------------------------------------
+
 void RendererPlatformImpl::VEndRenderPass()
 {
 #if (!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)
@@ -409,7 +442,7 @@ static SceneObjectDataIMGuiVisitor imguiVisitor;
 
 void RendererPlatformImpl::CreateIMGuiWidgets()
 {
-    //ImGui::ShowDemoWindow();
+    ImGui::ShowDemoWindow();
     
     auto& resService = CoreSystemsEngine::GetInstance().GetResourceLoadingService();
     
@@ -417,6 +450,7 @@ void RendererPlatformImpl::CreateIMGuiWidgets()
     ImGui::Text("Draw Calls %d", sDrawCallCounter);
     ImGui::Text("Particle Count %d", sParticleCounter);
     ImGui::Text("Anims Live %d", CoreSystemsEngine::GetInstance().GetAnimationManager().GetAnimationsPlayingCount());
+    
     ImGui::End();
     
     // Create scene data viewer

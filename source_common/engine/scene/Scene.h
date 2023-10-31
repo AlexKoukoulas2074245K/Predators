@@ -50,6 +50,7 @@ public:
     [[nodiscard]] const std::vector<std::shared_ptr<SceneObject>>& GetSceneObjects() const;
     [[nodiscard]] std::vector<std::shared_ptr<SceneObject>>& GetSceneObjects();
     [[nodiscard]] rendering::Camera& GetCamera();
+    [[nodiscard]] const rendering::Camera& GetCamera() const;
     [[nodiscard]] const strutils::StringId& GetName() const;
     
 private:

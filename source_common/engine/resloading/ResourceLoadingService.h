@@ -96,6 +96,15 @@ public:
     /// @param[in] resourcePaths a vector containing the paths of the resource files.    
     void LoadResources(const std::vector<std::string>& resourcePaths);
     
+    /// Creates a resource to correspond with a on-the-fly generated texture and returns its resourceId.
+    ///
+    /// @param[in] resourceName the name under which the resource will be hashed the id will be returned
+    /// @param[in] textureId the texture id to set in the newly created texture resource
+    /// @param[in] width the width of the texture
+    /// @param[in] height the height of the texture
+    /// @returns the generated resourceid
+    ResourceId AddedDynamicallyCreatedTextureResourceId(const std::string& resourceName, const unsigned int textureId, const int width, const int height);
+    
     /// Checks whether a resource file exists under the given path.
     ///
     /// Both full paths, relative paths including the Resource Root, and relative

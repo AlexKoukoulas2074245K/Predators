@@ -10,7 +10,14 @@
 
 ///------------------------------------------------------------------------------------------------
 
+#include <memory>
+#include <vector>
+
+///------------------------------------------------------------------------------------------------
+
 namespace scene { class Scene; }
+namespace scene { struct SceneObject; }
+namespace rendering { class Camera; }
 
 ///------------------------------------------------------------------------------------------------
 
@@ -25,6 +32,7 @@ public:
     virtual ~IRenderer() = default;
     virtual void VBeginRenderPass() = 0;
     virtual void VRenderScene(scene::Scene& scene) = 0;
+    virtual void VRenderSceneObjectsToTexture(const std::vector<std::shared_ptr<scene::SceneObject>>& sceneObjects, const rendering::Camera& camera) = 0;
     virtual void VEndRenderPass() = 0;
 };
 

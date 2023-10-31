@@ -30,7 +30,8 @@ using GLuint = unsigned int;
 class TextureResource final: public IResource
 {
     friend class TextureLoader;
-
+    friend class ResourceLoadingService;
+    
 public:
     ~TextureResource();
     
