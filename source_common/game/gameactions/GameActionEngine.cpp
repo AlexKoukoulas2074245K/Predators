@@ -18,11 +18,12 @@ static const strutils::StringId IDLE_GAME_ACTION_NAME = strutils::StringId("Idle
 
 ///------------------------------------------------------------------------------------------------
 
-GameActionEngine::GameActionEngine(const EngineOperationMode operationMode, const int gameSeed, BoardState* boardState, GameSessionManager* gameSessionManager, GameSerializer* gameSerializer)
+GameActionEngine::GameActionEngine(const EngineOperationMode operationMode, const int gameSeed, BoardState* boardState, GameSessionManager* gameSessionManager, GameRuleEngine* gameRuleEngine, GameSerializer* gameSerializer)
     : mOperationMode(operationMode)
     , mGameSeed(gameSeed)
     , mBoardState(boardState)
     , mGameSessionManager(gameSessionManager)
+    , mGameRuleEngine(gameRuleEngine)
     , mGameSerializer(gameSerializer)
     , mActiveActionHasSetState(false)
     , mLoggingActionTransitions(false)
@@ -129,7 +130,7 @@ void GameActionEngine::CreateAndPushGameAction(const strutils::StringId& actionN
 {
     auto action = GameActionFactory::CreateGameAction(actionName);
     action->SetName(actionName);
-    action->SetDependencies(mBoardState, mGameSessionManager, this);
+    action->SetDependencies(mBoardState, mGameSessionManager, mGameRuleEngine, this);
     action->SetExtraActionParams(extraActionParams);
     mGameActions.push(std::move(action));
     

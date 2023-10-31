@@ -107,7 +107,7 @@ void GameSessionManager::InitGameSession()
     
     mRuleEngine = std::make_unique<GameRuleEngine>(mBoardState.get());
     
-//#define REPLAY_FLOW
+#define REPLAY_FLOW
     
 #if defined(REPLAY_FLOW)
     GameReplayEngine replayEngine(persistence_utils::GetProgressDirectoryPath() + "game.json");
@@ -117,7 +117,7 @@ void GameSessionManager::InitGameSession()
 #endif
     
     mGameSerializer = std::make_unique<GameSerializer>(seed);
-    mActionEngine = std::make_unique<GameActionEngine>(GameActionEngine::EngineOperationMode::ANIMATED, seed, mBoardState.get(), this, mGameSerializer.get());
+    mActionEngine = std::make_unique<GameActionEngine>(GameActionEngine::EngineOperationMode::ANIMATED, seed, mBoardState.get(), this, mRuleEngine.get(), mGameSerializer.get());
     mPlayerActionGenerationEngine = std::make_unique<PlayerActionGenerationEngine>(mRuleEngine.get(), mActionEngine.get());
     
 #if defined(REPLAY_FLOW)
@@ -251,19 +251,19 @@ void GameSessionManager::OnApplicationMovedToBackground()
 
 ///------------------------------------------------------------------------------------------------
 
-void GameSessionManager::OnCardCreation(std::shared_ptr<CardSoWrapper> cardSoWrapper, const bool forOpponentPlayer)
+void GameSessionManager::OnCardCreation(std::shared_ptr<CardSoWrapper> cardSoWrapper, const bool forRemotePlayer)
 {
-    mPlayerHeldCardSceneObjectWrappers[(forOpponentPlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)].push_back(cardSoWrapper);
+    mPlayerHeldCardSceneObjectWrappers[(forRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)].push_back(cardSoWrapper);
 }
 
 ///------------------------------------------------------------------------------------------------
 
-void GameSessionManager::OnBoardCardDestruction(const int cardIndex, const bool forOpponentPlayer)
+void GameSessionManager::OnBoardCardDestruction(const int cardIndex, const bool forRemotePlayer)
 {
     const auto& activeSceneManager = CoreSystemsEngine::GetInstance().GetActiveSceneManager();
     auto activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
     
-    auto& boardSoWrappers = mPlayerBoardCardSceneObjectWrappers[(forOpponentPlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)];
+    auto& boardSoWrappers = mPlayerBoardCardSceneObjectWrappers[(forRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)];
     for (auto sceneObject: boardSoWrappers[cardIndex]->mSceneObjectComponents)
     {
         activeScene->RemoveSceneObject(sceneObject->mName);
@@ -274,9 +274,9 @@ void GameSessionManager::OnBoardCardDestruction(const int cardIndex, const bool 
 
 ///------------------------------------------------------------------------------------------------
 
-void GameSessionManager::OnHeldCardSwap(std::shared_ptr<CardSoWrapper> cardSoWrapper, const int cardIndex, const bool forOpponentPlayer)
+void GameSessionManager::OnHeldCardSwap(std::shared_ptr<CardSoWrapper> cardSoWrapper, const int cardIndex, const bool forRemotePlayer)
 {
-    mPlayerHeldCardSceneObjectWrappers[(forOpponentPlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)][cardIndex] = cardSoWrapper;
+    mPlayerHeldCardSceneObjectWrappers[(forRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)][cardIndex] = cardSoWrapper;
 }
 
 ///------------------------------------------------------------------------------------------------

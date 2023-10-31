@@ -43,9 +43,9 @@ public:
     GameActionEngine& GetActionEngine();
     
     void OnApplicationMovedToBackground();
-    void OnCardCreation(std::shared_ptr<CardSoWrapper> cardSoWrapper, const bool forOpponentPlayer);
-    void OnBoardCardDestruction(const int cardIndex, const bool forOpponentPlayer);
-    void OnHeldCardSwap(std::shared_ptr<CardSoWrapper> cardSoWrapper, const int cardIndex, const bool forOpponentPlayer);
+    void OnCardCreation(std::shared_ptr<CardSoWrapper> cardSoWrapper, const bool forRemotePlayer);
+    void OnBoardCardDestruction(const int cardIndex, const bool forRemotePlayer);
+    void OnHeldCardSwap(std::shared_ptr<CardSoWrapper> cardSoWrapper, const int cardIndex, const bool forRemotePlayer);
     void OnLastCardPlayedFinalized(const int cardIndex);
     
     const std::vector<std::vector<std::shared_ptr<CardSoWrapper>>>& GetHeldCardSoWrappers() const;

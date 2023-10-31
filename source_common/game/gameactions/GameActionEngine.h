@@ -20,6 +20,7 @@
 class BoardState;
 class IGameAction;
 class GameSessionManager;
+class GameRuleEngine;
 class GameSerializer;
 class GameActionEngine final
 {
@@ -32,7 +33,7 @@ public:
     using ExtraActionParams = std::unordered_map<std::string, std::string>;
     
 public:
-    GameActionEngine(const EngineOperationMode operationMode, const int gameSeed, BoardState* boardState, GameSessionManager* gameSessionManager, GameSerializer* gameSerializer);
+    GameActionEngine(const EngineOperationMode operationMode, const int gameSeed, BoardState* boardState, GameSessionManager* gameSessionManager, GameRuleEngine* gameRuleEngine, GameSerializer* gameSerializer);
     
     ~GameActionEngine();
     
@@ -55,6 +56,7 @@ private:
     const int mGameSeed;
     BoardState* mBoardState;
     GameSessionManager* mGameSessionManager;
+    GameRuleEngine* mGameRuleEngine;
     GameSerializer* mGameSerializer;
     std::queue<std::unique_ptr<IGameAction>> mGameActions;
     bool mActiveActionHasSetState;

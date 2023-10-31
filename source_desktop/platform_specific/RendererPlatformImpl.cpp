@@ -112,7 +112,8 @@ public:
         currentShader->SetMatrix4fv(PROJ_MATRIX_UNIFORM_NAME, mCamera.GetProjMatrix());
         
         for (const auto& floatEntry: mSceneObject.mShaderFloatUniformValues) currentShader->SetFloat(floatEntry.first, floatEntry.second);
-       
+        for (const auto& intEntry: mSceneObject.mShaderIntUniformValues) currentShader->SetInt(intEntry.first, intEntry.second);
+        
 #if (!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)
         if (sSceneObjectOverrideData.at(mSceneObject.mName)->mOverrideVisibility)
         {
@@ -178,7 +179,8 @@ public:
             currentShader->SetMatrix4fv(PROJ_MATRIX_UNIFORM_NAME, mCamera.GetProjMatrix());
             
             for (const auto& floatEntry: mSceneObject.mShaderFloatUniformValues) currentShader->SetFloat(floatEntry.first, floatEntry.second);
-           
+            for (const auto& intEntry: mSceneObject.mShaderIntUniformValues) currentShader->SetInt(intEntry.first, intEntry.second);
+            
 #if (!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)
             if (sSceneObjectOverrideData.at(mSceneObject.mName)->mOverrideVisibility)
             {
@@ -227,7 +229,8 @@ public:
         currentShader->SetMatrix4fv(PROJ_MATRIX_UNIFORM_NAME, mCamera.GetProjMatrix());
         
         for (const auto& floatEntry: mSceneObject.mShaderFloatUniformValues) currentShader->SetFloat(floatEntry.first, floatEntry.second);
-       
+        for (const auto& intEntry: mSceneObject.mShaderIntUniformValues) currentShader->SetInt(intEntry.first, intEntry.second);
+        
 #if (!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)
         if (sSceneObjectOverrideData.at(mSceneObject.mName)->mOverrideVisibility)
         {
@@ -513,6 +516,16 @@ void RendererPlatformImpl::CreateIMGuiWidgets()
                     
                     auto uniformMinMaxValues = sUniformMinMaxValues.at(uniformFloatEntry.first);
                     ImGui::SliderFloat(uniformFloatEntry.first.GetString().c_str(), &uniformFloatEntry.second, uniformMinMaxValues.x, uniformMinMaxValues.y);
+                }
+                for (auto& uniformIntEntry: sceneObject->mShaderIntUniformValues)
+                {
+                    if (sUniformMinMaxValues.count(uniformIntEntry.first) == 0)
+                    {
+                        sUniformMinMaxValues[uniformIntEntry.first] = glm::vec2(uniformIntEntry.second - 10, uniformIntEntry.second + 10);
+                    }
+                    
+                    auto uniformMinMaxValues = sUniformMinMaxValues.at(uniformIntEntry.first);
+                    ImGui::SliderInt(uniformIntEntry.first.GetString().c_str(), &uniformIntEntry.second, uniformMinMaxValues.x, uniformMinMaxValues.y);
                 }
                 ImGui::PopID();
             }

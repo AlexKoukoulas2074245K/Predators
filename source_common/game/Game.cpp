@@ -54,7 +54,7 @@ void Game::Init()
     
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
     systemsEngine.GetFontRepository().LoadFont(game_constants::DEFAULT_FONT_NAME.GetString(), resources::ResourceReloadMode::DONT_RELOAD);
-    systemsEngine.GetFontRepository().LoadFont(game_constants::FONT_OUTLINE_NAME.GetString(), resources::ResourceReloadMode::DONT_RELOAD);
+    systemsEngine.GetFontRepository().LoadFont(game_constants::FONT_PLACEHOLDER_NAME.GetString(), resources::ResourceReloadMode::DONT_RELOAD);
     
     auto dummyScene = systemsEngine.GetActiveSceneManager().CreateScene(game_constants::IN_GAME_BATTLE_SCENE);
     auto boardSceneObject = dummyScene->CreateSceneObject(strutils::StringId("Board"));
@@ -190,7 +190,7 @@ void Game::CreateDebugWidgets()
     const auto& localPlayerCardSoWrappers = mGameSessionManager.GetHeldCardSoWrappers();
     for (size_t i = 0; i < localPlayerCardSoWrappers.size(); ++i)
     {
-        ImGui::SeparatorText(i == 0 ? "Opponent Player" : "Local Player");
+        ImGui::SeparatorText(i == 0 ? "Remote Player" : "Local Player");
         for (size_t j = 0; j < localPlayerCardSoWrappers[i].size(); ++j)
         {
             switch (localPlayerCardSoWrappers[i][j]->mState)
@@ -213,9 +213,9 @@ void Game::CreateDebugWidgets()
     
     static size_t currentIndex = 0;
     static std::string activePlayerIndex = "";
-    static std::string opponentPlayerStats = "";
-    static std::string opponentPlayerHand = "";
-    static std::string opponentPlayerBoard = "";
+    static std::string remotePlayerStats = "";
+    static std::string remotePlayerHand = "";
+    static std::string remotePlayerBoard = "";
     static std::string localPlayerStats = "";
     static std::string localPlayerBoard = "";
     static std::string localPlayerHand = "";
@@ -268,11 +268,11 @@ void Game::CreateDebugWidgets()
     
     const auto& boardState = mGameSessionManager.GetBoardState();
     activePlayerIndex = std::to_string(boardState.GetActivePlayerIndex());
-    opponentPlayerStats = "Health: " + std::to_string(boardState.GetPlayerStates().front().mPlayerHealth) +
+    remotePlayerStats = "Health: " + std::to_string(boardState.GetPlayerStates().front().mPlayerHealth) +
                        " | Total Weight Ammo: " + std::to_string(boardState.GetPlayerStates().front().mPlayerTotalWeightAmmo) +
                        " | Current Weight Ammo: " + std::to_string(boardState.GetPlayerStates().front().mPlayerCurrentWeightAmmo);
-    opponentPlayerHand = strutils::VecToString(boardState.GetPlayerStates().front().mPlayerHeldCards);
-    opponentPlayerBoard = strutils::VecToString(boardState.GetPlayerStates().front().mPlayerBoardCards);
+    remotePlayerHand = strutils::VecToString(boardState.GetPlayerStates().front().mPlayerHeldCards);
+    remotePlayerBoard = strutils::VecToString(boardState.GetPlayerStates().front().mPlayerBoardCards);
     localPlayerBoard = strutils::VecToString(boardState.GetPlayerStates().back().mPlayerBoardCards);
     localPlayerHand = strutils::VecToString(boardState.GetPlayerStates().back().mPlayerHeldCards);
     localPlayerStats = "Health: " + std::to_string(boardState.GetPlayerStates().back().mPlayerHealth) +
@@ -283,12 +283,12 @@ void Game::CreateDebugWidgets()
     ImGui::SeparatorText("Output");
     ImGui::TextWrapped("Turn Counter %d", boardState.GetTurnCounter());
     ImGui::TextWrapped("Active Player %s", activePlayerIndex.c_str());
-    ImGui::SeparatorText("Opponent Player Stats");
-    ImGui::TextWrapped("%s", opponentPlayerStats.c_str());
-    ImGui::SeparatorText("Opponent Player Hand");
-    ImGui::TextWrapped("%s", opponentPlayerHand.c_str());
-    ImGui::SeparatorText("Opponent Player Board");
-    ImGui::TextWrapped("%s", opponentPlayerBoard.c_str());
+    ImGui::SeparatorText("Remote Player Stats");
+    ImGui::TextWrapped("%s", remotePlayerStats.c_str());
+    ImGui::SeparatorText("Remote Player Hand");
+    ImGui::TextWrapped("%s", remotePlayerHand.c_str());
+    ImGui::SeparatorText("Remote Player Board");
+    ImGui::TextWrapped("%s", remotePlayerBoard.c_str());
     ImGui::SeparatorText("Local Player Board");
     ImGui::TextWrapped("%s", localPlayerBoard.c_str());
     ImGui::SeparatorText("Local Player Hand");

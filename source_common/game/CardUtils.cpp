@@ -18,8 +18,11 @@ namespace card_utils
 
 ///------------------------------------------------------------------------------------------------
 
+static const strutils::StringId CARD_INTERACTIVE_MODE_UNIFORM_NAME = strutils::StringId("interactive_mode");
+
 static const std::string CARD_FRAME_TEXTURE_FILE_NAME = "card_frame.png";
 static const std::string CARD_BACK_TEXTURE_FILE_NAME = "card_back.png";
+static const std::string CARD_INTERACTIVE_SHADER_FILE_NAME = "card_interactive_elements.vs";
 static const std::string CARD_DAMAGE_ICON_TEXTURE_FILE_NAME = "damage_icon.png";
 static const std::string CARD_WEIGHT_ICON_TEXTURE_FILE_NAME = "feather_icon.png";
 static const std::string GENERATED_R2T_NAME_PREFIX = "generated_card_texture_id=";
@@ -32,7 +35,7 @@ static const float CARD_INDEX_Z_OFFSET = 1.0f;
 
 ///------------------------------------------------------------------------------------------------
 
-glm::vec3 CalculateHeldCardPosition(const int cardIndex, const int playerCardCount, bool forOpponentPlayer)
+glm::vec3 CalculateHeldCardPosition(const int cardIndex, const int playerCardCount, bool forRemotePlayer)
 {
     float cardBlockWidth = game_constants::IN_GAME_CARD_WIDTH * playerCardCount;
     float cardStartX = -cardBlockWidth/2.0f;
@@ -48,12 +51,12 @@ glm::vec3 CalculateHeldCardPosition(const int cardIndex, const int playerCardCou
         }
     }
     
-    return glm::vec3(targetX, forOpponentPlayer ? game_constants::IN_GAME_TOP_PLAYER_HELD_CARD_Y : game_constants::IN_GAME_BOT_PLAYER_HELD_CARD_Y, game_constants::IN_GAME_HELD_CARD_Z + cardIndex * CARD_INDEX_Z_OFFSET);
+    return glm::vec3(targetX, forRemotePlayer ? game_constants::IN_GAME_TOP_PLAYER_HELD_CARD_Y : game_constants::IN_GAME_BOT_PLAYER_HELD_CARD_Y, game_constants::IN_GAME_HELD_CARD_Z + cardIndex * CARD_INDEX_Z_OFFSET);
 }
 
 ///------------------------------------------------------------------------------------------------
 
-glm::vec3 CalculateBoardCardPosition(const int cardIndex, const int playerCardCount, bool forOpponentPlayer)
+glm::vec3 CalculateBoardCardPosition(const int cardIndex, const int playerCardCount, bool forRemotePlayer)
 {
     float cardBlockWidth = game_constants::IN_GAME_CARD_ON_BOARD_WIDTH * playerCardCount;
     float cardStartX = -cardBlockWidth/2.0f;
@@ -69,7 +72,7 @@ glm::vec3 CalculateBoardCardPosition(const int cardIndex, const int playerCardCo
         }
     }
     
-    return glm::vec3(targetX, forOpponentPlayer ? game_constants::IN_GAME_TOP_PLAYER_BOARD_CARD_Y : game_constants::IN_GAME_BOT_PLAYER_BOARD_CARD_Y, game_constants::IN_GAME_PLAYED_CARD_Z);
+    return glm::vec3(targetX, forRemotePlayer ? game_constants::IN_GAME_TOP_PLAYER_BOARD_CARD_Y : game_constants::IN_GAME_BOT_PLAYER_BOARD_CARD_Y, game_constants::IN_GAME_PLAYED_CARD_Z);
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -100,7 +103,7 @@ std::vector<strutils::StringId> GetCardComponentSceneObjectNames(const std::stri
 
 ///------------------------------------------------------------------------------------------------
 
-std::shared_ptr<CardSoWrapper> CreateCardSoWrapper(const CardData* cardData, const glm::vec3& position, const std::string& cardComponentsNamePrefix, const CardOrientation cardOrientation, scene::Scene& scene)
+std::shared_ptr<CardSoWrapper> CreateCardSoWrapper(const CardData* cardData, const glm::vec3& position, const std::string& cardComponentsNamePrefix, const CardOrientation cardOrientation, const bool forRemotePlayer, const bool canCardBePlayed, scene::Scene& scene)
 {
     auto cardSoWrapper = std::make_shared<CardSoWrapper>();
     auto& cardComponents = cardSoWrapper->mSceneObjectComponents;
@@ -176,7 +179,7 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper(const CardData* cardData, con
         // Create weight
         cardComponents.push_back(scene.CreateSceneObject(sceneObjectComponentNames[5]));
         scene::TextSceneObjectData weightTextData;
-        weightTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
+        weightTextData.mFontName = game_constants::FONT_PLACEHOLDER_NAME;
         weightTextData.mText = std::to_string(cardData->mCardWeight);
         cardComponents.back()->mSceneObjectTypeData = std::move(weightTextData);
         cardComponents.back()->mScale = glm::vec3(game_constants::IN_GAME_CARD_PROPERTY_SCALE);
@@ -208,6 +211,8 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper(const CardData* cardData, con
         cardComponents.back()->mPosition.z += game_constants::CARD_COMPONENT_Z_OFFSET;
         
         rendering::CollateSceneObjectsIntoOne(GENERATED_R2T_NAME_PREFIX + std::to_string(cardData->mCardId), position, cardComponents, scene);
+        cardComponents.front()->mShaderResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CARD_INTERACTIVE_SHADER_FILE_NAME);
+        cardComponents.front()->mShaderIntUniformValues[CARD_INTERACTIVE_MODE_UNIFORM_NAME] = forRemotePlayer ? 0 : (canCardBePlayed ? 2 : 1);
         cardComponents.front()->mPosition += position;
         cardComponents.front()->mScale *= RENDER_TO_TEXTURE_UPSCALE_FACTOR;
     }

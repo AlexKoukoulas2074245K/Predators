@@ -15,6 +15,7 @@
 #include <game/Cards.h>
 #include <game/CardUtils.h>
 #include <game/GameConstants.h>
+#include <game/GameRuleEngine.h>
 #include <game/GameSessionManager.h>
 #include <game/gameactions/DrawCardGameAction.h>
 
@@ -39,11 +40,11 @@ void DrawCardGameAction::VInitAnimation()
     auto activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
     
     const int cardCount = static_cast<int>(mBoardState->GetActivePlayerState().mPlayerHeldCards.size());
-    bool opponentPlayerActive = mBoardState->GetActivePlayerIndex() == 0;
+    bool remotePlayerActive = mBoardState->GetActivePlayerIndex() == 0;
     
     for (int i = 0; i < cardCount; ++i)
     {
-        auto finalCardPosition = card_utils::CalculateHeldCardPosition(i, cardCount, opponentPlayerActive);
+        auto finalCardPosition = card_utils::CalculateHeldCardPosition(i, cardCount, remotePlayerActive);
         
         // The latest added card components need to be created from scratch
         if (i == cardCount - 1)
@@ -54,16 +55,16 @@ void DrawCardGameAction::VInitAnimation()
             
             auto cardSoWrapper = card_utils::CreateCardSoWrapper(
                 &cardOpt->get(), glm::vec3(game_constants::IN_GAME_DRAW_CARD_INIT_X + i * game_constants::IN_GAME_CARD_WIDTH/2,
-                opponentPlayerActive ? game_constants::IN_GAME_TOP_PLAYER_HELD_CARD_Y : game_constants::IN_GAME_BOT_PLAYER_HELD_CARD_Y, finalCardPosition.z),
-                (opponentPlayerActive ? game_constants::TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_HELD_CARD_SO_NAME_PREFIX) + std::to_string(i),
-                (opponentPlayerActive ? CardOrientation::BACK_FACE : CardOrientation::FRONT_FACE), *activeScene);
+                remotePlayerActive ? game_constants::IN_GAME_TOP_PLAYER_HELD_CARD_Y : game_constants::IN_GAME_BOT_PLAYER_HELD_CARD_Y, finalCardPosition.z),
+                (remotePlayerActive ? game_constants::TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_HELD_CARD_SO_NAME_PREFIX) + std::to_string(i),
+                (remotePlayerActive ? CardOrientation::BACK_FACE : CardOrientation::FRONT_FACE), remotePlayerActive, mGameRuleEngine->CanCardBePlayed(&cardOpt->get(), mBoardState->GetActivePlayerIndex()), *activeScene);
             
             cardSoWrapper->mState = CardSoState::MOVING_TO_SET_POSITION;
-            mGameSessionManager->OnCardCreation(cardSoWrapper, opponentPlayerActive);
+            mGameSessionManager->OnCardCreation(cardSoWrapper, remotePlayerActive);
             
             auto midPos = cardSoWrapper->mSceneObjectComponents.front()->mPosition;
             midPos.x = math::Abs(cardSoWrapper->mSceneObjectComponents.front()->mPosition.x - finalCardPosition.x)/2.0f;
-            midPos.y = opponentPlayerActive ? game_constants::IN_GAME_DRAW_CARD_TOP_PLAYER_MID_POINT_Y : game_constants::IN_GAME_DRAW_CARD_BOT_PLAYER_MID_POINT_Y;
+            midPos.y = remotePlayerActive ? game_constants::IN_GAME_DRAW_CARD_TOP_PLAYER_MID_POINT_Y : game_constants::IN_GAME_DRAW_CARD_BOT_PLAYER_MID_POINT_Y;
             
             math::BezierCurve curve(std::vector<glm::vec3>{cardSoWrapper->mSceneObjectComponents.front()->mPosition, midPos, finalCardPosition});
             
@@ -80,7 +81,7 @@ void DrawCardGameAction::VInitAnimation()
         // .. The rest can be looked up
         else
         {
-            auto cardSoWrapper = mGameSessionManager->GetHeldCardSoWrappers()[(opponentPlayerActive ? 0 : 1)][i];
+            auto cardSoWrapper = mGameSessionManager->GetHeldCardSoWrappers()[(remotePlayerActive ? 0 : 1)][i];
             
             if (cardSoWrapper->mState != CardSoState::FREE_MOVING)
             {
