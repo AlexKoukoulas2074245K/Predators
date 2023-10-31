@@ -45,6 +45,7 @@ namespace game_constants
     
     // Fonts
     inline const strutils::StringId DEFAULT_FONT_NAME = strutils::StringId("font");
+    inline const strutils::StringId FONT_OUTLINE_NAME = strutils::StringId("font_outline");
 
     // Uniforms
     inline const strutils::StringId CUSTOM_ALPHA_UNIFORM_NAME = strutils::StringId("custom_alpha");

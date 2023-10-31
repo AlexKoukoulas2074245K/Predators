@@ -5,11 +5,13 @@
 ///  Created by Alex Koukoulas on 18/10/2023                                                       
 ///------------------------------------------------------------------------------------------------
 
+#include <engine/rendering/OpenGL.h>
 #include <engine/rendering/Particles.h>
 #include <engine/rendering/ParticleUpdater.h>
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
 #include <numeric>
+
 
 #define IS_FLAG_SET(flag) ((particleEmitterData.mParticleFlags & flag) != 0)
 
@@ -27,7 +29,7 @@ static const float PARTICLE_ENLARGEMENT_SPEED = 0.00001f;
 
 void ParticleUpdater::UpdateSceneParticles(const float dtMillis, scene::Scene& scene)
 {
-    mParticleEmitterNamesToDelete.clear();
+    mParticleEmittersToDelete.clear();
     for (auto& sceneObject: scene.GetSceneObjects())
     {
         if (std::holds_alternative<scene::ParticleEmitterObjectData>(sceneObject->mSceneObjectTypeData))
@@ -59,7 +61,7 @@ void ParticleUpdater::UpdateSceneParticles(const float dtMillis, scene::Scene& s
             
             if (deadParticles == particleEmitterData.mParticleCount)
             {
-                mParticleEmitterNamesToDelete.push_back(sceneObject->mName);
+                mParticleEmittersToDelete.push_back(sceneObject);
             }
             else
             {
@@ -68,9 +70,16 @@ void ParticleUpdater::UpdateSceneParticles(const float dtMillis, scene::Scene& s
         }
     }
     
-    for (const auto& particleEmitterName: mParticleEmitterNamesToDelete)
+    for (const auto& particleEmitter: mParticleEmittersToDelete)
     {
-        scene.RemoveSceneObject(particleEmitterName);
+        auto& particleEmitterData = std::get<scene::ParticleEmitterObjectData>(particleEmitter->mSceneObjectTypeData);
+        GL_CALL(glDeleteBuffers(1, &particleEmitterData.mParticleUVBuffer));
+        GL_CALL(glDeleteBuffers(1, &particleEmitterData.mParticleSizesBuffer));
+        GL_CALL(glDeleteBuffers(1, &particleEmitterData.mParticleVertexBuffer));
+        GL_CALL(glDeleteBuffers(1, &particleEmitterData.mParticlePositionsBuffer));
+        GL_CALL(glDeleteBuffers(1, &particleEmitterData.mParticleLifetimeSecsBuffer));
+        GL_CALL(glDeleteVertexArrays(1, &particleEmitterData.mParticleVertexArrayObject));
+        scene.RemoveSceneObject(particleEmitter->mName);
     }
 }
 

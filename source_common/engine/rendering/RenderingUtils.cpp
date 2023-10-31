@@ -10,7 +10,6 @@
 #include <engine/rendering/OpenGL.h>
 #include <engine/rendering/IRenderer.h>
 #include <engine/scene/Scene.h>
-#include <SDL_syswm.h>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -26,7 +25,9 @@ namespace rendering
 void CollateSceneObjectsIntoOne(const std::string& dynamicTextureResourceName, const glm::vec3& positionOffset, std::vector<std::shared_ptr<scene::SceneObject>>& sceneObjects, scene::Scene& scene)
 {
     GLint oldFrameBuffer;
+    GLint oldRenderBuffer;
     GL_CALL(glGetIntegerv(GL_FRAMEBUFFER_BINDING, &oldFrameBuffer));
+    GL_CALL(glGetIntegerv(GL_RENDERBUFFER_BINDING, &oldRenderBuffer));
     
     GLuint frameBuffer, textureId;
     GL_CALL(glGenFramebuffers(1, &frameBuffer));
@@ -74,7 +75,7 @@ void CollateSceneObjectsIntoOne(const std::string& dynamicTextureResourceName, c
     );
     
     GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, oldFrameBuffer));
-    GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, oldFrameBuffer));
+    GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, oldRenderBuffer));
     assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
 }
 

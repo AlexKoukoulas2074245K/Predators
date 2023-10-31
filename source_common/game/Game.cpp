@@ -53,7 +53,8 @@ void Game::Init()
     CardDataRepository::GetInstance().LoadCardData();
     
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
-    systemsEngine.GetFontRepository().LoadFont("font", resources::ResourceReloadMode::DONT_RELOAD);
+    systemsEngine.GetFontRepository().LoadFont(game_constants::DEFAULT_FONT_NAME.GetString(), resources::ResourceReloadMode::DONT_RELOAD);
+    systemsEngine.GetFontRepository().LoadFont(game_constants::FONT_OUTLINE_NAME.GetString(), resources::ResourceReloadMode::DONT_RELOAD);
     
     auto dummyScene = systemsEngine.GetActiveSceneManager().CreateScene(game_constants::IN_GAME_BATTLE_SCENE);
     auto boardSceneObject = dummyScene->CreateSceneObject(strutils::StringId("Board"));

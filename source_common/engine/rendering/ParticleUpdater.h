@@ -18,6 +18,7 @@
 ///------------------------------------------------------------------------------------------------
 
 namespace scene { class Scene; }
+namespace scene { struct SceneObject; }
 namespace scene { struct ParticleEmitterObjectData; }
 
 ///------------------------------------------------------------------------------------------------
@@ -38,7 +39,7 @@ private:
     void SortParticles(scene::ParticleEmitterObjectData& particleEmitterData) const;
     
 private:
-    std::vector<strutils::StringId> mParticleEmitterNamesToDelete;
+    std::vector<std::shared_ptr<scene::SceneObject>> mParticleEmittersToDelete;
 };
 
 ///------------------------------------------------------------------------------------------------

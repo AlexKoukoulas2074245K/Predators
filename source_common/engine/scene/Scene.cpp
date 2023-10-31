@@ -49,7 +49,10 @@ void Scene::RemoveSceneObject(const strutils::StringId& sceneObjectName)
     {
         return sceneObject->mName == sceneObjectName;
     });
-    if (findIter != mSceneObjects.end()) mSceneObjects.erase(findIter);
+    if (findIter != mSceneObjects.end())
+    {
+        mSceneObjects.erase(findIter);
+    }
 }
 
 ///------------------------------------------------------------------------------------------------
