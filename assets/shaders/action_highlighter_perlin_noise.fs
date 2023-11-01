@@ -13,6 +13,7 @@ uniform float custom_alpha;
 uniform float time_speed;
 uniform float perlin_resolution;
 uniform float perlin_clarity;
+uniform bool invalid_action;
 uniform bool affected_by_light;
 uniform int active_light_count;
 out vec4 frag_color;
@@ -26,7 +27,15 @@ void main()
     float distanceFromCenter = 1.0f - distance(uv_frag, vec2(0.5f, 0.5f));
     distanceFromCenter -= 0.5f;
     
-    frag_color = vec4(0.0f, vec3(perlinNoise + perlin_clarity).g, 0.0f, (perlinNoise + perlin_clarity) * distanceFromCenter);
+    if (invalid_action)
+    {
+        frag_color = vec4(vec3(perlinNoise + perlin_clarity).r, 0.0f, 0.0f, (perlinNoise + perlin_clarity) * distanceFromCenter);
+    }
+    else
+    {
+        frag_color = vec4(0.0f, vec3(perlinNoise + perlin_clarity).g, 0.0f, (perlinNoise + perlin_clarity) * distanceFromCenter);
+    }
+    
     
     if (affected_by_light)
     {

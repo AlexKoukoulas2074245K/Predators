@@ -348,6 +348,17 @@ void GameSessionManager::HandleTouchInput()
     std::vector<int> candidateHighlightIndices;
     mShouldShowCardLocationIndicator = false;
     
+    if (localPlayerCards.size() > 0)
+    {
+        switch (localPlayerCards.at(0)->mState)
+        {
+            case CardSoState::IDLE: logging::Log(logging::LogType::INFO, "state: IDLE", localPlayerCards.at(0)->mState ); break;
+            case CardSoState::HIGHLIGHTED: logging::Log(logging::LogType::INFO, "state: HIGHLIGHTED", localPlayerCards.at(0)->mState ); break;
+            case CardSoState::FREE_MOVING: logging::Log(logging::LogType::INFO, "state: FREE_MOVING", localPlayerCards.at(0)->mState ); break;
+            case CardSoState::MOVING_TO_SET_POSITION: logging::Log(logging::LogType::INFO, "state: MTSP", localPlayerCards.at(0)->mState ); break;
+        }
+    }
+    
     for (int i = 0; i < localPlayerCardCount; ++i)
     {
         auto& currentCardSoWrapper = localPlayerCards.at(i);
@@ -360,10 +371,13 @@ void GameSessionManager::HandleTouchInput()
         bool cursorInSceneObject = math::IsPointInsideRectangle(sceneObjectRect.bottomLeft, sceneObjectRect.topRight, worldTouchPos);
         
 #if defined(IOS_FLOW)
-        if (inputStateManager.VButtonPressed(input::Button::MAIN_BUTTON) && (currentCardSoWrapper->mState == CardSoState::HIGHLIGHTED || currentCardSoWrapper->mState == CardSoState::FREE_MOVING))
+        static std::unique_ptr<glm::vec2> selectedCardInitialTouchPosition = nullptr;
+        if (inputStateManager.VButtonPressed(input::Button::MAIN_BUTTON) &&
+            mRuleEngine->CanCardBePlayed(currentCardSoWrapper->mCardData, game_constants::LOCAL_PLAYER_INDEX) &&
+            ((currentCardSoWrapper->mState == CardSoState::HIGHLIGHTED && glm::distance(worldTouchPos, *selectedCardInitialTouchPosition) > 0.005f) || currentCardSoWrapper->mState == CardSoState::FREE_MOVING))
         {
             currentCardSoWrapper->mState = CardSoState::FREE_MOVING;
-            animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(currentCardSoWrapper->mSceneObjectComponents, glm::vec3(worldTouchPos.x, worldTouchPos.y + game_constants::IN_GAME_MOBILE_ONLY_FREE_MOVING_CARD_Y_OFFSET, game_constants::IN_GAME_HIGHLIGHTED_CARD_Z), currentCardSoWrapper->mSceneObjectComponents[0]->mScale, game_constants::IN_GAME_CARD_FREE_MOVEMENT_ANIMATION_DURATION_SECS, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [](){});
+            animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(currentCardSoWrapper->mSceneObject, glm::vec3(worldTouchPos.x, worldTouchPos.y + game_constants::IN_GAME_MOBILE_ONLY_FREE_MOVING_CARD_Y_OFFSET, game_constants::IN_GAME_HIGHLIGHTED_CARD_Z), currentCardSoWrapper->mSceneObject->mScale, game_constants::IN_GAME_CARD_FREE_MOVEMENT_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [](){});
             auto currentLocalPlayerBoardCardCount = static_cast<int>(mPlayerBoardCardSceneObjectWrappers[game_constants::LOCAL_PLAYER_INDEX].size());
             auto cardLocationIndicatorSo = activeScene->FindSceneObject(CARD_LOCATION_INDICATOR_SCENE_OBJECT_NAME);
             cardLocationIndicatorSo->mPosition = card_utils::CalculateBoardCardPosition(currentLocalPlayerBoardCardCount, currentLocalPlayerBoardCardCount + 1, false);
@@ -372,6 +386,7 @@ void GameSessionManager::HandleTouchInput()
         }
         else if (inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON) && cursorInSceneObject && !otherHighlightedCardExists)
         {
+            selectedCardInitialTouchPosition = std::make_unique<glm::vec2>(worldTouchPos);
             candidateHighlightIndices.push_back(i);
         }
         else if (!inputStateManager.VButtonPressed(input::Button::MAIN_BUTTON))
@@ -384,13 +399,10 @@ void GameSessionManager::HandleTouchInput()
                 } break;
                 case CardSoState::HIGHLIGHTED:
                 {
-                    if (!cursorInSceneObject)
-                    {
-                        auto originalCardPosition = card_utils::CalculateHeldCardPosition(i, localPlayerCardCount, false);
-                        animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(currentCardSoWrapper->mSceneObjectComponents, originalCardPosition, currentCardSoWrapper->mSceneObjectComponents[0]->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT | animation_flags::IGNORE_X_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){currentCardSoWrapper->mState = CardSoState::IDLE; });
-                        currentCardSoWrapper->mState = CardSoState::MOVING_TO_SET_POSITION;
-                        //DestroyCardHighlighterAtIndex(i);
-                    }
+                    auto originalCardPosition = card_utils::CalculateHeldCardPosition(i, localPlayerCardCount, false);
+                    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(currentCardSoWrapper->mSceneObject, originalCardPosition, currentCardSoWrapper->mSceneObject->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::IGNORE_X_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){currentCardSoWrapper->mState = CardSoState::IDLE; });
+                    currentCardSoWrapper->mState = CardSoState::MOVING_TO_SET_POSITION;
+                    DestroyCardHighlighterAtIndex(i);
                 } break;
                     
                 default: break;
@@ -411,6 +423,7 @@ void GameSessionManager::HandleTouchInput()
                  cursorInSceneObject &&
                  !otherHighlightedCardExists &&
                  currentCardSoWrapper->mState == CardSoState::HIGHLIGHTED &&
+                 mRuleEngine->CanCardBePlayed(currentCardSoWrapper->mCardData, game_constants::LOCAL_PLAYER_INDEX) &&
                  activeScene->FindSceneObject(strutils::StringId(CARD_HIGHLIGHTER_SCENE_OBJECT_NAME_PREFIX + std::to_string(i))) != nullptr)
         {
             currentCardSoWrapper->mState = CardSoState::FREE_MOVING;
@@ -460,19 +473,17 @@ void GameSessionManager::HandleTouchInput()
     {
         auto currentCardSoWrapper = localPlayerCards[candidateHighlightIndices.front()];
         
-        if (mRuleEngine->CanCardBePlayed(currentCardSoWrapper->mCardData, 1))
+        auto originalCardPosition = card_utils::CalculateHeldCardPosition(candidateHighlightIndices.front(), localPlayerCardCount, false);
+        originalCardPosition.y += game_constants::IN_GAME_BOT_PLAYER_SELECTED_CARD_Y_OFFSET;
+        originalCardPosition.z = game_constants::IN_GAME_HIGHLIGHTED_CARD_Z;
+        
+        animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(currentCardSoWrapper->mSceneObject, originalCardPosition, currentCardSoWrapper->mSceneObject->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::IGNORE_X_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
         {
-            auto originalCardPosition = card_utils::CalculateHeldCardPosition(candidateHighlightIndices.front(), localPlayerCardCount, false);
-            originalCardPosition.y += game_constants::IN_GAME_BOT_PLAYER_SELECTED_CARD_Y_OFFSET;
-            originalCardPosition.z = game_constants::IN_GAME_HIGHLIGHTED_CARD_Z;
-            
-            animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(currentCardSoWrapper->mSceneObject, originalCardPosition, currentCardSoWrapper->mSceneObject->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::IGNORE_X_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
-            {
-                CreateCardHighlighter();
-            });
-            
-            currentCardSoWrapper->mState = CardSoState::HIGHLIGHTED;
-        }
+            CreateCardHighlighter();
+        });
+        
+        currentCardSoWrapper->mState = CardSoState::HIGHLIGHTED;
+        
     }
     
     // Check for turn pointer interaction
@@ -524,7 +535,6 @@ void GameSessionManager::UpdateMiscSceneObjects(const float dtMillis)
     }
     
     // Action Highlighters
-    
     for (size_t i = 0U; i < localPlayerHeldCards.size(); ++i)
     {
         auto cardHighlighterObject = activeScene->FindSceneObject(strutils::StringId(CARD_HIGHLIGHTER_SCENE_OBJECT_NAME_PREFIX + std::to_string(i)));
@@ -540,6 +550,7 @@ void GameSessionManager::UpdateMiscSceneObjects(const float dtMillis)
     // Turn pointer highlighter
     auto turnPointerHighlighterSo = activeScene->FindSceneObject(game_constants::TURN_POINTER_HIGHLIGHTER_SCENE_OBJECT_NAME);
     turnPointerHighlighterSo->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
+    turnPointerHighlighterSo->mShaderBoolUniformValues[game_constants::CARD_HIGHLIGHTER_INVALID_ACTION_UNIFORM_NAME] = false;
     
     // Lambda to make space/revert to original position board cards
     auto prospectiveMakeSpaceRevertToPositionLambda = [&](int prospectiveCardCount)
@@ -684,7 +695,7 @@ void GameSessionManager::CreateCardHighlighter()
     auto highlightedCardIter = std::find_if(localPlayerCards.begin(), localPlayerCards.end(), [&](const std::shared_ptr<CardSoWrapper>& cardSoWrapper)
     {
 #if defined(IOS_FLOW)
-        return cardSoWrapper->mState == CardSoState::FREE_MOVING;
+        return cardSoWrapper->mState == CardSoState::HIGHLIGHTED || cardSoWrapper->mState == CardSoState::FREE_MOVING;
 #else
         return cardSoWrapper->mState == CardSoState::HIGHLIGHTED;
 #endif
@@ -698,6 +709,7 @@ void GameSessionManager::CreateCardHighlighter()
         cardHighlighterSo->mShaderFloatUniformValues[game_constants::PERLIN_TIME_SPEED_UNIFORM_NAME] = game_constants::ACTION_HIGLIGHTER_PERLIN_TIME_SPEED;
         cardHighlighterSo->mShaderFloatUniformValues[game_constants::PERLIN_RESOLUTION_UNIFORM_NAME] = game_constants::ACTION_HIGLIGHTER_PERLIN_RESOLUTION;
         cardHighlighterSo->mShaderFloatUniformValues[game_constants::PERLIN_CLARITY_UNIFORM_NAME] = game_constants::ACTION_HIGLIGHTER_PERLIN_CLARITY;
+        cardHighlighterSo->mShaderBoolUniformValues[game_constants::CARD_HIGHLIGHTER_INVALID_ACTION_UNIFORM_NAME] = !mRuleEngine->CanCardBePlayed((*highlightedCardIter)->mCardData, game_constants::LOCAL_PLAYER_INDEX);
         cardHighlighterSo->mPosition = (*highlightedCardIter)->mSceneObject->mPosition;
         cardHighlighterSo->mPosition.z += game_constants::ACTION_HIGLIGHTER_Z_OFFSET;
         cardHighlighterSo->mScale = game_constants::CARD_HIGHLIGHTER_SCALE;

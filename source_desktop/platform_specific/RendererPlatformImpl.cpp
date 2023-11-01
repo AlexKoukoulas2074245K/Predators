@@ -113,6 +113,7 @@ public:
         
         for (const auto& floatEntry: mSceneObject.mShaderFloatUniformValues) currentShader->SetFloat(floatEntry.first, floatEntry.second);
         for (const auto& intEntry: mSceneObject.mShaderIntUniformValues) currentShader->SetInt(intEntry.first, intEntry.second);
+        for (const auto& boolEntry: mSceneObject.mShaderBoolUniformValues) currentShader->SetBool(boolEntry.first, boolEntry.second);
         
 #if (!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)
         if (sSceneObjectOverrideData.at(mSceneObject.mName)->mOverrideVisibility)
@@ -180,6 +181,7 @@ public:
             
             for (const auto& floatEntry: mSceneObject.mShaderFloatUniformValues) currentShader->SetFloat(floatEntry.first, floatEntry.second);
             for (const auto& intEntry: mSceneObject.mShaderIntUniformValues) currentShader->SetInt(intEntry.first, intEntry.second);
+            for (const auto& boolEntry: mSceneObject.mShaderBoolUniformValues) currentShader->SetBool(boolEntry.first, boolEntry.second);
             
 #if (!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)
             if (sSceneObjectOverrideData.at(mSceneObject.mName)->mOverrideVisibility)
@@ -230,6 +232,7 @@ public:
         
         for (const auto& floatEntry: mSceneObject.mShaderFloatUniformValues) currentShader->SetFloat(floatEntry.first, floatEntry.second);
         for (const auto& intEntry: mSceneObject.mShaderIntUniformValues) currentShader->SetInt(intEntry.first, intEntry.second);
+        for (const auto& boolEntry: mSceneObject.mShaderBoolUniformValues) currentShader->SetBool(boolEntry.first, boolEntry.second);
         
 #if (!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)
         if (sSceneObjectOverrideData.at(mSceneObject.mName)->mOverrideVisibility)
@@ -517,6 +520,7 @@ void RendererPlatformImpl::CreateIMGuiWidgets()
                     auto uniformMinMaxValues = sUniformMinMaxValues.at(uniformFloatEntry.first);
                     ImGui::SliderFloat(uniformFloatEntry.first.GetString().c_str(), &uniformFloatEntry.second, uniformMinMaxValues.x, uniformMinMaxValues.y);
                 }
+                ImGui::SeparatorText("Uniforms (ints)");
                 for (auto& uniformIntEntry: sceneObject->mShaderIntUniformValues)
                 {
                     if (sUniformMinMaxValues.count(uniformIntEntry.first) == 0)
@@ -526,6 +530,11 @@ void RendererPlatformImpl::CreateIMGuiWidgets()
                     
                     auto uniformMinMaxValues = sUniformMinMaxValues.at(uniformIntEntry.first);
                     ImGui::SliderInt(uniformIntEntry.first.GetString().c_str(), &uniformIntEntry.second, uniformMinMaxValues.x, uniformMinMaxValues.y);
+                }
+                ImGui::SeparatorText("Uniforms (bools)");
+                for (auto& uniformBoolEntry: sceneObject->mShaderBoolUniformValues)
+                {
+                    ImGui::Checkbox(uniformBoolEntry.first.GetString().c_str(), &uniformBoolEntry.second);
                 }
                 ImGui::PopID();
             }

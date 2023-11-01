@@ -42,6 +42,7 @@ namespace game_constants
     inline const strutils::StringId FONT_PLACEHOLDER_NAME = strutils::StringId("font_placeholder");
 
     // Uniforms
+    inline const strutils::StringId CARD_HIGHLIGHTER_INVALID_ACTION_UNIFORM_NAME = strutils::StringId("invalid_action");
     inline const strutils::StringId CUSTOM_ALPHA_UNIFORM_NAME = strutils::StringId("custom_alpha");
     inline const strutils::StringId TIME_UNIFORM_NAME = strutils::StringId("time");
     inline const strutils::StringId PERLIN_TIME_SPEED_UNIFORM_NAME = strutils::StringId("time_speed");

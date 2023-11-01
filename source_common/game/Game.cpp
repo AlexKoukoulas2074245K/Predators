@@ -146,7 +146,7 @@ void Game::Update(const float dtMillis)
 //            particle_flags::PREFILLED                  // particleFlags
 //         );
 //    }
-//    
+//
     mGameSessionManager.Update(dtMillis);
 }
 
