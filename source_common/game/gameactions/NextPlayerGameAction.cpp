@@ -19,8 +19,9 @@
 
 static const strutils::StringId CARD_ATTACK_GAME_ACTION_NAME = strutils::StringId("CardAttackGameAction");
 static const strutils::StringId DRAW_CARD_GAME_ACTION_NAME = strutils::StringId("DrawCardGameAction");
+static const strutils::StringId POST_NEXT_PLAYER_GAME_ACTION_NAME = strutils::StringId("PostNextPlayerGameAction");
 
-static const float TURN_POINTER_ANIMATION_DURATION_SECS = 1.0f;
+static const float TURN_POINTER_ANIMATION_DURATION_SECS = 0.66f;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -49,6 +50,8 @@ void NextPlayerGameAction::VSetNewGameState()
         }
     }
     
+    mGameActionEngine->AddGameAction(POST_NEXT_PLAYER_GAME_ACTION_NAME);
+    
     mGameActionEngine->AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
     
     // First time top player gets 2 cards in total
@@ -75,14 +78,18 @@ void NextPlayerGameAction::VInitAnimation()
     auto& activeSceneManager = CoreSystemsEngine::GetInstance().GetActiveSceneManager();
     auto activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
     auto turnPointerSo = activeScene->FindSceneObject(game_constants::TURN_POINTER_SCENE_OBJECT_NAME);
+    bool localPlayerActive = mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX;
     
-    animationManager.StartAnimation(std::make_unique<rendering::TweenRotationAnimation>(std::vector<std::shared_ptr<scene::SceneObject>>{turnPointerSo}, glm::vec3(0.0f, 0.0f, turnPointerSo->mRotation.z + math::PI), TURN_POINTER_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::ElasticFunction, math::TweeningMode::EASE_IN), [&]()
+    animationManager.StartAnimation(std::make_unique<rendering::TweenRotationAnimation>(turnPointerSo, glm::vec3(0.0f, 0.0f, turnPointerSo->mRotation.z + (localPlayerActive ? math::PI/2 : -math::PI/2)), TURN_POINTER_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::ElasticFunction, math::TweeningMode::EASE_IN), [=]()
     {
         mPendingAnimations--;
+        auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+        auto& activeSceneManager = CoreSystemsEngine::GetInstance().GetActiveSceneManager();
+        auto activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+        
+        auto turnPointerHighlighterSo = activeScene->FindSceneObject(game_constants::TURN_POINTER_HIGHLIGHTER_SCENE_OBJECT_NAME);
+        animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(turnPointerHighlighterSo, 0.0f, TURN_POINTER_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), [](){});
     });
-    
-    auto turnPointerHighlighterSo = activeScene->FindSceneObject(game_constants::TURN_POINTER_HIGHLIGHTER_SCENE_OBJECT_NAME);
-    animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(std::vector<std::shared_ptr<scene::SceneObject>>{turnPointerHighlighterSo}, static_cast<float>(mBoardState->GetActivePlayerIndex()), TURN_POINTER_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), [](){});
 }
 
 ///------------------------------------------------------------------------------------------------

@@ -53,105 +53,70 @@ AnimationUpdateResult BaseAnimation::VUpdate(const float dtMillis)
 
 ///------------------------------------------------------------------------------------------------
 
-TweenPositionScaleAnimation::TweenPositionScaleAnimation(const SceneObjectTargets& sceneObjectTargets, const glm::vec3& targetPosition, const glm::vec3& targetScale, const float secsDuration, const uint8_t animationFlags /* = animation_flags::NONE */, const float secsDelay /* = 0.0f */, const std::function<float(const float)> tweeningFunc /* = math::LinearFunction */, const math::TweeningMode tweeningMode /* = math::TweeningMode::EASE_IN */)
+TweenPositionScaleAnimation::TweenPositionScaleAnimation(std::shared_ptr<scene::SceneObject> sceneObjectTarget, const glm::vec3& targetPosition, const glm::vec3& targetScale, const float secsDuration, const uint8_t animationFlags /* = animation_flags::NONE */, const float secsDelay /* = 0.0f */, const std::function<float(const float)> tweeningFunc /* = math::LinearFunction */, const math::TweeningMode tweeningMode /* = math::TweeningMode::EASE_IN */)
     : BaseAnimation(animationFlags, secsDuration, secsDelay)
-    , mSceneObjectTargets(sceneObjectTargets)
+    , mSceneObjectTarget(sceneObjectTarget)
     , mTweeningFunc(tweeningFunc)
     , mTweeningMode(tweeningMode)
+    , mInitPosition(mSceneObjectTarget->mPosition)
+    , mTargetPosition(targetPosition)
+    , mInitScale(mSceneObjectTarget->mScale)
+    , mTargetScale(glm::vec3(mInitScale.x * (targetScale.x/mSceneObjectTarget->mScale.x), mInitScale.y * (targetScale.y/mSceneObjectTarget->mScale.y), mInitScale.z))
 {
-    float scaleRatioX = targetScale.x/sceneObjectTargets.front()->mScale.x;
-    float scaleRatioY = targetScale.y/sceneObjectTargets.front()->mScale.y;
-        
-    for (auto sceneObject: sceneObjectTargets)
-    {
-        glm::vec3 sceneObjectOffset(0.0f);
-        if (IS_FLAG_SET(animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT))
-        {
-            sceneObjectOffset = sceneObject->mPosition - sceneObjectTargets.front()->mPosition;
-        }
-
-        mInitPositions.emplace_back(sceneObject->mPosition);
-        mTargetPositions.emplace_back(targetPosition + (glm::vec3(sceneObjectOffset.x * scaleRatioX, sceneObjectOffset.y * scaleRatioY, sceneObjectOffset.z)));
-        
-        mInitScales.emplace_back(sceneObject->mScale);
-        mTargetScales.emplace_back(glm::vec3(sceneObject->mScale.x * scaleRatioX, sceneObject->mScale.y * scaleRatioY, 1.0f));
-    }
 }
 
 AnimationUpdateResult TweenPositionScaleAnimation::VUpdate(const float dtMillis)
 {
     auto animationUpdateResult = BaseAnimation::VUpdate(dtMillis);
     
-    for (size_t i = 0; i < mSceneObjectTargets.size(); ++i)
-    {
-        auto sceneObject = mSceneObjectTargets.at(i);
-        
-        float x = sceneObject->mPosition.x;
-        float z = sceneObject->mPosition.z;
-        float y = sceneObject->mPosition.y;
-        
-        sceneObject->mPosition = math::Lerp(mInitPositions[i], mTargetPositions[i], math::TweenValue(mAnimationT, mTweeningFunc, mTweeningMode));
-        sceneObject->mPosition.z = IS_FLAG_SET(animation_flags::IGNORE_Z_COMPONENT) ? z : sceneObject->mPosition.z;
-        sceneObject->mPosition.x = IS_FLAG_SET(animation_flags::IGNORE_X_COMPONENT) ? x : sceneObject->mPosition.x;
-        sceneObject->mPosition.y = IS_FLAG_SET(animation_flags::IGNORE_Y_COMPONENT) ? y : sceneObject->mPosition.y;
-        
-        sceneObject->mScale = math::Lerp(mInitScales[i], mTargetScales[i], math::TweenValue(mAnimationT, mTweeningFunc, mTweeningMode));
-    }
+    float x = mSceneObjectTarget->mPosition.x;
+    float z = mSceneObjectTarget->mPosition.z;
+    float y = mSceneObjectTarget->mPosition.y;
+    
+    mSceneObjectTarget->mPosition = math::Lerp(mInitPosition, mTargetPosition, math::TweenValue(mAnimationT, mTweeningFunc, mTweeningMode));
+    mSceneObjectTarget->mPosition.z = IS_FLAG_SET(animation_flags::IGNORE_Z_COMPONENT) ? z : mSceneObjectTarget->mPosition.z;
+    mSceneObjectTarget->mPosition.x = IS_FLAG_SET(animation_flags::IGNORE_X_COMPONENT) ? x : mSceneObjectTarget->mPosition.x;
+    mSceneObjectTarget->mPosition.y = IS_FLAG_SET(animation_flags::IGNORE_Y_COMPONENT) ? y : mSceneObjectTarget->mPosition.y;
+    
+    mSceneObjectTarget->mScale = math::Lerp(mInitScale, mTargetScale, math::TweenValue(mAnimationT, mTweeningFunc, mTweeningMode));
     
     return animationUpdateResult;
 }
 
 ///------------------------------------------------------------------------------------------------
 
-TweenRotationAnimation::TweenRotationAnimation(const SceneObjectTargets& sceneObjectTargets, const glm::vec3& targetRotation, const float secsDuration, const uint8_t animationFlags /* = animation_flags::NONE */, const float secsDelay /* = 0.0f */, const std::function<float(const float)> tweeningFunc /* = math::LinearFunction */, const math::TweeningMode tweeningMode /* = math::TweeningMode::EASE_IN */)
+TweenRotationAnimation::TweenRotationAnimation(std::shared_ptr<scene::SceneObject> sceneObjectTarget, const glm::vec3& targetRotation, const float secsDuration, const uint8_t animationFlags /* = animation_flags::NONE */, const float secsDelay /* = 0.0f */, const std::function<float(const float)> tweeningFunc /* = math::LinearFunction */, const math::TweeningMode tweeningMode /* = math::TweeningMode::EASE_IN */)
     : BaseAnimation(animationFlags, secsDuration, secsDelay)
-    , mSceneObjectTargets(sceneObjectTargets)
-    , mInitRotation(sceneObjectTargets.front()->mRotation)
+    , mSceneObjectTarget(sceneObjectTarget)
+    , mInitRotation(sceneObjectTarget->mRotation)
     , mTargetRotation(targetRotation)
     , mTweeningFunc(tweeningFunc)
     , mTweeningMode(tweeningMode)
 {    
-    for (auto sceneObject: sceneObjectTargets)
-    {
-        if (IS_FLAG_SET(animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT))
-        {
-            mSceneObjectRotationOffsets.emplace_back(sceneObject->mRotation - sceneObjectTargets.front()->mRotation);
-        }
-        else
-        {
-            mSceneObjectRotationOffsets.emplace_back(glm::vec3(0.0f));
-        }
-    }
 }
 
 AnimationUpdateResult TweenRotationAnimation::VUpdate(const float dtMillis)
 {
     auto animationUpdateResult = BaseAnimation::VUpdate(dtMillis);
     
-    for (size_t i = 0; i < mSceneObjectTargets.size(); ++i)
-    {
-        auto sceneObject = mSceneObjectTargets.at(i);
-        auto offset = mSceneObjectRotationOffsets.at(i);
-        
-        float x = sceneObject->mPosition.x;
-        float z = sceneObject->mPosition.z;
-        float y = sceneObject->mPosition.y;
-        
-        sceneObject->mRotation = math::Lerp(mInitRotation, mTargetRotation, math::TweenValue(mAnimationT, mTweeningFunc, mTweeningMode));
-        sceneObject->mRotation.z = IS_FLAG_SET(animation_flags::IGNORE_Z_COMPONENT) ? z : sceneObject->mRotation.z + offset.z;
-        sceneObject->mRotation.x = IS_FLAG_SET(animation_flags::IGNORE_X_COMPONENT) ? x : sceneObject->mRotation.x + offset.x;
-        sceneObject->mRotation.y = IS_FLAG_SET(animation_flags::IGNORE_Y_COMPONENT) ? y : sceneObject->mRotation.y + offset.y;
-    }
+    float x = mSceneObjectTarget->mPosition.x;
+    float z = mSceneObjectTarget->mPosition.z;
+    float y = mSceneObjectTarget->mPosition.y;
+    
+    mSceneObjectTarget->mRotation = math::Lerp(mInitRotation, mTargetRotation, math::TweenValue(mAnimationT, mTweeningFunc, mTweeningMode));
+    mSceneObjectTarget->mRotation.z = IS_FLAG_SET(animation_flags::IGNORE_Z_COMPONENT) ? z : mSceneObjectTarget->mRotation.z;
+    mSceneObjectTarget->mRotation.x = IS_FLAG_SET(animation_flags::IGNORE_X_COMPONENT) ? x : mSceneObjectTarget->mRotation.x;
+    mSceneObjectTarget->mRotation.y = IS_FLAG_SET(animation_flags::IGNORE_Y_COMPONENT) ? y : mSceneObjectTarget->mRotation.y;
     
     return animationUpdateResult;
 }
 
 ///------------------------------------------------------------------------------------------------
 
-TweenAlphaAnimation::TweenAlphaAnimation(const SceneObjectTargets& sceneObjectTargets, const float targetAlpha, const float secsDuration, const uint8_t animationFlags /* = animation_flags::NONE */, const float secsDelay /* = 0.0f */, const std::function<float(const float)> tweeningFunc /* = math::LinearFunction */, const math::TweeningMode tweeningMode /* = math::TweeningMode::EASE_IN */)
+TweenAlphaAnimation::TweenAlphaAnimation(std::shared_ptr<scene::SceneObject> sceneObjectTarget, const float targetAlpha, const float secsDuration, const uint8_t animationFlags /* = animation_flags::NONE */, const float secsDelay /* = 0.0f */, const std::function<float(const float)> tweeningFunc /* = math::LinearFunction */, const math::TweeningMode tweeningMode /* = math::TweeningMode::EASE_IN */)
     : BaseAnimation(animationFlags, secsDuration, secsDelay)
-    , mSceneObjectTargets(sceneObjectTargets)
-    , mInitAlpha(sceneObjectTargets.front()->mShaderFloatUniformValues.at(game_constants::CUSTOM_ALPHA_UNIFORM_NAME))
+    , mSceneObjectTarget(sceneObjectTarget)
+    , mInitAlpha(sceneObjectTarget->mShaderFloatUniformValues.at(game_constants::CUSTOM_ALPHA_UNIFORM_NAME))
     , mTargetAlpha(targetAlpha)
     , mTweeningFunc(tweeningFunc)
     , mTweeningMode(tweeningMode)
@@ -159,73 +124,36 @@ TweenAlphaAnimation::TweenAlphaAnimation(const SceneObjectTargets& sceneObjectTa
     assert(!IS_FLAG_SET(animation_flags::IGNORE_X_COMPONENT));
     assert(!IS_FLAG_SET(animation_flags::IGNORE_Y_COMPONENT));
     assert(!IS_FLAG_SET(animation_flags::IGNORE_Z_COMPONENT));
-    
-    for (auto sceneObject: sceneObjectTargets)
-    {
-        if (IS_FLAG_SET(animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT))
-        {
-            mSceneObjectAlphaOffsets.emplace_back(sceneObject->mShaderFloatUniformValues.at(game_constants::CUSTOM_ALPHA_UNIFORM_NAME) - sceneObjectTargets.front()->mShaderFloatUniformValues.at(game_constants::CUSTOM_ALPHA_UNIFORM_NAME));
-        }
-        else
-        {
-            mSceneObjectAlphaOffsets.emplace_back(0.0f);
-        }
-    }
 }
 
 AnimationUpdateResult TweenAlphaAnimation::VUpdate(const float dtMillis)
 {
     auto animationUpdateResult = BaseAnimation::VUpdate(dtMillis);
-    
-    for (size_t i = 0; i < mSceneObjectTargets.size(); ++i)
-    {
-        auto sceneObject = mSceneObjectTargets.at(i);
-        auto offset = mSceneObjectAlphaOffsets.at(i);
-        
-        sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = math::Lerp(mInitAlpha, mTargetAlpha, math::TweenValue(mAnimationT, mTweeningFunc, mTweeningMode)) + offset;
-    }
-    
+    mSceneObjectTarget->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = math::Lerp(mInitAlpha, mTargetAlpha, math::TweenValue(mAnimationT, mTweeningFunc, mTweeningMode));
     return animationUpdateResult;
 }
 
 ///------------------------------------------------------------------------------------------------
 
-BezierCurveAnimation::BezierCurveAnimation(const SceneObjectTargets& sceneObjectTargets, const math::BezierCurve& curve, const float secsDuration, const uint8_t animationFlags /* = animation_flags::NONE */, const float secsDelay /* = 0.0f */)
+BezierCurveAnimation::BezierCurveAnimation(std::shared_ptr<scene::SceneObject> sceneObjectTarget, const math::BezierCurve& curve, const float secsDuration, const uint8_t animationFlags /* = animation_flags::NONE */, const float secsDelay /* = 0.0f */)
     : BaseAnimation(animationFlags, secsDuration, secsDelay)
-    , mSceneObjectTargets(sceneObjectTargets)
+    , mSceneObjectTarget(sceneObjectTarget)
     , mCurve(curve)
 {
-    for (auto sceneObject: sceneObjectTargets)
-    {
-        if (IS_FLAG_SET(animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT))
-        {
-            mSceneObjectPositionOffsets.emplace_back(sceneObject->mPosition - sceneObjectTargets.front()->mPosition);
-        }
-        else
-        {
-            mSceneObjectPositionOffsets.emplace_back(glm::vec3(0.0f));
-        }
-    }
 }
 
 AnimationUpdateResult BezierCurveAnimation::VUpdate(const float dtMillis)
 {
     auto animationUpdateResult = BaseAnimation::VUpdate(dtMillis);
     
-    for (size_t i = 0; i < mSceneObjectTargets.size(); ++i)
-    {
-        auto sceneObject = mSceneObjectTargets.at(i);
-        auto offset = mSceneObjectPositionOffsets.at(i);
-        
-        float x = sceneObject->mPosition.x;
-        float z = sceneObject->mPosition.z;
-        float y = sceneObject->mPosition.y;
-        
-        sceneObject->mPosition = mCurve.ComputePointForT(mAnimationT);
-        sceneObject->mPosition.z = IS_FLAG_SET(animation_flags::IGNORE_Z_COMPONENT) ? z : sceneObject->mPosition.z + offset.z;
-        sceneObject->mPosition.x = IS_FLAG_SET(animation_flags::IGNORE_X_COMPONENT) ? x : sceneObject->mPosition.x + offset.x;
-        sceneObject->mPosition.y = IS_FLAG_SET(animation_flags::IGNORE_Y_COMPONENT) ? y : sceneObject->mPosition.y + offset.y;
-    }
+    float x = mSceneObjectTarget->mPosition.x;
+    float z = mSceneObjectTarget->mPosition.z;
+    float y = mSceneObjectTarget->mPosition.y;
+    
+    mSceneObjectTarget->mPosition = mCurve.ComputePointForT(mAnimationT);
+    mSceneObjectTarget->mPosition.z = IS_FLAG_SET(animation_flags::IGNORE_Z_COMPONENT) ? z : mSceneObjectTarget->mPosition.z;
+    mSceneObjectTarget->mPosition.x = IS_FLAG_SET(animation_flags::IGNORE_X_COMPONENT) ? x : mSceneObjectTarget->mPosition.x;
+    mSceneObjectTarget->mPosition.y = IS_FLAG_SET(animation_flags::IGNORE_Y_COMPONENT) ? y : mSceneObjectTarget->mPosition.y;
     
     return animationUpdateResult;
 }

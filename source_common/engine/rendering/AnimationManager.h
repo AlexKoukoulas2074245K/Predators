@@ -48,6 +48,9 @@ private:
     };
     
     std::vector<AnimationEntry> mAnimations;
+    std::vector<AnimationEntry> mAnimationsToAdd;
+    std::vector<strutils::StringId> mAnimationNamesToRemove;
+    bool mAnimationContainerLocked = false;
 };
 
 ///------------------------------------------------------------------------------------------------

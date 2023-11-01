@@ -56,6 +56,8 @@ private:
         std::vector<strutils::StringId>& samplerNamesInOrder
     ) const;
     
+    void DumpFinalShaderContents(const std::string& vertexShaderContents, const std::string& fragmentShaderContents, const std::string& resourcePath) const;
+    
 private:
     std::string mGlslVersion;
 };

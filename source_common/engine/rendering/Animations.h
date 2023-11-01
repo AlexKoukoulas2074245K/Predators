@@ -25,10 +25,9 @@ namespace scene { struct SceneObject; }
 namespace animation_flags
 {
     static constexpr uint8_t NONE                            = 0x0;
-    static constexpr uint8_t INITIAL_OFFSET_BASED_ADJUSTMENT = 0x1;
-    static constexpr uint8_t IGNORE_Z_COMPONENT              = 0x2;
-    static constexpr uint8_t IGNORE_X_COMPONENT              = 0x4;
-    static constexpr uint8_t IGNORE_Y_COMPONENT              = 0x8;
+    static constexpr uint8_t IGNORE_Z_COMPONENT              = 0x1;
+    static constexpr uint8_t IGNORE_X_COMPONENT              = 0x2;
+    static constexpr uint8_t IGNORE_Y_COMPONENT              = 0x4;
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -70,24 +69,23 @@ protected:
     float mAnimationT;
 };
 
-using SceneObjectTargets = std::vector<std::shared_ptr<scene::SceneObject>>;
-
 ///------------------------------------------------------------------------------------------------
 
 class TweenPositionScaleAnimation final: public BaseAnimation
 {
 public:
-    TweenPositionScaleAnimation(const SceneObjectTargets& sceneObjectTargets, const glm::vec3& targetPosition, const glm::vec3& targetScale, const float secsDuration, const uint8_t animationFlags = animation_flags::NONE, const float secsDelay = 0.0f, const std::function<float(const float)> tweeningFunc = math::LinearFunction , const math::TweeningMode tweeningMode = math::TweeningMode::EASE_IN);
+    TweenPositionScaleAnimation(std::shared_ptr<scene::SceneObject> sceneObjectTarget, const glm::vec3& targetPosition, const glm::vec3& targetScale, const float secsDuration, const uint8_t animationFlags = animation_flags::NONE, const float secsDelay = 0.0f, const std::function<float(const float)> tweeningFunc = math::LinearFunction , const math::TweeningMode tweeningMode = math::TweeningMode::EASE_IN);
     AnimationUpdateResult VUpdate(const float dtMillis);
     
 private:
-    SceneObjectTargets mSceneObjectTargets;
+    std::shared_ptr<scene::SceneObject> mSceneObjectTarget;
     const std::function<float(const float)> mTweeningFunc;
     const math::TweeningMode mTweeningMode;
-    std::vector<glm::vec3> mInitScales;
-    std::vector<glm::vec3> mTargetScales;
-    std::vector<glm::vec3> mInitPositions;
-    std::vector<glm::vec3> mTargetPositions;
+    const glm::vec3 mInitPosition;
+    const glm::vec3 mTargetPosition;
+    const glm::vec3 mInitScale;
+    const glm::vec3 mTargetScale;
+    
 };
 
 ///------------------------------------------------------------------------------------------------
@@ -95,16 +93,15 @@ private:
 class TweenRotationAnimation final: public BaseAnimation
 {
 public:
-    TweenRotationAnimation(const SceneObjectTargets& sceneObjectTargets, const glm::vec3& targetPosition, const float secsDuration, const uint8_t animationFlags = animation_flags::NONE, const float secsDelay = 0.0f, const std::function<float(const float)> tweeningFunc = math::LinearFunction , const math::TweeningMode tweeningMode = math::TweeningMode::EASE_IN);
+    TweenRotationAnimation(std::shared_ptr<scene::SceneObject> sceneObjectTarget, const glm::vec3& targetPosition, const float secsDuration, const uint8_t animationFlags = animation_flags::NONE, const float secsDelay = 0.0f, const std::function<float(const float)> tweeningFunc = math::LinearFunction , const math::TweeningMode tweeningMode = math::TweeningMode::EASE_IN);
     AnimationUpdateResult VUpdate(const float dtMillis);
     
 private:
-    SceneObjectTargets mSceneObjectTargets;
+    std::shared_ptr<scene::SceneObject> mSceneObjectTarget;
     const glm::vec3 mInitRotation;
     const glm::vec3 mTargetRotation;
     const std::function<float(const float)> mTweeningFunc;
     const math::TweeningMode mTweeningMode;
-    std::vector<glm::vec3> mSceneObjectRotationOffsets;
 };
 
 ///------------------------------------------------------------------------------------------------
@@ -113,16 +110,15 @@ private:
 class TweenAlphaAnimation final: public BaseAnimation
 {
 public:
-    TweenAlphaAnimation(const SceneObjectTargets& sceneObjectTargets, const float targetAlpha, const float secsDuration, const uint8_t animationFlags = animation_flags::NONE, const float secsDelay = 0.0f, const std::function<float(const float)> tweeningFunc = math::LinearFunction , const math::TweeningMode tweeningMode = math::TweeningMode::EASE_IN);
+    TweenAlphaAnimation(std::shared_ptr<scene::SceneObject> sceneObjectTarget, const float targetAlpha, const float secsDuration, const uint8_t animationFlags = animation_flags::NONE, const float secsDelay = 0.0f, const std::function<float(const float)> tweeningFunc = math::LinearFunction , const math::TweeningMode tweeningMode = math::TweeningMode::EASE_IN);
     AnimationUpdateResult VUpdate(const float dtMillis);
     
 private:
-    SceneObjectTargets mSceneObjectTargets;
+    std::shared_ptr<scene::SceneObject> mSceneObjectTarget;
     const float mInitAlpha;
     const float mTargetAlpha;
     const std::function<float(const float)> mTweeningFunc;
     const math::TweeningMode mTweeningMode;
-    std::vector<float> mSceneObjectAlphaOffsets;
 };
 
 ///------------------------------------------------------------------------------------------------
@@ -130,13 +126,12 @@ private:
 class BezierCurveAnimation final: public BaseAnimation
 {
 public:
-    BezierCurveAnimation(const SceneObjectTargets& targets, const math::BezierCurve& curve, const float secsDuration, const uint8_t animationFlags = animation_flags::NONE, const float secsDelay = 0.0f);
+    BezierCurveAnimation(std::shared_ptr<scene::SceneObject> sceneObjectTarget, const math::BezierCurve& curve, const float secsDuration, const uint8_t animationFlags = animation_flags::NONE, const float secsDelay = 0.0f);
     AnimationUpdateResult VUpdate(const float dtMillis);
     
 private:
-    SceneObjectTargets mSceneObjectTargets;
+    std::shared_ptr<scene::SceneObject> mSceneObjectTarget;
     math::BezierCurve mCurve;
-    std::vector<glm::vec3> mSceneObjectPositionOffsets;
     
 };
 

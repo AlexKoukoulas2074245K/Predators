@@ -91,16 +91,16 @@ void CardAttackGameAction::VInitAnimation()
     
     auto cardSoWrapper = mGameSessionManager->GetBoardCardSoWrappers().at(attackingPayerIndex).at(cardIndex);
     
-    mOriginalCardPosition = cardSoWrapper->mSceneObjectComponents[0]->mPosition;
-    mOriginalCardScale = cardSoWrapper->mSceneObjectComponents[0]->mScale;
+    mOriginalCardPosition = cardSoWrapper->mSceneObject->mPosition;
+    mOriginalCardScale = cardSoWrapper->mSceneObject->mScale;
     
     // Enlargement animation
     {
         auto targetScale = mOriginalCardScale * 1.2f;
-        auto targetPos = cardSoWrapper->mSceneObjectComponents[0]->mPosition;
+        auto targetPos = cardSoWrapper->mSceneObject->mPosition;
         targetPos.z += ATTACKING_CARD_ANIMATION_ELEVATED_Z;
         
-        animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObjectComponents, targetPos, targetScale, ATTACKING_CARD_SHORT_ANIMATION_DURATION, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [&]()
+        animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObject, targetPos, targetScale, ATTACKING_CARD_SHORT_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [&]()
         {
             mPendingAnimations--;
             
@@ -110,10 +110,10 @@ void CardAttackGameAction::VInitAnimation()
                 auto attackingPayerIndex = std::stoi(mExtraActionParams.at(PLAYER_INDEX_PARAM));
                 auto cardSoWrapper = mGameSessionManager->GetBoardCardSoWrappers().at(attackingPayerIndex).at(cardIndex);
                 
-                auto targetPos = cardSoWrapper->mSceneObjectComponents[0]->mPosition;
+                auto targetPos = cardSoWrapper->mSceneObject->mPosition;
                 targetPos.y += attackingPayerIndex == game_constants::LOCAL_PLAYER_INDEX ? ATTACKING_CARD_ANIMATION_Y_OFFSET : - ATTACKING_CARD_ANIMATION_Y_OFFSET;
                 
-                animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObjectComponents, targetPos, cardSoWrapper->mSceneObjectComponents.front()->mScale, ATTACKING_CARD_SHORT_ANIMATION_DURATION, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [&]()
+                animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObject, targetPos, cardSoWrapper->mSceneObject->mScale, ATTACKING_CARD_SHORT_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [&]()
                 {
                     mPendingAnimations--;
                     
@@ -125,7 +125,7 @@ void CardAttackGameAction::VInitAnimation()
                     
                     rendering::CreateParticleEmitterAtPosition
                     (
-                        glm::vec3(cardSoWrapper->mSceneObjectComponents.front()->mPosition.x, cardSoWrapper->mSceneObjectComponents.front()->mPosition.y, ATTACKING_CARD_PARTICLE_EMITTER_Z), // pos
+                        glm::vec3(cardSoWrapper->mSceneObject->mPosition.x, cardSoWrapper->mSceneObject->mPosition.y, ATTACKING_CARD_PARTICLE_EMITTER_Z), // pos
                         ATTACKING_CARD_PARTICLE_LIFETIME_RANGE,         // particleLifetimeRange
                         ATTACKING_CARD_PARTICLE_X_OFFSET_RANGE,         // particlePositionXOffsetRange
                         ATTACKING_CARD_PARTICLE_Y_OFFSET_RANGE,         // particlePositionYOffsetRange
@@ -136,7 +136,7 @@ void CardAttackGameAction::VInitAnimation()
                         particle_flags::PREFILLED                  // particleFlags
                      );
                     
-                    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObjectComponents, mOriginalCardPosition, mOriginalCardScale, ATTACKING_CARD_LONG_ANIMATION_DURATION, animation_flags::INITIAL_OFFSET_BASED_ADJUSTMENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [&]()
+                    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObject, mOriginalCardPosition, mOriginalCardScale, ATTACKING_CARD_LONG_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [&]()
                     {
                         mPendingAnimations--;
                     });

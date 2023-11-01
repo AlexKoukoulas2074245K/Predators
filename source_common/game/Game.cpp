@@ -126,27 +126,27 @@ void Game::Init()
 
 void Game::Update(const float dtMillis)
 {
-    auto& systemsEngine = CoreSystemsEngine::GetInstance();
-    auto activeScene = systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
-
-    if (systemsEngine.GetInputStateManager().VButtonTapped(input::Button::MAIN_BUTTON))
-    {
-        auto touchPos = systemsEngine.GetInputStateManager().VGetPointingPosInWorldSpace(activeScene->GetCamera().GetViewMatrix(), activeScene->GetCamera().GetProjMatrix());
-
-        rendering::CreateParticleEmitterAtPosition
-        (
-            glm::vec3(touchPos.x, touchPos.y, 1.0f),   // pos
-            {0.5f, 1.0f},                              // particleLifetimeRange
-            {-0.003f, 0.003f},                         // particlePositionXOffsetRange
-            {-0.003f, 0.003f},                         // particlePositionYOffsetRange
-            {0.002f, 0.004f},                          // particleSizeRange
-            10,                                        // particleCount
-            "smoke.png",                               // particleTextureFilename
-            *systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE), // scene
-            particle_flags::PREFILLED                  // particleFlags
-         );
-    }
-    
+//    auto& systemsEngine = CoreSystemsEngine::GetInstance();
+//    auto activeScene = systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+//
+//    if (systemsEngine.GetInputStateManager().VButtonTapped(input::Button::MAIN_BUTTON))
+//    {
+//        auto touchPos = systemsEngine.GetInputStateManager().VGetPointingPosInWorldSpace(activeScene->GetCamera().GetViewMatrix(), activeScene->GetCamera().GetProjMatrix());
+//
+//        rendering::CreateParticleEmitterAtPosition
+//        (
+//            glm::vec3(touchPos.x, touchPos.y, 1.0f),   // pos
+//            {0.5f, 1.0f},                              // particleLifetimeRange
+//            {-0.003f, 0.003f},                         // particlePositionXOffsetRange
+//            {-0.003f, 0.003f},                         // particlePositionYOffsetRange
+//            {0.002f, 0.004f},                          // particleSizeRange
+//            10,                                        // particleCount
+//            "smoke.png",                               // particleTextureFilename
+//            *systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE), // scene
+//            particle_flags::PREFILLED                  // particleFlags
+//         );
+//    }
+//    
     mGameSessionManager.Update(dtMillis);
 }
 

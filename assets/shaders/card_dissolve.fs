@@ -18,8 +18,7 @@ uniform int active_light_count;
 uniform int interactive_mode;
 out vec4 frag_color;
 
-const vec4 INTERACTIVE_COLOR = vec4(1.0f, 0.0f, 1.0f, 1.0f);
-const float INTERACTIVE_COLOR_DISTANCE_THRESHOLD = 0.4f;
+#include "card_interactive.inc"
 
 void main()
 {
@@ -27,15 +26,7 @@ void main()
     float final_uv_y = 1.0 - uv_frag.y;
     frag_color = texture(tex, vec2(final_uv_x, final_uv_y));
     
-    if (distance(frag_color, INTERACTIVE_COLOR) < INTERACTIVE_COLOR_DISTANCE_THRESHOLD)
-    {
-        switch(interactive_mode)
-        {
-            case 0: frag_color = vec4(1.0f, 1.0f, 1.0f, 1.0f); break;
-            case 1: frag_color = vec4(0.7f, 0.0f, 0.0f, 1.0f); break;
-            case 2: frag_color = vec4(0.0f, 0.8f, 0.0f, 1.0f); break;
-        }
-    }
+    frag_color = calculate_interactive_color(frag_color, interactive_mode);
     
     float distance_uv_x = (frag_unprojected_pos.x - card_origin_x) * 13.0f;
     float distance_uv_y = (frag_unprojected_pos.y - card_origin_y) * 13.0f;

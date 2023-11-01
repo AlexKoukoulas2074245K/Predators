@@ -18,14 +18,12 @@ namespace card_utils
 
 ///------------------------------------------------------------------------------------------------
 
-static const strutils::StringId CARD_INTERACTIVE_MODE_UNIFORM_NAME = strutils::StringId("interactive_mode");
-
 static const std::string CARD_FRAME_TEXTURE_FILE_NAME = "card_frame.png";
 static const std::string CARD_BACK_TEXTURE_FILE_NAME = "card_back.png";
-static const std::string CARD_INTERACTIVE_SHADER_FILE_NAME = "card_interactive_elements.vs";
+static const std::string CARD_SHADER_FILE_NAME = "card.vs";
 static const std::string CARD_DAMAGE_ICON_TEXTURE_FILE_NAME = "damage_icon.png";
 static const std::string CARD_WEIGHT_ICON_TEXTURE_FILE_NAME = "feather_icon.png";
-static const std::string GENERATED_R2T_NAME_PREFIX = "generated_card_texture_id=";
+static const std::string GENERATED_R2T_NAME_PREFIX = "generated_card_texture_player_";
 
 static const glm::vec3 RENDER_TO_TEXTURE_UPSCALE_FACTOR = {-1.365f, 1.256f, 1.0f};
 
@@ -77,57 +75,31 @@ glm::vec3 CalculateBoardCardPosition(const int cardIndex, const int playerCardCo
 
 ///------------------------------------------------------------------------------------------------
 
-std::vector<strutils::StringId> GetCardComponentSceneObjectNames(const std::string& cardComponentsNamePrefix, const CardOrientation cardOrientation)
-{
-    if (cardOrientation == CardOrientation::BACK_FACE)
-    {
-        return std::vector<strutils::StringId>
-        {
-            strutils::StringId(cardComponentsNamePrefix + game_constants::CARD_BASE_SO_NAME_POST_FIX)
-        };
-    }
-    else
-    {
-        return std::vector<strutils::StringId>
-        {
-            strutils::StringId(cardComponentsNamePrefix + game_constants::CARD_BASE_SO_NAME_POST_FIX),
-            strutils::StringId(cardComponentsNamePrefix + game_constants::CARD_PORTRAIT_SO_NAME_POST_FIX),
-            strutils::StringId(cardComponentsNamePrefix + game_constants::CARD_DAMAGE_ICON_SO_NAME_POST_FIX),
-            strutils::StringId(cardComponentsNamePrefix + game_constants::CARD_DAMAGE_TEXT_SO_NAME_POST_FIX),
-            strutils::StringId(cardComponentsNamePrefix + game_constants::CARD_WEIGHT_ICON_SO_NAME_POST_FIX),
-            strutils::StringId(cardComponentsNamePrefix + game_constants::CARD_WEIGHT_TEXT_SO_NAME_POST_FIX),
-            strutils::StringId(cardComponentsNamePrefix + game_constants::CARD_NAME_SO_NAME_POST_FIX),
-        };
-    }
-}
-
-///------------------------------------------------------------------------------------------------
-
-std::shared_ptr<CardSoWrapper> CreateCardSoWrapper(const CardData* cardData, const glm::vec3& position, const std::string& cardComponentsNamePrefix, const CardOrientation cardOrientation, const bool forRemotePlayer, const bool canCardBePlayed, scene::Scene& scene)
+std::shared_ptr<CardSoWrapper> CreateCardSoWrapper(const CardData* cardData, const glm::vec3& position, const std::string& cardNamePrefix, const CardOrientation cardOrientation, const bool forRemotePlayer, const bool canCardBePlayed, scene::Scene& scene)
 {
     auto cardSoWrapper = std::make_shared<CardSoWrapper>();
-    auto& cardComponents = cardSoWrapper->mSceneObjectComponents;
-    
+ 
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
     auto& resService = systemsEngine.GetResourceLoadingService();
     
-    const auto& sceneObjectComponentNames = GetCardComponentSceneObjectNames(cardComponentsNamePrefix, cardOrientation);
+    const auto& sceneObjectName = strutils::StringId(cardNamePrefix + game_constants::CARD_BASE_SO_NAME_POST_FIX);
     
     if (cardOrientation == CardOrientation::BACK_FACE)
     {
         // Create card back
-        cardComponents.push_back(scene.CreateSceneObject(sceneObjectComponentNames[0]));
-        cardComponents.back()->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CARD_BACK_TEXTURE_FILE_NAME);
-        cardComponents.back()->mScale.x = cardComponents.back()->mScale.y = game_constants::IN_GAME_CARD_BASE_SCALE;
-        cardComponents.back()->mBoundingRectMultiplier.x = game_constants::CARD_BOUNDING_RECT_X_MULTIPLIER;
-        cardComponents.back()->mPosition = position;
+        cardSoWrapper->mSceneObject = scene.CreateSceneObject(sceneObjectName);
+        cardSoWrapper->mSceneObject->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CARD_BACK_TEXTURE_FILE_NAME);
+        cardSoWrapper->mSceneObject->mScale.x = cardSoWrapper->mSceneObject->mScale.y = game_constants::IN_GAME_CARD_BASE_SCALE;
+        cardSoWrapper->mSceneObject->mBoundingRectMultiplier.x = game_constants::CARD_BOUNDING_RECT_X_MULTIPLIER;
+        cardSoWrapper->mSceneObject->mPosition = position;
     }
     else
     {
         assert(cardData);
         
         // Create card base
-        cardComponents.push_back(scene.CreateSceneObject(sceneObjectComponentNames[0]));
+        std::vector<std::shared_ptr<scene::SceneObject>> cardComponents;
+        cardComponents.push_back(scene.CreateSceneObject(sceneObjectName));
         cardComponents.back()->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CARD_FRAME_TEXTURE_FILE_NAME);
         cardComponents.back()->mScale.x = cardComponents.back()->mScale.y = game_constants::IN_GAME_CARD_BASE_SCALE;
         cardComponents.back()->mBoundingRectMultiplier.x = game_constants::CARD_BOUNDING_RECT_X_MULTIPLIER;
@@ -135,7 +107,7 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper(const CardData* cardData, con
         cardComponents.back()->mRotation.z = math::PI;
         
         // Create portrait
-        cardComponents.push_back(scene.CreateSceneObject(sceneObjectComponentNames[1]));
+        cardComponents.push_back(std::make_shared<scene::SceneObject>());
         cardComponents.back()->mTextureResourceId = cardData->mCardTextureResourceId;
         cardComponents.back()->mShaderResourceId = cardData->mCardShaderResourceId;
         cardComponents.back()->mScale.x = cardComponents.back()->mScale.y = game_constants::IN_GAME_CARD_PORTRAIT_SCALE;
@@ -145,7 +117,7 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper(const CardData* cardData, con
         cardComponents.back()->mPosition.z += game_constants::CARD_COMPONENT_Z_OFFSET;
         
         // Create damage icon
-        cardComponents.push_back(scene.CreateSceneObject(sceneObjectComponentNames[2]));
+        cardComponents.push_back(std::make_shared<scene::SceneObject>());
         cardComponents.back()->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CARD_DAMAGE_ICON_TEXTURE_FILE_NAME);
         cardComponents.back()->mScale.x = cardComponents.back()->mScale.y = game_constants::IN_GAME_CARD_PROPERTY_ICON_SCALE;
         cardComponents.back()->mBoundingRectMultiplier.x = game_constants::CARD_BOUNDING_RECT_X_MULTIPLIER;
@@ -155,7 +127,7 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper(const CardData* cardData, con
         cardComponents.back()->mPosition.z += 2 * game_constants::CARD_COMPONENT_Z_OFFSET;
         
         // Create damage
-        cardComponents.push_back(scene.CreateSceneObject(sceneObjectComponentNames[3]));
+        cardComponents.push_back(std::make_shared<scene::SceneObject>());
         scene::TextSceneObjectData damageTextData;
         damageTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
         damageTextData.mText = std::to_string(cardData->mCardDamage);
@@ -167,7 +139,7 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper(const CardData* cardData, con
         cardComponents.back()->mPosition.z += 3 * game_constants::CARD_COMPONENT_Z_OFFSET;
         
         // Create weight icon
-        cardComponents.push_back(scene.CreateSceneObject(sceneObjectComponentNames[4]));
+        cardComponents.push_back(std::make_shared<scene::SceneObject>());
         cardComponents.back()->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CARD_WEIGHT_ICON_TEXTURE_FILE_NAME);
         cardComponents.back()->mScale.x = cardComponents.back()->mScale.y = game_constants::IN_GAME_CARD_PROPERTY_ICON_SCALE;
         cardComponents.back()->mBoundingRectMultiplier.x = game_constants::CARD_BOUNDING_RECT_X_MULTIPLIER;
@@ -177,7 +149,7 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper(const CardData* cardData, con
         cardComponents.back()->mPosition.z += 2 * game_constants::CARD_COMPONENT_Z_OFFSET;
         
         // Create weight
-        cardComponents.push_back(scene.CreateSceneObject(sceneObjectComponentNames[5]));
+        cardComponents.push_back(std::make_shared<scene::SceneObject>());
         scene::TextSceneObjectData weightTextData;
         weightTextData.mFontName = game_constants::FONT_PLACEHOLDER_NAME;
         weightTextData.mText = std::to_string(cardData->mCardWeight);
@@ -189,7 +161,7 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper(const CardData* cardData, con
         cardComponents.back()->mPosition.z += 3 * game_constants::CARD_COMPONENT_Z_OFFSET;
         
         // Create card name
-        cardComponents.push_back(scene.CreateSceneObject(sceneObjectComponentNames[6]));
+        cardComponents.push_back(std::make_shared<scene::SceneObject>());
         scene::TextSceneObjectData cardNameTextData;
         cardNameTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
         cardNameTextData.mText = cardData->mCardName;
@@ -210,11 +182,13 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper(const CardData* cardData, con
         cardComponents.back()->mPosition.y += game_constants::IN_GAME_CARD_NAME_Y_OFFSET;
         cardComponents.back()->mPosition.z += game_constants::CARD_COMPONENT_Z_OFFSET;
         
-        rendering::CollateSceneObjectsIntoOne(GENERATED_R2T_NAME_PREFIX + std::to_string(cardData->mCardId), position, cardComponents, scene);
-        cardComponents.front()->mShaderResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CARD_INTERACTIVE_SHADER_FILE_NAME);
-        cardComponents.front()->mShaderIntUniformValues[CARD_INTERACTIVE_MODE_UNIFORM_NAME] = forRemotePlayer ? 0 : (canCardBePlayed ? 2 : 1);
+        rendering::CollateSceneObjectsIntoOne(GENERATED_R2T_NAME_PREFIX + (forRemotePlayer ? "0_id_" : "1_id_") + std::to_string(cardData->mCardId), position, cardComponents, scene);
+        cardComponents.front()->mShaderResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CARD_SHADER_FILE_NAME);
+        cardComponents.front()->mShaderIntUniformValues[game_constants::CARD_INTERACTIVE_MODE_UNIFORM_NAME] = forRemotePlayer ? game_constants::CARD_INTERACTIVE_MODE_DEFAULT : (canCardBePlayed ? game_constants::CARD_INTERACTIVE_MODE_INTERACTIVE : game_constants::CARD_INTERACTIVE_MODE_INTERACTIVE);
         cardComponents.front()->mPosition += position;
         cardComponents.front()->mScale *= RENDER_TO_TEXTURE_UPSCALE_FACTOR;
+        
+        cardSoWrapper->mSceneObject = cardComponents.front();
     }
     
     cardSoWrapper->mCardData = cardData;

@@ -62,7 +62,6 @@ void CollateSceneObjectsIntoOne(const std::string& dynamicTextureResourceName, c
     
     for (auto iter = sceneObjects.begin() + 1; iter != sceneObjects.end();)
     {
-        scene.RemoveSceneObject((*iter)->mName);
         iter = sceneObjects.erase(iter);
     }
     

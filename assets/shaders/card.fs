@@ -14,8 +14,7 @@ uniform int active_light_count;
 uniform int interactive_mode;
 out vec4 frag_color;
 
-const vec4 INTERACTIVE_COLOR = vec4(1.0f, 0.0f, 1.0f, 1.0f);
-const float INTERACTIVE_COLOR_DISTANCE_THRESHOLD = 0.4f;
+#include "card_interactive.inc"
 
 void main()
 {
@@ -25,15 +24,7 @@ void main()
 
     if (frag_color.a < 0.1) discard;
     
-    if (distance(frag_color, INTERACTIVE_COLOR) < INTERACTIVE_COLOR_DISTANCE_THRESHOLD)
-    {
-        switch(interactive_mode)
-        {
-            case 0: frag_color = vec4(1.0f, 1.0f, 1.0f, 1.0f); break;
-            case 1: frag_color = vec4(0.7f, 0.0f, 0.0f, 1.0f); break;
-            case 2: frag_color = vec4(0.0f, 0.8f, 0.0f, 1.0f); break;
-        }
-    }
+    frag_color = calculate_interactive_color(frag_color, interactive_mode);
     
     if (affected_by_light)
     {

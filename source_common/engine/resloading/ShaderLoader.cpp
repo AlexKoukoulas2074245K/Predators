@@ -17,7 +17,7 @@
 
 ///------------------------------------------------------------------------------------------------
 
-//#define DEBUG_SHADER_LOADING
+#define DEBUG_SHADER_LOADING
 
 ///------------------------------------------------------------------------------------------------
 
@@ -45,10 +45,10 @@ void ShaderLoader::VInitialize()
 
 std::unique_ptr<IResource> ShaderLoader::VCreateAndLoadResource(const std::string& resourcePathWithExtension) const
 {
-        // Since the shader loading is signalled by the .vs or .fs extension, we need to trim it here after
+    // Since the shader loading is signalled by the .vs or .fs extension, we need to trim it here after
     // being added by the ResourceLoadingService prior to this call
     const auto resourcePath = resourcePathWithExtension.substr(0, resourcePathWithExtension.size() - 3);
-
+    
     // Generate vertex shader id
     const auto vertexShaderId = GL_NO_CHECK_CALL(glCreateShader(GL_VERTEX_SHADER));
     
@@ -57,12 +57,8 @@ std::unique_ptr<IResource> ShaderLoader::VCreateAndLoadResource(const std::strin
     PrependPreprocessorVars(vertexShaderFileContents);
     ReplaceIncludeDirectives(vertexShaderFileContents);
     
-#if defined(DEBUG_SHADER_LOADING)
-    logging::Log(logging::LogType::INFO, "Postprocessed contents of %s%s", (resourcePath + VERTEX_SHADER_FILE_EXTENSION).c_str(), vertexShaderFileContents.c_str());
-#endif
-    
     const char* vertexShaderFileContentsPtr = vertexShaderFileContents.c_str();
-
+    
     // Compile vertex shader
     GL_CALL(glShaderSource(vertexShaderId, 1, &vertexShaderFileContentsPtr, nullptr));
     GL_CALL(glCompileShader(vertexShaderId));
@@ -94,7 +90,7 @@ std::unique_ptr<IResource> ShaderLoader::VCreateAndLoadResource(const std::strin
     ReplaceIncludeDirectives(fragmentShaderFileContents);
     
 #if defined(DEBUG_SHADER_LOADING)
-    logging::Log(logging::LogType::INFO, "Postprocessed contents of %s%s", (resourcePath + FRAGMENT_SHADER_FILE_EXTENSION).c_str(), fragmentShaderFileContents.c_str());
+    DumpFinalShaderContents(vertexShaderFileContents, fragmentShaderFileContents, resourcePath);
 #endif
     
     const char* fragmentShaderFileContentsPtr = fragmentShaderFileContents.c_str();
@@ -118,13 +114,13 @@ std::unique_ptr<IResource> ShaderLoader::VCreateAndLoadResource(const std::strin
         }
         logging::Log((containsError ? logging::LogType::ERROR : logging::LogType::WARNING), "%s Compiling Fragment Shader: %s\n%s", (containsError ? "Error" : "Warning"), resourcePath.c_str(), fragmentShaderInfoLog.c_str());
     }
-
+    
     // Link shader program
     const auto programId = GL_NO_CHECK_CALL(glCreateProgram());
     GL_CALL(glAttachShader(programId, vertexShaderId));
     GL_CALL(glAttachShader(programId, fragmentShaderId));
     GL_CALL(glLinkProgram(programId));
- 
+    
     // Destroy intermediate compiled shaders
     GL_CALL(glDetachShader(programId, vertexShaderId));
     GL_CALL(glDetachShader(programId, fragmentShaderId));
@@ -133,7 +129,7 @@ std::unique_ptr<IResource> ShaderLoader::VCreateAndLoadResource(const std::strin
     
     std::unordered_map<strutils::StringId, int, strutils::StringIdHasher> uniformArrayElementCounts;
     std::vector<strutils::StringId> samplerNamesInOrder;
-  
+    
     const auto uniformNamesToLocations = GetUniformNamesToLocationsMap(programId, resourcePath,  vertexShaderFileContents, fragmentShaderFileContents, uniformArrayElementCounts, samplerNamesInOrder);
     
     return std::make_unique<ShaderResource>(uniformNamesToLocations, uniformArrayElementCounts, samplerNamesInOrder, programId);
@@ -158,7 +154,7 @@ std::string ShaderLoader::ReadFileContents(const std::string& filePath) const
     file.seekg(0, std::ios::beg);
     
     contents.assign((std::istreambuf_iterator<char>(file)),
-               std::istreambuf_iterator<char>());
+                    std::istreambuf_iterator<char>());
     
     return contents;
 }
@@ -171,17 +167,17 @@ void ShaderLoader::PrependPreprocessorVars(std::string& shaderSource) const
     std::string platform = "#define WIN32\n";
     std::string version = "#version " + mGlslVersion + " core\n";
 #elif __APPLE__
-    #include <TargetConditionals.h>
-    #if TARGET_IPHONE_SIMULATOR
-        std::string platform = "#define IOS\n";
-        std::string version = "#version 300 core\n";
-    #elif TARGET_OS_IPHONE
-        std::string platform = "#define IOS\n";
-        std::string version = "#version 300 core\n";
-    #else //MAC
-        std::string platform = "#define MAC\n";
-        std::string version = "#version " + mGlslVersion + " core\n";
-    #endif
+#include <TargetConditionals.h>
+#if TARGET_IPHONE_SIMULATOR
+    std::string platform = "#define IOS\n";
+    std::string version = "#version 300 core\n";
+#elif TARGET_OS_IPHONE
+    std::string platform = "#define IOS\n";
+    std::string version = "#version 300 core\n";
+#else //MAC
+    std::string platform = "#define MAC\n";
+    std::string version = "#version " + mGlslVersion + " core\n";
+#endif
 #endif
     
     shaderSource = version + platform + shaderSource;
@@ -205,21 +201,21 @@ void ShaderLoader::ReplaceIncludeDirectives(std::string& shaderSource) const
             reconstructedSourceBuilder << '\n' << line;
         }
     }
-        
+    
     shaderSource = reconstructedSourceBuilder.str();
 }
 
 ///------------------------------------------------------------------------------------------------
 
 std::unordered_map<strutils::StringId, GLuint, strutils::StringIdHasher> ShaderLoader::GetUniformNamesToLocationsMap
-(
-    const GLuint programId,
-    const std::string& shaderName,
-    const std::string& vertexShaderFileContents,
-    const std::string& fragmentShaderFileContents,
-    std::unordered_map<strutils::StringId, int, strutils::StringIdHasher>& uniformArrayElementCounts,
-    std::vector<strutils::StringId>& samplerNamesInOrder
-) const
+ (
+  const GLuint programId,
+  const std::string& shaderName,
+  const std::string& vertexShaderFileContents,
+  const std::string& fragmentShaderFileContents,
+  std::unordered_map<strutils::StringId, int, strutils::StringIdHasher>& uniformArrayElementCounts,
+  std::vector<strutils::StringId>& samplerNamesInOrder
+  ) const
 {
     std::unordered_map<strutils::StringId, GLuint, strutils::StringIdHasher> uniformNamesToLocationsMap;
     
@@ -297,6 +293,29 @@ void ExtractUniformFromLine(const std::string& line, const std::string& shaderNa
         if (uniformLocation == -1)
         {
             logging::Log(logging::LogType::WARNING, "At %s, Unused uniform at location -1: %s", shaderName.c_str(), uniformName.c_str());
+        }
+    }
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ShaderLoader::DumpFinalShaderContents(const std::string& vertexShaderContents, const std::string& fragmentShaderContents, const std::string& resourcePath) const
+{
+    logging::Log(logging::LogType::INFO, "Postprocessed contents of %s", (resourcePath + VERTEX_SHADER_FILE_EXTENSION).c_str());
+    {
+        const auto vertexShaderContentsSplitByNewline = strutils::StringSplit(vertexShaderContents, '\n');
+        for (size_t i = 0; i < vertexShaderContentsSplitByNewline.size(); ++i)
+        {
+            logging::Log(logging::LogType::INFO, "%d) %s", i + 1, vertexShaderContentsSplitByNewline[i].c_str());
+        }
+    }
+    
+    logging::Log(logging::LogType::INFO, "Postprocessed contents of %s", (resourcePath + FRAGMENT_SHADER_FILE_EXTENSION).c_str());
+    {
+        const auto fragmentShaderContentsSplitByNewline = strutils::StringSplit(fragmentShaderContents, '\n');
+        for (size_t i = 0; i < fragmentShaderContentsSplitByNewline.size(); ++i)
+        {
+            logging::Log(logging::LogType::INFO, "%d) %s", i + 1, fragmentShaderContentsSplitByNewline[i].c_str());
         }
     }
 }

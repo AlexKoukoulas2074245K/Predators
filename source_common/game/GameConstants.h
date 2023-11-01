@@ -31,13 +31,7 @@ namespace game_constants
     inline const std::string TOP_PLAYER_BOARD_CARD_SO_NAME_PREFIX = "TOP_PLAYER_BOARD_CARD_";
     inline const std::string BOT_PLAYER_BOARD_CARD_SO_NAME_PREFIX = "BOT_PLAYER_BOARD_CARD_";
     inline const std::string CARD_FREE_MOVING_ANIMATION_NAME_PRE_FIX = "FREE_MOVING_CARD_";
-    inline const std::string CARD_BASE_SO_NAME_POST_FIX = "_CARD_BASE";
-    inline const std::string CARD_NAME_SO_NAME_POST_FIX = "_CARD_NAME";
-    inline const std::string CARD_PORTRAIT_SO_NAME_POST_FIX = "_CARD_PORTRAIT";
-    inline const std::string CARD_DAMAGE_ICON_SO_NAME_POST_FIX = "_CARD_DAMAGE_ICON";
-    inline const std::string CARD_DAMAGE_TEXT_SO_NAME_POST_FIX = "_CARD_DAMAGE";
-    inline const std::string CARD_WEIGHT_ICON_SO_NAME_POST_FIX = "_CARD_WEIGHT_ICON";
-    inline const std::string CARD_WEIGHT_TEXT_SO_NAME_POST_FIX = "_CARD_WEIGHT";
+    inline const std::string CARD_BASE_SO_NAME_POST_FIX = "_CARD";
 
     // SO Names
     inline const strutils::StringId TURN_POINTER_SCENE_OBJECT_NAME = strutils::StringId("TURN_POINTER");
@@ -51,10 +45,10 @@ namespace game_constants
     inline const strutils::StringId CUSTOM_ALPHA_UNIFORM_NAME = strutils::StringId("custom_alpha");
     inline const strutils::StringId TIME_UNIFORM_NAME = strutils::StringId("time");
     inline const strutils::StringId PERLIN_TIME_SPEED_UNIFORM_NAME = strutils::StringId("time_speed");
-    inline const strutils::StringId PERLIN_RESOLUTION_X_UNIFORM_NAME = strutils::StringId("perlin_resolution_x");
-    inline const strutils::StringId PERLIN_RESOLUTION_Y_UNIFORM_NAME = strutils::StringId("perlin_resolution_y");
+    inline const strutils::StringId PERLIN_RESOLUTION_UNIFORM_NAME = strutils::StringId("perlin_resolution");
     inline const strutils::StringId PERLIN_CLARITY_UNIFORM_NAME = strutils::StringId("perlin_clarity");
-    
+    inline const strutils::StringId CARD_INTERACTIVE_MODE_UNIFORM_NAME = strutils::StringId("interactive_mode");
+
     // Scenes
     inline const strutils::StringId IN_GAME_BATTLE_SCENE = strutils::StringId("BATTLE");
     
@@ -62,7 +56,9 @@ namespace game_constants
     inline const int REMOTE_PLAYER_INDEX = 0;
     inline const int LOCAL_PLAYER_INDEX = 1;
     inline const int MAX_BOARD_CARDS = 5;
-
+    inline const int CARD_INTERACTIVE_MODE_DEFAULT = 0;
+    inline const int CARD_INTERACTIVE_MODE_INTERACTIVE = 1;
+    inline const int CARD_INTERACTIVE_MODE_NONINTERACTIVE = 2;
     inline const int IN_GAME_CARD_PUSH_THRESHOLD = 4;
     inline const float CARD_COMPONENT_Z_OFFSET = 0.1f;
     inline const float CARD_BOUNDING_RECT_X_MULTIPLIER = 0.5f;

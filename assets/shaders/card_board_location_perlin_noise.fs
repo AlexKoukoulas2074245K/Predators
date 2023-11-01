@@ -11,35 +11,12 @@ uniform float point_light_powers[32];
 uniform float time;
 uniform float time_speed;
 uniform float custom_alpha;
-uniform float perlin_resolution_x;
-uniform float perlin_resolution_y;
+uniform float perlin_resolution;
 uniform bool affected_by_light;
 uniform int active_light_count;
 out vec4 frag_color;
 
-vec2 randomGradient(vec2 p)
-{
-    p = p + 0.02f;
-    float x = dot(p, vec2(0.1234f, 0.2345f));
-    float y = dot(p, vec2(0.2345f, 0.3456f));
-    vec2 gradient = vec2(x, y);
-    gradient = sin(gradient);
-    gradient = gradient * 43.7585453f;//43758.5453f;
-    
-    // part 4.5 - update noise function with time
-    gradient = sin(gradient + time * time_speed);
-    return gradient;
-}
-
-vec2 cubic(vec2 p)
-{
-    return p * p * (3.0 - p * 2.0);
-}
-
-vec2 quintic(vec2 p)
-{
-    return p * p * p * (10.0 + p * (-15.0 + p * 6.0));
-}
+#include "perlin_noise.inc"
 
 void main()
 {
@@ -49,67 +26,13 @@ void main()
 
     if (mask_color.r < 0.99) discard;
     
-    // part 0 - basic shader setup
-    vec2 res = vec2(perlin_resolution_x, perlin_resolution_y);
-    vec2 uv = gl_FragCoord.xy/res;
-    
-    // uncomment for final final demo
-    uv = gl_FragCoord.xy/res.y;
-    
-    vec3 black = vec3(0.0);
-    vec3 white = vec3(1.0);
-    vec3 color = black;
-    
-    // part 1 - set up a grid of cells
-    uv = uv * 4.0;
-    vec2 gridId = floor(uv);
-    vec2 gridUv = fract(uv);
-    color = vec3(gridId, 0.0);
-    color = vec3(gridUv, 0.0);
-    
-    // part 2.1 - start by finding the coords of grid corners
-    vec2 bl = gridId + vec2(0.0, 0.0);
-    vec2 br = gridId + vec2(1.0, 0.0);
-    vec2 tl = gridId + vec2(0.0, 1.0);
-    vec2 tr = gridId + vec2(1.0, 1.0);
-    
-    // part 2.2 - find random gradient for each grid corner
-    vec2 gradBl = randomGradient(bl);
-    vec2 gradBr = randomGradient(br);
-    vec2 gradTl = randomGradient(tl);
-    vec2 gradTr = randomGradient(tr);
-    
-    // part 3.2 - find distance from current pixel to each grid corner
-    vec2 distFromPixelToBl = gridUv - vec2(0.0, 0.0);
-    vec2 distFromPixelToBr = gridUv - vec2(1.0, 0.0);
-    vec2 distFromPixelToTl = gridUv - vec2(0.0, 1.0);
-    vec2 distFromPixelToTr = gridUv - vec2(1.0, 1.0);
-    
-    // part 4.1 - calculate the dot products of gradients + distances
-    float dotBl = dot(gradBl, distFromPixelToBl);
-    float dotBr = dot(gradBr, distFromPixelToBr);
-    float dotTl = dot(gradTl, distFromPixelToTl);
-    float dotTr = dot(gradTr, distFromPixelToTr);
-    
-    // part 4.4 - smooth out gridUvs
-    // gridUv = smoothstep(0.0, 1.0, gridUv);
-    // gridUv = cubic(gridUv);
-    gridUv = quintic(gridUv);
-    
-    float b = mix(dotBl, dotBr, gridUv.x);
-    float t = mix(dotTl, dotTr, gridUv.x);
-    float perlin = mix(b, t, gridUv.y);
-    
-    // part 5.1 - billow noise
-    // float billow = abs(perlin);
-    // color = vec3(billow);
+    float perlinNoise = perlin(perlin_resolution, time, time_speed);
 
     // part 5.2 - ridged noise
-    float ridgedNoise = 1.0 - abs(perlin);
+    float ridgedNoise = 1.0 - abs(perlinNoise);
     ridgedNoise = ridgedNoise * ridgedNoise;
     
-    color = vec3(ridgedNoise);
-    frag_color = vec4(color, (ridgedNoise) * mask_color.r * custom_alpha);
+    frag_color = vec4(vec3(ridgedNoise), (ridgedNoise) * mask_color.r * custom_alpha);
     
     if (affected_by_light)
     {
