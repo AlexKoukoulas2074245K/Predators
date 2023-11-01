@@ -22,6 +22,7 @@
 #include <game/Game.h>
 #include <game/GameConstants.h>
 #include <game/Cards.h>
+#include <game/events/EventSystem.h>
 #include <game/gameactions/BaseGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/GameActionFactory.h>
@@ -50,8 +51,6 @@ Game::~Game()
 
 void Game::Init()
 {
-    CardDataRepository::GetInstance().LoadCardData();
-    
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
     systemsEngine.GetFontRepository().LoadFont(game_constants::DEFAULT_FONT_NAME.GetString(), resources::ResourceReloadMode::DONT_RELOAD);
     systemsEngine.GetFontRepository().LoadFont(game_constants::FONT_PLACEHOLDER_NAME.GetString(), resources::ResourceReloadMode::DONT_RELOAD);

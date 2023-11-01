@@ -32,7 +32,7 @@ protected:
     void Init()
     {
         mBoardState = std::make_unique<BoardState>();
-        mActionEngine = std::make_unique<GameActionEngine>(GameActionEngine::EngineOperationMode::HEADLESS, math::RandomInt(), mBoardState.get(), nullptr, nullptr);
+        mActionEngine = std::make_unique<GameActionEngine>(GameActionEngine::EngineOperationMode::HEADLESS, math::RandomInt(), mBoardState.get(), nullptr, nullptr, nullptr);
         mGameRuleEngine = std::make_unique<GameRuleEngine>(mBoardState.get());
         mPlayerActionGenerationEngine = std::make_unique<PlayerActionGenerationEngine>(mGameRuleEngine.get(), mActionEngine.get());
         mBoardState->GetPlayerStates().emplace_back();
