@@ -73,9 +73,9 @@ static const float CARD_LOCATION_EFFECT_MAX_TARGET_ALPHA = 1.0f;
 static const float CARD_LOCATION_EFFECT_ALPHA_SPEED = 0.003f;
 
 #if defined(IOS_FLOW)
-static const float MOBILE_DISTANCE_FROM_CARD_LOCATION_INDICATOR = 0.004f;
+static const float MOBILE_DISTANCE_FROM_CARD_LOCATION_INDICATOR = 0.003f;
 #else
-static const float DESKTOP_DISTANCE_FROM_CARD_LOCATION_INDICATOR = 0.004f;
+static const float DESKTOP_DISTANCE_FROM_CARD_LOCATION_INDICATOR = 0.003f;
 #endif
 
 ///------------------------------------------------------------------------------------------------
@@ -347,18 +347,7 @@ void GameSessionManager::HandleTouchInput()
     
     std::vector<int> candidateHighlightIndices;
     mShouldShowCardLocationIndicator = false;
-    
-    if (localPlayerCards.size() > 0)
-    {
-        switch (localPlayerCards.at(0)->mState)
-        {
-            case CardSoState::IDLE: logging::Log(logging::LogType::INFO, "state: IDLE", localPlayerCards.at(0)->mState ); break;
-            case CardSoState::HIGHLIGHTED: logging::Log(logging::LogType::INFO, "state: HIGHLIGHTED", localPlayerCards.at(0)->mState ); break;
-            case CardSoState::FREE_MOVING: logging::Log(logging::LogType::INFO, "state: FREE_MOVING", localPlayerCards.at(0)->mState ); break;
-            case CardSoState::MOVING_TO_SET_POSITION: logging::Log(logging::LogType::INFO, "state: MTSP", localPlayerCards.at(0)->mState ); break;
-        }
-    }
-    
+
     for (int i = 0; i < localPlayerCardCount; ++i)
     {
         auto& currentCardSoWrapper = localPlayerCards.at(i);
