@@ -72,6 +72,7 @@ void CardAttackGameAction::VSetNewGameState()
     
     if (activePlayerState.mPlayerHealth <= 0.0f)
     {
+        activePlayerState.mPlayerHealth = 0.0f;
         mGameActionEngine->AddGameAction(GAME_OVER_GAME_ACTION_NAME, {{ GameOverGameAction::VICTORIOUS_PLAYER_INDEX_PARAM, std::to_string(attackingPayerIndex)}});
     }
     else
@@ -119,7 +120,7 @@ void CardAttackGameAction::VInitAnimation()
                     mPendingAnimations--;
                     
                     CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE)->GetCamera().Shake(ATTACKING_CARD_CAMERA_SHAKE_DURATION, ATTACKING_CARD_CAMERA_SHAKE_STRENGTH);
-                    events::EventSystem::GetInstance().DispatchEvent<events::HealthChangeAnimationTriggerEvent>();
+                    events::EventSystem::GetInstance().DispatchEvent<events::HealthChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
                     
                     auto cardIndex = std::stoi(mExtraActionParams.at(CARD_INDEX_PARAM));
                     auto attackingPayerIndex = std::stoi(mExtraActionParams.at(PLAYER_INDEX_PARAM));

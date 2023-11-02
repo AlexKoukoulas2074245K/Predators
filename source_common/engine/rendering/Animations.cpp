@@ -7,6 +7,7 @@
 
 #include <engine/rendering/Animations.h>
 #include <engine/scene/SceneObject.h>
+#include <engine/utils/Logging.h>
 
 ///------------------------------------------------------------------------------------------------
 

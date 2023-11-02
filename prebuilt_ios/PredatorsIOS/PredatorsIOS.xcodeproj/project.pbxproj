@@ -17,7 +17,10 @@
 		32F69AD35C49478F91F4F782 /* PostNextPlayerGameAction.h in Sources */ = {isa = PBXBuildFile; fileRef = A3FCED8F928A60D20E451BCD /* PostNextPlayerGameAction.h */; };
 		454A0329B9078501CE8A7B2C /* GameSessionManager.h in Sources */ = {isa = PBXBuildFile; fileRef = C37D93E8181A0316F39E2D64 /* GameSessionManager.h */; };
 		46DB173636169D9C5F98F8B1 /* ParticleUpdater.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 47EB487FE621F22D61BA7489 /* ParticleUpdater.cpp */; };
+		4806A612F0016F3AA933D2E6 /* Events.h in Sources */ = {isa = PBXBuildFile; fileRef = B44A455E0B720A9A63FF5AA4 /* Events.h */; };
 		4C119BF2FCC54934CAADD177 /* GameSessionManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A2CCA4D2AD48F6DE2B766E4B /* GameSessionManager.cpp */; };
+		4DEC7B4CA67A5AD543B3EB99 /* AnimatedStatCrystal.h in Sources */ = {isa = PBXBuildFile; fileRef = E856267AE5031825D340C6EA /* AnimatedStatCrystal.h */; };
+		52559404F5808FB180431FE4 /* AnimatedStatCrystal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6A6DB21478BF787A2E4D36E /* AnimatedStatCrystal.cpp */; };
 		5BD366D66B0950E4329E1680 /* GameRuleEngine.h in Sources */ = {isa = PBXBuildFile; fileRef = 464BBDD6962488EAF0EDFC8D /* GameRuleEngine.h */; };
 		5C9953DDFEE1C355339E8F4D /* EventSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 549C84D3FE6BA93E39F0B406 /* EventSystem.cpp */; };
 		5D35EB306ABAAA6602F12C00 /* PostNextPlayerGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD189C394560D3EE41F57243 /* PostNextPlayerGameAction.cpp */; };
@@ -320,7 +323,9 @@
 		A3FCED8F928A60D20E451BCD /* PostNextPlayerGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = PostNextPlayerGameAction.h; path = PostNextPlayerGameAction.h; sourceTree = "<group>"; };
 		B3A902E2D8B1AD656D561A89 /* GameConstants.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = GameConstants.h; path = GameConstants.h; sourceTree = "<group>"; };
 		B3D605C469F5491AEE121CBB /* GameRuleEngine.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = GameRuleEngine.cpp; path = GameRuleEngine.cpp; sourceTree = "<group>"; };
+		B44A455E0B720A9A63FF5AA4 /* Events.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Events.h; path = Events.h; sourceTree = "<group>"; };
 		B525211824678482C123E701 /* GameOverGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = GameOverGameAction.h; path = GameOverGameAction.h; sourceTree = "<group>"; };
+		B6A6DB21478BF787A2E4D36E /* AnimatedStatCrystal.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = AnimatedStatCrystal.cpp; path = AnimatedStatCrystal.cpp; sourceTree = "<group>"; };
 		BFA875DD1BB1DB816488BD34 /* Particles.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Particles.h; path = Particles.h; sourceTree = "<group>"; };
 		C2440AC9D2351884CB46159D /* PlayerActionGenerationEngine.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = PlayerActionGenerationEngine.h; path = PlayerActionGenerationEngine.h; sourceTree = "<group>"; };
 		C37D93E8181A0316F39E2D64 /* GameSessionManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = GameSessionManager.h; path = GameSessionManager.h; sourceTree = "<group>"; };
@@ -331,6 +336,7 @@
 		D2CDD004F2E6D189785B5F62 /* Cards.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = Cards.cpp; path = Cards.cpp; sourceTree = "<group>"; };
 		E084FB11819A0AFC14DE50F6 /* ParticleUpdater.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ParticleUpdater.h; path = ParticleUpdater.h; sourceTree = "<group>"; };
 		E3A1C56ACA5ABB18A5A59BA3 /* EventSystem.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = EventSystem.h; path = EventSystem.h; sourceTree = "<group>"; };
+		E856267AE5031825D340C6EA /* AnimatedStatCrystal.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = AnimatedStatCrystal.h; path = AnimatedStatCrystal.h; sourceTree = "<group>"; };
 		EBF846548488DC5997004413 /* AnimationManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = AnimationManager.cpp; path = AnimationManager.cpp; sourceTree = "<group>"; };
 		EF351FA09079CF49E388DC3A /* CardAttackGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = CardAttackGameAction.h; path = CardAttackGameAction.h; sourceTree = "<group>"; };
 		F62DA25CEC2725420792B4BA /* CardUtils.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = CardUtils.cpp; path = CardUtils.cpp; sourceTree = "<group>"; };
@@ -417,6 +423,8 @@
 				78C70C1C84D619A2CD9F960B /* GameReplayEngine.cpp */,
 				269239EC29F8D7713FA897D0 /* GameReplayEngine.h */,
 				E9B34BDC795E6602450C2817 /* events */,
+				B6A6DB21478BF787A2E4D36E /* AnimatedStatCrystal.cpp */,
+				E856267AE5031825D340C6EA /* AnimatedStatCrystal.h */,
 			);
 			path = game;
 			sourceTree = "<group>";
@@ -653,6 +661,7 @@
 			children = (
 				549C84D3FE6BA93E39F0B406 /* EventSystem.cpp */,
 				E3A1C56ACA5ABB18A5A59BA3 /* EventSystem.h */,
+				B44A455E0B720A9A63FF5AA4 /* Events.h */,
 			);
 			name = events;
 			path = events;
@@ -977,6 +986,9 @@
 				32F69AD35C49478F91F4F782 /* PostNextPlayerGameAction.h in Sources */,
 				5C9953DDFEE1C355339E8F4D /* EventSystem.cpp in Sources */,
 				A2D77982E2E1A21D9C1F22E3 /* EventSystem.h in Sources */,
+				52559404F5808FB180431FE4 /* AnimatedStatCrystal.cpp in Sources */,
+				4DEC7B4CA67A5AD543B3EB99 /* AnimatedStatCrystal.h in Sources */,
+				4806A612F0016F3AA933D2E6 /* Events.h in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -173,7 +173,16 @@ void GameSessionManager::Update(const float dtMillis)
     
     HandleTouchInput();
     UpdateMiscSceneObjects(dtMillis);
-    mActionEngine->Update(dtMillis);
+    
+    auto foundActiveStatCrystal = std::find_if(mStatCrystals.cbegin(), mStatCrystals.cend(), [](const std::pair<bool, std::unique_ptr<AnimatedStatCrystal>>& statCrystalEntry)
+    {
+        return statCrystalEntry.first;
+    }) != mStatCrystals.cend();
+    
+    if (!foundActiveStatCrystal)
+    {
+        mActionEngine->Update(dtMillis);
+    }
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -350,15 +359,17 @@ void GameSessionManager::HandleTouchInput()
     
     // Check for turn pointer interaction
     bool freeMovingCardExists = std::find_if(localPlayerCards.begin(), localPlayerCards.end(), [&](const std::shared_ptr<CardSoWrapper>& cardSoWrapper){ return cardSoWrapper->mState == CardSoState::FREE_MOVING; }) != localPlayerCards.cend();
-    if (!freeMovingCardExists && mActionEngine->GetActiveGameActionName() == IDLE_GAME_ACTION_NAME && mBoardState->GetActivePlayerIndex() == 1)
+    if (!freeMovingCardExists && mBoardState->GetActivePlayerIndex() == 1)
     {
         auto turnPointerSo = activeScene->FindSceneObject(game_constants::TURN_POINTER_SCENE_OBJECT_NAME);
+        auto turnPointerHighlighterSo = activeScene->FindSceneObject(game_constants::TURN_POINTER_HIGHLIGHTER_SCENE_OBJECT_NAME);
         
         auto sceneObjectRect = scene_object_utils::GetSceneObjectBoundingRect(*turnPointerSo);
         bool cursorInSceneObject = math::IsPointInsideRectangle(sceneObjectRect.bottomLeft, sceneObjectRect.topRight, worldTouchPos);
         
         if (cursorInSceneObject && inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON))
         {
+            CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(turnPointerHighlighterSo, 0.0f, game_constants::TURN_POINTER_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), [](){});
             mActionEngine->AddGameAction(NEXT_PLAYER_ACTION_NAME);
         }
     }
@@ -689,24 +700,16 @@ void GameSessionManager::OnLastCardPlayedFinalized(const events::LastCardPlayedF
 
 ///------------------------------------------------------------------------------------------------
 
-void GameSessionManager::OnHealthChangeAnimationTriggerEvent(const events::HealthChangeAnimationTriggerEvent&)
+void GameSessionManager::OnHealthChangeAnimationTriggerEvent(const events::HealthChangeAnimationTriggerEvent& event)
 {
-    // Activate the updates of health crystals
-    for (size_t i = 0; i < 2; ++i)
-    {
-        mStatCrystals[i].first = true;
-    }
+    mStatCrystals[event.mForRemotePlayer ? 0 : 1].first = true;
 }
 
 ///------------------------------------------------------------------------------------------------
 
-void GameSessionManager::OnWeightChangeAnimationTriggerEvent(const events::WeightChangeAnimationTriggerEvent&)
+void GameSessionManager::OnWeightChangeAnimationTriggerEvent(const events::WeightChangeAnimationTriggerEvent& event)
 {
-    // Active the updates of weight crystals
-    for (size_t i = 2; i < 4; ++i)
-    {
-        mStatCrystals[i].first = true;
-    }
+    mStatCrystals[event.mForRemotePlayer ? 2 : 3].first = true;
 }
 
 ///------------------------------------------------------------------------------------------------

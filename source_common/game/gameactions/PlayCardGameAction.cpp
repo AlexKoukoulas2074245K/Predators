@@ -90,7 +90,7 @@ void PlayCardGameAction::VInitAnimation()
         mPendingAnimations--;
         CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE)->GetCamera().Shake(CARD_CAMERA_SHAKE_DURATION, CARD_CAMERA_SHAKE_STRENGTH);
         
-        events::EventSystem::GetInstance().DispatchEvent<events::WeightChangeAnimationTriggerEvent>();
+        events::EventSystem::GetInstance().DispatchEvent<events::WeightChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
         
         rendering::CreateParticleEmitterAtPosition
         (

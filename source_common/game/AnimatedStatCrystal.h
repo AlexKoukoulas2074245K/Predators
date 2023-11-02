@@ -43,6 +43,7 @@ private:
     float mValueChangeDelaySecs;
     scene::Scene& mScene;
     std::vector<std::shared_ptr<scene::SceneObject>> mSceneObjects;
+    bool mFinishedAnimating;
 };
 
 ///------------------------------------------------------------------------------------------------

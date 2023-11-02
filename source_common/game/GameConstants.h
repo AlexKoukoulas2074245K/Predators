@@ -103,10 +103,10 @@ namespace game_constants
     inline const float CARD_LOCATION_EFFECT_Z = 1.0f;
     inline const float CARD_LOCATION_EFFECT_TIME_SPEED = 1.0f;
     inline const float CARD_LOCATION_EFFECT_PERLIN_RESOLUTION = 70.0f;
+    inline const float TURN_POINTER_ANIMATION_DURATION_SECS = 0.33f;
 
     inline const glm::vec3 TURN_POINTER_HIGHLIGHTER_SCALE = {0.06f, 0.09f, 1.0f};
     inline const glm::vec3 CARD_HIGHLIGHTER_SCALE = {0.08f, 0.13f, 1.0f};
-    
 }
 
 ///------------------------------------------------------------------------------------------------
