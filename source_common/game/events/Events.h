@@ -30,8 +30,8 @@ class BoardCardDestructionEvent final
 {
 public:
     BoardCardDestructionEvent(const int cardIndex, const bool forRemotePlayer)
-        : mCardIndex(cardIndex)
-        , mForRemotePlayer(forRemotePlayer)
+    : mCardIndex(cardIndex)
+    , mForRemotePlayer(forRemotePlayer)
     {
     }
     
@@ -45,8 +45,8 @@ class CardCreationEvent final
 {
 public:
     CardCreationEvent(std::shared_ptr<CardSoWrapper> cardSoWrapper, const bool forRemotePlayer)
-        : mCardSoWrapper(cardSoWrapper)
-        , mForRemotePlayer(forRemotePlayer)
+    : mCardSoWrapper(cardSoWrapper)
+    , mForRemotePlayer(forRemotePlayer)
     {
     }
     
@@ -60,9 +60,9 @@ class HeldCardSwapEvent final
 {
 public:
     HeldCardSwapEvent(const std::shared_ptr<CardSoWrapper> cardSoWrapper, const int cardIndex, const bool forRemotePlayer)
-        : mCardSoWrapper(cardSoWrapper)
-        , mCardIndex(cardIndex)
-        , mForRemotePlayer(forRemotePlayer)
+    : mCardSoWrapper(cardSoWrapper)
+    , mCardIndex(cardIndex)
+    , mForRemotePlayer(forRemotePlayer)
     {
     }
     
@@ -77,11 +77,23 @@ class LastCardPlayedFinalizedEvent final
 {
 public:
     LastCardPlayedFinalizedEvent(const int cardIndex)
-        : mCardIndex(cardIndex)
+    : mCardIndex(cardIndex)
     {
     }
     
     const int mCardIndex;
+};
+
+///------------------------------------------------------------------------------------------------
+
+class WeightChangeAnimationTriggerEvent final
+{
+};
+
+///------------------------------------------------------------------------------------------------
+
+class HealthChangeAnimationTriggerEvent final
+{
 };
 
 ///------------------------------------------------------------------------------------------------

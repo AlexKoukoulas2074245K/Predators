@@ -10,6 +10,7 @@
 #include <engine/rendering/AnimationManager.h>
 #include <engine/scene/ActiveSceneManager.h>
 #include <engine/scene/Scene.h>
+#include <game/events/EventSystem.h>
 #include <game/GameConstants.h>
 #include <game/gameactions/CardAttackGameAction.h>
 #include <game/gameactions/GameActionEngine.h>

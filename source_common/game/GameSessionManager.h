@@ -19,6 +19,7 @@
 
 ///------------------------------------------------------------------------------------------------
 
+class AnimatedStatCrystal;
 class BoardState;
 class GameActionEngine;
 class GameRuleEngine;
@@ -60,7 +61,9 @@ private:
     void OnCardCreation(const events::CardCreationEvent& event);
     void OnHeldCardSwap(const events::HeldCardSwapEvent& event);
     void OnLastCardPlayedFinalized(const events::LastCardPlayedFinalizedEvent& event);
-    
+    void OnHealthChangeAnimationTriggerEvent(const events::HealthChangeAnimationTriggerEvent&);
+    void OnWeightChangeAnimationTriggerEvent(const events::WeightChangeAnimationTriggerEvent&);
+
 private:
     enum class ProspectiveBoardCardsPushState
     {
@@ -75,6 +78,7 @@ private:
     std::unique_ptr<PlayerActionGenerationEngine> mPlayerActionGenerationEngine;
     std::vector<std::vector<std::shared_ptr<CardSoWrapper>>> mPlayerHeldCardSceneObjectWrappers;
     std::vector<std::vector<std::shared_ptr<CardSoWrapper>>> mPlayerBoardCardSceneObjectWrappers;
+    std::vector<std::pair<bool, std::unique_ptr<AnimatedStatCrystal>>> mStatCrystals;
     ProspectiveBoardCardsPushState mPreviousProspectiveBoardCardsPushState;
     bool mShouldShowCardLocationIndicator;
 };

@@ -90,6 +90,8 @@ void PlayCardGameAction::VInitAnimation()
         mPendingAnimations--;
         CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE)->GetCamera().Shake(CARD_CAMERA_SHAKE_DURATION, CARD_CAMERA_SHAKE_STRENGTH);
         
+        events::EventSystem::GetInstance().DispatchEvent<events::WeightChangeAnimationTriggerEvent>();
+        
         rendering::CreateParticleEmitterAtPosition
         (
             glm::vec3(targetPosition.x, targetPosition.y, CARD_PLAY_PARTICLE_EMITTER_Z), // pos

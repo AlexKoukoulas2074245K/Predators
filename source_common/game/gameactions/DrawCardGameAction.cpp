@@ -43,6 +43,8 @@ void DrawCardGameAction::VInitAnimation()
     const int cardCount = static_cast<int>(mBoardState->GetActivePlayerState().mPlayerHeldCards.size());
     bool remotePlayerActive = mBoardState->GetActivePlayerIndex() == 0;
     
+    events::EventSystem::GetInstance().DispatchEvent<events::WeightChangeAnimationTriggerEvent>();
+    
     for (int i = 0; i < cardCount; ++i)
     {
         auto finalCardPosition = card_utils::CalculateHeldCardPosition(i, cardCount, remotePlayerActive);

@@ -7,6 +7,7 @@
 
 #include <game/Cards.h>
 #include <game/CardUtils.h>
+#include <game/events/EventSystem.h>
 #include <game/gameactions/CardAttackGameAction.h>
 #include <game/gameactions/CardDestructionGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
@@ -118,6 +119,7 @@ void CardAttackGameAction::VInitAnimation()
                     mPendingAnimations--;
                     
                     CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE)->GetCamera().Shake(ATTACKING_CARD_CAMERA_SHAKE_DURATION, ATTACKING_CARD_CAMERA_SHAKE_STRENGTH);
+                    events::EventSystem::GetInstance().DispatchEvent<events::HealthChangeAnimationTriggerEvent>();
                     
                     auto cardIndex = std::stoi(mExtraActionParams.at(CARD_INDEX_PARAM));
                     auto attackingPayerIndex = std::stoi(mExtraActionParams.at(PLAYER_INDEX_PARAM));
