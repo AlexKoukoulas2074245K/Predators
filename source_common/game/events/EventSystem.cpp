@@ -22,22 +22,9 @@ EventSystem& EventSystem::GetInstance()
 
 ///------------------------------------------------------------------------------------------------
 
-void EventSystem::UnregisterAllEventsForListener(const IListener *listener)
+void EventSystem::UnregisterAllEventsForListener(const IListener* listener)
 {
-    for (auto& eventEntry: mEventListenerMap)
-    {
-        for (auto iter = eventEntry.second.begin(); iter != eventEntry.second.end(); )
-        {
-            if (iter->first == listener)
-            {
-                iter = eventEntry.second.erase(iter);
-            }
-            else
-            {
-                iter++;
-            }
-        }
-    }
+    mDeadListeners.emplace_back(listener);
 }
 
 ///------------------------------------------------------------------------------------------------

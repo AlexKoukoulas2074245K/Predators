@@ -12,7 +12,6 @@
 
 #include <functional>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 ///------------------------------------------------------------------------------------------------
@@ -22,13 +21,10 @@ namespace events
 
 ///------------------------------------------------------------------------------------------------
 
-class IListener;
-
-///------------------------------------------------------------------------------------------------
-
-struct IEvent
+class IListener
 {
-    virtual ~IEvent() = default;
+public:
+    virtual ~IListener();
 };
 
 ///------------------------------------------------------------------------------------------------
@@ -38,39 +34,49 @@ class EventSystem final
 public:
     static EventSystem& GetInstance();
     
-    template<class EventType, class... Args>
+    template<typename EventType, class... Args>
     void DispatchEvent(Args&&... args)
     {
         EventType event(std::forward<Args>(args)...);
-        auto className = typeid(EventType).name();
-        if (mEventListenerMap.count(className))
+        
+        if (!mEventCallbacks<EventType>.empty())
         {
-            for (auto callbackEntry: mEventListenerMap.at(className))
+            for (auto callbackIter = mEventCallbacks<EventType>.begin(); callbackIter != mEventCallbacks<EventType>.end();)
             {
-                callbackEntry.second(event);
+                auto deadListenerIter = std::find(mDeadListeners.begin(), mDeadListeners.end(), callbackIter->first);
+                if (deadListenerIter != mDeadListeners.end())
+                {
+                    mDeadListeners.erase(deadListenerIter);
+                    callbackIter = mEventCallbacks<EventType>.erase(callbackIter);
+                }
+                else
+                {
+                    callbackIter->second(event);
+                    callbackIter++;
+                }
             }
         }
     };
     
-    template<class EventType>
-    void RegisterForEvent(const IListener* listener, std::function<void(const IEvent&)> callback)
+    template<typename EventType, typename InstanceType, typename FunctionType>
+    void RegisterForEvent(InstanceType* listener, FunctionType callback)
     {
-        auto className = typeid(EventType).name();
-        mEventListenerMap[className].push_back(std::make_pair(listener, callback));
+        mEventCallbacks<EventType>.push_back(std::make_pair(listener, [listener, callback](const EventType& e){ (listener->*callback)(e); }));
     }
     
-    template<class EventType>
-    void UnregisterForEvent(const IListener* listener)
+    template<typename EventType>
+    void UnregisterForEvent(IListener* listener)
     {
-        auto className = typeid(EventType).name();
-        auto listenerEventEntryIter = std::find_if(mEventListenerMap[className].begin(), mEventListenerMap[className].end(), [=](const std::pair<const IListener*, std::function<void(const IEvent&)>>& entry)
+        for (auto iter = mEventCallbacks<EventType>.begin(); iter != mEventCallbacks<EventType>.end();)
         {
-            return entry.first == listener;
-        });
-        
-        if (listenerEventEntryIter != mEventListenerMap[className].end())
-        {
-            mEventListenerMap[className].erase(listenerEventEntryIter);
+            if (iter->first == static_cast<const void*>(listener))
+            {
+                iter = mEventCallbacks<EventType>.erase(iter);
+            }
+            else
+            {
+                iter++;
+            }
         }
     }
     
@@ -80,15 +86,10 @@ private:
     EventSystem() = default;
     
 private:
-    std::unordered_map<std::string, std::vector<std::pair<const IListener*, std::function<void(const IEvent&)>>>> mEventListenerMap;
-};
-
-///------------------------------------------------------------------------------------------------
-
-class IListener
-{
-public:
-    virtual ~IListener();
+    template<typename EventType>
+    static inline std::vector<std::pair<IListener*, std::function<void(const EventType&)>>> mEventCallbacks;
+    
+    std::vector<const IListener*> mDeadListeners;
 };
 
 ///------------------------------------------------------------------------------------------------

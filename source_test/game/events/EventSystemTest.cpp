@@ -10,7 +10,7 @@
 
 ///------------------------------------------------------------------------------------------------
 
-class TestEvent final: public events::IEvent
+class TestEvent final
 {
 public:
     TestEvent(int val) : mVal(val) {}
@@ -25,9 +25,9 @@ private:
 class TestEventListener final: public events::IListener
 {
 public:
-    void OnTestEvent(const events::IEvent& event)
+    void OnTestEvent(const TestEvent& event)
     {
-        mVal = static_cast<const TestEvent&>(event).GetVal();
+        mVal = event.GetVal();
     }
     int GetVal() const { return mVal; }
 private:
@@ -41,7 +41,7 @@ class EventSystemTests : public testing::Test
 protected:
     void SetUp() override
     {
-        events::EventSystem::GetInstance().RegisterForEvent<TestEvent>(&mTestListener, [&](const events::IEvent& event) { mTestListener.OnTestEvent(event); });
+        events::EventSystem::GetInstance().RegisterForEvent<TestEvent>(&mTestListener, &TestEventListener::OnTestEvent);
     }
     
 protected:
@@ -80,7 +80,13 @@ TEST_F(EventSystemTests, TestListenerDeallocationDoesNotTriggerCallbackForSubseq
     class NotSoLongLivedTestEventListener final: public events::IListener
     {
     public:
-        void OnTestEvent(const events::IEvent&)
+        NotSoLongLivedTestEventListener()
+        {
+            events::EventSystem::GetInstance().RegisterForEvent<TestEvent>(this, &NotSoLongLivedTestEventListener::OnTestEvent);
+        }
+        
+    private:
+        void OnTestEvent(const TestEvent&)
         {
             sEventsListenedTo++;
         }
@@ -88,7 +94,7 @@ TEST_F(EventSystemTests, TestListenerDeallocationDoesNotTriggerCallbackForSubseq
     
     {
         NotSoLongLivedTestEventListener listener;
-        events::EventSystem::GetInstance().RegisterForEvent<TestEvent>(&listener, [&](const events::IEvent& event) { listener.OnTestEvent(event); });
+        
         events::EventSystem::GetInstance().DispatchEvent<TestEvent>(1);
         EXPECT_EQ(sEventsListenedTo, 1);
     }
