@@ -51,6 +51,8 @@ Game::~Game()
 
 void Game::Init()
 {
+    CardDataRepository::GetInstance().LoadCardData();
+    
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
     systemsEngine.GetFontRepository().LoadFont(game_constants::DEFAULT_FONT_NAME.GetString(), resources::ResourceReloadMode::DONT_RELOAD);
     systemsEngine.GetFontRepository().LoadFont(game_constants::FONT_PLACEHOLDER_NAME.GetString(), resources::ResourceReloadMode::DONT_RELOAD);
@@ -153,7 +155,7 @@ void Game::Update(const float dtMillis)
 
 void Game::ApplicationMovedToBackground()
 {
-    mGameSessionManager.OnApplicationMovedToBackground();
+    events::EventSystem::GetInstance().DispatchEvent<events::ApplicationMovedToBackgroundEvent>();
 }
 
 ///------------------------------------------------------------------------------------------------

@@ -14,6 +14,7 @@
 #include <engine/utils/MathUtils.h>
 #include <game/Cards.h>
 #include <game/CardUtils.h>
+#include <game/events/EventSystem.h>
 #include <game/GameConstants.h>
 #include <game/GameRuleEngine.h>
 #include <game/GameSessionManager.h>
@@ -60,7 +61,7 @@ void DrawCardGameAction::VInitAnimation()
                 (remotePlayerActive ? CardOrientation::BACK_FACE : CardOrientation::FRONT_FACE), remotePlayerActive, mGameRuleEngine->CanCardBePlayed(&cardOpt->get(), mBoardState->GetActivePlayerIndex()), *activeScene);
             
             cardSoWrapper->mState = CardSoState::MOVING_TO_SET_POSITION;
-            mGameSessionManager->OnCardCreation(cardSoWrapper, remotePlayerActive);
+            events::EventSystem::GetInstance().DispatchEvent<events::CardCreationEvent>(cardSoWrapper, remotePlayerActive);
             
             auto midPos = cardSoWrapper->mSceneObject->mPosition;
             midPos.x = math::Abs(cardSoWrapper->mSceneObject->mPosition.x - finalCardPosition.x)/2.0f;

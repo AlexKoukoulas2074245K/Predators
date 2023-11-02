@@ -18,7 +18,7 @@ class GameActionEngine;
 class GameReplayEngine final
 {
 public:
-    GameReplayEngine(const std::string& filename);
+    GameReplayEngine(const std::string& filenameNoExtension);
     
     int GetGameFileSeed() const;
     void ReplayActions(GameActionEngine* gameActionEngine);

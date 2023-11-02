@@ -12,16 +12,19 @@
 #include <nlohmann/json.hpp>
 #include <vector>
 
+//#define TEST_BINARY_FLOW
+
 ///------------------------------------------------------------------------------------------------
 
 static nlohmann::json sGameJson;
 
 ///------------------------------------------------------------------------------------------------
 
-GameReplayEngine::GameReplayEngine(const std::string& filename)
+GameReplayEngine::GameReplayEngine(const std::string& filenameNoExtension)
 {
-#if !defined(NDEBUG)
-    std::ifstream gameFile(filename);
+#if !defined(NDEBUG) && !defined(TEST_BINARY_FLOW)
+    auto gameFileName = filenameNoExtension + ".json";
+    std::ifstream gameFile(gameFileName);
     if (gameFile.is_open())
     {
         std::stringstream buffer;
@@ -31,7 +34,8 @@ GameReplayEngine::GameReplayEngine(const std::string& filename)
         {
             sGameJson = nlohmann::json::parse(buffer.str());
 #else
-    std::ifstream gameFile(filename, std::ios::binary);
+    auto gameFileName = filenameNoExtension + ".bin";
+    std::ifstream gameFile(gameFileName, std::ios::binary);
     if (gameFile.is_open())
     {
         std::vector<std::uint8_t> contents((std::istreambuf_iterator<char>(gameFile)), std::istreambuf_iterator<char>());
@@ -41,12 +45,10 @@ GameReplayEngine::GameReplayEngine(const std::string& filename)
 #endif
             mGameFileSeed = static_cast<int>(sGameJson["seed"]);
         }
-        
-        
     }
     else
     {
-        ospopups::ShowMessageBox(ospopups::MessageBoxType::ERROR, "File not found", ("Game File " + filename + " not found.").c_str());
+        ospopups::ShowMessageBox(ospopups::MessageBoxType::ERROR, "File not found", ("Game File " + gameFileName + " not found.").c_str());
     }
 }
 

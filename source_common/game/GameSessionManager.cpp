@@ -7,6 +7,7 @@
 
 #include <game/BoardState.h>
 #include <game/CardUtils.h>
+#include <game/events/EventSystem.h>
 #include <game/GameConstants.h>
 #include <game/GameReplayEngine.h>
 #include <game/GameRuleEngine.h>
@@ -95,6 +96,8 @@ GameSessionManager::~GameSessionManager(){}
 
 void GameSessionManager::InitGameSession()
 {
+    RegisterForEvents();
+    
     mBoardState = std::make_unique<BoardState>();
     mBoardState->GetPlayerStates().emplace_back();
     mBoardState->GetPlayerStates().emplace_back();
@@ -110,7 +113,7 @@ void GameSessionManager::InitGameSession()
 //#define REPLAY_FLOW
     
 #if defined(REPLAY_FLOW)
-    GameReplayEngine replayEngine(persistence_utils::GetProgressDirectoryPath() + "game.json");
+    GameReplayEngine replayEngine(persistence_utils::GetProgressDirectoryPath() + "game");
     auto seed = replayEngine.GetGameFileSeed();
 #else
     auto seed = math::RandomInt();
@@ -238,83 +241,6 @@ const BoardState& GameSessionManager::GetBoardState() const
 GameActionEngine& GameSessionManager::GetActionEngine()
 {
     return *mActionEngine;
-}
-
-///------------------------------------------------------------------------------------------------
-
-void GameSessionManager::OnApplicationMovedToBackground()
-{
-    mGameSerializer->FlushStateToFile();
-}
-
-///------------------------------------------------------------------------------------------------
-
-void GameSessionManager::OnCardCreation(std::shared_ptr<CardSoWrapper> cardSoWrapper, const bool forRemotePlayer)
-{
-    mPlayerHeldCardSceneObjectWrappers[(forRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)].push_back(cardSoWrapper);
-}
-
-///------------------------------------------------------------------------------------------------
-
-void GameSessionManager::OnBoardCardDestruction(const int cardIndex, const bool forRemotePlayer)
-{
-    const auto& activeSceneManager = CoreSystemsEngine::GetInstance().GetActiveSceneManager();
-    auto activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
-    
-    auto& boardSoWrappers = mPlayerBoardCardSceneObjectWrappers[(forRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)];
-    activeScene->RemoveSceneObject(boardSoWrappers[cardIndex]->mSceneObject->mName);
-    
-    boardSoWrappers.erase(boardSoWrappers.begin() + cardIndex);
-}
-
-///------------------------------------------------------------------------------------------------
-
-void GameSessionManager::OnHeldCardSwap(std::shared_ptr<CardSoWrapper> cardSoWrapper, const int cardIndex, const bool forRemotePlayer)
-{
-    mPlayerHeldCardSceneObjectWrappers[(forRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)][cardIndex] = cardSoWrapper;
-}
-
-///------------------------------------------------------------------------------------------------
-
-void GameSessionManager::OnLastCardPlayedFinalized(const int cardIndex)
-{
-    const auto& activeSceneManager = CoreSystemsEngine::GetInstance().GetActiveSceneManager();
-    auto activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
-    activeScene->RemoveSceneObject(strutils::StringId(CARD_HIGHLIGHTER_SCENE_OBJECT_NAME_PREFIX + std::to_string(cardIndex)));
-    
-    auto& playerHeldCardSoWrappers = mPlayerHeldCardSceneObjectWrappers[mBoardState->GetActivePlayerIndex()];
-    auto& playerBoardCardSoWrappers = mPlayerBoardCardSceneObjectWrappers[mBoardState->GetActivePlayerIndex()];
-    
-    playerBoardCardSoWrappers.push_back(playerHeldCardSoWrappers[cardIndex]);
-    playerHeldCardSoWrappers.erase(playerHeldCardSoWrappers.begin() + cardIndex);
-    
-    const auto currentPlayerHeldCardCount = static_cast<int>(playerHeldCardSoWrappers.size());
-    auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
-    for (int i = 0; i < currentPlayerHeldCardCount; ++i)
-    {
-        auto& currentCardSoWrapper = playerHeldCardSoWrappers.at(i);
-        
-        // Rename held cards for different indices
-        currentCardSoWrapper->mSceneObject->mName = strutils::StringId((mBoardState->GetActivePlayerIndex() == 0 ? game_constants::TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_HELD_CARD_SO_NAME_PREFIX) + std::to_string(i));
-        
-        // Reposition held cards for different indices
-        if (currentCardSoWrapper->mState != CardSoState::FREE_MOVING)
-        {
-            auto originalCardPosition = card_utils::CalculateHeldCardPosition(i, currentPlayerHeldCardCount, mBoardState->GetActivePlayerIndex() == 0);
-            animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(currentCardSoWrapper->mSceneObject, originalCardPosition, currentCardSoWrapper->mSceneObject->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){ currentCardSoWrapper->mState = CardSoState::IDLE; });
-            currentCardSoWrapper->mState = CardSoState::MOVING_TO_SET_POSITION;
-        }
-    }
-    
-    const auto currentBoardCardCount = static_cast<int>(playerBoardCardSoWrappers.size());
-    
-    // Animate board cards to position. Last one will be animated externally
-    for (int i = 0; i < currentBoardCardCount - 1; ++i)
-    {
-        auto& currentCardSoWrapper = playerBoardCardSoWrappers.at(i);
-        auto originalCardPosition = card_utils::CalculateBoardCardPosition(i, currentBoardCardCount, mBoardState->GetActivePlayerIndex() == 0);
-        animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(currentCardSoWrapper->mSceneObject, originalCardPosition, currentCardSoWrapper->mSceneObject->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){});
-    }
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -716,6 +642,96 @@ void GameSessionManager::DestroyCardHighlighterAtIndex(const int index)
     
     auto cardHighlighterName = strutils::StringId(CARD_HIGHLIGHTER_SCENE_OBJECT_NAME_PREFIX + std::to_string(index));
     activeScene->RemoveSceneObject(cardHighlighterName);
+}
+
+///------------------------------------------------------------------------------------------------
+
+void GameSessionManager::RegisterForEvents()
+{
+    auto& eventSystem = events::EventSystem::GetInstance();
+    
+    eventSystem.RegisterForEvent<events::ApplicationMovedToBackgroundEvent>(this, &GameSessionManager::OnApplicationMovedToBackground);
+    eventSystem.RegisterForEvent<events::BoardCardDestructionEvent>(this, &GameSessionManager::OnBoardCardDestruction);
+    eventSystem.RegisterForEvent<events::CardCreationEvent>(this, &GameSessionManager::OnCardCreation);
+    eventSystem.RegisterForEvent<events::HeldCardSwapEvent>(this, &GameSessionManager::OnHeldCardSwap);
+    eventSystem.RegisterForEvent<events::LastCardPlayedFinalizedEvent>(this, &GameSessionManager::OnLastCardPlayedFinalized);
+}
+
+///------------------------------------------------------------------------------------------------
+
+void GameSessionManager::OnApplicationMovedToBackground(const events::ApplicationMovedToBackgroundEvent&)
+{
+    mGameSerializer->FlushStateToFile();
+}
+
+///------------------------------------------------------------------------------------------------
+
+void GameSessionManager::OnBoardCardDestruction(const events::BoardCardDestructionEvent& event)
+{
+    const auto& activeSceneManager = CoreSystemsEngine::GetInstance().GetActiveSceneManager();
+    auto activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    
+    auto& boardSoWrappers = mPlayerBoardCardSceneObjectWrappers[(event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)];
+    activeScene->RemoveSceneObject(boardSoWrappers[event.mCardIndex]->mSceneObject->mName);
+    
+    boardSoWrappers.erase(boardSoWrappers.begin() + event.mCardIndex);
+}
+
+///------------------------------------------------------------------------------------------------
+
+void GameSessionManager::OnCardCreation(const events::CardCreationEvent& event)
+{
+    mPlayerHeldCardSceneObjectWrappers[(event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)].push_back(event.mCardSoWrapper);
+}
+
+///------------------------------------------------------------------------------------------------
+
+void GameSessionManager::OnHeldCardSwap(const events::HeldCardSwapEvent& event)
+{
+    mPlayerHeldCardSceneObjectWrappers[(event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)][event.mCardIndex] = event.mCardSoWrapper;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void GameSessionManager::OnLastCardPlayedFinalized(const events::LastCardPlayedFinalizedEvent& event)
+{
+    const auto& activeSceneManager = CoreSystemsEngine::GetInstance().GetActiveSceneManager();
+    auto activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    activeScene->RemoveSceneObject(strutils::StringId(CARD_HIGHLIGHTER_SCENE_OBJECT_NAME_PREFIX + std::to_string(event.mCardIndex)));
+    
+    auto& playerHeldCardSoWrappers = mPlayerHeldCardSceneObjectWrappers[mBoardState->GetActivePlayerIndex()];
+    auto& playerBoardCardSoWrappers = mPlayerBoardCardSceneObjectWrappers[mBoardState->GetActivePlayerIndex()];
+    
+    playerBoardCardSoWrappers.push_back(playerHeldCardSoWrappers[event.mCardIndex]);
+    playerHeldCardSoWrappers.erase(playerHeldCardSoWrappers.begin() + event.mCardIndex);
+    
+    const auto currentPlayerHeldCardCount = static_cast<int>(playerHeldCardSoWrappers.size());
+    auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+    for (int i = 0; i < currentPlayerHeldCardCount; ++i)
+    {
+        auto& currentCardSoWrapper = playerHeldCardSoWrappers.at(i);
+        
+        // Rename held cards for different indices
+        currentCardSoWrapper->mSceneObject->mName = strutils::StringId((mBoardState->GetActivePlayerIndex() == 0 ? game_constants::TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_HELD_CARD_SO_NAME_PREFIX) + std::to_string(i));
+        
+        // Reposition held cards for different indices
+        if (currentCardSoWrapper->mState != CardSoState::FREE_MOVING)
+        {
+            auto originalCardPosition = card_utils::CalculateHeldCardPosition(i, currentPlayerHeldCardCount, mBoardState->GetActivePlayerIndex() == 0);
+            animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(currentCardSoWrapper->mSceneObject, originalCardPosition, currentCardSoWrapper->mSceneObject->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){ currentCardSoWrapper->mState = CardSoState::IDLE; });
+            currentCardSoWrapper->mState = CardSoState::MOVING_TO_SET_POSITION;
+        }
+    }
+    
+    const auto currentBoardCardCount = static_cast<int>(playerBoardCardSoWrappers.size());
+    
+    // Animate board cards to position. Last one will be animated externally
+    for (int i = 0; i < currentBoardCardCount - 1; ++i)
+    {
+        auto& currentCardSoWrapper = playerBoardCardSoWrappers.at(i);
+        auto originalCardPosition = card_utils::CalculateBoardCardPosition(i, currentBoardCardCount, mBoardState->GetActivePlayerIndex() == 0);
+        animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(currentCardSoWrapper->mSceneObject, originalCardPosition, currentCardSoWrapper->mSceneObject->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){});
+    }
 }
 
 ///------------------------------------------------------------------------------------------------

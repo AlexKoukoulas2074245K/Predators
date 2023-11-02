@@ -10,6 +10,7 @@
 
 ///------------------------------------------------------------------------------------------------
 
+#include <game/events/EventSystem.h>
 #include <engine/scene/SceneObject.h>
 #include <engine/utils/MathUtils.h>
 #include <memory>
@@ -30,7 +31,7 @@ struct CardSoWrapper;
 
 ///------------------------------------------------------------------------------------------------
 
-class GameSessionManager final
+class GameSessionManager final: public events::IListener
 {
 public:
     GameSessionManager();
@@ -41,12 +42,6 @@ public:
     
     const BoardState& GetBoardState() const;
     GameActionEngine& GetActionEngine();
-    
-    void OnApplicationMovedToBackground();
-    void OnCardCreation(std::shared_ptr<CardSoWrapper> cardSoWrapper, const bool forRemotePlayer);
-    void OnBoardCardDestruction(const int cardIndex, const bool forRemotePlayer);
-    void OnHeldCardSwap(std::shared_ptr<CardSoWrapper> cardSoWrapper, const int cardIndex, const bool forRemotePlayer);
-    void OnLastCardPlayedFinalized(const int cardIndex);
     
     const std::vector<std::vector<std::shared_ptr<CardSoWrapper>>>& GetHeldCardSoWrappers() const;
     const std::vector<std::vector<std::shared_ptr<CardSoWrapper>>>& GetBoardCardSoWrappers() const;
@@ -59,6 +54,12 @@ private:
     void OnFreeMovingCardRelease(std::shared_ptr<CardSoWrapper> cardSoWrapper);
     void CreateCardHighlighter();
     void DestroyCardHighlighterAtIndex(const int index);
+    void RegisterForEvents();
+    void OnApplicationMovedToBackground(const events::ApplicationMovedToBackgroundEvent&);
+    void OnBoardCardDestruction(const events::BoardCardDestructionEvent&);
+    void OnCardCreation(const events::CardCreationEvent& event);
+    void OnHeldCardSwap(const events::HeldCardSwapEvent& event);
+    void OnLastCardPlayedFinalized(const events::LastCardPlayedFinalizedEvent& event);
     
 private:
     enum class ProspectiveBoardCardsPushState

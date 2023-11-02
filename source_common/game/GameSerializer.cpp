@@ -12,6 +12,8 @@
 #include <game/GameSerializer.h>
 #include <nlohmann/json.hpp>
 
+//#define TEST_BINARY_FLOW
+
 ///------------------------------------------------------------------------------------------------
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
@@ -27,7 +29,7 @@
 
 ///------------------------------------------------------------------------------------------------
 
-#if !defined(NDEBUG)
+#if !defined(NDEBUG) && !defined(TEST_BINARY_FLOW)
 static const std::string GAME_FILE_NAME = "game.json";
 #else
 static const std::string GAME_FILE_NAME = "game.bin";
@@ -40,7 +42,7 @@ static std::ofstream sFile;
 
 GameSerializer::GameSerializer(const int gameSeed)
 {
-#if !defined(NDEBUG)
+#if !defined(NDEBUG) && !defined(TEST_BINARY_FLOW)
     std::ifstream existingFile(persistence_utils::GetProgressDirectoryPath() + GAME_FILE_NAME);
 #else
     std::ifstream existingFile(persistence_utils::GetProgressDirectoryPath() + GAME_FILE_NAME, std::ios::binary);
@@ -62,7 +64,7 @@ void GameSerializer::FlushStateToFile()
     if (sFile.is_open())
     {
         logging::Log(logging::LogType::INFO, "Writing game state to %s %s", (persistence_utils::GetProgressDirectoryPath() + GAME_FILE_NAME).c_str(), sGameState.dump(4).c_str());
-    #if !defined(NDEBUG)
+    #if !defined(NDEBUG) && !defined(TEST_BINARY_FLOW)
         sFile << sGameState.dump(4);
     #else
         const auto binVec = nlohmann::json::to_bson(sGameState);
@@ -78,7 +80,7 @@ void GameSerializer::OnGameAction(const strutils::StringId& gameActionName, cons
 {
     if (!sFile.is_open())
     {
-#if !defined(NDEBUG)
+#if !defined(NDEBUG) && !defined(TEST_BINARY_FLOW)
     #if defined(DESKTOP_FLOW)
         std::filesystem::create_directory(persistence_utils::GetProgressDirectoryPath());
     #endif

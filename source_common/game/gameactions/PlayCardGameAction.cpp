@@ -7,6 +7,7 @@
 
 #include <game/Cards.h>
 #include <game/CardUtils.h>
+#include <game/events/EventSystem.h>
 #include <game/gameactions/PlayCardGameAction.h>
 #include <game/GameSessionManager.h>
 #include <engine/rendering/AnimationManager.h>
@@ -73,10 +74,10 @@ void PlayCardGameAction::VInitAnimation()
     {
         activeScene->RemoveSceneObject(lastPlayedCardSoWrapper->mSceneObject->mName);
         lastPlayedCardSoWrapper = card_utils::CreateCardSoWrapper(lastPlayedCardSoWrapper->mCardData, lastPlayedCardSoWrapper->mSceneObject->mPosition, game_constants::TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX + std::to_string(mBoardState->GetActivePlayerState().mPlayerBoardCards.size() - 1), CardOrientation::FRONT_FACE, true, true, *activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE));
-        mGameSessionManager->OnHeldCardSwap(lastPlayedCardSoWrapper, lastPlayedCardIndex, true);
+        events::EventSystem::GetInstance().DispatchEvent<events::HeldCardSwapEvent>(lastPlayedCardSoWrapper, lastPlayedCardIndex, true);
     }
     
-    mGameSessionManager->OnLastCardPlayedFinalized(lastPlayedCardIndex);
+    events::EventSystem::GetInstance().DispatchEvent<events::LastCardPlayedFinalizedEvent>(lastPlayedCardIndex);
     
     
     // Rename played card components

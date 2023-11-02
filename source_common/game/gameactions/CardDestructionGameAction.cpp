@@ -7,6 +7,7 @@
 
 #include <game/Cards.h>
 #include <game/CardUtils.h>
+#include <game/events/EventSystem.h>
 #include <game/gameactions/CardDestructionGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/GameOverGameAction.h>
@@ -78,7 +79,7 @@ ActionAnimationUpdateResult CardDestructionGameAction::VUpdateAnimation(const fl
   
     if (cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] >= MAX_CARD_DISSOLVE_VALUE)
     {
-        mGameSessionManager->OnBoardCardDestruction(0, attackingPayerIndex == game_constants::REMOTE_PLAYER_INDEX);
+        events::EventSystem::GetInstance().DispatchEvent<events::BoardCardDestructionEvent>(0, attackingPayerIndex == game_constants::REMOTE_PLAYER_INDEX);
         return ActionAnimationUpdateResult::FINISHED;
     }
     return ActionAnimationUpdateResult::ONGOING;

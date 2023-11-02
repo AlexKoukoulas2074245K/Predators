@@ -29,11 +29,11 @@ namespace card_utils
 
 ///------------------------------------------------------------------------------------------------
 
-glm::vec3 CalculateHeldCardPosition(const int cardIndex, const int playerCardCount, bool forOpponentPlayer);
+glm::vec3 CalculateHeldCardPosition(const int cardIndex, const int playerCardCount, bool forRemotePlayer);
 
 ///------------------------------------------------------------------------------------------------
 
-glm::vec3 CalculateBoardCardPosition(const int cardIndex, const int playerCardCount, bool forOpponentPlayer);
+glm::vec3 CalculateBoardCardPosition(const int cardIndex, const int playerCardCount, bool forRemotePlayer);
 
 ///------------------------------------------------------------------------------------------------
 

@@ -10,6 +10,7 @@
 
 ///------------------------------------------------------------------------------------------------
 
+#include <game/events/Events.h>
 #include <functional>
 #include <string>
 #include <vector>
