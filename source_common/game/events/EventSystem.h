@@ -58,6 +58,14 @@ public:
         }
     };
     
+    template<typename EventType, typename FunctionType>
+    [[nodiscard]] std::unique_ptr<IListener> RegisterForEvent(FunctionType callback)
+    {
+        auto listener = std::make_unique<IListener>();
+        mEventCallbacks<EventType>.push_back(std::make_pair(listener.get(), callback));
+        return listener;
+    }
+    
     template<typename EventType, typename InstanceType, typename FunctionType>
     void RegisterForEvent(InstanceType* listener, FunctionType callback)
     {

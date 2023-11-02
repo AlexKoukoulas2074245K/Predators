@@ -104,3 +104,27 @@ TEST_F(EventSystemTests, TestListenerDeallocationDoesNotTriggerCallbackForSubseq
 }
 
 ///------------------------------------------------------------------------------------------------
+
+TEST_F(EventSystemTests, TestEventRegistrationWithLambda)
+{
+    static int sEventsListenedTo = 0;
+    class NotSoLongLivedTestEventListener final: public events::IListener
+    {
+    public:
+        void OnTestEvent(const TestEvent&)
+        {
+            sEventsListenedTo++;
+        }
+    };
+    
+    NotSoLongLivedTestEventListener listener;
+    {
+        auto listenerHandle = events::EventSystem::GetInstance().RegisterForEvent<TestEvent>([&](const TestEvent& e){listener.OnTestEvent(e); });
+        events::EventSystem::GetInstance().DispatchEvent<TestEvent>(1);
+    }
+    
+    events::EventSystem::GetInstance().DispatchEvent<TestEvent>(1);
+    EXPECT_EQ(sEventsListenedTo, 1);
+}
+
+///------------------------------------------------------------------------------------------------
