@@ -44,6 +44,7 @@ math::Rectangle GetSceneObjectBoundingRect(const scene::SceneObject& sceneObject
         {
             const auto& glyph = font.FindGlyph(textData.mText[i]);
             
+            xCursor += glyph.mXOffsetOverride * sceneObject.mScale.x;
             float targetX = xCursor;
             float targetY = sceneObject.mPosition.y - glyph.mYOffsetPixels * sceneObject.mScale.y * 0.5f;
             

@@ -143,6 +143,7 @@ public:
         {
             const auto& glyph = font.FindGlyph(sceneObjectTypeData.mText[i]);
             
+            xCursor += glyph.mXOffsetOverride * mSceneObject.mScale.x;
             float targetX = xCursor;
             float targetY = mSceneObject.mPosition.y - glyph.mYOffsetPixels * mSceneObject.mScale.y * 0.5f;
             

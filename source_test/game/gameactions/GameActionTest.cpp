@@ -165,6 +165,29 @@ TEST_F(GameActionTests, TestWeightAmmoIncrements)
     EXPECT_EQ(mBoardState->GetPlayerStates().at(1).mPlayerCurrentWeightAmmo, 2);
 }
 
+TEST_F(GameActionTests, TestPlayerActionGenerationEngine)
+{
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    while (mActionEngine->GetActiveGameActionName() != IDLE_GAME_ACTION_NAME)
+    {
+        mActionEngine->Update(0);
+    }
+    
+    mBoardState->GetPlayerStates()[0].mPlayerHeldCards = {3, 9, 3, 11, 4};
+    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = 6;
+    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = 6;
+    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get());
+    
+    while (mActionEngine->GetActiveGameActionName() != NEXT_PLAYER_GAME_ACTION_NAME)
+    {
+        mActionEngine->Update(0);
+    }
+    
+    EXPECT_EQ(mBoardState->GetActivePlayerState().mPlayerHeldCards.size(), 2);
+    EXPECT_EQ(mBoardState->GetActivePlayerState().mPlayerBoardCards.size(), 3);
+}
+
 TEST_F(GameActionTests, BattleSimulation)
 {
     constexpr int GAME_COUNT = 10000;

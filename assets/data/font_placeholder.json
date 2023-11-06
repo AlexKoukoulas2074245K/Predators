@@ -242,7 +242,8 @@
 					"yoffset": "21",
 					"xadvance": "0",
 					"page": "0",
-					"chnl": "15"
+					"chnl": "15",
+                    "xoffsetoverride": "-10"
 				},
 				{
 					"id": "50",
