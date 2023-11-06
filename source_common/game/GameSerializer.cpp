@@ -6,6 +6,7 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <engine/utils/Logging.h>
+#include <engine/utils/PlatformMacros.h>
 #include <game/utils/PersistenceUtils.h>
 #include <filesystem>
 #include <fstream>
@@ -13,19 +14,6 @@
 #include <nlohmann/json.hpp>
 
 //#define TEST_BINARY_FLOW
-
-///------------------------------------------------------------------------------------------------
-
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
-    #define DESKTOP_FLOW
-#elif __APPLE__
-    #include <TargetConditionals.h>
-    #if TARGET_IPHONE_SIMULATOR || TARGET_OS_IPHONE
-        #undef DESKTOP_FLOW
-    #else
-        #define DESKTOP_FLOW
-    #endif
-#endif
 
 ///------------------------------------------------------------------------------------------------
 

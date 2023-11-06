@@ -27,15 +27,7 @@
 #include <engine/scene/SceneObject.h>
 #include <engine/scene/SceneObjectUtils.h>
 #include <engine/utils/Logging.h>
-
-///------------------------------------------------------------------------------------------------
-
-#if __APPLE__
-    #include <TargetConditionals.h>
-    #if TARGET_IPHONE_SIMULATOR || TARGET_OS_IPHONE
-        #define IOS_FLOW
-    #endif
-#endif
+#include <engine/utils/PlatformMacros.h>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -68,7 +60,7 @@ static const float CARD_LOCATION_EFFECT_MIN_TARGET_ALPHA = 0.25f;
 static const float CARD_LOCATION_EFFECT_MAX_TARGET_ALPHA = 1.0f;
 static const float CARD_LOCATION_EFFECT_ALPHA_SPEED = 0.003f;
 
-#if defined(IOS_FLOW)
+#if defined(MOBILE_FLOW)
 static const float MOBILE_DISTANCE_FROM_CARD_LOCATION_INDICATOR = 0.003f;
 #else
 static const float DESKTOP_DISTANCE_FROM_CARD_LOCATION_INDICATOR = 0.003f;
@@ -241,7 +233,7 @@ void GameSessionManager::HandleTouchInput()
         
         bool cursorInSceneObject = math::IsPointInsideRectangle(sceneObjectRect.bottomLeft, sceneObjectRect.topRight, worldTouchPos);
         
-#if defined(IOS_FLOW)
+#if defined(MOBILE_FLOW)
         static std::unique_ptr<glm::vec2> selectedCardInitialTouchPosition = nullptr;
         if (inputStateManager.VButtonPressed(input::Button::MAIN_BUTTON) &&
             mRuleEngine->CanCardBePlayed(currentCardSoWrapper->mCardData, game_constants::LOCAL_PLAYER_INDEX) &&
@@ -453,7 +445,7 @@ void GameSessionManager::UpdateMiscSceneObjects(const float dtMillis)
         cardLocationIndicatorSo->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
         
         auto distanceFromCardLocationSo = math::Distance2IgnoreZ((*currentSoWrapperIter)->mSceneObject->mPosition, cardLocationIndicatorSo->mPosition);
-#if defined(IOS_FLOW)
+#if defined(MOBILE_FLOW)
         bool inBoardDropThreshold = distanceFromCardLocationSo <= MOBILE_DISTANCE_FROM_CARD_LOCATION_INDICATOR;
 #else
         bool inBoardDropThreshold = distanceFromCardLocationSo <= DESKTOP_DISTANCE_FROM_CARD_LOCATION_INDICATOR;
@@ -537,7 +529,7 @@ void GameSessionManager::OnFreeMovingCardRelease(std::shared_ptr<CardSoWrapper> 
     auto cardLocationIndicatorSo = activeScene->FindSceneObject(CARD_LOCATION_INDICATOR_SCENE_OBJECT_NAME);
     auto distanceFromCardLocationSo = math::Distance2IgnoreZ(cardSoWrapper->mSceneObject->mPosition, cardLocationIndicatorSo->mPosition);
     
-#if defined(IOS_FLOW)
+#if defined(MOBILE_FLOW)
     bool inBoardDropThreshold = distanceFromCardLocationSo <= MOBILE_DISTANCE_FROM_CARD_LOCATION_INDICATOR;
 #else
     bool inBoardDropThreshold = distanceFromCardLocationSo <= DESKTOP_DISTANCE_FROM_CARD_LOCATION_INDICATOR;
@@ -571,7 +563,7 @@ void GameSessionManager::CreateCardHighlighter()
 
     auto highlightedCardIter = std::find_if(localPlayerCards.begin(), localPlayerCards.end(), [&](const std::shared_ptr<CardSoWrapper>& cardSoWrapper)
     {
-#if defined(IOS_FLOW)
+#if defined(MOBILE_FLOW)
         return cardSoWrapper->mState == CardSoState::HIGHLIGHTED || cardSoWrapper->mState == CardSoState::FREE_MOVING;
 #else
         return cardSoWrapper->mState == CardSoState::HIGHLIGHTED;

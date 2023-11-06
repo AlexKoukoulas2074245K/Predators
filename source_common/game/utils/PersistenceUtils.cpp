@@ -5,22 +5,10 @@
 ///  Created by Alex Koukoulas on 14/10/2023
 ///------------------------------------------------------------------------------------------------
 
+#include <engine/utils/PlatformMacros.h>
 #include <engine/utils/StringUtils.h>
 #include <fstream>
 #include <sstream>
-
-///------------------------------------------------------------------------------------------------
-
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
-    #define DESKTOP_FLOW
-#elif __APPLE__
-    #include <TargetConditionals.h>
-    #if TARGET_IPHONE_SIMULATOR || TARGET_OS_IPHONE
-        #undef DESKTOP_FLOW
-    #else
-        #define DESKTOP_FLOW
-    #endif
-#endif
 
 ///------------------------------------------------------------------------------------------------
 
