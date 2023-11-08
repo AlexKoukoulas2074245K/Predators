@@ -116,49 +116,76 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper(const CardData* cardData, con
         cardComponents.back()->mPosition.y += game_constants::IN_GAME_CARD_PORTRAIT_Y_OFFSET;
         cardComponents.back()->mPosition.z += game_constants::CARD_COMPONENT_Z_OFFSET;
         
-        // Create damage icon
-        cardComponents.push_back(std::make_shared<scene::SceneObject>());
-        cardComponents.back()->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CARD_DAMAGE_ICON_TEXTURE_FILE_NAME);
-        cardComponents.back()->mScale.x = cardComponents.back()->mScale.y = game_constants::IN_GAME_CARD_PROPERTY_ICON_SCALE;
-        cardComponents.back()->mBoundingRectMultiplier.x = game_constants::CARD_BOUNDING_RECT_X_MULTIPLIER;
-        cardComponents.back()->mPosition = position;
-        cardComponents.back()->mPosition.x += game_constants::IN_GAME_CARD_PROPERTY_ICON_X_OFFSET;
-        cardComponents.back()->mPosition.y += game_constants::IN_GAME_CARD_PROPERTY_ICON_Y_OFFSET;
-        cardComponents.back()->mPosition.z += 2 * game_constants::CARD_COMPONENT_Z_OFFSET;
-        
-        // Create damage
-        cardComponents.push_back(std::make_shared<scene::SceneObject>());
-        scene::TextSceneObjectData damageTextData;
-        damageTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
-        damageTextData.mText = std::to_string(cardData->mCardDamage);
-        cardComponents.back()->mSceneObjectTypeData = std::move(damageTextData);
-        cardComponents.back()->mScale = glm::vec3(game_constants::IN_GAME_CARD_PROPERTY_SCALE);
-        cardComponents.back()->mPosition = position;
-        cardComponents.back()->mPosition.x += game_constants::IN_GAME_CARD_PROPERTY_X_OFFSET;
-        cardComponents.back()->mPosition.y += game_constants::IN_GAME_CARD_PROPERTY_Y_OFFSET;
-        cardComponents.back()->mPosition.z += 3 * game_constants::CARD_COMPONENT_Z_OFFSET;
-        
-        // Create weight icon
-        cardComponents.push_back(std::make_shared<scene::SceneObject>());
-        cardComponents.back()->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CARD_WEIGHT_ICON_TEXTURE_FILE_NAME);
-        cardComponents.back()->mScale.x = cardComponents.back()->mScale.y = game_constants::IN_GAME_CARD_PROPERTY_ICON_SCALE;
-        cardComponents.back()->mBoundingRectMultiplier.x = game_constants::CARD_BOUNDING_RECT_X_MULTIPLIER;
-        cardComponents.back()->mPosition = position;
-        cardComponents.back()->mPosition.x -= game_constants::IN_GAME_CARD_PROPERTY_ICON_X_OFFSET;
-        cardComponents.back()->mPosition.y += game_constants::IN_GAME_CARD_PROPERTY_ICON_Y_OFFSET;
-        cardComponents.back()->mPosition.z += 2 * game_constants::CARD_COMPONENT_Z_OFFSET;
-        
-        // Create weight
-        cardComponents.push_back(std::make_shared<scene::SceneObject>());
-        scene::TextSceneObjectData weightTextData;
-        weightTextData.mFontName = game_constants::FONT_PLACEHOLDER_NAME;
-        weightTextData.mText = std::to_string(cardData->mCardWeight);
-        cardComponents.back()->mSceneObjectTypeData = std::move(weightTextData);
-        cardComponents.back()->mScale = glm::vec3(game_constants::IN_GAME_CARD_PROPERTY_SCALE);
-        cardComponents.back()->mPosition = position;
-        cardComponents.back()->mPosition.x -= game_constants::IN_GAME_CARD_PROPERTY_X_OFFSET;
-        cardComponents.back()->mPosition.y += game_constants::IN_GAME_CARD_PROPERTY_Y_OFFSET;
-        cardComponents.back()->mPosition.z += 3 * game_constants::CARD_COMPONENT_Z_OFFSET;
+        if (cardData->IsSpell())
+        {
+            // Create weight icon
+            cardComponents.push_back(std::make_shared<scene::SceneObject>());
+            cardComponents.back()->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CARD_WEIGHT_ICON_TEXTURE_FILE_NAME);
+            cardComponents.back()->mScale.x = cardComponents.back()->mScale.y = game_constants::IN_GAME_CARD_PROPERTY_ICON_SCALE;
+            cardComponents.back()->mBoundingRectMultiplier.x = game_constants::CARD_BOUNDING_RECT_X_MULTIPLIER;
+            cardComponents.back()->mPosition = position;
+            cardComponents.back()->mPosition.x += game_constants::IN_GAME_CARD_SPELL_PROPERTY_ICON_X_OFFSET;
+            cardComponents.back()->mPosition.y += game_constants::IN_GAME_CARD_SPELL_PROPERTY_ICON_Y_OFFSET;
+            cardComponents.back()->mPosition.z += 2 * game_constants::CARD_COMPONENT_Z_OFFSET;
+            
+            // Create weight
+            cardComponents.push_back(std::make_shared<scene::SceneObject>());
+            scene::TextSceneObjectData weightTextData;
+            weightTextData.mFontName = game_constants::FONT_PLACEHOLDER_NAME;
+            weightTextData.mText = std::to_string(cardData->mCardWeight);
+            cardComponents.back()->mSceneObjectTypeData = std::move(weightTextData);
+            cardComponents.back()->mScale = glm::vec3(game_constants::IN_GAME_CARD_PROPERTY_SCALE);
+            cardComponents.back()->mPosition = position;
+            cardComponents.back()->mPosition.x += game_constants::IN_GAME_CARD_SPELL_PROPERTY_ICON_X_OFFSET;
+            cardComponents.back()->mPosition.y += game_constants::IN_GAME_CARD_SPELL_PROPERTY_ICON_Y_OFFSET;
+            cardComponents.back()->mPosition.z += 3 * game_constants::CARD_COMPONENT_Z_OFFSET;
+        }
+        else
+        {
+            // Create damage icon
+            cardComponents.push_back(std::make_shared<scene::SceneObject>());
+            cardComponents.back()->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CARD_DAMAGE_ICON_TEXTURE_FILE_NAME);
+            cardComponents.back()->mScale.x = cardComponents.back()->mScale.y = game_constants::IN_GAME_CARD_PROPERTY_ICON_SCALE;
+            cardComponents.back()->mBoundingRectMultiplier.x = game_constants::CARD_BOUNDING_RECT_X_MULTIPLIER;
+            cardComponents.back()->mPosition = position;
+            cardComponents.back()->mPosition.x += game_constants::IN_GAME_CARD_PROPERTY_ICON_X_OFFSET;
+            cardComponents.back()->mPosition.y += game_constants::IN_GAME_CARD_PROPERTY_ICON_Y_OFFSET;
+            cardComponents.back()->mPosition.z += 2 * game_constants::CARD_COMPONENT_Z_OFFSET;
+            
+            // Create damage
+            cardComponents.push_back(std::make_shared<scene::SceneObject>());
+            scene::TextSceneObjectData damageTextData;
+            damageTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
+            damageTextData.mText = std::to_string(cardData->mCardDamage);
+            cardComponents.back()->mSceneObjectTypeData = std::move(damageTextData);
+            cardComponents.back()->mScale = glm::vec3(game_constants::IN_GAME_CARD_PROPERTY_SCALE);
+            cardComponents.back()->mPosition = position;
+            cardComponents.back()->mPosition.x += game_constants::IN_GAME_CARD_PROPERTY_X_OFFSET;
+            cardComponents.back()->mPosition.y += game_constants::IN_GAME_CARD_PROPERTY_Y_OFFSET;
+            cardComponents.back()->mPosition.z += 3 * game_constants::CARD_COMPONENT_Z_OFFSET;
+            
+            // Create weight icon
+            cardComponents.push_back(std::make_shared<scene::SceneObject>());
+            cardComponents.back()->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CARD_WEIGHT_ICON_TEXTURE_FILE_NAME);
+            cardComponents.back()->mScale.x = cardComponents.back()->mScale.y = game_constants::IN_GAME_CARD_PROPERTY_ICON_SCALE;
+            cardComponents.back()->mBoundingRectMultiplier.x = game_constants::CARD_BOUNDING_RECT_X_MULTIPLIER;
+            cardComponents.back()->mPosition = position;
+            cardComponents.back()->mPosition.x -= game_constants::IN_GAME_CARD_PROPERTY_ICON_X_OFFSET;
+            cardComponents.back()->mPosition.y += game_constants::IN_GAME_CARD_PROPERTY_ICON_Y_OFFSET;
+            cardComponents.back()->mPosition.z += 2 * game_constants::CARD_COMPONENT_Z_OFFSET;
+            
+            // Create weight
+            cardComponents.push_back(std::make_shared<scene::SceneObject>());
+            scene::TextSceneObjectData weightTextData;
+            weightTextData.mFontName = game_constants::FONT_PLACEHOLDER_NAME;
+            weightTextData.mText = std::to_string(cardData->mCardWeight);
+            cardComponents.back()->mSceneObjectTypeData = std::move(weightTextData);
+            cardComponents.back()->mScale = glm::vec3(game_constants::IN_GAME_CARD_PROPERTY_SCALE);
+            cardComponents.back()->mPosition = position;
+            cardComponents.back()->mPosition.x -= game_constants::IN_GAME_CARD_PROPERTY_X_OFFSET;
+            cardComponents.back()->mPosition.y += game_constants::IN_GAME_CARD_PROPERTY_Y_OFFSET;
+            cardComponents.back()->mPosition.z += 3 * game_constants::CARD_COMPONENT_Z_OFFSET;
+        }
         
         // Create card name
         cardComponents.push_back(std::make_shared<scene::SceneObject>());

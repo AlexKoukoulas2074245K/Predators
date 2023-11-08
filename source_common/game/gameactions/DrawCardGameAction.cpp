@@ -26,7 +26,9 @@ void DrawCardGameAction::VSetNewGameState()
 {
     auto& activePlayerState = mBoardState->GetActivePlayerState();
     auto availableCardDataCount = static_cast<int>(CardDataRepository::GetInstance().GetCardDataCount());
+
     activePlayerState.mPlayerHeldCards.push_back(math::ControlledRandomInt() % availableCardDataCount);
+    activePlayerState.mPlayerHeldCards.push_back(19);
 }
 
 ///------------------------------------------------------------------------------------------------

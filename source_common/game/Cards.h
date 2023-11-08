@@ -14,6 +14,7 @@
 #include <memory>
 #include <optional>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 ///------------------------------------------------------------------------------------------------
@@ -41,10 +42,14 @@ enum class CardSoState
 
 struct CardData
 {
+    bool IsSpell() const { return !mCardEffect.empty(); }
+    
     int mCardId;
     int mCardDamage;
     int mCardWeight;
     std::string mCardName;
+    std::string mCardEffect;
+    strutils::StringId mCardFamily;
     resources::ResourceId mCardTextureResourceId;
     resources::ResourceId mCardShaderResourceId;
 };
@@ -73,13 +78,14 @@ public:
     
     size_t GetCardDataCount() const;
     std::optional<std::reference_wrapper<const CardData>> GetCardData(const int cardId) const;
-    void LoadCardData();
+    void LoadCardData(bool loadAssets);
     
 private:
     CardDataRepository() = default;
     
 private:
     std::unordered_map<int, CardData> mCardDataMap;
+    std::unordered_set<strutils::StringId, strutils::StringIdHasher> mCardFamilies;
 };
 
 ///------------------------------------------------------------------------------------------------

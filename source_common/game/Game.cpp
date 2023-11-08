@@ -51,7 +51,7 @@ Game::~Game()
 
 void Game::Init()
 {
-    CardDataRepository::GetInstance().LoadCardData();
+    CardDataRepository::GetInstance().LoadCardData(true);
     
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
     systemsEngine.GetFontRepository().LoadFont(game_constants::DEFAULT_FONT_NAME.GetString(), resources::ResourceReloadMode::DONT_RELOAD);
@@ -174,6 +174,43 @@ void Game::ApplicationMovedToBackground()
 #endif
 
 #if ((!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)) && (defined(CREATE_DEBUG_WIDGETS))
+static void CreateImGuiCardVecEntry(const std::string& cardIdPrefix, std::string& cardVec)
+{
+    cardVec.erase(cardVec.begin());
+    cardVec.erase(cardVec.end() - 1);
+    auto splitByNewLine = strutils::StringSplit(cardVec, ',');
+    ImGui::Text("[");
+    ImGui::SameLine();
+    for (size_t i = 0; i < splitByNewLine.size(); ++i)
+    {
+        auto cardDataOptional = CardDataRepository::GetInstance().GetCardData(std::stoi(splitByNewLine[i]));
+        ImGui::PushID((cardIdPrefix + std::to_string(i)).c_str());
+        ImGui::Text((i == 0 ? "%s" : ",%s"), splitByNewLine[i].c_str());
+        
+        if (cardDataOptional->get().IsSpell())
+        {
+            ImGui::SetItemTooltip("(Name: %s, Family: %s, Effect: %s, Weight: %d)",
+                cardDataOptional->get().mCardName.c_str(),
+                cardDataOptional->get().mCardFamily.GetString().c_str(),
+                cardDataOptional->get().mCardEffect.c_str(),
+                cardDataOptional->get().mCardWeight);
+        }
+        else
+        {
+            ImGui::SetItemTooltip("(Name: %s, Family: %s, Damage: %d, Weight: %d)",
+                cardDataOptional->get().mCardName.c_str(),
+                cardDataOptional->get().mCardFamily.GetString().c_str(),
+                cardDataOptional->get().mCardDamage,
+                cardDataOptional->get().mCardWeight);
+        }
+        
+        ImGui::PopID();
+        ImGui::SameLine();
+    }
+    ImGui::Text("]");
+    ImGui::NewLine();
+}
+
 void Game::CreateDebugWidgets()
 {
     // Create game configs
@@ -287,13 +324,13 @@ void Game::CreateDebugWidgets()
     ImGui::SeparatorText("Remote Player Stats");
     ImGui::TextWrapped("%s", remotePlayerStats.c_str());
     ImGui::SeparatorText("Remote Player Hand");
-    ImGui::TextWrapped("%s", remotePlayerHand.c_str());
+    CreateImGuiCardVecEntry("RemotePlayerHand", remotePlayerHand);
     ImGui::SeparatorText("Remote Player Board");
-    ImGui::TextWrapped("%s", remotePlayerBoard.c_str());
+    CreateImGuiCardVecEntry("RemotePlayerBoard", remotePlayerBoard);
     ImGui::SeparatorText("Local Player Board");
-    ImGui::TextWrapped("%s", localPlayerBoard.c_str());
+    CreateImGuiCardVecEntry("LocalPlayerBoard", localPlayerBoard);
     ImGui::SeparatorText("Local Player Hand");
-    ImGui::TextWrapped("%s", localPlayerHand.c_str());
+    CreateImGuiCardVecEntry("LocalPlayerHand", localPlayerHand);
     ImGui::SeparatorText("Local Player Stats");
     ImGui::TextWrapped("%s", localPlayerStats.c_str());
     ImGui::End();
