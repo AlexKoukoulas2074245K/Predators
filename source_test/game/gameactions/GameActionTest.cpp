@@ -42,7 +42,7 @@ protected:
     void SetUp() override
     {
         Init();
-        CardDataRepository::GetInstance().LoadCardData();
+        CardDataRepository::GetInstance().LoadCardData(false);
     }
     
 protected:
