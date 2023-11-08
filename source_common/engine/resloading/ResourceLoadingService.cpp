@@ -106,9 +106,9 @@ void ResourceLoadingService::Initialize()
 
 ///------------------------------------------------------------------------------------------------
 
-ResourceId ResourceLoadingService::GetResourceIdFromPath(const std::string& path)
+ResourceId ResourceLoadingService::GetResourceIdFromPath(const std::string& path, const bool isDynamicallyGenerated)
 {    
-    return strutils::GetStringHash(AdjustResourcePath(path));
+    return strutils::GetStringHash(isDynamicallyGenerated ? path : AdjustResourcePath(path));
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -146,7 +146,7 @@ void ResourceLoadingService::LoadResources(const std::vector<std::string>& resou
 
 ///------------------------------------------------------------------------------------------------
 
-ResourceId ResourceLoadingService::AddedDynamicallyCreatedTextureResourceId(const std::string& resourceName, unsigned int textureId, const int width, const int height)
+ResourceId ResourceLoadingService::AddDynamicallyCreatedTextureResourceId(const std::string& resourceName, unsigned int textureId, const int width, const int height)
 {
     const auto resourceId = strutils::GetStringHash(resourceName);
     if (!mResourceMap.count(resourceId))
@@ -168,10 +168,10 @@ bool ResourceLoadingService::DoesResourceExist(const std::string& resourcePath) 
 
 ///------------------------------------------------------------------------------------------------
 
-bool ResourceLoadingService::HasLoadedResource(const std::string& resourcePath) const
+bool ResourceLoadingService::HasLoadedResource(const std::string& resourcePath, const bool isDynamicallyGenerated) const
 {
     const auto adjustedPath = AdjustResourcePath(resourcePath);
-    const auto resourceId = strutils::GetStringHash(adjustedPath);
+    const auto resourceId = strutils::GetStringHash(isDynamicallyGenerated ? resourcePath : adjustedPath);
     
     return mResourceMap.count(resourceId) != 0;
 }

@@ -78,8 +78,9 @@ public:
     /// Both full paths, relative paths including the Resource Root, and relative
     /// paths excluding the Resource Root are supported.
     /// @param[in] resourcePath the path of the resource file.
+    /// @param[in] isDynamicallyGenerated whether or not the resource has been dynamically generated on runtime
     /// @returns the computed resource id.
-    ResourceId GetResourceIdFromPath(const std::string& resourcePath);
+    ResourceId GetResourceIdFromPath(const std::string& resourcePath, const bool isDynamicallyGenerated);
 
     /// Loads and returns the resource id of the loaded resource that lives on the given path.
     ///
@@ -103,7 +104,7 @@ public:
     /// @param[in] width the width of the texture
     /// @param[in] height the height of the texture
     /// @returns the generated resourceid
-    ResourceId AddedDynamicallyCreatedTextureResourceId(const std::string& resourceName, const unsigned int textureId, const int width, const int height);
+    ResourceId AddDynamicallyCreatedTextureResourceId(const std::string& resourceName, const unsigned int textureId, const int width, const int height);
     
     /// Checks whether a resource file exists under the given path.
     ///
@@ -118,8 +119,9 @@ public:
     /// Both full paths, relative paths including the Resource Root, and relative
     /// paths excluding the Resource Root are supported.
     /// @param[in] resourcePath the path of the resource file.
+    /// @param[in] isDynamicallyGenerated whether or not the resource has been dynamically generated on runtime
     /// @returns whether or not the resource has been loaded.
-    bool HasLoadedResource(const std::string& resourcePath) const;
+    bool HasLoadedResource(const std::string& resourcePath, const bool isDynamicallyGenerated) const;
     
     /// Unloads the specified resource loaded based on the given path.
     ///

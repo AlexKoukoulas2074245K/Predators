@@ -45,7 +45,7 @@ static const strutils::StringId POINT_LIGHT_POWERS_UNIFORM_NAME = strutils::Stri
 static const strutils::StringId IS_TEXTURE_SHEET_UNIFORM_NAME = strutils::StringId("texture_sheet");
 static const strutils::StringId CUSTOM_ALPHA_UNIFORM_NAME = strutils::StringId("custom_alpha");
 
-static const glm::ivec4 RENDER_TO_TEXTURE_VIEWPORT = {-768, -512, 2048, 2048};
+static const glm::ivec4 RENDER_TO_TEXTURE_VIEWPORT = {-1536, -1024, 4096, 4096};
 static const glm::vec4 RENDER_TO_TEXTURE_CLEAR_COLOR = {1.0f, 1.0f, 1.0f, 0.0f};
 
 
@@ -457,7 +457,6 @@ void RendererPlatformImpl::CreateIMGuiWidgets()
     ImGui::Text("Draw Calls %d", sDrawCallCounter);
     ImGui::Text("Particle Count %d", sParticleCounter);
     ImGui::Text("Anims Live %d", CoreSystemsEngine::GetInstance().GetAnimationManager().GetAnimationsPlayingCount());
-    
     ImGui::End();
     
     // Create scene data viewer
