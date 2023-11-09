@@ -71,6 +71,7 @@ static const float DESKTOP_DISTANCE_FROM_CARD_LOCATION_INDICATOR = 0.003f;
 GameSessionManager::GameSessionManager()
     : mPreviousProspectiveBoardCardsPushState(ProspectiveBoardCardsPushState::NONE)
     , mShouldShowCardLocationIndicator(false)
+    , mPendingCardPlay(false)
 {
     
 }
@@ -160,6 +161,11 @@ void GameSessionManager::InitGameSession()
 
 void GameSessionManager::Update(const float dtMillis)
 {
+    if (mActionEngine->GetActiveGameActionName() == IDLE_GAME_ACTION_NAME)
+    {
+        mPendingCardPlay = false;
+    }
+    
     if (mActionEngine->GetActiveGameActionName() == IDLE_GAME_ACTION_NAME &&
         mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX)
     {
@@ -538,11 +544,12 @@ void GameSessionManager::OnFreeMovingCardRelease(std::shared_ptr<CardSoWrapper> 
     bool inBoardDropThreshold = distanceFromCardLocationSo <= DESKTOP_DISTANCE_FROM_CARD_LOCATION_INDICATOR;
 #endif
     
-    if (inBoardDropThreshold && mActionEngine->GetActiveGameActionName() == IDLE_GAME_ACTION_NAME && mBoardState->GetActivePlayerIndex() == 1)
+    if (!mPendingCardPlay && inBoardDropThreshold && (mActionEngine->GetActiveGameActionName() == IDLE_GAME_ACTION_NAME || (mActionEngine->GetActiveGameActionName() == PLAY_CARD_ACTION_NAME && mActionEngine->GetActionCount() == 1)) && mBoardState->GetActivePlayerIndex() == 1)
     {
         mActionEngine->AddGameAction(PLAY_CARD_ACTION_NAME, {{PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, std::to_string(cardIndex)}});
+        mPendingCardPlay = true;
     }
-    else
+    else if (!mPendingCardPlay)
     {
         auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
         auto originalCardPosition = card_utils::CalculateHeldCardPosition(static_cast<int>(cardIndex), static_cast<int>(localPlayerCards.size()), false);

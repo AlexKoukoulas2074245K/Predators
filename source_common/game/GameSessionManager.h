@@ -83,6 +83,7 @@ private:
     std::vector<std::pair<bool, std::unique_ptr<AnimatedStatCrystal>>> mStatCrystals;
     ProspectiveBoardCardsPushState mPreviousProspectiveBoardCardsPushState;
     bool mShouldShowCardLocationIndicator;
+    bool mPendingCardPlay;
 };
 
 ///------------------------------------------------------------------------------------------------

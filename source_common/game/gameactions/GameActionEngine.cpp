@@ -119,6 +119,13 @@ const strutils::StringId& GameActionEngine::GetActiveGameActionName() const
 
 ///------------------------------------------------------------------------------------------------
 
+size_t GameActionEngine::GetActionCount() const
+{
+    return mGameActions.size();
+}
+
+///------------------------------------------------------------------------------------------------
+
 bool GameActionEngine::LoggingActionTransitions() const
 {
     return mLoggingActionTransitions;

@@ -42,8 +42,8 @@ public:
     void AddGameAction(const strutils::StringId& actionName, const ExtraActionParams extraActionParams = {});
     
     void SetLoggingActionTransitions(const bool logActionTransitions);
-    
     const strutils::StringId& GetActiveGameActionName() const;
+    size_t GetActionCount() const;
     bool LoggingActionTransitions() const;
     
 private:
