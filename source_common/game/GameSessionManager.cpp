@@ -230,7 +230,7 @@ void GameSessionManager::HandleTouchInput()
     
     std::vector<int> candidateHighlightIndices;
     mShouldShowCardLocationIndicator = false;
-
+    
     for (int i = 0; i < localPlayerCardCount; ++i)
     {
         auto& currentCardSoWrapper = localPlayerCards.at(i);
@@ -258,8 +258,12 @@ void GameSessionManager::HandleTouchInput()
         }
         else if (inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON) && cursorInSceneObject && !otherHighlightedCardExists)
         {
-            selectedCardInitialTouchPosition = std::make_unique<glm::vec2>(worldTouchPos);
-            candidateHighlightIndices.push_back(i);
+            auto originalCardPosition = card_utils::CalculateHeldCardPosition(i, localPlayerCardCount, false);
+            if (currentCardSoWrapper->mSceneObject->mPosition.y <= originalCardPosition.y)
+            {
+                selectedCardInitialTouchPosition = std::make_unique<glm::vec2>(worldTouchPos);
+                candidateHighlightIndices.push_back(i);
+            }
         }
         else if (!inputStateManager.VButtonPressed(input::Button::MAIN_BUTTON))
         {
@@ -269,6 +273,7 @@ void GameSessionManager::HandleTouchInput()
                 {
                     OnFreeMovingCardRelease(currentCardSoWrapper);
                 } break;
+                    
                 case CardSoState::HIGHLIGHTED:
                 {
                     auto originalCardPosition = card_utils::CalculateHeldCardPosition(i, localPlayerCardCount, false);

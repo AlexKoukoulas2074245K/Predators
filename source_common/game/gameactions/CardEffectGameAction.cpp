@@ -48,7 +48,7 @@ static const strutils::StringId CARD_EFFECT_PARTICLE_EMITTER_NAME = strutils::St
 
 static const float CARD_DISSOLVE_SPEED = 0.001f;
 static const float MAX_CARD_DISSOLVE_VALUE = 1.2f;
-static const float CARD_EFFECT_PARTICLE_EMITTER_Z_OFFSET = 0.0001f;
+static const float CARD_EFFECT_PARTICLE_EMITTER_Z_OFFSET = 22.0f;
 static const float CONTINUOUS_PARTICLE_GENERATION_DELAY_SECS = 0.002f;
 static const float CARD_SCALE_ANIMATION_DURATION_SECS = 0.6f;
 
