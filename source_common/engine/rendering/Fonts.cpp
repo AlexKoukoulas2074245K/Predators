@@ -21,6 +21,10 @@ namespace rendering
 
 ///------------------------------------------------------------------------------------------------
 
+static const std::string FONT_PLACEHOLDER_STRING = "_placeholder";
+
+///------------------------------------------------------------------------------------------------
+
 std::optional<std::reference_wrapper<const Font>> FontRepository::GetFont(const strutils::StringId& fontName) const
 {
     auto findIter = mFontMap.find(fontName);
@@ -50,7 +54,13 @@ void FontRepository::LoadFont(const std::string& fontName, const resources::Reso
     auto fontTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + fontName + ".png", resourceReloadMode);
     auto& fontTexture = CoreSystemsEngine::GetInstance().GetResourceLoadingService().GetResource<resources::TextureResource>(fontTextureResourceId);
     
-    auto fontDefinitionJsonResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_DATA_ROOT + fontName + ".json", resourceReloadMode);
+    auto fontDefinitionName = fontName;
+    if (strutils::StringContains(fontDefinitionName, FONT_PLACEHOLDER_STRING))
+    {
+        fontDefinitionName = fontDefinitionName.substr(0, fontDefinitionName.find(FONT_PLACEHOLDER_STRING));
+    }
+    
+    auto fontDefinitionJsonResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_DATA_ROOT + fontDefinitionName + ".json", resourceReloadMode);
     auto fontJson =  nlohmann::json::parse(CoreSystemsEngine::GetInstance().GetResourceLoadingService().GetResource<resources::DataFileResource>(fontDefinitionJsonResourceId).GetContents());
     
     Font font;

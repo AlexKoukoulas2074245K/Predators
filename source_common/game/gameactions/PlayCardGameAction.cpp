@@ -8,6 +8,8 @@
 #include <game/Cards.h>
 #include <game/CardUtils.h>
 #include <game/events/EventSystem.h>
+#include <game/gameactions/CardEffectGameAction.h>
+#include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/PlayCardGameAction.h>
 #include <game/GameSessionManager.h>
 #include <engine/rendering/AnimationManager.h>
@@ -21,6 +23,7 @@
 const std::string PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM = "lastPlayedCardIndex";
 
 static const std::string CARD_PLAY_PARTICLE_TEXTURE_FILE_NAME = "smoke.png";
+static const strutils::StringId CARD_EFFECT_GAME_ACTION_NAME = strutils::StringId("CardEffectGameAction");
 
 static const float CARD_CAMERA_SHAKE_DURATION = 0.25f;
 static const float CARD_CAMERA_SHAKE_STRENGTH = 0.005f;
@@ -50,10 +53,18 @@ void PlayCardGameAction::VSetNewGameState()
     
     auto lastPlayedCardIndex = std::stoi(mExtraActionParams.at(LAST_PLAYED_CARD_INDEX_PARAM));
     auto cardId = activePlayerState.mPlayerHeldCards[lastPlayedCardIndex];
+    auto cardData = CardDataRepository::GetInstance().GetCardData(cardId);
+    
+    assert(cardData.has_value());
     
     activePlayerState.mPlayerBoardCards.push_back(cardId);
     activePlayerState.mPlayerHeldCards.erase(activePlayerState.mPlayerHeldCards.begin() + lastPlayedCardIndex);
-    activePlayerState.mPlayerCurrentWeightAmmo -= CardDataRepository::GetInstance().GetCardData(cardId)->get().mCardWeight;
+    activePlayerState.mPlayerCurrentWeightAmmo -= cardData->get().mCardWeight;
+    
+    if (cardData->get().IsSpell())
+    {
+        mGameActionEngine->AddGameAction(CARD_EFFECT_GAME_ACTION_NAME);
+    }
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -73,7 +84,7 @@ void PlayCardGameAction::VInitAnimation()
     if (mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX)
     {
         activeScene->RemoveSceneObject(lastPlayedCardSoWrapper->mSceneObject->mName);
-        lastPlayedCardSoWrapper = card_utils::CreateCardSoWrapper(lastPlayedCardSoWrapper->mCardData, lastPlayedCardSoWrapper->mSceneObject->mPosition, game_constants::TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX + std::to_string(mBoardState->GetActivePlayerState().mPlayerBoardCards.size() - 1), CardOrientation::FRONT_FACE, true, true, *activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE));
+        lastPlayedCardSoWrapper = card_utils::CreateCardSoWrapper(lastPlayedCardSoWrapper->mCardData, lastPlayedCardSoWrapper->mSceneObject->mPosition, game_constants::TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX + std::to_string(mBoardState->GetActivePlayerState().mPlayerBoardCards.size() - 1), CardOrientation::FRONT_FACE, true, true, {}, *activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE));
         events::EventSystem::GetInstance().DispatchEvent<events::HeldCardSwapEvent>(lastPlayedCardSoWrapper, lastPlayedCardIndex, true);
     }
     
@@ -102,7 +113,7 @@ void PlayCardGameAction::VInitAnimation()
             CARD_PLAY_PARTICLE_COUNT,                  // particleCount
             CARD_PLAY_PARTICLE_TEXTURE_FILE_NAME,      // particleTextureFilename
             *CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE), // scene
-            particle_flags::PREFILLED                  // particleFlags
+            particle_flags::PREFILLED | particle_flags::ENLARGE_OVER_TIME                  // particleFlags
          );
     });
     mPendingAnimations++;

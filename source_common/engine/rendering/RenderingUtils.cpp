@@ -76,6 +76,10 @@ void CollateSceneObjectsIntoOne(const std::string& dynamicTextureResourceName, c
         GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, oldRenderBuffer));
         assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
     }
+    else
+    {
+        sceneObjects.front()->mPosition -= positionOffset;
+    }
     
     assert(sceneObjects.size() > 1);
     

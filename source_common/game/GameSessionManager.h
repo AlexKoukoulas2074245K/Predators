@@ -58,7 +58,9 @@ private:
     void RegisterForEvents();
     void OnApplicationMovedToBackground(const events::ApplicationMovedToBackgroundEvent&);
     void OnBoardCardDestruction(const events::BoardCardDestructionEvent&);
+    void OnBoardCardDestructionWithReposition(const events::BoardCardDestructionWithRepositionEvent&);
     void OnCardCreation(const events::CardCreationEvent& event);
+    void OnCardBuffed(const events::CardBuffedEvent& event);
     void OnHeldCardSwap(const events::HeldCardSwapEvent& event);
     void OnLastCardPlayedFinalized(const events::LastCardPlayedFinalizedEvent& event);
     void OnHealthChangeAnimationTriggerEvent(const events::HealthChangeAnimationTriggerEvent&);

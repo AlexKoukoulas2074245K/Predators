@@ -89,6 +89,9 @@ void GameSessionManager::InitGameSession()
     mBoardState->GetPlayerStates().emplace_back();
     mBoardState->GetPlayerStates().emplace_back();
     
+    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("dinosaurs"));
+    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));
+    
     mPlayerHeldCardSceneObjectWrappers.emplace_back();
     mPlayerHeldCardSceneObjectWrappers.emplace_back();
     
@@ -103,7 +106,7 @@ void GameSessionManager::InitGameSession()
     GameReplayEngine replayEngine(persistence_utils::GetProgressDirectoryPath() + "game");
     auto seed = replayEngine.GetGameFileSeed();
 #else
-    auto seed = math::RandomInt();
+    auto seed = 749566041; //math::RandomInt();
 #endif
     
     mGameSerializer = std::make_unique<GameSerializer>(seed);
@@ -388,15 +391,15 @@ void GameSessionManager::UpdateMiscSceneObjects(const float dtMillis)
     
     for (auto& cardSoWrapper: localPlayerHeldCards)
     {
-        cardSoWrapper->mSceneObject->mShaderIntUniformValues[game_constants::CARD_INTERACTIVE_MODE_UNIFORM_NAME] = mRuleEngine->CanCardBePlayed(cardSoWrapper->mCardData, true) ? game_constants::CARD_INTERACTIVE_MODE_INTERACTIVE : game_constants::CARD_INTERACTIVE_MODE_NONINTERACTIVE;
+        cardSoWrapper->mSceneObject->mShaderIntUniformValues[game_constants::CARD_WEIGHT_INTERACTIVE_MODE_UNIFORM_NAME] = mRuleEngine->CanCardBePlayed(cardSoWrapper->mCardData, true) ? game_constants::CARD_INTERACTIVE_MODE_INTERACTIVE : game_constants::CARD_INTERACTIVE_MODE_NONINTERACTIVE;
     }
     for (auto& cardSoWrapper: localPlayerBoardCards)
     {
-        cardSoWrapper->mSceneObject->mShaderIntUniformValues[game_constants::CARD_INTERACTIVE_MODE_UNIFORM_NAME] = game_constants::CARD_INTERACTIVE_MODE_DEFAULT;
+        cardSoWrapper->mSceneObject->mShaderIntUniformValues[game_constants::CARD_WEIGHT_INTERACTIVE_MODE_UNIFORM_NAME] = game_constants::CARD_INTERACTIVE_MODE_DEFAULT;
     }
     for (auto& cardSoWrapper: remotePlayerBoardCards)
     {
-        cardSoWrapper->mSceneObject->mShaderIntUniformValues[game_constants::CARD_INTERACTIVE_MODE_UNIFORM_NAME] = game_constants::CARD_INTERACTIVE_MODE_DEFAULT;
+        cardSoWrapper->mSceneObject->mShaderIntUniformValues[game_constants::CARD_WEIGHT_INTERACTIVE_MODE_UNIFORM_NAME] = game_constants::CARD_INTERACTIVE_MODE_DEFAULT;
     }
     
     // Action Highlighters
@@ -606,7 +609,9 @@ void GameSessionManager::RegisterForEvents()
     
     eventSystem.RegisterForEvent<events::ApplicationMovedToBackgroundEvent>(this, &GameSessionManager::OnApplicationMovedToBackground);
     eventSystem.RegisterForEvent<events::BoardCardDestructionEvent>(this, &GameSessionManager::OnBoardCardDestruction);
+    eventSystem.RegisterForEvent<events::BoardCardDestructionWithRepositionEvent>(this, &GameSessionManager::OnBoardCardDestructionWithReposition);
     eventSystem.RegisterForEvent<events::CardCreationEvent>(this, &GameSessionManager::OnCardCreation);
+    eventSystem.RegisterForEvent<events::CardBuffedEvent>(this, &GameSessionManager::OnCardBuffed);
     eventSystem.RegisterForEvent<events::HeldCardSwapEvent>(this, &GameSessionManager::OnHeldCardSwap);
     eventSystem.RegisterForEvent<events::LastCardPlayedFinalizedEvent>(this, &GameSessionManager::OnLastCardPlayedFinalized);
     eventSystem.RegisterForEvent<events::HealthChangeAnimationTriggerEvent>(this, &GameSessionManager::OnHealthChangeAnimationTriggerEvent);
@@ -635,9 +640,58 @@ void GameSessionManager::OnBoardCardDestruction(const events::BoardCardDestructi
 
 ///------------------------------------------------------------------------------------------------
 
+void GameSessionManager::OnBoardCardDestructionWithReposition(const events::BoardCardDestructionWithRepositionEvent& event)
+{
+    const auto& activeSceneManager = CoreSystemsEngine::GetInstance().GetActiveSceneManager();
+    auto activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+    
+    auto& boardSoWrappers = mPlayerBoardCardSceneObjectWrappers[(event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)];
+    activeScene->RemoveSceneObject(boardSoWrappers[event.mCardIndex]->mSceneObject->mName);
+    
+    boardSoWrappers.erase(boardSoWrappers.begin() + event.mCardIndex);
+    
+    // Animate board cards to position.
+    const auto currentBoardCardCount = static_cast<int>(boardSoWrappers.size());
+    for (int i = 0; i < currentBoardCardCount; ++i)
+    {
+        auto& currentCardSoWrapper = boardSoWrappers.at(i);
+    
+        auto originalCardPosition = card_utils::CalculateBoardCardPosition(i, currentBoardCardCount, event.mForRemotePlayer);
+        animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(currentCardSoWrapper->mSceneObject, originalCardPosition, currentCardSoWrapper->mSceneObject->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){});
+    }
+}
+
+///------------------------------------------------------------------------------------------------
+
 void GameSessionManager::OnCardCreation(const events::CardCreationEvent& event)
 {
     mPlayerHeldCardSceneObjectWrappers[(event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)].push_back(event.mCardSoWrapper);
+}
+
+///------------------------------------------------------------------------------------------------
+
+void GameSessionManager::OnCardBuffed(const events::CardBuffedEvent& event)
+{
+    auto& activeSceneManager = CoreSystemsEngine::GetInstance().GetActiveSceneManager();
+    auto activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    
+    if (event.mBoardCard)
+    {
+        auto& boardSceneObjectWrappers = mPlayerBoardCardSceneObjectWrappers[(event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)];
+        auto& cardSceneObjectWrapper = boardSceneObjectWrappers[event.mCardIdex];
+        
+        activeScene->RemoveSceneObject(cardSceneObjectWrapper->mSceneObject->mName);
+        boardSceneObjectWrappers[event.mCardIdex] = card_utils::CreateCardSoWrapper(cardSceneObjectWrapper->mCardData, cardSceneObjectWrapper->mSceneObject->mPosition, (event.mForRemotePlayer ? game_constants::TOP_PLAYER_BOARD_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_BOARD_CARD_SO_NAME_PREFIX) + std::to_string(event.mCardIdex), CardOrientation::FRONT_FACE, event.mForRemotePlayer, true, mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.at(event.mCardIdex), *activeScene);
+    }
+    else
+    {
+        auto& heldSceneObjectWrappers = mPlayerHeldCardSceneObjectWrappers[(event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)];
+        auto& cardSceneObjectWrapper = heldSceneObjectWrappers[event.mCardIdex];
+        
+        activeScene->RemoveSceneObject(cardSceneObjectWrapper->mSceneObject->mName);
+        heldSceneObjectWrappers[event.mCardIdex] = card_utils::CreateCardSoWrapper(cardSceneObjectWrapper->mCardData, cardSceneObjectWrapper->mSceneObject->mPosition, (event.mForRemotePlayer ? game_constants::TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_HELD_CARD_SO_NAME_PREFIX) + std::to_string(event.mCardIdex), CardOrientation::FRONT_FACE, event.mForRemotePlayer, true, {}, *activeScene);
+    }
 }
 
 ///------------------------------------------------------------------------------------------------

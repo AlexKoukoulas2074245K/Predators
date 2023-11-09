@@ -12,6 +12,7 @@
 
 #include <engine/utils/MathUtils.h>
 #include <engine/utils/StringUtils.h>
+#include <game/BoardState.h>
 #include <game/Cards.h>
 #include <memory>
 #include <vector>
@@ -37,7 +38,7 @@ glm::vec3 CalculateBoardCardPosition(const int cardIndex, const int playerCardCo
 
 ///------------------------------------------------------------------------------------------------
 
-std::shared_ptr<CardSoWrapper> CreateCardSoWrapper(const CardData* card, const glm::vec3& position, const std::string& cardNamePrefix, const CardOrientation cardOrientation, const bool forRemotePlayer, const bool canCardBePlayed, scene::Scene& scene);
+std::shared_ptr<CardSoWrapper> CreateCardSoWrapper(const CardData* card, const glm::vec3& position, const std::string& cardNamePrefix, const CardOrientation cardOrientation, const bool forRemotePlayer, const bool canCardBePlayed, const CardStatOverrides& cardStatOverrides, scene::Scene& scene);
 
 ///------------------------------------------------------------------------------------------------
 

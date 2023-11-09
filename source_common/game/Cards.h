@@ -77,6 +77,8 @@ public:
     CardDataRepository& operator = (CardDataRepository&&) = delete;
     
     size_t GetCardDataCount() const;
+    std::vector<int> GetAllCardIds() const;
+    std::vector<int> GetCardIdsByFamily(const strutils::StringId& family) const;
     std::optional<std::reference_wrapper<const CardData>> GetCardData(const int cardId) const;
     void LoadCardData(bool loadAssets);
     

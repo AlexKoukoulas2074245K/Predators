@@ -36,13 +36,15 @@ protected:
         mGameRuleEngine = std::make_unique<GameRuleEngine>(mBoardState.get());
         mPlayerActionGenerationEngine = std::make_unique<PlayerActionGenerationEngine>(mGameRuleEngine.get(), mActionEngine.get());
         mBoardState->GetPlayerStates().emplace_back();
+        mBoardState->GetPlayerStates().back().mPlayerDeckCards = CardDataRepository::GetInstance().GetAllCardIds();
         mBoardState->GetPlayerStates().emplace_back();
+        mBoardState->GetPlayerStates().back().mPlayerDeckCards = CardDataRepository::GetInstance().GetAllCardIds();
     }
     
     void SetUp() override
     {
-        Init();
         CardDataRepository::GetInstance().LoadCardData(false);
+        Init();
     }
     
 protected:

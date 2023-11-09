@@ -39,7 +39,8 @@ namespace game_constants
     
     // Fonts
     inline const strutils::StringId DEFAULT_FONT_NAME = strutils::StringId("font");
-    inline const strutils::StringId FONT_PLACEHOLDER_NAME = strutils::StringId("font_placeholder");
+    inline const strutils::StringId FONT_PLACEHOLDER_DAMAGE_NAME = strutils::StringId("font_placeholder_damage");
+    inline const strutils::StringId FONT_PLACEHOLDER_WEIGHT_NAME = strutils::StringId("font_placeholder_weight");
 
     // Uniforms
     inline const strutils::StringId CARD_HIGHLIGHTER_INVALID_ACTION_UNIFORM_NAME = strutils::StringId("invalid_action");
@@ -48,7 +49,8 @@ namespace game_constants
     inline const strutils::StringId PERLIN_TIME_SPEED_UNIFORM_NAME = strutils::StringId("time_speed");
     inline const strutils::StringId PERLIN_RESOLUTION_UNIFORM_NAME = strutils::StringId("perlin_resolution");
     inline const strutils::StringId PERLIN_CLARITY_UNIFORM_NAME = strutils::StringId("perlin_clarity");
-    inline const strutils::StringId CARD_INTERACTIVE_MODE_UNIFORM_NAME = strutils::StringId("interactive_mode");
+    inline const strutils::StringId CARD_WEIGHT_INTERACTIVE_MODE_UNIFORM_NAME = strutils::StringId("weight_interactive_mode");
+    inline const strutils::StringId CARD_DAMAGE_INTERACTIVE_MODE_UNIFORM_NAME = strutils::StringId("damage_interactive_mode");
 
     // Scenes
     inline const strutils::StringId IN_GAME_BATTLE_SCENE = strutils::StringId("BATTLE");
@@ -70,7 +72,7 @@ namespace game_constants
     inline const float IN_GAME_CARD_PORTRAIT_Y_OFFSET = 0.008f;
     inline const float IN_GAME_CARD_PROPERTY_ICON_SCALE = 0.04f;
     inline const float IN_GAME_CARD_SPELL_PROPERTY_ICON_X_OFFSET = 0.000f;
-    inline const float IN_GAME_CARD_SPELL_PROPERTY_ICON_Y_OFFSET = 0.04f;
+    inline const float IN_GAME_CARD_SPELL_PROPERTY_ICON_Y_OFFSET = 0.035f;
     inline const float IN_GAME_CARD_PROPERTY_ICON_X_OFFSET = -0.015f;
     inline const float IN_GAME_CARD_PROPERTY_ICON_Y_OFFSET = 0.03f;
     inline const float IN_GAME_CARD_PROPERTY_X_OFFSET = -0.0158f;

@@ -27,6 +27,7 @@ namespace particle_flags
     static constexpr uint8_t NONE                           = 0x0;
     static constexpr uint8_t PREFILLED                      = 0x1;
     static constexpr uint8_t CONTINUOUS_PARTICLE_GENERATION = 0x2;
+    static constexpr uint8_t ENLARGE_OVER_TIME              = 0x4;
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -48,6 +49,10 @@ void SpawnParticlesAtFirstAvailableSlot(const int particlesToSpawnCount, scene::
 
 ///------------------------------------------------------------------------------------------------
 
+void RemoveParticleEmitterFlag(const uint8_t flag, const strutils::StringId particleEmitterSceneObjectName, scene::Scene& scene);
+
+///------------------------------------------------------------------------------------------------
+
 std::shared_ptr<scene::SceneObject> CreateParticleEmitterAtPosition
 (
     const glm::vec3& pos,
@@ -59,7 +64,8 @@ std::shared_ptr<scene::SceneObject> CreateParticleEmitterAtPosition
     const std::string& particleTextureFilename,
     scene::Scene& scene,
     const uint8_t particleFlags = particle_flags::NONE,
-    const strutils::StringId particleEmitterName = strutils::StringId()
+    const strutils::StringId particleEmitterSceneObjectName = strutils::StringId(),
+    const float particleGenerationDelaySecs = 0.0f
  );
 
 ///------------------------------------------------------------------------------------------------

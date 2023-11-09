@@ -43,7 +43,7 @@ void main()
     float glow_threshold = 0.05f;
     if (distance_to_dissolve_color < glow_threshold && frag_color.a > 0.1f)
     {
-        frag_color = mix(vec4(1.0f, 0.0f, 0.0f, 1.0f), vec4(1.0f, 1.0f, 0.0f, 1.0f), distance_to_dissolve_color/glow_threshold);
+        frag_color = mix(vec4(0.0f, 0.0f, 1.0f, 1.0f), vec4(0.0f, 1.0f, 1.0f, 1.0f), distance_to_dissolve_color/glow_threshold);
     }
 
     if (affected_by_light)

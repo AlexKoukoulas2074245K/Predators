@@ -184,7 +184,7 @@
             "weight": 2,
             "family": "rodents",
             "name": "Fluff Attack",
-            "effect": "DAMAGE +1 GLOBAL",
+            "effect": "DAMAGE +1 FAMILY",
             "texture": "rodents_attack.png",
             "shader": "basic.vs"
         }

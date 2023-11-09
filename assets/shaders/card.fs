@@ -11,7 +11,8 @@ uniform float point_light_powers[32];
 uniform float custom_alpha;
 uniform bool affected_by_light;
 uniform int active_light_count;
-uniform int interactive_mode;
+uniform int weight_interactive_mode;
+uniform int damage_interactive_mode;
 out vec4 frag_color;
 
 #include "card_interactive.inc"
@@ -24,7 +25,7 @@ void main()
 
     if (frag_color.a < 0.1) discard;
     
-    frag_color = calculate_interactive_color(frag_color, interactive_mode);
+    frag_color = calculate_interactive_color(frag_color, weight_interactive_mode, damage_interactive_mode);
     
     if (affected_by_light)
     {

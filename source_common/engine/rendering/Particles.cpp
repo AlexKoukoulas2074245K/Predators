@@ -23,13 +23,6 @@ namespace rendering
 
 static const std::vector<std::vector<float>> PARTICLE_VERTEX_POSITIONS =
 {
-//    {
-//        0.0f, 0.0f, 0.0f,
-//        1.0f, 0.0f, 0.0f,
-//        0.0f, 0.0f, 1.0f,
-//        1.0f, 0.0f, 1.0f
-//    },
-//
     {
         0.0f, 0.0f, 0.0f,
         1.0f, 0.0f, 0.0f,
@@ -105,6 +98,17 @@ void SpawnParticlesAtFirstAvailableSlot(const size_t particlesToSpawnCount, scen
 
 ///------------------------------------------------------------------------------------------------
 
+void RemoveParticleEmitterFlag(const uint8_t flag, const strutils::StringId particleEmitterSceneObjectName, scene::Scene& scene)
+{
+    auto particleSystemSo = scene.FindSceneObject(particleEmitterSceneObjectName);
+    if (particleSystemSo && std::holds_alternative<scene::ParticleEmitterObjectData>(particleSystemSo->mSceneObjectTypeData))
+    {
+        std::get<scene::ParticleEmitterObjectData>(particleSystemSo->mSceneObjectTypeData).mParticleFlags &= (~flag);
+    }
+}
+
+///------------------------------------------------------------------------------------------------
+
 std::shared_ptr<scene::SceneObject> CreateParticleEmitterAtPosition
 (
     const glm::vec3& pos,
@@ -116,10 +120,11 @@ std::shared_ptr<scene::SceneObject> CreateParticleEmitterAtPosition
     const std::string& particleTextureFilename,
     scene::Scene& scene,
     const uint8_t particleFlags, /* = particle_flags::NONE */
-    const strutils::StringId particleEmitterName /* = strutils::StringId() */
+    const strutils::StringId particleEmitterSceneObjectName, /* = strutils::StringId() */
+    const float particleGenerationDelaySecs /*= 0.0f*/
 )
 {
-    auto particleSystemSo = scene.CreateSceneObject(particleEmitterName.isEmpty() ? strutils::StringId(PARTICLE_EMITTER_NAME_PREFIX + std::to_string(sParticleEmitterCount)) : particleEmitterName);
+    auto particleSystemSo = scene.CreateSceneObject(particleEmitterSceneObjectName.isEmpty() ? strutils::StringId(PARTICLE_EMITTER_NAME_PREFIX + std::to_string(sParticleEmitterCount)) : particleEmitterSceneObjectName);
     particleSystemSo->mPosition = pos;
     particleSystemSo->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + particleTextureFilename);
     particleSystemSo->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + PARTICLE_SHADER_FILE_NAME);
@@ -127,6 +132,8 @@ std::shared_ptr<scene::SceneObject> CreateParticleEmitterAtPosition
     scene::ParticleEmitterObjectData particleEmitterData;
     particleEmitterData.mParticleCount = particleCount;
     particleEmitterData.mParticleFlags = particleFlags;
+    particleEmitterData.mParticleGenerationMaxDelaySecs = particleGenerationDelaySecs;
+    particleEmitterData.mParticleGenerationCurrentDelaySecs = particleGenerationDelaySecs;
     
     assert(IS_FLAG_SET(particle_flags::PREFILLED) || IS_FLAG_SET(particle_flags::CONTINUOUS_PARTICLE_GENERATION));
     

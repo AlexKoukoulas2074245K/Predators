@@ -35,6 +35,12 @@ void ParticleUpdater::UpdateSceneParticles(const float dtMillis, scene::Scene& s
         if (std::holds_alternative<scene::ParticleEmitterObjectData>(sceneObject->mSceneObjectTypeData))
         {
             auto& particleEmitterData = std::get<scene::ParticleEmitterObjectData>(sceneObject->mSceneObjectTypeData);
+            particleEmitterData.mParticleGenerationCurrentDelaySecs -= dtMillis/1000.0f;
+            if (particleEmitterData.mParticleGenerationCurrentDelaySecs <= 0.0f)
+            {
+                particleEmitterData.mParticleGenerationCurrentDelaySecs = 0.0f;
+            }
+            
             size_t deadParticles = 0;
             for (size_t i = 0; i < particleEmitterData.mParticleCount; ++i)
             {
@@ -44,9 +50,10 @@ void ParticleUpdater::UpdateSceneParticles(const float dtMillis, scene::Scene& s
                 // if the lifetime is below add to the count of finished particles
                 if (particleEmitterData.mParticleLifetimeSecs[i] <= 0.0f )
                 {
-                    if (IS_FLAG_SET(particle_flags::CONTINUOUS_PARTICLE_GENERATION))
+                    if (IS_FLAG_SET(particle_flags::CONTINUOUS_PARTICLE_GENERATION) && particleEmitterData.mParticleGenerationCurrentDelaySecs <= 0.0f)
                     {
                         SpawnParticleAtIndex(i, sceneObject->mPosition, particleEmitterData);
+                        particleEmitterData.mParticleGenerationCurrentDelaySecs = particleEmitterData.mParticleGenerationMaxDelaySecs;
                     }
                     else
                     {
@@ -56,10 +63,13 @@ void ParticleUpdater::UpdateSceneParticles(const float dtMillis, scene::Scene& s
                 }
                 
                 // move the particle up depending on the delta time
-                particleEmitterData.mParticleSizes[i] += PARTICLE_ENLARGEMENT_SPEED * dtMillis;
+                if (IS_FLAG_SET(particle_flags::ENLARGE_OVER_TIME))
+                {
+                    particleEmitterData.mParticleSizes[i] += PARTICLE_ENLARGEMENT_SPEED * dtMillis;
+                }
             }
             
-            if (deadParticles == particleEmitterData.mParticleCount)
+            if (deadParticles == particleEmitterData.mParticleCount && !IS_FLAG_SET(particle_flags::CONTINUOUS_PARTICLE_GENERATION))
             {
                 mParticleEmittersToDelete.push_back(sceneObject);
             }

@@ -55,7 +55,8 @@ void Game::Init()
     
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
     systemsEngine.GetFontRepository().LoadFont(game_constants::DEFAULT_FONT_NAME.GetString(), resources::ResourceReloadMode::DONT_RELOAD);
-    systemsEngine.GetFontRepository().LoadFont(game_constants::FONT_PLACEHOLDER_NAME.GetString(), resources::ResourceReloadMode::DONT_RELOAD);
+    systemsEngine.GetFontRepository().LoadFont(game_constants::FONT_PLACEHOLDER_DAMAGE_NAME.GetString(), resources::ResourceReloadMode::DONT_RELOAD);
+    systemsEngine.GetFontRepository().LoadFont(game_constants::FONT_PLACEHOLDER_WEIGHT_NAME.GetString(), resources::ResourceReloadMode::DONT_RELOAD);
     
     auto dummyScene = systemsEngine.GetActiveSceneManager().CreateScene(game_constants::IN_GAME_BATTLE_SCENE);
     auto boardSceneObject = dummyScene->CreateSceneObject(strutils::StringId("Board"));
@@ -174,7 +175,7 @@ void Game::ApplicationMovedToBackground()
 #endif
 
 #if ((!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)) && (defined(CREATE_DEBUG_WIDGETS))
-static void CreateImGuiCardVecEntry(const std::string& cardIdPrefix, std::string& cardVec)
+static void CreateImGuiCardVecEntry(const std::string& cardIdPrefix, std::string& cardVec, const std::vector<CardStatOverrides>& cardOverrides)
 {
     cardVec.erase(cardVec.begin());
     cardVec.erase(cardVec.end() - 1);
@@ -209,6 +210,45 @@ static void CreateImGuiCardVecEntry(const std::string& cardIdPrefix, std::string
     }
     ImGui::Text("]");
     ImGui::NewLine();
+    
+    if (!cardOverrides.empty())
+    {
+        std::stringstream overridesString;
+        overridesString << "[";
+        for (size_t i = 0; i < cardOverrides.size(); ++i)
+        {
+            if (i != 0)
+            {
+                overridesString << ", ";
+            }
+            
+            overridesString << i << ":{";
+            bool hasSeenFirstInnerEntry = false;
+            for (const auto& statOverrideEntry: cardOverrides[i])
+            {
+                if (hasSeenFirstInnerEntry)
+                {
+                    overridesString << ", ";
+                }
+                else
+                {
+                    hasSeenFirstInnerEntry = true;
+                }
+                
+                switch (statOverrideEntry.first)
+                {
+                    case CardStatType::DAMAGE: overridesString << "DAMAGE="; break;
+                    case CardStatType::WEIGHT: overridesString << "WEIGHT="; break;
+                }
+                
+                overridesString << statOverrideEntry.second;
+            }
+            
+            overridesString << "}";
+        }
+        overridesString << "}";
+        ImGui::Text("Overrides: %s", overridesString.str().c_str());
+    }
 }
 
 void Game::CreateDebugWidgets()
@@ -324,13 +364,13 @@ void Game::CreateDebugWidgets()
     ImGui::SeparatorText("Remote Player Stats");
     ImGui::TextWrapped("%s", remotePlayerStats.c_str());
     ImGui::SeparatorText("Remote Player Hand");
-    CreateImGuiCardVecEntry("RemotePlayerHand", remotePlayerHand);
+    CreateImGuiCardVecEntry("RemotePlayerHand", remotePlayerHand, {});
     ImGui::SeparatorText("Remote Player Board");
-    CreateImGuiCardVecEntry("RemotePlayerBoard", remotePlayerBoard);
+    CreateImGuiCardVecEntry("RemotePlayerBoard", remotePlayerBoard, boardState.GetPlayerStates()[0].mPlayerBoardCardStatOverrides);
     ImGui::SeparatorText("Local Player Board");
-    CreateImGuiCardVecEntry("LocalPlayerBoard", localPlayerBoard);
+    CreateImGuiCardVecEntry("LocalPlayerBoard", localPlayerBoard, boardState.GetPlayerStates()[1].mPlayerBoardCardStatOverrides);
     ImGui::SeparatorText("Local Player Hand");
-    CreateImGuiCardVecEntry("LocalPlayerHand", localPlayerHand);
+    CreateImGuiCardVecEntry("LocalPlayerHand", localPlayerHand, {});
     ImGui::SeparatorText("Local Player Stats");
     ImGui::TextWrapped("%s", localPlayerStats.c_str());
     ImGui::End();

@@ -18,7 +18,8 @@ namespace card_utils
 
 ///------------------------------------------------------------------------------------------------
 
-static const std::string CARD_FRAME_TEXTURE_FILE_NAME = "card_frame.png";
+static const std::string CARD_FRAME_NORMAL_TEXTURE_FILE_NAME = "card_frame_normal.png";
+static const std::string CARD_FRAME_SPELL_TEXTURE_FILE_NAME = "card_frame_spell.png";
 static const std::string CARD_BACK_TEXTURE_FILE_NAME = "card_back.png";
 static const std::string CARD_SHADER_FILE_NAME = "card.vs";
 static const std::string CARD_DAMAGE_ICON_TEXTURE_FILE_NAME = "damage_icon.png";
@@ -75,7 +76,7 @@ glm::vec3 CalculateBoardCardPosition(const int cardIndex, const int playerCardCo
 
 ///------------------------------------------------------------------------------------------------
 
-std::shared_ptr<CardSoWrapper> CreateCardSoWrapper(const CardData* cardData, const glm::vec3& position, const std::string& cardNamePrefix, const CardOrientation cardOrientation, const bool forRemotePlayer, const bool canCardBePlayed, scene::Scene& scene)
+std::shared_ptr<CardSoWrapper> CreateCardSoWrapper(const CardData* cardData, const glm::vec3& position, const std::string& cardNamePrefix, const CardOrientation cardOrientation, const bool forRemotePlayer, const bool canCardBePlayed, const CardStatOverrides& cardStatOverrides, scene::Scene& scene)
 {
     auto cardSoWrapper = std::make_shared<CardSoWrapper>();
  
@@ -100,7 +101,7 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper(const CardData* cardData, con
         // Create card base
         std::vector<std::shared_ptr<scene::SceneObject>> cardComponents;
         cardComponents.push_back(scene.CreateSceneObject(sceneObjectName));
-        cardComponents.back()->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CARD_FRAME_TEXTURE_FILE_NAME);
+        cardComponents.back()->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + (cardData->IsSpell() ? CARD_FRAME_SPELL_TEXTURE_FILE_NAME : CARD_FRAME_NORMAL_TEXTURE_FILE_NAME));
         cardComponents.back()->mScale.x = cardComponents.back()->mScale.y = game_constants::IN_GAME_CARD_BASE_SCALE;
         cardComponents.back()->mBoundingRectMultiplier.x = game_constants::CARD_BOUNDING_RECT_X_MULTIPLIER;
         cardComponents.back()->mPosition = position;
@@ -131,7 +132,7 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper(const CardData* cardData, con
             // Create weight
             cardComponents.push_back(std::make_shared<scene::SceneObject>());
             scene::TextSceneObjectData weightTextData;
-            weightTextData.mFontName = game_constants::FONT_PLACEHOLDER_NAME;
+            weightTextData.mFontName = game_constants::FONT_PLACEHOLDER_WEIGHT_NAME;
             weightTextData.mText = std::to_string(cardData->mCardWeight);
             cardComponents.back()->mSceneObjectTypeData = std::move(weightTextData);
             cardComponents.back()->mScale = glm::vec3(game_constants::IN_GAME_CARD_PROPERTY_SCALE);
@@ -155,8 +156,8 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper(const CardData* cardData, con
             // Create damage
             cardComponents.push_back(std::make_shared<scene::SceneObject>());
             scene::TextSceneObjectData damageTextData;
-            damageTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
-            damageTextData.mText = std::to_string(cardData->mCardDamage);
+            damageTextData.mFontName = game_constants::FONT_PLACEHOLDER_DAMAGE_NAME;
+            damageTextData.mText = cardStatOverrides.count(CardStatType::DAMAGE) ? std::to_string(cardStatOverrides.at(CardStatType::DAMAGE)) : std::to_string(cardData->mCardDamage);
             cardComponents.back()->mSceneObjectTypeData = std::move(damageTextData);
             cardComponents.back()->mScale = glm::vec3(game_constants::IN_GAME_CARD_PROPERTY_SCALE);
             cardComponents.back()->mPosition = position;
@@ -177,7 +178,7 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper(const CardData* cardData, con
             // Create weight
             cardComponents.push_back(std::make_shared<scene::SceneObject>());
             scene::TextSceneObjectData weightTextData;
-            weightTextData.mFontName = game_constants::FONT_PLACEHOLDER_NAME;
+            weightTextData.mFontName = game_constants::FONT_PLACEHOLDER_WEIGHT_NAME;
             weightTextData.mText = std::to_string(cardData->mCardWeight);
             cardComponents.back()->mSceneObjectTypeData = std::move(weightTextData);
             cardComponents.back()->mScale = glm::vec3(game_constants::IN_GAME_CARD_PROPERTY_SCALE);
@@ -209,9 +210,33 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper(const CardData* cardData, con
         cardComponents.back()->mPosition.y += game_constants::IN_GAME_CARD_NAME_Y_OFFSET;
         cardComponents.back()->mPosition.z += game_constants::CARD_COMPONENT_Z_OFFSET;
         
-        rendering::CollateSceneObjectsIntoOne(GENERATED_R2T_NAME_PREFIX + (forRemotePlayer ? "0_id_" : "1_id_") + std::to_string(cardData->mCardId), position, cardComponents, scene);
+        std::stringstream generatedTextureOverridePostfixSS;
+        if (!cardStatOverrides.empty())
+        {
+            generatedTextureOverridePostfixSS << "_overrides_";
+            bool seenFirstEntry = false;
+            for (const auto& entry: cardStatOverrides)
+            {
+                if (seenFirstEntry)
+                {
+                    generatedTextureOverridePostfixSS << ", ";
+                }
+                else
+                {
+                    seenFirstEntry = true;
+                }
+                
+                generatedTextureOverridePostfixSS << static_cast<int>(entry.first);
+                generatedTextureOverridePostfixSS << "=";
+                generatedTextureOverridePostfixSS << entry.second;
+            }
+        }
+        
+        rendering::CollateSceneObjectsIntoOne(GENERATED_R2T_NAME_PREFIX + (forRemotePlayer ? "0_id_" : "1_id_") + std::to_string(cardData->mCardId) + generatedTextureOverridePostfixSS.str(), position, cardComponents, scene);
         cardComponents.front()->mShaderResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CARD_SHADER_FILE_NAME);
-        cardComponents.front()->mShaderIntUniformValues[game_constants::CARD_INTERACTIVE_MODE_UNIFORM_NAME] = forRemotePlayer ? game_constants::CARD_INTERACTIVE_MODE_DEFAULT : (canCardBePlayed ? game_constants::CARD_INTERACTIVE_MODE_INTERACTIVE : game_constants::CARD_INTERACTIVE_MODE_INTERACTIVE);
+        cardComponents.front()->mShaderIntUniformValues[game_constants::CARD_WEIGHT_INTERACTIVE_MODE_UNIFORM_NAME] = forRemotePlayer ? game_constants::CARD_INTERACTIVE_MODE_DEFAULT : (canCardBePlayed ? game_constants::CARD_INTERACTIVE_MODE_INTERACTIVE : game_constants::CARD_INTERACTIVE_MODE_NONINTERACTIVE);
+        cardComponents.front()->mShaderIntUniformValues[game_constants::CARD_DAMAGE_INTERACTIVE_MODE_UNIFORM_NAME] = cardStatOverrides.count(CardStatType::DAMAGE) ? game_constants::CARD_INTERACTIVE_MODE_INTERACTIVE : game_constants::CARD_INTERACTIVE_MODE_DEFAULT;
+        
         cardComponents.front()->mPosition += position;
         cardComponents.front()->mScale *= RENDER_TO_TEXTURE_UPSCALE_FACTOR;
         

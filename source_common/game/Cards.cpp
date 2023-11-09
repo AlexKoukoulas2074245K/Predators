@@ -30,6 +30,33 @@ size_t CardDataRepository::GetCardDataCount() const
 
 ///------------------------------------------------------------------------------------------------
 
+std::vector<int> CardDataRepository::GetAllCardIds() const
+{
+    std::vector<int> resultCardIds;
+    for (const auto& [id, data]: mCardDataMap)
+    {
+        resultCardIds.emplace_back(data.mCardId);
+    }
+    return resultCardIds;
+}
+
+///------------------------------------------------------------------------------------------------
+
+std::vector<int> CardDataRepository::GetCardIdsByFamily(const strutils::StringId& family) const
+{
+    std::vector<int> resultCardIds;
+    for (const auto& [id, data]: mCardDataMap)
+    {
+        if (data.mCardFamily == family)
+        {
+            resultCardIds.emplace_back(data.mCardId);
+        }
+    }
+    return resultCardIds;
+}
+
+///------------------------------------------------------------------------------------------------
+
 std::optional<std::reference_wrapper<const CardData>> CardDataRepository::GetCardData(const int cardId) const
 {
     auto findIter = mCardDataMap.find(cardId);

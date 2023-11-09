@@ -10,15 +10,28 @@
 
 ///------------------------------------------------------------------------------------------------
 
+#include <unordered_map>
 #include <vector>
-#include <sstream>
+
 
 ///------------------------------------------------------------------------------------------------
 
+enum class CardStatType
+{
+    DAMAGE,
+    WEIGHT
+};
+
+///------------------------------------------------------------------------------------------------
+using CardStatOverrides = std::unordered_map<CardStatType, int>;
+
 struct PlayerState
 {
+    std::vector<int> mPlayerDeckCards;
     std::vector<int> mPlayerHeldCards;
     std::vector<int> mPlayerBoardCards;
+    std::vector<CardStatOverrides> mPlayerBoardCardStatOverrides;
+    
     int mPlayerHealth = 30;
     int mPlayerTotalWeightAmmo = 0;
     int mPlayerCurrentWeightAmmo = 0;

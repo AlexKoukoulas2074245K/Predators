@@ -68,7 +68,18 @@ void CardAttackGameAction::VSetNewGameState()
     assert(attackingCardData);
     
     auto& activePlayerState = mBoardState->GetActivePlayerState();
-    activePlayerState.mPlayerHealth -= attackingCardData->get().mCardDamage;
+    auto& attackingPlayerOverrides = mBoardState->GetPlayerStates()[attackingPayerIndex].mPlayerBoardCardStatOverrides;
+    
+    if (!attackingPlayerOverrides.empty() && attackingPlayerOverrides.front().count(CardStatType::DAMAGE))
+    {
+        activePlayerState.mPlayerHealth -= attackingPlayerOverrides.front().at(CardStatType::DAMAGE);
+        attackingPlayerOverrides.erase(attackingPlayerOverrides.begin());
+    }
+    else
+    {
+        activePlayerState.mPlayerHealth -= attackingCardData->get().mCardDamage;
+    }
+    
     
     if (activePlayerState.mPlayerHealth <= 0.0f)
     {
@@ -136,7 +147,7 @@ void CardAttackGameAction::VInitAnimation()
                         ATTACKING_CARD_PARTICLE_COUNT,                  // particleCount
                         ATTACKING_CARD_PARTICLE_TEXTURE_FILE_NAME,      // particleTextureFilename
                         *CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE), // scene
-                        particle_flags::PREFILLED                  // particleFlags
+                        particle_flags::PREFILLED | particle_flags::ENLARGE_OVER_TIME                 // particleFlags
                      );
                     
                     animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObject, mOriginalCardPosition, mOriginalCardScale, ATTACKING_CARD_LONG_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [&]()

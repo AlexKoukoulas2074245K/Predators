@@ -63,6 +63,9 @@ struct ParticleEmitterObjectData
     unsigned int mParticlePositionsBuffer;
     unsigned int mParticleLifetimeSecsBuffer;
     unsigned int mParticleSizesBuffer;
+    
+    float mParticleGenerationMaxDelaySecs;
+    float mParticleGenerationCurrentDelaySecs;
 };
 
 ///------------------------------------------------------------------------------------------------

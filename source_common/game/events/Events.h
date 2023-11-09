@@ -41,6 +41,21 @@ public:
 
 ///------------------------------------------------------------------------------------------------
 
+class BoardCardDestructionWithRepositionEvent final
+{
+public:
+    BoardCardDestructionWithRepositionEvent(const int cardIndex, const bool forRemotePlayer)
+        : mCardIndex(cardIndex)
+        , mForRemotePlayer(forRemotePlayer)
+    {
+    }
+    
+    const int mCardIndex;
+    const bool mForRemotePlayer;
+};
+
+///------------------------------------------------------------------------------------------------
+
 class CardCreationEvent final
 {
 public:
@@ -51,6 +66,23 @@ public:
     }
     
     const std::shared_ptr<CardSoWrapper> mCardSoWrapper;
+    const bool mForRemotePlayer;
+};
+
+///------------------------------------------------------------------------------------------------
+
+class CardBuffedEvent final
+{
+public:
+    CardBuffedEvent(const int cardIndex, const bool boardCard, const bool forRemotePlayer)
+        : mCardIdex(cardIndex)
+        , mBoardCard(boardCard)
+        , mForRemotePlayer(forRemotePlayer)
+    {
+    }
+    
+    const int mCardIdex;
+    const bool mBoardCard;
     const bool mForRemotePlayer;
 };
 
