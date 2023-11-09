@@ -28,6 +28,7 @@ static const strutils::StringId CARD_EFFECT_GAME_ACTION_NAME = strutils::StringI
 static const float CARD_CAMERA_SHAKE_DURATION = 0.25f;
 static const float CARD_CAMERA_SHAKE_STRENGTH = 0.005f;
 static const float CARD_PLAY_PARTICLE_EMITTER_Z = 0.01f;
+static const float IN_GAME_PLAYED_CARD_ANIMATION_DURATION = 0.5f;
 
 static const int CARD_PLAY_PARTICLE_COUNT = 20;
 
@@ -90,13 +91,12 @@ void PlayCardGameAction::VInitAnimation()
     
     events::EventSystem::GetInstance().DispatchEvent<events::LastCardPlayedFinalizedEvent>(lastPlayedCardIndex);
     
-    
     // Rename played card components
     lastPlayedCardSoWrapper->mSceneObject->mName = strutils::StringId((mBoardState->GetActivePlayerIndex() == 0 ? game_constants::TOP_PLAYER_BOARD_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_BOARD_CARD_SO_NAME_PREFIX) + std::to_string(mBoardState->GetActivePlayerState().mPlayerBoardCards.size() - 1));
     
     // Animate played card to board
     auto targetPosition = card_utils::CalculateBoardCardPosition(static_cast<int>(mBoardState->GetActivePlayerState().mPlayerBoardCards.size() - 1), static_cast<int>(mBoardState->GetActivePlayerState().mPlayerBoardCards.size()), mBoardState->GetActivePlayerIndex() == 0);
-    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(lastPlayedCardSoWrapper->mSceneObject, targetPosition, lastPlayedCardSoWrapper->mSceneObject->mScale * game_constants::IN_GAME_PLAYED_CARD_SCALE_FACTOR, game_constants::IN_GAME_PLAYED_CARD_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(lastPlayedCardSoWrapper->mSceneObject, targetPosition, lastPlayedCardSoWrapper->mSceneObject->mScale * game_constants::IN_GAME_PLAYED_CARD_SCALE_FACTOR, IN_GAME_PLAYED_CARD_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
     {
         mPendingAnimations--;
         CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE)->GetCamera().Shake(CARD_CAMERA_SHAKE_DURATION, CARD_CAMERA_SHAKE_STRENGTH);
