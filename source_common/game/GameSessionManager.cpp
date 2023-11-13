@@ -101,6 +101,7 @@ void GameSessionManager::InitGameSession()
     
     mRuleEngine = std::make_unique<GameRuleEngine>(mBoardState.get());
     
+    
 //#define REPLAY_FLOW
     
 #if defined(REPLAY_FLOW)

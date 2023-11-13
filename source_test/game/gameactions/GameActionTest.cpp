@@ -29,6 +29,11 @@ static const strutils::StringId GAME_OVER_GAME_ACTION_NAME = strutils::StringId(
 class GameActionTests : public testing::Test
 {
 protected:
+    GameActionTests()
+    {
+        CardDataRepository::GetInstance().LoadCardData(false);
+    }
+    
     void Init()
     {
         mBoardState = std::make_unique<BoardState>();
@@ -43,7 +48,6 @@ protected:
     
     void SetUp() override
     {
-        CardDataRepository::GetInstance().LoadCardData(false);
         Init();
     }
     

@@ -83,11 +83,11 @@ void Game::Init()
 //    flameSceneObject->mShaderFloatUniformValues[strutils::StringId("noise_5_factor")] = 1.0f;
  //   flameSceneObject->mInvisible = true;
     dummyScene->GetCamera().SetZoomFactor(120.0f);
-    
+//
 //    auto uiScene = systemsEngine.GetActiveSceneManager().CreateScene(strutils::StringId("UI"));
 //    std::string texts[6] =
 //    {
-//        "AbCdEfGhIjKlMnOpQrStUvWxYz",
+//        "Fuzzy Speed",
 //        "-----------------------------------------------",
 //        "ZaBcDeFgHiJkLmNoPqRsTuVwXy",
 //        "-----------------------------------------------",

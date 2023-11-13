@@ -996,7 +996,7 @@
 					"width": "45",
 					"height": "60",
 					"xoffset": "-3",
-					"yoffset": "60",
+					"yoffset": "80",
 					"xadvance": "0",
 					"page": "0",
 					"chnl": "15"
@@ -1116,7 +1116,7 @@
 					"width": "38",
 					"height": "52",
 					"xoffset": "-2",
-					"yoffset": "58",
+					"yoffset": "68",
 					"xadvance": "0",
 					"page": "0",
 					"chnl": "15"

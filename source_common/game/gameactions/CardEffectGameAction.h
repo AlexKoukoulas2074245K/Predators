@@ -51,7 +51,7 @@ private:
     };
     
     AffectedStatType mAffectedBoardCardsStatType;
-    int mAffectedBoardCardsStatOffset;
+    int mEffectValue;
     float mAnimationDelayCounterSecs;
     std::vector<int> mAffectedBoardIndices;
 };

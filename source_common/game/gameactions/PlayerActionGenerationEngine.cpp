@@ -17,6 +17,7 @@
 
 static const strutils::StringId PLAY_CARD_GAME_ACTION_NAME = strutils::StringId("PlayCardGameAction");
 static const strutils::StringId NEXT_PLAYER_GAME_ACTION_NAME = strutils::StringId("NextPlayerGameAction");
+static const std::string DRAW_CARD_EFFECT_COMPONENT = "DRAW";
 
 ///------------------------------------------------------------------------------------------------
 
@@ -41,8 +42,16 @@ void PlayerActionGenerationEngine::DecideAndPushNextActions(BoardState* currentB
     const auto& cardRepository = CardDataRepository::GetInstance();
     std::sort(currentHeldCardsCopySorted.begin(), currentHeldCardsCopySorted.end(), [&](const int& lhs, const int& rhs)
     {
-        return cardRepository.GetCardData(lhs)->get().mCardDamage >
-               cardRepository.GetCardData(rhs)->get().mCardDamage;
+        auto& cardDataLhs = cardRepository.GetCardData(lhs)->get();
+        auto& cardDataRhs = cardRepository.GetCardData(rhs)->get();
+        
+        if (cardDataLhs.IsSpell() && strutils::StringContains(cardDataLhs.mCardEffect, DRAW_CARD_EFFECT_COMPONENT))
+            return true;
+        else if (cardDataRhs.IsSpell() && strutils::StringContains(cardDataRhs.mCardEffect, DRAW_CARD_EFFECT_COMPONENT))
+            return false;
+        
+        return cardDataLhs.mCardDamage >
+               cardDataRhs.mCardDamage;
     });
 
     // Play every card possible (from highest weights to lowest)

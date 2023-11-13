@@ -22,8 +22,10 @@
 // Effect components
 static const std::string EFFECT_COMPONENT_DAMAGE = "DAMAGE";
 static const std::string EFFECT_COMPONENT_FAMILY = "FAMILY";
+static const std::string EFFECT_COMPONENT_DRAW   = "DRAW";
 static const std::unordered_set<std::string> STATIC_EFFECT_COMPONENT_NAMES =
 {
+    EFFECT_COMPONENT_DRAW,
     EFFECT_COMPONENT_DAMAGE,
     EFFECT_COMPONENT_FAMILY
 };
@@ -41,7 +43,7 @@ static const strutils::StringId CARD_ORIGIN_X_UNIFORM_NAME = strutils::StringId(
 static const strutils::StringId CARD_ORIGIN_Y_UNIFORM_NAME = strutils::StringId("card_origin_y");
 
 static const strutils::StringId CARD_EFFECT_PARTICLE_EMITTER_NAME = strutils::StringId("card_effect_emitter");
-
+static const strutils::StringId DRAW_CARD_GAME_ACTION_NAME = strutils::StringId("DrawCardGameAction");
 
 static const float CARD_DISSOLVE_SPEED = 0.001f;
 static const float MAX_CARD_DISSOLVE_VALUE = 1.2f;
@@ -160,6 +162,11 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
             
         case ActionState::AFFECTED_CARDS_SPARKLE_ANIMATION:
         {
+            if (mAffectedBoardIndices.empty())
+            {
+                mActionState = ActionState::FINISHED;
+            }
+            
             mAnimationDelayCounterSecs += dtMillis/1000.0f;
             if (mAnimationDelayCounterSecs > 1.0f)
             {
@@ -194,14 +201,7 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
                     });
                 }
                 
-                if (mAffectedBoardIndices.empty())
-                {
-                    mActionState = ActionState::FINISHED;
-                }
-                else
-                {
-                    mActionState = ActionState::AFFECTED_CARDS_SCALE_ANIMATION;
-                }
+                mActionState = ActionState::AFFECTED_CARDS_SCALE_ANIMATION;
             }
         } break;
             
@@ -230,7 +230,7 @@ const std::vector<std::string>& CardEffectGameAction::VGetRequiredExtraParamName
 void CardEffectGameAction::HandleCardEffect(const std::string& effect)
 {
     mAffectedBoardCardsStatType = AffectedStatType::NONE;
-    mAffectedBoardCardsStatOffset = 0;
+    mEffectValue = 0;
     mAffectedBoardIndices.clear();
     
     const auto effectComponents = strutils::StringSplit(effect, ' ');
@@ -254,16 +254,25 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
             }
         }
         
-        // Modifier/Offset value component
-        if (!STATIC_EFFECT_COMPONENT_NAMES.count(effectComponent))
-        {
-            mAffectedBoardCardsStatOffset = std::stoi(effectComponent);
-        }
-                
         // Stat Type component
         if (effectComponent == EFFECT_COMPONENT_DAMAGE)
         {
             mAffectedBoardCardsStatType = AffectedStatType::DAMAGE;
+        }
+        
+        // Modifier/Offset value component
+        if (!STATIC_EFFECT_COMPONENT_NAMES.count(effectComponent))
+        {
+            mEffectValue = std::stoi(effectComponent);
+        }
+    }
+    
+    // Draw effect
+    if (std::find(effectComponents.cbegin(), effectComponents.cend(), EFFECT_COMPONENT_DRAW) != effectComponents.cend())
+    {
+        for (auto i = 0; i < mEffectValue; ++i)
+        {
+            mGameActionEngine->AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
         }
     }
     
@@ -282,7 +291,7 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
             mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.emplace_back();
         }
         
-        mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.back()[affectedStat] = currentValue + mAffectedBoardCardsStatOffset;
+        mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.back()[affectedStat] = currentValue + mEffectValue;
     }
 }
 
