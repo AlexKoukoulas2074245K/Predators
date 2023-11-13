@@ -31,6 +31,7 @@ static const glm::vec3 RENDER_TO_TEXTURE_UPSCALE_FACTOR = {-1.365f, 1.256f, 1.0f
 static const float CARD_NAME_AREA_LENGTH = 0.042f;
 static const float CARD_NAME_TEST_DEDUCT_INCREMENTS = 0.00001f;
 static const float CARD_INDEX_Z_OFFSET = 1.0f;
+static const float BARD_CARD_POSITION_Z_OFFSET = 0.01f;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -71,7 +72,7 @@ glm::vec3 CalculateBoardCardPosition(const int cardIndex, const int playerCardCo
         }
     }
     
-    return glm::vec3(targetX, forRemotePlayer ? game_constants::IN_GAME_TOP_PLAYER_BOARD_CARD_Y : game_constants::IN_GAME_BOT_PLAYER_BOARD_CARD_Y, game_constants::IN_GAME_PLAYED_CARD_Z);
+    return glm::vec3(targetX, forRemotePlayer ? game_constants::IN_GAME_TOP_PLAYER_BOARD_CARD_Y : game_constants::IN_GAME_BOT_PLAYER_BOARD_CARD_Y, game_constants::IN_GAME_PLAYED_CARD_Z + cardIndex * BARD_CARD_POSITION_Z_OFFSET);
 }
 
 ///------------------------------------------------------------------------------------------------
