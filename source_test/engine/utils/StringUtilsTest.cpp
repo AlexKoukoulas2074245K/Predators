@@ -91,6 +91,42 @@ TEST(StringSplitTests, TestStringIsCorrectlySplitBySpaceEvenIfThereAreMultipleCo
     EXPECT_EQ(strutils::StringSplit("A  B   C", ' ')[2], expectedVector[2]);
 }
 
+TEST(VecToStringTests, TestCorrectConstructionOfStringBasedOnInputVector)
+{
+    auto expectedString = "[1, 2, 3, 4]";
+    EXPECT_EQ(strutils::VecToString(std::vector<std::string>{"1", "2", "3", "4"}), expectedString);
+}
+
+TEST(VecToStringTests, TestCorrectConstructionOfStringBasedOnEmptyInputVector)
+{
+    auto expectedString = "[]";
+    EXPECT_EQ(strutils::VecToString(std::vector<std::string>{}), expectedString);
+}
+
+TEST(StringToVecOfStringsTests, TestCorrectConstructionOfVecOfStringsBasedOnParsingInputString)
+{
+    std::vector<std::string> expectedVector = {"1", "2", "3", "4"};
+    EXPECT_EQ(strutils::StringToVecOfStrings("[1,2,3,4]"), expectedVector);
+}
+
+TEST(StringToVecOfStringsTests, TestCorrectConstructionOfVecOfStringsBasedOnParsingInputEmptyStringRegardlessOfWhitespace)
+{
+    std::vector<std::string> expectedVector = {"1", "2", "3", "4"};
+    EXPECT_EQ(strutils::StringToVecOfStrings("[1,2, 3,  4]"), expectedVector);
+}
+
+TEST(StringToVecOfStringsTests, TestCorrectConstructionOfVecOfStringsBasedOnParsingStringWithMalformedBrackets)
+{
+    std::vector<std::string> expectedVector = {"1", "2", "3", "4"};
+    EXPECT_EQ(strutils::StringToVecOfStrings("[1,2,3,4["), expectedVector);
+}
+
+TEST(StringToVecOfStringsTests, TestCorrectConstructionOfVecOfStringsBasedOnParsingInputEmptyString)
+{
+    std::vector<std::string> expectedVector = {};
+    EXPECT_EQ(strutils::StringToVecOfStrings(""), expectedVector);
+}
+
 TEST(GetHoursMinutesStringFromSecondsTests, TestProperFormattingOfTime)
 {
     EXPECT_EQ(strutils::GetHoursMinutesStringFromSeconds(43920), "12:12");

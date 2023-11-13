@@ -11,6 +11,7 @@ uniform vec3 point_light_positions[32];
 uniform float point_light_powers[32];
 uniform float custom_alpha;
 uniform float dissolve_threshold;
+uniform float dissolve_magnitude;
 uniform float card_origin_x;
 uniform float card_origin_y;
 uniform bool affected_by_light;
@@ -29,8 +30,8 @@ void main()
     
     frag_color = calculate_interactive_color(frag_color, weight_interactive_mode, damage_interactive_mode);
     
-    float distance_uv_x = (frag_unprojected_pos.x - card_origin_x) * 13.0f;
-    float distance_uv_y = (frag_unprojected_pos.y - card_origin_y) * 13.0f;
+    float distance_uv_x = (frag_unprojected_pos.x - card_origin_x) * dissolve_magnitude;
+    float distance_uv_y = (frag_unprojected_pos.y - card_origin_y) * dissolve_magnitude;
 
     vec4 dissolve_color = texture(dissolve_tex, vec2(distance_uv_x, distance_uv_y));
     if (dissolve_color.r <= dissolve_threshold)

@@ -26,31 +26,35 @@ class ApplicationMovedToBackgroundEvent final
 
 ///------------------------------------------------------------------------------------------------
 
-class BoardCardDestructionEvent final
+class CardDestructionEvent final
 {
 public:
-    BoardCardDestructionEvent(const int cardIndex, const bool forRemotePlayer)
-        : mCardIndex(cardIndex)
+    CardDestructionEvent(const std::vector<std::string> cardIndices, const bool isBoardCard, const bool forRemotePlayer)
+        : mCardIndices(cardIndices)
+        , mIsBoardCard(isBoardCard)
         , mForRemotePlayer(forRemotePlayer)
     {
     }
     
-    const int mCardIndex;
+    const std::vector<std::string> mCardIndices;
+    const bool mIsBoardCard;
     const bool mForRemotePlayer;
 };
 
 ///------------------------------------------------------------------------------------------------
 
-class BoardCardDestructionWithRepositionEvent final
+class CardDestructionWithRepositionEvent final
 {
 public:
-    BoardCardDestructionWithRepositionEvent(const int cardIndex, const bool forRemotePlayer)
+    CardDestructionWithRepositionEvent(const int cardIndex, const bool isBoardCard, const bool forRemotePlayer)
         : mCardIndex(cardIndex)
+        , mIsBoardCard(isBoardCard)
         , mForRemotePlayer(forRemotePlayer)
     {
     }
     
     const int mCardIndex;
+    const bool mIsBoardCard;
     const bool mForRemotePlayer;
 };
 

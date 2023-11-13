@@ -18,7 +18,9 @@
 class CardDestructionGameAction final: public BaseGameAction
 {
 public:
+    static const std::string CARD_INDICES_PARAM;
     static const std::string PLAYER_INDEX_PARAM;
+    static const std::string IS_BOARD_CARD_PARAM;
     
 public:
     void VSetNewGameState() override;

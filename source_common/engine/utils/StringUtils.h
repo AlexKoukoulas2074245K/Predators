@@ -97,25 +97,6 @@ inline bool StringEndsWith(const std::string& s, const std::string& pattern)
 }
 
 ///-----------------------------------------------------------------------------------------------
-/// Returns a string representation of a vector.
-/// @param[in] vec the vector of string-covertible objects
-/// @returns a copy of the input vector transformed to a string.
-template <typename T>
-inline std::string VecToString(const std::vector<T>& vec)
-{
-    std::stringstream ss;
-    ss << "[";
-    for(size_t i = 0; i <vec.size(); ++i)
-    {
-        ss << vec[i]; // <- no template param list
-        if(i != vec.size() - 1)
-            ss<<", ";
-    }
-    ss << "]";
-    return ss.str();
-}
-
-///-----------------------------------------------------------------------------------------------
 /// Returns a copy of the given string in uppercase.
 /// @param[in] s the input string.
 /// @returns a copy of the input string transformed to uppercase.
@@ -160,6 +141,50 @@ inline std::vector<std::string> StringSplit(const std::string& s, char delim)
 }
 
 ///-----------------------------------------------------------------------------------------------
+/// Replace all occurences of the string 'pattern' with the string 'replacement' in the input string 's'.
+/// @param[in] pattern the string pattern to detect in the given input string s.
+/// @param[in] replacement the string pattern to replace in the given input string s.
+/// @param[out] s the input string on which the replacement will take place.
+inline void StringReplaceAllOccurences(const std::string& pattern, const std::string& replacement, std::string& s)
+{
+    s = regex_replace(s, std::regex(pattern), replacement);
+}
+
+///-----------------------------------------------------------------------------------------------
+/// Returns a string representation of a vector.
+/// @param[in] vec the vector of string-covertible objects
+/// @returns a copy of the input vector transformed to a string.
+template <typename T>
+inline std::string VecToString(const std::vector<T>& vec)
+{
+    std::stringstream ss;
+    ss << "[";
+    for(size_t i = 0; i <vec.size(); ++i)
+    {
+        ss << vec[i]; // <- no template param list
+        if(i != vec.size() - 1)
+            ss<<", ";
+    }
+    ss << "]";
+    return ss.str();
+}
+
+///-----------------------------------------------------------------------------------------------
+/// Returns a vector of strings based on an input string representation of a vector of strings (including the pre and post-fix square brackets).
+/// @param[in] str the string representation of a vector of strings
+/// @returns the reconstructed vector of strings
+inline std::vector<std::string> StringToVecOfStrings(const std::string& str)
+{
+    if (str.size() < 2) return {};
+    auto strCopy = str;
+    StringReplaceAllOccurences(" ", "", strCopy);
+    strCopy.erase(strCopy.begin());
+    strCopy.pop_back();
+    
+    return StringSplit(strCopy, ',');
+}
+
+///-----------------------------------------------------------------------------------------------
 /// Returns the formatted time string HH:MM from the given number of seconds.
 /// @param[in] seconds the number of seconds to format.
 /// @returns the formatted time string.
@@ -177,16 +202,6 @@ inline std::string GetHoursMinutesStringFromSeconds(const int seconds)
     }
     
     return hoursString + ":" + minutesString;
-}
-
-///-----------------------------------------------------------------------------------------------
-/// Replace all occurences of the string 'pattern' with the string 'replacement' in the input string 's'.
-/// @param[in] pattern the string pattern to detect in the given input string s.
-/// @param[in] replacement the string pattern to replace in the given input string s.
-/// @param[out] s the input string on which the replacement will take place.
-inline void StringReplaceAllOccurences(const std::string& pattern, const std::string& replacement, std::string& s)
-{
-    s = regex_replace(s, std::regex(pattern), replacement);
 }
 
 ///-----------------------------------------------------------------------------------------------

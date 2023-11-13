@@ -77,7 +77,7 @@ TEST_F(GameActionTests, TestBoardStatePostDrawAction)
         mActionEngine->Update(0);
     }
     
-    EXPECT_EQ(mBoardState->GetActivePlayerState().mPlayerHeldCards.size(), 2);
+    EXPECT_EQ(mBoardState->GetActivePlayerState().mPlayerHeldCards.size(), 3);
     EXPECT_EQ(mActionEngine->GetActiveGameActionName(), IDLE_GAME_ACTION_NAME);
 }
 
@@ -91,7 +91,7 @@ TEST_F(GameActionTests, TestBoardStatePostDrawAndPlayAction)
         mActionEngine->Update(0);
     }
     
-    EXPECT_EQ(mBoardState->GetActivePlayerState().mPlayerHeldCards.size(), 1);
+    EXPECT_EQ(mBoardState->GetActivePlayerState().mPlayerHeldCards.size(), 2);
     EXPECT_EQ(mBoardState->GetActivePlayerState().mPlayerBoardCards.size(), 1);
     EXPECT_EQ(mActionEngine->GetActiveGameActionName(), IDLE_GAME_ACTION_NAME);
 }
@@ -109,10 +109,10 @@ TEST_F(GameActionTests, TestDrawPlayNextDrawPlayActionRound)
         mActionEngine->Update(0);
     }
     
-    EXPECT_EQ(mBoardState->GetPlayerStates().at(0).mPlayerHeldCards.size(), 2);
+    EXPECT_EQ(mBoardState->GetPlayerStates().at(0).mPlayerHeldCards.size(), 3);
     EXPECT_EQ(mBoardState->GetPlayerStates().at(0).mPlayerBoardCards.size(), 0);
     
-    EXPECT_EQ(mBoardState->GetPlayerStates().at(1).mPlayerHeldCards.size(), 3);
+    EXPECT_EQ(mBoardState->GetPlayerStates().at(1).mPlayerHeldCards.size(), 0);
     EXPECT_EQ(mBoardState->GetPlayerStates().at(1).mPlayerBoardCards.size(), 0);
     
     EXPECT_EQ(mBoardState->GetActivePlayerIndex(), 0);

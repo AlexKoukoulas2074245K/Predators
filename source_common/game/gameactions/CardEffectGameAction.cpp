@@ -9,7 +9,6 @@
 #include <game/CardUtils.h>
 #include <game/events/EventSystem.h>
 #include <game/gameactions/CardEffectGameAction.h>
-#include <game/gameactions/CardDestructionGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/GameOverGameAction.h>
 #include <game/GameSessionManager.h>
@@ -20,9 +19,6 @@
 #include <engine/scene/SceneObject.h>
 
 ///------------------------------------------------------------------------------------------------
-
-static const strutils::StringId CARD_DESTRUCTION_GAME_ACTION_NAME = strutils::StringId("CardDestructionGameAction");
-
 // Effect components
 static const std::string EFFECT_COMPONENT_DAMAGE = "DAMAGE";
 static const std::string EFFECT_COMPONENT_FAMILY = "FAMILY";
@@ -40,6 +36,7 @@ static const std::string BUFFED_CARD_PARTICLE_EMITTER_NAME_PREFIX = "card_effect
 
 // Uniforms
 static const strutils::StringId DISSOLVE_THRESHOLD_UNIFORM_NAME = strutils::StringId("dissolve_threshold");
+static const strutils::StringId DISSOLVE_MAGNITUDE_UNIFORM_NAME = strutils::StringId("dissolve_magnitude");
 static const strutils::StringId CARD_ORIGIN_X_UNIFORM_NAME = strutils::StringId("card_origin_x");
 static const strutils::StringId CARD_ORIGIN_Y_UNIFORM_NAME = strutils::StringId("card_origin_y");
 
@@ -58,6 +55,7 @@ static const glm::vec2 CARD_EFFECT_PARTICLE_LIFETIME_RANGE = {0.7f, 1.3f};
 static const glm::vec2 CARD_EFFECT_PARTICLE_X_OFFSET_RANGE = {-0.02f, 0.01f};
 static const glm::vec2 CARD_EFFECT_PARTICLE_Y_OFFSET_RANGE = {-0.03f, 0.03f};
 static const glm::vec2 CARD_EFFECT_PARTICLE_SIZE_RANGE     = {0.0075f, 0.0125f};
+static const glm::vec2 CARD_DISSOLVE_EFFECT_MAG_RANGE      = {10.0f, 18.0f};
 
 ///------------------------------------------------------------------------------------------------
 
@@ -90,6 +88,7 @@ void CardEffectGameAction::VInitAnimation()
     cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] = 0.0f;
     cardSoWrapper->mSceneObject->mShaderFloatUniformValues[CARD_ORIGIN_X_UNIFORM_NAME] = cardSoWrapper->mSceneObject->mPosition.x;
     cardSoWrapper->mSceneObject->mShaderFloatUniformValues[CARD_ORIGIN_Y_UNIFORM_NAME] = cardSoWrapper->mSceneObject->mPosition.y;
+    cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_MAGNITUDE_UNIFORM_NAME] = math::RandomFloat(CARD_DISSOLVE_EFFECT_MAG_RANGE.x, CARD_DISSOLVE_EFFECT_MAG_RANGE.y);
     
     rendering::CreateParticleEmitterAtPosition
     (
@@ -131,7 +130,7 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
             
             if (effectCardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] >= MAX_CARD_DISSOLVE_VALUE)
             {
-                events::EventSystem::GetInstance().DispatchEvent<events::BoardCardDestructionWithRepositionEvent>(static_cast<int>(boardCardIndex), mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
+                events::EventSystem::GetInstance().DispatchEvent<events::CardDestructionWithRepositionEvent>(static_cast<int>(boardCardIndex), true, mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
                 
                 // Create particle emitters on affected cards
                 for (const auto affectedIndex: mAffectedBoardIndices)
@@ -166,7 +165,6 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
             {
                 mAnimationDelayCounterSecs = 0.0f;
                 
-                
                 auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
                 
                 // Create particle emitters on affected cards
@@ -196,7 +194,14 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
                     });
                 }
                 
-                mActionState = ActionState::AFFECTED_CARDS_SCALE_ANIMATION;
+                if (mAffectedBoardIndices.empty())
+                {
+                    mActionState = ActionState::FINISHED;
+                }
+                else
+                {
+                    mActionState = ActionState::AFFECTED_CARDS_SCALE_ANIMATION;
+                }
             }
         } break;
             
@@ -266,14 +271,18 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
     {
         const auto& cardData = CardDataRepository::GetInstance().GetCardData(boardCards.at(affectedIndex))->get();
         const auto affectedStat = mAffectedBoardCardsStatType == AffectedStatType::DAMAGE ? CardStatType::DAMAGE : CardStatType::WEIGHT;
+        auto currentValue = mAffectedBoardCardsStatType == AffectedStatType::DAMAGE ? cardData.mCardDamage : cardData.mCardWeight;
         
-        mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.emplace_back();
-        
-        switch (affectedStat)
+        if (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.size()) >= affectedIndex + 1)
         {
-            case CardStatType::DAMAGE: mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.back()[affectedStat] = cardData.mCardDamage + mAffectedBoardCardsStatOffset; break;
-            case CardStatType::WEIGHT: mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.back()[affectedStat] = cardData.mCardWeight + mAffectedBoardCardsStatOffset; break;
+            currentValue = mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides[affectedIndex][affectedStat];
         }
+        else
+        {
+            mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.emplace_back();
+        }
+        
+        mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.back()[affectedStat] = currentValue + mAffectedBoardCardsStatOffset;
     }
 }
 

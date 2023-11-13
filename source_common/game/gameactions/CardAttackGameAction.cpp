@@ -84,11 +84,19 @@ void CardAttackGameAction::VSetNewGameState()
     if (activePlayerState.mPlayerHealth <= 0.0f)
     {
         activePlayerState.mPlayerHealth = 0.0f;
-        mGameActionEngine->AddGameAction(GAME_OVER_GAME_ACTION_NAME, {{ GameOverGameAction::VICTORIOUS_PLAYER_INDEX_PARAM, std::to_string(attackingPayerIndex)}});
+        mGameActionEngine->AddGameAction(GAME_OVER_GAME_ACTION_NAME,
+        {
+            { GameOverGameAction::VICTORIOUS_PLAYER_INDEX_PARAM, std::to_string(attackingPayerIndex)}
+        });
     }
     else
     {
-        mGameActionEngine->AddGameAction(CARD_DESTRUCTION_GAME_ACTION_NAME, {{ CardDestructionGameAction::PLAYER_INDEX_PARAM, std::to_string(attackingPayerIndex)}});
+        mGameActionEngine->AddGameAction(CARD_DESTRUCTION_GAME_ACTION_NAME,
+        {
+            { CardDestructionGameAction::CARD_INDICES_PARAM, {"[0]"}},
+            { CardDestructionGameAction::PLAYER_INDEX_PARAM, std::to_string(attackingPayerIndex)},
+            { CardDestructionGameAction::IS_BOARD_CARD_PARAM, "true"},
+        });
     }
 }
 

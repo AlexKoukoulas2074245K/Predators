@@ -44,7 +44,7 @@ void PlayerActionGenerationEngine::DecideAndPushNextActions(BoardState* currentB
         return cardRepository.GetCardData(lhs)->get().mCardDamage >
                cardRepository.GetCardData(rhs)->get().mCardDamage;
     });
-   
+
     // Play every card possible (from highest weights to lowest)
     for (auto iter = currentHeldCardsCopySorted.cbegin(); iter != currentHeldCardsCopySorted.cend();)
     {

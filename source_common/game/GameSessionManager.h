@@ -57,8 +57,8 @@ private:
     void DestroyCardHighlighterAtIndex(const int index);
     void RegisterForEvents();
     void OnApplicationMovedToBackground(const events::ApplicationMovedToBackgroundEvent&);
-    void OnBoardCardDestruction(const events::BoardCardDestructionEvent&);
-    void OnBoardCardDestructionWithReposition(const events::BoardCardDestructionWithRepositionEvent&);
+    void OnCardDestruction(const events::CardDestructionEvent&);
+    void OnCardDestructionWithReposition(const events::CardDestructionWithRepositionEvent&);
     void OnCardCreation(const events::CardCreationEvent& event);
     void OnCardBuffed(const events::CardBuffedEvent& event);
     void OnHeldCardSwap(const events::HeldCardSwapEvent& event);

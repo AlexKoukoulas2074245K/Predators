@@ -10,9 +10,11 @@
 #include <engine/rendering/AnimationManager.h>
 #include <engine/scene/ActiveSceneManager.h>
 #include <engine/scene/Scene.h>
+#include <engine/utils/Logging.h>
 #include <game/events/EventSystem.h>
 #include <game/GameConstants.h>
 #include <game/gameactions/CardAttackGameAction.h>
+#include <game/gameactions/CardDestructionGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/NextPlayerGameAction.h>
 
@@ -21,6 +23,7 @@
 static const strutils::StringId CARD_ATTACK_GAME_ACTION_NAME = strutils::StringId("CardAttackGameAction");
 static const strutils::StringId DRAW_CARD_GAME_ACTION_NAME = strutils::StringId("DrawCardGameAction");
 static const strutils::StringId POST_NEXT_PLAYER_GAME_ACTION_NAME = strutils::StringId("PostNextPlayerGameAction");
+static const strutils::StringId CARD_DESTRUCTION_GAME_ACTION_NAME = strutils::StringId("CardDestructionGameAction");
 
 ///------------------------------------------------------------------------------------------------
 
@@ -47,22 +50,33 @@ void NextPlayerGameAction::VSetNewGameState()
                 { CardAttackGameAction::CARD_INDEX_PARAM, "0" }
             });
         }
+        
+        // Destroy all held cards
+        auto& playerHeldCards = mBoardState->GetPlayerStates()[previousPlayerIndex].mPlayerHeldCards;
+        if (!playerHeldCards.empty())
+        {
+            std::vector<int> cardIndices(playerHeldCards.size());
+            std::iota(cardIndices.begin(), cardIndices.end(), 0);
+            
+            mGameActionEngine->AddGameAction(CARD_DESTRUCTION_GAME_ACTION_NAME,
+            {
+                { CardDestructionGameAction::CARD_INDICES_PARAM, strutils::VecToString(cardIndices)},
+                { CardDestructionGameAction::PLAYER_INDEX_PARAM, std::to_string(previousPlayerIndex)},
+                { CardDestructionGameAction::IS_BOARD_CARD_PARAM, "false"},
+            });
+        }
     }
     
     mGameActionEngine->AddGameAction(POST_NEXT_PLAYER_GAME_ACTION_NAME);
     
+    // Both players get 3 cards
+    mGameActionEngine->AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
+    mGameActionEngine->AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
     mGameActionEngine->AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
     
-    // First time top player gets 2 cards in total
-    if (previousPlayerIndex == -1)
+    // Bot player gets + 1 card
+    if (previousPlayerIndex == 0)
     {
-        mGameActionEngine->AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
-    }
-    // First time bot player gets 4 cards in total
-    else if (previousPlayerIndex == 0 && mBoardState->GetActivePlayerState().mPlayerTotalWeightAmmo == 1)
-    {
-        mGameActionEngine->AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
-        mGameActionEngine->AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
         mGameActionEngine->AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
     }
 }
