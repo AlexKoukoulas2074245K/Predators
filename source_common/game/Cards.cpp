@@ -97,6 +97,7 @@ void CardDataRepository::LoadCardData(bool loadAssets)
         else
         {
             cardData.mCardEffect = cardObject["effect"].get<std::string>();
+            cardData.mCardEffectTooltip = cardObject["tooltip"].get<std::string>();
         }
         
         // Make sure card has a registered card family
@@ -114,7 +115,7 @@ void CardDataRepository::LoadCardData(bool loadAssets)
             cardData.mCardShaderResourceId = resourceService.LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + cardObject["shader"].get<std::string>());
         }
         
-        //assert(!mCardDataMap.count(cardData.mCardId));
+        assert(!mCardDataMap.count(cardData.mCardId));
         mCardDataMap[cardData.mCardId] = cardData;
     }
 }

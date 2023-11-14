@@ -185,6 +185,7 @@
             "family": "rodents",
             "name": "Fluff Attack",
             "effect": "DAMAGE +2 FAMILY",
+            "tooltip": "+2 DMG Family",
             "texture": "rodents_attack.png",
             "shader": "basic.vs"
         },
@@ -194,6 +195,7 @@
             "family": "rodents",
             "name": "Fuzzy Speed",
             "effect": "DRAW +2",
+            "tooltip": "Draw 2 Cards",
             "texture": "fuzz_speed.png",
             "shader": "basic.vs"
         }

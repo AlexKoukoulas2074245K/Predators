@@ -49,6 +49,7 @@ struct CardData
     int mCardWeight;
     std::string mCardName;
     std::string mCardEffect;
+    std::string mCardEffectTooltip;
     strutils::StringId mCardFamily;
     resources::ResourceId mCardTextureResourceId;
     resources::ResourceId mCardShaderResourceId;

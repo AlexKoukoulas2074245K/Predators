@@ -80,6 +80,8 @@ namespace game_constants
     inline const float IN_GAME_CARD_PROPERTY_Y_OFFSET = 0.0285f;
     inline const float IN_GAME_CARD_NAME_X_OFFSET = 0.002f;
     inline const float IN_GAME_CARD_NAME_Y_OFFSET = -0.0145f;
+    inline const float IN_GAME_CARD_NAME_SPELL_Y_OFFSET = -0.0125f;
+    inline const float IN_GAME_CARD_NAME_SPELL_EFFECT_Y_OFFSET = -0.0205f;
     inline const float IN_GAME_CARD_NAME_SCALE = 0.00012f;
     inline const float IN_GAME_CARD_WIDTH = 0.055f;
     inline const float IN_GAME_CARD_ON_BOARD_WIDTH = 0.045f;
