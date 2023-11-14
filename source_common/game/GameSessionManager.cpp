@@ -558,10 +558,10 @@ void GameSessionManager::UpdateMiscSceneObjects(const float dtMillis)
     
     // Board side effects
     auto boardSideEffectTopSceneObject = activeScene->FindSceneObject(BOARD_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME);
-    boardSideEffectTopSceneObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time/10;
+    boardSideEffectTopSceneObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = fmod(time/10, 1.0f);
     
     auto boardSideEffectBotSceneObject = activeScene->FindSceneObject(BOARD_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME);
-    boardSideEffectBotSceneObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time/10;
+    boardSideEffectBotSceneObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = fmod(time/10, 1.0f);
 }
 
 ///------------------------------------------------------------------------------------------------
