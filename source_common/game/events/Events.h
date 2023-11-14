@@ -92,6 +92,32 @@ public:
 
 ///------------------------------------------------------------------------------------------------
 
+class CardEffectNextTurnTriggeredEvent final
+{
+public:
+    CardEffectNextTurnTriggeredEvent(const bool forRemotePlayer)
+        : mForRemotePlayer(forRemotePlayer)
+    {
+    }
+    
+    const bool mForRemotePlayer;
+};
+
+///------------------------------------------------------------------------------------------------
+
+class CardEffectNextTurnEndedEvent final
+{
+public:
+    CardEffectNextTurnEndedEvent(const bool forRemotePlayer)
+        : mForRemotePlayer(forRemotePlayer)
+    {
+    }
+
+    const bool mForRemotePlayer;
+};
+
+///------------------------------------------------------------------------------------------------
+
 class HeldCardSwapEvent final
 {
 public:

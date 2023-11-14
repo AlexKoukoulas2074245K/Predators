@@ -38,7 +38,7 @@ glm::vec3 CalculateBoardCardPosition(const int cardIndex, const int playerCardCo
 
 ///------------------------------------------------------------------------------------------------
 
-std::shared_ptr<CardSoWrapper> CreateCardSoWrapper(const CardData* card, const glm::vec3& position, const std::string& cardNamePrefix, const CardOrientation cardOrientation, const bool forRemotePlayer, const bool canCardBePlayed, const CardStatOverrides& cardStatOverrides, scene::Scene& scene);
+std::shared_ptr<CardSoWrapper> CreateCardSoWrapper(const CardData* card, const glm::vec3& position, const std::string& cardNamePrefix, const CardOrientation cardOrientation, const bool forRemotePlayer, const bool canCardBePlayed, const CardStatOverrides& cardStatOverrides, const CardStatOverrides& globalStatModifiers, scene::Scene& scene);
 
 ///------------------------------------------------------------------------------------------------
 

@@ -31,7 +31,7 @@ struct PlayerState
     std::vector<int> mPlayerHeldCards;
     std::vector<int> mPlayerBoardCards;
     std::vector<CardStatOverrides> mPlayerBoardCardStatOverrides;
-    
+    CardStatOverrides mGlobalBoardCardStatModifiers;
     int mPlayerHealth = 30;
     int mPlayerTotalWeightAmmo = 0;
     int mPlayerCurrentWeightAmmo = 0;
@@ -46,6 +46,8 @@ public:
     std::vector<PlayerState>& GetPlayerStates() { return mPlayerStates; }
     const PlayerState& GetActivePlayerState() const { return mActivePlayerIndex == -1 ? mPlayerStates.at(1) : mPlayerStates.at(mActivePlayerIndex); }
     PlayerState& GetActivePlayerState() { return mActivePlayerIndex == -1 ? mPlayerStates[1] : mPlayerStates[mActivePlayerIndex]; }
+    const PlayerState& GetInactivePlayerState() const { return mActivePlayerIndex == -1 ? mPlayerStates.at(0) : mPlayerStates.at((mActivePlayerIndex + 1) % GetPlayerCount()); }
+    PlayerState& GetInactivePlayerState() { return mActivePlayerIndex == -1 ? mPlayerStates[0] : mPlayerStates[(mActivePlayerIndex + 1) % GetPlayerCount()]; }
     int GetActivePlayerIndex() const { return mActivePlayerIndex; }
     int& GetActivePlayerIndex() { return mActivePlayerIndex; }
     int& GetTurnCounter() { return mTurnCounter; }

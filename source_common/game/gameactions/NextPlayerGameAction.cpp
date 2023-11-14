@@ -67,6 +67,7 @@ void NextPlayerGameAction::VSetNewGameState()
         }
     }
     
+    
     mGameActionEngine->AddGameAction(POST_NEXT_PLAYER_GAME_ACTION_NAME);
     
     // Both players get 3 cards

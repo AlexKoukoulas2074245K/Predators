@@ -65,6 +65,8 @@ private:
     void OnLastCardPlayedFinalized(const events::LastCardPlayedFinalizedEvent& event);
     void OnHealthChangeAnimationTriggerEvent(const events::HealthChangeAnimationTriggerEvent&);
     void OnWeightChangeAnimationTriggerEvent(const events::WeightChangeAnimationTriggerEvent&);
+    void OnCardEffectNextTurnTriggeredEvent(const events::CardEffectNextTurnTriggeredEvent&);
+    void OnCardEffectNextTurnEndedEvent(const events::CardEffectNextTurnEndedEvent&);
 
 private:
     enum class ProspectiveBoardCardsPushState

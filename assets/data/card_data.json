@@ -198,6 +198,16 @@
             "tooltip": "Draw 2 Cards",
             "texture": "fuzz_speed.png",
             "shader": "basic.vs"
+        },
+        {
+            "id": 21,
+            "weight": 1,
+            "family": "rodents",
+            "name": "Throwing Net",
+            "effect": "DAMAGE -1 ENEMIES",
+            "tooltip": "-1 DMG Enemies",
+            "texture": "net.png",
+            "shader": "basic.vs"
         }
     ]
 }

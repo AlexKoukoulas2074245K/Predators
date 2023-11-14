@@ -70,16 +70,21 @@ void CardAttackGameAction::VSetNewGameState()
     auto& activePlayerState = mBoardState->GetActivePlayerState();
     auto& attackingPlayerOverrides = mBoardState->GetPlayerStates()[attackingPayerIndex].mPlayerBoardCardStatOverrides;
     
+    auto damage = attackingCardData->get().mCardDamage;
+    
     if (!attackingPlayerOverrides.empty() && attackingPlayerOverrides.front().count(CardStatType::DAMAGE))
     {
-        activePlayerState.mPlayerHealth -= attackingPlayerOverrides.front().at(CardStatType::DAMAGE);
+        damage = math::Max(0, attackingPlayerOverrides.front().at(CardStatType::DAMAGE));
         attackingPlayerOverrides.erase(attackingPlayerOverrides.begin());
     }
-    else
+    
+    if (mBoardState->GetPlayerStates()[attackingPayerIndex].mGlobalBoardCardStatModifiers.count(CardStatType::DAMAGE))
     {
-        activePlayerState.mPlayerHealth -= attackingCardData->get().mCardDamage;
+        damage = math::Max(0, damage + mBoardState->GetPlayerStates()[attackingPayerIndex].mGlobalBoardCardStatModifiers.at(CardStatType::DAMAGE));
     }
     
+    activePlayerState.mPlayerHealth -= damage;
+    mPendingDamage = damage;
     
     if (activePlayerState.mPlayerHealth <= 0.0f)
     {
@@ -139,7 +144,11 @@ void CardAttackGameAction::VInitAnimation()
                     mPendingAnimations--;
                     
                     CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE)->GetCamera().Shake(ATTACKING_CARD_CAMERA_SHAKE_DURATION, ATTACKING_CARD_CAMERA_SHAKE_STRENGTH);
-                    events::EventSystem::GetInstance().DispatchEvent<events::HealthChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
+                    
+                    if (mPendingDamage != 0)
+                    {
+                        events::EventSystem::GetInstance().DispatchEvent<events::HealthChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
+                    }
                     
                     auto cardIndex = std::stoi(mExtraActionParams.at(CARD_INDEX_PARAM));
                     auto attackingPayerIndex = std::stoi(mExtraActionParams.at(PLAYER_INDEX_PARAM));

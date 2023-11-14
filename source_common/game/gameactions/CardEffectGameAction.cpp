@@ -22,12 +22,20 @@
 // Effect components
 static const std::string EFFECT_COMPONENT_DAMAGE = "DAMAGE";
 static const std::string EFFECT_COMPONENT_FAMILY = "FAMILY";
+static const std::string EFFECT_COMPONENT_ENEMIES = "ENEMIES";
 static const std::string EFFECT_COMPONENT_DRAW   = "DRAW";
 static const std::unordered_set<std::string> STATIC_EFFECT_COMPONENT_NAMES =
 {
     EFFECT_COMPONENT_DRAW,
     EFFECT_COMPONENT_DAMAGE,
-    EFFECT_COMPONENT_FAMILY
+    EFFECT_COMPONENT_FAMILY,
+    EFFECT_COMPONENT_ENEMIES
+};
+
+const std::unordered_map<CardEffectGameAction::AffectedStatType, CardStatType> CardEffectGameAction::sAffectedStatTypeToCardStatType =
+{
+    {AffectedStatType::DAMAGE, CardStatType::DAMAGE},
+    {AffectedStatType::WEIGHT, CardStatType::WEIGHT}
 };
 
 // Resources
@@ -162,6 +170,11 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
             
         case ActionState::AFFECTED_CARDS_SPARKLE_ANIMATION:
         {
+            if (mAffectingNextPlayer)
+            {
+                events::EventSystem::GetInstance().DispatchEvent<events::CardEffectNextTurnTriggeredEvent>(mBoardState->GetActivePlayerIndex() != game_constants::REMOTE_PLAYER_INDEX);
+            }
+            
             if (mAffectedBoardIndices.empty())
             {
                 mActionState = ActionState::FINISHED;
@@ -276,10 +289,19 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
         }
     }
     
+    // Next turn effect
+    mAffectingNextPlayer = false;
+    if (std::find(effectComponents.cbegin(), effectComponents.cend(), EFFECT_COMPONENT_ENEMIES) != effectComponents.cend())
+    {
+        mAffectingNextPlayer = true;
+        mBoardState->GetInactivePlayerState().mGlobalBoardCardStatModifiers[sAffectedStatTypeToCardStatType.at(mAffectedBoardCardsStatType)] += mEffectValue;
+    }
+    
+    // Current turn effect
     for (int affectedIndex: mAffectedBoardIndices)
     {
         const auto& cardData = CardDataRepository::GetInstance().GetCardData(boardCards.at(affectedIndex))->get();
-        const auto affectedStat = mAffectedBoardCardsStatType == AffectedStatType::DAMAGE ? CardStatType::DAMAGE : CardStatType::WEIGHT;
+        const auto affectedStat = sAffectedStatTypeToCardStatType.at(mAffectedBoardCardsStatType);
         auto currentValue = mAffectedBoardCardsStatType == AffectedStatType::DAMAGE ? cardData.mCardDamage : cardData.mCardWeight;
         
         if (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.size()) >= affectedIndex + 1)

@@ -65,6 +65,15 @@ void Game::Init()
     boardSceneObject->mTextureResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "board.png");
     boardSceneObject->mRotation.z = math::PI/2.0f;
     
+    auto sideSceneObject = dummyScene->CreateSceneObject(strutils::StringId("side"));
+    sideSceneObject->mScale.x = 0.372f;
+    sideSceneObject->mScale.y = 0.346f;
+    sideSceneObject->mTextureResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "board_side_reduction.png");
+    sideSceneObject->mEffectTextureResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "board_side_mask.png");
+    sideSceneObject->mShaderResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + "board_side_stat_effect.vs");
+    sideSceneObject->mPosition.y = -0.044f;
+    sideSceneObject->mPosition.z = 0.005f;
+    sideSceneObject->mInvisible = true;
 //    auto flameSceneObject = dummyScene->CreateSceneObject(strutils::StringId("Fire"));
 //    flameSceneObject->mTextureResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "fire.png");
 //    flameSceneObject->mShaderResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + "card_dissolve.vs");
@@ -128,8 +137,14 @@ void Game::Init()
 
 void Game::Update(const float dtMillis)
 {
-//    auto& systemsEngine = CoreSystemsEngine::GetInstance();
-//    auto activeScene = systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    static float time = 0.0f;
+    time += dtMillis/10000.0f;
+    
+    auto& systemsEngine = CoreSystemsEngine::GetInstance();
+    auto activeScene = systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    
+    activeScene->FindSceneObject(strutils::StringId("side"))->mShaderFloatUniformValues[strutils::StringId("time")] = time;
+    
 //
 //    if (systemsEngine.GetInputStateManager().VButtonTapped(input::Button::MAIN_BUTTON))
 //    {

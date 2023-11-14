@@ -12,6 +12,7 @@
 
 #include <engine/utils/MathUtils.h>
 #include <game/gameactions/BaseGameAction.h>
+#include <unordered_map>
 #include <vector>
 
 ///------------------------------------------------------------------------------------------------
@@ -50,8 +51,11 @@ private:
         WEIGHT
     };
     
+    static const std::unordered_map<AffectedStatType, CardStatType> sAffectedStatTypeToCardStatType;
+    
     AffectedStatType mAffectedBoardCardsStatType;
     int mEffectValue;
+    bool mAffectingNextPlayer;
     float mAnimationDelayCounterSecs;
     std::vector<int> mAffectedBoardIndices;
 };

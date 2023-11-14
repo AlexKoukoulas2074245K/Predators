@@ -10,9 +10,11 @@
 #include <engine/rendering/AnimationManager.h>
 #include <engine/scene/ActiveSceneManager.h>
 #include <engine/scene/Scene.h>
+#include <game/events/EventSystem.h>
 #include <game/GameConstants.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/PostNextPlayerGameAction.h>
+
 
 ///------------------------------------------------------------------------------------------------
 
@@ -22,6 +24,12 @@ static const float TURN_POINTER_ANIMATION_DURATION_SECS = 0.66f;
 
 void PostNextPlayerGameAction::VSetNewGameState()
 {
+    // Clear global stat overrides
+    if (!mBoardState->GetInactivePlayerState().mGlobalBoardCardStatModifiers.empty())
+    {
+        events::EventSystem::GetInstance().DispatchEvent<events::CardEffectNextTurnEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX);
+    }
+    mBoardState->GetInactivePlayerState().mGlobalBoardCardStatModifiers.clear();
 }
 
 ///------------------------------------------------------------------------------------------------

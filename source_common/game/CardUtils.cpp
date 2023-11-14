@@ -77,7 +77,7 @@ glm::vec3 CalculateBoardCardPosition(const int cardIndex, const int playerCardCo
 
 ///------------------------------------------------------------------------------------------------
 
-std::shared_ptr<CardSoWrapper> CreateCardSoWrapper(const CardData* cardData, const glm::vec3& position, const std::string& cardNamePrefix, const CardOrientation cardOrientation, const bool forRemotePlayer, const bool canCardBePlayed, const CardStatOverrides& cardStatOverrides, scene::Scene& scene)
+std::shared_ptr<CardSoWrapper> CreateCardSoWrapper(const CardData* cardData, const glm::vec3& position, const std::string& cardNamePrefix, const CardOrientation cardOrientation, const bool forRemotePlayer, const bool canCardBePlayed, const CardStatOverrides& cardStatOverrides, const CardStatOverrides& globalStatModifiers, scene::Scene& scene)
 {
     auto cardSoWrapper = std::make_shared<CardSoWrapper>();
  
@@ -158,7 +158,14 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper(const CardData* cardData, con
             cardComponents.push_back(std::make_shared<scene::SceneObject>());
             scene::TextSceneObjectData damageTextData;
             damageTextData.mFontName = game_constants::FONT_PLACEHOLDER_DAMAGE_NAME;
-            damageTextData.mText = cardStatOverrides.count(CardStatType::DAMAGE) ? std::to_string(cardStatOverrides.at(CardStatType::DAMAGE)) : std::to_string(cardData->mCardDamage);
+            
+            int damage = math::Max(0, cardStatOverrides.count(CardStatType::DAMAGE) ? cardStatOverrides.at(CardStatType::DAMAGE) : cardData->mCardDamage);
+            if (globalStatModifiers.count(CardStatType::DAMAGE))
+            {
+                damage = math::Max(0, damage + globalStatModifiers.at(CardStatType::DAMAGE));
+            }
+            damageTextData.mText = std::to_string(damage);
+            
             cardComponents.back()->mSceneObjectTypeData = std::move(damageTextData);
             cardComponents.back()->mScale = glm::vec3(game_constants::IN_GAME_CARD_PROPERTY_SCALE);
             cardComponents.back()->mPosition = position;
@@ -258,10 +265,37 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper(const CardData* cardData, con
             }
         }
         
+        if (globalStatModifiers.count(CardStatType::DAMAGE))
+        {
+            generatedTextureOverridePostfixSS << "_global_damage_" << globalStatModifiers.at(CardStatType::DAMAGE);
+        }
+        if (globalStatModifiers.count(CardStatType::WEIGHT))
+        {
+            generatedTextureOverridePostfixSS << "_global_weight_" << globalStatModifiers.at(CardStatType::WEIGHT);
+        }
+        
         rendering::CollateSceneObjectsIntoOne(GENERATED_R2T_NAME_PREFIX + (forRemotePlayer ? "0_id_" : "1_id_") + std::to_string(cardData->mCardId) + generatedTextureOverridePostfixSS.str(), position, cardComponents, scene);
         cardComponents.front()->mShaderResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CARD_SHADER_FILE_NAME);
         cardComponents.front()->mShaderIntUniformValues[game_constants::CARD_WEIGHT_INTERACTIVE_MODE_UNIFORM_NAME] = forRemotePlayer ? game_constants::CARD_INTERACTIVE_MODE_DEFAULT : (canCardBePlayed ? game_constants::CARD_INTERACTIVE_MODE_INTERACTIVE : game_constants::CARD_INTERACTIVE_MODE_NONINTERACTIVE);
-        cardComponents.front()->mShaderIntUniformValues[game_constants::CARD_DAMAGE_INTERACTIVE_MODE_UNIFORM_NAME] = cardStatOverrides.count(CardStatType::DAMAGE) ? game_constants::CARD_INTERACTIVE_MODE_INTERACTIVE : game_constants::CARD_INTERACTIVE_MODE_DEFAULT;
+        
+        int damage = math::Max(0, cardStatOverrides.count(CardStatType::DAMAGE) ? cardStatOverrides.at(CardStatType::DAMAGE) : cardData->mCardDamage);
+        if (globalStatModifiers.count(CardStatType::DAMAGE))
+        {
+            damage = math::Max(0, damage + globalStatModifiers.at(CardStatType::DAMAGE));
+        }
+        
+        if (damage > cardData->mCardDamage)
+        {
+            cardComponents.front()->mShaderIntUniformValues[game_constants::CARD_DAMAGE_INTERACTIVE_MODE_UNIFORM_NAME] = game_constants::CARD_INTERACTIVE_MODE_INTERACTIVE;
+        }
+        else if (damage == cardData->mCardDamage)
+        {
+            cardComponents.front()->mShaderIntUniformValues[game_constants::CARD_DAMAGE_INTERACTIVE_MODE_UNIFORM_NAME] = game_constants::CARD_INTERACTIVE_MODE_DEFAULT;
+        }
+        else
+        {
+            cardComponents.front()->mShaderIntUniformValues[game_constants::CARD_DAMAGE_INTERACTIVE_MODE_UNIFORM_NAME] = game_constants::CARD_INTERACTIVE_MODE_DEFAULT;
+        }
         
         cardComponents.front()->mPosition += position;
         cardComponents.front()->mScale *= RENDER_TO_TEXTURE_UPSCALE_FACTOR;
