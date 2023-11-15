@@ -21,7 +21,7 @@ void main()
     float final_uv_x = uv_frag.x;
     float final_uv_y = 1.0 - uv_frag.y;
     vec4 mask_color  = texture(mask_tex, vec2(final_uv_x, final_uv_y));
-    if (mask_color.r < 0.05f) discard;
+    if (mask_color.r < 0.15f) discard;
     
     frag_color = texture(tex, vec2(final_uv_x, final_uv_y - time));
     frag_color.a *= pow(texture(mask_tex, vec2(final_uv_x, final_uv_y)).r, 2.0f) * custom_alpha;

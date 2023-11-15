@@ -10,9 +10,9 @@
 
 ///------------------------------------------------------------------------------------------------
 
+#include <game/CardEffectComponents.h>
 #include <unordered_map>
 #include <vector>
-
 
 ///------------------------------------------------------------------------------------------------
 
@@ -23,7 +23,18 @@ enum class CardStatType
 };
 
 ///------------------------------------------------------------------------------------------------
+
 using CardStatOverrides = std::unordered_map<CardStatType, int>;
+
+///------------------------------------------------------------------------------------------------
+
+struct BoardModifiers
+{
+    effects::EffectBoardModifierMask mBoardModifierMask = effects::board_modifier_masks::NONE;
+    CardStatOverrides mGlobalCardStatModifiers;
+};
+
+///------------------------------------------------------------------------------------------------
 
 struct PlayerState
 {
@@ -31,7 +42,7 @@ struct PlayerState
     std::vector<int> mPlayerHeldCards;
     std::vector<int> mPlayerBoardCards;
     std::vector<CardStatOverrides> mPlayerBoardCardStatOverrides;
-    CardStatOverrides mGlobalBoardCardStatModifiers;
+    BoardModifiers mBoardModifiers;
     int mPlayerHealth = 30;
     int mPlayerTotalWeightAmmo = 0;
     int mPlayerCurrentWeightAmmo = 0;

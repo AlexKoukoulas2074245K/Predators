@@ -78,9 +78,9 @@ void CardAttackGameAction::VSetNewGameState()
         attackingPlayerOverrides.erase(attackingPlayerOverrides.begin());
     }
     
-    if (mBoardState->GetPlayerStates()[attackingPayerIndex].mGlobalBoardCardStatModifiers.count(CardStatType::DAMAGE))
+    if (mBoardState->GetPlayerStates()[attackingPayerIndex].mBoardModifiers.mGlobalCardStatModifiers.count(CardStatType::DAMAGE))
     {
-        damage = math::Max(0, damage + mBoardState->GetPlayerStates()[attackingPayerIndex].mGlobalBoardCardStatModifiers.at(CardStatType::DAMAGE));
+        damage = math::Max(0, damage + mBoardState->GetPlayerStates()[attackingPayerIndex].mBoardModifiers.mGlobalCardStatModifiers.at(CardStatType::DAMAGE));
     }
     
     activePlayerState.mPlayerHealth -= damage;

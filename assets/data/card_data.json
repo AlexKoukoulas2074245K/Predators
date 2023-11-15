@@ -194,8 +194,8 @@
             "weight": 1,
             "family": "rodents",
             "name": "Fuzzy Speed",
-            "effect": "DRAW +2",
-            "tooltip": "Draw 2 Cards",
+            "effect": "DRAW +3",
+            "tooltip": "Draw 3 Cards",
             "texture": "fuzz_speed.png",
             "shader": "basic.vs"
         },
@@ -204,9 +204,19 @@
             "weight": 1,
             "family": "rodents",
             "name": "Throwing Net",
-            "effect": "DAMAGE -1 ENEMIES",
-            "tooltip": "-1 DMG Enemies",
+            "effect": "DAMAGE -2 ENEMIES",
+            "tooltip": "-2 DMG Enemies",
             "texture": "net.png",
+            "shader": "basic.vs"
+        },
+        {
+            "id": 22,
+            "weight": 1,
+            "family": "rodents",
+            "name": "Bear Trap",
+            "effect": "KILL",
+            "tooltip": "Kill Next Enemy",
+            "texture": "trap.png",
             "shader": "basic.vs"
         }
     ]

@@ -34,6 +34,8 @@
 static const strutils::StringId CARD_LOCATION_INDICATOR_SCENE_OBJECT_NAME = strutils::StringId("CARD_LOCATION_INDICATOR");
 static const strutils::StringId BOARD_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME = strutils::StringId("BOARD_SIDE_EFFECT_TOP");
 static const strutils::StringId BOARD_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("BOARD_SIDE_EFFECT_BOT");
+static const strutils::StringId KILL_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME = strutils::StringId("KILL_SIDE_EFFECT_TOP");
+static const strutils::StringId KILL_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("KILL_SIDE_EFFECT_BOT");
 
 static const strutils::StringId IDLE_GAME_ACTION_NAME = strutils::StringId("IdleGameAction");
 static const strutils::StringId PLAY_CARD_ACTION_NAME = strutils::StringId("PlayCardGameAction");
@@ -46,6 +48,8 @@ static const std::string HEALTH_CRYSTAL_TEXTURE_FILE_NAME = "health_crystal.png"
 static const std::string WEIGHT_CRYSTAL_TEXTURE_FILE_NAME = "weight_crystal.png";
 static const std::string BOARD_SIDE_EFFECT_REDUCTION_TEXTURE_FILE_NAME = "board_side_reduction.png";
 static const std::string BOARD_SIDE_EFFECT_MASK_TEXTURE_FILE_NAME = "board_side_mask.png";
+static const std::string KILL_SIDE_EFFECT_TEXTURE_FILE_NAME = "trap.png";
+static const std::string KILL_SIDE_EFFECT_MASK_TEXTURE_FILE_NAME = "trap_mask.png";
 static const std::string BOARD_SIDE_STAT_EFFECT_SHADER_FILE_NAME = "board_side_stat_effect.vs";
 static const std::string CARD_HIGHLIGHTER_SCENE_OBJECT_NAME_PREFIX = "HIGHLIGHTER_CARD_";
 static const std::string HEALTH_CRYSTAL_TOP_SCENE_OBJECT_NAME_PREFIX = "HEALTH_CRYSTAL_TOP_";
@@ -62,6 +66,7 @@ static const glm::vec3 TURN_POINTER_SCALE = {0.08f, 0.08f, 0.08f};
 static const glm::vec3 BOARD_SIDE_EFFECT_SCALE = {0.372f, 0.346f, 1.0f};
 static const glm::vec3 BOARD_SIDE_EFFECT_TOP_POSITION = { 0.0f, 0.044f, 0.01f};
 static const glm::vec3 BOARD_SIDE_EFFECT_BOT_POSITION = { 0.0f, -0.044f, 0.01f};
+static const glm::vec3 KILL_SIDE_EFFECT_SCALE = {1/20.0f, 1/20.0f, 1/20.0f};
 
 static const float BOARD_SIDE_EFFECT_SHOWING_HIDING_ANIMATION_DURATION = 0.5f;
 
@@ -69,6 +74,8 @@ static const float CARD_SELECTION_ANIMATION_DURATION = 0.15f;
 static const float CARD_LOCATION_EFFECT_MIN_TARGET_ALPHA = 0.25f;
 static const float CARD_LOCATION_EFFECT_MAX_TARGET_ALPHA = 1.0f;
 static const float CARD_LOCATION_EFFECT_ALPHA_SPEED = 0.003f;
+static const float KILL_SIDE_EFFECT_SCALE_UP_FACTOR = 1.5f;
+static const float KILL_SIDE_EFFECT_PULSE_ANIMATION_PULSE_DUARTION_SECS = 1.0f;
 
 #if defined(MOBILE_FLOW)
 static const float MOBILE_DISTANCE_FROM_CARD_LOCATION_INDICATOR = 0.003f;
@@ -100,7 +107,7 @@ void GameSessionManager::InitGameSession()
     mBoardState->GetPlayerStates().emplace_back();
     mBoardState->GetPlayerStates().emplace_back();
     
-    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("dinosaurs"));
+    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetAllCardIds();//GetCardIdsByFamily(strutils::StringId("rodents"));
     mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));
     
     mPlayerHeldCardSceneObjectWrappers.emplace_back();
@@ -118,7 +125,8 @@ void GameSessionManager::InitGameSession()
     GameReplayEngine replayEngine(persistence_utils::GetProgressDirectoryPath() + "game");
     auto seed = replayEngine.GetGameFileSeed();
 #else
-    auto seed = math::RandomInt(); //auto seed = 1188957527;
+    //auto seed = 907507888;
+    auto seed = math::RandomInt();
 #endif
     
     mGameSerializer = std::make_unique<GameSerializer>(seed);
@@ -132,6 +140,7 @@ void GameSessionManager::InitGameSession()
 #endif
     
     const auto& activeSceneManager = CoreSystemsEngine::GetInstance().GetActiveSceneManager();
+    auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
     auto activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
     
     // Card Location Indicator
@@ -175,6 +184,7 @@ void GameSessionManager::InitGameSession()
     boardSideEffectTopSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + BOARD_SIDE_STAT_EFFECT_SHADER_FILE_NAME);
     boardSideEffectTopSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
     boardSideEffectTopSceneObject->mPosition = BOARD_SIDE_EFFECT_TOP_POSITION;
+    boardSideEffectTopSceneObject->mInvisible = true;
     
     // Board Side Effect Bot
     auto boardSideEffectBotSceneObject = activeScene->CreateSceneObject(BOARD_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME);
@@ -184,6 +194,29 @@ void GameSessionManager::InitGameSession()
     boardSideEffectBotSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + BOARD_SIDE_STAT_EFFECT_SHADER_FILE_NAME);
     boardSideEffectBotSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
     boardSideEffectBotSceneObject->mPosition = BOARD_SIDE_EFFECT_BOT_POSITION;
+    boardSideEffectBotSceneObject->mInvisible = true;
+    
+    // Kill Side Effect Top
+    auto killSideEffectTopSceneObject = activeScene->CreateSceneObject(KILL_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME);
+    killSideEffectTopSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + KILL_SIDE_EFFECT_TEXTURE_FILE_NAME);
+    killSideEffectTopSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+    killSideEffectTopSceneObject->mEffectTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + KILL_SIDE_EFFECT_MASK_TEXTURE_FILE_NAME);
+    killSideEffectTopSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + BOARD_SIDE_STAT_EFFECT_SHADER_FILE_NAME);
+    killSideEffectTopSceneObject->mPosition = BOARD_SIDE_EFFECT_TOP_POSITION;
+    killSideEffectTopSceneObject->mScale = KILL_SIDE_EFFECT_SCALE;
+    killSideEffectTopSceneObject->mInvisible = true;
+    animationManager.StartAnimation(std::make_unique<rendering::ContinuousPulseAnimation>(killSideEffectTopSceneObject, KILL_SIDE_EFFECT_SCALE_UP_FACTOR, KILL_SIDE_EFFECT_PULSE_ANIMATION_PULSE_DUARTION_SECS), [](){});
+    
+    // Kill Side Effect Bot
+    auto killSideEffectBotSceneObject = activeScene->CreateSceneObject(KILL_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME);
+    killSideEffectBotSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + KILL_SIDE_EFFECT_TEXTURE_FILE_NAME);
+    killSideEffectBotSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+    killSideEffectBotSceneObject->mEffectTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + KILL_SIDE_EFFECT_MASK_TEXTURE_FILE_NAME);
+    killSideEffectBotSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + BOARD_SIDE_STAT_EFFECT_SHADER_FILE_NAME);
+    killSideEffectBotSceneObject->mPosition = BOARD_SIDE_EFFECT_BOT_POSITION;
+    killSideEffectBotSceneObject->mScale = KILL_SIDE_EFFECT_SCALE;
+    killSideEffectBotSceneObject->mInvisible = true;
+    animationManager.StartAnimation(std::make_unique<rendering::ContinuousPulseAnimation>(killSideEffectBotSceneObject, KILL_SIDE_EFFECT_SCALE_UP_FACTOR, KILL_SIDE_EFFECT_PULSE_ANIMATION_PULSE_DUARTION_SECS), [](){});
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -562,6 +595,12 @@ void GameSessionManager::UpdateMiscSceneObjects(const float dtMillis)
     
     auto boardSideEffectBotSceneObject = activeScene->FindSceneObject(BOARD_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME);
     boardSideEffectBotSceneObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = fmod(time/10, 1.0f);
+    
+    auto killEffectTopSceneObject = activeScene->FindSceneObject(KILL_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME);
+    killEffectTopSceneObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = 0.0f;
+    
+    auto killEffectBotSceneObject = activeScene->FindSceneObject(KILL_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME);
+    killEffectBotSceneObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = 0.0f;
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -667,8 +706,8 @@ void GameSessionManager::RegisterForEvents()
     eventSystem.RegisterForEvent<events::LastCardPlayedFinalizedEvent>(this, &GameSessionManager::OnLastCardPlayedFinalized);
     eventSystem.RegisterForEvent<events::HealthChangeAnimationTriggerEvent>(this, &GameSessionManager::OnHealthChangeAnimationTriggerEvent);
     eventSystem.RegisterForEvent<events::WeightChangeAnimationTriggerEvent>(this, &GameSessionManager::OnWeightChangeAnimationTriggerEvent);
-    eventSystem.RegisterForEvent<events::CardEffectNextTurnTriggeredEvent>(this, &GameSessionManager::OnCardEffectNextTurnTriggeredEvent);
-    eventSystem.RegisterForEvent<events::CardEffectNextTurnEndedEvent>(this, &GameSessionManager::OnCardEffectNextTurnEndedEvent);
+    eventSystem.RegisterForEvent<events::BoardSideCardEffectTriggeredEvent>(this, &GameSessionManager::OnBoardSideCardEffectTriggeredEvent);
+    eventSystem.RegisterForEvent<events::BoardSideCardEffectEndedEvent>(this, &GameSessionManager::OnBoardSideCardEffectEndedEvent);
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -761,7 +800,7 @@ void GameSessionManager::OnCardBuffed(const events::CardBuffedEvent& event)
         auto& cardSceneObjectWrapper = boardSceneObjectWrappers[event.mCardIdex];
         
         activeScene->RemoveSceneObject(cardSceneObjectWrapper->mSceneObject->mName);
-        boardSceneObjectWrappers[event.mCardIdex] = card_utils::CreateCardSoWrapper(cardSceneObjectWrapper->mCardData, cardSceneObjectWrapper->mSceneObject->mPosition, (event.mForRemotePlayer ? game_constants::TOP_PLAYER_BOARD_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_BOARD_CARD_SO_NAME_PREFIX) + std::to_string(event.mCardIdex), CardOrientation::FRONT_FACE, event.mForRemotePlayer, true, mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.at(event.mCardIdex), mBoardState->GetActivePlayerState().mGlobalBoardCardStatModifiers, *activeScene);
+        boardSceneObjectWrappers[event.mCardIdex] = card_utils::CreateCardSoWrapper(cardSceneObjectWrapper->mCardData, cardSceneObjectWrapper->mSceneObject->mPosition, (event.mForRemotePlayer ? game_constants::TOP_PLAYER_BOARD_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_BOARD_CARD_SO_NAME_PREFIX) + std::to_string(event.mCardIdex), CardOrientation::FRONT_FACE, event.mForRemotePlayer, true, mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.at(event.mCardIdex), mBoardState->GetActivePlayerState().mBoardModifiers.mGlobalCardStatModifiers, *activeScene);
     }
     else
     {
@@ -769,7 +808,7 @@ void GameSessionManager::OnCardBuffed(const events::CardBuffedEvent& event)
         auto& cardSceneObjectWrapper = heldSceneObjectWrappers[event.mCardIdex];
         
         activeScene->RemoveSceneObject(cardSceneObjectWrapper->mSceneObject->mName);
-        heldSceneObjectWrappers[event.mCardIdex] = card_utils::CreateCardSoWrapper(cardSceneObjectWrapper->mCardData, cardSceneObjectWrapper->mSceneObject->mPosition, (event.mForRemotePlayer ? game_constants::TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_HELD_CARD_SO_NAME_PREFIX) + std::to_string(event.mCardIdex), CardOrientation::FRONT_FACE, event.mForRemotePlayer, true, {}, mBoardState->GetActivePlayerState().mGlobalBoardCardStatModifiers, *activeScene);
+        heldSceneObjectWrappers[event.mCardIdex] = card_utils::CreateCardSoWrapper(cardSceneObjectWrapper->mCardData, cardSceneObjectWrapper->mSceneObject->mPosition, (event.mForRemotePlayer ? game_constants::TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_HELD_CARD_SO_NAME_PREFIX) + std::to_string(event.mCardIdex), CardOrientation::FRONT_FACE, event.mForRemotePlayer, true, {}, mBoardState->GetActivePlayerState().mBoardModifiers.mGlobalCardStatModifiers, *activeScene);
     }
 }
 
@@ -839,29 +878,54 @@ void GameSessionManager::OnWeightChangeAnimationTriggerEvent(const events::Weigh
 
 ///------------------------------------------------------------------------------------------------
 
-void GameSessionManager::OnCardEffectNextTurnTriggeredEvent(const events::CardEffectNextTurnTriggeredEvent& event)
+void GameSessionManager::OnBoardSideCardEffectTriggeredEvent(const events::BoardSideCardEffectTriggeredEvent& event)
 {
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
     auto& animationManager = systemsEngine.GetAnimationManager();
     const auto& activeSceneManager = systemsEngine.GetActiveSceneManager();
     
     auto activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
-    auto sideEffectSceneObject = activeScene->FindSceneObject(event.mForRemotePlayer ? BOARD_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME : BOARD_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME);
-
-    animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sideEffectSceneObject, 1.0f, BOARD_SIDE_EFFECT_SHOWING_HIDING_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), [](){});
+    
+    std::shared_ptr<scene::SceneObject> sideEffectSceneObject = nullptr;
+    float maxAlpha = 0.0f;
+    if (event.mEffectBoardModifierMask == effects::board_modifier_masks::BOARD_SIDE_STAT_MODIFIER)
+    {
+        sideEffectSceneObject = activeScene->FindSceneObject(event.mForRemotePlayer ? BOARD_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME : BOARD_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME);
+        maxAlpha = 1.0f;
+    }
+    else if (event.mEffectBoardModifierMask == effects::board_modifier_masks::KILL_NEXT)
+    {
+        sideEffectSceneObject = activeScene->FindSceneObject(event.mForRemotePlayer ? KILL_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME : KILL_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME);
+        maxAlpha = 0.25f;
+    }
+    
+    sideEffectSceneObject->mInvisible = false;
+    animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sideEffectSceneObject, maxAlpha, BOARD_SIDE_EFFECT_SHOWING_HIDING_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), [](){});
 }
 
 ///------------------------------------------------------------------------------------------------
 
-void GameSessionManager::OnCardEffectNextTurnEndedEvent(const events::CardEffectNextTurnEndedEvent& event)
+void GameSessionManager::OnBoardSideCardEffectEndedEvent(const events::BoardSideCardEffectEndedEvent& event)
 {
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
     auto& animationManager = systemsEngine.GetAnimationManager();
     const auto& activeSceneManager = systemsEngine.GetActiveSceneManager();
     
     auto activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
-    auto sideEffectSceneObject = activeScene->FindSceneObject(event.mForRemotePlayer ? BOARD_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME : BOARD_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME);
-    animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sideEffectSceneObject, 0.0f, BOARD_SIDE_EFFECT_SHOWING_HIDING_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), [=](){});
+    
+    std::shared_ptr<scene::SceneObject> sideEffectSceneObject = nullptr;
+    if (event.mEffectBoardModifierMask == effects::board_modifier_masks::BOARD_SIDE_STAT_MODIFIER)
+    {
+        sideEffectSceneObject = activeScene->FindSceneObject(event.mForRemotePlayer ? BOARD_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME : BOARD_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME);
+    }
+    else if (event.mEffectBoardModifierMask == effects::board_modifier_masks::KILL_NEXT)
+    {
+        sideEffectSceneObject = activeScene->FindSceneObject(event.mForRemotePlayer ? KILL_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME : KILL_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME);
+    }
+    animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sideEffectSceneObject, 0.0f, BOARD_SIDE_EFFECT_SHOWING_HIDING_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), [=]()
+    {
+        sideEffectSceneObject->mInvisible = true;
+    });
 }
 
 ///------------------------------------------------------------------------------------------------

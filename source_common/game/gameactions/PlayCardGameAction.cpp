@@ -8,6 +8,7 @@
 #include <game/Cards.h>
 #include <game/CardUtils.h>
 #include <game/events/EventSystem.h>
+#include <game/gameactions/CardDestructionGameAction.h>
 #include <game/gameactions/CardEffectGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/PlayCardGameAction.h>
@@ -24,6 +25,7 @@ const std::string PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM = "lastPlayed
 
 static const std::string CARD_PLAY_PARTICLE_TEXTURE_FILE_NAME = "smoke.png";
 static const strutils::StringId CARD_EFFECT_GAME_ACTION_NAME = strutils::StringId("CardEffectGameAction");
+static const strutils::StringId CARD_DESTRUCTION_GAME_ACTION_NAME = strutils::StringId("CardDestructionGameAction");
 
 static const float CARD_CAMERA_SHAKE_DURATION = 0.25f;
 static const float CARD_CAMERA_SHAKE_STRENGTH = 0.005f;
@@ -66,6 +68,21 @@ void PlayCardGameAction::VSetNewGameState()
     {
         mGameActionEngine->AddGameAction(CARD_EFFECT_GAME_ACTION_NAME);
     }
+    else // normal card
+    {
+        if ((activePlayerState.mBoardModifiers.mBoardModifierMask &= effects::board_modifier_masks::KILL_NEXT) != 0)
+        {
+            mGameActionEngine->AddGameAction(CARD_DESTRUCTION_GAME_ACTION_NAME,
+            {
+                { CardDestructionGameAction::CARD_INDICES_PARAM, {"[" + std::to_string(activePlayerState.mPlayerBoardCards.size() - 1) + "]"}},
+                { CardDestructionGameAction::PLAYER_INDEX_PARAM, std::to_string(mBoardState->GetActivePlayerIndex())},
+                { CardDestructionGameAction::IS_BOARD_CARD_PARAM, "true"},
+            });
+            
+            events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, effects::board_modifier_masks::KILL_NEXT);
+            activePlayerState.mBoardModifiers.mBoardModifierMask &= (~effects::board_modifier_masks::KILL_NEXT);
+        }
+    }
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -85,7 +102,7 @@ void PlayCardGameAction::VInitAnimation()
     if (mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX)
     {
         activeScene->RemoveSceneObject(lastPlayedCardSoWrapper->mSceneObject->mName);
-        lastPlayedCardSoWrapper = card_utils::CreateCardSoWrapper(lastPlayedCardSoWrapper->mCardData, lastPlayedCardSoWrapper->mSceneObject->mPosition, game_constants::TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX + std::to_string(mBoardState->GetActivePlayerState().mPlayerBoardCards.size() - 1), CardOrientation::FRONT_FACE, true, true, {}, mBoardState->GetActivePlayerState().mGlobalBoardCardStatModifiers, *activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE));
+        lastPlayedCardSoWrapper = card_utils::CreateCardSoWrapper(lastPlayedCardSoWrapper->mCardData, lastPlayedCardSoWrapper->mSceneObject->mPosition, game_constants::TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX + std::to_string(mBoardState->GetActivePlayerState().mPlayerBoardCards.size() - 1), CardOrientation::FRONT_FACE, true, true, {}, mBoardState->GetActivePlayerState().mBoardModifiers.mGlobalCardStatModifiers, *activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE));
         events::EventSystem::GetInstance().DispatchEvent<events::HeldCardSwapEvent>(lastPlayedCardSoWrapper, lastPlayedCardIndex, true);
     }
     

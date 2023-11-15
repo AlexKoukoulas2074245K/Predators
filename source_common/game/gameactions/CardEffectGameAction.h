@@ -10,6 +10,7 @@
 
 ///------------------------------------------------------------------------------------------------
 
+#include <game/CardEffectComponents.h>
 #include <engine/utils/MathUtils.h>
 #include <game/gameactions/BaseGameAction.h>
 #include <unordered_map>
@@ -55,8 +56,8 @@ private:
     
     AffectedStatType mAffectedBoardCardsStatType;
     int mEffectValue;
-    bool mAffectingNextPlayer;
     float mAnimationDelayCounterSecs;
+    effects::EffectBoardModifierMask mLastTriggeredCardEffect;
     std::vector<int> mAffectedBoardIndices;
 };
 

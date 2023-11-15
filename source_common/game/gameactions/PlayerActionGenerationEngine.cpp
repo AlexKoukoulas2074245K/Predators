@@ -6,6 +6,7 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <game/BoardState.h>
+#include <game/CardEffectComponents.h>
 #include <game/Cards.h>
 #include <game/GameConstants.h>
 #include <game/GameRuleEngine.h>
@@ -17,7 +18,6 @@
 
 static const strutils::StringId PLAY_CARD_GAME_ACTION_NAME = strutils::StringId("PlayCardGameAction");
 static const strutils::StringId NEXT_PLAYER_GAME_ACTION_NAME = strutils::StringId("NextPlayerGameAction");
-static const std::string DRAW_CARD_EFFECT_COMPONENT = "DRAW";
 
 ///------------------------------------------------------------------------------------------------
 
@@ -45,9 +45,9 @@ void PlayerActionGenerationEngine::DecideAndPushNextActions(BoardState* currentB
         auto& cardDataLhs = cardRepository.GetCardData(lhs)->get();
         auto& cardDataRhs = cardRepository.GetCardData(rhs)->get();
         
-        if (cardDataLhs.IsSpell() && strutils::StringContains(cardDataLhs.mCardEffect, DRAW_CARD_EFFECT_COMPONENT))
+        if (cardDataLhs.IsSpell() && strutils::StringContains(cardDataLhs.mCardEffect, effects::EFFECT_COMPONENT_DRAW))
             return true;
-        else if (cardDataRhs.IsSpell() && strutils::StringContains(cardDataRhs.mCardEffect, DRAW_CARD_EFFECT_COMPONENT))
+        else if (cardDataRhs.IsSpell() && strutils::StringContains(cardDataRhs.mCardEffect, effects::EFFECT_COMPONENT_DRAW))
             return false;
         
         return cardDataLhs.mCardDamage >

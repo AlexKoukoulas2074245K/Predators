@@ -35,7 +35,7 @@ AnimationUpdateResult BaseAnimation::VUpdate(const float dtMillis)
     {
         mSecsDelay -= dtMillis/1000.0f;
     }
-    else
+    else if (mSecsDuration > 0.0f)
     {
         mSecsAccumulator += dtMillis/1000.0f;
         if (mSecsAccumulator > mSecsDuration)
@@ -49,7 +49,7 @@ AnimationUpdateResult BaseAnimation::VUpdate(const float dtMillis)
         }
     }
     
-    return mAnimationT < 1.0f ? AnimationUpdateResult::ONGOING : AnimationUpdateResult::FINISHED;
+    return (mAnimationT < 1.0f || mSecsDuration < 0.0f) ? AnimationUpdateResult::ONGOING : AnimationUpdateResult::FINISHED;
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -131,6 +131,45 @@ AnimationUpdateResult TweenAlphaAnimation::VUpdate(const float dtMillis)
 {
     auto animationUpdateResult = BaseAnimation::VUpdate(dtMillis);
     mSceneObjectTarget->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = math::Lerp(mInitAlpha, mTargetAlpha, math::TweenValue(mAnimationT, mTweeningFunc, mTweeningMode));
+    return animationUpdateResult;
+}
+
+///------------------------------------------------------------------------------------------------
+
+ContinuousPulseAnimation::ContinuousPulseAnimation(std::shared_ptr<scene::SceneObject> sceneObjectTarget, const float scaleUpFactor, const float secsPulseDuration, const uint8_t animationFlags /* = animation_flags::NONE */, const float secsDelay /* = 0.0f */, const std::function<float(const float)> tweeningFunc /* = math::LinearFunction */, const math::TweeningMode tweeningMode /* = math::TweeningMode::EASE_IN */)
+    : BaseAnimation(animationFlags, -1.0f, secsDelay)
+    , mSceneObjectTarget(sceneObjectTarget)
+    , mSecsPulseDuration(secsPulseDuration)
+    , mInitScale(sceneObjectTarget->mScale)
+    , mTargetScale(sceneObjectTarget->mScale * scaleUpFactor)
+    , mTweeningFunc(tweeningFunc)
+    , mTweeningMode(tweeningMode)
+    , mSecsPulseAccum(0.0f)
+    , mScalingUp(true)
+{
+    assert(!IS_FLAG_SET(animation_flags::IGNORE_X_COMPONENT));
+    assert(!IS_FLAG_SET(animation_flags::IGNORE_Y_COMPONENT));
+    assert(!IS_FLAG_SET(animation_flags::IGNORE_Z_COMPONENT));
+}
+
+AnimationUpdateResult ContinuousPulseAnimation::VUpdate(const float dtMillis)
+{
+    mSecsPulseAccum += dtMillis/1000.0f;
+    if (mSecsPulseAccum >= mSecsPulseDuration)
+    {
+        mSecsPulseAccum -= mSecsPulseDuration;
+        mScalingUp = !mScalingUp;
+    }
+    
+    auto animationUpdateResult = BaseAnimation::VUpdate(dtMillis);
+    if (mScalingUp)
+    {
+        mSceneObjectTarget->mScale = math::Lerp(mInitScale, mTargetScale, math::TweenValue(mSecsPulseAccum/mSecsPulseDuration, mTweeningFunc, mTweeningMode));
+    }
+    else
+    {
+        mSceneObjectTarget->mScale = math::Lerp(mTargetScale, mInitScale, math::TweenValue(mSecsPulseAccum/mSecsPulseDuration, mTweeningFunc, mTweeningMode));
+    }
     return animationUpdateResult;
 }
 

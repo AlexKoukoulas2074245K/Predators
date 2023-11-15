@@ -5,6 +5,7 @@
 ///  Created by Alex Koukoulas on 09/11/2023
 ///------------------------------------------------------------------------------------------------
 
+#include <game/CardEffectComponents.h>
 #include <game/Cards.h>
 #include <game/CardUtils.h>
 #include <game/events/EventSystem.h>
@@ -19,18 +20,6 @@
 #include <engine/scene/SceneObject.h>
 
 ///------------------------------------------------------------------------------------------------
-// Effect components
-static const std::string EFFECT_COMPONENT_DAMAGE = "DAMAGE";
-static const std::string EFFECT_COMPONENT_FAMILY = "FAMILY";
-static const std::string EFFECT_COMPONENT_ENEMIES = "ENEMIES";
-static const std::string EFFECT_COMPONENT_DRAW   = "DRAW";
-static const std::unordered_set<std::string> STATIC_EFFECT_COMPONENT_NAMES =
-{
-    EFFECT_COMPONENT_DRAW,
-    EFFECT_COMPONENT_DAMAGE,
-    EFFECT_COMPONENT_FAMILY,
-    EFFECT_COMPONENT_ENEMIES
-};
 
 const std::unordered_map<CardEffectGameAction::AffectedStatType, CardStatType> CardEffectGameAction::sAffectedStatTypeToCardStatType =
 {
@@ -170,9 +159,9 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
             
         case ActionState::AFFECTED_CARDS_SPARKLE_ANIMATION:
         {
-            if (mAffectingNextPlayer)
+            if (mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask != effects::board_modifier_masks::NONE && mLastTriggeredCardEffect != effects::board_modifier_masks::NONE)
             {
-                events::EventSystem::GetInstance().DispatchEvent<events::CardEffectNextTurnTriggeredEvent>(mBoardState->GetActivePlayerIndex() != game_constants::REMOTE_PLAYER_INDEX);
+                events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectTriggeredEvent>(mBoardState->GetActivePlayerIndex() != game_constants::REMOTE_PLAYER_INDEX, mLastTriggeredCardEffect);
             }
             
             if (mAffectedBoardIndices.empty())
@@ -253,7 +242,7 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
     for (const auto& effectComponent: effectComponents)
     {
         // Collection component
-        if (effectComponent == EFFECT_COMPONENT_FAMILY)
+        if (effectComponent == effects::EFFECT_COMPONENT_FAMILY)
         {
             for (int i = 0; i < static_cast<int>(boardCards.size()) - 1; ++i)
             {
@@ -268,20 +257,27 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
         }
         
         // Stat Type component
-        if (effectComponent == EFFECT_COMPONENT_DAMAGE)
+        else if (effectComponent == effects::EFFECT_COMPONENT_DAMAGE)
         {
             mAffectedBoardCardsStatType = AffectedStatType::DAMAGE;
         }
         
+        // Kill component
+        else if (effectComponent == effects::EFFECT_COMPONENT_KILL)
+        {
+            mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask |= effects::board_modifier_masks::KILL_NEXT;
+            mLastTriggeredCardEffect = effects::board_modifier_masks::KILL_NEXT;
+        }
+        
         // Modifier/Offset value component
-        if (!STATIC_EFFECT_COMPONENT_NAMES.count(effectComponent))
+        else if (!effects::STATIC_EFFECT_COMPONENT_NAMES.count(effectComponent))
         {
             mEffectValue = std::stoi(effectComponent);
         }
     }
     
     // Draw effect
-    if (std::find(effectComponents.cbegin(), effectComponents.cend(), EFFECT_COMPONENT_DRAW) != effectComponents.cend())
+    if (std::find(effectComponents.cbegin(), effectComponents.cend(), effects::EFFECT_COMPONENT_DRAW) != effectComponents.cend())
     {
         for (auto i = 0; i < mEffectValue; ++i)
         {
@@ -290,11 +286,11 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
     }
     
     // Next turn effect
-    mAffectingNextPlayer = false;
-    if (std::find(effectComponents.cbegin(), effectComponents.cend(), EFFECT_COMPONENT_ENEMIES) != effectComponents.cend())
+    if (std::find(effectComponents.cbegin(), effectComponents.cend(), effects::EFFECT_COMPONENT_ENEMIES) != effectComponents.cend())
     {
-        mAffectingNextPlayer = true;
-        mBoardState->GetInactivePlayerState().mGlobalBoardCardStatModifiers[sAffectedStatTypeToCardStatType.at(mAffectedBoardCardsStatType)] += mEffectValue;
+        mBoardState->GetInactivePlayerState().mBoardModifiers.mGlobalCardStatModifiers[sAffectedStatTypeToCardStatType.at(mAffectedBoardCardsStatType)] += mEffectValue;
+        mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask |= effects::board_modifier_masks::BOARD_SIDE_STAT_MODIFIER;
+        mLastTriggeredCardEffect = effects::board_modifier_masks::BOARD_SIDE_STAT_MODIFIER;
     }
     
     // Current turn effect

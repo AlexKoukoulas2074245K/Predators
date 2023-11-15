@@ -24,12 +24,11 @@ static const float TURN_POINTER_ANIMATION_DURATION_SECS = 0.66f;
 
 void PostNextPlayerGameAction::VSetNewGameState()
 {
-    // Clear global stat overrides
-    if (!mBoardState->GetInactivePlayerState().mGlobalBoardCardStatModifiers.empty())
-    {
-        events::EventSystem::GetInstance().DispatchEvent<events::CardEffectNextTurnEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX);
-    }
-    mBoardState->GetInactivePlayerState().mGlobalBoardCardStatModifiers.clear();
+    // Clear board modifiers
+    mBoardState->GetInactivePlayerState().mBoardModifiers.mGlobalCardStatModifiers.clear();
+    mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask = effects::board_modifier_masks::NONE;
+    events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX, effects::board_modifier_masks::BOARD_SIDE_STAT_MODIFIER);
+    events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX, effects::board_modifier_masks::KILL_NEXT);
     
     events::EventSystem::GetInstance().DispatchEvent<events::WeightChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
 }

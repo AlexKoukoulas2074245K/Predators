@@ -85,7 +85,6 @@ private:
     const glm::vec3 mTargetPosition;
     const glm::vec3 mInitScale;
     const glm::vec3 mTargetScale;
-    
 };
 
 ///------------------------------------------------------------------------------------------------
@@ -119,6 +118,25 @@ private:
     const float mTargetAlpha;
     const std::function<float(const float)> mTweeningFunc;
     const math::TweeningMode mTweeningMode;
+};
+
+///------------------------------------------------------------------------------------------------
+
+class ContinuousPulseAnimation final: public BaseAnimation
+{
+public:
+    ContinuousPulseAnimation(std::shared_ptr<scene::SceneObject> sceneObjectTarget, const float scaleUpFactor, const float secsPulseDuration, const uint8_t animationFlags = animation_flags::NONE, const float secsDelay = 0.0f, const std::function<float(const float)> tweeningFunc = math::LinearFunction , const math::TweeningMode tweeningMode = math::TweeningMode::EASE_IN);
+    AnimationUpdateResult VUpdate(const float dtMillis);
+    
+private:
+    std::shared_ptr<scene::SceneObject> mSceneObjectTarget;
+    const float mSecsPulseDuration;
+    const glm::vec3 mInitScale;
+    const glm::vec3 mTargetScale;
+    const std::function<float(const float)> mTweeningFunc;
+    const math::TweeningMode mTweeningMode;
+    float mSecsPulseAccum;
+    bool mScalingUp;
 };
 
 ///------------------------------------------------------------------------------------------------

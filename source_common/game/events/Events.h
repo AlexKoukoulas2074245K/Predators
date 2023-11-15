@@ -10,6 +10,7 @@
 
 ///------------------------------------------------------------------------------------------------
 
+#include <game/CardEffectComponents.h>
 #include <game/Cards.h>
 
 ///------------------------------------------------------------------------------------------------
@@ -92,28 +93,32 @@ public:
 
 ///------------------------------------------------------------------------------------------------
 
-class CardEffectNextTurnTriggeredEvent final
+class BoardSideCardEffectTriggeredEvent final
 {
 public:
-    CardEffectNextTurnTriggeredEvent(const bool forRemotePlayer)
+    BoardSideCardEffectTriggeredEvent(const bool forRemotePlayer, const effects::EffectBoardModifierMask effectBoardModifierMask)
         : mForRemotePlayer(forRemotePlayer)
+        , mEffectBoardModifierMask(effectBoardModifierMask)
     {
     }
     
     const bool mForRemotePlayer;
+    const effects::EffectBoardModifierMask mEffectBoardModifierMask;
 };
 
 ///------------------------------------------------------------------------------------------------
 
-class CardEffectNextTurnEndedEvent final
+class BoardSideCardEffectEndedEvent final
 {
 public:
-    CardEffectNextTurnEndedEvent(const bool forRemotePlayer)
+    BoardSideCardEffectEndedEvent(const bool forRemotePlayer, const effects::EffectBoardModifierMask effectBoardModifierMask)
         : mForRemotePlayer(forRemotePlayer)
+        , mEffectBoardModifierMask(effectBoardModifierMask)
     {
     }
 
     const bool mForRemotePlayer;
+    const effects::EffectBoardModifierMask mEffectBoardModifierMask;
 };
 
 ///------------------------------------------------------------------------------------------------

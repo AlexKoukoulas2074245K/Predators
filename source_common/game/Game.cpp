@@ -65,15 +65,6 @@ void Game::Init()
     boardSceneObject->mTextureResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "board.png");
     boardSceneObject->mRotation.z = math::PI/2.0f;
     
-    auto sideSceneObject = dummyScene->CreateSceneObject(strutils::StringId("side"));
-    sideSceneObject->mScale.x = 0.372f;
-    sideSceneObject->mScale.y = 0.346f;
-    sideSceneObject->mTextureResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "board_side_reduction.png");
-    sideSceneObject->mEffectTextureResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "board_side_mask.png");
-    sideSceneObject->mShaderResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + "board_side_stat_effect.vs");
-    sideSceneObject->mPosition.y = -0.044f;
-    sideSceneObject->mPosition.z = 0.005f;
-    sideSceneObject->mInvisible = true;
 //    auto flameSceneObject = dummyScene->CreateSceneObject(strutils::StringId("Fire"));
 //    flameSceneObject->mTextureResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "fire.png");
 //    flameSceneObject->mShaderResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + "card_dissolve.vs");
@@ -137,13 +128,12 @@ void Game::Init()
 
 void Game::Update(const float dtMillis)
 {
-    static float time = 0.0f;
-    time += dtMillis/10000.0f;
-    
-    auto& systemsEngine = CoreSystemsEngine::GetInstance();
-    auto activeScene = systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
-    
-    activeScene->FindSceneObject(strutils::StringId("side"))->mShaderFloatUniformValues[strutils::StringId("time")] = time;
+//    static float time = 0.0f;
+//    time += dtMillis/10000.0f;
+//    
+//    auto& systemsEngine = CoreSystemsEngine::GetInstance();
+//    auto activeScene = systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+//    
     
 //
 //    if (systemsEngine.GetInputStateManager().VButtonTapped(input::Button::MAIN_BUTTON))
@@ -190,7 +180,7 @@ void Game::ApplicationMovedToBackground()
 #endif
 
 #if ((!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)) && (defined(CREATE_DEBUG_WIDGETS))
-static void CreateImGuiCardVecEntry(const std::string& cardIdPrefix, std::string& cardVec, const std::vector<CardStatOverrides>& cardOverrides)
+static void CreateImGuiCardVecEntry(const std::string& cardIdPrefix, std::string& cardVec, const std::vector<CardStatOverrides>& cardOverrides, const effects::EffectBoardModifierMask boardModifierMask)
 {
     cardVec.erase(cardVec.begin());
     cardVec.erase(cardVec.end() - 1);
@@ -263,6 +253,13 @@ static void CreateImGuiCardVecEntry(const std::string& cardIdPrefix, std::string
         }
         overridesString << "}";
         ImGui::Text("Overrides: %s", overridesString.str().c_str());
+    }
+    
+    if (boardModifierMask > 0)
+    {
+        std::stringstream maskString;
+        maskString << std::bitset<8>(boardModifierMask);
+        ImGui::Text("Board Modifier Mask: %s", maskString.str().c_str());
     }
 }
 
@@ -379,13 +376,13 @@ void Game::CreateDebugWidgets()
     ImGui::SeparatorText("Remote Player Stats");
     ImGui::TextWrapped("%s", remotePlayerStats.c_str());
     ImGui::SeparatorText("Remote Player Hand");
-    CreateImGuiCardVecEntry("RemotePlayerHand", remotePlayerHand, {});
+    CreateImGuiCardVecEntry("RemotePlayerHand", remotePlayerHand, {}, 0);
     ImGui::SeparatorText("Remote Player Board");
-    CreateImGuiCardVecEntry("RemotePlayerBoard", remotePlayerBoard, boardState.GetPlayerStates()[0].mPlayerBoardCardStatOverrides);
+    CreateImGuiCardVecEntry("RemotePlayerBoard", remotePlayerBoard, boardState.GetPlayerStates()[0].mPlayerBoardCardStatOverrides, boardState.GetPlayerStates()[0].mBoardModifiers.mBoardModifierMask);
     ImGui::SeparatorText("Local Player Board");
-    CreateImGuiCardVecEntry("LocalPlayerBoard", localPlayerBoard, boardState.GetPlayerStates()[1].mPlayerBoardCardStatOverrides);
+    CreateImGuiCardVecEntry("LocalPlayerBoard", localPlayerBoard, boardState.GetPlayerStates()[1].mPlayerBoardCardStatOverrides, boardState.GetPlayerStates()[1].mBoardModifiers.mBoardModifierMask);
     ImGui::SeparatorText("Local Player Hand");
-    CreateImGuiCardVecEntry("LocalPlayerHand", localPlayerHand, {});
+    CreateImGuiCardVecEntry("LocalPlayerHand", localPlayerHand, {}, 0);
     ImGui::SeparatorText("Local Player Stats");
     ImGui::TextWrapped("%s", localPlayerStats.c_str());
     ImGui::End();
