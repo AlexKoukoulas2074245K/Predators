@@ -20,6 +20,7 @@
 
 ///------------------------------------------------------------------------------------------------
 
+
 static const strutils::StringId CARD_ATTACK_GAME_ACTION_NAME = strutils::StringId("CardAttackGameAction");
 static const strutils::StringId DRAW_CARD_GAME_ACTION_NAME = strutils::StringId("DrawCardGameAction");
 static const strutils::StringId POST_NEXT_PLAYER_GAME_ACTION_NAME = strutils::StringId("PostNextPlayerGameAction");

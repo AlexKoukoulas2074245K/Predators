@@ -30,6 +30,8 @@ void PostNextPlayerGameAction::VSetNewGameState()
         events::EventSystem::GetInstance().DispatchEvent<events::CardEffectNextTurnEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX);
     }
     mBoardState->GetInactivePlayerState().mGlobalBoardCardStatModifiers.clear();
+    
+    events::EventSystem::GetInstance().DispatchEvent<events::WeightChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
 }
 
 ///------------------------------------------------------------------------------------------------

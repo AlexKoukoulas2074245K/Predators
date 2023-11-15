@@ -51,6 +51,11 @@ protected:
         Init();
     }
     
+    void TearDown() override
+    {
+        CardDataRepository::GetInstance().ClearCardData();
+    }
+    
 protected:
     std::unique_ptr<BoardState> mBoardState;
     std::unique_ptr<GameActionEngine> mActionEngine;
@@ -204,6 +209,7 @@ TEST_F(GameActionTests, BattleSimulation)
     int weightAmmoCounter = 0;
     std::vector<std::pair<int, int>> winnerGameCountsAndCardIds;
     std::vector<std::pair<int, int>> looserGameCountsAndCardIds;
+    std::vector<std::pair<float, int>> powerLevelAndCardIds;
     std::set<int> uniquePlayedCardIds[2];
     
     for (int i = 0; i < GAME_COUNT; ++i)
@@ -325,27 +331,40 @@ TEST_F(GameActionTests, BattleSimulation)
         cardStatRowPopulationLambda(entry);
     }
     
-    logging::Log(logging::LogType::INFO, "Game Stats: \n%s", statistics.str().c_str());
+    statistics << "\nCard power score: \n"; // won games - lost games
+    for (const auto& entry: winnerGameCountsAndCardIds)
+    {
+        float powerLevel = (entry.first / static_cast<float>(GAME_COUNT)) * 100.0f;
         
-//        std::stringstream ss;
-//        ss << "Turn Counter: " << mBoardState->GetTurnCounter() << "\n";
-//        ss << "Health Top: " << mBoardState->GetPlayerStates()[0].mPlayerHealth << "\n";
-//        ss << "Weight Top: " << mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo << "\n";
-//        ss << "Board Top: ";
-//        for (size_t i = 0; i < mBoardState->GetPlayerStates()[0].mPlayerBoardCards.size(); ++i)
-//        {
-//            ss << mBoardState->GetPlayerStates()[0].mPlayerBoardCards[i] << ", ";
-//        }
-//        ss << "\n";
-//
-//        ss << "Board Bottom: ";
-//        for (size_t i = 0; i < mBoardState->GetPlayerStates()[1].mPlayerBoardCards.size(); ++i)
-//        {
-//            ss << mBoardState->GetPlayerStates()[1].mPlayerBoardCards[i] << ", ";
-//        }
-//        ss << "\n";
-//        ss << "Health Bottom: " << mBoardState->GetPlayerStates()[1].mPlayerHealth << "\n";
-//        ss << "Weight Bottom: " << mBoardState->GetPlayerStates()[1].mPlayerTotalWeightAmmo << "\n";
-//
-//        ss << "Player " << (mBoardState->GetPlayerStates()[1].mPlayerHealth <= 0 ? "0" : "1") << " won!";
+        auto foundInLostGamesContainer = std::find_if(looserGameCountsAndCardIds.cbegin(), looserGameCountsAndCardIds.cend(), [=](const std::pair<int, int>& looseEntry)
+        {
+            return looseEntry.second == entry.second;
+        });
+        if (foundInLostGamesContainer != looserGameCountsAndCardIds.cend())
+        {
+            powerLevel -= (foundInLostGamesContainer->first / static_cast<float>(GAME_COUNT) * 100.0f);
+        }
+        
+        powerLevelAndCardIds.push_back(std::make_pair(powerLevel, entry.second));
+    }
+    
+    std::sort(powerLevelAndCardIds.begin(), powerLevelAndCardIds.end(), [](const std::pair<float, int>& lhs, const std::pair<float, int>& rhs)
+    {
+        return lhs.first > rhs.first;
+    });
+    
+    for (const auto& entry: powerLevelAndCardIds)
+    {
+        const auto& cardData = CardDataRepository::GetInstance().GetCardData(entry.second)->get();
+        std::stringstream row;
+        row << "\t" << "ID=" << cardData.mCardId << ", " << "d=" << cardData.mCardDamage << ", w=" << cardData.mCardWeight;
+        row << std::setw(35 - static_cast<int>(row.str().size()));
+        row << cardData.mCardName ;
+        row << std::setw(43 - static_cast<int>(row.str().size()));
+        row << std::setprecision(2);
+        row << " power " << entry.first << "%\n";
+        statistics << row.str();
+    }
+    
+    logging::Log(logging::LogType::INFO, "Game Stats: \n%s", statistics.str().c_str());
 }

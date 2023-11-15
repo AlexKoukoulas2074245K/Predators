@@ -71,7 +71,15 @@ std::optional<std::reference_wrapper<const CardData>> CardDataRepository::GetCar
 
 ///------------------------------------------------------------------------------------------------
 
-void CardDataRepository::LoadCardData(bool loadAssets)
+void CardDataRepository::ClearCardData()
+{
+    mCardFamilies.clear();
+    mCardDataMap.clear();
+}
+
+///------------------------------------------------------------------------------------------------
+
+void CardDataRepository::LoadCardData(bool loadCardAssets)
 {
     auto cardsDefinitionJsonResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_DATA_ROOT + "card_data.json");
     auto& resourceService = CoreSystemsEngine::GetInstance().GetResourceLoadingService();
@@ -109,7 +117,7 @@ void CardDataRepository::LoadCardData(bool loadAssets)
         
         cardData.mCardName = cardObject["name"].get<std::string>();
         
-        if (loadAssets)
+        if (loadCardAssets)
         {
             cardData.mCardTextureResourceId = resourceService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + cardObject["texture"].get<std::string>());
             cardData.mCardShaderResourceId = resourceService.LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + cardObject["shader"].get<std::string>());
