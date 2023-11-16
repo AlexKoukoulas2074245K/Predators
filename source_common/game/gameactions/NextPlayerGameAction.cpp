@@ -17,6 +17,7 @@
 #include <game/gameactions/CardDestructionGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/NextPlayerGameAction.h>
+#include <numeric>
 
 ///------------------------------------------------------------------------------------------------
 
