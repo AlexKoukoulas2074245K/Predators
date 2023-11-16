@@ -76,6 +76,7 @@ private:
     float mZoomFactor;
     float mCameraLenseWidth;
     float mCameraLenseHeight;
+    float mTargetAspectRatio;
     glm::vec3 mPosition;
     glm::mat4 mView;
     glm::mat4 mProj;

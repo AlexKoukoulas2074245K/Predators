@@ -30,6 +30,10 @@
 #include <game/gameactions/GameActionFactory.h>
 #include <game/utils/PersistenceUtils.h>
 
+#if defined(MOBILE_FLOW)
+#include <platform_specific/IOSUtils.h>
+#endif
+
 ///------------------------------------------------------------------------------------------------
 
 Game::Game(const int argc, char** argv)
@@ -87,7 +91,14 @@ void Game::Init()
 //    flameSceneObject->mShaderFloatUniformValues[strutils::StringId("noise_5_factor")] = 1.0f;
  //   flameSceneObject->mInvisible = true;
 #if defined(MOBILE_FLOW)
-    dummyScene->GetCamera().SetZoomFactor(130.0f);
+    if (ios_utils::IsIPad())
+    {
+        dummyScene->GetCamera().SetZoomFactor(110.0f);
+    }
+    else
+    {
+        dummyScene->GetCamera().SetZoomFactor(130.0f);
+    }
     auto currentCamPos = dummyScene->GetCamera().GetPosition();
     dummyScene->GetCamera().SetPosition(glm::vec3(currentCamPos.x, currentCamPos.y - 0.005f, currentCamPos.z));
 #else

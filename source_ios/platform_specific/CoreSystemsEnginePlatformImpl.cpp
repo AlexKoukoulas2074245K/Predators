@@ -15,9 +15,11 @@
 #include <engine/scene/Scene.h>
 #include <engine/utils/Logging.h>
 #include <engine/utils/OSMessageBox.h>
-#include <platform_specific/RendererPlatformImpl.h>
 #include <platform_specific/InputStateManagerPlatformImpl.h>
+#include <platform_specific/IOSUtils.h>
+#include <platform_specific/RendererPlatformImpl.h>
 #include <SDL.h>
+
 
 ///------------------------------------------------------------------------------------------------
 
@@ -70,11 +72,19 @@ void CoreSystemsEngine::Initialize()
     }
 
     // Create window
-    SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
+    if (ios_utils::IsIPad())
+    {
+        SDL_SetHint(SDL_HINT_ORIENTATIONS, "PortraitLeft PortraitRight");
+    }
+    else
+    {
+        SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
+    }
+    
     SDL_SetHint(SDL_HINT_IOS_HIDE_HOME_INDICATOR, "2");
     
     mWindow = SDL_CreateWindow("Predators", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
-
+    
     // Set minimum window size
     SDL_SetWindowMinimumSize(mWindow, MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT);
 

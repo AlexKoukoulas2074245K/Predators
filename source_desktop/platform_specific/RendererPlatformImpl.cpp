@@ -385,7 +385,10 @@ void RendererPlatformImpl::VRenderSceneObjectsToTexture(const std::vector<std::s
     // Magic for slightly offsetting the camera to render correctly to texture for any Aspect Ratio
     float cameraXOffset = 0.0687034f * currentAspectToDefaultAspect - 0.0671117f;
     auto originalPosition = camera.GetPosition();
+    auto originalZoomFactor = camera.GetZoomFactor();
+    
     const_cast<rendering::Camera&>(camera).SetPosition(glm::vec3(cameraXOffset, 0.0f, camera.GetPosition().z));
+    const_cast<rendering::Camera&>(camera).SetZoomFactor(120.0f);
     
     // Set custom viewport
     GL_CALL(glViewport(RENDER_TO_TEXTURE_VIEWPORT.x, RENDER_TO_TEXTURE_VIEWPORT.y, RENDER_TO_TEXTURE_VIEWPORT.z, RENDER_TO_TEXTURE_VIEWPORT.w));
@@ -412,6 +415,7 @@ void RendererPlatformImpl::VRenderSceneObjectsToTexture(const std::vector<std::s
     }
     
     const_cast<rendering::Camera&>(camera).SetPosition(originalPosition);
+    const_cast<rendering::Camera&>(camera).SetZoomFactor(originalZoomFactor);
 }
 
 ///------------------------------------------------------------------------------------------------
