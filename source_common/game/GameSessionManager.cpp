@@ -31,15 +31,26 @@
 
 ///------------------------------------------------------------------------------------------------
 
+static constexpr int CARD_TOOLTIP_TEXT_ROWS_COUNT = 4;
+
 static const strutils::StringId CARD_LOCATION_INDICATOR_SCENE_OBJECT_NAME = strutils::StringId("CARD_LOCATION_INDICATOR");
 static const strutils::StringId BOARD_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME = strutils::StringId("BOARD_SIDE_EFFECT_TOP");
 static const strutils::StringId BOARD_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("BOARD_SIDE_EFFECT_BOT");
 static const strutils::StringId KILL_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME = strutils::StringId("KILL_SIDE_EFFECT_TOP");
 static const strutils::StringId KILL_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("KILL_SIDE_EFFECT_BOT");
-
+static const strutils::StringId CARD_TOOLTIP_SCENE_OBJECT_NAME = strutils::StringId("CARD_TOOLTIP");
+static const strutils::StringId CARD_TOOLTIP_REVEAL_THRESHOLD_UNIFORM_NAME = strutils::StringId("reveal_threshold");
+static const strutils::StringId CARD_TOOLTIP_REVEAL_RGB_EXPONENT_UNIFORM_NAME = strutils::StringId("reveal_rgb_exponent");
 static const strutils::StringId IDLE_GAME_ACTION_NAME = strutils::StringId("IdleGameAction");
 static const strutils::StringId PLAY_CARD_ACTION_NAME = strutils::StringId("PlayCardGameAction");
 static const strutils::StringId NEXT_PLAYER_ACTION_NAME = strutils::StringId("NextPlayerGameAction");
+static const strutils::StringId CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES [CARD_TOOLTIP_TEXT_ROWS_COUNT] =
+{
+    strutils::StringId("CARD_TOOLTIP_TEXT_0"),
+    strutils::StringId("CARD_TOOLTIP_TEXT_1"),
+    strutils::StringId("CARD_TOOLTIP_TEXT_2"),
+    strutils::StringId("CARD_TOOLTIP_TEXT_3")
+};
 
 static const std::string MAKE_SPACE_REVERT_TO_POSITION_ANIMATION_NAME_PREFIX = "MAKE_SPACE_REVERT_";
 static const std::string BATTLE_ICON_TEXTURE_FILE_NAME = "battle_icon.png";
@@ -51,6 +62,8 @@ static const std::string BOARD_SIDE_EFFECT_MASK_TEXTURE_FILE_NAME = "board_side_
 static const std::string KILL_SIDE_EFFECT_TEXTURE_FILE_NAME = "trap.png";
 static const std::string KILL_SIDE_EFFECT_MASK_TEXTURE_FILE_NAME = "trap_mask.png";
 static const std::string BOARD_SIDE_STAT_EFFECT_SHADER_FILE_NAME = "board_side_stat_effect.vs";
+static const std::string CARD_TOOLTIP_TEXTURE_FILE_NAME = "tooltip.png";
+static const std::string CARD_TOOLTIP_SHADER_FILE_NAME = "diagonal_reveal.vs";
 static const std::string CARD_HIGHLIGHTER_SCENE_OBJECT_NAME_PREFIX = "HIGHLIGHTER_CARD_";
 static const std::string HEALTH_CRYSTAL_TOP_SCENE_OBJECT_NAME_PREFIX = "HEALTH_CRYSTAL_TOP_";
 static const std::string HEALTH_CRYSTAL_BOT_SCENE_OBJECT_NAME_PREFIX = "HEALTH_CRYSTAL_BOT_";
@@ -67,15 +80,27 @@ static const glm::vec3 BOARD_SIDE_EFFECT_SCALE = {0.372f, 0.346f, 1.0f};
 static const glm::vec3 BOARD_SIDE_EFFECT_TOP_POSITION = { 0.0f, 0.044f, 0.01f};
 static const glm::vec3 BOARD_SIDE_EFFECT_BOT_POSITION = { 0.0f, -0.044f, 0.01f};
 static const glm::vec3 KILL_SIDE_EFFECT_SCALE = {1/20.0f, 1/20.0f, 1/20.0f};
+static const glm::vec3 CARD_TOOLTIP_SCALE = {0.137f, 0.137f, 1/10.0f};
+static const glm::vec3 CARD_TOOLTIP_OFFSET = {0.084f, 0.08f, 0.1f};
+static const glm::vec3 CARD_TOOLTIP_TEXT_OFFSETS[CARD_TOOLTIP_TEXT_ROWS_COUNT] =
+{
+    { -0.033f, 0.029f, 0.1f },
+    { -0.051f, 0.014f, 0.1f },
+    { -0.036f, -0.000f, 0.1f },
+    { -0.03f, -0.014f, 0.1f }
+};
 
-static const float BOARD_SIDE_EFFECT_SHOWING_HIDING_ANIMATION_DURATION = 0.5f;
-
+static const float BOARD_SIDE_EFFECT_SHOWING_HIDING_ANIMATION_DURATION_SECS = 0.5f;
+//static const float CARD_TOOLTIP_HIDING_ANIMATION_DURATION_SECS = 0.2f;
 static const float CARD_SELECTION_ANIMATION_DURATION = 0.15f;
 static const float CARD_LOCATION_EFFECT_MIN_TARGET_ALPHA = 0.25f;
 static const float CARD_LOCATION_EFFECT_MAX_TARGET_ALPHA = 1.0f;
 static const float CARD_LOCATION_EFFECT_ALPHA_SPEED = 0.003f;
 static const float KILL_SIDE_EFFECT_SCALE_UP_FACTOR = 1.5f;
 static const float KILL_SIDE_EFFECT_PULSE_ANIMATION_PULSE_DUARTION_SECS = 1.0f;
+static const float CARD_TOOLTIP_TEXT_FONT_SIZE = 0.00016f;
+static const float CARD_TOOLTIP_MAX_REVEAL_THRESHOLD = 2.0f;
+static const float CARD_TOOLTIP_REVEAL_RGB_EXPONENT = 1.127f;
 
 #if defined(MOBILE_FLOW)
 static const float MOBILE_DISTANCE_FROM_CARD_LOCATION_INDICATOR = 0.003f;
@@ -217,6 +242,27 @@ void GameSessionManager::InitGameSession()
     killSideEffectBotSceneObject->mScale = KILL_SIDE_EFFECT_SCALE;
     killSideEffectBotSceneObject->mInvisible = true;
     animationManager.StartAnimation(std::make_unique<rendering::ContinuousPulseAnimation>(killSideEffectBotSceneObject, KILL_SIDE_EFFECT_SCALE_UP_FACTOR, KILL_SIDE_EFFECT_PULSE_ANIMATION_PULSE_DUARTION_SECS), [](){});
+    
+    // Card Tooltips
+    auto tooltipSceneObject = activeScene->CreateSceneObject(CARD_TOOLTIP_SCENE_OBJECT_NAME);
+    tooltipSceneObject->mScale = CARD_TOOLTIP_SCALE;
+    tooltipSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CARD_TOOLTIP_TEXTURE_FILE_NAME);
+    tooltipSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CARD_TOOLTIP_SHADER_FILE_NAME);
+    tooltipSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
+    tooltipSceneObject->mShaderFloatUniformValues[CARD_TOOLTIP_REVEAL_THRESHOLD_UNIFORM_NAME] = 0.0f;
+    tooltipSceneObject->mShaderFloatUniformValues[CARD_TOOLTIP_REVEAL_RGB_EXPONENT_UNIFORM_NAME] = CARD_TOOLTIP_REVEAL_RGB_EXPONENT;
+    tooltipSceneObject->mInvisible = true;
+    
+    for (auto i = 0; i < CARD_TOOLTIP_TEXT_ROWS_COUNT; ++i)
+    {
+        auto tooltipTextSceneObject = activeScene->CreateSceneObject(CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES[i]);
+        scene::TextSceneObjectData tooltipTextData;
+        tooltipTextData.mFontName = game_constants::DEFAULT_FONT_BLACK_NAME;
+        tooltipTextSceneObject->mSceneObjectTypeData = std::move(tooltipTextData);
+        tooltipTextSceneObject->mScale = glm::vec3(CARD_TOOLTIP_TEXT_FONT_SIZE);
+        tooltipTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+        tooltipTextSceneObject->mInvisible = true;
+    }
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -300,6 +346,11 @@ void GameSessionManager::HandleTouchInput()
     for (int i = 0; i < localPlayerCardCount; ++i)
     {
         auto& currentCardSoWrapper = localPlayerCards.at(i);
+        
+        if (currentCardSoWrapper->mState == CardSoState::FREE_MOVING)
+        {
+            DestroyCardTooltip();
+        }
         
         bool otherHighlightedCardExists = std::find_if(localPlayerCards.begin(), localPlayerCards.end(), [&](const std::shared_ptr<CardSoWrapper>& cardSoWrapper){ return cardSoWrapper.get() != currentCardSoWrapper.get() && cardSoWrapper->mState == CardSoState::HIGHLIGHTED; }) != localPlayerCards.cend();
         
@@ -601,6 +652,21 @@ void GameSessionManager::UpdateMiscSceneObjects(const float dtMillis)
     
     auto killEffectBotSceneObject = activeScene->FindSceneObject(KILL_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME);
     killEffectBotSceneObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = 0.0f;
+    
+    // Card tooltip
+    auto cardTooltipSceneObject = activeScene->FindSceneObject(CARD_TOOLTIP_SCENE_OBJECT_NAME);
+    
+    cardTooltipSceneObject->mShaderFloatUniformValues[CARD_TOOLTIP_REVEAL_THRESHOLD_UNIFORM_NAME] += dtMillis/200.0f;
+    if (cardTooltipSceneObject->mShaderFloatUniformValues[CARD_TOOLTIP_REVEAL_THRESHOLD_UNIFORM_NAME] >= CARD_TOOLTIP_MAX_REVEAL_THRESHOLD)
+    {
+        cardTooltipSceneObject->mShaderFloatUniformValues[CARD_TOOLTIP_REVEAL_THRESHOLD_UNIFORM_NAME] = CARD_TOOLTIP_MAX_REVEAL_THRESHOLD;
+        
+        for (auto i = 0; i < CARD_TOOLTIP_TEXT_ROWS_COUNT; ++i)
+        {
+            auto tooltipTextSceneObject = activeScene->FindSceneObject(CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES[i]);
+            tooltipTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = math::Min(1.0f, tooltipTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] +  dtMillis/100.0f);
+        }
+    }
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -676,7 +742,52 @@ void GameSessionManager::CreateCardHighlighter()
         cardHighlighterSo->mPosition.z += game_constants::ACTION_HIGLIGHTER_Z_OFFSET;
         cardHighlighterSo->mScale = game_constants::CARD_HIGHLIGHTER_SCALE;
         cardHighlighterSo->mInvisible = true;
+        
+        if ((*highlightedCardIter)->mCardData->IsSpell())
+        {
+            CreateCardTooltip((*highlightedCardIter)->mSceneObject->mPosition, (*highlightedCardIter)->mCardData->mCardEffectTooltip);
+        }
+    }
+}
 
+///------------------------------------------------------------------------------------------------
+
+void GameSessionManager::CreateCardTooltip(const glm::vec3& cardOriginPostion, const std::string& tooltipText)
+{
+    auto& systemsEngine = CoreSystemsEngine::GetInstance();
+    const auto& activeSceneManager = systemsEngine.GetActiveSceneManager();
+    auto activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    
+    auto tooltipSceneObject = activeScene->FindSceneObject(CARD_TOOLTIP_SCENE_OBJECT_NAME);
+    
+    tooltipSceneObject->mPosition = cardOriginPostion + CARD_TOOLTIP_OFFSET;
+    tooltipSceneObject->mInvisible = false;
+    tooltipSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
+    tooltipSceneObject->mShaderFloatUniformValues[CARD_TOOLTIP_REVEAL_THRESHOLD_UNIFORM_NAME] = 0.0f;
+    
+    auto tooltipTextRows = strutils::StringSplit(tooltipText, '$');
+    
+    if (tooltipTextRows.size() == 1)
+    {
+        auto tooltipTextSceneObject = activeScene->FindSceneObject(CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES[1]);
+        tooltipTextSceneObject->mPosition = tooltipSceneObject->mPosition;
+        tooltipTextSceneObject->mPosition += CARD_TOOLTIP_TEXT_OFFSETS[1];
+        tooltipTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+        std::get<scene::TextSceneObjectData>(tooltipTextSceneObject->mSceneObjectTypeData).mText = tooltipTextRows[0];
+        tooltipTextSceneObject->mInvisible = false;
+    }
+    else
+    {
+        for (auto i = 0U; i < tooltipTextRows.size(); ++i)
+        {
+            assert(i < CARD_TOOLTIP_TEXT_ROWS_COUNT);
+            auto tooltipTextSceneObject = activeScene->FindSceneObject(CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES[i]);
+            tooltipTextSceneObject->mPosition = tooltipSceneObject->mPosition;
+            tooltipTextSceneObject->mPosition += CARD_TOOLTIP_TEXT_OFFSETS[i];
+            tooltipTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+            std::get<scene::TextSceneObjectData>(tooltipTextSceneObject->mSceneObjectTypeData).mText = tooltipTextRows[i];
+            tooltipTextSceneObject->mInvisible = false;
+        }
     }
 }
 
@@ -689,6 +800,26 @@ void GameSessionManager::DestroyCardHighlighterAtIndex(const int index)
     
     auto cardHighlighterName = strutils::StringId(CARD_HIGHLIGHTER_SCENE_OBJECT_NAME_PREFIX + std::to_string(index));
     activeScene->RemoveSceneObject(cardHighlighterName);
+    
+    DestroyCardTooltip();
+}
+
+///------------------------------------------------------------------------------------------------
+
+void GameSessionManager::DestroyCardTooltip()
+{
+    const auto& activeSceneManager = CoreSystemsEngine::GetInstance().GetActiveSceneManager();
+    auto activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto tooltipSceneObject = activeScene->FindSceneObject(CARD_TOOLTIP_SCENE_OBJECT_NAME);
+    tooltipSceneObject->mInvisible = true;
+    
+    for (auto i = 0; i < CARD_TOOLTIP_TEXT_ROWS_COUNT; ++i)
+    {
+        auto tooltipTextSceneObject = activeScene->FindSceneObject(CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES[i]);
+        tooltipTextSceneObject->mInvisible = true;
+    }
+    
+    //auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -900,7 +1031,7 @@ void GameSessionManager::OnBoardSideCardEffectTriggeredEvent(const events::Board
     }
     
     sideEffectSceneObject->mInvisible = false;
-    animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sideEffectSceneObject, maxAlpha, BOARD_SIDE_EFFECT_SHOWING_HIDING_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), [](){});
+    animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sideEffectSceneObject, maxAlpha, BOARD_SIDE_EFFECT_SHOWING_HIDING_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), [](){});
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -922,7 +1053,7 @@ void GameSessionManager::OnBoardSideCardEffectEndedEvent(const events::BoardSide
     {
         sideEffectSceneObject = activeScene->FindSceneObject(event.mForRemotePlayer ? KILL_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME : KILL_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME);
     }
-    animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sideEffectSceneObject, 0.0f, BOARD_SIDE_EFFECT_SHOWING_HIDING_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), [=]()
+    animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sideEffectSceneObject, 0.0f, BOARD_SIDE_EFFECT_SHOWING_HIDING_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), [=]()
     {
         sideEffectSceneObject->mInvisible = true;
     });

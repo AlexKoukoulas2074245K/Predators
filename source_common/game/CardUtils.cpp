@@ -215,33 +215,8 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper(const CardData* cardData, con
             cardComponents.back()->mPosition.x -= textLength/2.0f;
         } while (textLength > CARD_NAME_AREA_LENGTH);
         
-        cardComponents.back()->mPosition.y += cardData->IsSpell() ? game_constants::IN_GAME_CARD_NAME_SPELL_Y_OFFSET : game_constants::IN_GAME_CARD_NAME_Y_OFFSET;
+        cardComponents.back()->mPosition.y += game_constants::IN_GAME_CARD_NAME_Y_OFFSET;
         cardComponents.back()->mPosition.z += game_constants::CARD_COMPONENT_Z_OFFSET;
-        
-        // Create card spell effect
-        if (cardData->IsSpell())
-        {
-            cardComponents.push_back(std::make_shared<scene::SceneObject>());
-            scene::TextSceneObjectData cardNameTextData;
-            cardNameTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
-            cardNameTextData.mText = cardData->mCardEffectTooltip;
-            cardComponents.back()->mSceneObjectTypeData = std::move(cardNameTextData);
-            
-            float scaleDeduct = CARD_NAME_TEST_DEDUCT_INCREMENTS;
-            float textLength = 0.0f;
-            do
-            {
-                scaleDeduct += CARD_NAME_TEST_DEDUCT_INCREMENTS;
-                cardComponents.back()->mScale = glm::vec3(game_constants::IN_GAME_CARD_NAME_SCALE - scaleDeduct);
-                cardComponents.back()->mPosition = position + game_constants::IN_GAME_CARD_NAME_X_OFFSET;
-                auto boundingRect = scene_object_utils::GetSceneObjectBoundingRect(*cardComponents.back());
-                textLength = boundingRect.topRight.x - boundingRect.bottomLeft.x;
-                cardComponents.back()->mPosition.x -= textLength/2.0f;
-            } while (textLength > CARD_NAME_AREA_LENGTH);
-            
-            cardComponents.back()->mPosition.y += game_constants::IN_GAME_CARD_NAME_SPELL_EFFECT_Y_OFFSET;
-            cardComponents.back()->mPosition.z += game_constants::CARD_COMPONENT_Z_OFFSET;
-        }
         
         std::stringstream generatedTextureOverridePostfixSS;
         if (!cardStatOverrides.empty())

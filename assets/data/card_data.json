@@ -185,7 +185,7 @@
             "family": "rodents",
             "name": "Fluff Attack",
             "effect": "DAMAGE +2 FAMILY",
-            "tooltip": "+2 DMG Family",
+            "tooltip": "Damage +2 for$ALL Rodents on$  your board",
             "texture": "rodents_attack.png",
             "shader": "basic.vs"
         },
@@ -195,7 +195,7 @@
             "family": "rodents",
             "name": "Fuzzy Speed",
             "effect": "DRAW +3",
-            "tooltip": "Draw 3 Cards",
+            "tooltip": "    Draw 3 Cards",
             "texture": "fuzz_speed.png",
             "shader": "basic.vs"
         },
@@ -205,7 +205,7 @@
             "family": "rodents",
             "name": "Throwing Net",
             "effect": "DAMAGE -2 ENEMIES",
-            "tooltip": "-2 DMG Enemies",
+            "tooltip": "Damage -2 for$ALL enemies the$opponent plays$  next turn",
             "texture": "net.png",
             "shader": "basic.vs"
         },
@@ -215,7 +215,7 @@
             "family": "rodents",
             "name": "Bear Trap",
             "effect": "KILL",
-            "tooltip": "Kill Next Enemy",
+            "tooltip": "Destroy next$enemy normal card$played by the$  opponent",
             "texture": "trap.png",
             "shader": "basic.vs"
         }

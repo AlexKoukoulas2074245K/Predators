@@ -39,6 +39,7 @@ namespace game_constants
     
     // Fonts
     inline const strutils::StringId DEFAULT_FONT_NAME = strutils::StringId("font");
+    inline const strutils::StringId DEFAULT_FONT_BLACK_NAME = strutils::StringId("font_black");
     inline const strutils::StringId FONT_PLACEHOLDER_DAMAGE_NAME = strutils::StringId("font_placeholder_damage");
     inline const strutils::StringId FONT_PLACEHOLDER_WEIGHT_NAME = strutils::StringId("font_placeholder_weight");
 
