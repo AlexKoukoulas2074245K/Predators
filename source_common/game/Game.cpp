@@ -18,6 +18,7 @@
 #include <engine/utils/Logging.h>
 #include <engine/utils/MathUtils.h>
 #include <engine/utils/OSMessageBox.h>
+#include <engine/utils/PlatformMacros.h>
 #include <game/BoardState.h>
 #include <game/Game.h>
 #include <game/GameConstants.h>
@@ -84,7 +85,13 @@ void Game::Init()
 //    flameSceneObject->mShaderFloatUniformValues[strutils::StringId("noise_4_factor")] = 1.0f;
 //    flameSceneObject->mShaderFloatUniformValues[strutils::StringId("noise_5_factor")] = 1.0f;
  //   flameSceneObject->mInvisible = true;
+#if defined(MOBILE_FLOW)
+    dummyScene->GetCamera().SetZoomFactor(130.0f);
+    auto currentCamPos = dummyScene->GetCamera().GetPosition();
+    dummyScene->GetCamera().SetPosition(glm::vec3(currentCamPos.x, currentCamPos.y - 0.005f, currentCamPos.z));
+#else
     dummyScene->GetCamera().SetZoomFactor(120.0f);
+#endif
 //
 //    auto uiScene = systemsEngine.GetActiveSceneManager().CreateScene(strutils::StringId("UI"));
 //    std::string texts[6] =

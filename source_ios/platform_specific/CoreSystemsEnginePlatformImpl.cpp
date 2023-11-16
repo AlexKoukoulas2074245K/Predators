@@ -21,10 +21,10 @@
 
 ///------------------------------------------------------------------------------------------------
 
-static constexpr int DEFAULT_WINDOW_WIDTH  = 1500;
-static constexpr int DEFAULT_WINDOW_HEIGHT = 900;
-static constexpr int MIN_WINDOW_WIDTH      = 1000;
-static constexpr int MIN_WINDOW_HEIGHT     = 600;
+static constexpr int DEFAULT_WINDOW_WIDTH  = 1688;
+static constexpr int DEFAULT_WINDOW_HEIGHT = 780;
+static constexpr int MIN_WINDOW_WIDTH      = 844;
+static constexpr int MIN_WINDOW_HEIGHT     = 390;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -236,6 +236,13 @@ scene::ActiveSceneManager& CoreSystemsEngine::GetActiveSceneManager()
 resources::ResourceLoadingService& CoreSystemsEngine::GetResourceLoadingService()
 {
     return mSystems->mResourceLoadingService;
+}
+
+///------------------------------------------------------------------------------------------------
+
+float CoreSystemsEngine::GetDefaultAspectRatio() const
+{
+    return static_cast<float>(DEFAULT_WINDOW_WIDTH)/DEFAULT_WINDOW_HEIGHT;
 }
 
 ///------------------------------------------------------------------------------------------------

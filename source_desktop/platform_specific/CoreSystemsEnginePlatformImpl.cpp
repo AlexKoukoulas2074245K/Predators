@@ -328,6 +328,13 @@ resources::ResourceLoadingService& CoreSystemsEngine::GetResourceLoadingService(
 
 ///------------------------------------------------------------------------------------------------
 
+float CoreSystemsEngine::GetDefaultAspectRatio() const
+{
+    return static_cast<float>(DEFAULT_WINDOW_WIDTH)/DEFAULT_WINDOW_HEIGHT;
+}
+
+///------------------------------------------------------------------------------------------------
+
 SDL_Window& CoreSystemsEngine::GetContextWindow() const
 {
     return *mWindow;

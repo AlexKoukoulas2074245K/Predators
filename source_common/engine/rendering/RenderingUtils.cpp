@@ -14,7 +14,7 @@
 
 ///------------------------------------------------------------------------------------------------
 
-constexpr int NEW_TEXTURE_SIZE = 2048;
+static constexpr int NEW_TEXTURE_SIZE = 2048;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -30,6 +30,10 @@ void CollateSceneObjectsIntoOne(const std::string& dynamicTextureResourceName, c
     
     if (!dynamicTextureResourceId)
     {
+        int w, h;
+        SDL_GL_GetDrawableSize(&CoreSystemsEngine::GetInstance().GetContextWindow(), &w, &h);
+        const auto currentAspectToDefaultAspect = (static_cast<float>(w)/h)/CoreSystemsEngine::GetInstance().GetDefaultAspectRatio();
+        
         GLint oldFrameBuffer;
         GLint oldRenderBuffer;
         GL_CALL(glGetIntegerv(GL_FRAMEBUFFER_BINDING, &oldFrameBuffer));
@@ -46,13 +50,13 @@ void CollateSceneObjectsIntoOne(const std::string& dynamicTextureResourceName, c
         GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
         GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
         GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-        GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, NEW_TEXTURE_SIZE/2, NEW_TEXTURE_SIZE, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL));
+        GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, NEW_TEXTURE_SIZE/2/currentAspectToDefaultAspect, NEW_TEXTURE_SIZE, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL));
         GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureId, 0));
 
         GLuint depthbuffer;
         GL_CALL(glGenRenderbuffers(1, &depthbuffer));
         GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, depthbuffer));
-        GL_CALL(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, NEW_TEXTURE_SIZE/2, NEW_TEXTURE_SIZE));
+        GL_CALL(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, NEW_TEXTURE_SIZE/2/currentAspectToDefaultAspect, NEW_TEXTURE_SIZE));
         GL_CALL(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthbuffer));
 
         assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);

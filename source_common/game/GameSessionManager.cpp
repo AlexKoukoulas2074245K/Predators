@@ -133,7 +133,7 @@ void GameSessionManager::InitGameSession()
     mBoardState->GetPlayerStates().emplace_back();
     
     mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetAllCardIds();//GetCardIdsByFamily(strutils::StringId("rodents"));
-    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));
+    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = {4, 19};//CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));
     
     mPlayerHeldCardSceneObjectWrappers.emplace_back();
     mPlayerHeldCardSceneObjectWrappers.emplace_back();

@@ -49,6 +49,7 @@ public:
     scene::ActiveSceneManager& GetActiveSceneManager();
     resources::ResourceLoadingService& GetResourceLoadingService();
     
+    float GetDefaultAspectRatio() const;
     SDL_Window& GetContextWindow() const;
     glm::vec2 GetContextRenderableDimensions() const;
     void SpecialEventHandling(SDL_Event& event);
