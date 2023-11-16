@@ -5,6 +5,7 @@
 ///  Created by Alex Koukoulas on 19/09/2023
 ///------------------------------------------------------------------------------------------------
 
+#include <bitset>
 #include <engine/CoreSystemsEngine.h>
 #include <engine/input/IInputStateManager.h>
 #include <engine/rendering/AnimationManager.h>
