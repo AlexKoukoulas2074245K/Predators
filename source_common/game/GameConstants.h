@@ -36,7 +36,11 @@ namespace game_constants
     // SO Names
     inline const strutils::StringId TURN_POINTER_SCENE_OBJECT_NAME = strutils::StringId("TURN_POINTER");
     inline const strutils::StringId TURN_POINTER_HIGHLIGHTER_SCENE_OBJECT_NAME = strutils::StringId("TURN_POINTER_HIGHLIGHTER");
-    
+    inline const strutils::StringId BOARD_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME = strutils::StringId("BOARD_SIDE_EFFECT_TOP");
+    inline const strutils::StringId BOARD_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("BOARD_SIDE_EFFECT_BOT");
+    inline const strutils::StringId KILL_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME = strutils::StringId("KILL_SIDE_EFFECT_TOP");
+    inline const strutils::StringId KILL_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("KILL_SIDE_EFFECT_BOT");
+
     // Fonts
     inline const strutils::StringId DEFAULT_FONT_NAME = strutils::StringId("font");
     inline const strutils::StringId DEFAULT_FONT_BLACK_NAME = strutils::StringId("font_black");
@@ -110,7 +114,10 @@ namespace game_constants
     inline const float CARD_LOCATION_EFFECT_TIME_SPEED = 1.0f;
     inline const float CARD_LOCATION_EFFECT_PERLIN_RESOLUTION = 70.0f;
     inline const float TURN_POINTER_ANIMATION_DURATION_SECS = 0.33f;
+    inline const float KILL_SIDE_EFFECT_SCALE_UP_FACTOR = 1.5f;
+    inline const float KILL_SIDE_EFFECT_PULSE_ANIMATION_PULSE_DUARTION_SECS = 1.0f;
 
+    inline const glm::vec3 KILL_SIDE_EFFECT_SCALE = {1/20.0f, 1/20.0f, 1/20.0f};
     inline const glm::vec3 TURN_POINTER_HIGHLIGHTER_SCALE = {0.06f, 0.09f, 0.8f};
     inline const glm::vec3 CARD_HIGHLIGHTER_SCALE = {0.08f, 0.13f, 1.0f};
 }

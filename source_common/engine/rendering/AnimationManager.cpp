@@ -6,6 +6,7 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <engine/rendering/AnimationManager.h>
+#include <engine/scene/SceneObject.h>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -41,6 +42,31 @@ void AnimationManager::StopAnimation(const strutils::StringId& animationName)
         {
             mAnimations.erase(findIter);
         }
+    }
+}
+
+///------------------------------------------------------------------------------------------------
+
+void AnimationManager::StopAllAnimationsPlayingForSceneObject(const strutils::StringId& sceneObjectName)
+{
+    for(auto iter = mAnimations.begin(); iter != mAnimations.end();)
+    {
+        if (iter->mAnimation->VGetSceneObject()->mName == sceneObjectName)
+        {
+            if (mAnimationContainerLocked)
+            {
+                auto tempAnimationName = strutils::StringId("TEMP");
+                iter->mAnimationName = tempAnimationName;
+                mAnimationNamesToRemove.emplace_back(tempAnimationName);
+            }
+            else
+            {
+                iter = mAnimations.erase(iter);
+                continue;
+            }
+        }
+        
+        iter++;
     }
 }
 

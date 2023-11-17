@@ -50,6 +50,7 @@ class IAnimation
 public:
     virtual ~IAnimation() = default;
     virtual AnimationUpdateResult VUpdate(const float dtMillis) = 0;
+    virtual std::shared_ptr<scene::SceneObject> VGetSceneObject() = 0;
 };
 
 ///------------------------------------------------------------------------------------------------
@@ -75,7 +76,8 @@ class TweenPositionScaleAnimation final: public BaseAnimation
 {
 public:
     TweenPositionScaleAnimation(std::shared_ptr<scene::SceneObject> sceneObjectTarget, const glm::vec3& targetPosition, const glm::vec3& targetScale, const float secsDuration, const uint8_t animationFlags = animation_flags::NONE, const float secsDelay = 0.0f, const std::function<float(const float)> tweeningFunc = math::LinearFunction , const math::TweeningMode tweeningMode = math::TweeningMode::EASE_IN);
-    AnimationUpdateResult VUpdate(const float dtMillis);
+    AnimationUpdateResult VUpdate(const float dtMillis) override;
+    std::shared_ptr<scene::SceneObject> VGetSceneObject() override;
     
 private:
     std::shared_ptr<scene::SceneObject> mSceneObjectTarget;
@@ -93,7 +95,8 @@ class TweenRotationAnimation final: public BaseAnimation
 {
 public:
     TweenRotationAnimation(std::shared_ptr<scene::SceneObject> sceneObjectTarget, const glm::vec3& targetRotation, const float secsDuration, const uint8_t animationFlags = animation_flags::NONE, const float secsDelay = 0.0f, const std::function<float(const float)> tweeningFunc = math::LinearFunction , const math::TweeningMode tweeningMode = math::TweeningMode::EASE_IN);
-    AnimationUpdateResult VUpdate(const float dtMillis);
+    AnimationUpdateResult VUpdate(const float dtMillis) override;
+    std::shared_ptr<scene::SceneObject> VGetSceneObject() override;
     
 private:
     std::shared_ptr<scene::SceneObject> mSceneObjectTarget;
@@ -110,7 +113,8 @@ class TweenAlphaAnimation final: public BaseAnimation
 {
 public:
     TweenAlphaAnimation(std::shared_ptr<scene::SceneObject> sceneObjectTarget, const float targetAlpha, const float secsDuration, const uint8_t animationFlags = animation_flags::NONE, const float secsDelay = 0.0f, const std::function<float(const float)> tweeningFunc = math::LinearFunction , const math::TweeningMode tweeningMode = math::TweeningMode::EASE_IN);
-    AnimationUpdateResult VUpdate(const float dtMillis);
+    AnimationUpdateResult VUpdate(const float dtMillis) override;
+    std::shared_ptr<scene::SceneObject> VGetSceneObject() override;
     
 private:
     std::shared_ptr<scene::SceneObject> mSceneObjectTarget;
@@ -126,7 +130,8 @@ class ContinuousPulseAnimation final: public BaseAnimation
 {
 public:
     ContinuousPulseAnimation(std::shared_ptr<scene::SceneObject> sceneObjectTarget, const float scaleUpFactor, const float secsPulseDuration, const uint8_t animationFlags = animation_flags::NONE, const float secsDelay = 0.0f, const std::function<float(const float)> tweeningFunc = math::LinearFunction , const math::TweeningMode tweeningMode = math::TweeningMode::EASE_IN);
-    AnimationUpdateResult VUpdate(const float dtMillis);
+    AnimationUpdateResult VUpdate(const float dtMillis) override;
+    std::shared_ptr<scene::SceneObject> VGetSceneObject() override;
     
 private:
     std::shared_ptr<scene::SceneObject> mSceneObjectTarget;
@@ -145,7 +150,8 @@ class BezierCurveAnimation final: public BaseAnimation
 {
 public:
     BezierCurveAnimation(std::shared_ptr<scene::SceneObject> sceneObjectTarget, const math::BezierCurve& curve, const float secsDuration, const uint8_t animationFlags = animation_flags::NONE, const float secsDelay = 0.0f);
-    AnimationUpdateResult VUpdate(const float dtMillis);
+    AnimationUpdateResult VUpdate(const float dtMillis) override;
+    std::shared_ptr<scene::SceneObject> VGetSceneObject() override;
     
 private:
     std::shared_ptr<scene::SceneObject> mSceneObjectTarget;

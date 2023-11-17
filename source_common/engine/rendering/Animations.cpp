@@ -84,6 +84,11 @@ AnimationUpdateResult TweenPositionScaleAnimation::VUpdate(const float dtMillis)
     return animationUpdateResult;
 }
 
+std::shared_ptr<scene::SceneObject> TweenPositionScaleAnimation::VGetSceneObject()
+{
+    return mSceneObjectTarget;
+}
+
 ///------------------------------------------------------------------------------------------------
 
 TweenRotationAnimation::TweenRotationAnimation(std::shared_ptr<scene::SceneObject> sceneObjectTarget, const glm::vec3& targetRotation, const float secsDuration, const uint8_t animationFlags /* = animation_flags::NONE */, const float secsDelay /* = 0.0f */, const std::function<float(const float)> tweeningFunc /* = math::LinearFunction */, const math::TweeningMode tweeningMode /* = math::TweeningMode::EASE_IN */)
@@ -112,6 +117,11 @@ AnimationUpdateResult TweenRotationAnimation::VUpdate(const float dtMillis)
     return animationUpdateResult;
 }
 
+std::shared_ptr<scene::SceneObject> TweenRotationAnimation::VGetSceneObject()
+{
+    return mSceneObjectTarget;
+}
+
 ///------------------------------------------------------------------------------------------------
 
 TweenAlphaAnimation::TweenAlphaAnimation(std::shared_ptr<scene::SceneObject> sceneObjectTarget, const float targetAlpha, const float secsDuration, const uint8_t animationFlags /* = animation_flags::NONE */, const float secsDelay /* = 0.0f */, const std::function<float(const float)> tweeningFunc /* = math::LinearFunction */, const math::TweeningMode tweeningMode /* = math::TweeningMode::EASE_IN */)
@@ -132,6 +142,11 @@ AnimationUpdateResult TweenAlphaAnimation::VUpdate(const float dtMillis)
     auto animationUpdateResult = BaseAnimation::VUpdate(dtMillis);
     mSceneObjectTarget->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = math::Lerp(mInitAlpha, mTargetAlpha, math::TweenValue(mAnimationT, mTweeningFunc, mTweeningMode));
     return animationUpdateResult;
+}
+
+std::shared_ptr<scene::SceneObject> TweenAlphaAnimation::VGetSceneObject()
+{
+    return mSceneObjectTarget;
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -173,6 +188,11 @@ AnimationUpdateResult ContinuousPulseAnimation::VUpdate(const float dtMillis)
     return animationUpdateResult;
 }
 
+std::shared_ptr<scene::SceneObject> ContinuousPulseAnimation::VGetSceneObject()
+{
+    return mSceneObjectTarget;
+}
+
 ///------------------------------------------------------------------------------------------------
 
 BezierCurveAnimation::BezierCurveAnimation(std::shared_ptr<scene::SceneObject> sceneObjectTarget, const math::BezierCurve& curve, const float secsDuration, const uint8_t animationFlags /* = animation_flags::NONE */, const float secsDelay /* = 0.0f */)
@@ -196,6 +216,11 @@ AnimationUpdateResult BezierCurveAnimation::VUpdate(const float dtMillis)
     mSceneObjectTarget->mPosition.y = IS_FLAG_SET(animation_flags::IGNORE_Y_COMPONENT) ? y : mSceneObjectTarget->mPosition.y;
     
     return animationUpdateResult;
+}
+
+std::shared_ptr<scene::SceneObject> BezierCurveAnimation::VGetSceneObject()
+{
+    return mSceneObjectTarget;
 }
 
 ///------------------------------------------------------------------------------------------------

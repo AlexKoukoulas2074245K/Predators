@@ -31,6 +31,7 @@ class AnimationManager final
 public:
     void StartAnimation(std::unique_ptr<IAnimation> animation, std::function<void()> onCompleteCallback, const strutils::StringId animationName = strutils::StringId());
     void StopAnimation(const strutils::StringId& animationName);
+    void StopAllAnimationsPlayingForSceneObject(const strutils::StringId& sceneObjectName);
     void Update(const float dtMillis);
     
     bool IsAnimationPlaying(const strutils::StringId& animationName) const;
