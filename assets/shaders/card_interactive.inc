@@ -15,13 +15,13 @@ vec4 calculate_interactive_color(vec4 color, int weight_mode, int damage_mode)
         }
     }
     
-    if (distance(color, DAMAGE_INTERACTIVE_COLOR) < INTERACTIVE_COLOR_DISTANCE_THRESHOLD)
+    if (distance(color, DAMAGE_INTERACTIVE_COLOR) < INTERACTIVE_COLOR_DISTANCE_THRESHOLD * 1.4f)
     {
         switch(damage_mode)
         {
             case 0: return vec4(1.0f, 1.0f, 1.0f, 1.0f);
             case 1: return vec4(0.0f, 0.8f, 0.0f, 1.0f);
-            case 2: return vec4(0.7f, 0.0f, 0.0f, 1.0f);
+            case 2: return vec4(0.7f, 0.7f, 0.7f, 1.0f);
         }
     }
     

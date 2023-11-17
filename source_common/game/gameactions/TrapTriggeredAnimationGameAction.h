@@ -17,8 +17,10 @@
 class TrapTriggeredAnimationGameAction final: public BaseGameAction
 {
 public:
-    static const std::string LAST_PLAYED_CARD_INDEX_PARAM;
-
+    static const std::string TRAP_TRIGGER_TYPE_PARAM;
+    static const std::string TRAP_TRIGGER_TYPE_KILL;
+    static const std::string TRAP_TRIGGER_TYPE_DEBUFF;
+    
 public:
     void VSetNewGameState() override;
     
@@ -32,10 +34,9 @@ public:
 private:
     enum class ActionState
     {
-        KILL_SO_ANIMATION_STEP_1,
-        KILL_SO_ANIMATION_STEP_2,
-        KILL_SO_ANIMATION_STEP_3,
-        FINISHED
+        ANIMATION_STEP_WAIT, // Reusable step for different actions waiting on an animation
+        ANIMATION_STEP_2,    // Step for introducing new animations
+        FINISHED             // Cleanup and finishing off behavior
     };
     
     ActionState mAnimationState;

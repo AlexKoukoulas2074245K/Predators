@@ -64,7 +64,7 @@ private:
     void OnCardDestruction(const events::CardDestructionEvent&);
     void OnCardDestructionWithReposition(const events::CardDestructionWithRepositionEvent&);
     void OnCardCreation(const events::CardCreationEvent& event);
-    void OnCardBuffed(const events::CardBuffedEvent& event);
+    void OnCardBuffedDebuffed(const events::CardBuffedDebuffedEvent& event);
     void OnHeldCardSwap(const events::HeldCardSwapEvent& event);
     void OnLastCardPlayedFinalized(const events::LastCardPlayedFinalizedEvent& event);
     void OnHealthChangeAnimationTriggerEvent(const events::HealthChangeAnimationTriggerEvent&);

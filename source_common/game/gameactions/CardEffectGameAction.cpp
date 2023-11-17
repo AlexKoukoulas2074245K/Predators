@@ -189,7 +189,7 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
                             rendering::RemoveParticleEmitterFlag(particle_flags::CONTINUOUS_PARTICLE_GENERATION, strutils::StringId(BUFFED_CARD_PARTICLE_EMITTER_NAME_PREFIX + std::to_string(affectedIndex)), *CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE));
                         }
                         
-                        events::EventSystem::GetInstance().DispatchEvent<events::CardBuffedEvent>(static_cast<int>(i), true, mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
+                        events::EventSystem::GetInstance().DispatchEvent<events::CardBuffedDebuffedEvent>(static_cast<int>(i), true, mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
                         auto cardSoWrapper = mGameSessionManager->GetBoardCardSoWrappers().at(mBoardState->GetActivePlayerIndex()).at(mAffectedBoardIndices.at(i));
                         
                         auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();

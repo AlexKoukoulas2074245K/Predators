@@ -87,10 +87,10 @@ public:
 
 ///------------------------------------------------------------------------------------------------
 
-class CardBuffedEvent final
+class CardBuffedDebuffedEvent final
 {
 public:
-    CardBuffedEvent(const int cardIndex, const bool boardCard, const bool forRemotePlayer)
+    CardBuffedDebuffedEvent(const int cardIndex, const bool boardCard, const bool forRemotePlayer)
         : mCardIdex(cardIndex)
         , mBoardCard(boardCard)
         , mForRemotePlayer(forRemotePlayer)

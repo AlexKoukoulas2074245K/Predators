@@ -10,7 +10,7 @@
     [
         {
             "id": 0,
-            "damage": 2,
+            "damage": 3,
             "weight": 3,
             "family": "rodents",
             "name": "Beaver",
