@@ -95,6 +95,8 @@ static const float CARD_LOCATION_EFFECT_ALPHA_SPEED = 0.003f;
 static const float CARD_TOOLTIP_TEXT_FONT_SIZE = 0.00016f;
 static const float CARD_TOOLTIP_MAX_REVEAL_THRESHOLD = 2.0f;
 static const float CARD_TOOLTIP_REVEAL_RGB_EXPONENT = 1.127f;
+static const float CARD_TOOLTIP_REVEAL_SPEED = 1.0f/200.0f;
+static const float CARD_TOOLTIP_TEXT_REVEAL_SPEED = 1.0f/500.0f;
 
 #if defined(MOBILE_FLOW)
 static const float MOBILE_DISTANCE_FROM_CARD_LOCATION_INDICATOR = 0.003f;
@@ -662,7 +664,7 @@ void GameSessionManager::UpdateMiscSceneObjects(const float dtMillis)
     // Card tooltip
     auto cardTooltipSceneObject = activeScene->FindSceneObject(CARD_TOOLTIP_SCENE_OBJECT_NAME);
     
-    cardTooltipSceneObject->mShaderFloatUniformValues[CARD_TOOLTIP_REVEAL_THRESHOLD_UNIFORM_NAME] += dtMillis/200.0f;
+    cardTooltipSceneObject->mShaderFloatUniformValues[CARD_TOOLTIP_REVEAL_THRESHOLD_UNIFORM_NAME] += dtMillis * CARD_TOOLTIP_REVEAL_SPEED;
     if (cardTooltipSceneObject->mShaderFloatUniformValues[CARD_TOOLTIP_REVEAL_THRESHOLD_UNIFORM_NAME] >= CARD_TOOLTIP_MAX_REVEAL_THRESHOLD)
     {
         cardTooltipSceneObject->mShaderFloatUniformValues[CARD_TOOLTIP_REVEAL_THRESHOLD_UNIFORM_NAME] = CARD_TOOLTIP_MAX_REVEAL_THRESHOLD;
@@ -670,7 +672,7 @@ void GameSessionManager::UpdateMiscSceneObjects(const float dtMillis)
         for (auto i = 0; i < CARD_TOOLTIP_TEXT_ROWS_COUNT; ++i)
         {
             auto tooltipTextSceneObject = activeScene->FindSceneObject(CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES[i]);
-            tooltipTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = math::Min(1.0f, tooltipTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] +  dtMillis/100.0f);
+            tooltipTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = math::Min(1.0f, tooltipTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] +  dtMillis * CARD_TOOLTIP_TEXT_REVEAL_SPEED);
         }
     }
 }
