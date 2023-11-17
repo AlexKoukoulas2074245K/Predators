@@ -478,13 +478,13 @@ bool RayToSphereIntersection(const glm::vec3& rayOrigin, const glm::vec3& rayDir
 bool RayToPlaneIntersection(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, const glm::vec3& planeCenter, const glm::vec3& planeNormal, glm::vec3& intersectionPoint);
 
 ///-----------------------------------------------------------------------------------------------
-/// Computes and returns whether the given mesh is inside a frustum.
+/// Computes and returns whether the given mesh is fully inside a frustum.
 /// @param[in] meshPosition the mesh's position.
 /// @param[in] meshScale the scale of the mesh.
 /// @param[in] meshDimensions the dimensions of the mesh in a glm::vec3 form.
 /// @param[in] frustum the frustum to test containment in.
-/// @returns whether the mesh is inside the frustum.
-bool IsMeshInsideFrustum(const glm::vec3& meshPosition, const glm::vec3& meshScale, const glm::vec3& meshDimensions, const Frustum& frustum);
+/// @returns whether the mesh is fully inside the frustum.
+bool IsMeshFullyInsideFrustum(const glm::vec3& meshPosition, const glm::vec3& meshScale, const glm::vec3& meshDimensions, const Frustum& frustum, int& breachedSideIndex);
 
 ///-----------------------------------------------------------------------------------------------
 /// Computes and returns whether the given point is inside a rectangle.

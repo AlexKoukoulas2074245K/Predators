@@ -70,6 +70,17 @@ struct ParticleEmitterObjectData
 
 ///------------------------------------------------------------------------------------------------
 
+enum class SnapToEdgeBehavior
+{
+    NONE,
+    SNAP_TO_LEFT_EDGE,
+    SNAP_TO_RIGHT_EDGE,
+    SNAP_TO_TOP_EDGE,
+    SNAP_TO_BOT_EDGE,
+};
+
+///------------------------------------------------------------------------------------------------
+
 struct SceneObject
 {
     strutils::StringId mName = strutils::StringId();
@@ -85,6 +96,7 @@ struct SceneObject
     resources::ResourceId mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + game_constants::DEFAULT_TEXTURE_NAME);
     resources::ResourceId mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + game_constants::DEFAULT_SHADER_NAME);
     resources::ResourceId mEffectTextureResourceId = 0;
+    SnapToEdgeBehavior mSnapToEdgeBehavior = SnapToEdgeBehavior::NONE;
     bool mInvisible = false;
 };
 

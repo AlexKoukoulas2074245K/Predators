@@ -21,6 +21,7 @@
 
 namespace scene { class Scene; }
 namespace scene { struct SceneObject; }
+namespace rendering { class Camera; }
 struct CardData;
 
 ///------------------------------------------------------------------------------------------------
@@ -30,7 +31,7 @@ namespace card_utils
 
 ///------------------------------------------------------------------------------------------------
 
-glm::vec3 CalculateHeldCardPosition(const int cardIndex, const int playerCardCount, bool forRemotePlayer);
+glm::vec3 CalculateHeldCardPosition(const int cardIndex, const int playerCardCount, bool forRemotePlayer, const rendering::Camera& camera);
 
 ///------------------------------------------------------------------------------------------------
 

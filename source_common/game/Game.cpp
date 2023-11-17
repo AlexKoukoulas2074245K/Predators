@@ -43,7 +43,7 @@ Game::Game(const int argc, char** argv)
         logging::Log(logging::LogType::INFO, "Initializing from CWD : %s", argv[0]);
     }
     
-    CoreSystemsEngine::GetInstance().Start([&](){ Init(); }, [&](const float dtMillis){ Update(dtMillis); }, [&](){ ApplicationMovedToBackground(); }, [&](){ CreateDebugWidgets(); });
+    CoreSystemsEngine::GetInstance().Start([&](){ Init(); }, [&](const float dtMillis){ Update(dtMillis); }, [&](){ ApplicationMovedToBackground(); }, [&](){ WindowResize(); }, [&](){ CreateDebugWidgets(); });
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -93,14 +93,13 @@ void Game::Init()
 #if defined(MOBILE_FLOW)
     if (ios_utils::IsIPad())
     {
-        dummyScene->GetCamera().SetZoomFactor(110.0f);
+        dummyScene->GetCamera().SetZoomFactor(120.0f);
     }
     else
     {
-        dummyScene->GetCamera().SetZoomFactor(130.0f);
+        dummyScene->GetCamera().SetZoomFactor(120.0f);
     }
-    auto currentCamPos = dummyScene->GetCamera().GetPosition();
-    dummyScene->GetCamera().SetPosition(glm::vec3(currentCamPos.x, currentCamPos.y - 0.005f, currentCamPos.z));
+    
 #else
     dummyScene->GetCamera().SetZoomFactor(120.0f);
 #endif
@@ -183,6 +182,13 @@ void Game::Update(const float dtMillis)
 void Game::ApplicationMovedToBackground()
 {
     events::EventSystem::GetInstance().DispatchEvent<events::ApplicationMovedToBackgroundEvent>();
+}
+
+///------------------------------------------------------------------------------------------------
+
+void Game::WindowResize()
+{
+    events::EventSystem::GetInstance().DispatchEvent<events::WindowResizeEvent>();
 }
 
 ///------------------------------------------------------------------------------------------------

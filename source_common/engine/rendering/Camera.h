@@ -36,6 +36,7 @@ public:
     const glm::vec3& GetPosition() const;
     const glm::mat4& GetViewMatrix() const;
     const glm::mat4& GetProjMatrix() const;
+    math::Frustum CalculateFrustum() const;
     
     ///-----------------------------------------------------------------------------------------------
     /// Performs a camera shake.

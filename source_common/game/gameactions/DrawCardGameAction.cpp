@@ -47,7 +47,7 @@ void DrawCardGameAction::VInitAnimation()
     
     for (int i = 0; i < cardCount; ++i)
     {
-        auto finalCardPosition = card_utils::CalculateHeldCardPosition(i, cardCount, remotePlayerActive);
+        auto finalCardPosition = card_utils::CalculateHeldCardPosition(i, cardCount, remotePlayerActive, activeScene->GetCamera());
         
         // The latest added card components need to be created from scratch
         if (i == cardCount - 1)

@@ -130,7 +130,7 @@ void CoreSystemsEngine::Initialize()
 
 ///------------------------------------------------------------------------------------------------
 
-void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::function<void(const float)> clientUpdateFunction, std::function<void()> clientApplicationMovedToBackgroundFunction, std::function<void()>)
+void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::function<void(const float)> clientUpdateFunction, std::function<void()> clientApplicationMovedToBackgroundFunction, std::function<void()>, std::function<void()>)
 {
     clientInitFunction();
     

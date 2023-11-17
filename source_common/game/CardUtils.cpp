@@ -35,7 +35,14 @@ static const float BARD_CARD_POSITION_Z_OFFSET = 0.01f;
 
 ///------------------------------------------------------------------------------------------------
 
-glm::vec3 CalculateHeldCardPosition(const int cardIndex, const int playerCardCount, bool forRemotePlayer)
+static float GetZoomVariableHeldCardY(const float zoomFactor)
+{
+    return 0.0000070f * (zoomFactor * zoomFactor) - 0.0004989f * zoomFactor - 0.1645f;
+}
+
+///------------------------------------------------------------------------------------------------
+
+glm::vec3 CalculateHeldCardPosition(const int cardIndex, const int playerCardCount, bool forRemotePlayer, const rendering::Camera& camera)
 {
     float cardBlockWidth = game_constants::IN_GAME_CARD_WIDTH * playerCardCount;
     float cardStartX = -cardBlockWidth/2.0f;
@@ -51,7 +58,8 @@ glm::vec3 CalculateHeldCardPosition(const int cardIndex, const int playerCardCou
         }
     }
     
-    return glm::vec3(targetX, forRemotePlayer ? game_constants::IN_GAME_TOP_PLAYER_HELD_CARD_Y : game_constants::IN_GAME_BOT_PLAYER_HELD_CARD_Y, game_constants::IN_GAME_HELD_CARD_Z + cardIndex * CARD_INDEX_Z_OFFSET);
+    auto zoomVariableY = GetZoomVariableHeldCardY(camera.GetZoomFactor());
+    return glm::vec3(targetX, forRemotePlayer ? -zoomVariableY : zoomVariableY, game_constants::IN_GAME_HELD_CARD_Z + cardIndex * CARD_INDEX_Z_OFFSET);
 }
 
 ///------------------------------------------------------------------------------------------------

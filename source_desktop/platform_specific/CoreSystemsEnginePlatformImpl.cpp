@@ -161,7 +161,7 @@ void CoreSystemsEngine::Initialize()
 
 ///------------------------------------------------------------------------------------------------
 
-void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::function<void(const float)> clientUpdateFunction, std::function<void()> clientApplicationMovingToBackgroundFunction, std::function<void()> clientCreateDebugWidgetsFunction)
+void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::function<void(const float)> clientUpdateFunction, std::function<void()> clientApplicationMovingToBackgroundFunction, std::function<void()> clientApplicationWindowResizeFunction, std::function<void()> clientCreateDebugWidgetsFunction)
 {
     clientInitFunction();
     
@@ -205,6 +205,7 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
             for (auto& scene: mSystems->mActiveSceneManager.GetScenes())
             {
                 scene->GetCamera().RecalculateMatrices();
+                clientApplicationWindowResizeFunction();
             }
         }
         

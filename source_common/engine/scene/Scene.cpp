@@ -6,6 +6,8 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <engine/scene/Scene.h>
+#include <engine/resloading/MeshResource.h>
+#include <engine/resloading/ResourceLoadingService.h>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -39,6 +41,89 @@ std::shared_ptr<SceneObject> Scene::FindSceneObject(const strutils::StringId& sc
     });
     
     return findIter != mSceneObjects.end() ? *findIter : nullptr;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void Scene::RecalculatePositionOfEdgeSnappingSceneObjects()
+{
+    static const float positionIncrements = 0.01f;
+    const auto& frustum = mCamera.CalculateFrustum();
+    
+    for (auto& sceneObject: mSceneObjects)
+    {
+        if (sceneObject->mSnapToEdgeBehavior == SnapToEdgeBehavior::NONE)
+        {
+            continue;
+        }
+        
+        auto sceneObjectMeshDimensions = CoreSystemsEngine::GetInstance().GetResourceLoadingService().GetResource<resources::MeshResource>(sceneObject->mMeshResourceId).GetDimensions();
+        
+        int breachedSideIndex = 0;
+        
+        // Pull inside frustum
+        while (!math::IsMeshFullyInsideFrustum(sceneObject->mPosition, sceneObject->mScale, sceneObjectMeshDimensions, frustum, breachedSideIndex))
+        {
+            // Breach on left side
+            if (breachedSideIndex == 0)
+            {
+                sceneObject->mPosition.x += positionIncrements;
+            }
+            // Breach on right side
+            else if (breachedSideIndex == 1)
+            {
+                sceneObject->mPosition.x -= positionIncrements;
+            }
+            // Breach on bottom side
+            else if (breachedSideIndex == 2)
+            {
+                sceneObject->mPosition.y += positionIncrements;
+            }
+            // Breach on top side
+            else
+            {
+                sceneObject->mPosition.y -= positionIncrements;
+            }
+        }
+        
+        // Push to respective edge
+        switch (sceneObject->mSnapToEdgeBehavior)
+        {
+            case SnapToEdgeBehavior::SNAP_TO_LEFT_EDGE:
+            {
+                while (math::IsMeshFullyInsideFrustum(sceneObject->mPosition, sceneObject->mScale, sceneObjectMeshDimensions, frustum, breachedSideIndex))
+                {
+                    sceneObject->mPosition.x -= positionIncrements;
+                }
+            } break;
+                
+            case SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE:
+            {
+                while (math::IsMeshFullyInsideFrustum(sceneObject->mPosition, sceneObject->mScale, sceneObjectMeshDimensions, frustum, breachedSideIndex))
+                {
+                    sceneObject->mPosition.x += positionIncrements;
+                }
+            } break;
+                
+            case SnapToEdgeBehavior::SNAP_TO_TOP_EDGE:
+            {
+                while (math::IsMeshFullyInsideFrustum(sceneObject->mPosition, sceneObject->mScale, sceneObjectMeshDimensions, frustum, breachedSideIndex))
+                {
+                    sceneObject->mPosition.y += positionIncrements;
+                }
+            } break;
+                
+            case SnapToEdgeBehavior::SNAP_TO_BOT_EDGE:
+            {
+                while (math::IsMeshFullyInsideFrustum(sceneObject->mPosition, sceneObject->mScale, sceneObjectMeshDimensions, frustum, breachedSideIndex))
+                {
+                    sceneObject->mPosition.y -= positionIncrements;
+                }
+            } break;
+                
+            default: break;
+        }
+    }
 }
 
 ///------------------------------------------------------------------------------------------------

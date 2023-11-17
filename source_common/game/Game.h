@@ -24,6 +24,7 @@ public:
     void Init();
     void Update(const float dtMillis);
     void ApplicationMovedToBackground();
+    void WindowResize();
     void CreateDebugWidgets();
     
 private:

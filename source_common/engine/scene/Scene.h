@@ -43,6 +43,7 @@ public:
     [[nodiscard]] std::shared_ptr<SceneObject> CreateSceneObject(const strutils::StringId sceneObjectName = strutils::StringId());
     [[nodiscard]] std::shared_ptr<SceneObject> FindSceneObject(const strutils::StringId& sceneObjectName);
     
+    void RecalculatePositionOfEdgeSnappingSceneObjects();
     void RemoveSceneObject(const strutils::StringId& sceneObjectName);
     void RemoveAllSceneObjectsWithName(const strutils::StringId& sceneObjectName);
     

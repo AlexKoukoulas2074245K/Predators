@@ -21,6 +21,7 @@
 #include <engine/CoreSystemsEngine.h>
 #include <engine/input/IInputStateManager.h>
 #include <engine/rendering/AnimationManager.h>
+#include <engine/resloading/MeshResource.h>
 #include <engine/resloading/ResourceLoadingService.h>
 #include <engine/scene/ActiveSceneManager.h>
 #include <engine/scene/Scene.h>
@@ -184,6 +185,7 @@ void GameSessionManager::InitGameSession()
     turnPointerSo->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + TURN_POINTER_TEXTURE_FILE_NAME);
     turnPointerSo->mPosition = TURN_POINTER_POSITION;
     turnPointerSo->mScale = TURN_POINTER_SCALE;
+    turnPointerSo->mSnapToEdgeBehavior = scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE;
     
     auto tunPointerHighlighterSo = activeScene->CreateSceneObject(game_constants::TURN_POINTER_HIGHLIGHTER_SCENE_OBJECT_NAME);
     tunPointerHighlighterSo->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + game_constants::ACTION_HIGHLIGHTER_SHADER_NAME);
@@ -194,6 +196,7 @@ void GameSessionManager::InitGameSession()
     tunPointerHighlighterSo->mPosition = turnPointerSo->mPosition;
     tunPointerHighlighterSo->mPosition.z += game_constants::ACTION_HIGLIGHTER_Z_OFFSET;
     tunPointerHighlighterSo->mScale = game_constants::TURN_POINTER_HIGHLIGHTER_SCALE;
+    tunPointerHighlighterSo->mSnapToEdgeBehavior = scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE;
     
     // Stat Crystals
     mStatCrystals.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatCrystal>(HEALTH_CRYSTAL_TOP_POSITION, HEALTH_CRYSTAL_TEXTURE_FILE_NAME, HEALTH_CRYSTAL_TOP_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[0].mPlayerHealth, *activeScene)));
@@ -263,6 +266,8 @@ void GameSessionManager::InitGameSession()
         tooltipTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
         tooltipTextSceneObject->mInvisible = true;
     }
+    
+    OnWindowResize({});
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -375,7 +380,7 @@ void GameSessionManager::HandleTouchInput()
         }
         else if (inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON) && cursorInSceneObject && !otherHighlightedCardExists)
         {
-            auto originalCardPosition = card_utils::CalculateHeldCardPosition(i, localPlayerCardCount, false);
+            auto originalCardPosition = card_utils::CalculateHeldCardPosition(i, localPlayerCardCount, false, activeScene->GetCamera());
             if (currentCardSoWrapper->mSceneObject->mPosition.y <= originalCardPosition.y)
             {
                 selectedCardInitialTouchPosition = std::make_unique<glm::vec2>(worldTouchPos);
@@ -393,7 +398,7 @@ void GameSessionManager::HandleTouchInput()
                     
                 case CardSoState::HIGHLIGHTED:
                 {
-                    auto originalCardPosition = card_utils::CalculateHeldCardPosition(i, localPlayerCardCount, false);
+                    auto originalCardPosition = card_utils::CalculateHeldCardPosition(i, localPlayerCardCount, false, activeScene->GetCamera());
                     animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(currentCardSoWrapper->mSceneObject, originalCardPosition, currentCardSoWrapper->mSceneObject->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::IGNORE_X_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){currentCardSoWrapper->mState = CardSoState::IDLE; });
                     currentCardSoWrapper->mState = CardSoState::MOVING_TO_SET_POSITION;
                     DestroyCardHighlighterAtIndex(i);
@@ -443,7 +448,7 @@ void GameSessionManager::HandleTouchInput()
                 {
                     if (!cursorInSceneObject)
                     {
-                        auto originalCardPosition = card_utils::CalculateHeldCardPosition(i, localPlayerCardCount, false);
+                        auto originalCardPosition = card_utils::CalculateHeldCardPosition(i, localPlayerCardCount, false, activeScene->GetCamera());
                         animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(currentCardSoWrapper->mSceneObject, originalCardPosition, currentCardSoWrapper->mSceneObject->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::IGNORE_X_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){currentCardSoWrapper->mState = CardSoState::IDLE; });
                         currentCardSoWrapper->mState = CardSoState::MOVING_TO_SET_POSITION;
                         DestroyCardHighlighterAtIndex(i);
@@ -467,7 +472,7 @@ void GameSessionManager::HandleTouchInput()
     {
         auto currentCardSoWrapper = localPlayerCards[candidateHighlightIndices.front()];
         
-        auto originalCardPosition = card_utils::CalculateHeldCardPosition(candidateHighlightIndices.front(), localPlayerCardCount, false);
+        auto originalCardPosition = card_utils::CalculateHeldCardPosition(candidateHighlightIndices.front(), localPlayerCardCount, false, activeScene->GetCamera());
         originalCardPosition.y += game_constants::IN_GAME_BOT_PLAYER_SELECTED_CARD_Y_OFFSET;
         originalCardPosition.z = game_constants::IN_GAME_HIGHLIGHTED_CARD_Z;
         
@@ -544,9 +549,12 @@ void GameSessionManager::UpdateMiscSceneObjects(const float dtMillis)
     }
     
     // Turn pointer highlighter
+    auto turnPointerSo = activeScene->FindSceneObject(game_constants::TURN_POINTER_SCENE_OBJECT_NAME);
     auto turnPointerHighlighterSo = activeScene->FindSceneObject(game_constants::TURN_POINTER_HIGHLIGHTER_SCENE_OBJECT_NAME);
     turnPointerHighlighterSo->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
     turnPointerHighlighterSo->mShaderBoolUniformValues[game_constants::CARD_HIGHLIGHTER_INVALID_ACTION_UNIFORM_NAME] = false;
+    turnPointerHighlighterSo->mPosition = turnPointerSo->mPosition;
+    turnPointerHighlighterSo->mPosition.z += game_constants::ACTION_HIGLIGHTER_Z_OFFSET;
     
     // Lambda to make space/revert to original position board cards
     auto prospectiveMakeSpaceRevertToPositionLambda = [&](int prospectiveCardCount)
@@ -701,7 +709,7 @@ void GameSessionManager::OnFreeMovingCardRelease(std::shared_ptr<CardSoWrapper> 
     else if (!mPendingCardPlay)
     {
         auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
-        auto originalCardPosition = card_utils::CalculateHeldCardPosition(static_cast<int>(cardIndex), static_cast<int>(localPlayerCards.size()), false);
+        auto originalCardPosition = card_utils::CalculateHeldCardPosition(static_cast<int>(cardIndex), static_cast<int>(localPlayerCards.size()), false, activeScene->GetCamera());
         animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObject, originalCardPosition, cardSoWrapper->mSceneObject->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){cardSoWrapper->mState = CardSoState::IDLE; });
         cardSoWrapper->mState = CardSoState::MOVING_TO_SET_POSITION;
     }
@@ -818,8 +826,6 @@ void GameSessionManager::DestroyCardTooltip()
         auto tooltipTextSceneObject = activeScene->FindSceneObject(CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES[i]);
         tooltipTextSceneObject->mInvisible = true;
     }
-    
-    //auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -829,6 +835,7 @@ void GameSessionManager::RegisterForEvents()
     auto& eventSystem = events::EventSystem::GetInstance();
     
     eventSystem.RegisterForEvent<events::ApplicationMovedToBackgroundEvent>(this, &GameSessionManager::OnApplicationMovedToBackground);
+    eventSystem.RegisterForEvent<events::WindowResizeEvent>(this, &GameSessionManager::OnWindowResize);
     eventSystem.RegisterForEvent<events::CardDestructionEvent>(this, &GameSessionManager::OnCardDestruction);
     eventSystem.RegisterForEvent<events::CardDestructionWithRepositionEvent>(this, &GameSessionManager::OnCardDestructionWithReposition);
     eventSystem.RegisterForEvent<events::CardCreationEvent>(this, &GameSessionManager::OnCardCreation);
@@ -846,6 +853,30 @@ void GameSessionManager::RegisterForEvents()
 void GameSessionManager::OnApplicationMovedToBackground(const events::ApplicationMovedToBackgroundEvent&)
 {
     mGameSerializer->FlushStateToFile();
+}
+
+///------------------------------------------------------------------------------------------------
+
+void GameSessionManager::OnWindowResize(const events::WindowResizeEvent&)
+{
+    const auto& activeSceneManager = CoreSystemsEngine::GetInstance().GetActiveSceneManager();
+    auto activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    
+    // Correct position of held cards
+    for (auto j = 0U; j < mPlayerHeldCardSceneObjectWrappers.size(); ++j)
+    {
+        for (auto i = 0U; i < mPlayerHeldCardSceneObjectWrappers[j].size(); ++i)
+        {
+            auto cardSoWrapper = mPlayerHeldCardSceneObjectWrappers[j][i];
+            if (cardSoWrapper->mState == CardSoState::IDLE)
+            {
+                cardSoWrapper->mSceneObject->mPosition = card_utils::CalculateHeldCardPosition(i, static_cast<int>(mPlayerHeldCardSceneObjectWrappers[j].size()), j == game_constants::REMOTE_PLAYER_INDEX, activeScene->GetCamera());
+            }
+        }
+    }
+    
+    // Correct position of other snap to edge scene objects
+    activeScene->RecalculatePositionOfEdgeSnappingSceneObjects();
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -905,7 +936,7 @@ void GameSessionManager::OnCardDestructionWithReposition(const events::CardDestr
     
         auto originalCardPosition = event.mIsBoardCard ?
             card_utils::CalculateBoardCardPosition(i, currentCardCount, event.mForRemotePlayer) :
-            card_utils::CalculateHeldCardPosition(i, currentCardCount, event.mForRemotePlayer);
+            card_utils::CalculateHeldCardPosition(i, currentCardCount, event.mForRemotePlayer, activeScene->GetCamera());
         
         animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(currentCardSoWrapper->mSceneObject, originalCardPosition, currentCardSoWrapper->mSceneObject->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){});
     }
@@ -976,7 +1007,7 @@ void GameSessionManager::OnLastCardPlayedFinalized(const events::LastCardPlayedF
         // Reposition held cards for different indices
         if (currentCardSoWrapper->mState != CardSoState::FREE_MOVING)
         {
-            auto originalCardPosition = card_utils::CalculateHeldCardPosition(i, currentPlayerHeldCardCount, mBoardState->GetActivePlayerIndex() == 0);
+            auto originalCardPosition = card_utils::CalculateHeldCardPosition(i, currentPlayerHeldCardCount, mBoardState->GetActivePlayerIndex() == 0, activeScene->GetCamera());
             animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(currentCardSoWrapper->mSceneObject, originalCardPosition, currentCardSoWrapper->mSceneObject->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){ currentCardSoWrapper->mState = CardSoState::IDLE; });
             currentCardSoWrapper->mState = CardSoState::MOVING_TO_SET_POSITION;
         }

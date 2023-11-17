@@ -111,6 +111,38 @@ const glm::mat4& Camera::GetProjMatrix() const
 
 ///------------------------------------------------------------------------------------------------
 
+math::Frustum Camera::CalculateFrustum() const
+{
+    math::Frustum cameraFrustum;
+    auto viewProjectionMatrix = mProj * mView;
+
+    // Extract rows from combined view projection matrix
+    const auto rowX = glm::row(viewProjectionMatrix, 0);
+    const auto rowY = glm::row(viewProjectionMatrix, 1);
+    const auto rowZ = glm::row(viewProjectionMatrix, 2);
+    const auto rowW = glm::row(viewProjectionMatrix, 3);
+
+    // Calculate planes
+    cameraFrustum[0] = glm::normalize(rowW + rowX);
+    cameraFrustum[1] = glm::normalize(rowW - rowX);
+    cameraFrustum[2] = glm::normalize(rowW + rowY);
+    cameraFrustum[3] = glm::normalize(rowW - rowY);
+    cameraFrustum[4] = glm::normalize(rowW + rowZ);
+    cameraFrustum[5] = glm::normalize(rowW - rowZ);
+
+    // Normalize planes
+    for (auto i = 0U; i < math::FRUSTUM_SIDES; ++i)
+    {
+        glm::vec3 planeNormal(cameraFrustum[i].x, cameraFrustum[i].y, cameraFrustum[i].z);
+        const auto length = glm::length(planeNormal);
+        cameraFrustum[i] = -cameraFrustum[i] / length;
+    }
+
+    return cameraFrustum;
+}
+
+///------------------------------------------------------------------------------------------------
+
 void Camera::Shake(const float targetDurationSecs, const float shakeStrengthRadius /* = DEFAULT_SHAKE_STRENGTH_RADIUS */, const float shakeInterTremmorDelaySecs /* = 0.0f */)
 {
     if (mShakeData.mShakeCurrentRadius <= SHAKE_MIN_RADIUS)
