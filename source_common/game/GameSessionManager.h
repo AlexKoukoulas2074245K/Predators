@@ -60,6 +60,7 @@ private:
     void RegisterForEvents();
     void OnApplicationMovedToBackground(const events::ApplicationMovedToBackgroundEvent&);
     void OnWindowResize(const events::WindowResizeEvent&);
+    void OnLocalPlayerTurnStarted(const events::LocalPlayerTurnStarted&);
     void OnCardDestruction(const events::CardDestructionEvent&);
     void OnCardDestructionWithReposition(const events::CardDestructionWithRepositionEvent&);
     void OnCardCreation(const events::CardCreationEvent& event);
@@ -89,6 +90,7 @@ private:
     ProspectiveBoardCardsPushState mPreviousProspectiveBoardCardsPushState;
     bool mShouldShowCardLocationIndicator;
     bool mPendingCardPlay;
+    bool mCanIssueNextTurnInteraction;
 };
 
 ///------------------------------------------------------------------------------------------------

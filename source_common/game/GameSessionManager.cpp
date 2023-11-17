@@ -115,6 +115,7 @@ GameSessionManager::GameSessionManager()
     : mPreviousProspectiveBoardCardsPushState(ProspectiveBoardCardsPushState::NONE)
     , mShouldShowCardLocationIndicator(false)
     , mPendingCardPlay(false)
+    , mCanIssueNextTurnInteraction(false)
 {
     
 }
@@ -133,8 +134,8 @@ void GameSessionManager::InitGameSession()
     mBoardState->GetPlayerStates().emplace_back();
     mBoardState->GetPlayerStates().emplace_back();
     
-    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetAllCardIds();//GetCardIdsByFamily(strutils::StringId("rodents"));
-    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = {4, 19};//CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));
+    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = {4}; CardDataRepository::GetInstance().GetAllCardIds();//GetCardIdsByFamily(strutils::StringId("rodents"));
+    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = {21,22}; //CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));
     
     mPlayerHeldCardSceneObjectWrappers.emplace_back();
     mPlayerHeldCardSceneObjectWrappers.emplace_back();
@@ -187,6 +188,7 @@ void GameSessionManager::InitGameSession()
     turnPointerSo->mScale = TURN_POINTER_SCALE;
     turnPointerSo->mSnapToEdgeBehavior = scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE;
     
+    // Turn pointer highlighter
     auto tunPointerHighlighterSo = activeScene->CreateSceneObject(game_constants::TURN_POINTER_HIGHLIGHTER_SCENE_OBJECT_NAME);
     tunPointerHighlighterSo->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + game_constants::ACTION_HIGHLIGHTER_SHADER_NAME);
     tunPointerHighlighterSo->mShaderFloatUniformValues[game_constants::PERLIN_TIME_SPEED_UNIFORM_NAME] = game_constants::ACTION_HIGLIGHTER_PERLIN_TIME_SPEED;
@@ -231,6 +233,7 @@ void GameSessionManager::InitGameSession()
     killSideEffectTopSceneObject->mEffectTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + KILL_SIDE_EFFECT_MASK_TEXTURE_FILE_NAME);
     killSideEffectTopSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + BOARD_SIDE_STAT_EFFECT_SHADER_FILE_NAME);
     killSideEffectTopSceneObject->mPosition = BOARD_SIDE_EFFECT_TOP_POSITION;
+    killSideEffectTopSceneObject->mPosition.z += 0.1f;
     killSideEffectTopSceneObject->mScale = KILL_SIDE_EFFECT_SCALE;
     killSideEffectTopSceneObject->mInvisible = true;
     animationManager.StartAnimation(std::make_unique<rendering::ContinuousPulseAnimation>(killSideEffectTopSceneObject, KILL_SIDE_EFFECT_SCALE_UP_FACTOR, KILL_SIDE_EFFECT_PULSE_ANIMATION_PULSE_DUARTION_SECS), [](){});
@@ -242,6 +245,7 @@ void GameSessionManager::InitGameSession()
     killSideEffectBotSceneObject->mEffectTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + KILL_SIDE_EFFECT_MASK_TEXTURE_FILE_NAME);
     killSideEffectBotSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + BOARD_SIDE_STAT_EFFECT_SHADER_FILE_NAME);
     killSideEffectBotSceneObject->mPosition = BOARD_SIDE_EFFECT_BOT_POSITION;
+    killSideEffectBotSceneObject->mPosition.z += 0.1f;
     killSideEffectBotSceneObject->mScale = KILL_SIDE_EFFECT_SCALE;
     killSideEffectBotSceneObject->mInvisible = true;
     animationManager.StartAnimation(std::make_unique<rendering::ContinuousPulseAnimation>(killSideEffectBotSceneObject, KILL_SIDE_EFFECT_SCALE_UP_FACTOR, KILL_SIDE_EFFECT_PULSE_ANIMATION_PULSE_DUARTION_SECS), [](){});
@@ -495,10 +499,11 @@ void GameSessionManager::HandleTouchInput()
         auto sceneObjectRect = scene_object_utils::GetSceneObjectBoundingRect(*turnPointerSo);
         bool cursorInSceneObject = math::IsPointInsideRectangle(sceneObjectRect.bottomLeft, sceneObjectRect.topRight, worldTouchPos);
         
-        if (cursorInSceneObject && inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON))
+        if (cursorInSceneObject && inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON) && mCanIssueNextTurnInteraction)
         {
-            CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(turnPointerHighlighterSo, 0.0f, game_constants::TURN_POINTER_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), [](){});
+            animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(turnPointerHighlighterSo, 0.0f, game_constants::TURN_POINTER_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), [](){});
             mActionEngine->AddGameAction(NEXT_PLAYER_ACTION_NAME);
+            mCanIssueNextTurnInteraction = false;
         }
     }
     
@@ -836,6 +841,7 @@ void GameSessionManager::RegisterForEvents()
     
     eventSystem.RegisterForEvent<events::ApplicationMovedToBackgroundEvent>(this, &GameSessionManager::OnApplicationMovedToBackground);
     eventSystem.RegisterForEvent<events::WindowResizeEvent>(this, &GameSessionManager::OnWindowResize);
+    eventSystem.RegisterForEvent<events::LocalPlayerTurnStarted>(this, &GameSessionManager::OnLocalPlayerTurnStarted);
     eventSystem.RegisterForEvent<events::CardDestructionEvent>(this, &GameSessionManager::OnCardDestruction);
     eventSystem.RegisterForEvent<events::CardDestructionWithRepositionEvent>(this, &GameSessionManager::OnCardDestructionWithReposition);
     eventSystem.RegisterForEvent<events::CardCreationEvent>(this, &GameSessionManager::OnCardCreation);
@@ -877,6 +883,13 @@ void GameSessionManager::OnWindowResize(const events::WindowResizeEvent&)
     
     // Correct position of other snap to edge scene objects
     activeScene->RecalculatePositionOfEdgeSnappingSceneObjects();
+}
+
+///------------------------------------------------------------------------------------------------
+
+void GameSessionManager::OnLocalPlayerTurnStarted(const events::LocalPlayerTurnStarted&)
+{
+    mCanIssueNextTurnInteraction = true;
 }
 
 ///------------------------------------------------------------------------------------------------
