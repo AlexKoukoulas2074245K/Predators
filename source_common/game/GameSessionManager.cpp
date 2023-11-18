@@ -597,7 +597,7 @@ void GameSessionManager::UpdateMiscSceneObjects(const float dtMillis)
     if (mShouldShowCardLocationIndicator && currentSoWrapperIter != localPlayerHeldCards.end())
     {
         cardLocationIndicatorSo->mInvisible = false;
-        cardLocationIndicatorSo->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = fmod(time, 1.0f);
+        cardLocationIndicatorSo->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = math::Sinf(fmod(time, 20.0f * math::PI));
         
         auto distanceFromCardLocationSo = math::Distance2IgnoreZ((*currentSoWrapperIter)->mSceneObject->mPosition, cardLocationIndicatorSo->mPosition);
 #if defined(MOBILE_FLOW)
