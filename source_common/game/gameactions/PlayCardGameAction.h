@@ -31,6 +31,7 @@ public:
     const std::vector<std::string>& VGetRequiredExtraParamNames() const override;
 private:
     int mPendingAnimations;
+    bool mAborted;
 };
 
 ///------------------------------------------------------------------------------------------------

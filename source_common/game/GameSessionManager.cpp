@@ -67,10 +67,10 @@ static const std::string HEALTH_CRYSTAL_BOT_SCENE_OBJECT_NAME_PREFIX = "HEALTH_C
 static const std::string WEIGHT_CRYSTAL_TOP_SCENE_OBJECT_NAME_PREFIX = "WEIGHT_CRYSTAL_TOP_";
 static const std::string WEIGHT_CRYSTAL_BOT_SCENE_OBJECT_NAME_PREFIX = "WEIGHT_CRYSTAL_BOT_";
 
-static const glm::vec3 HEALTH_CRYSTAL_TOP_POSITION = {-0.118f, 0.07f, 0.1f};
-static const glm::vec3 HEALTH_CRYSTAL_BOT_POSITION = {-0.118f, -0.07f, 0.1f};
-static const glm::vec3 WEIGHT_CRYSTAL_TOP_POSITION = {0.118f, 0.07f, 0.1f};
-static const glm::vec3 WEIGHT_CRYSTAL_BOT_POSITION = {0.118f, -0.07f, 0.1f};
+static const glm::vec3 HEALTH_CRYSTAL_TOP_POSITION = {-0.118f, 0.05f, 0.1f};
+static const glm::vec3 HEALTH_CRYSTAL_BOT_POSITION = {-0.118f, -0.05f, 0.1f};
+static const glm::vec3 WEIGHT_CRYSTAL_TOP_POSITION = {0.118f, 0.05f, 0.1f};
+static const glm::vec3 WEIGHT_CRYSTAL_BOT_POSITION = {0.118f, -0.05f, 0.1f};
 static const glm::vec3 TURN_POINTER_POSITION = {0.2f, 0.0f, 0.1f};
 static const glm::vec3 TURN_POINTER_SCALE = {0.08f, 0.08f, 0.08f};
 static const glm::vec3 BOARD_SIDE_EFFECT_SCALE = {0.372f, 0.346f, 1.0f};
@@ -109,7 +109,7 @@ static const float DESKTOP_DISTANCE_FROM_CARD_LOCATION_INDICATOR = 0.003f;
 GameSessionManager::GameSessionManager()
     : mPreviousProspectiveBoardCardsPushState(ProspectiveBoardCardsPushState::NONE)
     , mShouldShowCardLocationIndicator(false)
-    , mPendingCardPlay(false)
+    , mCanPlayNextCard(false)
     , mCanIssueNextTurnInteraction(false)
 {
     
@@ -275,7 +275,11 @@ void GameSessionManager::Update(const float dtMillis)
 {
     if (mActionEngine->GetActiveGameActionName() == IDLE_GAME_ACTION_NAME)
     {
-        mPendingCardPlay = false;
+        mCanPlayNextCard = true;
+        if (!mPendingCardsToBePlayed.empty())
+        {
+            mPendingCardsToBePlayed.erase(mPendingCardsToBePlayed.begin());
+        }
     }
     
     if (mActionEngine->GetActiveGameActionName() == IDLE_GAME_ACTION_NAME &&
@@ -370,12 +374,16 @@ void GameSessionManager::HandleTouchInput()
             ((currentCardSoWrapper->mState == CardSoState::HIGHLIGHTED && glm::distance(worldTouchPos, *selectedCardInitialTouchPosition) > 0.005f) || currentCardSoWrapper->mState == CardSoState::FREE_MOVING))
         {
             currentCardSoWrapper->mState = CardSoState::FREE_MOVING;
-            animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(currentCardSoWrapper->mSceneObject, glm::vec3(worldTouchPos.x, worldTouchPos.y + game_constants::IN_GAME_MOBILE_ONLY_FREE_MOVING_CARD_Y_OFFSET, game_constants::IN_GAME_HIGHLIGHTED_CARD_Z), currentCardSoWrapper->mSceneObject->mScale, game_constants::IN_GAME_CARD_FREE_MOVEMENT_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [](){});
-            auto currentLocalPlayerBoardCardCount = static_cast<int>(mPlayerBoardCardSceneObjectWrappers[game_constants::LOCAL_PLAYER_INDEX].size());
-            auto cardLocationIndicatorSo = activeScene->FindSceneObject(CARD_LOCATION_INDICATOR_SCENE_OBJECT_NAME);
-            cardLocationIndicatorSo->mPosition = card_utils::CalculateBoardCardPosition(currentLocalPlayerBoardCardCount, currentLocalPlayerBoardCardCount + 1, false);
-            cardLocationIndicatorSo->mPosition.z = game_constants::CARD_LOCATION_EFFECT_Z;
-            mShouldShowCardLocationIndicator = true;
+            
+            if (std::find(mPendingCardsToBePlayed.begin(), mPendingCardsToBePlayed.end(), currentCardSoWrapper) == mPendingCardsToBePlayed.end())
+            {
+                animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(currentCardSoWrapper->mSceneObject, glm::vec3(worldTouchPos.x, worldTouchPos.y + game_constants::IN_GAME_MOBILE_ONLY_FREE_MOVING_CARD_Y_OFFSET, game_constants::IN_GAME_HIGHLIGHTED_CARD_Z), currentCardSoWrapper->mSceneObject->mScale, game_constants::IN_GAME_CARD_FREE_MOVEMENT_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [](){});
+                auto currentLocalPlayerBoardCardCount = static_cast<int>(mPlayerBoardCardSceneObjectWrappers[game_constants::LOCAL_PLAYER_INDEX].size());
+                auto cardLocationIndicatorSo = activeScene->FindSceneObject(CARD_LOCATION_INDICATOR_SCENE_OBJECT_NAME);
+                cardLocationIndicatorSo->mPosition = card_utils::CalculateBoardCardPosition(currentLocalPlayerBoardCardCount, currentLocalPlayerBoardCardCount + 1, false);
+                cardLocationIndicatorSo->mPosition.z = game_constants::CARD_LOCATION_EFFECT_Z;
+                mShouldShowCardLocationIndicator = true;
+            }
         }
         else if (inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON) && cursorInSceneObject && !otherHighlightedCardExists)
         {
@@ -410,12 +418,15 @@ void GameSessionManager::HandleTouchInput()
 #else
         if (inputStateManager.VButtonPressed(input::Button::MAIN_BUTTON) && currentCardSoWrapper->mState == CardSoState::FREE_MOVING)
         {
-            animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(currentCardSoWrapper->mSceneObject, glm::vec3(worldTouchPos.x, worldTouchPos.y, game_constants::IN_GAME_HIGHLIGHTED_CARD_Z), currentCardSoWrapper->mSceneObject->mScale, game_constants::IN_GAME_CARD_FREE_MOVEMENT_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [](){});
-            auto currentLocalPlayerBoardCardCount = static_cast<int>(mPlayerBoardCardSceneObjectWrappers[game_constants::LOCAL_PLAYER_INDEX].size());
-            auto cardLocationIndicatorSo = activeScene->FindSceneObject(CARD_LOCATION_INDICATOR_SCENE_OBJECT_NAME);
-            cardLocationIndicatorSo->mPosition = card_utils::CalculateBoardCardPosition(currentLocalPlayerBoardCardCount, currentLocalPlayerBoardCardCount + 1, false);
-            cardLocationIndicatorSo->mPosition.z = game_constants::CARD_LOCATION_EFFECT_Z;
-            mShouldShowCardLocationIndicator = true;
+            if (std::find(mPendingCardsToBePlayed.begin(), mPendingCardsToBePlayed.end(), currentCardSoWrapper) == mPendingCardsToBePlayed.end())
+            {
+                animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(currentCardSoWrapper->mSceneObject, glm::vec3(worldTouchPos.x, worldTouchPos.y, game_constants::IN_GAME_HIGHLIGHTED_CARD_Z), currentCardSoWrapper->mSceneObject->mScale, game_constants::IN_GAME_CARD_FREE_MOVEMENT_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [](){});
+                auto currentLocalPlayerBoardCardCount = static_cast<int>(mPlayerBoardCardSceneObjectWrappers[game_constants::LOCAL_PLAYER_INDEX].size());
+                auto cardLocationIndicatorSo = activeScene->FindSceneObject(CARD_LOCATION_INDICATOR_SCENE_OBJECT_NAME);
+                cardLocationIndicatorSo->mPosition = card_utils::CalculateBoardCardPosition(currentLocalPlayerBoardCardCount, currentLocalPlayerBoardCardCount + 1, false);
+                cardLocationIndicatorSo->mPosition.z = game_constants::CARD_LOCATION_EFFECT_Z;
+                mShouldShowCardLocationIndicator = true;
+            }
         }
         else if (inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON) &&
                  cursorInSceneObject &&
@@ -704,18 +715,33 @@ void GameSessionManager::OnFreeMovingCardRelease(std::shared_ptr<CardSoWrapper> 
     bool inBoardDropThreshold = distanceFromCardLocationSo <= DESKTOP_DISTANCE_FROM_CARD_LOCATION_INDICATOR;
 #endif
     
-    if (!mPendingCardPlay && inBoardDropThreshold && (mActionEngine->GetActiveGameActionName() == IDLE_GAME_ACTION_NAME || (mActionEngine->GetActiveGameActionName() == PLAY_CARD_ACTION_NAME && mActionEngine->GetActionCount() == 1)) && mBoardState->GetActivePlayerIndex() == 1)
+    if (inBoardDropThreshold &&
+        (mActionEngine->GetActiveGameActionName() == IDLE_GAME_ACTION_NAME || (mActionEngine->GetActiveGameActionName() == PLAY_CARD_ACTION_NAME && mActionEngine->GetActionCount() == 1)) &&
+        mBoardState->GetActivePlayerIndex() == 1 &&
+        mRuleEngine->CanCardBePlayed(cardSoWrapper->mCardData, game_constants::LOCAL_PLAYER_INDEX))
     {
-        mActionEngine->AddGameAction(PLAY_CARD_ACTION_NAME, {{PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, std::to_string(cardIndex)}});
-        mPendingCardPlay = true;
+        bool inPendingCardsToBePlayed = std::find(mPendingCardsToBePlayed.begin(), mPendingCardsToBePlayed.end(), cardSoWrapper) != mPendingCardsToBePlayed.end();
+        if (mCanPlayNextCard && !inPendingCardsToBePlayed)
+        {
+            mActionEngine->AddGameAction(PLAY_CARD_ACTION_NAME, {{PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, std::to_string(cardIndex)}});
+            mCanPlayNextCard = false;
+        }
+        else
+        {
+            if (!inPendingCardsToBePlayed)
+            {
+                mPendingCardsToBePlayed.push_back(cardSoWrapper);
+            }
+        }
     }
-    else if (!mPendingCardPlay)
+    else if (!inBoardDropThreshold || mCanPlayNextCard)
     {
         auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
         auto originalCardPosition = card_utils::CalculateHeldCardPosition(static_cast<int>(cardIndex), static_cast<int>(localPlayerCards.size()), false, activeScene->GetCamera());
         animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObject, originalCardPosition, cardSoWrapper->mSceneObject->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){cardSoWrapper->mState = CardSoState::IDLE; });
         cardSoWrapper->mState = CardSoState::MOVING_TO_SET_POSITION;
     }
+
 }
 
 ///------------------------------------------------------------------------------------------------

@@ -87,9 +87,10 @@ private:
     std::vector<std::vector<std::shared_ptr<CardSoWrapper>>> mPlayerHeldCardSceneObjectWrappers;
     std::vector<std::vector<std::shared_ptr<CardSoWrapper>>> mPlayerBoardCardSceneObjectWrappers;
     std::vector<std::pair<bool, std::unique_ptr<AnimatedStatCrystal>>> mStatCrystals;
+    std::vector<std::shared_ptr<CardSoWrapper>> mPendingCardsToBePlayed;
     ProspectiveBoardCardsPushState mPreviousProspectiveBoardCardsPushState;
     bool mShouldShowCardLocationIndicator;
-    bool mPendingCardPlay;
+    bool mCanPlayNextCard;
     bool mCanIssueNextTurnInteraction;
 };
 

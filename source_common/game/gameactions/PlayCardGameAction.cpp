@@ -12,6 +12,7 @@
 #include <game/gameactions/CardEffectGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/PlayCardGameAction.h>
+#include <game/GameRuleEngine.h>
 #include <game/GameSessionManager.h>
 #include <engine/rendering/AnimationManager.h>
 #include <engine/rendering/Particles.h>
@@ -60,6 +61,13 @@ void PlayCardGameAction::VSetNewGameState()
     
     assert(cardData.has_value());
     
+    // Tried to overplay?
+    mAborted = !mGameRuleEngine->CanCardBePlayed(&cardData->get(), mBoardState->GetActivePlayerIndex());
+    if (mAborted)
+    {
+        return;
+    }
+    
     activePlayerState.mPlayerBoardCards.push_back(cardId);
     activePlayerState.mPlayerHeldCards.erase(activePlayerState.mPlayerHeldCards.begin() + lastPlayedCardIndex);
     activePlayerState.mPlayerCurrentWeightAmmo -= cardData->get().mCardWeight;
@@ -100,6 +108,11 @@ void PlayCardGameAction::VInitAnimation()
     const auto lastPlayedCardIndex = std::stoi(mExtraActionParams.at(LAST_PLAYED_CARD_INDEX_PARAM));
     
     auto lastPlayedCardSoWrapper = mGameSessionManager->GetHeldCardSoWrappers()[mBoardState->GetActivePlayerIndex()].at(lastPlayedCardIndex);
+    
+    if (mAborted)
+    {
+        return;
+    }
     
     // For remote plays, the front face card components also need to be created
     if (mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX)

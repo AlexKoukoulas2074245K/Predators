@@ -10,7 +10,6 @@
 #include <game/events/EventSystem.h>
 #include <game/gameactions/TrapTriggeredAnimationGameAction.h>
 #include <game/gameactions/CardDestructionGameAction.h>
-#include <game/gameactions/CardEffectGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/GameSessionManager.h>
 #include <engine/rendering/AnimationManager.h>

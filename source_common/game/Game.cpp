@@ -97,7 +97,7 @@ void Game::Init()
     }
     else
     {
-        dummyScene->GetCamera().SetZoomFactor(120.0f);
+        dummyScene->GetCamera().SetZoomFactor(130.0f);
     }
     
 #else
