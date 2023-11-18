@@ -18,7 +18,7 @@ static const std::string BASE_SCENE_OBJECT_NAME_POSTFIX = "BASE";
 static const std::string VALUE_SCENE_OBJECT_NAME_POSTFIX = "VALUE";
 
 static const glm::vec3 STAT_CRYSTAL_SCALE = {0.05f, 0.05f, 1.0f};
-static const glm::vec3 STAT_CRYSTAL_VALUE_SCALE = {0.00015f, 0.00015f, 1.0f};
+static const glm::vec3 STAT_CRYSTAL_VALUE_SCALE = {0.00013f, 0.00013f, 1.0f};
 static const glm::vec3 STAT_CRYSTAL_VALUE_POSITION_OFFSET = {0.004, 0.002, 0.1f};
 static const float MAX_VALUE_CHANGE_DELAY_SECS = 0.2f;
 
@@ -81,11 +81,26 @@ AnimatedStatCrystalUpdateResult AnimatedStatCrystal::Update(const float dtMillis
             
             mFinishedAnimating = false;
             auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
-            auto originalScale = valueCrystalSo->mScale;
-            animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(valueCrystalSo, valueCrystalSo->mPosition, originalScale * 1.5f, MAX_VALUE_CHANGE_DELAY_SECS/3, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+            auto originalValueScale = valueCrystalSo->mScale;
+            animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(valueCrystalSo, valueCrystalSo->mPosition, originalValueScale * 1.5f, MAX_VALUE_CHANGE_DELAY_SECS/3, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
             {
                 auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
-                animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(mSceneObjects.back(), mSceneObjects.back()->mPosition, originalScale, MAX_VALUE_CHANGE_DELAY_SECS/3, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){ mFinishedAnimating = true; });
+                animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(mSceneObjects.back(), mSceneObjects.back()->mPosition, originalValueScale, MAX_VALUE_CHANGE_DELAY_SECS/3, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+                {
+                    mFinishedAnimating = true;
+                    mSceneObjects.back()->mScale = STAT_CRYSTAL_VALUE_SCALE;
+                });
+            });
+            
+            auto originalGemScale = baseCrystalSo->mScale;
+            animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(baseCrystalSo, baseCrystalSo->mPosition, originalGemScale * 1.5f, MAX_VALUE_CHANGE_DELAY_SECS/3, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+            {
+                auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+                animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(mSceneObjects.front(), mSceneObjects.front()->mPosition, originalGemScale, MAX_VALUE_CHANGE_DELAY_SECS/3, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+                {
+                    mFinishedAnimating = true;
+                    mSceneObjects.front()->mScale = STAT_CRYSTAL_SCALE;
+                });
             });
         }
     }

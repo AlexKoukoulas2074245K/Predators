@@ -3,7 +3,7 @@
 const vec4 WEIGHT_INTERACTIVE_COLOR = vec4(1.0f, 0.0f, 1.0f, 1.0f);
 const vec4 DAMAGE_INTERACTIVE_COLOR = vec4(1.0f, 1.0f, 0.0f, 1.0f);
 const float INTERACTIVE_COLOR_DISTANCE_THRESHOLD = 0.4f;
-const float PERLIN_TIME_SPEED = 7.0f;
+const float PERLIN_TIME_SPEED = 6.0f;
 const float PERLIN_RESOLUTION = 170.0f;
 const float PERLIN_CLARITY = 1.110f;
 
