@@ -42,6 +42,19 @@ std::vector<int> CardDataRepository::GetAllCardIds() const
 
 ///------------------------------------------------------------------------------------------------
 
+std::vector<int> CardDataRepository::GetAllNonSpellCardIds() const
+{
+    std::vector<int> resultCardIds;
+    for (const auto& [id, data]: mCardDataMap)
+    {
+        if (!data.IsSpell())
+        {
+            resultCardIds.emplace_back(data.mCardId);
+        }
+    }
+    return resultCardIds;
+}
+
 std::vector<int> CardDataRepository::GetCardIdsByFamily(const strutils::StringId& family) const
 {
     std::vector<int> resultCardIds;

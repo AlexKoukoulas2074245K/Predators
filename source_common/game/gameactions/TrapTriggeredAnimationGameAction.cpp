@@ -47,7 +47,7 @@ static const std::vector<std::string> sRequiredExtraParamNames =
 void TrapTriggeredAnimationGameAction::VSetNewGameState()
 {
     auto& activePlayerState = mBoardState->GetActivePlayerState();
-    assert(!activePlayerState.mPlayerHeldCards.empty());
+    assert(!activePlayerState.mPlayerBoardCards.empty());
     assert(mExtraActionParams.count(TRAP_TRIGGER_TYPE_PARAM) == 1);
     
     if (mExtraActionParams.at(TRAP_TRIGGER_TYPE_PARAM) == TRAP_TRIGGER_TYPE_KILL)

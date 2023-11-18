@@ -34,16 +34,16 @@ protected:
         CardDataRepository::GetInstance().LoadCardData(false);
     }
     
-    void Init()
+    void Init(bool excludeSpells = true)
     {
         mBoardState = std::make_unique<BoardState>();
         mActionEngine = std::make_unique<GameActionEngine>(GameActionEngine::EngineOperationMode::HEADLESS, math::RandomInt(), mBoardState.get(), nullptr, nullptr, nullptr);
         mGameRuleEngine = std::make_unique<GameRuleEngine>(mBoardState.get());
         mPlayerActionGenerationEngine = std::make_unique<PlayerActionGenerationEngine>(mGameRuleEngine.get(), mActionEngine.get());
         mBoardState->GetPlayerStates().emplace_back();
-        mBoardState->GetPlayerStates().back().mPlayerDeckCards = CardDataRepository::GetInstance().GetAllCardIds();
+        mBoardState->GetPlayerStates().back().mPlayerDeckCards = excludeSpells ? CardDataRepository::GetInstance().GetAllNonSpellCardIds() : CardDataRepository::GetInstance().GetAllCardIds();
         mBoardState->GetPlayerStates().emplace_back();
-        mBoardState->GetPlayerStates().back().mPlayerDeckCards = CardDataRepository::GetInstance().GetAllCardIds();
+        mBoardState->GetPlayerStates().back().mPlayerDeckCards = excludeSpells ? CardDataRepository::GetInstance().GetAllNonSpellCardIds() : CardDataRepository::GetInstance().GetAllCardIds();
     }
     
     void SetUp() override
@@ -217,7 +217,7 @@ TEST_F(GameActionTests, BattleSimulation)
         uniquePlayedCardIds[0].clear();
         uniquePlayedCardIds[1].clear();
         
-        Init();
+        Init(false);
         mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
         while (mActionEngine->GetActiveGameActionName() != IDLE_GAME_ACTION_NAME && mActionEngine->GetActiveGameActionName() != GAME_OVER_GAME_ACTION_NAME)
         {
