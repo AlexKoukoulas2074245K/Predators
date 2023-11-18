@@ -97,6 +97,8 @@ static const float CARD_TOOLTIP_MAX_REVEAL_THRESHOLD = 2.0f;
 static const float CARD_TOOLTIP_REVEAL_RGB_EXPONENT = 1.127f;
 static const float CARD_TOOLTIP_REVEAL_SPEED = 1.0f/200.0f;
 static const float CARD_TOOLTIP_TEXT_REVEAL_SPEED = 1.0f/500.0f;
+static const float CARD_TOOLTIP_FLIPPED_X_OFFSET = -0.17f;
+static const float CARD_TOOLTIP_TEXT_FLIPPED_X_OFFSET = -0.007f;
 
 #if defined(MOBILE_FLOW)
 static const float MOBILE_DISTANCE_FROM_CARD_LOCATION_INDICATOR = 0.003f;
@@ -130,7 +132,7 @@ void GameSessionManager::InitGameSession()
     mBoardState->GetPlayerStates().emplace_back();
     
     mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards =  CardDataRepository::GetInstance().GetAllCardIds();//GetCardIdsByFamily(strutils::StringId("rodents"));
-    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards =  CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));
+    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards =  {21,22}; //CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));
     
     mPlayerHeldCardSceneObjectWrappers.emplace_back();
     mPlayerHeldCardSceneObjectWrappers.emplace_back();
@@ -536,17 +538,17 @@ void GameSessionManager::UpdateMiscSceneObjects(const float dtMillis)
     for (auto& cardSoWrapper: localPlayerHeldCards)
     {
         cardSoWrapper->mSceneObject->mShaderIntUniformValues[game_constants::CARD_WEIGHT_INTERACTIVE_MODE_UNIFORM_NAME] = mRuleEngine->CanCardBePlayed(cardSoWrapper->mCardData, true) ? game_constants::CARD_INTERACTIVE_MODE_DEFAULT : game_constants::CARD_INTERACTIVE_MODE_NONINTERACTIVE;
-        cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
+        cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = fmod(time, 1.0f);
     }
     for (auto& cardSoWrapper: localPlayerBoardCards)
     {
         cardSoWrapper->mSceneObject->mShaderIntUniformValues[game_constants::CARD_WEIGHT_INTERACTIVE_MODE_UNIFORM_NAME] = game_constants::CARD_INTERACTIVE_MODE_DEFAULT;
-        cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
+        cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = fmod(time, 1.0f);
     }
     for (auto& cardSoWrapper: remotePlayerBoardCards)
     {
         cardSoWrapper->mSceneObject->mShaderIntUniformValues[game_constants::CARD_WEIGHT_INTERACTIVE_MODE_UNIFORM_NAME] = game_constants::CARD_INTERACTIVE_MODE_DEFAULT;
-        cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
+        cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = fmod(time, 1.0f);
     }
     
     // Action Highlighters
@@ -556,7 +558,7 @@ void GameSessionManager::UpdateMiscSceneObjects(const float dtMillis)
         if (cardHighlighterObject)
         {
             cardHighlighterObject->mInvisible = false;
-            cardHighlighterObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
+            cardHighlighterObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = fmod(time, 1.0f);
             cardHighlighterObject->mPosition = localPlayerHeldCards[i]->mSceneObject->mPosition;
             cardHighlighterObject->mPosition.z += game_constants::ACTION_HIGLIGHTER_Z_OFFSET;
         }
@@ -565,7 +567,7 @@ void GameSessionManager::UpdateMiscSceneObjects(const float dtMillis)
     // Turn pointer highlighter
     auto turnPointerSo = activeScene->FindSceneObject(game_constants::TURN_POINTER_SCENE_OBJECT_NAME);
     auto turnPointerHighlighterSo = activeScene->FindSceneObject(game_constants::TURN_POINTER_HIGHLIGHTER_SCENE_OBJECT_NAME);
-    turnPointerHighlighterSo->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
+    turnPointerHighlighterSo->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = fmod(time, 1.0f);
     turnPointerHighlighterSo->mShaderBoolUniformValues[game_constants::CARD_HIGHLIGHTER_INVALID_ACTION_UNIFORM_NAME] = false;
     turnPointerHighlighterSo->mPosition = turnPointerSo->mPosition;
     turnPointerHighlighterSo->mPosition.z += game_constants::ACTION_HIGLIGHTER_Z_OFFSET;
@@ -595,7 +597,7 @@ void GameSessionManager::UpdateMiscSceneObjects(const float dtMillis)
     if (mShouldShowCardLocationIndicator && currentSoWrapperIter != localPlayerHeldCards.end())
     {
         cardLocationIndicatorSo->mInvisible = false;
-        cardLocationIndicatorSo->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
+        cardLocationIndicatorSo->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = fmod(time, 1.0f);
         
         auto distanceFromCardLocationSo = math::Distance2IgnoreZ((*currentSoWrapperIter)->mSceneObject->mPosition, cardLocationIndicatorSo->mPosition);
 #if defined(MOBILE_FLOW)
@@ -782,14 +784,14 @@ void GameSessionManager::CreateCardHighlighter()
         
         if ((*highlightedCardIter)->mCardData->IsSpell())
         {
-            CreateCardTooltip((*highlightedCardIter)->mSceneObject->mPosition, (*highlightedCardIter)->mCardData->mCardEffectTooltip);
+            CreateCardTooltip((*highlightedCardIter)->mSceneObject->mPosition, (*highlightedCardIter)->mCardData->mCardEffectTooltip, cardIndex);
         }
     }
 }
 
 ///------------------------------------------------------------------------------------------------
 
-void GameSessionManager::CreateCardTooltip(const glm::vec3& cardOriginPostion, const std::string& tooltipText)
+void GameSessionManager::CreateCardTooltip(const glm::vec3& cardOriginPostion, const std::string& tooltipText, const size_t cardIndex)
 {
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
     const auto& activeSceneManager = systemsEngine.GetActiveSceneManager();
@@ -797,10 +799,13 @@ void GameSessionManager::CreateCardTooltip(const glm::vec3& cardOriginPostion, c
     
     auto tooltipSceneObject = activeScene->FindSceneObject(CARD_TOOLTIP_SCENE_OBJECT_NAME);
     
+    bool shouldBeFlipped = cardIndex >= mPlayerHeldCardSceneObjectWrappers[game_constants::LOCAL_PLAYER_INDEX].size()/2 && cardIndex != 0;
     tooltipSceneObject->mPosition = cardOriginPostion + CARD_TOOLTIP_OFFSET;
+    tooltipSceneObject->mPosition.x += shouldBeFlipped ? CARD_TOOLTIP_FLIPPED_X_OFFSET : 0.0f;
     tooltipSceneObject->mInvisible = false;
     tooltipSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
     tooltipSceneObject->mShaderFloatUniformValues[CARD_TOOLTIP_REVEAL_THRESHOLD_UNIFORM_NAME] = 0.0f;
+    tooltipSceneObject->mScale.x = shouldBeFlipped ? -CARD_TOOLTIP_SCALE.x : CARD_TOOLTIP_SCALE.x;
     
     auto tooltipTextRows = strutils::StringSplit(tooltipText, '$');
     
@@ -809,6 +814,7 @@ void GameSessionManager::CreateCardTooltip(const glm::vec3& cardOriginPostion, c
         auto tooltipTextSceneObject = activeScene->FindSceneObject(CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES[1]);
         tooltipTextSceneObject->mPosition = tooltipSceneObject->mPosition;
         tooltipTextSceneObject->mPosition += CARD_TOOLTIP_TEXT_OFFSETS[1];
+        tooltipTextSceneObject->mPosition.x += shouldBeFlipped ? CARD_TOOLTIP_TEXT_FLIPPED_X_OFFSET : 0.0f;
         tooltipTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
         std::get<scene::TextSceneObjectData>(tooltipTextSceneObject->mSceneObjectTypeData).mText = tooltipTextRows[0];
         tooltipTextSceneObject->mInvisible = false;
@@ -821,6 +827,7 @@ void GameSessionManager::CreateCardTooltip(const glm::vec3& cardOriginPostion, c
             auto tooltipTextSceneObject = activeScene->FindSceneObject(CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES[i]);
             tooltipTextSceneObject->mPosition = tooltipSceneObject->mPosition;
             tooltipTextSceneObject->mPosition += CARD_TOOLTIP_TEXT_OFFSETS[i];
+            tooltipTextSceneObject->mPosition.x += shouldBeFlipped ? CARD_TOOLTIP_TEXT_FLIPPED_X_OFFSET : 0.0f;
             tooltipTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
             std::get<scene::TextSceneObjectData>(tooltipTextSceneObject->mSceneObjectTypeData).mText = tooltipTextRows[i];
             tooltipTextSceneObject->mInvisible = false;

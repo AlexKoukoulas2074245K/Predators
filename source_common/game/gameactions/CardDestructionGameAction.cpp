@@ -117,7 +117,7 @@ ActionAnimationUpdateResult CardDestructionGameAction::VUpdateAnimation(const fl
 {
     static float time = 0.0f;
     time += dtMillis * 0.001f;
-    
+//    
     auto cardIndices = strutils::StringToVecOfStrings(mExtraActionParams.at(CARD_INDICES_PARAM));
     auto attackingPayerIndex = std::stoi(mExtraActionParams.at(PLAYER_INDEX_PARAM));
     bool isBoardCard = mExtraActionParams.at(IS_BOARD_CARD_PARAM) == "true";
@@ -130,7 +130,7 @@ ActionAnimationUpdateResult CardDestructionGameAction::VUpdateAnimation(const fl
             mGameSessionManager->GetBoardCardSoWrappers().at(attackingPayerIndex).at(cardIndexInt) :
             mGameSessionManager->GetHeldCardSoWrappers().at(attackingPayerIndex).at(cardIndexInt);
         cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] += dtMillis * CARD_DISSOLVE_SPEED;
-        cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
+        cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = fmod(time, 1.0f);
         
         if (cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] >= MAX_CARD_DISSOLVE_VALUE)
         {

@@ -54,7 +54,7 @@ private:
     void UpdateMiscSceneObjects(const float dtMillis);
     void OnFreeMovingCardRelease(std::shared_ptr<CardSoWrapper> cardSoWrapper);
     void CreateCardHighlighter();
-    void CreateCardTooltip(const glm::vec3& cardOriginPostion, const std::string& tooltipText);
+    void CreateCardTooltip(const glm::vec3& cardOriginPostion, const std::string& tooltipText, const size_t cardIndex);
     void DestroyCardHighlighterAtIndex(const int index);
     void DestroyCardTooltip();
     void RegisterForEvents();
