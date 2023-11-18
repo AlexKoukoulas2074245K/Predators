@@ -525,14 +525,17 @@ void GameSessionManager::UpdateMiscSceneObjects(const float dtMillis)
     for (auto& cardSoWrapper: localPlayerHeldCards)
     {
         cardSoWrapper->mSceneObject->mShaderIntUniformValues[game_constants::CARD_WEIGHT_INTERACTIVE_MODE_UNIFORM_NAME] = mRuleEngine->CanCardBePlayed(cardSoWrapper->mCardData, true) ? game_constants::CARD_INTERACTIVE_MODE_DEFAULT : game_constants::CARD_INTERACTIVE_MODE_NONINTERACTIVE;
+        cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
     }
     for (auto& cardSoWrapper: localPlayerBoardCards)
     {
         cardSoWrapper->mSceneObject->mShaderIntUniformValues[game_constants::CARD_WEIGHT_INTERACTIVE_MODE_UNIFORM_NAME] = game_constants::CARD_INTERACTIVE_MODE_DEFAULT;
+        cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
     }
     for (auto& cardSoWrapper: remotePlayerBoardCards)
     {
         cardSoWrapper->mSceneObject->mShaderIntUniformValues[game_constants::CARD_WEIGHT_INTERACTIVE_MODE_UNIFORM_NAME] = game_constants::CARD_INTERACTIVE_MODE_DEFAULT;
+        cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
     }
     
     // Action Highlighters
@@ -1067,6 +1070,7 @@ void GameSessionManager::OnBoardSideCardEffectTriggeredEvent(const events::Board
     {
         sideEffectSceneObject = activeScene->FindSceneObject(event.mForRemotePlayer ? game_constants::KILL_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::KILL_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME);
         sideEffectSceneObject->mScale = game_constants::KILL_SIDE_EFFECT_SCALE;
+        sideEffectSceneObject->mRotation = glm::vec3(0.0f);
         animationManager.StartAnimation(std::make_unique<rendering::ContinuousPulseAnimation>(sideEffectSceneObject, game_constants::KILL_SIDE_EFFECT_SCALE_UP_FACTOR, game_constants::KILL_SIDE_EFFECT_PULSE_ANIMATION_PULSE_DUARTION_SECS), [](){});
         maxAlpha = 0.25f;
     }

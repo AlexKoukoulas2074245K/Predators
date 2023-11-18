@@ -36,7 +36,7 @@ static const std::string DISSOLVE_TEXTURE_FILE_NAME = "dissolve.png";
 static const float CARD_DISSOLVE_SPEED = 0.001f;
 static const float MAX_CARD_DISSOLVE_VALUE = 1.2f;
 
-static const glm::vec2 CARD_DISSOLVE_EFFECT_MAG_RANGE = {10.0f, 20.0f};
+static const glm::vec2 CARD_DISSOLVE_EFFECT_MAG_RANGE = {7.0f, 14.0f};
 
 ///------------------------------------------------------------------------------------------------
 
@@ -115,6 +115,9 @@ void CardDestructionGameAction::VInitAnimation()
 
 ActionAnimationUpdateResult CardDestructionGameAction::VUpdateAnimation(const float dtMillis)
 {
+    static float time = 0.0f;
+    time += dtMillis * 0.001f;
+    
     auto cardIndices = strutils::StringToVecOfStrings(mExtraActionParams.at(CARD_INDICES_PARAM));
     auto attackingPayerIndex = std::stoi(mExtraActionParams.at(PLAYER_INDEX_PARAM));
     bool isBoardCard = mExtraActionParams.at(IS_BOARD_CARD_PARAM) == "true";
@@ -127,7 +130,8 @@ ActionAnimationUpdateResult CardDestructionGameAction::VUpdateAnimation(const fl
             mGameSessionManager->GetBoardCardSoWrappers().at(attackingPayerIndex).at(cardIndexInt) :
             mGameSessionManager->GetHeldCardSoWrappers().at(attackingPayerIndex).at(cardIndexInt);
         cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] += dtMillis * CARD_DISSOLVE_SPEED;
-      
+        cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
+        
         if (cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] >= MAX_CARD_DISSOLVE_VALUE)
         {
             finished = true;

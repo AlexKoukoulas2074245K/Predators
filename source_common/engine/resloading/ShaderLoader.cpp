@@ -53,11 +53,12 @@ std::unique_ptr<IResource> ShaderLoader::VCreateAndLoadResource(const std::strin
     const auto vertexShaderId = GL_NO_CHECK_CALL(glCreateShader(GL_VERTEX_SHADER));
     
     // Read vertex shader source
+    std::string finalVertexShaderContents;
     auto vertexShaderFileContents = ReadFileContents(resourcePath + VERTEX_SHADER_FILE_EXTENSION);
     PrependPreprocessorVars(vertexShaderFileContents);
-    ReplaceIncludeDirectives(vertexShaderFileContents);
+    ReplaceIncludeDirectives(vertexShaderFileContents, finalVertexShaderContents);
     
-    const char* vertexShaderFileContentsPtr = vertexShaderFileContents.c_str();
+    const char* vertexShaderFileContentsPtr = finalVertexShaderContents.c_str();
     
     // Compile vertex shader
     GL_CALL(glShaderSource(vertexShaderId, 1, &vertexShaderFileContentsPtr, nullptr));
@@ -85,15 +86,16 @@ std::unique_ptr<IResource> ShaderLoader::VCreateAndLoadResource(const std::strin
     const auto fragmentShaderId = GL_NO_CHECK_CALL(glCreateShader(GL_FRAGMENT_SHADER));
     
     // Read vertex shader source
+    std::string finalFragmentShaderContents;
     auto fragmentShaderFileContents = ReadFileContents(resourcePath + FRAGMENT_SHADER_FILE_EXTENSION);
     PrependPreprocessorVars(fragmentShaderFileContents);
-    ReplaceIncludeDirectives(fragmentShaderFileContents);
+    ReplaceIncludeDirectives(fragmentShaderFileContents, finalFragmentShaderContents);
     
 #if defined(DEBUG_SHADER_LOADING)
-    DumpFinalShaderContents(vertexShaderFileContents, fragmentShaderFileContents, resourcePath);
+    DumpFinalShaderContents(finalVertexShaderContents, finalFragmentShaderContents, resourcePath);
 #endif
     
-    const char* fragmentShaderFileContentsPtr = fragmentShaderFileContents.c_str();
+    const char* fragmentShaderFileContentsPtr = finalFragmentShaderContents.c_str();
     
     GL_CALL(glShaderSource(fragmentShaderId, 1, &fragmentShaderFileContentsPtr, nullptr));
     GL_CALL(glCompileShader(fragmentShaderId));
@@ -130,7 +132,7 @@ std::unique_ptr<IResource> ShaderLoader::VCreateAndLoadResource(const std::strin
     std::unordered_map<strutils::StringId, int, strutils::StringIdHasher> uniformArrayElementCounts;
     std::vector<strutils::StringId> samplerNamesInOrder;
     
-    const auto uniformNamesToLocations = GetUniformNamesToLocationsMap(programId, resourcePath,  vertexShaderFileContents, fragmentShaderFileContents, uniformArrayElementCounts, samplerNamesInOrder);
+    const auto uniformNamesToLocations = GetUniformNamesToLocationsMap(programId, resourcePath,  finalVertexShaderContents, finalFragmentShaderContents, uniformArrayElementCounts, samplerNamesInOrder);
     
     return std::make_unique<ShaderResource>(uniformNamesToLocations, uniformArrayElementCounts, samplerNamesInOrder, programId);
 }
@@ -185,16 +187,19 @@ void ShaderLoader::PrependPreprocessorVars(std::string& shaderSource) const
 
 ///------------------------------------------------------------------------------------------------
 
-void ShaderLoader::ReplaceIncludeDirectives(std::string& shaderSource) const
+void ShaderLoader::ReplaceIncludeDirectives(const std::string& inputFileString, std::string& outFinalShaderSource) const
 {
     std::stringstream reconstructedSourceBuilder;
-    auto shaderSourceSplitByLine = strutils::StringSplit(shaderSource, '\n');
+    auto shaderSourceSplitByLine = strutils::StringSplit(inputFileString, '\n');
     for (const auto& line: shaderSourceSplitByLine)
     {
         if (strutils::StringStartsWith(line, "#include"))
         {
             const auto fileSplitByQuotes = strutils::StringSplit(line, '"');
-            reconstructedSourceBuilder << '\n' <<  ReadFileContents(ResourceLoadingService::RES_SHADERS_ROOT +  fileSplitByQuotes[fileSplitByQuotes.size() - 1]);
+            reconstructedSourceBuilder << '\n';
+            outFinalShaderSource += reconstructedSourceBuilder.str();
+            ReplaceIncludeDirectives(ReadFileContents(ResourceLoadingService::RES_SHADERS_ROOT +  fileSplitByQuotes[fileSplitByQuotes.size() - 1]), outFinalShaderSource);
+            reconstructedSourceBuilder.str("");
         }
         else
         {
@@ -202,7 +207,7 @@ void ShaderLoader::ReplaceIncludeDirectives(std::string& shaderSource) const
         }
     }
     
-    shaderSource = reconstructedSourceBuilder.str();
+    outFinalShaderSource += reconstructedSourceBuilder.str();
 }
 
 ///------------------------------------------------------------------------------------------------

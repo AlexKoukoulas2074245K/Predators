@@ -9,6 +9,7 @@ uniform vec4 point_light_colors[32];
 uniform vec3 point_light_positions[32];
 uniform float point_light_powers[32];
 uniform float custom_alpha;
+uniform float time;
 uniform bool affected_by_light;
 uniform int active_light_count;
 uniform int weight_interactive_mode;
@@ -25,7 +26,7 @@ void main()
 
     if (frag_color.a < 0.1) discard;
     
-    frag_color = calculate_interactive_color(frag_color, weight_interactive_mode, damage_interactive_mode);
+    frag_color = calculate_interactive_color(frag_color, weight_interactive_mode, damage_interactive_mode, time);
     
     if (affected_by_light)
     {

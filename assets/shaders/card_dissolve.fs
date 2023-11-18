@@ -14,6 +14,7 @@ uniform float dissolve_threshold;
 uniform float dissolve_magnitude;
 uniform float card_origin_x;
 uniform float card_origin_y;
+uniform float time;
 uniform bool affected_by_light;
 uniform int active_light_count;
 uniform int weight_interactive_mode;
@@ -28,7 +29,7 @@ void main()
     float final_uv_y = 1.0 - uv_frag.y;
     frag_color = texture(tex, vec2(final_uv_x, final_uv_y));
     
-    frag_color = calculate_interactive_color(frag_color, weight_interactive_mode, damage_interactive_mode);
+    frag_color = calculate_interactive_color(frag_color, weight_interactive_mode, damage_interactive_mode, time);
     
     float distance_uv_x = (frag_unprojected_pos.x - card_origin_x) * dissolve_magnitude;
     float distance_uv_y = (frag_unprojected_pos.y - card_origin_y) * dissolve_magnitude;

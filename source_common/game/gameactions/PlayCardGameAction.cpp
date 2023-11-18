@@ -78,7 +78,7 @@ void PlayCardGameAction::VSetNewGameState()
             });
             activePlayerState.mBoardModifiers.mBoardModifierMask &= (~effects::board_modifier_masks::KILL_NEXT);
         }
-        if ((activePlayerState.mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::BOARD_SIDE_STAT_MODIFIER) != 0)
+        else if ((activePlayerState.mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::BOARD_SIDE_STAT_MODIFIER) != 0)
         {
             mGameActionEngine->AddGameAction(TRAP_TRIGGERED_ANIMATION_GAME_ACTION_NAME,
             {

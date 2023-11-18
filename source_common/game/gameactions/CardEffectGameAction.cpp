@@ -112,6 +112,9 @@ void CardEffectGameAction::VInitAnimation()
 
 ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float dtMillis)
 {
+    static float time = 0.0f;
+    time += dtMillis * 0.001f;
+    
     switch (mActionState)
     {
         case ActionState::EFFECT_CARD_ANIMATION:
@@ -120,6 +123,7 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
             auto boardCardIndex = boardCards.size();
             auto effectCardSoWrapper = mGameSessionManager->GetBoardCardSoWrappers().at(mBoardState->GetActivePlayerIndex()).at(boardCardIndex);
             effectCardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] += dtMillis * CARD_DISSOLVE_SPEED;
+            effectCardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
           
             if (effectCardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] >= MAX_CARD_DISSOLVE_VALUE/2)
             {

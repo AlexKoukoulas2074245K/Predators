@@ -45,7 +45,7 @@ private:
     
     std::string ReadFileContents(const std::string& filePath) const;
     void PrependPreprocessorVars(std::string& shaderSource) const;
-    void ReplaceIncludeDirectives(std::string& shaderSource) const;
+    void ReplaceIncludeDirectives(const std::string& inputFileString, std::string& outFinalShaderSource) const;
     std::unordered_map<strutils::StringId, GLuint, strutils::StringIdHasher> GetUniformNamesToLocationsMap
     (
         const GLuint programId,
