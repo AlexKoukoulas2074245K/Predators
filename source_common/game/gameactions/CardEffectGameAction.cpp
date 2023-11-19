@@ -104,6 +104,13 @@ void CardEffectGameAction::VInitAnimation()
         CONTINUOUS_PARTICLE_GENERATION_DELAY_SECS
     );
     
+    // Force release all held/moving cards back to position
+    for (const auto& affectedCardEntry: mAffectedCards)
+    {
+        events::EventSystem::GetInstance().DispatchEvent<events::ForceSendCardBackToPositionEvent>(static_cast<int>(affectedCardEntry.mCardIndex), affectedCardEntry.mIsBoardCard, mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
+    }
+    
+    
     mActionState = ActionState::EFFECT_CARD_ANIMATION;
     mAnimationDelayCounterSecs = 0.0f;
 }
@@ -119,7 +126,11 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
     {
         case ActionState::EFFECT_CARD_ANIMATION:
         {
+            const auto& activeSceneManager = CoreSystemsEngine::GetInstance().GetActiveSceneManager();
+            const auto& activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+            
             const auto& boardCards = mBoardState->GetActivePlayerState().mPlayerBoardCards;
+            const auto& heldCards = mBoardState->GetActivePlayerState().mPlayerHeldCards;
             auto boardCardIndex = boardCards.size();
             auto effectCardSoWrapper = mGameSessionManager->GetBoardCardSoWrappers().at(mBoardState->GetActivePlayerIndex()).at(boardCardIndex);
             effectCardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] += dtMillis * CARD_DISSOLVE_SPEED;
@@ -136,10 +147,17 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
                 events::EventSystem::GetInstance().DispatchEvent<events::CardDestructionWithRepositionEvent>(static_cast<int>(boardCardIndex), true, mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
                 
                 // Create particle emitters on affected cards
-                for (const auto affectedIndex: mAffectedBoardIndices)
+                for (size_t i = 0U; i < mAffectedCards.size(); ++i)
                 {
-                    auto cardSoWrapper = mGameSessionManager->GetBoardCardSoWrappers().at(mBoardState->GetActivePlayerIndex()).at(affectedIndex);
-                    auto targetPosition = card_utils::CalculateBoardCardPosition(affectedIndex, static_cast<int>(boardCards.size()), mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
+                    auto& affectedCardEntry = mAffectedCards[i];
+                    
+                    auto cardSoWrapper = affectedCardEntry.mIsBoardCard ?
+                        mGameSessionManager->GetBoardCardSoWrappers().at(mBoardState->GetActivePlayerIndex()).at(affectedCardEntry.mCardIndex):
+                        mGameSessionManager->GetHeldCardSoWrappers().at(mBoardState->GetActivePlayerIndex()).at(affectedCardEntry.mCardIndex);
+                    
+                    auto targetPosition = affectedCardEntry.mIsBoardCard ?
+                        card_utils::CalculateBoardCardPosition(affectedCardEntry.mCardIndex, static_cast<int>(boardCards.size()), mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX):
+                        card_utils::CalculateHeldCardPosition(affectedCardEntry.mCardIndex, static_cast<int>(heldCards.size()), mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, activeScene->GetCamera());
                     
                     rendering::CreateParticleEmitterAtPosition
                     (
@@ -152,7 +170,7 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
                         CARD_EFFECT_PARTICLE_TEXTURE_FILE_NAME,         // particleTextureFilename
                         *CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE), // scene
                         particle_flags::CONTINUOUS_PARTICLE_GENERATION | particle_flags::ENLARGE_OVER_TIME,  // particleFlags
-                        strutils::StringId(BUFFED_CARD_PARTICLE_EMITTER_NAME_PREFIX + std::to_string(affectedIndex)),
+                        strutils::StringId(BUFFED_CARD_PARTICLE_EMITTER_NAME_PREFIX + std::to_string(i)),
                         CONTINUOUS_PARTICLE_GENERATION_DELAY_SECS
                     );
                 }
@@ -168,7 +186,7 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
                 events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectTriggeredEvent>(mBoardState->GetActivePlayerIndex() != game_constants::REMOTE_PLAYER_INDEX, mLastTriggeredCardEffect);
             }
             
-            if (mAffectedBoardIndices.empty())
+            if (mAffectedCards.empty())
             {
                 mActionState = ActionState::FINISHED;
             }
@@ -181,25 +199,25 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
                 auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
                 
                 // Create particle emitters on affected cards
-                for (size_t i = 0; i < mAffectedBoardIndices.size(); ++i)
+                for (size_t i = 0; i < mAffectedCards.size(); ++i)
                 {
-                    auto cardSoWrapper = mGameSessionManager->GetBoardCardSoWrappers().at(mBoardState->GetActivePlayerIndex()).at(mAffectedBoardIndices.at(i));
+                    auto& affectedCardEntry = mAffectedCards.at(i);
                     
-                    auto originalScale = cardSoWrapper->mSceneObject->mScale;
-                    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObject, cardSoWrapper->mSceneObject->mPosition, originalScale * 1.5f, CARD_SCALE_ANIMATION_DURATION_SECS/2, animation_flags::NONE, i * CARD_SCALE_ANIMATION_DURATION_SECS, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+                    auto originalScale = affectedCardEntry.mCardSoWrapper->mSceneObject->mScale;
+                    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(affectedCardEntry.mCardSoWrapper->mSceneObject, affectedCardEntry.mCardSoWrapper->mSceneObject->mPosition, originalScale * 1.5f, CARD_SCALE_ANIMATION_DURATION_SECS/2, animation_flags::NONE, i * CARD_SCALE_ANIMATION_DURATION_SECS, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
                     {
-                        for (const auto affectedIndex: mAffectedBoardIndices)
-                        {
-                            rendering::RemoveParticleEmitterFlag(particle_flags::CONTINUOUS_PARTICLE_GENERATION, strutils::StringId(BUFFED_CARD_PARTICLE_EMITTER_NAME_PREFIX + std::to_string(affectedIndex)), *CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE));
-                        }
+                        rendering::RemoveParticleEmitterFlag(particle_flags::CONTINUOUS_PARTICLE_GENERATION, strutils::StringId(BUFFED_CARD_PARTICLE_EMITTER_NAME_PREFIX + std::to_string(i)), *CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE));
                         
-                        events::EventSystem::GetInstance().DispatchEvent<events::CardBuffedDebuffedEvent>(static_cast<int>(i), true, mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
-                        auto cardSoWrapper = mGameSessionManager->GetBoardCardSoWrappers().at(mBoardState->GetActivePlayerIndex()).at(mAffectedBoardIndices.at(i));
+                        events::EventSystem::GetInstance().DispatchEvent<events::CardBuffedDebuffedEvent>(static_cast<int>(mAffectedCards[i].mCardIndex), mAffectedCards[i].mIsBoardCard, mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
+                        
+                        mAffectedCards[i].mCardSoWrapper = mAffectedCards[i].mIsBoardCard ?
+                            mGameSessionManager->GetBoardCardSoWrappers()[mBoardState->GetActivePlayerIndex()][mAffectedCards[i].mCardIndex]:
+                            mGameSessionManager->GetHeldCardSoWrappers()[mBoardState->GetActivePlayerIndex()][mAffectedCards[i].mCardIndex];
                         
                         auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
-                        animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObject, cardSoWrapper->mSceneObject->mPosition, originalScale, CARD_SCALE_ANIMATION_DURATION_SECS/2, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+                        animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(mAffectedCards[i].mCardSoWrapper->mSceneObject, mAffectedCards[i].mCardSoWrapper->mSceneObject->mPosition, originalScale, CARD_SCALE_ANIMATION_DURATION_SECS/2, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
                         {
-                            if(i == mAffectedBoardIndices.size() - 1)
+                            if (i == mAffectedCards.size() - 1)
                             {
                                 mActionState = ActionState::FINISHED;
                             }
@@ -237,27 +255,23 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
 {
     mAffectedBoardCardsStatType = AffectedStatType::NONE;
     mEffectValue = 0;
-    mAffectedBoardIndices.clear();
+    mAffectedCards.clear();
     
     const auto effectComponents = strutils::StringSplit(effect, ' ');
     const auto& boardCards = mBoardState->GetActivePlayerState().mPlayerBoardCards;
+    const auto& heldCards = mBoardState->GetActivePlayerState().mPlayerHeldCards;
     const auto effectCardFamily = CardDataRepository::GetInstance().GetCardData(boardCards.back())->get().mCardFamily;
+    bool mAffectingFamilyOnly = false;
+    
+    std::vector<int> affectedBoardCardIndices;
+    std::vector<int> affectedHeldCardIndices;
     
     for (const auto& effectComponent: effectComponents)
     {
         // Collection component
         if (effectComponent == effects::EFFECT_COMPONENT_FAMILY)
         {
-            for (int i = 0; i < static_cast<int>(boardCards.size()) - 1; ++i)
-            {
-                auto cardData = CardDataRepository::GetInstance().GetCardData(boardCards[i]);
-                assert(cardData);
-                
-                if (!cardData->get().IsSpell() && cardData->get().mCardFamily == effectCardFamily)
-                {
-                    mAffectedBoardIndices.push_back(i);
-                }
-            }
+            mAffectingFamilyOnly = true;
         }
         
         // Stat Type component
@@ -280,6 +294,48 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
         }
     }
     
+    // Board effect
+    if (std::find(effectComponents.cbegin(), effectComponents.cend(), effects::EFFECT_COMPONENT_BOARD) != effectComponents.cend())
+    {
+        for (int i = 0; i < static_cast<int>(boardCards.size()) - 1; ++i)
+        {
+            auto cardData = CardDataRepository::GetInstance().GetCardData(boardCards[i]);
+            assert(cardData);
+            
+            if (mAffectingFamilyOnly && cardData->get().mCardFamily != effectCardFamily)
+            {
+                continue;
+            }
+            
+            if (!cardData->get().IsSpell())
+            {
+                affectedBoardCardIndices.emplace_back(i);
+                //mAffectedCards.push_back({mGameSessionManager->GetBoardCardSoWrappers()[mBoardState->GetActivePlayerIndex()].at(i), i, true});
+            }
+        }
+    }
+    
+    // Held Cards effect
+    if (std::find(effectComponents.cbegin(), effectComponents.cend(), effects::EFFECT_COMPONENT_HELD) != effectComponents.cend())
+    {
+        for (int i = 0; i < static_cast<int>(heldCards.size()); ++i)
+        {
+            auto cardData = CardDataRepository::GetInstance().GetCardData(heldCards[i]);
+            assert(cardData);
+            
+            if (mAffectingFamilyOnly && cardData->get().mCardFamily != effectCardFamily)
+            {
+                continue;
+            }
+            
+            if (!cardData->get().IsSpell())
+            {
+                affectedHeldCardIndices.emplace_back(i);
+                //mAffectedCards.push_back({mGameSessionManager->GetHeldCardSoWrappers()[mBoardState->GetActivePlayerIndex()].at(i), i, false});
+            }
+        }
+    }
+    
     // Draw effect
     if (std::find(effectComponents.cbegin(), effectComponents.cend(), effects::EFFECT_COMPONENT_DRAW) != effectComponents.cend())
     {
@@ -297,16 +353,16 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
         mLastTriggeredCardEffect = effects::board_modifier_masks::BOARD_SIDE_STAT_MODIFIER;
     }
     
-    // Current turn effect
-    for (int affectedIndex: mAffectedBoardIndices)
+    // Create/Modify board card stat overrides
+    for (auto affectedBoardCardIter = affectedBoardCardIndices.begin(); affectedBoardCardIter != affectedBoardCardIndices.end();)
     {
-        const auto& cardData = CardDataRepository::GetInstance().GetCardData(boardCards.at(affectedIndex))->get();
         const auto affectedStat = sAffectedStatTypeToCardStatType.at(mAffectedBoardCardsStatType);
+        auto cardData = CardDataRepository::GetInstance().GetCardData(mBoardState->GetActivePlayerState().mPlayerBoardCards.at(*affectedBoardCardIter))->get();
         auto currentValue = mAffectedBoardCardsStatType == AffectedStatType::DAMAGE ? cardData.mCardDamage : cardData.mCardWeight;
         
-        if (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.size()) >= affectedIndex + 1)
+        if (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.size()) >= (*affectedBoardCardIter + 1))
         {
-            currentValue = mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides[affectedIndex][affectedStat];
+            currentValue = mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides[*affectedBoardCardIter][affectedStat];
         }
         else
         {
@@ -314,7 +370,51 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
         }
         
         mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.back()[affectedStat] = currentValue + mEffectValue;
+        affectedBoardCardIter++;
     }
+    
+    // Create/Modify held card stat overrides
+    for (auto affectedHeldCardIter = affectedHeldCardIndices.begin(); affectedHeldCardIter != affectedHeldCardIndices.end();)
+    {
+        const auto affectedStat = sAffectedStatTypeToCardStatType.at(mAffectedBoardCardsStatType);
+        auto cardData = CardDataRepository::GetInstance().GetCardData(mBoardState->GetActivePlayerState().mPlayerHeldCards.at(*affectedHeldCardIter))->get();
+        auto currentValue = mAffectedBoardCardsStatType == AffectedStatType::DAMAGE ? cardData.mCardDamage : cardData.mCardWeight;
+        
+        if (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.size()) >= (*affectedHeldCardIter + 1))
+        {
+            currentValue = mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides[*affectedHeldCardIter][affectedStat];
+        }
+        else
+        {
+            mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.resize(*affectedHeldCardIter + 1);
+        }
+        
+        mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.back()[affectedStat] = currentValue + mEffectValue;
+        
+        // Skip animation for held cards for opponent
+        if (mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX)
+        {
+            affectedHeldCardIter = affectedHeldCardIndices.erase(affectedHeldCardIter);
+            continue;
+        }
+        
+        affectedHeldCardIter++;
+    }
+    
+    // For non-headless behavior
+    if (mGameSessionManager)
+    {
+        for (auto i = 0; i < static_cast<int>(affectedBoardCardIndices.size()); ++i)
+        {
+            mAffectedCards.push_back({mGameSessionManager->GetBoardCardSoWrappers()[mBoardState->GetActivePlayerIndex()].at(affectedBoardCardIndices.at(i)), affectedBoardCardIndices.at(i), true});
+        }
+        
+        for (auto i = 0; i < static_cast<int>(affectedHeldCardIndices.size()); ++i)
+        {
+            mAffectedCards.push_back({mGameSessionManager->GetHeldCardSoWrappers()[mBoardState->GetActivePlayerIndex()].at(affectedHeldCardIndices.at(i)), affectedHeldCardIndices.at(i), false});
+        }
+    }
+    //
 }
 
 ///------------------------------------------------------------------------------------------------

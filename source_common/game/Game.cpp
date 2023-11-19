@@ -403,13 +403,13 @@ void Game::CreateDebugWidgets()
     ImGui::SeparatorText("Remote Player Stats");
     ImGui::TextWrapped("%s", remotePlayerStats.c_str());
     ImGui::SeparatorText("Remote Player Hand");
-    CreateImGuiCardVecEntry("RemotePlayerHand", remotePlayerHand, {}, 0);
+    CreateImGuiCardVecEntry("RemotePlayerHand", remotePlayerHand, boardState.GetPlayerStates()[0].mPlayerHeldCardStatOverrides, 0);
     ImGui::SeparatorText("Remote Player Board");
     CreateImGuiCardVecEntry("RemotePlayerBoard", remotePlayerBoard, boardState.GetPlayerStates()[0].mPlayerBoardCardStatOverrides, boardState.GetPlayerStates()[0].mBoardModifiers.mBoardModifierMask);
     ImGui::SeparatorText("Local Player Board");
     CreateImGuiCardVecEntry("LocalPlayerBoard", localPlayerBoard, boardState.GetPlayerStates()[1].mPlayerBoardCardStatOverrides, boardState.GetPlayerStates()[1].mBoardModifiers.mBoardModifierMask);
     ImGui::SeparatorText("Local Player Hand");
-    CreateImGuiCardVecEntry("LocalPlayerHand", localPlayerHand, {}, 0);
+    CreateImGuiCardVecEntry("LocalPlayerHand", localPlayerHand, boardState.GetPlayerStates()[1].mPlayerHeldCardStatOverrides, 0);
     ImGui::SeparatorText("Local Player Stats");
     ImGui::TextWrapped("%s", localPlayerStats.c_str());
     ImGui::End();

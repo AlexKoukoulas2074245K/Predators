@@ -104,6 +104,23 @@ public:
 
 ///------------------------------------------------------------------------------------------------
 
+class ForceSendCardBackToPositionEvent final
+{
+public:
+    ForceSendCardBackToPositionEvent(const int cardIndex, const bool boardCard, const bool forRemotePlayer)
+        : mCardIdex(cardIndex)
+        , mBoardCard(boardCard)
+        , mForRemotePlayer(forRemotePlayer)
+    {
+    }
+    
+    const int mCardIdex;
+    const bool mBoardCard;
+    const bool mForRemotePlayer;
+};
+
+///------------------------------------------------------------------------------------------------
+
 class BoardSideCardEffectTriggeredEvent final
 {
 public:

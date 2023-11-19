@@ -42,6 +42,7 @@ struct PlayerState
     std::vector<int> mPlayerHeldCards;
     std::vector<int> mPlayerBoardCards;
     std::vector<CardStatOverrides> mPlayerBoardCardStatOverrides;
+    std::vector<CardStatOverrides> mPlayerHeldCardStatOverrides;
     BoardModifiers mBoardModifiers;
     int mPlayerHealth = 30;
     int mPlayerTotalWeightAmmo = 0;

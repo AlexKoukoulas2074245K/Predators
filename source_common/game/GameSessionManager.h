@@ -71,6 +71,7 @@ private:
     void OnWeightChangeAnimationTriggerEvent(const events::WeightChangeAnimationTriggerEvent&);
     void OnBoardSideCardEffectTriggeredEvent(const events::BoardSideCardEffectTriggeredEvent&);
     void OnBoardSideCardEffectEndedEvent(const events::BoardSideCardEffectEndedEvent&);
+    void OnForceSendCardBackToPositionEvent(const events::ForceSendCardBackToPositionEvent&);
 
 private:
     enum class ProspectiveBoardCardsPushState
@@ -92,6 +93,7 @@ private:
     bool mShouldShowCardLocationIndicator;
     bool mCanPlayNextCard;
     bool mCanIssueNextTurnInteraction;
+    bool mCanInteractWithAnyHeldCard;
 };
 
 ///------------------------------------------------------------------------------------------------

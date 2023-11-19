@@ -184,8 +184,8 @@
             "weight": 2,
             "family": "rodents",
             "name": "Fluff Attack",
-            "effect": "DAMAGE +2 FAMILY",
-            "tooltip": "Damage +2 for$ALL Rodents on$  your board",
+            "effect": "DAMAGE +2 FAMILY BOARD HELD",
+            "tooltip": "Damage +2 for$  ALL Rodents on$hand & board",
             "texture": "rodents_attack.png",
             "shader": "basic.vs"
         },

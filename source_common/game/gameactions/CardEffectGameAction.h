@@ -10,6 +10,7 @@
 
 ///------------------------------------------------------------------------------------------------
 
+#include <game/Cards.h>
 #include <game/CardEffectComponents.h>
 #include <engine/utils/MathUtils.h>
 #include <game/gameactions/BaseGameAction.h>
@@ -54,11 +55,18 @@ private:
     
     static const std::unordered_map<AffectedStatType, CardStatType> sAffectedStatTypeToCardStatType;
     
+    struct AffectedCardEntry
+    {
+        std::shared_ptr<CardSoWrapper> mCardSoWrapper = nullptr;
+        int mCardIndex = 0;
+        bool mIsBoardCard = false;
+    };
+    
     AffectedStatType mAffectedBoardCardsStatType;
     int mEffectValue;
     float mAnimationDelayCounterSecs;
     effects::EffectBoardModifierMask mLastTriggeredCardEffect;
-    std::vector<int> mAffectedBoardIndices;
+    std::vector<AffectedCardEntry> mAffectedCards;
 };
 
 ///------------------------------------------------------------------------------------------------

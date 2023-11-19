@@ -68,6 +68,13 @@ void PlayCardGameAction::VSetNewGameState()
         return;
     }
     
+    // Transfer held card stat override to the new board position
+    if (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.size()) >= lastPlayedCardIndex + 1)
+    {
+        mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.emplace_back(mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides[lastPlayedCardIndex]);
+        mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.erase(mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.begin() + lastPlayedCardIndex);
+    }
+    
     activePlayerState.mPlayerBoardCards.push_back(cardId);
     activePlayerState.mPlayerHeldCards.erase(activePlayerState.mPlayerHeldCards.begin() + lastPlayedCardIndex);
     activePlayerState.mPlayerCurrentWeightAmmo -= cardData->get().mCardWeight;
@@ -118,7 +125,7 @@ void PlayCardGameAction::VInitAnimation()
     if (mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX)
     {
         activeScene->RemoveSceneObject(lastPlayedCardSoWrapper->mSceneObject->mName);
-        lastPlayedCardSoWrapper = card_utils::CreateCardSoWrapper(lastPlayedCardSoWrapper->mCardData, lastPlayedCardSoWrapper->mSceneObject->mPosition, game_constants::TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX + std::to_string(mBoardState->GetActivePlayerState().mPlayerBoardCards.size() - 1), CardOrientation::FRONT_FACE, true, true, {}, {}, *activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE));
+        lastPlayedCardSoWrapper = card_utils::CreateCardSoWrapper(lastPlayedCardSoWrapper->mCardData, lastPlayedCardSoWrapper->mSceneObject->mPosition, game_constants::TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX + std::to_string(mBoardState->GetActivePlayerState().mPlayerBoardCards.size() - 1), CardOrientation::FRONT_FACE, true, true, (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.size()) > lastPlayedCardIndex ? mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.at(lastPlayedCardIndex) : CardStatOverrides()), {}, *activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE));
         events::EventSystem::GetInstance().DispatchEvent<events::HeldCardSwapEvent>(lastPlayedCardSoWrapper, lastPlayedCardIndex, true);
     }
     
