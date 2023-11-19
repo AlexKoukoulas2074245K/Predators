@@ -132,7 +132,7 @@ void GameSessionManager::InitGameSession()
     mBoardState->GetPlayerStates().emplace_back();
     
     mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards =  CardDataRepository::GetInstance().GetAllCardIds();//GetCardIdsByFamily(strutils::StringId("rodents"));
-    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards =  {21,22}; //CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));
+    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards =  CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));
     
     mPlayerHeldCardSceneObjectWrappers.emplace_back();
     mPlayerHeldCardSceneObjectWrappers.emplace_back();
@@ -352,7 +352,7 @@ void GameSessionManager::HandleTouchInput()
     
     std::vector<int> candidateHighlightIndices;
     mShouldShowCardLocationIndicator = false;
-    
+    bool freeMovingCardThisFrame = false;
     for (int i = 0; i < localPlayerCardCount; ++i)
     {
         auto& currentCardSoWrapper = localPlayerCards.at(i);
@@ -373,7 +373,8 @@ void GameSessionManager::HandleTouchInput()
         static std::unique_ptr<glm::vec2> selectedCardInitialTouchPosition = nullptr;
         if (inputStateManager.VButtonPressed(input::Button::MAIN_BUTTON) &&
             mRuleEngine->CanCardBePlayed(currentCardSoWrapper->mCardData, game_constants::LOCAL_PLAYER_INDEX) &&
-            ((currentCardSoWrapper->mState == CardSoState::HIGHLIGHTED && glm::distance(worldTouchPos, *selectedCardInitialTouchPosition) > 0.005f) || currentCardSoWrapper->mState == CardSoState::FREE_MOVING))
+            ((currentCardSoWrapper->mState == CardSoState::HIGHLIGHTED && glm::distance(worldTouchPos, *selectedCardInitialTouchPosition) > 0.005f) || currentCardSoWrapper->mState == CardSoState::FREE_MOVING) &&
+            !freeMovingCardThisFrame)
         {
             currentCardSoWrapper->mState = CardSoState::FREE_MOVING;
             
@@ -385,6 +386,12 @@ void GameSessionManager::HandleTouchInput()
                 cardLocationIndicatorSo->mPosition = card_utils::CalculateBoardCardPosition(currentLocalPlayerBoardCardCount, currentLocalPlayerBoardCardCount + 1, false);
                 cardLocationIndicatorSo->mPosition.z = game_constants::CARD_LOCATION_EFFECT_Z;
                 mShouldShowCardLocationIndicator = true;
+                std::vector<std::string> cardNames;
+                for (const auto& soWrapper: mPendingCardsToBePlayed)
+                {
+                    cardNames.push_back(soWrapper->mCardData->mCardName);
+                }
+                freeMovingCardThisFrame = true;
             }
         }
         else if (inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON) && cursorInSceneObject && !otherHighlightedCardExists)
@@ -512,6 +519,15 @@ void GameSessionManager::HandleTouchInput()
             animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(turnPointerHighlighterSo, 0.0f, game_constants::TURN_POINTER_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), [](){});
             mActionEngine->AddGameAction(NEXT_PLAYER_ACTION_NAME);
             mCanIssueNextTurnInteraction = false;
+        }
+    }
+    
+    // Make sure that later pending cards appear in front of earlier ones
+    if (mPendingCardsToBePlayed.size() > 1U)
+    {
+        for (auto i = 1U; i < mPendingCardsToBePlayed.size(); ++i)
+        {
+            mPendingCardsToBePlayed[i]->mSceneObject->mPosition.z = mPendingCardsToBePlayed.front()->mSceneObject->mPosition.z + i * 0.1f;
         }
     }
     
@@ -718,7 +734,7 @@ void GameSessionManager::OnFreeMovingCardRelease(std::shared_ptr<CardSoWrapper> 
 #endif
     
     if (inBoardDropThreshold &&
-        (mActionEngine->GetActiveGameActionName() == IDLE_GAME_ACTION_NAME || (mActionEngine->GetActiveGameActionName() == PLAY_CARD_ACTION_NAME && mActionEngine->GetActionCount() == 1)) &&
+        (mActionEngine->GetActiveGameActionName() == IDLE_GAME_ACTION_NAME || mActionEngine->GetActionCount() <= 2) &&
         mBoardState->GetActivePlayerIndex() == 1 &&
         mRuleEngine->CanCardBePlayed(cardSoWrapper->mCardData, game_constants::LOCAL_PLAYER_INDEX))
     {
