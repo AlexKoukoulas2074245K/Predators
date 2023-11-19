@@ -62,7 +62,7 @@ void PlayCardGameAction::VSetNewGameState()
     assert(cardData.has_value());
     
     // Tried to overplay?
-    mAborted = !mGameRuleEngine->CanCardBePlayed(&cardData->get(), mBoardState->GetActivePlayerIndex());
+    mAborted = mGameRuleEngine && !mGameRuleEngine->CanCardBePlayed(&cardData->get(), mBoardState->GetActivePlayerIndex());
     if (mAborted)
     {
         return;

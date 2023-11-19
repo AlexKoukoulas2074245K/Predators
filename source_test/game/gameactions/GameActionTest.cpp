@@ -23,32 +23,49 @@ static const strutils::StringId DRAW_CARD_GAME_ACTION_NAME = strutils::StringId(
 static const strutils::StringId PLAY_CARD_GAME_ACTION_NAME = strutils::StringId("PlayCardGameAction");
 static const strutils::StringId NEXT_PLAYER_GAME_ACTION_NAME = strutils::StringId("NextPlayerGameAction");
 static const strutils::StringId GAME_OVER_GAME_ACTION_NAME = strutils::StringId("GameOverGameAction");
+static const strutils::StringId TRAP_TRIGGERED_ANIMATION_GAME_ACTION_NAME = strutils::StringId("TrapTriggeredAnimationGameAction");
+static const strutils::StringId CARD_DESTRUCTION_GAME_ACTION_NAME = strutils::StringId("CardDestructionGameAction");
+static const strutils::StringId CARD_EFFECT_GAME_ACTION_NAME = strutils::StringId("CardEffectGameAction");
 
 ///------------------------------------------------------------------------------------------------
 
 class GameActionTests : public testing::Test
 {
 protected:
+    enum class CardCollectionType
+    {
+        ALL_CARDS, ALL_NON_SPELL_CARDS
+    };
+    
+protected:
     GameActionTests()
     {
         CardDataRepository::GetInstance().LoadCardData(false);
     }
     
-    void Init(bool excludeSpells = true)
+    void Init(const CardCollectionType& cardCollectionType)
     {
         mBoardState = std::make_unique<BoardState>();
         mActionEngine = std::make_unique<GameActionEngine>(GameActionEngine::EngineOperationMode::HEADLESS, math::RandomInt(), mBoardState.get(), nullptr, nullptr, nullptr);
         mGameRuleEngine = std::make_unique<GameRuleEngine>(mBoardState.get());
         mPlayerActionGenerationEngine = std::make_unique<PlayerActionGenerationEngine>(mGameRuleEngine.get(), mActionEngine.get());
         mBoardState->GetPlayerStates().emplace_back();
-        mBoardState->GetPlayerStates().back().mPlayerDeckCards = excludeSpells ? CardDataRepository::GetInstance().GetAllNonSpellCardIds() : CardDataRepository::GetInstance().GetAllCardIds();
+        mBoardState->GetPlayerStates().back().mPlayerDeckCards = cardCollectionType == CardCollectionType::ALL_NON_SPELL_CARDS ? CardDataRepository::GetInstance().GetAllNonSpellCardIds() : CardDataRepository::GetInstance().GetAllCardIds();
         mBoardState->GetPlayerStates().emplace_back();
-        mBoardState->GetPlayerStates().back().mPlayerDeckCards = excludeSpells ? CardDataRepository::GetInstance().GetAllNonSpellCardIds() : CardDataRepository::GetInstance().GetAllCardIds();
+        mBoardState->GetPlayerStates().back().mPlayerDeckCards = cardCollectionType == CardCollectionType::ALL_NON_SPELL_CARDS ? CardDataRepository::GetInstance().GetAllNonSpellCardIds() : CardDataRepository::GetInstance().GetAllCardIds();
+    }
+    
+    void UpdateUntilActionOrIdle(const strutils::StringId& actionName)
+    {
+        while (mActionEngine->GetActiveGameActionName() != IDLE_GAME_ACTION_NAME && mActionEngine->GetActiveGameActionName() != actionName)
+        {
+            mActionEngine->Update(0);
+        }
     }
     
     void SetUp() override
     {
-        Init();
+        Init(CardCollectionType::ALL_NON_SPELL_CARDS);
     }
     
     void TearDown() override
@@ -81,10 +98,7 @@ TEST_F(GameActionTests, TestBoardStatePostDrawAction)
 {
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     
-    while (mActionEngine->GetActiveGameActionName() != IDLE_GAME_ACTION_NAME)
-    {
-        mActionEngine->Update(0);
-    }
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
     
     EXPECT_EQ(mBoardState->GetActivePlayerState().mPlayerHeldCards.size(), 3);
     EXPECT_EQ(mActionEngine->GetActiveGameActionName(), IDLE_GAME_ACTION_NAME);
@@ -95,10 +109,7 @@ TEST_F(GameActionTests, TestBoardStatePostDrawAndPlayAction)
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     mActionEngine->AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "0" }});
     
-    while (mActionEngine->GetActiveGameActionName() != IDLE_GAME_ACTION_NAME)
-    {
-        mActionEngine->Update(0);
-    }
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
     
     EXPECT_EQ(mBoardState->GetActivePlayerState().mPlayerHeldCards.size(), 2);
     EXPECT_EQ(mBoardState->GetActivePlayerState().mPlayerBoardCards.size(), 1);
@@ -113,10 +124,7 @@ TEST_F(GameActionTests, TestDrawPlayNextDrawPlayActionRound)
     mActionEngine->AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "0" }});
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     
-    while (mActionEngine->GetActiveGameActionName() != IDLE_GAME_ACTION_NAME)
-    {
-        mActionEngine->Update(0);
-    }
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
     
     EXPECT_EQ(mBoardState->GetPlayerStates().at(0).mPlayerHeldCards.size(), 3);
     EXPECT_EQ(mBoardState->GetPlayerStates().at(0).mPlayerBoardCards.size(), 0);
@@ -137,40 +145,28 @@ TEST_F(GameActionTests, TestWeightAmmoIncrements)
     
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     
-    while (mActionEngine->GetActiveGameActionName() != IDLE_GAME_ACTION_NAME)
-    {
-        mActionEngine->Update(0);
-    }
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
     
     EXPECT_EQ(mBoardState->GetPlayerStates().at(0).mPlayerTotalWeightAmmo, 1);
     EXPECT_EQ(mBoardState->GetPlayerStates().at(1).mPlayerCurrentWeightAmmo, 0);
     
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     
-    while (mActionEngine->GetActiveGameActionName() != IDLE_GAME_ACTION_NAME)
-    {
-        mActionEngine->Update(0);
-    }
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
     
     EXPECT_EQ(mBoardState->GetPlayerStates().at(0).mPlayerTotalWeightAmmo, 1);
     EXPECT_EQ(mBoardState->GetPlayerStates().at(1).mPlayerCurrentWeightAmmo, 1);
     
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     
-    while (mActionEngine->GetActiveGameActionName() != IDLE_GAME_ACTION_NAME)
-    {
-        mActionEngine->Update(0);
-    }
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
     
     EXPECT_EQ(mBoardState->GetPlayerStates().at(0).mPlayerTotalWeightAmmo, 2);
     EXPECT_EQ(mBoardState->GetPlayerStates().at(1).mPlayerCurrentWeightAmmo, 1);
     
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     
-    while (mActionEngine->GetActiveGameActionName() != IDLE_GAME_ACTION_NAME)
-    {
-        mActionEngine->Update(0);
-    }
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
     
     EXPECT_EQ(mBoardState->GetPlayerStates().at(0).mPlayerTotalWeightAmmo, 2);
     EXPECT_EQ(mBoardState->GetPlayerStates().at(1).mPlayerCurrentWeightAmmo, 2);
@@ -179,24 +175,117 @@ TEST_F(GameActionTests, TestWeightAmmoIncrements)
 TEST_F(GameActionTests, TestPlayerActionGenerationEngine)
 {
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
-    while (mActionEngine->GetActiveGameActionName() != IDLE_GAME_ACTION_NAME)
-    {
-        mActionEngine->Update(0);
-    }
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
     
     mBoardState->GetPlayerStates()[0].mPlayerHeldCards = {3, 9, 3, 11, 4};
     mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = 6;
     mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = 6;
     
     mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get());
-    
-    while (mActionEngine->GetActiveGameActionName() != NEXT_PLAYER_GAME_ACTION_NAME)
-    {
-        mActionEngine->Update(0);
-    }
+    UpdateUntilActionOrIdle(NEXT_PLAYER_GAME_ACTION_NAME);
     
     EXPECT_EQ(mBoardState->GetActivePlayerState().mPlayerHeldCards.size(), 2);
     EXPECT_EQ(mBoardState->GetActivePlayerState().mPlayerBoardCards.size(), 3);
+}
+
+TEST_F(GameActionTests, TestBearTrapEffect)
+{
+    mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {22}; // Top player has a deck of bear traps
+    mBoardState->GetPlayerStates()[1].mPlayerDeckCards = {4}; // Bot player has a deck of bunnies
+    
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Bear trap is played
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Bunny is played
+    
+    UpdateUntilActionOrIdle(TRAP_TRIGGERED_ANIMATION_GAME_ACTION_NAME);
+    EXPECT_EQ(mActionEngine->GetActiveGameActionName(), TRAP_TRIGGERED_ANIMATION_GAME_ACTION_NAME); // Make sure the next stop is at TrapTriggerAnimationGameAction (not IdleGameAction)
+    mActionEngine->Update(0);
+    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerBoardCards.size(), 1);
+    mActionEngine->Update(0);
+    mActionEngine->Update(0);
+    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerBoardCards.size(), 0); // Bunny is destroyed before end of turn
+}
+
+TEST_F(GameActionTests, TestNetEffect)
+{
+    mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {21}; // Top player has a deck of nets traps
+    mBoardState->GetPlayerStates()[1].mPlayerDeckCards = {4}; // Bot player has a deck of bunnies
+    
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Net is played
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Bunny is played
+    
+    UpdateUntilActionOrIdle(TRAP_TRIGGERED_ANIMATION_GAME_ACTION_NAME);
+    EXPECT_EQ(mActionEngine->GetActiveGameActionName(), TRAP_TRIGGERED_ANIMATION_GAME_ACTION_NAME); // Make sure the next stop is at TrapTriggerAnimationGameAction (not IdleGameAction)
+    mActionEngine->Update(0);
+    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerBoardCards.size(), 1);
+    mActionEngine->Update(0);
+    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, 30);
+    mActionEngine->Update(0);
+    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, 30); // No damage is inflicted since bunny goes down to 0 attack
+}
+
+TEST_F(GameActionTests, TestNetAndFluffAttackCombinedEffects)
+{
+    mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {21}; // Top player has a deck of nets
+    mBoardState->GetPlayerStates()[1].mPlayerDeckCards = {19, 0}; // Bot player has a deck of Beavers(3,3) and fluff attack
+    
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Net is played
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mBoardState->GetPlayerStates()[1].mPlayerTotalWeightAmmo = 5;
+    mBoardState->GetPlayerStates()[1].mPlayerCurrentWeightAmmo = 5;
+    mBoardState->GetPlayerStates()[1].mPlayerHeldCards = {19,0};
+    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Beaver and Fluff Attack are played
+    
+    UpdateUntilActionOrIdle(CARD_EFFECT_GAME_ACTION_NAME);
+    EXPECT_EQ(mActionEngine->GetActiveGameActionName(), CARD_EFFECT_GAME_ACTION_NAME); // Make sure the next stop is at Card Effect (for fluff attack) (not IdleGameAction)
+    
+    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, 30);
+    
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, 27); // Beaver original attack = 3. Net - 2. Fluff Attack + 2. Final attack = 3.
+}
+
+TEST_F(GameActionTests, TestDoubleNetAndFluffAttackCombinedEffects)
+{
+    mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {21}; // Top player has a deck of nets
+    mBoardState->GetPlayerStates()[1].mPlayerDeckCards = {19, 0}; // Bot player has a deck of Beavers(3,3) and fluff attack
+    
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = 2;
+    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = 2;
+    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // 2 Nets are played
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mBoardState->GetPlayerStates()[1].mPlayerTotalWeightAmmo = 5;
+    mBoardState->GetPlayerStates()[1].mPlayerCurrentWeightAmmo = 5;
+    mBoardState->GetPlayerStates()[1].mPlayerHeldCards = {19,0};
+    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Beaver and Fluff Attack are played
+    
+    UpdateUntilActionOrIdle(CARD_EFFECT_GAME_ACTION_NAME);
+    EXPECT_EQ(mActionEngine->GetActiveGameActionName(), CARD_EFFECT_GAME_ACTION_NAME); // Make sure the next stop is at Card Effect (for fluff attack) (not IdleGameAction)
+    
+    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, 30);
+    
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, 29); // Beaver original attack = 3. Net - 2. Net - 2. Fluff Attack + 2. Final attack = 1.
 }
 
 TEST_F(GameActionTests, BattleSimulation)
@@ -217,7 +306,7 @@ TEST_F(GameActionTests, BattleSimulation)
         uniquePlayedCardIds[0].clear();
         uniquePlayedCardIds[1].clear();
         
-        Init(false);
+        Init(CardCollectionType::ALL_CARDS);
         mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
         while (mActionEngine->GetActiveGameActionName() != IDLE_GAME_ACTION_NAME && mActionEngine->GetActiveGameActionName() != GAME_OVER_GAME_ACTION_NAME)
         {
