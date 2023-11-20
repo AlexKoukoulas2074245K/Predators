@@ -56,10 +56,21 @@ void DrawCardGameAction::VInitAnimation()
             auto cardOpt = CardDataRepository::GetInstance().GetCardData(cardId);
             assert(cardOpt);
             
-            auto cardSoWrapper = card_utils::CreateCardSoWrapper(
-                &cardOpt->get(), glm::vec3(game_constants::IN_GAME_DRAW_CARD_INIT_X + i * game_constants::IN_GAME_CARD_WIDTH/2,
+            auto cardSoWrapper = card_utils::CreateCardSoWrapper
+            (
+                &cardOpt->get(),
+                glm::vec3(game_constants::IN_GAME_DRAW_CARD_INIT_X + i * game_constants::IN_GAME_CARD_WIDTH/2,
                 remotePlayerActive ? game_constants::IN_GAME_TOP_PLAYER_HELD_CARD_Y : game_constants::IN_GAME_BOT_PLAYER_HELD_CARD_Y, finalCardPosition.z),
-                (remotePlayerActive ? game_constants::TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_HELD_CARD_SO_NAME_PREFIX) + std::to_string(i), (remotePlayerActive ? CardOrientation::BACK_FACE : CardOrientation::FRONT_FACE), CardRarity::GOLDEN, false, remotePlayerActive, mGameRuleEngine->CanCardBePlayed(&cardOpt->get(), mBoardState->GetActivePlayerIndex()), {}, {}, *activeScene);
+                (remotePlayerActive ? game_constants::TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_HELD_CARD_SO_NAME_PREFIX) + std::to_string(i),
+                (remotePlayerActive ? CardOrientation::BACK_FACE : CardOrientation::FRONT_FACE),
+                card_utils::GetCardRarity(cardOpt->get().mCardId, mBoardState->GetActivePlayerIndex(), *mBoardState),
+                false,
+                remotePlayerActive,
+                mGameRuleEngine->CanCardBePlayed(&cardOpt->get(), mBoardState->GetActivePlayerIndex()),
+                {},
+                {},
+                *activeScene
+             );
             
             cardSoWrapper->mState = CardSoState::MOVING_TO_SET_POSITION;
             events::EventSystem::GetInstance().DispatchEvent<events::CardCreationEvent>(cardSoWrapper, remotePlayerActive);

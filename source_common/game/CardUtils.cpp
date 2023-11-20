@@ -88,6 +88,18 @@ glm::vec3 CalculateBoardCardPosition(const int cardIndex, const int playerCardCo
 
 ///------------------------------------------------------------------------------------------------
 
+CardRarity GetCardRarity(const int cardIndex, const size_t forPlayerIndex, const BoardState& boardState)
+{
+    return std::find
+    (
+        boardState.GetPlayerStates()[forPlayerIndex].mGoldenCardIds.cbegin(),
+        boardState.GetPlayerStates()[forPlayerIndex].mGoldenCardIds.cend(),
+        cardIndex
+     ) != boardState.GetPlayerStates()[forPlayerIndex].mGoldenCardIds.cend() ? CardRarity::GOLDEN : CardRarity::NORMAL;
+}
+
+///------------------------------------------------------------------------------------------------
+
 std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
 (
      const CardData* cardData,
@@ -289,7 +301,7 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
         }
         
         rendering::CollateSceneObjectsIntoOne(GENERATED_R2T_NAME_PREFIX + (forRemotePlayer ? "0_id_" : "1_id_") + std::to_string(cardData->mCardId) + generatedTextureOverridePostfixSS.str(), position, cardComponents, scene);
-        cardComponents.front()->mShaderResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CARD_SHADER_FILE_NAME, resources::RELOAD_EVERY_SECOND);
+        cardComponents.front()->mShaderResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CARD_SHADER_FILE_NAME);
         cardComponents.front()->mShaderIntUniformValues[game_constants::CARD_WEIGHT_INTERACTIVE_MODE_UNIFORM_NAME] = canCardBePlayed ? game_constants::CARD_INTERACTIVE_MODE_DEFAULT : game_constants::CARD_INTERACTIVE_MODE_NONINTERACTIVE;
         
         int damage = math::Max(0, cardStatOverrides.count(CardStatType::DAMAGE) ? cardStatOverrides.at(CardStatType::DAMAGE) : cardData->mCardDamage);

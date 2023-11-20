@@ -36,7 +36,7 @@ float perlin(float perlin_resolution, float time, float time_speed)
 {
     float final_uv_x = uv_frag.x;
     float final_uv_y = 1.0 - uv_frag.y;
-    vec2 coord = vec2(final_uv_x * 480, final_uv_y * 480);
+    vec2 coord = vec2(final_uv_x * 480.0f, final_uv_y * 480.0f);
     
     // part 0 - basic shader setup
     vec2 res = vec2(perlin_resolution, perlin_resolution);
