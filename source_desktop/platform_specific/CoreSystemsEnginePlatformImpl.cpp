@@ -228,7 +228,7 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
         const auto logicUpdateTimeStart = std::chrono::system_clock::now();
 #endif
         
-        float gameLogicMillis = math::Min(20.0f, dtMillis * sGameSpeed);
+        float gameLogicMillis = math::Min(20.0f, dtMillis) * sGameSpeed;
         if (!freezeGame)
         {
             mSystems->mAnimationManager.Update(gameLogicMillis);

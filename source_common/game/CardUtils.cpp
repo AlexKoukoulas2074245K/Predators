@@ -206,7 +206,7 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
             damageTextData.mFontName = game_constants::FONT_PLACEHOLDER_DAMAGE_NAME;
             
             int damage = math::Max(0, cardStatOverrides.count(CardStatType::DAMAGE) ? cardStatOverrides.at(CardStatType::DAMAGE) : cardData->mCardDamage);
-            if (globalStatModifiers.count(CardStatType::DAMAGE))
+            if (isOnBoard && globalStatModifiers.count(CardStatType::DAMAGE))
             {
                 damage = math::Max(0, damage + globalStatModifiers.at(CardStatType::DAMAGE));
             }
@@ -305,7 +305,7 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
         cardComponents.front()->mShaderIntUniformValues[game_constants::CARD_WEIGHT_INTERACTIVE_MODE_UNIFORM_NAME] = canCardBePlayed ? game_constants::CARD_INTERACTIVE_MODE_DEFAULT : game_constants::CARD_INTERACTIVE_MODE_NONINTERACTIVE;
         
         int damage = math::Max(0, cardStatOverrides.count(CardStatType::DAMAGE) ? cardStatOverrides.at(CardStatType::DAMAGE) : cardData->mCardDamage);
-        if (globalStatModifiers.count(CardStatType::DAMAGE))
+        if (isOnBoard && globalStatModifiers.count(CardStatType::DAMAGE))
         {
             damage = math::Max(0, damage + globalStatModifiers.at(CardStatType::DAMAGE));
         }
