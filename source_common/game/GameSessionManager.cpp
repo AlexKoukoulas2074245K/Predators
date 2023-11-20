@@ -133,7 +133,7 @@ void GameSessionManager::InitGameSession()
     mBoardState->GetPlayerStates().emplace_back();
     
     mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards =  CardDataRepository::GetInstance().GetAllCardIds();//GetCardIdsByFamily(strutils::StringId("rodents"));
-    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = {4,19};// CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));
+    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));
     
     mPlayerHeldCardSceneObjectWrappers.emplace_back();
     mPlayerHeldCardSceneObjectWrappers.emplace_back();
@@ -1030,7 +1030,7 @@ void GameSessionManager::OnCardBuffedDebuffed(const events::CardBuffedDebuffedEv
         
         activeScene->RemoveSceneObject(cardSceneObjectWrapper->mSceneObject->mName);
         
-        boardSceneObjectWrappers[event.mCardIdex] = card_utils::CreateCardSoWrapper(cardSceneObjectWrapper->mCardData, cardSceneObjectWrapper->mSceneObject->mPosition, (event.mForRemotePlayer ? game_constants::TOP_PLAYER_BOARD_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_BOARD_CARD_SO_NAME_PREFIX) + std::to_string(event.mCardIdex), CardOrientation::FRONT_FACE, event.mForRemotePlayer, true, (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.size()) > event.mCardIdex ? mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.at(event.mCardIdex) : CardStatOverrides()), mBoardState->GetActivePlayerState().mBoardModifiers.mGlobalCardStatModifiers, *activeScene);
+        boardSceneObjectWrappers[event.mCardIdex] = card_utils::CreateCardSoWrapper(cardSceneObjectWrapper->mCardData, cardSceneObjectWrapper->mSceneObject->mPosition, (event.mForRemotePlayer ? game_constants::TOP_PLAYER_BOARD_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_BOARD_CARD_SO_NAME_PREFIX) + std::to_string(event.mCardIdex), CardOrientation::FRONT_FACE, CardRarity::NORMAL, event.mForRemotePlayer, true, (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.size()) > event.mCardIdex ? mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.at(event.mCardIdex) : CardStatOverrides()), mBoardState->GetActivePlayerState().mBoardModifiers.mGlobalCardStatModifiers, *activeScene);
         boardSceneObjectWrappers[event.mCardIdex]->mSceneObject->mScale = previousScale;
     }
     else
@@ -1041,7 +1041,7 @@ void GameSessionManager::OnCardBuffedDebuffed(const events::CardBuffedDebuffedEv
         
         activeScene->RemoveSceneObject(cardSceneObjectWrapper->mSceneObject->mName);
         
-        heldSceneObjectWrappers[event.mCardIdex] = card_utils::CreateCardSoWrapper(cardSceneObjectWrapper->mCardData, cardSceneObjectWrapper->mSceneObject->mPosition, (event.mForRemotePlayer ? game_constants::TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_HELD_CARD_SO_NAME_PREFIX) + std::to_string(event.mCardIdex), CardOrientation::FRONT_FACE, event.mForRemotePlayer, true, (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.size()) > event.mCardIdex ? mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.at(event.mCardIdex) : CardStatOverrides()), mBoardState->GetActivePlayerState().mBoardModifiers.mGlobalCardStatModifiers, *activeScene);
+        heldSceneObjectWrappers[event.mCardIdex] = card_utils::CreateCardSoWrapper(cardSceneObjectWrapper->mCardData, cardSceneObjectWrapper->mSceneObject->mPosition, (event.mForRemotePlayer ? game_constants::TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_HELD_CARD_SO_NAME_PREFIX) + std::to_string(event.mCardIdex), CardOrientation::FRONT_FACE, CardRarity::NORMAL, event.mForRemotePlayer, true, (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.size()) > event.mCardIdex ? mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.at(event.mCardIdex) : CardStatOverrides()), mBoardState->GetActivePlayerState().mBoardModifiers.mGlobalCardStatModifiers, *activeScene);
         heldSceneObjectWrappers[event.mCardIdex]->mSceneObject->mScale = previousScale;
     }
 }

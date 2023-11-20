@@ -96,6 +96,7 @@ struct SceneObject
     resources::ResourceId mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + game_constants::DEFAULT_TEXTURE_NAME);
     resources::ResourceId mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + game_constants::DEFAULT_SHADER_NAME);
     resources::ResourceId mEffectTextureResourceId = 0;
+    resources::ResourceId mEffectTexture2ResourceId = 0;
     SnapToEdgeBehavior mSnapToEdgeBehavior = SnapToEdgeBehavior::NONE;
     bool mInvisible = false;
 };

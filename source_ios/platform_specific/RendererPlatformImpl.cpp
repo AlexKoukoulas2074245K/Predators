@@ -86,6 +86,13 @@ public:
             GL_CALL(glBindTexture(GL_TEXTURE_2D, currentEffectTexture->GetGLTextureId()));
         }
         
+        if (mSceneObject.mEffectTexture2ResourceId != 0)
+        {
+            auto* currentEffectTexture = &(resService.GetResource<resources::TextureResource>(mSceneObject.mEffectTexture2ResourceId));
+            GL_CALL(glActiveTexture(GL_TEXTURE2));
+            GL_CALL(glBindTexture(GL_TEXTURE_2D, currentEffectTexture->GetGLTextureId()));
+        }
+        
         glm::mat4 world(1.0f);
         world = glm::translate(world, mSceneObject.mPosition);
         world = glm::rotate(world, mSceneObject.mRotation.x, math::X_AXIS);
@@ -134,6 +141,13 @@ public:
         {
             auto* currentEffectTexture = &(resService.GetResource<resources::TextureResource>(mSceneObject.mEffectTextureResourceId));
             GL_CALL(glActiveTexture(GL_TEXTURE1));
+            GL_CALL(glBindTexture(GL_TEXTURE_2D, currentEffectTexture->GetGLTextureId()));
+        }
+        
+        if (mSceneObject.mEffectTexture2ResourceId != 0)
+        {
+            auto* currentEffectTexture = &(resService.GetResource<resources::TextureResource>(mSceneObject.mEffectTexture2ResourceId));
+            GL_CALL(glActiveTexture(GL_TEXTURE2));
             GL_CALL(glBindTexture(GL_TEXTURE_2D, currentEffectTexture->GetGLTextureId()));
         }
         
@@ -200,6 +214,13 @@ public:
         {
             auto* currentEffectTexture = &(resService.GetResource<resources::TextureResource>(mSceneObject.mEffectTextureResourceId));
             GL_CALL(glActiveTexture(GL_TEXTURE1));
+            GL_CALL(glBindTexture(GL_TEXTURE_2D, currentEffectTexture->GetGLTextureId()));
+        }
+        
+        if (mSceneObject.mEffectTexture2ResourceId != 0)
+        {
+            auto* currentEffectTexture = &(resService.GetResource<resources::TextureResource>(mSceneObject.mEffectTexture2ResourceId));
+            GL_CALL(glActiveTexture(GL_TEXTURE2));
             GL_CALL(glBindTexture(GL_TEXTURE_2D, currentEffectTexture->GetGLTextureId()));
         }
         

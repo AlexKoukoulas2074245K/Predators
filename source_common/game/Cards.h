@@ -40,6 +40,14 @@ enum class CardSoState
 
 ///------------------------------------------------------------------------------------------------
 
+enum class CardRarity
+{
+    NORMAL,
+    GOLDEN
+};
+
+///------------------------------------------------------------------------------------------------
+
 struct CardData
 {
     bool IsSpell() const { return !mCardEffect.empty(); }

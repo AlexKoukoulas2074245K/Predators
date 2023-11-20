@@ -125,7 +125,7 @@ void PlayCardGameAction::VInitAnimation()
     if (mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX)
     {
         activeScene->RemoveSceneObject(lastPlayedCardSoWrapper->mSceneObject->mName);
-        lastPlayedCardSoWrapper = card_utils::CreateCardSoWrapper(lastPlayedCardSoWrapper->mCardData, lastPlayedCardSoWrapper->mSceneObject->mPosition, game_constants::TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX + std::to_string(mBoardState->GetActivePlayerState().mPlayerBoardCards.size() - 1), CardOrientation::FRONT_FACE, true, true, (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.size()) > lastPlayedCardIndex ? mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.at(lastPlayedCardIndex) : CardStatOverrides()), {}, *activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE));
+        lastPlayedCardSoWrapper = card_utils::CreateCardSoWrapper(lastPlayedCardSoWrapper->mCardData, lastPlayedCardSoWrapper->mSceneObject->mPosition, game_constants::TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX + std::to_string(mBoardState->GetActivePlayerState().mPlayerBoardCards.size() - 1), CardOrientation::FRONT_FACE, CardRarity::NORMAL, true, true, (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.size()) > lastPlayedCardIndex ? mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.at(lastPlayedCardIndex) : CardStatOverrides()), {}, *activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE));
         events::EventSystem::GetInstance().DispatchEvent<events::HeldCardSwapEvent>(lastPlayedCardSoWrapper, lastPlayedCardIndex, true);
     }
     

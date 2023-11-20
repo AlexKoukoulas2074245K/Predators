@@ -91,10 +91,17 @@ public:
         GL_CALL(glActiveTexture(GL_TEXTURE0));
         GL_CALL(glBindTexture(GL_TEXTURE_2D, currentTexture->GetGLTextureId()));
         
-        if (mSceneObject.mEffectTextureResourceId != 0 && mSceneObject.mEffectTextureResourceId != 2)
+        if (mSceneObject.mEffectTextureResourceId != 0)
         {
             auto* currentEffectTexture = &(resService.GetResource<resources::TextureResource>(mSceneObject.mEffectTextureResourceId));
             GL_CALL(glActiveTexture(GL_TEXTURE1));
+            GL_CALL(glBindTexture(GL_TEXTURE_2D, currentEffectTexture->GetGLTextureId()));
+        }
+        
+        if (mSceneObject.mEffectTexture2ResourceId != 0)
+        {
+            auto* currentEffectTexture = &(resService.GetResource<resources::TextureResource>(mSceneObject.mEffectTexture2ResourceId));
+            GL_CALL(glActiveTexture(GL_TEXTURE2));
             GL_CALL(glBindTexture(GL_TEXTURE_2D, currentEffectTexture->GetGLTextureId()));
         }
         
@@ -153,6 +160,13 @@ public:
         {
             auto* currentEffectTexture = &(resService.GetResource<resources::TextureResource>(mSceneObject.mEffectTextureResourceId));
             GL_CALL(glActiveTexture(GL_TEXTURE1));
+            GL_CALL(glBindTexture(GL_TEXTURE_2D, currentEffectTexture->GetGLTextureId()));
+        }
+        
+        if (mSceneObject.mEffectTexture2ResourceId != 0)
+        {
+            auto* currentEffectTexture = &(resService.GetResource<resources::TextureResource>(mSceneObject.mEffectTexture2ResourceId));
+            GL_CALL(glActiveTexture(GL_TEXTURE2));
             GL_CALL(glBindTexture(GL_TEXTURE_2D, currentEffectTexture->GetGLTextureId()));
         }
         
@@ -224,6 +238,13 @@ public:
         {
             auto* currentEffectTexture = &(resService.GetResource<resources::TextureResource>(mSceneObject.mEffectTextureResourceId));
             GL_CALL(glActiveTexture(GL_TEXTURE1));
+            GL_CALL(glBindTexture(GL_TEXTURE_2D, currentEffectTexture->GetGLTextureId()));
+        }
+        
+        if (mSceneObject.mEffectTexture2ResourceId != 0)
+        {
+            auto* currentEffectTexture = &(resService.GetResource<resources::TextureResource>(mSceneObject.mEffectTexture2ResourceId));
+            GL_CALL(glActiveTexture(GL_TEXTURE2));
             GL_CALL(glBindTexture(GL_TEXTURE_2D, currentEffectTexture->GetGLTextureId()));
         }
         

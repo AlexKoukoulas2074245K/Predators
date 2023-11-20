@@ -21,6 +21,7 @@ namespace card_utils
 static const std::string CARD_FRAME_NORMAL_TEXTURE_FILE_NAME = "card_frame_normal.png";
 static const std::string CARD_FRAME_SPELL_TEXTURE_FILE_NAME = "card_frame_spell.png";
 static const std::string CARD_BACK_TEXTURE_FILE_NAME = "card_back.png";
+static const std::string GOLDEN_CARD_TEXTURE_FILE_NAME = "card_frame_golden.png";
 static const std::string CARD_SHADER_FILE_NAME = "card.vs";
 static const std::string CARD_DAMAGE_ICON_TEXTURE_FILE_NAME = "damage_icon.png";
 static const std::string CARD_WEIGHT_ICON_TEXTURE_FILE_NAME = "feather_icon.png";
@@ -85,7 +86,19 @@ glm::vec3 CalculateBoardCardPosition(const int cardIndex, const int playerCardCo
 
 ///------------------------------------------------------------------------------------------------
 
-std::shared_ptr<CardSoWrapper> CreateCardSoWrapper(const CardData* cardData, const glm::vec3& position, const std::string& cardNamePrefix, const CardOrientation cardOrientation, const bool forRemotePlayer, const bool canCardBePlayed, const CardStatOverrides& cardStatOverrides, const CardStatOverrides& globalStatModifiers, scene::Scene& scene)
+std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
+(
+     const CardData* cardData,
+     const glm::vec3& position,
+     const std::string& cardNamePrefix,
+     const CardOrientation cardOrientation,
+     const CardRarity cardRarity,
+     const bool forRemotePlayer,
+     const bool canCardBePlayed,
+     const CardStatOverrides& cardStatOverrides,
+     const CardStatOverrides& globalStatModifiers,
+     scene::Scene& scene
+)
 {
     auto cardSoWrapper = std::make_shared<CardSoWrapper>();
  
@@ -110,7 +123,15 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper(const CardData* cardData, con
         // Create card base
         std::vector<std::shared_ptr<scene::SceneObject>> cardComponents;
         cardComponents.push_back(scene.CreateSceneObject(sceneObjectName));
-        cardComponents.back()->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + (cardData->IsSpell() ? CARD_FRAME_SPELL_TEXTURE_FILE_NAME : CARD_FRAME_NORMAL_TEXTURE_FILE_NAME));
+        if (cardRarity == CardRarity::GOLDEN)
+        {
+            cardComponents.back()->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + GOLDEN_CARD_TEXTURE_FILE_NAME);
+        }
+        else
+        {
+            cardComponents.back()->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + (cardData->IsSpell() ? CARD_FRAME_SPELL_TEXTURE_FILE_NAME : CARD_FRAME_NORMAL_TEXTURE_FILE_NAME));
+        }
+        
         cardComponents.back()->mScale.x = cardComponents.back()->mScale.y = game_constants::IN_GAME_CARD_BASE_SCALE;
         cardComponents.back()->mBoundingRectMultiplier.x = game_constants::CARD_BOUNDING_RECT_X_MULTIPLIER;
         cardComponents.back()->mPosition = position;
