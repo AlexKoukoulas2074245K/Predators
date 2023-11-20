@@ -175,14 +175,15 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
             mSystems->mFontRepository.ReloadMarkedFontsFromDisk();
         }
 
-        mSystems->mAnimationManager.Update(dtMillis);
-        clientUpdateFunction(dtMillis);
-        mSystems->mInputStateManager.VUpdate(dtMillis);
+        float gameLogicMillis = math::Min(20.0f, dtMillis);
+        mSystems->mAnimationManager.Update(gameLogicMillis);
+        clientUpdateFunction(gameLogicMillis);
+        mSystems->mInputStateManager.VUpdate(gameLogicMillis);
         
         for (auto& scene: mSystems->mActiveSceneManager.GetScenes())
         {
-            scene->GetCamera().Update(dtMillis);
-            mSystems->mParticleUpdater.UpdateSceneParticles(dtMillis, *scene);
+            scene->GetCamera().Update(gameLogicMillis);
+            mSystems->mParticleUpdater.UpdateSceneParticles(gameLogicMillis, *scene);
             mSystems->mActiveSceneManager.SortSceneObjects(scene);
         }
         

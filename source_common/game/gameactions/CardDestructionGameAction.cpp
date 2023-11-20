@@ -103,7 +103,7 @@ void CardDestructionGameAction::VInitAnimation()
             mGameSessionManager->GetHeldCardSoWrappers().at(attackingPayerIndex).at(cardIndexInt);
         
         cardSoWrapper->mSceneObject->mShaderResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CARD_DISSOLVE_SHADER_FILE_NAME);
-        cardSoWrapper->mSceneObject->mEffectTextureResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + DISSOLVE_TEXTURE_FILE_NAME);
+        cardSoWrapper->mSceneObject->mEffectTexture2ResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + DISSOLVE_TEXTURE_FILE_NAME);
         cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] = 0.0f;
         cardSoWrapper->mSceneObject->mShaderFloatUniformValues[CARD_ORIGIN_X_UNIFORM_NAME] = cardSoWrapper->mSceneObject->mPosition.x;
         cardSoWrapper->mSceneObject->mShaderFloatUniformValues[CARD_ORIGIN_Y_UNIFORM_NAME] = cardSoWrapper->mSceneObject->mPosition.y;
@@ -115,9 +115,6 @@ void CardDestructionGameAction::VInitAnimation()
 
 ActionAnimationUpdateResult CardDestructionGameAction::VUpdateAnimation(const float dtMillis)
 {
-    static float time = 0.0f;
-    time += dtMillis * 0.001f;
-//    
     auto cardIndices = strutils::StringToVecOfStrings(mExtraActionParams.at(CARD_INDICES_PARAM));
     auto attackingPayerIndex = std::stoi(mExtraActionParams.at(PLAYER_INDEX_PARAM));
     bool isBoardCard = mExtraActionParams.at(IS_BOARD_CARD_PARAM) == "true";
@@ -130,7 +127,6 @@ ActionAnimationUpdateResult CardDestructionGameAction::VUpdateAnimation(const fl
             mGameSessionManager->GetBoardCardSoWrappers().at(attackingPayerIndex).at(cardIndexInt) :
             mGameSessionManager->GetHeldCardSoWrappers().at(attackingPayerIndex).at(cardIndexInt);
         cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] += dtMillis * CARD_DISSOLVE_SPEED;
-        cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = fmod(time, 1.0f);
         
         if (cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] >= MAX_CARD_DISSOLVE_VALUE)
         {

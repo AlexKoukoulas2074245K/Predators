@@ -22,6 +22,8 @@ static const std::string CARD_FRAME_NORMAL_TEXTURE_FILE_NAME = "card_frame_norma
 static const std::string CARD_FRAME_SPELL_TEXTURE_FILE_NAME = "card_frame_spell.png";
 static const std::string CARD_BACK_TEXTURE_FILE_NAME = "card_back.png";
 static const std::string GOLDEN_CARD_TEXTURE_FILE_NAME = "card_frame_golden.png";
+static const std::string GOLDEN_CARD_FLAKES_MASK_TEXTURE_FILE_NAME = "golden_card_flakes_mask.png";
+static const std::string GOLDEN_SPELL_CARD_FLAKES_MASK_TEXTURE_FILE_NAME = "golden_spell_card_flakes_mask.png";
 static const std::string CARD_SHADER_FILE_NAME = "card.vs";
 static const std::string CARD_DAMAGE_ICON_TEXTURE_FILE_NAME = "damage_icon.png";
 static const std::string CARD_WEIGHT_ICON_TEXTURE_FILE_NAME = "feather_icon.png";
@@ -93,6 +95,7 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
      const std::string& cardNamePrefix,
      const CardOrientation cardOrientation,
      const CardRarity cardRarity,
+     const bool isOnBoard,
      const bool forRemotePlayer,
      const bool canCardBePlayed,
      const CardStatOverrides& cardStatOverrides,
@@ -115,6 +118,8 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
         cardSoWrapper->mSceneObject->mScale.x = cardSoWrapper->mSceneObject->mScale.y = game_constants::IN_GAME_CARD_BASE_SCALE;
         cardSoWrapper->mSceneObject->mBoundingRectMultiplier.x = game_constants::CARD_BOUNDING_RECT_X_MULTIPLIER;
         cardSoWrapper->mSceneObject->mPosition = position;
+        cardSoWrapper->mSceneObject->mShaderBoolUniformValues[game_constants::IS_GOLDEN_CARD_UNIFORM_NAME] = false;
+        cardSoWrapper->mSceneObject->mShaderBoolUniformValues[game_constants::IS_HELD_CARD_UNIFORM_NAME] = true;
     }
     else
     {
@@ -278,8 +283,13 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
             generatedTextureOverridePostfixSS << "_global_weight_" << globalStatModifiers.at(CardStatType::WEIGHT);
         }
         
+        if (cardRarity == CardRarity::GOLDEN)
+        {
+            generatedTextureOverridePostfixSS << "_golden";
+        }
+        
         rendering::CollateSceneObjectsIntoOne(GENERATED_R2T_NAME_PREFIX + (forRemotePlayer ? "0_id_" : "1_id_") + std::to_string(cardData->mCardId) + generatedTextureOverridePostfixSS.str(), position, cardComponents, scene);
-        cardComponents.front()->mShaderResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CARD_SHADER_FILE_NAME);
+        cardComponents.front()->mShaderResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CARD_SHADER_FILE_NAME, resources::RELOAD_EVERY_SECOND);
         cardComponents.front()->mShaderIntUniformValues[game_constants::CARD_WEIGHT_INTERACTIVE_MODE_UNIFORM_NAME] = canCardBePlayed ? game_constants::CARD_INTERACTIVE_MODE_DEFAULT : game_constants::CARD_INTERACTIVE_MODE_NONINTERACTIVE;
         
         int damage = math::Max(0, cardStatOverrides.count(CardStatType::DAMAGE) ? cardStatOverrides.at(CardStatType::DAMAGE) : cardData->mCardDamage);
@@ -303,6 +313,11 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
         
         cardComponents.front()->mPosition += position;
         cardComponents.front()->mScale *= RENDER_TO_TEXTURE_UPSCALE_FACTOR;
+        
+        cardComponents.front()->mShaderBoolUniformValues[game_constants::IS_GOLDEN_CARD_UNIFORM_NAME] = cardRarity == CardRarity::GOLDEN;
+        cardComponents.front()->mShaderBoolUniformValues[game_constants::IS_HELD_CARD_UNIFORM_NAME] = !isOnBoard;
+        cardComponents.front()->mShaderFloatUniformValues[game_constants::LIGHT_POS_X_UNIFORM_NAME] = -1.0f;
+        cardComponents.front()->mEffectTextureResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + (cardData->IsSpell() ? GOLDEN_SPELL_CARD_FLAKES_MASK_TEXTURE_FILE_NAME : GOLDEN_CARD_FLAKES_MASK_TEXTURE_FILE_NAME));
         
         cardSoWrapper->mSceneObject = cardComponents.front();
     }

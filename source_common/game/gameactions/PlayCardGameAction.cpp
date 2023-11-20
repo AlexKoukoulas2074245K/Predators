@@ -25,8 +25,10 @@
 const std::string PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM = "lastPlayedCardIndex";
 
 static const std::string CARD_PLAY_PARTICLE_TEXTURE_FILE_NAME = "smoke.png";
+
 static const strutils::StringId CARD_EFFECT_GAME_ACTION_NAME = strutils::StringId("CardEffectGameAction");
 static const strutils::StringId TRAP_TRIGGERED_ANIMATION_GAME_ACTION_NAME = strutils::StringId("TrapTriggeredAnimationGameAction");
+static const strutils::StringId GOLDEN_CARD_PLAYED_EFFECT_GAME_ACTION_NAME = strutils::StringId("GoldenCardPlayedEffectGameAction");
 
 static const float CARD_CAMERA_SHAKE_DURATION = 0.25f;
 static const float CARD_CAMERA_SHAKE_STRENGTH = 0.005f;
@@ -79,6 +81,11 @@ void PlayCardGameAction::VSetNewGameState()
     activePlayerState.mPlayerHeldCards.erase(activePlayerState.mPlayerHeldCards.begin() + lastPlayedCardIndex);
     activePlayerState.mPlayerCurrentWeightAmmo -= cardData->get().mCardWeight;
     
+    if (true) //golden card)
+    {
+        mGameActionEngine->AddGameAction(GOLDEN_CARD_PLAYED_EFFECT_GAME_ACTION_NAME);
+    }
+    
     if (cardData->get().IsSpell())
     {
         mGameActionEngine->AddGameAction(CARD_EFFECT_GAME_ACTION_NAME);
@@ -125,7 +132,7 @@ void PlayCardGameAction::VInitAnimation()
     if (mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX)
     {
         activeScene->RemoveSceneObject(lastPlayedCardSoWrapper->mSceneObject->mName);
-        lastPlayedCardSoWrapper = card_utils::CreateCardSoWrapper(lastPlayedCardSoWrapper->mCardData, lastPlayedCardSoWrapper->mSceneObject->mPosition, game_constants::TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX + std::to_string(mBoardState->GetActivePlayerState().mPlayerBoardCards.size() - 1), CardOrientation::FRONT_FACE, CardRarity::NORMAL, true, true, (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.size()) > lastPlayedCardIndex ? mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.at(lastPlayedCardIndex) : CardStatOverrides()), {}, *activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE));
+        lastPlayedCardSoWrapper = card_utils::CreateCardSoWrapper(lastPlayedCardSoWrapper->mCardData, lastPlayedCardSoWrapper->mSceneObject->mPosition, game_constants::TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX + std::to_string(mBoardState->GetActivePlayerState().mPlayerBoardCards.size() - 1), CardOrientation::FRONT_FACE, CardRarity::GOLDEN, false, true, true, (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.size()) > lastPlayedCardIndex ? mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.at(lastPlayedCardIndex) : CardStatOverrides()), {}, *activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE));
         events::EventSystem::GetInstance().DispatchEvent<events::HeldCardSwapEvent>(lastPlayedCardSoWrapper, lastPlayedCardIndex, true);
     }
     
@@ -155,6 +162,8 @@ void PlayCardGameAction::VInitAnimation()
             *CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE), // scene
             particle_flags::PREFILLED | particle_flags::ENLARGE_OVER_TIME                  // particleFlags
          );
+        
+        lastPlayedCardSoWrapper->mSceneObject->mShaderBoolUniformValues[game_constants::IS_HELD_CARD_UNIFORM_NAME] = false;
     });
     mPendingAnimations++;
 }

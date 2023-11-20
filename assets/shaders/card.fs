@@ -4,13 +4,17 @@ in vec2 uv_frag;
 in vec3 frag_unprojected_pos;
 
 uniform sampler2D tex;
+uniform sampler2D golden_flakes_mask_tex;
 uniform vec4 ambient_light_color;
 uniform vec4 point_light_colors[32];
 uniform vec3 point_light_positions[32];
 uniform float point_light_powers[32];
 uniform float custom_alpha;
 uniform float time;
+uniform float light_pos_x;
 uniform bool affected_by_light;
+uniform bool golden_card;
+uniform bool held_card;
 uniform int active_light_count;
 uniform int weight_interactive_mode;
 uniform int damage_interactive_mode;
@@ -26,7 +30,7 @@ void main()
 
     if (frag_color.a < 0.1) discard;
     
-    frag_color = calculate_interactive_color(frag_color, weight_interactive_mode, damage_interactive_mode, time);
+    frag_color = calculate_card_color(frag_color, vec2(final_uv_x, final_uv_y), weight_interactive_mode, damage_interactive_mode, golden_card, held_card, time, light_pos_x, tex, golden_flakes_mask_tex);
     
     if (affected_by_light)
     {

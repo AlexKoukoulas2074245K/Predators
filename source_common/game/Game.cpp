@@ -73,19 +73,6 @@ void Game::Init()
     boardSceneObject->mTextureResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "board.png");
     boardSceneObject->mRotation.z = math::PI/2.0f;
     
-    auto card = card_utils::CreateCardSoWrapper(&CardDataRepository::GetInstance().GetCardData(4)->get(), glm::vec3(0.06f, 0.0f, 0.1f), "TEST", CardOrientation::FRONT_FACE, CardRarity::GOLDEN, false, true, {}, {}, *dummyScene);
-    card->mSceneObject->mEffectTextureResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "golden_card_distortion_2.png");
-    card->mSceneObject->mEffectTexture2ResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "golden_card_distortion_mask.png");
-    card->mSceneObject->mShaderResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + "golden_card.vs");
-    card->mSceneObject->mShaderFloatUniformValues[strutils::StringId("distance_threshold")] = 0.445f;//0.01f;
-    card->mSceneObject->mShaderFloatUniformValues[strutils::StringId("spec_intensity")] = 0.8f;//0.01f;
-    card->mSceneObject->mShaderFloatUniformValues[strutils::StringId("diffuse_intensity")] = 0.3f;//0.01f;
-    card->mSceneObject->mShaderFloatUniformValues[strutils::StringId("distortion_mag")] = 0.003f;//0.01f;
-    card->mSceneObject->mShaderFloatUniformValues[strutils::StringId("light_power")] = 32.0f;//0.01f;
-    card->mSceneObject->mShaderFloatUniformValues[strutils::StringId("res")] = 360.0f;//0.01f;
-    card->mSceneObject->mShaderBoolUniformValues[strutils::StringId("show_specular")] = true;//0.01f;
-    card->mSceneObject->mShaderBoolUniformValues[strutils::StringId("show_diffuse")] = true;//0.01f;
-    
 //    auto flameSceneObject = dummyScene->CreateSceneObject(strutils::StringId("Fire"));
 //    flameSceneObject->mTextureResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "fire.png");
 //    flameSceneObject->mShaderResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + "card_dissolve.vs");
@@ -164,32 +151,39 @@ void Game::Update(const float dtMillis)
     static float time = 0.0f;
     time += dtMillis * 0.0001f;
     
-    auto& systemsEngine = CoreSystemsEngine::GetInstance();
-    auto activeScene = systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    static float lightPosX = -0.3f;
+    static bool right = true;
     
-    auto sceneObject = activeScene->FindSceneObject(strutils::StringId("TEST_CARD"));
-    sceneObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
-//    
-    
+    if (right)
+    {
+        lightPosX += dtMillis * 0.0003f;
+        if (lightPosX > 3.0f)
+        {
+            lightPosX = 3.0f;
+            right = false;
+        }
+    }
+    else
+    {
+        lightPosX -= dtMillis * 0.0003f;
+        if (lightPosX < -3.0f)
+        {
+            lightPosX = -3.0f;
+            right = true;
+        }
+    }
+    (void)time;
+    (void)lightPosX;
 //
-//    if (systemsEngine.GetInputStateManager().VButtonTapped(input::Button::MAIN_BUTTON))
+//    auto& systemsEngine = CoreSystemsEngine::GetInstance();
+//    auto activeScene = systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+//
+//    for (int i = 0; i < 1; ++i)
 //    {
-//        auto touchPos = systemsEngine.GetInputStateManager().VGetPointingPosInWorldSpace(activeScene->GetCamera().GetViewMatrix(), activeScene->GetCamera().GetProjMatrix());
-//
-//        rendering::CreateParticleEmitterAtPosition
-//        (
-//            glm::vec3(touchPos.x, touchPos.y, 1.0f),   // pos
-//            {0.5f, 1.0f},                              // particleLifetimeRange
-//            {-0.003f, 0.003f},                         // particlePositionXOffsetRange
-//            {-0.003f, 0.003f},                         // particlePositionYOffsetRange
-//            {0.002f, 0.004f},                          // particleSizeRange
-//            10,                                        // particleCount
-//            "smoke.png",                               // particleTextureFilename
-//            *systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE), // scene
-//            particle_flags::PREFILLED                  // particleFlags
-//         );
+//        auto sceneObject = activeScene->FindSceneObject(strutils::StringId("TEST_" + std::to_string(i) + "_CARD"));
+//        sceneObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
 //    }
-//
+
     mGameSessionManager.Update(dtMillis);
 }
 

@@ -1,3 +1,12 @@
+float transformTime(float time)
+{
+    float usableTime = mod(time, 60.0f);
+    if (usableTime >= 30.0f)
+    {
+        usableTime = 60.0f - usableTime;
+    }
+    return usableTime;
+}
 
 vec2 randomGradient(vec2 p, float time, float time_speed)
 {
@@ -9,7 +18,7 @@ vec2 randomGradient(vec2 p, float time, float time_speed)
     gradient = gradient * 43.7585453f;//43758.5453f;
     
     // part 4.5 - update noise function with time
-    gradient = sin(gradient + time * time_speed);
+    gradient = sin(gradient + transformTime(time) * time_speed);
     return gradient;
 }
 
@@ -25,12 +34,13 @@ vec2 quintic(vec2 p)
 
 float perlin(float perlin_resolution, float time, float time_speed)
 {
+    float final_uv_x = uv_frag.x;
+    float final_uv_y = 1.0 - uv_frag.y;
+    vec2 coord = vec2(final_uv_x * 480, final_uv_y * 480);
+    
     // part 0 - basic shader setup
     vec2 res = vec2(perlin_resolution, perlin_resolution);
-    vec2 uv = gl_FragCoord.xy/res;
-    
-    // uncomment for final final demo
-    uv = gl_FragCoord.xy/res.y;
+    vec2 uv = coord.xy/res.y;
     
     vec3 black = vec3(0.0);
     vec3 white = vec3(1.0);

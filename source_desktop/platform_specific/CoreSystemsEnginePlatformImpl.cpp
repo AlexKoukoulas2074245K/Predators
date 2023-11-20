@@ -228,20 +228,21 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
         const auto logicUpdateTimeStart = std::chrono::system_clock::now();
 #endif
         
+        float gameLogicMillis = math::Min(20.0f, dtMillis * sGameSpeed);
         if (!freezeGame)
         {
-            mSystems->mAnimationManager.Update(dtMillis * sGameSpeed);
-            clientUpdateFunction(dtMillis * sGameSpeed);
+            mSystems->mAnimationManager.Update(gameLogicMillis);
+            clientUpdateFunction(gameLogicMillis);
         }
         
-        mSystems->mInputStateManager.VUpdate(dtMillis * sGameSpeed);
+        mSystems->mInputStateManager.VUpdate(gameLogicMillis);
         
         if (!freezeGame)
         {
             for (auto& scene: mSystems->mActiveSceneManager.GetScenes())
             {
-                scene->GetCamera().Update(dtMillis * sGameSpeed);
-                mSystems->mParticleUpdater.UpdateSceneParticles(dtMillis * sGameSpeed, *scene);
+                scene->GetCamera().Update(gameLogicMillis);
+                mSystems->mParticleUpdater.UpdateSceneParticles(gameLogicMillis, *scene);
                 mSystems->mActiveSceneManager.SortSceneObjects(scene);
             }
         }

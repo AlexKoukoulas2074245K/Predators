@@ -6,6 +6,7 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <engine/CoreSystemsEngine.h>
+#include <engine/input/IInputStateManager.h>
 #include <engine/rendering/AnimationManager.h>
 #include <engine/rendering/Fonts.h>
 #include <engine/rendering/OpenGL.h>
@@ -501,6 +502,13 @@ void RendererPlatformImpl::CreateIMGuiWidgets()
         auto viewerName = strutils::StringId("Scene Data Viewer (" + sceneRef.get().GetName().GetString() + ")");
         
         ImGui::Begin(viewerName.GetString().c_str(), nullptr, GLOBAL_WINDOW_LOCKING);
+        
+        // Scene Input propertues
+        if (ImGui::CollapsingHeader("Input", ImGuiTreeNodeFlags_None))
+        {
+            auto worldPos = CoreSystemsEngine::GetInstance().GetInputStateManager().VGetPointingPosInWorldSpace(sceneRef.get().GetCamera().GetViewMatrix(), sceneRef.get().GetCamera().GetProjMatrix());
+            ImGui::Text("Cursor %.3f,%.3f",worldPos.x, worldPos.y);
+        }
         
         // Camera properties
         if (ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_None))

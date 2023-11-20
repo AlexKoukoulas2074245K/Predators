@@ -11,6 +11,7 @@
 #include <game/gameactions/DrawCardGameAction.h>
 #include <game/gameactions/GameActionFactory.h>
 #include <game/gameactions/GameOverGameAction.h>
+#include <game/gameactions/GoldenCardPlayedEffectGameAction.h>
 #include <game/gameactions/IdleGameAction.h>
 #include <game/gameactions/NextPlayerGameAction.h>
 #include <game/gameactions/PlayCardGameAction.h>
@@ -44,6 +45,7 @@ void GameActionFactory::RegisterGameActions()
     REGISTER_ACTION(CardDestructionGameAction);
     REGISTER_ACTION(PostNextPlayerGameAction);
     REGISTER_ACTION(TrapTriggeredAnimationGameAction);
+    REGISTER_ACTION(GoldenCardPlayedEffectGameAction);
     std::sort(REGISTERED_ACTION_NAMES.begin(), REGISTERED_ACTION_NAMES.end(), [&](const strutils::StringId& lhs, const strutils::StringId& rhs)
     {
         return lhs.GetString() < rhs.GetString();
@@ -71,6 +73,7 @@ std::unique_ptr<BaseGameAction> GameActionFactory::CreateGameAction(const struti
     ACTION_CASE(PlayCardGameAction);
     ACTION_CASE(PostNextPlayerGameAction);
     ACTION_CASE(TrapTriggeredAnimationGameAction);
+    ACTION_CASE(GoldenCardPlayedEffectGameAction);
     assert(false && "Invalid game action name");
     return nullptr;
 }

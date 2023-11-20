@@ -46,6 +46,7 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
     const std::string& cardNamePrefix,
     const CardOrientation cardOrientation,
     const CardRarity cardRarity,
+    const bool isOnBoard,
     const bool forRemotePlayer,
     const bool canCardBePlayed,
     const CardStatOverrides& cardStatOverrides,

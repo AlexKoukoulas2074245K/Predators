@@ -56,6 +56,9 @@ namespace game_constants
     inline const strutils::StringId PERLIN_CLARITY_UNIFORM_NAME = strutils::StringId("perlin_clarity");
     inline const strutils::StringId CARD_WEIGHT_INTERACTIVE_MODE_UNIFORM_NAME = strutils::StringId("weight_interactive_mode");
     inline const strutils::StringId CARD_DAMAGE_INTERACTIVE_MODE_UNIFORM_NAME = strutils::StringId("damage_interactive_mode");
+    inline const strutils::StringId LIGHT_POS_X_UNIFORM_NAME = strutils::StringId("light_pos_x");
+    inline const strutils::StringId IS_GOLDEN_CARD_UNIFORM_NAME = strutils::StringId("golden_card");
+    inline const strutils::StringId IS_HELD_CARD_UNIFORM_NAME = strutils::StringId("held_card");
 
     // Scenes
     inline const strutils::StringId IN_GAME_BATTLE_SCENE = strutils::StringId("BATTLE");
