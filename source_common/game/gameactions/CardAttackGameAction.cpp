@@ -14,7 +14,7 @@
 #include <game/gameactions/GameOverGameAction.h>
 #include <game/GameSessionManager.h>
 #include <engine/rendering/AnimationManager.h>
-#include <engine/rendering/Particles.h>
+#include <engine/rendering/ParticleManager.h>
 #include <engine/scene/ActiveSceneManager.h>
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
@@ -154,7 +154,7 @@ void CardAttackGameAction::VInitAnimation()
                     auto attackingPayerIndex = std::stoi(mExtraActionParams.at(PLAYER_INDEX_PARAM));
                     auto cardSoWrapper = mGameSessionManager->GetBoardCardSoWrappers().at(attackingPayerIndex).at(cardIndex);
                     
-                    rendering::CreateParticleEmitterAtPosition
+                    systemsEngine.GetParticleManager().CreateParticleEmitterAtPosition
                     (
                         glm::vec3(cardSoWrapper->mSceneObject->mPosition.x, cardSoWrapper->mSceneObject->mPosition.y, ATTACKING_CARD_PARTICLE_EMITTER_Z), // pos
                         ATTACKING_CARD_PARTICLE_LIFETIME_RANGE,         // particleLifetimeRange

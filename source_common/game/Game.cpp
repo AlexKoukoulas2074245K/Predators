@@ -11,7 +11,7 @@
 #include <engine/rendering/AnimationManager.h>
 #include <engine/rendering/Camera.h>
 #include <engine/rendering/Fonts.h>
-#include <engine/rendering/Particles.h>
+#include <engine/rendering/ParticleManager.h>
 #include <engine/resloading/ResourceLoadingService.h>
 #include <engine/scene/ActiveSceneManager.h>
 #include <engine/scene/Scene.h>
@@ -149,14 +149,37 @@ void Game::Init()
 void Game::Update(const float dtMillis)
 {
 //
-//    auto& systemsEngine = CoreSystemsEngine::GetInstance();
-//    auto activeScene = systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto& systemsEngine = CoreSystemsEngine::GetInstance();
+    auto activeScene = systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
 //
 //    for (int i = 0; i < 1; ++i)
 //    {
 //        auto sceneObject = activeScene->FindSceneObject(strutils::StringId("TEST_" + std::to_string(i) + "_CARD"));
 //        sceneObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
 //    }
+    
+    if (systemsEngine.GetInputStateManager().VButtonTapped(input::Button::MAIN_BUTTON))
+    {
+        auto touchPos = systemsEngine.GetInputStateManager().VGetPointingPosInWorldSpace(activeScene->GetCamera().GetViewMatrix(), activeScene->GetCamera().GetProjMatrix());
+        auto& systemsEngine = CoreSystemsEngine::GetInstance();
+        auto activeScene = systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+        
+        systemsEngine.GetParticleManager().CreateParticleEmitterAtPosition
+        (
+            glm::vec3(touchPos.x, touchPos.y, 1.0f),   // pos
+            {2.0f, 3.0f},                              // particleLifetimeRange
+            {-0.03f, 0.03f},                         // particlePositionXOffsetRange
+            {-0.03f, 0.03f},                         // particlePositionYOffsetRange
+            {0.02f, 0.04f},                          // particleSizeRange
+            20,                                        // particleCount
+            "feather_particle.png",                               // particleTextureFilename
+            *systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE), // scene
+            particle_flags::PREFILLED | particle_flags::ENLARGE_OVER_TIME,                  // particleFlags
+            strutils::StringId(),
+            DEFAULT_PARTICLE_ENLARGEMENT_SPEED * 5.0f
+        );
+    }
+    
 
     mGameSessionManager.Update(dtMillis);
 }

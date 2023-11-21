@@ -15,7 +15,7 @@
 #include <game/GameRuleEngine.h>
 #include <game/GameSessionManager.h>
 #include <engine/rendering/AnimationManager.h>
-#include <engine/rendering/Particles.h>
+#include <engine/rendering/ParticleManager.h>
 #include <engine/scene/ActiveSceneManager.h>
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
@@ -163,7 +163,7 @@ void PlayCardGameAction::VInitAnimation()
         
         events::EventSystem::GetInstance().DispatchEvent<events::WeightChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
         
-        rendering::CreateParticleEmitterAtPosition
+        CoreSystemsEngine::GetInstance().GetParticleManager().CreateParticleEmitterAtPosition
         (
             glm::vec3(targetPosition.x, targetPosition.y, CARD_PLAY_PARTICLE_EMITTER_Z), // pos
             CARD_PLAY_PARTICLE_LIFETIME_RANGE,         // particleLifetimeRange

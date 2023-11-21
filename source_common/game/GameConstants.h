@@ -123,7 +123,7 @@ namespace game_constants
     inline const float TURN_POINTER_ANIMATION_DURATION_SECS = 0.33f;
     inline const float KILL_SIDE_EFFECT_SCALE_UP_FACTOR = 1.5f;
     inline const float KILL_SIDE_EFFECT_PULSE_ANIMATION_PULSE_DUARTION_SECS = 1.0f;
-
+    
     inline const glm::vec3 KILL_SIDE_EFFECT_SCALE = {1/20.0f, 1/20.0f, 1/20.0f};
     inline const glm::vec3 TURN_POINTER_HIGHLIGHTER_SCALE = {0.06f, 0.09f, 0.8f};
     inline const glm::vec3 CARD_HIGHLIGHTER_SCALE = {0.08f, 0.13f, 1.0f};

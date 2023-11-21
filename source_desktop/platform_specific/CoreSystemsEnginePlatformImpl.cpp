@@ -10,7 +10,7 @@
 #include <engine/rendering/AnimationManager.h>
 #include <engine/rendering/Fonts.h>
 #include <engine/rendering/OpenGL.h>
-#include <engine/rendering/ParticleUpdater.h>
+#include <engine/rendering/ParticleManager.h>
 #include <engine/resloading/ResourceLoadingService.h>
 #include <engine/scene/ActiveSceneManager.h>
 #include <engine/scene/Scene.h>
@@ -53,7 +53,7 @@ struct CoreSystemsEngine::SystemsImpl
 {
     rendering::AnimationManager mAnimationManager;
     rendering::RendererPlatformImpl mRenderer;
-    rendering::ParticleUpdater mParticleUpdater;
+    rendering::ParticleManager mParticleManager;
     rendering::FontRepository mFontRepository;
     input::InputStateManagerPlatformImpl mInputStateManager;
     scene::ActiveSceneManager mActiveSceneManager;
@@ -257,7 +257,7 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
             for (auto& scene: mSystems->mActiveSceneManager.GetScenes())
             {
                 scene->GetCamera().Update(gameLogicMillis);
-                mSystems->mParticleUpdater.UpdateSceneParticles(gameLogicMillis, *scene);
+                mSystems->mParticleManager.UpdateSceneParticles(gameLogicMillis, *scene);
                 mSystems->mActiveSceneManager.SortSceneObjects(scene);
             }
         }
@@ -313,6 +313,13 @@ rendering::AnimationManager& CoreSystemsEngine::GetAnimationManager()
 rendering::IRenderer& CoreSystemsEngine::GetRenderer()
 {
     return mSystems->mRenderer;
+}
+
+///------------------------------------------------------------------------------------------------
+
+rendering::ParticleManager& CoreSystemsEngine::GetParticleManager()
+{
+    return mSystems->mParticleManager;
 }
 
 ///------------------------------------------------------------------------------------------------

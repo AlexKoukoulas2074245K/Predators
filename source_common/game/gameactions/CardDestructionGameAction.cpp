@@ -13,7 +13,7 @@
 #include <game/gameactions/GameOverGameAction.h>
 #include <game/GameSessionManager.h>
 #include <engine/rendering/AnimationManager.h>
-#include <engine/rendering/Particles.h>
+#include <engine/rendering/ParticleManager.h>
 #include <engine/scene/ActiveSceneManager.h>
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>

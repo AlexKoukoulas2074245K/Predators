@@ -14,7 +14,7 @@
 #include <game/gameactions/GameOverGameAction.h>
 #include <game/GameSessionManager.h>
 #include <engine/rendering/AnimationManager.h>
-#include <engine/rendering/Particles.h>
+#include <engine/rendering/ParticleManager.h>
 #include <engine/scene/ActiveSceneManager.h>
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
@@ -89,7 +89,7 @@ void CardEffectGameAction::VInitAnimation()
     cardSoWrapper->mSceneObject->mShaderFloatUniformValues[CARD_ORIGIN_Y_UNIFORM_NAME] = cardSoWrapper->mSceneObject->mPosition.y;
     cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_MAGNITUDE_UNIFORM_NAME] = math::RandomFloat(CARD_DISSOLVE_EFFECT_MAG_RANGE.x, CARD_DISSOLVE_EFFECT_MAG_RANGE.y);
     
-    rendering::CreateParticleEmitterAtPosition
+    systemsEngine.GetParticleManager().CreateParticleEmitterAtPosition
     (
         glm::vec3(cardSoWrapper->mSceneObject->mPosition.x, cardSoWrapper->mSceneObject->mPosition.y, CARD_EFFECT_PARTICLE_EMITTER_Z_OFFSET), // pos
         CARD_EFFECT_PARTICLE_LIFETIME_RANGE,            // particleLifetimeRange
@@ -101,6 +101,7 @@ void CardEffectGameAction::VInitAnimation()
         *CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE), // scene
         particle_flags::CONTINUOUS_PARTICLE_GENERATION | particle_flags::ENLARGE_OVER_TIME,  // particleFlags
         CARD_EFFECT_PARTICLE_EMITTER_NAME,
+        DEFAULT_PARTICLE_ENLARGEMENT_SPEED,
         CONTINUOUS_PARTICLE_GENERATION_DELAY_SECS
     );
     
@@ -135,7 +136,7 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
             if (effectCardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] >= MAX_CARD_DISSOLVE_VALUE/2)
             {
                 // Fade particle emitter on spell
-                rendering::RemoveParticleEmitterFlag(particle_flags::CONTINUOUS_PARTICLE_GENERATION, CARD_EFFECT_PARTICLE_EMITTER_NAME, *CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE));
+                CoreSystemsEngine::GetInstance().GetParticleManager().RemoveParticleEmitterFlag(particle_flags::CONTINUOUS_PARTICLE_GENERATION, CARD_EFFECT_PARTICLE_EMITTER_NAME, *CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE));
             }
             
             if (effectCardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] >= MAX_CARD_DISSOLVE_VALUE)
@@ -155,7 +156,7 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
                         card_utils::CalculateBoardCardPosition(affectedCardEntry.mCardIndex, static_cast<int>(boardCards.size()), mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX):
                         card_utils::CalculateHeldCardPosition(affectedCardEntry.mCardIndex, static_cast<int>(heldCards.size()), mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, activeScene->GetCamera());
                     
-                    rendering::CreateParticleEmitterAtPosition
+                    CoreSystemsEngine::GetInstance().GetParticleManager().CreateParticleEmitterAtPosition
                     (
                         glm::vec3(targetPosition.x, targetPosition.y, CARD_EFFECT_PARTICLE_EMITTER_Z_OFFSET), // pos
                         CARD_EFFECT_PARTICLE_LIFETIME_RANGE,            // particleLifetimeRange
@@ -167,6 +168,7 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
                         *CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE), // scene
                         particle_flags::CONTINUOUS_PARTICLE_GENERATION | particle_flags::ENLARGE_OVER_TIME,  // particleFlags
                         strutils::StringId(BUFFED_CARD_PARTICLE_EMITTER_NAME_PREFIX + std::to_string(i)),
+                        DEFAULT_PARTICLE_ENLARGEMENT_SPEED,
                         CONTINUOUS_PARTICLE_GENERATION_DELAY_SECS
                     );
                 }
@@ -202,7 +204,7 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
                     auto originalScale = affectedCardEntry.mCardSoWrapper->mSceneObject->mScale;
                     animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(affectedCardEntry.mCardSoWrapper->mSceneObject, affectedCardEntry.mCardSoWrapper->mSceneObject->mPosition, originalScale * 1.5f, CARD_SCALE_ANIMATION_DURATION_SECS/2, animation_flags::NONE, i * CARD_SCALE_ANIMATION_DURATION_SECS, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
                     {
-                        rendering::RemoveParticleEmitterFlag(particle_flags::CONTINUOUS_PARTICLE_GENERATION, strutils::StringId(BUFFED_CARD_PARTICLE_EMITTER_NAME_PREFIX + std::to_string(i)), *CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE));
+                        CoreSystemsEngine::GetInstance().GetParticleManager().RemoveParticleEmitterFlag(particle_flags::CONTINUOUS_PARTICLE_GENERATION, strutils::StringId(BUFFED_CARD_PARTICLE_EMITTER_NAME_PREFIX + std::to_string(i)), *CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE));
                         
                         events::EventSystem::GetInstance().DispatchEvent<events::CardBuffedDebuffedEvent>(static_cast<int>(mAffectedCards[i].mCardIndex), mAffectedCards[i].mIsBoardCard, mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
                         

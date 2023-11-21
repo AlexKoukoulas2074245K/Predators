@@ -66,6 +66,7 @@ struct ParticleEmitterObjectData
     
     float mParticleGenerationMaxDelaySecs;
     float mParticleGenerationCurrentDelaySecs;
+    float mParticleEnlargementSpeed;
 };
 
 ///------------------------------------------------------------------------------------------------

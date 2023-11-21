@@ -21,6 +21,7 @@ namespace input { class IInputStateManager; }
 namespace rendering { class AnimationManager; }
 namespace rendering { class IRenderer; }
 namespace rendering { class FontRepository; }
+namespace rendering { class ParticleManager; }
 namespace resources { class ResourceLoadingService; }
 namespace scene { class ActiveSceneManager; }
 
@@ -44,6 +45,7 @@ public:
     
     rendering::AnimationManager& GetAnimationManager();
     rendering::IRenderer& GetRenderer();
+    rendering::ParticleManager& GetParticleManager();
     rendering::FontRepository& GetFontRepository();
     input::IInputStateManager& GetInputStateManager();
     scene::ActiveSceneManager& GetActiveSceneManager();
