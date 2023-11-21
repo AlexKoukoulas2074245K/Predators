@@ -79,6 +79,9 @@ void CollateSceneObjectsIntoOne(const std::string& dynamicTextureResourceName, c
         GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, oldFrameBuffer));
         GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, oldRenderBuffer));
         assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
+        
+        GL_CALL(glDeleteFramebuffers(1, &frameBuffer));
+        GL_CALL(glDeleteRenderbuffers(1, &depthbuffer));
     }
     else
     {
