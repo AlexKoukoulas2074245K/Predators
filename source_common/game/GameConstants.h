@@ -31,6 +31,8 @@ namespace game_constants
     inline const std::string TOP_PLAYER_BOARD_CARD_SO_NAME_PREFIX = "TOP_PLAYER_BOARD_CARD_";
     inline const std::string BOT_PLAYER_BOARD_CARD_SO_NAME_PREFIX = "BOT_PLAYER_BOARD_CARD_";
     inline const std::string CARD_FREE_MOVING_ANIMATION_NAME_PRE_FIX = "FREE_MOVING_CARD_";
+    inline const std::string BOARD_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME_PRE_FIX = "BOARD_SIDE_EFFECT_TOP_VALUE_";
+    inline const std::string BOARD_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME_PRE_FIX = "BOARD_SIDE_EFFECT_BOT_VALUE_";
     inline const std::string CARD_BASE_SO_NAME_POST_FIX = "_CARD";
 
     // SO Names
@@ -71,6 +73,8 @@ namespace game_constants
     inline const int CARD_INTERACTIVE_MODE_INTERACTIVE = 1;
     inline const int CARD_INTERACTIVE_MODE_NONINTERACTIVE = 2;
     inline const int IN_GAME_CARD_PUSH_THRESHOLD = 4;
+    inline const int BOARD_SIDE_EFFECT_VALUE_SO_COUNT = 2;
+
     inline const float CARD_COMPONENT_Z_OFFSET = 0.1f;
     inline const float CARD_BOUNDING_RECT_X_MULTIPLIER = 0.5f;
     inline const float IN_GAME_PLAYED_CARD_Z = 0.1f;

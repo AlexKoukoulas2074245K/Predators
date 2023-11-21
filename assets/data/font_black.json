@@ -184,18 +184,18 @@
 					"page": "0",
 					"chnl": "15"
 				},
-				{
-					"id": "45",
-					"x": "95",
-					"y": "744",
-					"width": "31",
-					"height": "10",
-					"xoffset": "3",
-					"yoffset": "72",
-					"xadvance": "0",
-					"page": "0",
-					"chnl": "15"
-				},
+                {
+                    "id": "45",
+                    "x": "95",
+                    "y": "744",
+                    "width": "31",
+                    "height": "10",
+                    "xoffset": "3",
+                    "yoffset": "30",
+                    "xadvance": "0",
+                    "page": "0",
+                    "chnl": "15"
+                },
 				{
 					"id": "46",
 					"x": "0",

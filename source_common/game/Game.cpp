@@ -148,32 +148,6 @@ void Game::Init()
 
 void Game::Update(const float dtMillis)
 {
-    static float time = 0.0f;
-    time += dtMillis * 0.0001f;
-    
-    static float lightPosX = -0.3f;
-    static bool right = true;
-    
-    if (right)
-    {
-        lightPosX += dtMillis * 0.0003f;
-        if (lightPosX > 3.0f)
-        {
-            lightPosX = 3.0f;
-            right = false;
-        }
-    }
-    else
-    {
-        lightPosX -= dtMillis * 0.0003f;
-        if (lightPosX < -3.0f)
-        {
-            lightPosX = -3.0f;
-            right = true;
-        }
-    }
-    (void)time;
-    (void)lightPosX;
 //
 //    auto& systemsEngine = CoreSystemsEngine::GetInstance();
 //    auto activeScene = systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);

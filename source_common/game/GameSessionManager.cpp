@@ -99,6 +99,10 @@ static const float CARD_TOOLTIP_REVEAL_SPEED = 1.0f/200.0f;
 static const float CARD_TOOLTIP_TEXT_REVEAL_SPEED = 1.0f/500.0f;
 static const float CARD_TOOLTIP_FLIPPED_X_OFFSET = -0.17f;
 static const float CARD_TOOLTIP_TEXT_FLIPPED_X_OFFSET = -0.007f;
+static const float BOARD_SIDE_EFFECT_VALUE_LEFT_X = -0.075f;
+static const float BOARD_SIDE_EFFECT_VALUE_RIGHT_X = 0.045f;
+static const float BOARD_SIDE_EFFECT_VALUE_Z_OFFSET = 0.01f;
+static const float BOARD_SIDE_EFFECT_VALUE_SCALE = 0.0003f;
 
 #if defined(MOBILE_FLOW)
 static const float MOBILE_DISTANCE_FROM_CARD_LOCATION_INDICATOR = 0.003f;
@@ -132,10 +136,10 @@ void GameSessionManager::InitGameSession()
     mBoardState->GetPlayerStates().emplace_back();
     mBoardState->GetPlayerStates().emplace_back();
     
-    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = {21, 22};CardDataRepository::GetInstance().GetAllCardIds();
-    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = {21, 22};CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents")); CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));
+    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetAllCardIds();
+    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));
     
-    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mGoldenCardIds = {22};//CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));;
+    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mGoldenCardIds = {4};//CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));;
     
     mPlayerHeldCardSceneObjectWrappers.emplace_back();
     mPlayerHeldCardSceneObjectWrappers.emplace_back();
@@ -225,6 +229,41 @@ void GameSessionManager::InitGameSession()
     boardSideEffectBotSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
     boardSideEffectBotSceneObject->mPosition = BOARD_SIDE_EFFECT_BOT_POSITION;
     boardSideEffectBotSceneObject->mInvisible = true;
+    
+    for (int i = 0; i < game_constants::BOARD_SIDE_EFFECT_VALUE_SO_COUNT; ++i)
+    {
+        {
+            auto boardSideEffectTopValueSceneObject = activeScene->CreateSceneObject(strutils::StringId(game_constants::BOARD_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME_PRE_FIX + std::to_string(i)));
+            
+            scene::TextSceneObjectData effectValueTextData;
+            effectValueTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
+            effectValueTextData.mText = std::to_string(0);
+            
+            boardSideEffectTopValueSceneObject->mSceneObjectTypeData = std::move(effectValueTextData);
+            boardSideEffectTopValueSceneObject->mScale = glm::vec3(BOARD_SIDE_EFFECT_VALUE_SCALE);
+            boardSideEffectTopValueSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+            boardSideEffectTopValueSceneObject->mPosition = boardSideEffectTopSceneObject->mPosition;
+            boardSideEffectTopValueSceneObject->mPosition.x = i == 0 ? BOARD_SIDE_EFFECT_VALUE_LEFT_X : BOARD_SIDE_EFFECT_VALUE_RIGHT_X;
+            boardSideEffectTopValueSceneObject->mPosition.z += BOARD_SIDE_EFFECT_VALUE_Z_OFFSET;
+            boardSideEffectTopValueSceneObject->mInvisible = true;
+        }
+        
+        {
+            auto boardSideEffectBotValueSceneObject = activeScene->CreateSceneObject(strutils::StringId(game_constants::BOARD_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME_PRE_FIX + std::to_string(i)));
+            
+            scene::TextSceneObjectData effectValueTextData;
+            effectValueTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
+            effectValueTextData.mText = std::to_string(0);
+            
+            boardSideEffectBotValueSceneObject->mSceneObjectTypeData = std::move(effectValueTextData);
+            boardSideEffectBotValueSceneObject->mScale = glm::vec3(BOARD_SIDE_EFFECT_VALUE_SCALE);
+            boardSideEffectBotValueSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+            boardSideEffectBotValueSceneObject->mPosition = boardSideEffectBotSceneObject->mPosition;
+            boardSideEffectBotValueSceneObject->mPosition.x = i == 0 ? BOARD_SIDE_EFFECT_VALUE_LEFT_X : BOARD_SIDE_EFFECT_VALUE_RIGHT_X;
+            boardSideEffectBotValueSceneObject->mPosition.z += BOARD_SIDE_EFFECT_VALUE_Z_OFFSET;
+            boardSideEffectBotValueSceneObject->mInvisible = true;
+        }
+    }
     
     // Kill Side Effect Top
     auto killSideEffectTopSceneObject = activeScene->CreateSceneObject(game_constants::KILL_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME);
@@ -1153,6 +1192,7 @@ void GameSessionManager::OnBoardSideCardEffectTriggeredEvent(const events::Board
     if (event.mEffectBoardModifierMask == effects::board_modifier_masks::BOARD_SIDE_STAT_MODIFIER)
     {
         sideEffectSceneObject = activeScene->FindSceneObject(event.mForRemotePlayer ? game_constants::BOARD_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::BOARD_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME);
+        
         maxAlpha = 0.25f;
     }
     else if (event.mEffectBoardModifierMask == effects::board_modifier_masks::KILL_NEXT)
@@ -1166,6 +1206,19 @@ void GameSessionManager::OnBoardSideCardEffectTriggeredEvent(const events::Board
     
     sideEffectSceneObject->mInvisible = false;
     animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sideEffectSceneObject, maxAlpha, BOARD_SIDE_EFFECT_SHOWING_HIDING_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), [](){});
+    
+    if (event.mEffectBoardModifierMask == effects::board_modifier_masks::BOARD_SIDE_STAT_MODIFIER)
+    {
+        for (int i = 0; i < game_constants::BOARD_SIDE_EFFECT_VALUE_SO_COUNT; ++i)
+        {
+            auto boardSideEffectValueSceneObject = activeScene->FindSceneObject(strutils::StringId((event.mForRemotePlayer ? game_constants::BOARD_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME_PRE_FIX : game_constants::BOARD_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME_PRE_FIX) + std::to_string(i)));
+            boardSideEffectValueSceneObject->mInvisible = false;
+            
+            std::get<scene::TextSceneObjectData>(boardSideEffectValueSceneObject->mSceneObjectTypeData).mText = std::to_string(mBoardState->GetPlayerStates()[event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX].mBoardModifiers.mGlobalCardStatModifiers.at(CardStatType::DAMAGE));
+            
+            animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(boardSideEffectValueSceneObject, maxAlpha * 2, BOARD_SIDE_EFFECT_SHOWING_HIDING_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), [](){});
+        }
+    }
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -1191,6 +1244,18 @@ void GameSessionManager::OnBoardSideCardEffectEndedEvent(const events::BoardSide
     {
         sideEffectSceneObject->mInvisible = true;
     });
+    
+    if (event.mEffectBoardModifierMask == effects::board_modifier_masks::BOARD_SIDE_STAT_MODIFIER)
+    {
+        for (int i = 0; i < game_constants::BOARD_SIDE_EFFECT_VALUE_SO_COUNT; ++i)
+        {
+            auto boardSideEffectValueSceneObject = activeScene->FindSceneObject(strutils::StringId((event.mForRemotePlayer ? game_constants::BOARD_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME_PRE_FIX : game_constants::BOARD_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME_PRE_FIX) + std::to_string(i)));
+            animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(boardSideEffectValueSceneObject, 0.0f, BOARD_SIDE_EFFECT_SHOWING_HIDING_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), [=]()
+            {
+                boardSideEffectValueSceneObject->mInvisible = true;
+            });
+        }
+    }
 }
 
 ///------------------------------------------------------------------------------------------------
