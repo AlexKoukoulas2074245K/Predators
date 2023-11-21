@@ -1,4 +1,8 @@
+#if GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
 precision mediump float;
+#endif
 
 in float frag_lifetime;
 in vec2 uv_frag;

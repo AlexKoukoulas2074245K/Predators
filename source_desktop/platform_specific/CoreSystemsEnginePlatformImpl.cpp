@@ -37,6 +37,7 @@ bool CoreSystemsEngine::mInitialized = false;
 ///------------------------------------------------------------------------------------------------
 
 static float sGameSpeed = 1.0f;
+static float sLastGameLogicDtMillis = 0.0f;
 static bool sPrintFPS = false;
 
 #if (!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)
@@ -174,6 +175,9 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
     bool shouldQuit = false;
     bool freezeGame = false;
     
+    std::vector<float> last10dtMillisTimeOrdered;
+    std::vector<float> last10dtMillisValueOrdered;
+    
     while(!shouldQuit)
     {
         bool windowSizeChanged = false;
@@ -222,13 +226,24 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
             mSystems->mResourceLoadingService.ReloadMarkedResourcesFromDisk();
             mSystems->mFontRepository.ReloadMarkedFontsFromDisk();
         }
-    
+        
+        // Calculate median dt for game logic updates
+        last10dtMillisTimeOrdered.push_back(dtMillis);
+        if (last10dtMillisTimeOrdered.size() > 10)
+        {
+            last10dtMillisTimeOrdered.erase(last10dtMillisTimeOrdered.begin());
+        }
+        
+        last10dtMillisValueOrdered = last10dtMillisTimeOrdered;
+        std::sort(last10dtMillisValueOrdered.begin(), last10dtMillisValueOrdered.end());
+        float gameLogicMillis = math::Max(16.0f, last10dtMillisValueOrdered[last10dtMillisValueOrdered.size()/2]) * sGameSpeed;
+        
         // Update logic
 #if (!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)
+        sLastGameLogicDtMillis = gameLogicMillis;
         const auto logicUpdateTimeStart = std::chrono::system_clock::now();
 #endif
         
-        float gameLogicMillis = math::Min(20.0f, dtMillis) * sGameSpeed;
         if (!freezeGame)
         {
             mSystems->mAnimationManager.Update(gameLogicMillis);
@@ -364,6 +379,7 @@ void CreateEngineDebugWidgets()
     // Create runtime configs
     ImGui::Begin("Engine Runtime", nullptr, GLOBAL_WINDOW_LOCKING);
     ImGui::SeparatorText("General");
+    ImGui::Text("Game Logic Dt %.3f", sLastGameLogicDtMillis);
     ImGui::Checkbox("Print FPS", &sPrintFPS);
     ImGui::SliderFloat("Game Speed", &sGameSpeed, 0.01f, 10.0f);
     ImGui::SeparatorText("Profilling");

@@ -38,7 +38,7 @@ vec4 calculate_golden_card_color(vec4 color, float time, vec2 uv, float light_po
         lighting = light_color * (diffuse + specular) * max(0.0f, light_radius - light_dist) / light_dist;
     }
     
-    float perlin_noise = perlin(312.0f, time/5.0f, 5.0f);
+    float perlin_noise = perlin(312.0f, time/10.0f, 5.0f);
     float ridged_noise = 1.0 - abs(perlin_noise);
     ridged_noise = pow(ridged_noise, 15.0f);
     vec4 golden_flakes_mask_color = texture(golden_flakes_mask_tex, uv);

@@ -1,4 +1,8 @@
+#if GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
+#else
+precision mediump float;
+#endif
 
 in vec2 uv_frag;
 in vec3 frag_unprojected_pos;

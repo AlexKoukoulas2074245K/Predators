@@ -131,6 +131,9 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
     auto secsAccumulator          = 0.0f;
     auto framesAccumulator        = 0LL;
     
+    std::vector<float> last10dtMillisTimeOrdered;
+    std::vector<float> last10dtMillisValueOrdered;
+    
     bool shouldQuit = false;
     
     while(!shouldQuit)
@@ -165,6 +168,17 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
             }
         }
         
+        // Calculate median dt for game logic updates
+        last10dtMillisTimeOrdered.push_back(dtMillis);
+        if (last10dtMillisTimeOrdered.size() > 10)
+        {
+            last10dtMillisTimeOrdered.erase(last10dtMillisTimeOrdered.begin());
+        }
+        
+        last10dtMillisValueOrdered = last10dtMillisTimeOrdered;
+        std::sort(last10dtMillisValueOrdered.begin(), last10dtMillisValueOrdered.end());
+        float gameLogicMillis = math::Max(16.0f, last10dtMillisValueOrdered[last10dtMillisValueOrdered.size()/2]);
+        
         if (secsAccumulator > 1.0f)
         {
             logging::Log(logging::LogType::INFO, "FPS: %d", framesAccumulator);
@@ -175,7 +189,6 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
             mSystems->mFontRepository.ReloadMarkedFontsFromDisk();
         }
 
-        float gameLogicMillis = math::Min(20.0f, dtMillis);
         mSystems->mAnimationManager.Update(gameLogicMillis);
         clientUpdateFunction(gameLogicMillis);
         mSystems->mInputStateManager.VUpdate(gameLogicMillis);
