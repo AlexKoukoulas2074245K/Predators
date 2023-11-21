@@ -92,18 +92,14 @@ public:
         GL_CALL(glActiveTexture(GL_TEXTURE0));
         GL_CALL(glBindTexture(GL_TEXTURE_2D, currentTexture->GetGLTextureId()));
         
-        if (mSceneObject.mEffectTextureResourceId != 0)
+        for (int i = 0; i < scene::EFFECT_TEXTURES_COUNT; ++i)
         {
-            auto* currentEffectTexture = &(resService.GetResource<resources::TextureResource>(mSceneObject.mEffectTextureResourceId));
-            GL_CALL(glActiveTexture(GL_TEXTURE1));
-            GL_CALL(glBindTexture(GL_TEXTURE_2D, currentEffectTexture->GetGLTextureId()));
-        }
-        
-        if (mSceneObject.mEffectTexture2ResourceId != 0)
-        {
-            auto* currentEffectTexture = &(resService.GetResource<resources::TextureResource>(mSceneObject.mEffectTexture2ResourceId));
-            GL_CALL(glActiveTexture(GL_TEXTURE2));
-            GL_CALL(glBindTexture(GL_TEXTURE_2D, currentEffectTexture->GetGLTextureId()));
+            if (mSceneObject.mEffectTextureResourceIds[i] != 0)
+            {
+                auto* currentEffectTexture = &(resService.GetResource<resources::TextureResource>(mSceneObject.mEffectTextureResourceIds[i]));
+                GL_CALL(glActiveTexture(GL_TEXTURE1 + i));
+                GL_CALL(glBindTexture(GL_TEXTURE_2D, currentEffectTexture->GetGLTextureId()));
+            }
         }
         
         glm::mat4 world(1.0f);
@@ -157,18 +153,14 @@ public:
         GL_CALL(glActiveTexture(GL_TEXTURE0));
         GL_CALL(glBindTexture(GL_TEXTURE_2D, currentTexture->GetGLTextureId()));
         
-        if (mSceneObject.mEffectTextureResourceId != 0)
+        for (int i = 0; i < scene::EFFECT_TEXTURES_COUNT; ++i)
         {
-            auto* currentEffectTexture = &(resService.GetResource<resources::TextureResource>(mSceneObject.mEffectTextureResourceId));
-            GL_CALL(glActiveTexture(GL_TEXTURE1));
-            GL_CALL(glBindTexture(GL_TEXTURE_2D, currentEffectTexture->GetGLTextureId()));
-        }
-        
-        if (mSceneObject.mEffectTexture2ResourceId != 0)
-        {
-            auto* currentEffectTexture = &(resService.GetResource<resources::TextureResource>(mSceneObject.mEffectTexture2ResourceId));
-            GL_CALL(glActiveTexture(GL_TEXTURE2));
-            GL_CALL(glBindTexture(GL_TEXTURE_2D, currentEffectTexture->GetGLTextureId()));
+            if (mSceneObject.mEffectTextureResourceIds[i] != 0)
+            {
+                auto* currentEffectTexture = &(resService.GetResource<resources::TextureResource>(mSceneObject.mEffectTextureResourceIds[i]));
+                GL_CALL(glActiveTexture(GL_TEXTURE1 + i));
+                GL_CALL(glBindTexture(GL_TEXTURE_2D, currentEffectTexture->GetGLTextureId()));
+            }
         }
         
         float xCursor = mSceneObject.mPosition.x;
@@ -235,18 +227,14 @@ public:
         GL_CALL(glActiveTexture(GL_TEXTURE0));
         GL_CALL(glBindTexture(GL_TEXTURE_2D, currentTexture->GetGLTextureId()));
         
-        if (mSceneObject.mEffectTextureResourceId != 0)
+        for (int i = 0; i < scene::EFFECT_TEXTURES_COUNT; ++i)
         {
-            auto* currentEffectTexture = &(resService.GetResource<resources::TextureResource>(mSceneObject.mEffectTextureResourceId));
-            GL_CALL(glActiveTexture(GL_TEXTURE1));
-            GL_CALL(glBindTexture(GL_TEXTURE_2D, currentEffectTexture->GetGLTextureId()));
-        }
-        
-        if (mSceneObject.mEffectTexture2ResourceId != 0)
-        {
-            auto* currentEffectTexture = &(resService.GetResource<resources::TextureResource>(mSceneObject.mEffectTexture2ResourceId));
-            GL_CALL(glActiveTexture(GL_TEXTURE2));
-            GL_CALL(glBindTexture(GL_TEXTURE_2D, currentEffectTexture->GetGLTextureId()));
+            if (mSceneObject.mEffectTextureResourceIds[i] != 0)
+            {
+                auto* currentEffectTexture = &(resService.GetResource<resources::TextureResource>(mSceneObject.mEffectTextureResourceIds[i]));
+                GL_CALL(glActiveTexture(GL_TEXTURE1 + i));
+                GL_CALL(glBindTexture(GL_TEXTURE_2D, currentEffectTexture->GetGLTextureId()));
+            }
         }
         
         currentShader->SetFloat(CUSTOM_ALPHA_UNIFORM_NAME, 1.0f);

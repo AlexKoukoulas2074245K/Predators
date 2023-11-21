@@ -329,7 +329,7 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
         cardComponents.front()->mShaderBoolUniformValues[game_constants::IS_GOLDEN_CARD_UNIFORM_NAME] = cardRarity == CardRarity::GOLDEN;
         cardComponents.front()->mShaderBoolUniformValues[game_constants::IS_HELD_CARD_UNIFORM_NAME] = !isOnBoard;
         cardComponents.front()->mShaderFloatUniformValues[game_constants::LIGHT_POS_X_UNIFORM_NAME] = -1.0f;
-        cardComponents.front()->mEffectTextureResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + (cardData->IsSpell() ? GOLDEN_SPELL_CARD_FLAKES_MASK_TEXTURE_FILE_NAME : GOLDEN_CARD_FLAKES_MASK_TEXTURE_FILE_NAME));
+        cardComponents.front()->mEffectTextureResourceIds[0] = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + (cardData->IsSpell() ? GOLDEN_SPELL_CARD_FLAKES_MASK_TEXTURE_FILE_NAME : GOLDEN_CARD_FLAKES_MASK_TEXTURE_FILE_NAME));
         
         cardSoWrapper->mSceneObject = cardComponents.front();
     }
