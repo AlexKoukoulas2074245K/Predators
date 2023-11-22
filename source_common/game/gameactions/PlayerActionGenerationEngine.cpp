@@ -45,16 +45,21 @@ void PlayerActionGenerationEngine::DecideAndPushNextActions(BoardState* currentB
         auto& cardDataLhs = cardRepository.GetCardData(lhs)->get();
         auto& cardDataRhs = cardRepository.GetCardData(rhs)->get();
         
-        if (cardDataLhs.IsSpell() && strutils::StringContains(cardDataLhs.mCardEffect, effects::EFFECT_COMPONENT_DRAW))
+        if (ShouldWaitForFurtherActionsAfterPlayingCard(cardDataLhs))
+        {
             return true;
-        else if (cardDataRhs.IsSpell() && strutils::StringContains(cardDataRhs.mCardEffect, effects::EFFECT_COMPONENT_DRAW))
+        }
+        else if (ShouldWaitForFurtherActionsAfterPlayingCard(cardDataRhs))
+        {
             return false;
+        }
         
         return cardDataLhs.mCardDamage >
                cardDataRhs.mCardDamage;
     });
 
     // Play every card possible (from highest weights to lowest)
+    bool shouldWaitForFurtherActions = false;
     for (auto iter = currentHeldCardsCopySorted.cbegin(); iter != currentHeldCardsCopySorted.cend();)
     {
         const auto* cardData = &cardRepository.GetCardData(*iter)->get();
@@ -73,14 +78,37 @@ void PlayerActionGenerationEngine::DecideAndPushNextActions(BoardState* currentB
             
             currentHeldCards.erase(originalHeldCardIter);
             iter = currentHeldCardsCopySorted.erase(iter);
+            
+            shouldWaitForFurtherActions = ShouldWaitForFurtherActionsAfterPlayingCard(*cardData);
         }
         else
         {
             iter++;
         }
     }
+    
+    if (!shouldWaitForFurtherActions)
+    {
+        mGameActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    }
+}
 
-    mGameActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+///------------------------------------------------------------------------------------------------
+
+bool PlayerActionGenerationEngine::ShouldWaitForFurtherActionsAfterPlayingCard(const CardData& cardData) const
+{
+    if (cardData.IsSpell() && strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_DRAW))
+        return true;
+    else if
+    (
+        cardData.IsSpell() &&
+        strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_WEIGHT) &&
+        strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_FAMILY) &&
+        strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_HELD) &&
+        !strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_BOARD)
+    ) return true;
+    
+    return false;
 }
 
 ///------------------------------------------------------------------------------------------------

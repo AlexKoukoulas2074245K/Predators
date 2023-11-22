@@ -314,7 +314,6 @@ TEST_F(GameActionTests, TestFeatheryDinoEffect)
     EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, 21); // Triceratops attacks
 }
 
-
 TEST_F(GameActionTests, BattleSimulation)
 {
     constexpr int GAME_COUNT = 10000;

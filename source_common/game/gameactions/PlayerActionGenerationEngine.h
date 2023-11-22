@@ -13,12 +13,16 @@
 class GameRuleEngine;
 class GameActionEngine;
 class BoardState;
+struct CardData;
 class PlayerActionGenerationEngine final
 {
 public:
     PlayerActionGenerationEngine(GameRuleEngine* gameRuleEngine, GameActionEngine* gameActionEngine);
     
     void DecideAndPushNextActions(BoardState* currentBoardState);
+
+private:
+    bool ShouldWaitForFurtherActionsAfterPlayingCard(const CardData& cardData) const;
     
 private:
     GameRuleEngine* mGameRuleEngine;
