@@ -9,9 +9,11 @@ layout(location = 5) in float angle;
 
 uniform mat4 view;
 uniform mat4 proj;
+uniform vec3 rotation_axis;
 
 out float frag_lifetime;
 out vec2 uv_frag;
+out vec3 frag_unprojected_pos;
 
 mat3 calculate_rotation_matrix(vec3 axis, float angle) {
     float s = sin(angle);
@@ -28,11 +30,11 @@ void main()
 {
     uv_frag = uv;
     
-    mat3 rotation_matrix = calculate_rotation_matrix(vec3(0.0f, 0.0f, 1.0f), -angle);
+    mat3 rotation_matrix = calculate_rotation_matrix(rotation_axis, -angle);
     
     vec3 scaled_position = vertex_position * size;
     vec3 rotated_position = scaled_position * rotation_matrix;
-    vec3 frag_unprojected_pos = rotated_position + position;
+    frag_unprojected_pos = rotated_position + position;
 
     frag_lifetime = lifetime;
     gl_Position = proj * view * vec4(frag_unprojected_pos, 1.0f);

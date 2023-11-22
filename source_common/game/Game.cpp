@@ -167,7 +167,7 @@ void Game::Update(const float dtMillis)
         systemsEngine.GetParticleManager().CreateParticleEmitterAtPosition
         (
             strutils::StringId("test_particle"),
-            glm::vec3(touchPos.x, touchPos.y, 1.0f),   // pos
+            glm::vec3(touchPos.x, touchPos.y, 0.1f),   // pos
             *systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE) // scene
         );
     }

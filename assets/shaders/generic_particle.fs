@@ -6,7 +6,7 @@ precision mediump float;
 
 in float frag_lifetime;
 in vec2 uv_frag;
-
+in vec3 frag_unprojected_pos;
 out vec4 frag_color;
 
 uniform float custom_alpha;

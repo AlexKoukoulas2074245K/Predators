@@ -115,6 +115,7 @@ public:
         currentShader->SetMatrix4fv(VIEW_MATRIX_UNIFORM_NAME, mCamera.GetViewMatrix());
         currentShader->SetMatrix4fv(PROJ_MATRIX_UNIFORM_NAME, mCamera.GetProjMatrix());
         
+        for (const auto& vec3Entry: mSceneObject.mShaderVec3UniformValues) currentShader->SetFloatVec3(vec3Entry.first, vec3Entry.second);
         for (const auto& floatEntry: mSceneObject.mShaderFloatUniformValues) currentShader->SetFloat(floatEntry.first, floatEntry.second);
         for (const auto& intEntry: mSceneObject.mShaderIntUniformValues) currentShader->SetInt(intEntry.first, intEntry.second);
         for (const auto& boolEntry: mSceneObject.mShaderBoolUniformValues) currentShader->SetBool(boolEntry.first, boolEntry.second);
@@ -187,6 +188,7 @@ public:
             currentShader->SetMatrix4fv(VIEW_MATRIX_UNIFORM_NAME, mCamera.GetViewMatrix());
             currentShader->SetMatrix4fv(PROJ_MATRIX_UNIFORM_NAME, mCamera.GetProjMatrix());
             
+            for (const auto& vec3Entry: mSceneObject.mShaderVec3UniformValues) currentShader->SetFloatVec3(vec3Entry.first, vec3Entry.second);
             for (const auto& floatEntry: mSceneObject.mShaderFloatUniformValues) currentShader->SetFloat(floatEntry.first, floatEntry.second);
             for (const auto& intEntry: mSceneObject.mShaderIntUniformValues) currentShader->SetInt(intEntry.first, intEntry.second);
             for (const auto& boolEntry: mSceneObject.mShaderBoolUniformValues) currentShader->SetBool(boolEntry.first, boolEntry.second);
@@ -241,6 +243,7 @@ public:
         currentShader->SetMatrix4fv(VIEW_MATRIX_UNIFORM_NAME, mCamera.GetViewMatrix());
         currentShader->SetMatrix4fv(PROJ_MATRIX_UNIFORM_NAME, mCamera.GetProjMatrix());
         
+        for (const auto& vec3Entry: mSceneObject.mShaderVec3UniformValues) currentShader->SetFloatVec3(vec3Entry.first, vec3Entry.second);
         for (const auto& floatEntry: mSceneObject.mShaderFloatUniformValues) currentShader->SetFloat(floatEntry.first, floatEntry.second);
         for (const auto& intEntry: mSceneObject.mShaderIntUniformValues) currentShader->SetInt(intEntry.first, intEntry.second);
         for (const auto& boolEntry: mSceneObject.mShaderBoolUniformValues) currentShader->SetBool(boolEntry.first, boolEntry.second);
@@ -578,6 +581,13 @@ void RendererPlatformImpl::CreateIMGuiWidgets()
                 for (auto& uniformBoolEntry: sceneObject->mShaderBoolUniformValues)
                 {
                     ImGui::Checkbox(uniformBoolEntry.first.GetString().c_str(), &uniformBoolEntry.second);
+                }
+                ImGui::SeparatorText("Uniforms (vec3)");
+                for (auto& uniformVec3Entry: sceneObject->mShaderVec3UniformValues)
+                {
+                    ImGui::SliderFloat((uniformVec3Entry.first.GetString() + ".x").c_str(), &uniformVec3Entry.second.x, -1.0f, 1.0f);
+                    ImGui::SliderFloat((uniformVec3Entry.first.GetString() + ".y").c_str(), &uniformVec3Entry.second.y, -1.0f, 1.0f);
+                    ImGui::SliderFloat((uniformVec3Entry.first.GetString() + ".z").c_str(), &uniformVec3Entry.second.z, -1.0f, 1.0f);
                 }
                 ImGui::PopID();
             }

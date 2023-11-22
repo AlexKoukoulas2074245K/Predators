@@ -153,6 +153,11 @@ std::shared_ptr<scene::SceneObject> ParticleManager::CreateParticleEmitterAtPosi
     particleEmitterData.mParticleAngles.resize(particleEmitterData.mParticleCount);
     particleEmitterData.mParticlePositions.resize(particleEmitterData.mParticleCount);
     
+    if (IS_FLAG_SET(particle_flags::ROTATE_OVER_TIME) || IS_FLAG_SET(particle_flags::INITIALLY_ROTATED))
+    {
+        particleSystemSo->mShaderVec3UniformValues[strutils::StringId("rotation_axis")] = particleEmitterData.mRotationAxis;
+    }
+    
     for (size_t i = 0U; i < particleEmitterData.mParticleCount; ++i)
     {
         particleEmitterData.mParticleLifetimeSecs[i] = 0.0f;
@@ -254,6 +259,14 @@ void ParticleManager::LoadParticleData(const resources::ResourceReloadMode resou
         {
             particleEmitterData.mParticleInitialAngleRange.x = particleObject["particle_initial_angle_range"]["min"].get<float>();
             particleEmitterData.mParticleInitialAngleRange.y = particleObject["particle_initial_angle_range"]["max"].get<float>();
+        }
+        
+        if (IS_FLAG_SET(particle_flags::ROTATE_OVER_TIME) || IS_FLAG_SET(particle_flags::INITIALLY_ROTATED))
+        {
+            auto rotationAxisString = particleObject["rotation_axis"].get<std::string>();
+            if (rotationAxisString == "x") particleEmitterData.mRotationAxis.x = 1.0f;
+            else if (rotationAxisString == "y") particleEmitterData.mRotationAxis.y = 1.0f;
+            else if (rotationAxisString == "z") particleEmitterData.mRotationAxis.z = 1.0f;
         }
         
         mParticleNamesToData[particleName] = std::move(particleEmitterData);

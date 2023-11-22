@@ -102,6 +102,7 @@ public:
         currentShader->SetMatrix4fv(VIEW_MATRIX_UNIFORM_NAME, mCamera.GetViewMatrix());
         currentShader->SetMatrix4fv(PROJ_MATRIX_UNIFORM_NAME, mCamera.GetProjMatrix());
         
+        for (const auto& vec3Entry: mSceneObject.mShaderVec3UniformValues) currentShader->SetFloatVec3(vec3Entry.first, vec3Entry.second);
         for (const auto& floatEntry: mSceneObject.mShaderFloatUniformValues) currentShader->SetFloat(floatEntry.first, floatEntry.second);
         for (const auto& intEntry: mSceneObject.mShaderIntUniformValues) currentShader->SetInt(intEntry.first, intEntry.second);
         for (const auto& boolEntry: mSceneObject.mShaderBoolUniformValues) currentShader->SetBool(boolEntry.first, boolEntry.second);
@@ -165,6 +166,7 @@ public:
             currentShader->SetMatrix4fv(VIEW_MATRIX_UNIFORM_NAME, mCamera.GetViewMatrix());
             currentShader->SetMatrix4fv(PROJ_MATRIX_UNIFORM_NAME, mCamera.GetProjMatrix());
             
+            for (const auto& vec3Entry: mSceneObject.mShaderVec3UniformValues) currentShader->SetFloatVec3(vec3Entry.first, vec3Entry.second);
             for (const auto& floatEntry: mSceneObject.mShaderFloatUniformValues) currentShader->SetFloat(floatEntry.first, floatEntry.second);
             for (const auto& intEntry: mSceneObject.mShaderIntUniformValues) currentShader->SetInt(intEntry.first, intEntry.second);
             for (const auto& boolEntry: mSceneObject.mShaderBoolUniformValues) currentShader->SetBool(boolEntry.first, boolEntry.second);
@@ -214,6 +216,7 @@ public:
         currentShader->SetMatrix4fv(VIEW_MATRIX_UNIFORM_NAME, mCamera.GetViewMatrix());
         currentShader->SetMatrix4fv(PROJ_MATRIX_UNIFORM_NAME, mCamera.GetProjMatrix());
         
+        for (const auto& vec3Entry: mSceneObject.mShaderVec3UniformValues) currentShader->SetFloatVec3(vec3Entry.first, vec3Entry.second);
         for (const auto& floatEntry: mSceneObject.mShaderFloatUniformValues) currentShader->SetFloat(floatEntry.first, floatEntry.second);
         for (const auto& intEntry: mSceneObject.mShaderIntUniformValues) currentShader->SetInt(intEntry.first, intEntry.second);
         for (const auto& boolEntry: mSceneObject.mShaderBoolUniformValues) currentShader->SetBool(boolEntry.first, boolEntry.second);
