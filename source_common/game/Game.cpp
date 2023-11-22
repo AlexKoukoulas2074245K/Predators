@@ -158,19 +158,19 @@ void Game::Update(const float dtMillis)
 //        sceneObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
 //    }
     
-    if (systemsEngine.GetInputStateManager().VButtonTapped(input::Button::MAIN_BUTTON))
-    {
-        auto touchPos = systemsEngine.GetInputStateManager().VGetPointingPosInWorldSpace(activeScene->GetCamera().GetViewMatrix(), activeScene->GetCamera().GetProjMatrix());
-        auto& systemsEngine = CoreSystemsEngine::GetInstance();
-        auto activeScene = systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
-        
-        systemsEngine.GetParticleManager().CreateParticleEmitterAtPosition
-        (
-            strutils::StringId("test_particle"),
-            glm::vec3(touchPos.x, touchPos.y, 0.1f),   // pos
-            *systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE) // scene
-        );
-    }
+//    if (systemsEngine.GetInputStateManager().VButtonTapped(input::Button::MAIN_BUTTON))
+//    {
+//        auto touchPos = systemsEngine.GetInputStateManager().VGetPointingPosInWorldSpace(activeScene->GetCamera().GetViewMatrix(), activeScene->GetCamera().GetProjMatrix());
+//        auto& systemsEngine = CoreSystemsEngine::GetInstance();
+//        auto activeScene = systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+//        
+//        systemsEngine.GetParticleManager().CreateParticleEmitterAtPosition
+//        (
+//            strutils::StringId("test_particle"),
+//            glm::vec3(touchPos.x, touchPos.y, 0.1f),   // pos
+//            *systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE) // scene
+//        );
+//    }
     
 
     mGameSessionManager.Update(dtMillis);

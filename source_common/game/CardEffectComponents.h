@@ -31,6 +31,7 @@ namespace board_modifier_masks
 
 // Effect components
 inline const std::string EFFECT_COMPONENT_DAMAGE  = "DAMAGE";
+inline const std::string EFFECT_COMPONENT_WEIGHT  = "WEIGHT";
 inline const std::string EFFECT_COMPONENT_FAMILY  = "FAMILY";
 inline const std::string EFFECT_COMPONENT_ENEMIES = "ENEMIES";
 inline const std::string EFFECT_COMPONENT_DRAW    = "DRAW";
@@ -42,6 +43,7 @@ inline const std::unordered_set<std::string> STATIC_EFFECT_COMPONENT_NAMES =
 {
     EFFECT_COMPONENT_DRAW,
     EFFECT_COMPONENT_DAMAGE,
+    EFFECT_COMPONENT_WEIGHT,
     EFFECT_COMPONENT_FAMILY,
     EFFECT_COMPONENT_ENEMIES,
     EFFECT_COMPONENT_KILL,

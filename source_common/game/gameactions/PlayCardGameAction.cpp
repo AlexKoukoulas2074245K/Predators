@@ -57,10 +57,18 @@ void PlayCardGameAction::VSetNewGameState()
     assert(cardData.has_value());
     
     // Tried to overplay?
-    mAborted = mGameRuleEngine && !mGameRuleEngine->CanCardBePlayed(&cardData->get(), mBoardState->GetActivePlayerIndex());
+    mAborted = mGameRuleEngine && !mGameRuleEngine->CanCardBePlayed(&cardData->get(), lastPlayedCardIndex, mBoardState->GetActivePlayerIndex());
     if (mAborted)
     {
         return;
+    }
+    
+    auto cardWeight = cardData->get().mCardWeight;
+    const auto& cardStatOverrides = activePlayerState.mPlayerHeldCardStatOverrides;
+    
+    if (static_cast<int>(cardStatOverrides.size()) >= lastPlayedCardIndex + 1)
+    {
+        cardWeight = math::Max(0, cardStatOverrides[lastPlayedCardIndex].count(CardStatType::WEIGHT) ? cardStatOverrides[lastPlayedCardIndex].at(CardStatType::WEIGHT) : cardData->get().mCardWeight);
     }
     
     // Transfer held card stat override to the new board position
@@ -72,7 +80,7 @@ void PlayCardGameAction::VSetNewGameState()
     
     activePlayerState.mPlayerBoardCards.push_back(cardId);
     activePlayerState.mPlayerHeldCards.erase(activePlayerState.mPlayerHeldCards.begin() + lastPlayedCardIndex);
-    activePlayerState.mPlayerCurrentWeightAmmo -= cardData->get().mCardWeight;
+    activePlayerState.mPlayerCurrentWeightAmmo -= cardWeight;
     
     if (card_utils::GetCardRarity(cardId, mBoardState->GetActivePlayerIndex(), *mBoardState) == CardRarity::GOLDEN)
     {

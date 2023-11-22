@@ -41,6 +41,7 @@ static const strutils::StringId CARD_TOOLTIP_REVEAL_RGB_EXPONENT_UNIFORM_NAME = 
 static const strutils::StringId IDLE_GAME_ACTION_NAME = strutils::StringId("IdleGameAction");
 static const strutils::StringId PLAY_CARD_ACTION_NAME = strutils::StringId("PlayCardGameAction");
 static const strutils::StringId NEXT_PLAYER_ACTION_NAME = strutils::StringId("NextPlayerGameAction");
+static const strutils::StringId CARD_EFFECT_GAME_ACTION_NAME = strutils::StringId("CardEffectGameAction");
 static const strutils::StringId CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES [CARD_TOOLTIP_TEXT_ROWS_COUNT] =
 {
     strutils::StringId("CARD_TOOLTIP_TEXT_0"),
@@ -137,7 +138,7 @@ void GameSessionManager::InitGameSession()
     mBoardState->GetPlayerStates().emplace_back();
     
     mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetAllCardIds();
-    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = {19,4}; CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));
+    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("dinosaurs"));
     
     mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mGoldenCardIds = {4};//CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));;
     
@@ -156,8 +157,8 @@ void GameSessionManager::InitGameSession()
     GameReplayEngine replayEngine(persistence_utils::GetProgressDirectoryPath() + "game");
     auto seed = replayEngine.GetGameFileSeed();
 #else
-    //auto seed = 907507888;
-    auto seed = math::RandomInt();
+    auto seed = 51329216;
+    //auto seed = math::RandomInt();
 #endif
     
     mGameSerializer = std::make_unique<GameSerializer>(seed);
@@ -415,7 +416,7 @@ void GameSessionManager::HandleTouchInput()
 #if defined(MOBILE_FLOW)
         static std::unique_ptr<glm::vec2> selectedCardInitialTouchPosition = nullptr;
         if (inputStateManager.VButtonPressed(input::Button::MAIN_BUTTON) &&
-            mRuleEngine->CanCardBePlayed(currentCardSoWrapper->mCardData, game_constants::LOCAL_PLAYER_INDEX) &&
+            mRuleEngine->CanCardBePlayed(currentCardSoWrapper->mCardData, i, game_constants::LOCAL_PLAYER_INDEX) &&
             ((currentCardSoWrapper->mState == CardSoState::HIGHLIGHTED && glm::distance(worldTouchPos, *selectedCardInitialTouchPosition) > 0.005f) || currentCardSoWrapper->mState == CardSoState::FREE_MOVING) &&
             !freeMovingCardThisFrame)
         {
@@ -487,7 +488,7 @@ void GameSessionManager::HandleTouchInput()
                  cursorInSceneObject &&
                  !otherHighlightedCardExists &&
                  currentCardSoWrapper->mState == CardSoState::HIGHLIGHTED &&
-                 mRuleEngine->CanCardBePlayed(currentCardSoWrapper->mCardData, game_constants::LOCAL_PLAYER_INDEX) &&
+                 mRuleEngine->CanCardBePlayed(currentCardSoWrapper->mCardData, i, game_constants::LOCAL_PLAYER_INDEX) &&
                  activeScene->FindSceneObject(strutils::StringId(CARD_HIGHLIGHTER_SCENE_OBJECT_NAME_PREFIX + std::to_string(i))) != nullptr)
         {
             currentCardSoWrapper->mState = CardSoState::FREE_MOVING;
@@ -597,10 +598,26 @@ void GameSessionManager::UpdateMiscSceneObjects(const float dtMillis)
     auto& localPlayerBoardCards = mPlayerBoardCardSceneObjectWrappers[game_constants::LOCAL_PLAYER_INDEX];
     auto& remotePlayerBoardCards = mPlayerBoardCardSceneObjectWrappers[game_constants::REMOTE_PLAYER_INDEX];
     
-    for (auto& cardSoWrapper: localPlayerHeldCards)
+    for (size_t i = 0; i < localPlayerHeldCards.size(); ++i)
     {
-        cardSoWrapper->mSceneObject->mShaderIntUniformValues[game_constants::CARD_WEIGHT_INTERACTIVE_MODE_UNIFORM_NAME] = mRuleEngine->CanCardBePlayed(cardSoWrapper->mCardData, true) ? game_constants::CARD_INTERACTIVE_MODE_DEFAULT : game_constants::CARD_INTERACTIVE_MODE_NONINTERACTIVE;
+        auto& cardSoWrapper = localPlayerHeldCards[i];
         cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
+        
+        if (mActionEngine->GetActiveGameActionName() != CARD_EFFECT_GAME_ACTION_NAME)
+        {
+            auto canCardBePlayed = mRuleEngine->CanCardBePlayed(cardSoWrapper->mCardData, i, game_constants::LOCAL_PLAYER_INDEX);
+            cardSoWrapper->mSceneObject->mShaderIntUniformValues[game_constants::CARD_WEIGHT_INTERACTIVE_MODE_UNIFORM_NAME] = canCardBePlayed ? game_constants::CARD_INTERACTIVE_MODE_DEFAULT : game_constants::CARD_INTERACTIVE_MODE_NONINTERACTIVE;
+            
+            const auto& heldCardStatOverrides = mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHeldCardStatOverrides;
+            if (heldCardStatOverrides.size() >= i + 1)
+            {
+                int overriddenWeight = math::Max(0, heldCardStatOverrides[i].count(CardStatType::WEIGHT) ? heldCardStatOverrides[i].at(CardStatType::WEIGHT) : cardSoWrapper->mCardData->mCardWeight);
+                if (canCardBePlayed && overriddenWeight < cardSoWrapper->mCardData->mCardWeight)
+                {
+                    cardSoWrapper->mSceneObject->mShaderIntUniformValues[game_constants::CARD_WEIGHT_INTERACTIVE_MODE_UNIFORM_NAME] = game_constants::CARD_INTERACTIVE_MODE_INTERACTIVE;
+                }
+            }
+        }
     }
     for (auto& cardSoWrapper: localPlayerBoardCards)
     {
@@ -782,7 +799,7 @@ void GameSessionManager::OnFreeMovingCardRelease(std::shared_ptr<CardSoWrapper> 
     if (inBoardDropThreshold &&
         (mActionEngine->GetActiveGameActionName() == IDLE_GAME_ACTION_NAME || mActionEngine->GetActionCount() <= 2) &&
         mBoardState->GetActivePlayerIndex() == 1 &&
-        mRuleEngine->CanCardBePlayed(cardSoWrapper->mCardData, game_constants::LOCAL_PLAYER_INDEX))
+        mRuleEngine->CanCardBePlayed(cardSoWrapper->mCardData, cardIndex, game_constants::LOCAL_PLAYER_INDEX))
     {
         bool inPendingCardsToBePlayed = std::find(mPendingCardsToBePlayed.begin(), mPendingCardsToBePlayed.end(), cardSoWrapper) != mPendingCardsToBePlayed.end();
         if (mCanPlayNextCard && !inPendingCardsToBePlayed)
@@ -838,7 +855,7 @@ void GameSessionManager::CreateCardHighlighter()
         cardHighlighterSo->mShaderFloatUniformValues[game_constants::PERLIN_TIME_SPEED_UNIFORM_NAME] = game_constants::ACTION_HIGLIGHTER_PERLIN_TIME_SPEED;
         cardHighlighterSo->mShaderFloatUniformValues[game_constants::PERLIN_RESOLUTION_UNIFORM_NAME] = game_constants::ACTION_HIGLIGHTER_PERLIN_RESOLUTION;
         cardHighlighterSo->mShaderFloatUniformValues[game_constants::PERLIN_CLARITY_UNIFORM_NAME] = game_constants::ACTION_HIGLIGHTER_PERLIN_CLARITY;
-        cardHighlighterSo->mShaderBoolUniformValues[game_constants::CARD_HIGHLIGHTER_INVALID_ACTION_UNIFORM_NAME] = !mRuleEngine->CanCardBePlayed((*highlightedCardIter)->mCardData, game_constants::LOCAL_PLAYER_INDEX);
+        cardHighlighterSo->mShaderBoolUniformValues[game_constants::CARD_HIGHLIGHTER_INVALID_ACTION_UNIFORM_NAME] = !mRuleEngine->CanCardBePlayed((*highlightedCardIter)->mCardData, cardIndex, game_constants::LOCAL_PLAYER_INDEX);
         cardHighlighterSo->mPosition = (*highlightedCardIter)->mSceneObject->mPosition;
         cardHighlighterSo->mPosition.z += game_constants::ACTION_HIGLIGHTER_Z_OFFSET;
         cardHighlighterSo->mScale = game_constants::CARD_HIGHLIGHTER_SCALE;
@@ -1066,50 +1083,50 @@ void GameSessionManager::OnCardBuffedDebuffed(const events::CardBuffedDebuffedEv
     if (event.mBoardCard)
     {
         auto& boardSceneObjectWrappers = mPlayerBoardCardSceneObjectWrappers[(event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)];
-        auto& cardSceneObjectWrapper = boardSceneObjectWrappers[event.mCardIdex];
+        auto& cardSceneObjectWrapper = boardSceneObjectWrappers[event.mCardIndex];
         auto previousScale = cardSceneObjectWrapper->mSceneObject->mScale;
         
         activeScene->RemoveSceneObject(cardSceneObjectWrapper->mSceneObject->mName);
         
-        boardSceneObjectWrappers[event.mCardIdex] = card_utils::CreateCardSoWrapper
+        boardSceneObjectWrappers[event.mCardIndex] = card_utils::CreateCardSoWrapper
         (
             cardSceneObjectWrapper->mCardData,
             cardSceneObjectWrapper->mSceneObject->mPosition,
-            (event.mForRemotePlayer ? game_constants::TOP_PLAYER_BOARD_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_BOARD_CARD_SO_NAME_PREFIX) + std::to_string(event.mCardIdex),
+            (event.mForRemotePlayer ? game_constants::TOP_PLAYER_BOARD_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_BOARD_CARD_SO_NAME_PREFIX) + std::to_string(event.mCardIndex),
             CardOrientation::FRONT_FACE,
             card_utils::GetCardRarity(cardSceneObjectWrapper->mCardData->mCardId, mBoardState->GetActivePlayerIndex(), *mBoardState),
             true,
             event.mForRemotePlayer,
             true,
-            (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.size()) > event.mCardIdex ? mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.at(event.mCardIdex) : CardStatOverrides()),
+            (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.size()) > event.mCardIndex ? mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.at(event.mCardIndex) : CardStatOverrides()),
             mBoardState->GetActivePlayerState().mBoardModifiers.mGlobalCardStatModifiers,
             *activeScene
         );
-        boardSceneObjectWrappers[event.mCardIdex]->mSceneObject->mScale = previousScale;
+        boardSceneObjectWrappers[event.mCardIndex]->mSceneObject->mScale = previousScale;
     }
     else
     {
         auto& heldSceneObjectWrappers = mPlayerHeldCardSceneObjectWrappers[(event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)];
-        auto& cardSceneObjectWrapper = heldSceneObjectWrappers[event.mCardIdex];
+        auto& cardSceneObjectWrapper = heldSceneObjectWrappers[event.mCardIndex];
         auto previousScale = cardSceneObjectWrapper->mSceneObject->mScale;
         
         activeScene->RemoveSceneObject(cardSceneObjectWrapper->mSceneObject->mName);
         
-        heldSceneObjectWrappers[event.mCardIdex] = card_utils::CreateCardSoWrapper
+        heldSceneObjectWrappers[event.mCardIndex] = card_utils::CreateCardSoWrapper
         (
             cardSceneObjectWrapper->mCardData,
             cardSceneObjectWrapper->mSceneObject->mPosition,
-            (event.mForRemotePlayer ? game_constants::TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_HELD_CARD_SO_NAME_PREFIX) + std::to_string(event.mCardIdex),
+            (event.mForRemotePlayer ? game_constants::TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_HELD_CARD_SO_NAME_PREFIX) + std::to_string(event.mCardIndex),
             CardOrientation::FRONT_FACE,
             card_utils::GetCardRarity(cardSceneObjectWrapper->mCardData->mCardId, mBoardState->GetActivePlayerIndex(), *mBoardState),
             false,
             event.mForRemotePlayer,
-            true,
-            (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.size()) > event.mCardIdex ? mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.at(event.mCardIdex) : CardStatOverrides()),
+            mRuleEngine->CanCardBePlayed(heldSceneObjectWrappers[event.mCardIndex]->mCardData, event.mCardIndex, game_constants::LOCAL_PLAYER_INDEX),
+            (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.size()) > event.mCardIndex ? mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.at(event.mCardIndex) : CardStatOverrides()),
             mBoardState->GetActivePlayerState().mBoardModifiers.mGlobalCardStatModifiers,
             *activeScene
         );
-        heldSceneObjectWrappers[event.mCardIdex]->mSceneObject->mScale = previousScale;
+        heldSceneObjectWrappers[event.mCardIndex]->mSceneObject->mScale = previousScale;
     }
 }
 

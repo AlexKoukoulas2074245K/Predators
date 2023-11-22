@@ -21,7 +21,7 @@ class GameRuleEngine final
 public:
     GameRuleEngine(BoardState* boardState);
     
-    bool CanCardBePlayed(const CardData* cardData, const size_t forPlayerIndex, BoardState* customBoardStateOverride = nullptr) const;
+    bool CanCardBePlayed(const CardData* cardData, const size_t cardIndex, const size_t forPlayerIndex, BoardState* customBoardStateOverride = nullptr) const;
     
 private:
     BoardState* mBoardState;

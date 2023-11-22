@@ -43,11 +43,12 @@ protected:
         CardDataRepository::GetInstance().LoadCardData(false);
     }
     
-    void Init(const CardCollectionType& cardCollectionType)
+    void Init(const CardCollectionType& cardCollectionType, const bool useRuleEngine)
     {
         mBoardState = std::make_unique<BoardState>();
-        mActionEngine = std::make_unique<GameActionEngine>(GameActionEngine::EngineOperationMode::HEADLESS, math::RandomInt(), mBoardState.get(), nullptr, nullptr, nullptr);
         mGameRuleEngine = std::make_unique<GameRuleEngine>(mBoardState.get());
+        mActionEngine = std::make_unique<GameActionEngine>(GameActionEngine::EngineOperationMode::HEADLESS, math::RandomInt(), mBoardState.get(), nullptr, useRuleEngine ? mGameRuleEngine.get() : nullptr, nullptr);
+        
         mPlayerActionGenerationEngine = std::make_unique<PlayerActionGenerationEngine>(mGameRuleEngine.get(), mActionEngine.get());
         mBoardState->GetPlayerStates().emplace_back();
         mBoardState->GetPlayerStates().back().mPlayerDeckCards = cardCollectionType == CardCollectionType::ALL_NON_SPELL_CARDS ? CardDataRepository::GetInstance().GetAllNonSpellCardIds() : CardDataRepository::GetInstance().GetAllCardIds();
@@ -65,7 +66,7 @@ protected:
     
     void SetUp() override
     {
-        Init(CardCollectionType::ALL_NON_SPELL_CARDS);
+        Init(CardCollectionType::ALL_NON_SPELL_CARDS, false);
     }
     
     void TearDown() override
@@ -288,6 +289,32 @@ TEST_F(GameActionTests, TestDoubleNetAndFluffAttackCombinedEffects)
     EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, 29); // Beaver original attack = 3. Net - 2. Net - 2. Fluff Attack + 2. Final attack = 1.
 }
 
+TEST_F(GameActionTests, TestFeatheryDinoEffect)
+{
+    Init(CardCollectionType::ALL_CARDS, true);
+    
+    mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {23, 17}; // Top player has a deck of Feathery Dino and Triceratops
+    
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = 8;
+    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = 8;
+    
+    mBoardState->GetPlayerStates()[0].mPlayerHeldCards = {23, 17}; // Top player has a hand of Feathery Dino and Triceratops
+    
+    mActionEngine->AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "0" }}); // Feathery Dino is Played
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    mActionEngine->AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "0" }}); // Triceratops is Played (with reduced weight cost)
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, 30);
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, 21); // Triceratops attacks
+}
+
+
 TEST_F(GameActionTests, BattleSimulation)
 {
     constexpr int GAME_COUNT = 10000;
@@ -306,7 +333,7 @@ TEST_F(GameActionTests, BattleSimulation)
         uniquePlayedCardIds[0].clear();
         uniquePlayedCardIds[1].clear();
         
-        Init(CardCollectionType::ALL_CARDS);
+        Init(CardCollectionType::ALL_CARDS, true);
         mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
         while (mActionEngine->GetActiveGameActionName() != IDLE_GAME_ACTION_NAME && mActionEngine->GetActiveGameActionName() != GAME_OVER_GAME_ACTION_NAME)
         {

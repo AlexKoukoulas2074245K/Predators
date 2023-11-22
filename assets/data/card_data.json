@@ -218,6 +218,16 @@
             "tooltip": "Destroy next$enemy normal card$played by the$  opponent",
             "texture": "trap.png",
             "shader": "basic.vs"
+        },
+        {
+            "id": 23,
+            "weight": 1,
+            "family": "dinosaurs",
+            "name": "Feathery Dino",
+            "effect": "WEIGHT -2 FAMILY HELD",
+            "tooltip": "Weight -2 for$  ALL Dinosaurs$  on hand",
+            "texture": "dino_with_feathers.png",
+            "shader": "basic.vs"
         }
     ]
 }

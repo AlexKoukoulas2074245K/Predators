@@ -253,6 +253,10 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
         {
             mAffectedBoardCardsStatType = AffectedStatType::DAMAGE;
         }
+        else if (effectComponent == effects::EFFECT_COMPONENT_WEIGHT)
+        {
+            mAffectedBoardCardsStatType = AffectedStatType::WEIGHT;
+        }
         
         // Kill component
         else if (effectComponent == effects::EFFECT_COMPONENT_KILL)

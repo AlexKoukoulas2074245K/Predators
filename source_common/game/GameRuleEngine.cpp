@@ -19,11 +19,20 @@ GameRuleEngine::GameRuleEngine(BoardState* boardState)
 
 ///------------------------------------------------------------------------------------------------
 
-bool GameRuleEngine::CanCardBePlayed(const CardData* cardData, const size_t forPlayerIndex, BoardState* customBoardStateOverride /* = nullptr */) const
+bool GameRuleEngine::CanCardBePlayed(const CardData* cardData, const size_t cardIndex, const size_t forPlayerIndex, BoardState* customBoardStateOverride /* = nullptr */) const
 {
     auto* boardStateToUse = customBoardStateOverride ? customBoardStateOverride : mBoardState;
     auto& activePlayerState = boardStateToUse->GetPlayerStates()[forPlayerIndex];
-    return activePlayerState.mPlayerCurrentWeightAmmo >= cardData->mCardWeight && activePlayerState.mPlayerBoardCards.size() < game_constants::MAX_BOARD_CARDS;
+    
+    auto cardWeight = cardData->mCardWeight;
+    const auto& cardStatOverrides = activePlayerState.mPlayerHeldCardStatOverrides;
+    
+    if (cardStatOverrides.size() >= cardIndex + 1)
+    {
+        cardWeight = math::Max(0, cardStatOverrides[cardIndex].count(CardStatType::WEIGHT) ? cardStatOverrides[cardIndex].at(CardStatType::WEIGHT) : cardData->mCardWeight);
+    }
+    
+    return activePlayerState.mPlayerCurrentWeightAmmo >= cardWeight && activePlayerState.mPlayerBoardCards.size() < game_constants::MAX_BOARD_CARDS;
 }
 
 ///------------------------------------------------------------------------------------------------

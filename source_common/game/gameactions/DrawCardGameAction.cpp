@@ -66,7 +66,7 @@ void DrawCardGameAction::VInitAnimation()
                 card_utils::GetCardRarity(cardOpt->get().mCardId, mBoardState->GetActivePlayerIndex(), *mBoardState),
                 false,
                 remotePlayerActive,
-                mGameRuleEngine->CanCardBePlayed(&cardOpt->get(), mBoardState->GetActivePlayerIndex()),
+                mGameRuleEngine->CanCardBePlayed(&cardOpt->get(), i, mBoardState->GetActivePlayerIndex()),
                 {},
                 {},
                 *activeScene

@@ -91,13 +91,13 @@ class CardBuffedDebuffedEvent final
 {
 public:
     CardBuffedDebuffedEvent(const int cardIndex, const bool boardCard, const bool forRemotePlayer)
-        : mCardIdex(cardIndex)
+        : mCardIndex(cardIndex)
         , mBoardCard(boardCard)
         , mForRemotePlayer(forRemotePlayer)
     {
     }
     
-    const int mCardIdex;
+    const int mCardIndex;
     const bool mBoardCard;
     const bool mForRemotePlayer;
 };

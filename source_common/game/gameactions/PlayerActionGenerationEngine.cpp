@@ -58,10 +58,11 @@ void PlayerActionGenerationEngine::DecideAndPushNextActions(BoardState* currentB
     for (auto iter = currentHeldCardsCopySorted.cbegin(); iter != currentHeldCardsCopySorted.cend();)
     {
         const auto* cardData = &cardRepository.GetCardData(*iter)->get();
-        if (mGameRuleEngine->CanCardBePlayed(cardData, boardStateCopy.GetActivePlayerIndex(), &boardStateCopy))
+        // Find index of card in original vector
+        auto originalHeldCardIter = std::find(currentHeldCards.cbegin(), currentHeldCards.cend(), cardData->mCardId);
+        
+        if (mGameRuleEngine->CanCardBePlayed(cardData, originalHeldCardIter - currentHeldCards.cbegin(), boardStateCopy.GetActivePlayerIndex(), &boardStateCopy))
         {
-            // Find index of card in original vector
-            auto originalHeldCardIter = std::find(currentHeldCards.cbegin(), currentHeldCards.cend(), cardData->mCardId);
             assert(originalHeldCardIter != currentHeldCards.cend());
             
             mGameActionEngine->AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, std::to_string(originalHeldCardIter - currentHeldCards.cbegin())}});
