@@ -258,6 +258,7 @@ public:
         GL_CALL(glEnableVertexAttribArray(2));
         GL_CALL(glEnableVertexAttribArray(3));
         GL_CALL(glEnableVertexAttribArray(4));
+        GL_CALL(glEnableVertexAttribArray(5));
         
         // update the position buffer
         GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, particleEmitterData.mParticlePositionsBuffer));
@@ -267,9 +268,13 @@ public:
         GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, particleEmitterData.mParticleLifetimeSecsBuffer));
         GL_CALL(glBufferSubData(GL_ARRAY_BUFFER, 0, particleEmitterData.mParticlePositions.size() * sizeof(float), particleEmitterData.mParticleLifetimeSecs.data()));
         
-        // update the scale buffer
+        // update the size buffer
         GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, particleEmitterData.mParticleSizesBuffer));
         GL_CALL(glBufferSubData(GL_ARRAY_BUFFER, 0, particleEmitterData.mParticleSizes.size() * sizeof(float), particleEmitterData.mParticleSizes.data()));
+        
+        // update the angle buffer
+        GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, particleEmitterData.mParticleAnglesBuffer));
+        GL_CALL(glBufferSubData(GL_ARRAY_BUFFER, 0, particleEmitterData.mParticleAngles.size() * sizeof(float), particleEmitterData.mParticleAngles.data()));
         
         // vertex buffer
         GL_CALL(glBindBuffer(GL_ARRAY_BUFFER , particleEmitterData.mParticleVertexBuffer));
@@ -294,6 +299,11 @@ public:
         GL_CALL(glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE , 0 , nullptr));
         GL_CALL(glVertexAttribDivisor(4, 1));
         
+        // angle buffer
+        GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, particleEmitterData.mParticleAnglesBuffer));
+        GL_CALL(glVertexAttribPointer(5, 1, GL_FLOAT, GL_FALSE , 0 , nullptr));
+        GL_CALL(glVertexAttribDivisor(5, 1));
+        
         // draw triangles
         GL_CALL(glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, static_cast<int>(particleEmitterData.mParticlePositions.size())));
         
@@ -302,6 +312,7 @@ public:
         GL_CALL(glDisableVertexAttribArray(2));
         GL_CALL(glDisableVertexAttribArray(3));
         GL_CALL(glDisableVertexAttribArray(4));
+        GL_CALL(glDisableVertexAttribArray(5));
         
         GL_CALL(glBindVertexArray(0));
         

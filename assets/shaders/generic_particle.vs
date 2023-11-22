@@ -5,6 +5,7 @@ layout(location = 1) in vec2 uv;
 layout(location = 2) in vec3 position;
 layout(location = 3) in float lifetime;
 layout(location = 4) in float size;
+layout(location = 5) in float angle;
 
 uniform mat4 view;
 uniform mat4 proj;
@@ -12,28 +13,26 @@ uniform mat4 proj;
 out float frag_lifetime;
 out vec2 uv_frag;
 
-mat4 rotationMatrix(vec3 axis, float angle) {
-    axis = normalize(axis);
+mat3 calculate_rotation_matrix(vec3 axis, float angle) {
     float s = sin(angle);
     float c = cos(angle);
     float oc = 1.0 - c;
     
-    return mat4(oc * axis.x * axis.x + c,           oc * axis.x * axis.y - axis.z * s,  oc * axis.z * axis.x + axis.y * s,  0.0,
-                oc * axis.x * axis.y + axis.z * s,  oc * axis.y * axis.y + c,           oc * axis.y * axis.z - axis.x * s,  0.0,
-                oc * axis.z * axis.x - axis.y * s,  oc * axis.y * axis.z + axis.x * s,  oc * axis.z * axis.z + c,           0.0,
-                0.0,                                0.0,                                0.0,                                1.0);
+    return mat3(oc * axis.x * axis.x + c,           oc * axis.x * axis.y - axis.z * s,  oc * axis.z * axis.x + axis.y * s,
+                oc * axis.x * axis.y + axis.z * s,  oc * axis.y * axis.y + c,           oc * axis.y * axis.z - axis.x * s,
+                oc * axis.z * axis.x - axis.y * s,  oc * axis.y * axis.z + axis.x * s,  oc * axis.z * axis.z + c        );
 }
 
 
 void main()
 {
     uv_frag = uv;
-    vec3 frag_unprojected_pos = vec3
-    (
-        (vertex_position.x * size) + position.x,
-        (vertex_position.y * size) + position.y,
-        (vertex_position.z * size) + position.z
-    );
+    
+    mat3 rotation_matrix = calculate_rotation_matrix(vec3(0.0f, 0.0f, 1.0f), -angle);
+    
+    vec3 scaled_position = vertex_position * size;
+    vec3 rotated_position = scaled_position * rotation_matrix;
+    vec3 frag_unprojected_pos = rotated_position + position;
 
     frag_lifetime = lifetime;
     gl_Position = proj * view * vec4(frag_unprojected_pos, 1.0f);

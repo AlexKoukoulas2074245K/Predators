@@ -35,6 +35,8 @@ namespace particle_flags
     static constexpr uint8_t PREFILLED                      = 0x1;
     static constexpr uint8_t CONTINUOUS_PARTICLE_GENERATION = 0x2;
     static constexpr uint8_t ENLARGE_OVER_TIME              = 0x4;
+    static constexpr uint8_t ROTATE_OVER_TIME               = 0x8;
+    static constexpr uint8_t INITIALLY_ROTATED              = 0x10;
 }
 
 ///------------------------------------------------------------------------------------------------

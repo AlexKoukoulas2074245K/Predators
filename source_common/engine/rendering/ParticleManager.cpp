@@ -89,6 +89,12 @@ void ParticleManager::UpdateSceneParticles(const float dtMillis, scene::Scene& s
                 {
                     particleEmitterData.mParticleSizes[i] += particleEmitterData.mParticleEnlargementSpeed * dtMillis;
                 }
+                
+                // rotate the particle depending on the delta time
+                if (IS_FLAG_SET(particle_flags::ROTATE_OVER_TIME))
+                {
+                    particleEmitterData.mParticleAngles[i] += particleEmitterData.mParticleRotationSpeed * dtMillis;
+                }
             }
             
             if (deadParticles == particleEmitterData.mParticleCount && !IS_FLAG_SET(particle_flags::CONTINUOUS_PARTICLE_GENERATION))
@@ -107,6 +113,7 @@ void ParticleManager::UpdateSceneParticles(const float dtMillis, scene::Scene& s
         auto& particleEmitterData = std::get<scene::ParticleEmitterObjectData>(particleEmitter->mSceneObjectTypeData);
         GL_CALL(glDeleteBuffers(1, &particleEmitterData.mParticleUVBuffer));
         GL_CALL(glDeleteBuffers(1, &particleEmitterData.mParticleSizesBuffer));
+        GL_CALL(glDeleteBuffers(1, &particleEmitterData.mParticleAnglesBuffer));
         GL_CALL(glDeleteBuffers(1, &particleEmitterData.mParticleVertexBuffer));
         GL_CALL(glDeleteBuffers(1, &particleEmitterData.mParticlePositionsBuffer));
         GL_CALL(glDeleteBuffers(1, &particleEmitterData.mParticleLifetimeSecsBuffer));
@@ -143,8 +150,8 @@ std::shared_ptr<scene::SceneObject> ParticleManager::CreateParticleEmitterAtPosi
     particleEmitterData.mParticleLifetimeSecs.resize(particleEmitterData.mParticleCount);
     particleEmitterData.mParticleDirections.resize(particleEmitterData.mParticleCount);
     particleEmitterData.mParticleSizes.resize(particleEmitterData.mParticleCount);
+    particleEmitterData.mParticleAngles.resize(particleEmitterData.mParticleCount);
     particleEmitterData.mParticlePositions.resize(particleEmitterData.mParticleCount);
-    
     
     for (size_t i = 0U; i < particleEmitterData.mParticleCount; ++i)
     {
@@ -162,6 +169,7 @@ std::shared_ptr<scene::SceneObject> ParticleManager::CreateParticleEmitterAtPosi
     GL_CALL(glGenBuffers(1, &particleEmitterData.mParticlePositionsBuffer));
     GL_CALL(glGenBuffers(1, &particleEmitterData.mParticleLifetimeSecsBuffer));
     GL_CALL(glGenBuffers(1, &particleEmitterData.mParticleSizesBuffer));
+    GL_CALL(glGenBuffers(1, &particleEmitterData.mParticleAnglesBuffer));
     
     GL_CALL(glBindVertexArray(particleEmitterData.mParticleVertexArrayObject));
     
@@ -179,6 +187,9 @@ std::shared_ptr<scene::SceneObject> ParticleManager::CreateParticleEmitterAtPosi
     
     GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, particleEmitterData.mParticleSizesBuffer));
     GL_CALL(glBufferData(GL_ARRAY_BUFFER, particleEmitterData.mParticleCount * sizeof(float), particleEmitterData.mParticleSizes.data(), GL_DYNAMIC_DRAW));
+    
+    GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, particleEmitterData.mParticleAnglesBuffer));
+    GL_CALL(glBufferData(GL_ARRAY_BUFFER, particleEmitterData.mParticleCount * sizeof(float), particleEmitterData.mParticleAngles.data(), GL_DYNAMIC_DRAW));
     
     particleSystemSo->mSceneObjectTypeData = std::move(particleEmitterData);
     
@@ -209,6 +220,8 @@ void ParticleManager::LoadParticleData(const resources::ResourceReloadMode resou
         particleEmitterData.mParticleFlags |= particleObject["prefilled"].get<bool>() ? particle_flags::PREFILLED : particle_flags::NONE;
         particleEmitterData.mParticleFlags |= particleObject["continuous_generation"].get<bool>() ? particle_flags::CONTINUOUS_PARTICLE_GENERATION : particle_flags::NONE;
         particleEmitterData.mParticleFlags |= particleObject["enlarge_over_time"].get<bool>() ? particle_flags::ENLARGE_OVER_TIME : particle_flags::NONE;
+        particleEmitterData.mParticleFlags |= particleObject["rotate_over_time"].get<bool>() ? particle_flags::ROTATE_OVER_TIME : particle_flags::NONE;
+        particleEmitterData.mParticleFlags |= particleObject["initially_rotated"].get<bool>() ? particle_flags::INITIALLY_ROTATED : particle_flags::NONE;
         
         particleEmitterData.mParticleLifetimeRangeSecs.x = particleObject["lifetime_range"]["min"].get<float>();
         particleEmitterData.mParticleLifetimeRangeSecs.y = particleObject["lifetime_range"]["max"].get<float>();
@@ -222,8 +235,26 @@ void ParticleManager::LoadParticleData(const resources::ResourceReloadMode resou
         particleEmitterData.mParticleSizeRange.x = particleObject["particle_size_range"]["min"].get<float>();
         particleEmitterData.mParticleSizeRange.y = particleObject["particle_size_range"]["max"].get<float>();
         
-        particleEmitterData.mParticleEnlargementSpeed = particleObject["particle_enlargement_speed"].get<float>();
-        particleEmitterData.mParticleGenerationMaxDelaySecs = particleObject["particle_generation_delay_secs"].get<float>();
+        if (IS_FLAG_SET(particle_flags::ENLARGE_OVER_TIME))
+        {
+            particleEmitterData.mParticleEnlargementSpeed = particleObject["particle_enlargement_speed"].get<float>();
+        }
+        
+        if (IS_FLAG_SET(particle_flags::CONTINUOUS_PARTICLE_GENERATION))
+        {
+            particleEmitterData.mParticleGenerationMaxDelaySecs = particleObject["particle_generation_delay_secs"].get<float>();
+        }
+        
+        if (IS_FLAG_SET(particle_flags::ROTATE_OVER_TIME))
+        {
+            particleEmitterData.mParticleRotationSpeed = particleObject["particle_rotation_speed"].get<float>();
+        }
+        
+        if (IS_FLAG_SET(particle_flags::INITIALLY_ROTATED))
+        {
+            particleEmitterData.mParticleInitialAngleRange.x = particleObject["particle_initial_angle_range"]["min"].get<float>();
+            particleEmitterData.mParticleInitialAngleRange.y = particleObject["particle_initial_angle_range"]["max"].get<float>();
+        }
         
         mParticleNamesToData[particleName] = std::move(particleEmitterData);
     }
@@ -249,7 +280,7 @@ void ParticleManager::SortParticles(scene::ParticleEmitterObjectData& particleEm
     std::vector<std::size_t> indexVec(particleCount);
     std::iota(indexVec.begin(), indexVec.end(), 0);
     std::sort(indexVec.begin(), indexVec.end(), [&](const size_t i, const size_t j)
-              {
+    {
         return particleEmitterData.mParticlePositions[i].z < particleEmitterData.mParticlePositions[j].z;
     });
     
@@ -258,6 +289,7 @@ void ParticleManager::SortParticles(scene::ParticleEmitterObjectData& particleEm
     std::vector<glm::vec3> correctedDirections(particleCount);
     std::vector<float> correctedLifetimes(particleCount);
     std::vector<float> correctedSizes(particleCount);
+    std::vector<float> correctedAngles(particleCount);
     
     for (size_t i = 0U; i < particleCount; ++i)
     {
@@ -265,23 +297,31 @@ void ParticleManager::SortParticles(scene::ParticleEmitterObjectData& particleEm
         correctedDirections[i] = particleEmitterData.mParticleDirections[indexVec[i]];
         correctedLifetimes[i]  = particleEmitterData.mParticleLifetimeSecs[indexVec[i]];
         correctedSizes[i]      = particleEmitterData.mParticleSizes[indexVec[i]];
+        correctedAngles[i]     = particleEmitterData.mParticleAngles[indexVec[i]];
     }
     
-    particleEmitterData.mParticlePositions = std::move(correctedPositions);
-    particleEmitterData.mParticleDirections = std::move(correctedDirections);
+    particleEmitterData.mParticlePositions    = std::move(correctedPositions);
+    particleEmitterData.mParticleDirections   = std::move(correctedDirections);
     particleEmitterData.mParticleLifetimeSecs = std::move(correctedLifetimes);
-    particleEmitterData.mParticleSizes     = std::move(correctedSizes);
+    particleEmitterData.mParticleSizes        = std::move(correctedSizes);
+    particleEmitterData.mParticleAngles       = std::move(correctedAngles);
 }
 
 ///------------------------------------------------------------------------------------------------
 
 void ParticleManager::SpawnParticleAtIndex(const size_t index, const glm::vec3& sceneObjectPosition, scene::ParticleEmitterObjectData& particleEmitterData)
 {
-    const auto lifeTime = math::RandomFloat(particleEmitterData.mParticleLifetimeRangeSecs.s, particleEmitterData.mParticleLifetimeRangeSecs.t);
-    const auto xOffset = math::RandomFloat(particleEmitterData.mParticlePositionXOffsetRange.s, particleEmitterData.mParticlePositionXOffsetRange.t);
-    const auto yOffset = math::RandomFloat(particleEmitterData.mParticlePositionYOffsetRange.s, particleEmitterData.mParticlePositionYOffsetRange.t);
+    const auto lifeTime = math::RandomFloat(particleEmitterData.mParticleLifetimeRangeSecs.x, particleEmitterData.mParticleLifetimeRangeSecs.y);
+    const auto xOffset = math::RandomFloat(particleEmitterData.mParticlePositionXOffsetRange.x, particleEmitterData.mParticlePositionXOffsetRange.y);
+    const auto yOffset = math::RandomFloat(particleEmitterData.mParticlePositionYOffsetRange.x, particleEmitterData.mParticlePositionYOffsetRange.y);
     const auto zOffset = math::RandomFloat(sceneObjectPosition.z - sceneObjectPosition.z * 0.1f, sceneObjectPosition.z + sceneObjectPosition.z * 0.1f);
-    const auto size = math::RandomFloat(particleEmitterData.mParticleSizeRange.s, particleEmitterData.mParticleSizeRange.t);
+    const auto size = math::RandomFloat(particleEmitterData.mParticleSizeRange.x, particleEmitterData.mParticleSizeRange.y);
+    auto angle = 0.0f;
+    
+    if (IS_FLAG_SET(particle_flags::INITIALLY_ROTATED))
+    {
+        angle = math::RandomFloat(particleEmitterData.mParticleInitialAngleRange.x, particleEmitterData.mParticleInitialAngleRange.y);
+    }
     
     particleEmitterData.mParticleLifetimeSecs[index] = lifeTime;
     particleEmitterData.mParticlePositions[index] = sceneObjectPosition;
@@ -290,6 +330,7 @@ void ParticleManager::SpawnParticleAtIndex(const size_t index, const glm::vec3& 
     particleEmitterData.mParticlePositions[index].z += zOffset;
     particleEmitterData.mParticleDirections[index] = glm::normalize(glm::vec3(xOffset, yOffset, 0.0f));
     particleEmitterData.mParticleSizes[index] = size;
+    particleEmitterData.mParticleAngles[index] = angle;
     
 }
 
