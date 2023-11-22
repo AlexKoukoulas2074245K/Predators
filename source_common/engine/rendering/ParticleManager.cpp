@@ -7,8 +7,11 @@
 
 #include <engine/rendering/OpenGL.h>
 #include <engine/rendering/ParticleManager.h>
+#include <engine/resloading/DataFileResource.h>
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
+#include <engine/utils/OSMessageBox.h>
+#include <nlohmann/json.hpp>
 #include <numeric>
 
 ///------------------------------------------------------------------------------------------------
@@ -115,46 +118,35 @@ void ParticleManager::UpdateSceneParticles(const float dtMillis, scene::Scene& s
 ///------------------------------------------------------------------------------------------------
 
 std::shared_ptr<scene::SceneObject> ParticleManager::CreateParticleEmitterAtPosition
- (
-  const glm::vec3& pos,
-  const glm::vec2& particleLifetimeRangeSecs,
-  const glm::vec2& particlePositionXOffsetRange,
-  const glm::vec2& particlePositionYOffsetRange,
-  const glm::vec2& particleSizeRange,
-  const size_t particleCount,
-  const std::string& particleTextureFilename,
-  scene::Scene& scene,
-  const uint8_t particleFlags, /* = particle_flags::NONE */
-  const strutils::StringId particleEmitterSceneObjectName, /* = strutils::StringId() */
-  const float particleEnlargementSpeed, /* = 0.00001f */
-  const float particleGenerationDelaySecs /*= 0.0f*/
+(
+    const strutils::StringId particleEmitterName,
+    const glm::vec3& pos,
+    scene::Scene& scene,
+    const strutils::StringId particleEmitterSceneObjectName /* = strutils::StringId() */
 )
 {
+    if (!mParticleNamesToData.count(particleEmitterName))
+    {
+        ospopups::ShowMessageBox(ospopups::MessageBoxType::ERROR, "Unable to find particle definition", "Particle emitter definition: " + particleEmitterName.GetString() + " could not be found.");
+        return nullptr;
+    }
+    
+    auto particleEmitterData = mParticleNamesToData.at(particleEmitterName);
+    
     auto particleSystemSo = scene.CreateSceneObject(particleEmitterSceneObjectName.isEmpty() ? strutils::StringId(PARTICLE_EMITTER_NAME_PREFIX + std::to_string(sParticleEmitterCount)) : particleEmitterSceneObjectName);
     particleSystemSo->mPosition = pos;
-    particleSystemSo->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + particleTextureFilename);
+    particleSystemSo->mTextureResourceId = particleEmitterData.mTextureResourceId;
     particleSystemSo->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + PARTICLE_SHADER_FILE_NAME);
-    
-    scene::ParticleEmitterObjectData particleEmitterData;
-    particleEmitterData.mParticleCount = particleCount;
-    particleEmitterData.mParticleFlags = particleFlags;
-    particleEmitterData.mParticleGenerationMaxDelaySecs = particleGenerationDelaySecs;
-    particleEmitterData.mParticleGenerationCurrentDelaySecs = particleGenerationDelaySecs;
-    particleEmitterData.mParticleEnlargementSpeed = particleEnlargementSpeed;
     
     assert(IS_FLAG_SET(particle_flags::PREFILLED) || IS_FLAG_SET(particle_flags::CONTINUOUS_PARTICLE_GENERATION));
     
-    particleEmitterData.mParticleLifetimeSecs.resize(particleCount);
-    particleEmitterData.mParticleDirections.resize(particleCount);
-    particleEmitterData.mParticleSizes.resize(particleCount);
-    particleEmitterData.mParticlePositions.resize(particleCount);
+    particleEmitterData.mParticleLifetimeSecs.resize(particleEmitterData.mParticleCount);
+    particleEmitterData.mParticleDirections.resize(particleEmitterData.mParticleCount);
+    particleEmitterData.mParticleSizes.resize(particleEmitterData.mParticleCount);
+    particleEmitterData.mParticlePositions.resize(particleEmitterData.mParticleCount);
     
-    particleEmitterData.mParticleLifetimeRangeSecs = particleLifetimeRangeSecs;
-    particleEmitterData.mParticlePositionXOffsetRange = particlePositionXOffsetRange;
-    particleEmitterData.mParticlePositionYOffsetRange = particlePositionYOffsetRange;
-    particleEmitterData.mParticleSizeRange = particleSizeRange;
     
-    for (size_t i = 0U; i < particleCount; ++i)
+    for (size_t i = 0U; i < particleEmitterData.mParticleCount; ++i)
     {
         particleEmitterData.mParticleLifetimeSecs[i] = 0.0f;
         
@@ -180,19 +172,71 @@ std::shared_ptr<scene::SceneObject> ParticleManager::CreateParticleEmitterAtPosi
     GL_CALL(glBufferData(GL_ARRAY_BUFFER, PARTICLE_UVS.size() * sizeof(float) , PARTICLE_UVS.data(), GL_STATIC_DRAW));
     
     GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, particleEmitterData.mParticlePositionsBuffer));
-    GL_CALL(glBufferData(GL_ARRAY_BUFFER, particleCount * sizeof(glm::vec3), particleEmitterData.mParticlePositions.data(), GL_DYNAMIC_DRAW));
+    GL_CALL(glBufferData(GL_ARRAY_BUFFER, particleEmitterData.mParticleCount * sizeof(glm::vec3), particleEmitterData.mParticlePositions.data(), GL_DYNAMIC_DRAW));
     
     GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, particleEmitterData.mParticleLifetimeSecsBuffer));
-    GL_CALL(glBufferData(GL_ARRAY_BUFFER, particleCount * sizeof(float), particleEmitterData.mParticleLifetimeSecs.data(), GL_DYNAMIC_DRAW));
+    GL_CALL(glBufferData(GL_ARRAY_BUFFER, particleEmitterData.mParticleCount * sizeof(float), particleEmitterData.mParticleLifetimeSecs.data(), GL_DYNAMIC_DRAW));
     
     GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, particleEmitterData.mParticleSizesBuffer));
-    GL_CALL(glBufferData(GL_ARRAY_BUFFER, particleCount * sizeof(float), particleEmitterData.mParticleSizes.data(), GL_DYNAMIC_DRAW));
+    GL_CALL(glBufferData(GL_ARRAY_BUFFER, particleEmitterData.mParticleCount * sizeof(float), particleEmitterData.mParticleSizes.data(), GL_DYNAMIC_DRAW));
     
     particleSystemSo->mSceneObjectTypeData = std::move(particleEmitterData);
     
     sParticleEmitterCount++;
     
     return particleSystemSo;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ParticleManager::LoadParticleData(const resources::ResourceReloadMode resourceReloadMode /* = resources::ResourceReloadMode::DONT_RELOAD */)
+{
+    mResourceReloadMode = resourceReloadMode;
+  
+    auto& systemsEngine = CoreSystemsEngine::GetInstance();
+    
+    auto particlesDefinitionJsonResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_DATA_ROOT + "particle_data.json", resourceReloadMode);
+    auto particlesJson =  nlohmann::json::parse(systemsEngine.GetResourceLoadingService().GetResource<resources::DataFileResource>(particlesDefinitionJsonResourceId).GetContents());
+    
+    for (const auto& particleObject: particlesJson["particle_data"])
+    {
+        scene::ParticleEmitterObjectData particleEmitterData = {};
+        strutils::StringId particleName = strutils::StringId(particleObject["name"].get<std::string>());
+        
+        particleEmitterData.mTextureResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + particleObject["texture"].get<std::string>());
+        particleEmitterData.mParticleCount = particleObject["particle_count"].get<int>();
+        
+        particleEmitterData.mParticleFlags |= particleObject["prefilled"].get<bool>() ? particle_flags::PREFILLED : particle_flags::NONE;
+        particleEmitterData.mParticleFlags |= particleObject["continuous_generation"].get<bool>() ? particle_flags::CONTINUOUS_PARTICLE_GENERATION : particle_flags::NONE;
+        particleEmitterData.mParticleFlags |= particleObject["enlarge_over_time"].get<bool>() ? particle_flags::ENLARGE_OVER_TIME : particle_flags::NONE;
+        
+        particleEmitterData.mParticleLifetimeRangeSecs.x = particleObject["lifetime_range"]["min"].get<float>();
+        particleEmitterData.mParticleLifetimeRangeSecs.y = particleObject["lifetime_range"]["max"].get<float>();
+        
+        particleEmitterData.mParticlePositionXOffsetRange.x = particleObject["position_x_range"]["min"].get<float>();
+        particleEmitterData.mParticlePositionXOffsetRange.y = particleObject["position_x_range"]["max"].get<float>();
+        
+        particleEmitterData.mParticlePositionYOffsetRange.x = particleObject["position_y_range"]["min"].get<float>();
+        particleEmitterData.mParticlePositionYOffsetRange.y = particleObject["position_y_range"]["max"].get<float>();
+        
+        particleEmitterData.mParticleSizeRange.x = particleObject["particle_size_range"]["min"].get<float>();
+        particleEmitterData.mParticleSizeRange.y = particleObject["particle_size_range"]["max"].get<float>();
+        
+        particleEmitterData.mParticleEnlargementSpeed = particleObject["particle_enlargement_speed"].get<float>();
+        particleEmitterData.mParticleGenerationMaxDelaySecs = particleObject["particle_generation_delay_secs"].get<float>();
+        
+        mParticleNamesToData[particleName] = std::move(particleEmitterData);
+    }
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ParticleManager::ReloadParticlesFromDisk()
+{
+    if (mResourceReloadMode)
+    {
+        LoadParticleData(mResourceReloadMode);
+    }
 }
 
 ///------------------------------------------------------------------------------------------------

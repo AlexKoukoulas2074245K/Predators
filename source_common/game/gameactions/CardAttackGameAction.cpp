@@ -26,10 +26,8 @@ const std::string CardAttackGameAction::PLAYER_INDEX_PARAM = "playerIndex";
 
 static const strutils::StringId GAME_OVER_GAME_ACTION_NAME = strutils::StringId("GameOverGameAction");
 static const strutils::StringId CARD_DESTRUCTION_GAME_ACTION_NAME = strutils::StringId("CardDestructionGameAction");
+static const strutils::StringId ATTACKING_CARD_PARTICLE_NAME = strutils::StringId("card_attack");
 static const float ATTACKING_CARD_ANIMATION_Y_OFFSET = 0.16f;
-//static const float ATTACKING_CARD_ANIMATION_DURATION_SECS = 0.5f;
-
-static const std::string ATTACKING_CARD_PARTICLE_TEXTURE_FILE_NAME = "smoke.png";
 
 static const float ATTACKING_CARD_CAMERA_SHAKE_DURATION = 0.25f;
 static const float ATTACKING_CARD_CAMERA_SHAKE_STRENGTH = 0.005f;
@@ -37,13 +35,6 @@ static const float ATTACKING_CARD_PARTICLE_EMITTER_Z = 0.01f;
 static const float ATTACKING_CARD_SHORT_ANIMATION_DURATION = 0.25f;
 static const float ATTACKING_CARD_LONG_ANIMATION_DURATION = 0.4f;
 static const float ATTACKING_CARD_ANIMATION_ELEVATED_Z = 20.0f;
-
-static const int ATTACKING_CARD_PARTICLE_COUNT = 20;
-
-static const glm::vec2 ATTACKING_CARD_PARTICLE_LIFETIME_RANGE = {0.5f, 1.0f};
-static const glm::vec2 ATTACKING_CARD_PARTICLE_X_OFFSET_RANGE = {-0.04f, -0.02f};
-static const glm::vec2 ATTACKING_CARD_PARTICLE_Y_OFFSET_RANGE = {-0.05f, -0.01f};
-static const glm::vec2 ATTACKING_CARD_PARTICLE_SIZE_RANGE     = {0.03f, 0.06f};
 
 ///------------------------------------------------------------------------------------------------
 
@@ -156,15 +147,9 @@ void CardAttackGameAction::VInitAnimation()
                     
                     systemsEngine.GetParticleManager().CreateParticleEmitterAtPosition
                     (
-                        glm::vec3(cardSoWrapper->mSceneObject->mPosition.x, cardSoWrapper->mSceneObject->mPosition.y, ATTACKING_CARD_PARTICLE_EMITTER_Z), // pos
-                        ATTACKING_CARD_PARTICLE_LIFETIME_RANGE,         // particleLifetimeRange
-                        ATTACKING_CARD_PARTICLE_X_OFFSET_RANGE,         // particlePositionXOffsetRange
-                        ATTACKING_CARD_PARTICLE_Y_OFFSET_RANGE,         // particlePositionYOffsetRange
-                        ATTACKING_CARD_PARTICLE_SIZE_RANGE,             // particleSizeRange
-                        ATTACKING_CARD_PARTICLE_COUNT,                  // particleCount
-                        ATTACKING_CARD_PARTICLE_TEXTURE_FILE_NAME,      // particleTextureFilename
-                        *CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE), // scene
-                        particle_flags::PREFILLED | particle_flags::ENLARGE_OVER_TIME                 // particleFlags
+                        ATTACKING_CARD_PARTICLE_NAME,
+                        glm::vec3(cardSoWrapper->mSceneObject->mPosition.x, cardSoWrapper->mSceneObject->mPosition.y, ATTACKING_CARD_PARTICLE_EMITTER_Z),
+                        *CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE)
                      );
                     
                     animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObject, mOriginalCardPosition, mOriginalCardScale, ATTACKING_CARD_LONG_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [&]()

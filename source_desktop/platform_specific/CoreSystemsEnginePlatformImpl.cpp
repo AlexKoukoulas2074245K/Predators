@@ -164,6 +164,7 @@ void CoreSystemsEngine::Initialize()
 
 void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::function<void(const float)> clientUpdateFunction, std::function<void()> clientApplicationMovingToBackgroundFunction, std::function<void()> clientApplicationWindowResizeFunction, std::function<void()> clientCreateDebugWidgetsFunction)
 {
+    mSystems->mParticleManager.LoadParticleData();
     clientInitFunction();
     
     //While application is running
@@ -225,6 +226,7 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
             
             mSystems->mResourceLoadingService.ReloadMarkedResourcesFromDisk();
             mSystems->mFontRepository.ReloadMarkedFontsFromDisk();
+            mSystems->mParticleManager.ReloadParticlesFromDisk();
         }
         
         // Calculate median dt for game logic updates

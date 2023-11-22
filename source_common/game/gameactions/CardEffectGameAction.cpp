@@ -28,7 +28,6 @@ const std::unordered_map<CardEffectGameAction::AffectedStatType, CardStatType> C
 };
 
 // Resources
-static const std::string CARD_EFFECT_PARTICLE_TEXTURE_FILE_NAME = "sparkles.png";
 static const std::string CARD_DISSOLVE_SHADER_FILE_NAME = "card_spell_dissolve.vs";
 static const std::string DISSOLVE_TEXTURE_FILE_NAME = "dissolve.png";
 static const std::string BUFFED_CARD_PARTICLE_EMITTER_NAME_PREFIX = "card_effect_emitter_";
@@ -38,22 +37,15 @@ static const strutils::StringId DISSOLVE_THRESHOLD_UNIFORM_NAME = strutils::Stri
 static const strutils::StringId DISSOLVE_MAGNITUDE_UNIFORM_NAME = strutils::StringId("dissolve_magnitude");
 static const strutils::StringId CARD_ORIGIN_X_UNIFORM_NAME = strutils::StringId("card_origin_x");
 static const strutils::StringId CARD_ORIGIN_Y_UNIFORM_NAME = strutils::StringId("card_origin_y");
-
+static const strutils::StringId CARD_SPELL_EFFECT_PARTICLE_NAME = strutils::StringId("card_spell_effect");
 static const strutils::StringId CARD_EFFECT_PARTICLE_EMITTER_NAME = strutils::StringId("card_effect_emitter");
 static const strutils::StringId DRAW_CARD_GAME_ACTION_NAME = strutils::StringId("DrawCardGameAction");
 
 static const float CARD_DISSOLVE_SPEED = 0.001f;
 static const float MAX_CARD_DISSOLVE_VALUE = 1.2f;
 static const float CARD_EFFECT_PARTICLE_EMITTER_Z_OFFSET = 22.0f;
-static const float CONTINUOUS_PARTICLE_GENERATION_DELAY_SECS = 0.002f;
 static const float CARD_SCALE_ANIMATION_DURATION_SECS = 0.6f;
 
-static const int CARD_EFFECT_PARTICLE_COUNT = 100;
-
-static const glm::vec2 CARD_EFFECT_PARTICLE_LIFETIME_RANGE = {0.7f, 1.3f};
-static const glm::vec2 CARD_EFFECT_PARTICLE_X_OFFSET_RANGE = {-0.02f, 0.01f};
-static const glm::vec2 CARD_EFFECT_PARTICLE_Y_OFFSET_RANGE = {-0.03f, 0.03f};
-static const glm::vec2 CARD_EFFECT_PARTICLE_SIZE_RANGE     = {0.0075f, 0.0125f};
 static const glm::vec2 CARD_DISSOLVE_EFFECT_MAG_RANGE      = {10.0f, 18.0f};
 
 ///------------------------------------------------------------------------------------------------
@@ -91,18 +83,10 @@ void CardEffectGameAction::VInitAnimation()
     
     systemsEngine.GetParticleManager().CreateParticleEmitterAtPosition
     (
+        CARD_SPELL_EFFECT_PARTICLE_NAME,
         glm::vec3(cardSoWrapper->mSceneObject->mPosition.x, cardSoWrapper->mSceneObject->mPosition.y, CARD_EFFECT_PARTICLE_EMITTER_Z_OFFSET), // pos
-        CARD_EFFECT_PARTICLE_LIFETIME_RANGE,            // particleLifetimeRange
-        CARD_EFFECT_PARTICLE_X_OFFSET_RANGE,            // particlePositionXOffsetRange
-        CARD_EFFECT_PARTICLE_Y_OFFSET_RANGE,            // particlePositionYOffsetRange
-        CARD_EFFECT_PARTICLE_SIZE_RANGE,                // particleSizeRange
-        CARD_EFFECT_PARTICLE_COUNT,                     // particleCount
-        CARD_EFFECT_PARTICLE_TEXTURE_FILE_NAME,         // particleTextureFilename
         *CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE), // scene
-        particle_flags::CONTINUOUS_PARTICLE_GENERATION | particle_flags::ENLARGE_OVER_TIME,  // particleFlags
-        CARD_EFFECT_PARTICLE_EMITTER_NAME,
-        DEFAULT_PARTICLE_ENLARGEMENT_SPEED,
-        CONTINUOUS_PARTICLE_GENERATION_DELAY_SECS
+        CARD_EFFECT_PARTICLE_EMITTER_NAME
     );
     
     // Force release all held/moving cards back to position
@@ -158,18 +142,10 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
                     
                     CoreSystemsEngine::GetInstance().GetParticleManager().CreateParticleEmitterAtPosition
                     (
+                        CARD_SPELL_EFFECT_PARTICLE_NAME,
                         glm::vec3(targetPosition.x, targetPosition.y, CARD_EFFECT_PARTICLE_EMITTER_Z_OFFSET), // pos
-                        CARD_EFFECT_PARTICLE_LIFETIME_RANGE,            // particleLifetimeRange
-                        CARD_EFFECT_PARTICLE_X_OFFSET_RANGE,            // particlePositionXOffsetRange
-                        CARD_EFFECT_PARTICLE_Y_OFFSET_RANGE,            // particlePositionYOffsetRange
-                        CARD_EFFECT_PARTICLE_SIZE_RANGE,                // particleSizeRange
-                        CARD_EFFECT_PARTICLE_COUNT,                     // particleCount
-                        CARD_EFFECT_PARTICLE_TEXTURE_FILE_NAME,         // particleTextureFilename
                         *CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE), // scene
-                        particle_flags::CONTINUOUS_PARTICLE_GENERATION | particle_flags::ENLARGE_OVER_TIME,  // particleFlags
-                        strutils::StringId(BUFFED_CARD_PARTICLE_EMITTER_NAME_PREFIX + std::to_string(i)),
-                        DEFAULT_PARTICLE_ENLARGEMENT_SPEED,
-                        CONTINUOUS_PARTICLE_GENERATION_DELAY_SECS
+                        strutils::StringId(BUFFED_CARD_PARTICLE_EMITTER_NAME_PREFIX + std::to_string(i))
                     );
                 }
                 

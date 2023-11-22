@@ -47,6 +47,8 @@ struct ParticleEmitterObjectData
     size_t mParticleCount;
     uint8_t mParticleFlags;
     
+    resources::ResourceId mTextureResourceId;
+    
     std::vector<glm::vec3> mParticlePositions;
     std::vector<glm::vec3> mParticleDirections;
     std::vector<float> mParticleLifetimeSecs;

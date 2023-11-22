@@ -123,6 +123,8 @@ void CoreSystemsEngine::Initialize()
 
 void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::function<void(const float)> clientUpdateFunction, std::function<void()> clientApplicationMovedToBackgroundFunction, std::function<void()>, std::function<void()>)
 {
+    mSystems->mParticleManager.LoadParticleData();
+    
     clientInitFunction();
     
     //While application is running
@@ -188,7 +190,7 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
             mSystems->mResourceLoadingService.ReloadMarkedResourcesFromDisk();
             mSystems->mFontRepository.ReloadMarkedFontsFromDisk();
         }
-
+  
         mSystems->mAnimationManager.Update(gameLogicMillis);
         clientUpdateFunction(gameLogicMillis);
         mSystems->mInputStateManager.VUpdate(gameLogicMillis);

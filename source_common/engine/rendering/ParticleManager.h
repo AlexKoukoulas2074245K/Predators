@@ -11,8 +11,10 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <engine/CoreSystemsEngine.h>
+#include <engine/resloading/ResourceLoadingService.h>
 #include <engine/utils/StringUtils.h>
 #include <memory>
+#include <unordered_map>
 #include <vector>
 
 ///------------------------------------------------------------------------------------------------
@@ -49,23 +51,12 @@ class ParticleManager final
 public:
     void UpdateSceneParticles(const float dtMilis, scene::Scene& scene);
 
-    std::shared_ptr<scene::SceneObject> CreateParticleEmitterAtPosition
-    (
-        const glm::vec3& pos,
-        const glm::vec2& particleLifetimeRangeSecs,
-        const glm::vec2& particlePositionXOffsetRange,
-        const glm::vec2& particlePositionYOffsetRange,
-        const glm::vec2& particleSizeRange,
-        const size_t particleCount,
-        const std::string& particleTextureFilename,
-        scene::Scene& scene,
-        const uint8_t particleFlags = particle_flags::NONE,
-        const strutils::StringId particleEmitterSceneObjectName = strutils::StringId(),
-        const float particleEnlargementSpeed = DEFAULT_PARTICLE_ENLARGEMENT_SPEED,
-        const float particleGenerationDelaySecs = 0.0f
-     );
+    std::shared_ptr<scene::SceneObject> CreateParticleEmitterAtPosition(const strutils::StringId particleEmitterName, const glm::vec3& pos, scene::Scene& scene, const strutils::StringId particleEmitterSceneObjectName = strutils::StringId());
     void RemoveParticleEmitterFlag(const uint8_t flag, const strutils::StringId particleEmitterSceneObjectName, scene::Scene& scene);
-
+    
+    void LoadParticleData(const resources::ResourceReloadMode resourceReloadMode = resources::ResourceReloadMode::DONT_RELOAD);
+    void ReloadParticlesFromDisk();
+    
 private:
     ParticleManager() = default;
     void SortParticles(scene::ParticleEmitterObjectData& particleEmitterData) const;
@@ -75,6 +66,8 @@ private:
     
 private:
     std::vector<std::shared_ptr<scene::SceneObject>> mParticleEmittersToDelete;
+    std::unordered_map<strutils::StringId, scene::ParticleEmitterObjectData, strutils::StringIdHasher> mParticleNamesToData;
+    resources::ResourceReloadMode mResourceReloadMode;
 };
 
 ///------------------------------------------------------------------------------------------------

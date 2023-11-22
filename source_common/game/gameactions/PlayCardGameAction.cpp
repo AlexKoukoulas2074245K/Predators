@@ -24,23 +24,16 @@
 
 const std::string PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM = "lastPlayedCardIndex";
 
-static const std::string CARD_PLAY_PARTICLE_TEXTURE_FILE_NAME = "smoke.png";
-
 static const strutils::StringId CARD_EFFECT_GAME_ACTION_NAME = strutils::StringId("CardEffectGameAction");
 static const strutils::StringId TRAP_TRIGGERED_ANIMATION_GAME_ACTION_NAME = strutils::StringId("TrapTriggeredAnimationGameAction");
 static const strutils::StringId GOLDEN_CARD_PLAYED_EFFECT_GAME_ACTION_NAME = strutils::StringId("GoldenCardPlayedEffectGameAction");
+static const strutils::StringId CARD_PLAY_PARTICLE_NAME = strutils::StringId("card_play");
 
 static const float CARD_CAMERA_SHAKE_DURATION = 0.25f;
 static const float CARD_CAMERA_SHAKE_STRENGTH = 0.005f;
 static const float CARD_PLAY_PARTICLE_EMITTER_Z = 0.01f;
 static const float IN_GAME_PLAYED_CARD_ANIMATION_DURATION = 0.5f;
 
-static const int CARD_PLAY_PARTICLE_COUNT = 20;
-
-static const glm::vec2 CARD_PLAY_PARTICLE_LIFETIME_RANGE = {0.5f, 1.0f};
-static const glm::vec2 CARD_PLAY_PARTICLE_X_OFFSET_RANGE = {-0.04f, -0.02f};
-static const glm::vec2 CARD_PLAY_PARTICLE_Y_OFFSET_RANGE = {-0.05f, -0.01f};
-static const glm::vec2 CARD_PLAY_PARTICLE_SIZE_RANGE     = {0.03f, 0.06f};
 
 ///------------------------------------------------------------------------------------------------
 
@@ -165,15 +158,9 @@ void PlayCardGameAction::VInitAnimation()
         
         CoreSystemsEngine::GetInstance().GetParticleManager().CreateParticleEmitterAtPosition
         (
-            glm::vec3(targetPosition.x, targetPosition.y, CARD_PLAY_PARTICLE_EMITTER_Z), // pos
-            CARD_PLAY_PARTICLE_LIFETIME_RANGE,         // particleLifetimeRange
-            CARD_PLAY_PARTICLE_X_OFFSET_RANGE,         // particlePositionXOffsetRange
-            CARD_PLAY_PARTICLE_Y_OFFSET_RANGE,         // particlePositionYOffsetRange
-            CARD_PLAY_PARTICLE_SIZE_RANGE,             // particleSizeRange
-            CARD_PLAY_PARTICLE_COUNT,                  // particleCount
-            CARD_PLAY_PARTICLE_TEXTURE_FILE_NAME,      // particleTextureFilename
-            *CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE), // scene
-            particle_flags::PREFILLED | particle_flags::ENLARGE_OVER_TIME                  // particleFlags
+            CARD_PLAY_PARTICLE_NAME,
+            glm::vec3(targetPosition.x, targetPosition.y, CARD_PLAY_PARTICLE_EMITTER_Z),
+            *CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE)
          );
         
         lastPlayedCardSoWrapper->mSceneObject->mShaderBoolUniformValues[game_constants::IS_HELD_CARD_UNIFORM_NAME] = false;

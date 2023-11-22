@@ -166,17 +166,9 @@ void Game::Update(const float dtMillis)
         
         systemsEngine.GetParticleManager().CreateParticleEmitterAtPosition
         (
+            strutils::StringId("test_particle"),
             glm::vec3(touchPos.x, touchPos.y, 1.0f),   // pos
-            {2.0f, 3.0f},                              // particleLifetimeRange
-            {-0.03f, 0.03f},                         // particlePositionXOffsetRange
-            {-0.03f, 0.03f},                         // particlePositionYOffsetRange
-            {0.02f, 0.04f},                          // particleSizeRange
-            20,                                        // particleCount
-            "feather_particle.png",                               // particleTextureFilename
-            *systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE), // scene
-            particle_flags::PREFILLED | particle_flags::ENLARGE_OVER_TIME,                  // particleFlags
-            strutils::StringId(),
-            DEFAULT_PARTICLE_ENLARGEMENT_SPEED * 5.0f
+            *systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE) // scene
         );
     }
     
