@@ -50,7 +50,7 @@ public:
     int GetLastPlayedCardIndex() const;
     
 private:
-    void HandleTouchInput();
+    void HandleTouchInput(const float dtMillis);
     void UpdateMiscSceneObjects(const float dtMillis);
     void OnFreeMovingCardRelease(std::shared_ptr<CardSoWrapper> cardSoWrapper);
     void CreateCardHighlighter();
@@ -90,6 +90,7 @@ private:
     std::vector<std::pair<bool, std::unique_ptr<AnimatedStatCrystal>>> mStatCrystals;
     std::vector<std::shared_ptr<CardSoWrapper>> mPendingCardsToBePlayed;
     ProspectiveBoardCardsPushState mPreviousProspectiveBoardCardsPushState;
+    float mSecsCardHighlighted;
     bool mShouldShowCardLocationIndicator;
     bool mCanPlayNextCard;
     bool mCanIssueNextTurnInteraction;

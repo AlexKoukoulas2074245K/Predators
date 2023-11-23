@@ -100,6 +100,7 @@ static const float CARD_TOOLTIP_REVEAL_SPEED = 1.0f/200.0f;
 static const float CARD_TOOLTIP_TEXT_REVEAL_SPEED = 1.0f/500.0f;
 static const float CARD_TOOLTIP_FLIPPED_X_OFFSET = -0.17f;
 static const float CARD_TOOLTIP_TEXT_FLIPPED_X_OFFSET = -0.007f;
+static const float CARD_TOOLTIP_CREATION_DELAY_SECS = 0.5f;
 static const float BOARD_SIDE_EFFECT_VALUE_LEFT_X = -0.075f;
 static const float BOARD_SIDE_EFFECT_VALUE_RIGHT_X = 0.045f;
 static const float BOARD_SIDE_EFFECT_VALUE_Z_OFFSET = 0.01f;
@@ -115,6 +116,7 @@ static const float DESKTOP_DISTANCE_FROM_CARD_LOCATION_INDICATOR = 0.003f;
 
 GameSessionManager::GameSessionManager()
     : mPreviousProspectiveBoardCardsPushState(ProspectiveBoardCardsPushState::NONE)
+    , mSecsCardHighlighted(0.0f)
     , mShouldShowCardLocationIndicator(false)
     , mCanPlayNextCard(false)
     , mCanIssueNextTurnInteraction(false)
@@ -157,8 +159,8 @@ void GameSessionManager::InitGameSession()
     GameReplayEngine replayEngine(persistence_utils::GetProgressDirectoryPath() + "game");
     auto seed = replayEngine.GetGameFileSeed();
 #else
-    auto seed = 51329216;
-    //auto seed = math::RandomInt();
+    //auto seed = 51329216;
+    auto seed = math::RandomInt();
 #endif
     
     mGameSerializer = std::make_unique<GameSerializer>(seed);
@@ -336,7 +338,7 @@ void GameSessionManager::Update(const float dtMillis)
     
     if (mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX)
     {
-        HandleTouchInput();
+        HandleTouchInput(dtMillis);
     }
     
     UpdateMiscSceneObjects(dtMillis);
@@ -382,7 +384,7 @@ const std::vector<std::vector<std::shared_ptr<CardSoWrapper>>>& GameSessionManag
 
 ///------------------------------------------------------------------------------------------------
 
-void GameSessionManager::HandleTouchInput()
+void GameSessionManager::HandleTouchInput(const float dtMillis)
 {
     const auto& activeSceneManager = CoreSystemsEngine::GetInstance().GetActiveSceneManager();
     const auto& inputStateManager = CoreSystemsEngine::GetInstance().GetInputStateManager();
@@ -412,6 +414,19 @@ void GameSessionManager::HandleTouchInput()
         auto sceneObjectRect = scene_object_utils::GetSceneObjectBoundingRect(*cardBaseSceneObject);
         
         bool cursorInSceneObject = math::IsPointInsideRectangle(sceneObjectRect.bottomLeft, sceneObjectRect.topRight, worldTouchPos);
+        
+        // Check for card tooltip creation
+        if (cursorInSceneObject && currentCardSoWrapper->mState == CardSoState::HIGHLIGHTED)
+        {
+            mSecsCardHighlighted += dtMillis/1000.0f;
+            if (mSecsCardHighlighted > CARD_TOOLTIP_CREATION_DELAY_SECS && activeScene->FindSceneObject(CARD_TOOLTIP_SCENE_OBJECT_NAME)->mInvisible)
+            {
+                if (currentCardSoWrapper->mCardData->IsSpell())
+                {
+                    CreateCardTooltip(currentCardSoWrapper->mSceneObject->mPosition, currentCardSoWrapper->mCardData->mCardEffectTooltip, i);
+                }
+            }
+        }
         
 #if defined(MOBILE_FLOW)
         static std::unique_ptr<glm::vec2> selectedCardInitialTouchPosition = nullptr;
@@ -462,6 +477,7 @@ void GameSessionManager::HandleTouchInput()
                     animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(currentCardSoWrapper->mSceneObject, originalCardPosition, currentCardSoWrapper->mSceneObject->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::IGNORE_X_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){currentCardSoWrapper->mState = CardSoState::IDLE; });
                     currentCardSoWrapper->mState = CardSoState::MOVING_TO_SET_POSITION;
                     DestroyCardHighlighterAtIndex(i);
+                    mSecsCardHighlighted = 0.0f;
                 } break;
                     
                 default: break;
@@ -518,6 +534,7 @@ void GameSessionManager::HandleTouchInput()
                         animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(currentCardSoWrapper->mSceneObject, originalCardPosition, currentCardSoWrapper->mSceneObject->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::IGNORE_X_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){currentCardSoWrapper->mState = CardSoState::IDLE; });
                         currentCardSoWrapper->mState = CardSoState::MOVING_TO_SET_POSITION;
                         DestroyCardHighlighterAtIndex(i);
+                        mSecsCardHighlighted = 0.0f;
                     }
                 } break;
                     
@@ -858,11 +875,6 @@ void GameSessionManager::CreateCardHighlighter()
         cardHighlighterSo->mPosition.z += game_constants::ACTION_HIGLIGHTER_Z_OFFSET;
         cardHighlighterSo->mScale = game_constants::CARD_HIGHLIGHTER_SCALE;
         cardHighlighterSo->mInvisible = true;
-        
-        if ((*highlightedCardIter)->mCardData->IsSpell())
-        {
-            CreateCardTooltip((*highlightedCardIter)->mSceneObject->mPosition, (*highlightedCardIter)->mCardData->mCardEffectTooltip, cardIndex);
-        }
     }
 }
 

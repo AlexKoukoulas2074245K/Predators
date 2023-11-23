@@ -319,8 +319,6 @@ TEST_F(GameActionTests, TestDoubleNetAndFluffAttackCombinedEffects)
 
 TEST_F(GameActionTests, TestFeatheryDinoEffect)
 {
-    Init(CardCollectionType::ALL_CARDS, true);
-    
     mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {23, 17}; // Top player has a deck of Feathery Dino and Triceratops
     
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
