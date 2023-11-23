@@ -8,6 +8,7 @@
 #include <game/gameactions/CardAttackGameAction.h>
 #include <game/gameactions/CardEffectGameAction.h>
 #include <game/gameactions/CardDestructionGameAction.h>
+#include <game/gameactions/CardPlayedParticleEffectGameAction.h>
 #include <game/gameactions/DrawCardGameAction.h>
 #include <game/gameactions/GameActionFactory.h>
 #include <game/gameactions/GameOverGameAction.h>
@@ -40,6 +41,7 @@ void GameActionFactory::RegisterGameActions()
     REGISTER_ACTION(CardEffectGameAction);
     REGISTER_ACTION(DrawCardGameAction);
     REGISTER_ACTION(GameOverGameAction);
+    REGISTER_ACTION(CardPlayedParticleEffectGameAction);
     REGISTER_ACTION(NextPlayerGameAction);
     REGISTER_ACTION(PlayCardGameAction);
     REGISTER_ACTION(CardDestructionGameAction);
@@ -69,6 +71,7 @@ std::unique_ptr<BaseGameAction> GameActionFactory::CreateGameAction(const struti
     ACTION_CASE(CardDestructionGameAction);
     ACTION_CASE(DrawCardGameAction);
     ACTION_CASE(GameOverGameAction);
+    ACTION_CASE(CardPlayedParticleEffectGameAction);
     ACTION_CASE(NextPlayerGameAction);
     ACTION_CASE(PlayCardGameAction);
     ACTION_CASE(PostNextPlayerGameAction);

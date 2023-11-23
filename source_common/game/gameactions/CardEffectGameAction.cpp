@@ -155,9 +155,15 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
             
         case ActionState::AFFECTED_CARDS_SPARKLE_ANIMATION:
         {
-            if (mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask != effects::board_modifier_masks::NONE && mLastTriggeredCardEffect != effects::board_modifier_masks::NONE)
+            if (mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask != effects::board_modifier_masks::NONE && mCardBoardEffectMask != effects::board_modifier_masks::NONE)
             {
-                events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectTriggeredEvent>(mBoardState->GetActivePlayerIndex() != game_constants::REMOTE_PLAYER_INDEX, mLastTriggeredCardEffect);
+                events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectTriggeredEvent>(mBoardState->GetActivePlayerIndex() != game_constants::REMOTE_PLAYER_INDEX, mCardBoardEffectMask);
+            }
+            
+            if (std::find(mEffectComponents.cbegin(), mEffectComponents.cend(), effects::EFFECT_COMPONENT_CLEAR_EFFECTS) != mEffectComponents.cend())
+            {
+                events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, effects::board_modifier_masks::BOARD_SIDE_STAT_MODIFIER);
+                events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, effects::board_modifier_masks::KILL_NEXT);
             }
             
             if (mAffectedCards.empty())
@@ -231,7 +237,7 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
     mEffectValue = 0;
     mAffectedCards.clear();
     
-    const auto effectComponents = strutils::StringSplit(effect, ' ');
+    mEffectComponents = strutils::StringSplit(effect, ' ');
     const auto& boardCards = mBoardState->GetActivePlayerState().mPlayerBoardCards;
     const auto& heldCards = mBoardState->GetActivePlayerState().mPlayerHeldCards;
     const auto effectCardFamily = CardDataRepository::GetInstance().GetCardData(boardCards.back())->get().mCardFamily;
@@ -240,7 +246,7 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
     std::vector<int> affectedBoardCardIndices;
     std::vector<int> affectedHeldCardIndices;
     
-    for (const auto& effectComponent: effectComponents)
+    for (const auto& effectComponent: mEffectComponents)
     {
         // Collection component
         if (effectComponent == effects::EFFECT_COMPONENT_FAMILY)
@@ -258,11 +264,18 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
             mAffectedBoardCardsStatType = AffectedStatType::WEIGHT;
         }
         
+        // Clear effects component
+        else if (effectComponent == effects::EFFECT_COMPONENT_CLEAR_EFFECTS)
+        {
+            mBoardState->GetActivePlayerState().mBoardModifiers.mGlobalCardStatModifiers.clear();
+            mBoardState->GetActivePlayerState().mBoardModifiers.mBoardModifierMask = effects::board_modifier_masks::NONE;
+        }
+        
         // Kill component
         else if (effectComponent == effects::EFFECT_COMPONENT_KILL)
         {
             mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask |= effects::board_modifier_masks::KILL_NEXT;
-            mLastTriggeredCardEffect = effects::board_modifier_masks::KILL_NEXT;
+            mCardBoardEffectMask = effects::board_modifier_masks::KILL_NEXT;
         }
         
         // Modifier/Offset value component
@@ -273,7 +286,7 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
     }
     
     // Board effect
-    if (std::find(effectComponents.cbegin(), effectComponents.cend(), effects::EFFECT_COMPONENT_BOARD) != effectComponents.cend())
+    if (std::find(mEffectComponents.cbegin(), mEffectComponents.cend(), effects::EFFECT_COMPONENT_BOARD) != mEffectComponents.cend())
     {
         for (int i = 0; i < static_cast<int>(boardCards.size()) - 1; ++i)
         {
@@ -288,13 +301,12 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
             if (!cardData->get().IsSpell())
             {
                 affectedBoardCardIndices.emplace_back(i);
-                //mAffectedCards.push_back({mGameSessionManager->GetBoardCardSoWrappers()[mBoardState->GetActivePlayerIndex()].at(i), i, true});
             }
         }
     }
     
     // Held Cards effect
-    if (std::find(effectComponents.cbegin(), effectComponents.cend(), effects::EFFECT_COMPONENT_HELD) != effectComponents.cend())
+    if (std::find(mEffectComponents.cbegin(), mEffectComponents.cend(), effects::EFFECT_COMPONENT_HELD) != mEffectComponents.cend())
     {
         for (int i = 0; i < static_cast<int>(heldCards.size()); ++i)
         {
@@ -309,13 +321,12 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
             if (!cardData->get().IsSpell())
             {
                 affectedHeldCardIndices.emplace_back(i);
-                //mAffectedCards.push_back({mGameSessionManager->GetHeldCardSoWrappers()[mBoardState->GetActivePlayerIndex()].at(i), i, false});
             }
         }
     }
     
     // Draw effect
-    if (std::find(effectComponents.cbegin(), effectComponents.cend(), effects::EFFECT_COMPONENT_DRAW) != effectComponents.cend())
+    if (std::find(mEffectComponents.cbegin(), mEffectComponents.cend(), effects::EFFECT_COMPONENT_DRAW) != mEffectComponents.cend())
     {
         for (auto i = 0; i < mEffectValue; ++i)
         {
@@ -324,11 +335,11 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
     }
     
     // Next turn effect
-    if (std::find(effectComponents.cbegin(), effectComponents.cend(), effects::EFFECT_COMPONENT_ENEMIES) != effectComponents.cend())
+    if (std::find(mEffectComponents.cbegin(), mEffectComponents.cend(), effects::EFFECT_COMPONENT_ENEMIES) != mEffectComponents.cend())
     {
         mBoardState->GetInactivePlayerState().mBoardModifiers.mGlobalCardStatModifiers[sAffectedStatTypeToCardStatType.at(mAffectedBoardCardsStatType)] += mEffectValue;
         mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask |= effects::board_modifier_masks::BOARD_SIDE_STAT_MODIFIER;
-        mLastTriggeredCardEffect = effects::board_modifier_masks::BOARD_SIDE_STAT_MODIFIER;
+        mCardBoardEffectMask = effects::board_modifier_masks::BOARD_SIDE_STAT_MODIFIER;
     }
     
     // Create/Modify board card stat overrides

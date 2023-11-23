@@ -27,6 +27,7 @@ const std::string PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM = "lastPlayed
 static const strutils::StringId CARD_EFFECT_GAME_ACTION_NAME = strutils::StringId("CardEffectGameAction");
 static const strutils::StringId TRAP_TRIGGERED_ANIMATION_GAME_ACTION_NAME = strutils::StringId("TrapTriggeredAnimationGameAction");
 static const strutils::StringId GOLDEN_CARD_PLAYED_EFFECT_GAME_ACTION_NAME = strutils::StringId("GoldenCardPlayedEffectGameAction");
+static const strutils::StringId CARD_PLAYED_PARTICLE_EFFECT_GAME_ACTION_NAME = strutils::StringId("CardPlayedParticleEffectGameAction");
 static const strutils::StringId CARD_PLAY_PARTICLE_NAME = strutils::StringId("card_play");
 
 static const float CARD_CAMERA_SHAKE_DURATION = 0.25f;
@@ -86,9 +87,16 @@ void PlayCardGameAction::VSetNewGameState()
     activePlayerState.mPlayerHeldCards.erase(activePlayerState.mPlayerHeldCards.begin() + lastPlayedCardIndex);
     activePlayerState.mPlayerCurrentWeightAmmo -= cardWeight;
     
+    // Golden card animation
     if (card_utils::GetCardRarity(cardId, mBoardState->GetActivePlayerIndex(), *mBoardState) == CardRarity::GOLDEN)
     {
         mGameActionEngine->AddGameAction(GOLDEN_CARD_PLAYED_EFFECT_GAME_ACTION_NAME);
+    }
+    
+    // Card-specific particle animation
+    if (!cardData->get().mParticleEffect.isEmpty())
+    {
+        mGameActionEngine->AddGameAction(CARD_PLAYED_PARTICLE_EFFECT_GAME_ACTION_NAME);
     }
     
     if (cardData->get().IsSpell())

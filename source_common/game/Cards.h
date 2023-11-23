@@ -59,6 +59,7 @@ struct CardData
     std::string mCardEffect;
     std::string mCardEffectTooltip;
     strutils::StringId mCardFamily;
+    strutils::StringId mParticleEffect;
     resources::ResourceId mCardTextureResourceId;
     resources::ResourceId mCardShaderResourceId;
 };

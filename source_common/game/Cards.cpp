@@ -121,6 +121,12 @@ void CardDataRepository::LoadCardData(bool loadCardAssets)
             cardData.mCardEffectTooltip = cardObject["tooltip"].get<std::string>();
         }
         
+        // Optional particle effect
+        if (cardObject.count("particle_effect"))
+        {
+            cardData.mParticleEffect = strutils::StringId(cardObject["particle_effect"].get<std::string>());
+        }
+        
         // Make sure card has a registered card family
         cardData.mCardFamily = strutils::StringId(cardObject["family"].get<std::string>());
         if (!mCardFamilies.count(cardData.mCardFamily))

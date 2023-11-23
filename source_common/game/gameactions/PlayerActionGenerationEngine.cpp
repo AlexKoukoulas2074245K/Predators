@@ -115,7 +115,12 @@ bool PlayerActionGenerationEngine::ShouldWaitForFurtherActionsAfterPlayingCard(c
         strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_HELD) &&
         !strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_BOARD)
     ) return true;
-    
+    else if
+    (
+        cardData.IsSpell() &&
+        strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_CLEAR_EFFECTS)
+    ) return true;
+        
     return false;
 }
 

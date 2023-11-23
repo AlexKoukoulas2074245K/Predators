@@ -47,7 +47,7 @@
             "particle_generation_delay_secs": 0.002
         },
         {
-            "name": "test_particle",
+            "name": "feathers",
             "texture": "feather_particle.png",
             "particle_count": 50,
             "prefilled": true,
@@ -56,13 +56,13 @@
             "rotate_over_time": true,
             "initially_rotated": true,
             "rotation_axis": "z",
-            "lifetime_range": {"min": 2.0, "max": 3.0},
+            "lifetime_range": {"min": 1.0, "max": 1.5},
             "position_x_range": {"min": -0.0003, "max": 0.0003},
             "position_y_range": {"min": -0.0003, "max": 0.0003},
             "particle_initial_angle_range": {"min": 0.00, "max": 6.28},
             "particle_size_range": {"min": 0.02, "max": 0.004},
-            "particle_enlargement_speed": 0.00005,
-            "particle_rotation_speed": 0.0005
+            "particle_enlargement_speed": 0.0001,
+            "particle_rotation_speed": 0.001
         }
     ]
 }

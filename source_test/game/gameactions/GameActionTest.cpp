@@ -342,6 +342,27 @@ TEST_F(GameActionTests, TestFeatheryDinoEffect)
     EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, 21); // Triceratops attacks
 }
 
+TEST_F(GameActionTests, TestBearTrapEffectFollowedByGustOfWind)
+{
+    mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {22}; // Top player has a deck of bear traps
+    mBoardState->GetPlayerStates()[1].mPlayerDeckCards = {24, 4}; // Bot player has a deck of Gusts of Wind and Bunnies
+    
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Bear trap is played
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mBoardState->GetPlayerStates()[1].mPlayerTotalWeightAmmo = 2;
+    mBoardState->GetPlayerStates()[1].mPlayerCurrentWeightAmmo = 2;
+    mBoardState->GetPlayerStates()[1].mPlayerHeldCards = {24, 4};
+    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Gust of Wind is played
+    
+    UpdateUntilActionOrIdle(CARD_DESTRUCTION_GAME_ACTION_NAME);
+    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, 29); // Bunny is not killed due to Gust of Windw clearing the bear trap and attacks
+}
+
 TEST_F(GameActionTests, BattleSimulation)
 {
     constexpr int GAME_COUNT = 10000;
