@@ -66,15 +66,19 @@ void PlayCardGameAction::VSetNewGameState()
     auto cardWeight = cardData->get().mCardWeight;
     const auto& cardStatOverrides = activePlayerState.mPlayerHeldCardStatOverrides;
     
-    if (static_cast<int>(cardStatOverrides.size()) >= lastPlayedCardIndex + 1)
+    if (static_cast<int>(cardStatOverrides.size()) > lastPlayedCardIndex)
     {
         cardWeight = math::Max(0, cardStatOverrides[lastPlayedCardIndex].count(CardStatType::WEIGHT) ? cardStatOverrides[lastPlayedCardIndex].at(CardStatType::WEIGHT) : cardData->get().mCardWeight);
     }
     
     // Transfer held card stat override to the new board position
-    if (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.size()) >= lastPlayedCardIndex + 1)
+    if (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.size()) > lastPlayedCardIndex)
     {
-        mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.emplace_back(mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides[lastPlayedCardIndex]);
+        if (!mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides[lastPlayedCardIndex].empty())
+        {
+            mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.emplace_back(mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides[lastPlayedCardIndex]);
+        }
+        
         mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.erase(mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.begin() + lastPlayedCardIndex);
     }
     
@@ -143,7 +147,7 @@ void PlayCardGameAction::VInitAnimation()
             false,
             true,
             true,
-            (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.size()) > lastPlayedCardIndex ? mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.at(lastPlayedCardIndex) : CardStatOverrides()),
+            (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.size()) > lastPlayedCardIndex ? mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.at(lastPlayedCardIndex) : CardStatOverrides()), // held card stat overrides have moved to board card stat overrides from the setstate above
             {},
             *activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE)
          );

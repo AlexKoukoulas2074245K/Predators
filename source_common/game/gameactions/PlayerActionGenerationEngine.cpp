@@ -65,15 +65,23 @@ void PlayerActionGenerationEngine::DecideAndPushNextActions(BoardState* currentB
         const auto* cardData = &cardRepository.GetCardData(*iter)->get();
         // Find index of card in original vector
         auto originalHeldCardIter = std::find(currentHeldCards.cbegin(), currentHeldCards.cend(), cardData->mCardId);
+        const auto cardIndex = originalHeldCardIter - currentHeldCards.cbegin();
         
-        if (mGameRuleEngine->CanCardBePlayed(cardData, originalHeldCardIter - currentHeldCards.cbegin(), boardStateCopy.GetActivePlayerIndex(), &boardStateCopy))
+        if (mGameRuleEngine->CanCardBePlayed(cardData, cardIndex, boardStateCopy.GetActivePlayerIndex(), &boardStateCopy))
         {
             assert(originalHeldCardIter != currentHeldCards.cend());
             
-            mGameActionEngine->AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, std::to_string(originalHeldCardIter - currentHeldCards.cbegin())}});
+            mGameActionEngine->AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, std::to_string(cardIndex)}});
             
             // Simulate card play effects on copy of board state
-            boardStateCopy.GetActivePlayerState().mPlayerCurrentWeightAmmo -= cardData->mCardWeight;
+            auto cardWeight = cardData->mCardWeight;
+            const auto& cardStatOverrides = boardStateCopy.GetActivePlayerState().mPlayerHeldCardStatOverrides;
+            if (static_cast<int>(cardStatOverrides.size()) > cardIndex)
+            {
+                cardWeight = math::Max(0, cardStatOverrides[cardIndex].count(CardStatType::WEIGHT) ? cardStatOverrides[cardIndex].at(CardStatType::WEIGHT) : cardData->mCardWeight);
+            }
+            
+            boardStateCopy.GetActivePlayerState().mPlayerCurrentWeightAmmo -= cardWeight;
             currentBoardCards.push_back(cardData->mCardId);
             
             currentHeldCards.erase(originalHeldCardIter);

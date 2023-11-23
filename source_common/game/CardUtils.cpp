@@ -311,7 +311,7 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
         cardComponents.front()->mShaderResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CARD_SHADER_FILE_NAME);
         
         int weight = math::Max(0, cardStatOverrides.count(CardStatType::WEIGHT) ? cardStatOverrides.at(CardStatType::WEIGHT) : cardData->mCardWeight);
-        if (!isOnBoard && globalStatModifiers.count(CardStatType::WEIGHT))
+        if (globalStatModifiers.count(CardStatType::WEIGHT))
         {
             weight = math::Max(0, weight + globalStatModifiers.at(CardStatType::WEIGHT));
         }

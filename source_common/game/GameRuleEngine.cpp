@@ -27,7 +27,7 @@ bool GameRuleEngine::CanCardBePlayed(const CardData* cardData, const size_t card
     auto cardWeight = cardData->mCardWeight;
     const auto& cardStatOverrides = activePlayerState.mPlayerHeldCardStatOverrides;
     
-    if (cardStatOverrides.size() >= cardIndex + 1)
+    if (cardStatOverrides.size() > cardIndex)
     {
         cardWeight = math::Max(0, cardStatOverrides[cardIndex].count(CardStatType::WEIGHT) ? cardStatOverrides[cardIndex].at(CardStatType::WEIGHT) : cardData->mCardWeight);
     }

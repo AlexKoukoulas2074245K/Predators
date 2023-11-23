@@ -338,16 +338,16 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
         auto cardData = CardDataRepository::GetInstance().GetCardData(mBoardState->GetActivePlayerState().mPlayerBoardCards.at(*affectedBoardCardIter))->get();
         auto currentValue = mAffectedBoardCardsStatType == AffectedStatType::DAMAGE ? cardData.mCardDamage : cardData.mCardWeight;
         
-        if (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.size()) >= (*affectedBoardCardIter + 1))
+        if (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.size()) > *affectedBoardCardIter)
         {
             currentValue = mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides[*affectedBoardCardIter][affectedStat];
         }
         else
         {
-            mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.emplace_back();
+            mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.resize(*affectedBoardCardIter + 1);
         }
         
-        mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.back()[affectedStat] = currentValue + mEffectValue;
+        mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides[*affectedBoardCardIter][affectedStat] = currentValue + mEffectValue;
         affectedBoardCardIter++;
     }
     
@@ -358,7 +358,7 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
         auto cardData = CardDataRepository::GetInstance().GetCardData(mBoardState->GetActivePlayerState().mPlayerHeldCards.at(*affectedHeldCardIter))->get();
         auto currentValue = mAffectedBoardCardsStatType == AffectedStatType::DAMAGE ? cardData.mCardDamage : cardData.mCardWeight;
         
-        if (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.size()) >= (*affectedHeldCardIter + 1))
+        if (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.size()) > *affectedHeldCardIter)
         {
             currentValue = mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides[*affectedHeldCardIter][affectedStat];
         }
@@ -367,7 +367,7 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
             mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.resize(*affectedHeldCardIter + 1);
         }
         
-        mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.back()[affectedStat] = currentValue + mEffectValue;
+        mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides[*affectedHeldCardIter][affectedStat] = currentValue + mEffectValue;
         
         // Skip animation for held cards for opponent
         if (mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX)
