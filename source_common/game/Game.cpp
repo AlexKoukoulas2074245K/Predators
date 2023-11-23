@@ -147,8 +147,7 @@ void Game::Init()
 ///------------------------------------------------------------------------------------------------
 
 void Game::Update(const float dtMillis)
-{
-//
+{    
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
     auto activeScene = systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
 //

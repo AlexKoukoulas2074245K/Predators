@@ -13,6 +13,7 @@
 #include <platform_specific/IOSUtils.h>
 #import <Foundation/Foundation.h>
 #import <UIKit/UIDevice.h>
+#import <platform_specific/Reachability.h>
 
 ///-----------------------------------------------------------------------------------------------
 
@@ -32,6 +33,13 @@ bool IsIPad()
     }
     
     return true;
+}
+
+///-----------------------------------------------------------------------------------------------
+
+bool IsConnectedToTheInternet()
+{
+    return !([[Reachability reachabilityForInternetConnection] currentReachabilityStatus] == NotReachable);
 }
 
 ///-----------------------------------------------------------------------------------------------
