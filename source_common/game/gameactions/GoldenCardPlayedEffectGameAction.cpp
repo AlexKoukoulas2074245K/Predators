@@ -19,7 +19,7 @@
 
 ///------------------------------------------------------------------------------------------------
 
-static const float GOLDEN_CARD_LIGHT_EFFECT_ANIMATION_DURATION = 2.0f;
+static const float GOLDEN_CARD_LIGHT_EFFECT_ANIMATION_DURATION = 1.0f;
 static const float GOLDEN_CARD_LIGHT_EFFECT_MIN_X = -0.3f;
 static const float GOLDEN_CARD_LIGHT_EFFECT_MAX_X = 0.3f;
 
