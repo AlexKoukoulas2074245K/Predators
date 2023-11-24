@@ -44,6 +44,8 @@ protected:
         CardDataRepository::GetInstance().LoadCardData(false);
     }
     
+    void SimulateBattle(strutils::StringId topDeckFamilyName = strutils::StringId(), strutils::StringId botDeckFamilyName = strutils::StringId());
+    
     void Init(const CardCollectionType& cardCollectionType, const bool useRuleEngine)
     {
         mBoardState = std::make_unique<BoardState>();
@@ -361,14 +363,15 @@ TEST_F(GameActionTests, TestBearTrapEffectFollowedByGustOfWind)
     EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, 29); // Bunny is not killed due to Gust of Windw clearing the bear trap and attacks
 }
 
-TEST_F(GameActionTests, BattleSimulation)
+void GameActionTests::SimulateBattle(strutils::StringId topDeckFamilyName /*= strutils::StringId()*/, strutils::StringId botDeckFamilyName /*= strutils::StringId()*/)
 {
-    constexpr int GAME_COUNT = 10000;
+    constexpr int GAME_COUNT = 1000;
     
     std::stringstream statistics;
     int gamesTopPlayerWonCounter = 0;
     int turnCounter = 0;
     int weightAmmoCounter = 0;
+    bool mFamilyBattles = !topDeckFamilyName.isEmpty() || !botDeckFamilyName.isEmpty();
     std::vector<std::pair<int, int>> winnerGameCountsAndCardIds;
     std::vector<std::pair<int, int>> looserGameCountsAndCardIds;
     std::vector<std::pair<float, int>> powerLevelAndCardIds;
@@ -380,6 +383,13 @@ TEST_F(GameActionTests, BattleSimulation)
         uniquePlayedCardIds[1].clear();
         
         Init(CardCollectionType::ALL_CARDS, true);
+        
+        if (mFamilyBattles)
+        {
+            mBoardState->GetPlayerStates()[0].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(topDeckFamilyName);
+            mBoardState->GetPlayerStates()[1].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(botDeckFamilyName);
+        }
+        
         mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
         while (mActionEngine->GetActiveGameActionName() != IDLE_GAME_ACTION_NAME && mActionEngine->GetActiveGameActionName() != GAME_OVER_GAME_ACTION_NAME)
         {
@@ -462,71 +472,121 @@ TEST_F(GameActionTests, BattleSimulation)
         return lhs.first > rhs.first;
     });
     
-    statistics << "Games won: Top=" << 100.0f * gamesTopPlayerWonCounter/static_cast<float>(GAME_COUNT) << "%  Bot=" << 100.0f * (GAME_COUNT - gamesTopPlayerWonCounter)/static_cast<float>(GAME_COUNT) << "%\n";
-    statistics << "Average weight ammo per game on victory: " << weightAmmoCounter/static_cast<float>(GAME_COUNT) << "\n";
-    statistics << "Average turns per game: " << turnCounter/static_cast<float>(GAME_COUNT) << "\n";
-    
-    statistics << "Card pressence in won games: \n";
-    auto cardStatRowPopulationLambda = [&](const std::pair<int, int> entry)
+    if (mFamilyBattles)
     {
-        const auto& cardData = CardDataRepository::GetInstance().GetCardData(entry.second)->get();
-        std::stringstream row;
-        row << "\t" << "ID=" << cardData.mCardId << ", " << "d=" << cardData.mCardDamage << ", w=" << cardData.mCardWeight;
-        row << std::setw(35 - static_cast<int>(row.str().size()));
-        row << cardData.mCardName ;
-        row << std::setw(43 - static_cast<int>(row.str().size()));
-        row << std::setprecision(2);
-        row << " in " << 100.0f * entry.first/static_cast<float>(GAME_COUNT) << "%";
-        row << std::setw(55 - static_cast<int>(row.str().size()));
-        row << " of games (" << entry.first << " out of " << GAME_COUNT << " games) \n";
-        statistics << row.str();
-    };
-    
-    for (const auto& entry: winnerGameCountsAndCardIds)
-    {
-        cardStatRowPopulationLambda(entry);
+        statistics << "Games won: Top=" << 100.0f * gamesTopPlayerWonCounter/static_cast<float>(GAME_COUNT) << "%  Bot=" << 100.0f * (GAME_COUNT - gamesTopPlayerWonCounter)/static_cast<float>(GAME_COUNT) << "%\n";
+        statistics << "Average weight ammo per game on victory: " << weightAmmoCounter/static_cast<float>(GAME_COUNT) << "\n";
+        statistics << "Average turns per game: " << turnCounter/static_cast<float>(GAME_COUNT) << "\n";
+        logging::Log(logging::LogType::INFO, "Card Family battle: %s vs %s:\n%s", topDeckFamilyName.GetString().c_str(), botDeckFamilyName.GetString().c_str(), statistics.str().c_str());
     }
-    
-    statistics << "\nCard pressence in lost games: \n";
-    for (const auto& entry: looserGameCountsAndCardIds)
+    else
     {
-        cardStatRowPopulationLambda(entry);
-    }
-    
-    statistics << "\nCard power score: \n"; // won games - lost games
-    for (const auto& entry: winnerGameCountsAndCardIds)
-    {
-        float powerLevel = (entry.first / static_cast<float>(GAME_COUNT)) * 100.0f;
+        statistics << "Games won: Top=" << 100.0f * gamesTopPlayerWonCounter/static_cast<float>(GAME_COUNT) << "%  Bot=" << 100.0f * (GAME_COUNT - gamesTopPlayerWonCounter)/static_cast<float>(GAME_COUNT) << "%\n";
+        statistics << "Average weight ammo per game on victory: " << weightAmmoCounter/static_cast<float>(GAME_COUNT) << "\n";
+        statistics << "Average turns per game: " << turnCounter/static_cast<float>(GAME_COUNT) << "\n";
         
-        auto foundInLostGamesContainer = std::find_if(looserGameCountsAndCardIds.cbegin(), looserGameCountsAndCardIds.cend(), [=](const std::pair<int, int>& looseEntry)
+        
+        statistics << "Card pressence in won games: \n";
+        auto cardStatRowPopulationLambda = [&](const std::pair<int, int> entry)
         {
-            return looseEntry.second == entry.second;
-        });
-        if (foundInLostGamesContainer != looserGameCountsAndCardIds.cend())
+            const auto& cardData = CardDataRepository::GetInstance().GetCardData(entry.second)->get();
+            std::stringstream row;
+            row << "\t" << "ID=" << cardData.mCardId << ", " << "d=" << cardData.mCardDamage << ", w=" << cardData.mCardWeight;
+            row << std::setw(35 - static_cast<int>(row.str().size()));
+            row << cardData.mCardName ;
+            row << std::setw(43 - static_cast<int>(row.str().size()));
+            row << std::setprecision(2);
+            row << " in " << 100.0f * entry.first/static_cast<float>(GAME_COUNT) << "%";
+            row << std::setw(55 - static_cast<int>(row.str().size()));
+            row << " of games (" << entry.first << " out of " << GAME_COUNT << " games) \n";
+            statistics << row.str();
+        };
+        
+        for (const auto& entry: winnerGameCountsAndCardIds)
         {
-            powerLevel -= (foundInLostGamesContainer->first / static_cast<float>(GAME_COUNT) * 100.0f);
+            cardStatRowPopulationLambda(entry);
         }
         
-        powerLevelAndCardIds.push_back(std::make_pair(powerLevel, entry.second));
+        statistics << "\nCard pressence in lost games: \n";
+        for (const auto& entry: looserGameCountsAndCardIds)
+        {
+            cardStatRowPopulationLambda(entry);
+        }
+        
+        statistics << "\nCard power score: \n"; // won games - lost games
+        for (const auto& entry: winnerGameCountsAndCardIds)
+        {
+            float powerLevel = (entry.first / static_cast<float>(GAME_COUNT)) * 100.0f;
+            
+            auto foundInLostGamesContainer = std::find_if(looserGameCountsAndCardIds.cbegin(), looserGameCountsAndCardIds.cend(), [=](const std::pair<int, int>& looseEntry)
+            {
+                return looseEntry.second == entry.second;
+            });
+            if (foundInLostGamesContainer != looserGameCountsAndCardIds.cend())
+            {
+                powerLevel -= (foundInLostGamesContainer->first / static_cast<float>(GAME_COUNT) * 100.0f);
+            }
+            
+            powerLevelAndCardIds.push_back(std::make_pair(powerLevel, entry.second));
+        }
+        
+        std::sort(powerLevelAndCardIds.begin(), powerLevelAndCardIds.end(), [](const std::pair<float, int>& lhs, const std::pair<float, int>& rhs)
+        {
+            return lhs.first > rhs.first;
+        });
+        
+        for (const auto& entry: powerLevelAndCardIds)
+        {
+            const auto& cardData = CardDataRepository::GetInstance().GetCardData(entry.second)->get();
+            std::stringstream row;
+            row << "\t" << "ID=" << cardData.mCardId << ", " << "d=" << cardData.mCardDamage << ", w=" << cardData.mCardWeight;
+            row << std::setw(35 - static_cast<int>(row.str().size()));
+            row << cardData.mCardName ;
+            row << std::setw(43 - static_cast<int>(row.str().size()));
+            row << std::setprecision(2);
+            row << " power " << entry.first << "%\n";
+            statistics << row.str();
+        }
+        
+        logging::Log(logging::LogType::INFO, "Game Stats: \n%s", statistics.str().c_str());
+    }
+}
+
+TEST_F(GameActionTests, BattleSimulation)
+{
+    // Simulate battles with all cards
+    SimulateBattle();
+    
+    // Create family battle combinations
+    const auto& cardFamiliesSet = CardDataRepository::GetInstance().GetCardFamilies();
+    std::vector<strutils::StringId> cardFamilies(cardFamiliesSet.begin(), cardFamiliesSet.end());
+    std::unordered_map<strutils::StringId, std::vector<strutils::StringId>, strutils::StringIdHasher> cardFamilyBattleCombinations;
+    
+    for (auto i = 0U; i < cardFamilies.size(); ++i)
+    {
+        for (auto j = 0U; j < cardFamilies.size(); ++j)
+        {
+            const auto& lhsFamily = cardFamilies[i];
+            const auto& rhsFamily = cardFamilies[j];
+            
+            if (i != j)
+            {
+                cardFamilyBattleCombinations[lhsFamily].push_back(rhsFamily);
+                if (cardFamilyBattleCombinations.count(rhsFamily) != 0)
+                {
+                    auto& existingRhsBattles = cardFamilyBattleCombinations[rhsFamily];
+                    existingRhsBattles.erase(std::find(existingRhsBattles.begin(), existingRhsBattles.end(), lhsFamily));
+                }
+            }
+        }
     }
     
-    std::sort(powerLevelAndCardIds.begin(), powerLevelAndCardIds.end(), [](const std::pair<float, int>& lhs, const std::pair<float, int>& rhs)
+    // Simulate battles for card family vs card family
+    for (const auto& battleCombinationEntry: cardFamilyBattleCombinations)
     {
-        return lhs.first > rhs.first;
-    });
-    
-    for (const auto& entry: powerLevelAndCardIds)
-    {
-        const auto& cardData = CardDataRepository::GetInstance().GetCardData(entry.second)->get();
-        std::stringstream row;
-        row << "\t" << "ID=" << cardData.mCardId << ", " << "d=" << cardData.mCardDamage << ", w=" << cardData.mCardWeight;
-        row << std::setw(35 - static_cast<int>(row.str().size()));
-        row << cardData.mCardName ;
-        row << std::setw(43 - static_cast<int>(row.str().size()));
-        row << std::setprecision(2);
-        row << " power " << entry.first << "%\n";
-        statistics << row.str();
+        for (const auto& rhsFamily: battleCombinationEntry.second)
+        {
+            SimulateBattle(battleCombinationEntry.first, rhsFamily);
+        }
     }
-    
-    logging::Log(logging::LogType::INFO, "Game Stats: \n%s", statistics.str().c_str());
 }

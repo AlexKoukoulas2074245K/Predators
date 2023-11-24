@@ -1,8 +1,8 @@
 ///------------------------------------------------------------------------------------------------
-///  PostNextPlayerGameAction.cpp
+///  GoldenCardPlayedEffectGameAction.cpp
 ///  Predators                                                                                            
 ///                                                                                                
-///  Created by Alex Koukoulas on 01/11/2023
+///  Created by Alex Koukoulas on 20/11/2023
 ///------------------------------------------------------------------------------------------------
 
 #include <engine/CoreSystemsEngine.h>

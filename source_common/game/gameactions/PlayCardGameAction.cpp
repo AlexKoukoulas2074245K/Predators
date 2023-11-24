@@ -181,7 +181,7 @@ void PlayCardGameAction::VInitAnimation()
             CARD_PLAY_PARTICLE_NAME,
             glm::vec3(targetPosition.x, targetPosition.y, CARD_PLAY_PARTICLE_EMITTER_Z),
             *CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE)
-         );
+        );
         
         lastPlayedCardSoWrapper->mSceneObject->mShaderBoolUniformValues[game_constants::IS_HELD_CARD_UNIFORM_NAME] = false;
     });

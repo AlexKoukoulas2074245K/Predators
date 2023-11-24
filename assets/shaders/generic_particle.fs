@@ -23,7 +23,7 @@ void main()
     frag_color.r = frag_color.r * min(1.0f, frag_lifetime);
     frag_color.g = frag_color.g * min(1.0f, frag_lifetime);
     frag_color.b = frag_color.b * min(1.0f, frag_lifetime);
-    frag_color.a = frag_color.r * min(1.0f, frag_lifetime);
+    frag_color.a = max(frag_color.r, max(frag_color.g, frag_color.b)) * min(1.0f, frag_lifetime);
     
     if (frag_color.a < 0.1) discard;
     

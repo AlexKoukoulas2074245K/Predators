@@ -327,7 +327,7 @@ void ParticleManager::SpawnParticleAtIndex(const size_t index, const glm::vec3& 
     const auto lifeTime = math::RandomFloat(particleEmitterData.mParticleLifetimeRangeSecs.x, particleEmitterData.mParticleLifetimeRangeSecs.y);
     const auto xOffset = math::RandomFloat(particleEmitterData.mParticlePositionXOffsetRange.x, particleEmitterData.mParticlePositionXOffsetRange.y);
     const auto yOffset = math::RandomFloat(particleEmitterData.mParticlePositionYOffsetRange.x, particleEmitterData.mParticlePositionYOffsetRange.y);
-    const auto zOffset = math::RandomFloat(sceneObjectPosition.z - sceneObjectPosition.z * 0.1f, sceneObjectPosition.z + sceneObjectPosition.z * 0.1f);
+    const auto zOffset = math::RandomFloat(sceneObjectPosition.z - sceneObjectPosition.z * 0.0001f, sceneObjectPosition.z + sceneObjectPosition.z * 0.0001f);
     const auto size = math::RandomFloat(particleEmitterData.mParticleSizeRange.x, particleEmitterData.mParticleSizeRange.y);
     auto angle = 0.0f;
     

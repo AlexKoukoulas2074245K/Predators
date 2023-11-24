@@ -91,6 +91,8 @@ public:
     std::vector<int> GetAllNonSpellCardIds() const;
     std::vector<int> GetCardIdsByFamily(const strutils::StringId& family) const;
     std::optional<std::reference_wrapper<const CardData>> GetCardData(const int cardId) const;
+    const std::unordered_set<strutils::StringId, strutils::StringIdHasher>& GetCardFamilies() const;
+    
     void ClearCardData();
     void LoadCardData(bool loadCardAssets);
     

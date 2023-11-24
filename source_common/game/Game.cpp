@@ -147,7 +147,7 @@ void Game::Init()
 ///------------------------------------------------------------------------------------------------
 
 void Game::Update(const float dtMillis)
-{    
+{
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
     auto activeScene = systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
 //
@@ -159,14 +159,16 @@ void Game::Update(const float dtMillis)
     
 //    if (systemsEngine.GetInputStateManager().VButtonTapped(input::Button::MAIN_BUTTON))
 //    {
-//        auto touchPos = systemsEngine.GetInputStateManager().VGetPointingPosInWorldSpace(activeScene->GetCamera().GetViewMatrix(), activeScene->GetCamera().GetProjMatrix());
+//        //auto touchPos = systemsEngine.GetInputStateManager().VGetPointingPosInWorldSpace(activeScene->GetCamera().GetViewMatrix(), activeScene->GetCamera().GetProjMatrix());
 //        auto& systemsEngine = CoreSystemsEngine::GetInstance();
 //        auto activeScene = systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
 //        
+//        auto targetPosition = game_constants::HEALTH_CRYSTAL_TOP_POSITION;
+//        
 //        systemsEngine.GetParticleManager().CreateParticleEmitterAtPosition
 //        (
-//            strutils::StringId("test_particle"),
-//            glm::vec3(touchPos.x, touchPos.y, 0.1f),   // pos
+//            strutils::StringId("poison_smoke"),
+//            glm::vec3(targetPosition.x, targetPosition.y, 0.01f),
 //            *systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE) // scene
 //        );
 //    }

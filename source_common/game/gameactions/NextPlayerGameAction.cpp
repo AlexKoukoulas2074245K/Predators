@@ -17,6 +17,7 @@
 #include <game/gameactions/CardDestructionGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/NextPlayerGameAction.h>
+#include <game/gameactions/PoisonStackApplicationGameAction.h>
 #include <numeric>
 
 ///------------------------------------------------------------------------------------------------
@@ -26,6 +27,7 @@ static const strutils::StringId CARD_ATTACK_GAME_ACTION_NAME = strutils::StringI
 static const strutils::StringId DRAW_CARD_GAME_ACTION_NAME = strutils::StringId("DrawCardGameAction");
 static const strutils::StringId POST_NEXT_PLAYER_GAME_ACTION_NAME = strutils::StringId("PostNextPlayerGameAction");
 static const strutils::StringId CARD_DESTRUCTION_GAME_ACTION_NAME = strutils::StringId("CardDestructionGameAction");
+static const strutils::StringId POISON_STACK_APPLICATION_GAME_ACTION_NAME = strutils::StringId("PoisonStackApplicationGameAction");
 
 ///------------------------------------------------------------------------------------------------
 
@@ -53,11 +55,6 @@ void NextPlayerGameAction::VSetNewGameState()
             });
         }
         
-        if (mBoardState->GetPlayerStates()[previousPlayerIndex].mPlayerPoisonStack > 0)
-        {
-            // Custom poison dmg action
-        }
-        
         // Destroy all held cards
         auto& playerHeldCards = mBoardState->GetPlayerStates()[previousPlayerIndex].mPlayerHeldCards;
         if (!playerHeldCards.empty())
@@ -74,6 +71,7 @@ void NextPlayerGameAction::VSetNewGameState()
         }
     }
     
+    mGameActionEngine->AddGameAction(POISON_STACK_APPLICATION_GAME_ACTION_NAME, {});
     mGameActionEngine->AddGameAction(POST_NEXT_PLAYER_GAME_ACTION_NAME);
     
     // Both players get 3 cards

@@ -84,6 +84,13 @@ std::optional<std::reference_wrapper<const CardData>> CardDataRepository::GetCar
 
 ///------------------------------------------------------------------------------------------------
 
+const std::unordered_set<strutils::StringId, strutils::StringIdHasher>& CardDataRepository::GetCardFamilies() const
+{
+    return mCardFamilies;
+}
+
+///------------------------------------------------------------------------------------------------
+
 void CardDataRepository::ClearCardData()
 {
     mCardFamilies.clear();
