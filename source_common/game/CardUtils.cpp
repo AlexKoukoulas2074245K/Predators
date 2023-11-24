@@ -24,6 +24,7 @@ static const std::string CARD_BACK_TEXTURE_FILE_NAME = "card_back.png";
 static const std::string GOLDEN_CARD_TEXTURE_FILE_NAME = "card_frame_golden.png";
 static const std::string GOLDEN_CARD_FLAKES_MASK_TEXTURE_FILE_NAME = "golden_card_flakes_mask.png";
 static const std::string GOLDEN_SPELL_CARD_FLAKES_MASK_TEXTURE_FILE_NAME = "golden_spell_card_flakes_mask.png";
+static const std::string POISON_CRYSTAL_TEXTURE_FILE_NAME = "poison_crystal.png";
 static const std::string CARD_SHADER_FILE_NAME = "card.vs";
 static const std::string CARD_DAMAGE_ICON_TEXTURE_FILE_NAME = "damage_icon.png";
 static const std::string CARD_WEIGHT_ICON_TEXTURE_FILE_NAME = "feather_icon.png";
@@ -211,13 +212,24 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
                 damage = math::Max(0, damage + globalStatModifiers.at(CardStatType::DAMAGE));
             }
             damageTextData.mText = std::to_string(damage);
-            
             cardComponents.back()->mSceneObjectTypeData = std::move(damageTextData);
             cardComponents.back()->mScale = glm::vec3(game_constants::IN_GAME_CARD_PROPERTY_SCALE);
             cardComponents.back()->mPosition = position;
             cardComponents.back()->mPosition.x += game_constants::IN_GAME_CARD_PROPERTY_X_OFFSET;
             cardComponents.back()->mPosition.y += game_constants::IN_GAME_CARD_PROPERTY_Y_OFFSET;
             cardComponents.back()->mPosition.z += 3 * game_constants::CARD_COMPONENT_Z_OFFSET;
+            
+            // Create poison indicator
+            if (cardData->mCardFamily == game_constants::INSECTS_FAMILY_NAME)
+            {
+                cardComponents.push_back(std::make_shared<scene::SceneObject>());
+                cardComponents.back()->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + POISON_CRYSTAL_TEXTURE_FILE_NAME);
+                cardComponents.back()->mScale.x = cardComponents.back()->mScale.y = game_constants::IN_GAME_CARD_PROPERTY_ICON_SCALE/2;
+                cardComponents.back()->mBoundingRectMultiplier.x = game_constants::CARD_BOUNDING_RECT_X_MULTIPLIER;
+                cardComponents.back()->mPosition = position;
+                cardComponents.back()->mPosition.y += game_constants::IN_GAME_CARD_PROPERTY_Y_OFFSET;
+                cardComponents.back()->mPosition.z += 2 * game_constants::CARD_COMPONENT_Z_OFFSET;
+            }
             
             // Create weight icon
             cardComponents.push_back(std::make_shared<scene::SceneObject>());

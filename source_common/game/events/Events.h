@@ -42,9 +42,9 @@ class CardDestructionEvent final
 {
 public:
     CardDestructionEvent(const std::vector<std::string> cardIndices, const bool isBoardCard, const bool forRemotePlayer)
-        : mCardIndices(cardIndices)
-        , mIsBoardCard(isBoardCard)
-        , mForRemotePlayer(forRemotePlayer)
+    : mCardIndices(cardIndices)
+    , mIsBoardCard(isBoardCard)
+    , mForRemotePlayer(forRemotePlayer)
     {
     }
     
@@ -59,9 +59,9 @@ class CardDestructionWithRepositionEvent final
 {
 public:
     CardDestructionWithRepositionEvent(const int cardIndex, const bool isBoardCard, const bool forRemotePlayer)
-        : mCardIndex(cardIndex)
-        , mIsBoardCard(isBoardCard)
-        , mForRemotePlayer(forRemotePlayer)
+    : mCardIndex(cardIndex)
+    , mIsBoardCard(isBoardCard)
+    , mForRemotePlayer(forRemotePlayer)
     {
     }
     
@@ -76,8 +76,8 @@ class CardCreationEvent final
 {
 public:
     CardCreationEvent(std::shared_ptr<CardSoWrapper> cardSoWrapper, const bool forRemotePlayer)
-        : mCardSoWrapper(cardSoWrapper)
-        , mForRemotePlayer(forRemotePlayer)
+    : mCardSoWrapper(cardSoWrapper)
+    , mForRemotePlayer(forRemotePlayer)
     {
     }
     
@@ -91,9 +91,9 @@ class CardBuffedDebuffedEvent final
 {
 public:
     CardBuffedDebuffedEvent(const int cardIndex, const bool boardCard, const bool forRemotePlayer)
-        : mCardIndex(cardIndex)
-        , mBoardCard(boardCard)
-        , mForRemotePlayer(forRemotePlayer)
+    : mCardIndex(cardIndex)
+    , mBoardCard(boardCard)
+    , mForRemotePlayer(forRemotePlayer)
     {
     }
     
@@ -108,9 +108,9 @@ class ForceSendCardBackToPositionEvent final
 {
 public:
     ForceSendCardBackToPositionEvent(const int cardIndex, const bool boardCard, const bool forRemotePlayer)
-        : mCardIdex(cardIndex)
-        , mBoardCard(boardCard)
-        , mForRemotePlayer(forRemotePlayer)
+    : mCardIdex(cardIndex)
+    , mBoardCard(boardCard)
+    , mForRemotePlayer(forRemotePlayer)
     {
     }
     
@@ -125,8 +125,8 @@ class BoardSideCardEffectTriggeredEvent final
 {
 public:
     BoardSideCardEffectTriggeredEvent(const bool forRemotePlayer, const effects::EffectBoardModifierMask effectBoardModifierMask)
-        : mForRemotePlayer(forRemotePlayer)
-        , mEffectBoardModifierMask(effectBoardModifierMask)
+    : mForRemotePlayer(forRemotePlayer)
+    , mEffectBoardModifierMask(effectBoardModifierMask)
     {
     }
     
@@ -140,11 +140,11 @@ class BoardSideCardEffectEndedEvent final
 {
 public:
     BoardSideCardEffectEndedEvent(const bool forRemotePlayer, const effects::EffectBoardModifierMask effectBoardModifierMask)
-        : mForRemotePlayer(forRemotePlayer)
-        , mEffectBoardModifierMask(effectBoardModifierMask)
+    : mForRemotePlayer(forRemotePlayer)
+    , mEffectBoardModifierMask(effectBoardModifierMask)
     {
     }
-
+    
     const bool mForRemotePlayer;
     const effects::EffectBoardModifierMask mEffectBoardModifierMask;
 };
@@ -155,9 +155,9 @@ class HeldCardSwapEvent final
 {
 public:
     HeldCardSwapEvent(const std::shared_ptr<CardSoWrapper> cardSoWrapper, const int cardIndex, const bool forRemotePlayer)
-        : mCardSoWrapper(cardSoWrapper)
-        , mCardIndex(cardIndex)
-        , mForRemotePlayer(forRemotePlayer)
+    : mCardSoWrapper(cardSoWrapper)
+    , mCardIndex(cardIndex)
+    , mForRemotePlayer(forRemotePlayer)
     {
     }
     
@@ -172,7 +172,7 @@ class LastCardPlayedFinalizedEvent final
 {
 public:
     LastCardPlayedFinalizedEvent(const int cardIndex)
-        : mCardIndex(cardIndex)
+    : mCardIndex(cardIndex)
     {
     }
     
@@ -185,7 +185,7 @@ class WeightChangeAnimationTriggerEvent final
 {
 public:
     WeightChangeAnimationTriggerEvent(const bool forRemotePlayer)
-        : mForRemotePlayer(forRemotePlayer)
+    : mForRemotePlayer(forRemotePlayer)
     {
         
     }
@@ -199,12 +199,28 @@ class HealthChangeAnimationTriggerEvent final
 {
 public:
     HealthChangeAnimationTriggerEvent(const bool forRemotePlayer)
-        : mForRemotePlayer(forRemotePlayer)
+    : mForRemotePlayer(forRemotePlayer)
     {
         
     }
     
     const bool mForRemotePlayer;
+};
+
+///------------------------------------------------------------------------------------------------
+
+class PoisonStackChangeChangeAnimationTriggerEvent final
+{
+public:
+    PoisonStackChangeChangeAnimationTriggerEvent(const bool forRemotePlayer, const int newPoisonStackValue)
+        : mForRemotePlayer(forRemotePlayer)
+        , mNewPoisonStackValue(newPoisonStackValue)
+    {
+        
+    }
+    
+    const bool mForRemotePlayer;
+    const int mNewPoisonStackValue;
 };
 
 ///------------------------------------------------------------------------------------------------

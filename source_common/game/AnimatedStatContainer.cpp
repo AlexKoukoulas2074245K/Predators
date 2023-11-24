@@ -1,11 +1,11 @@
 ///------------------------------------------------------------------------------------------------
-///  AnimatedStatCrystal.cpp                                                                                        
+///  AnimatedStatContainer.cpp                                                                                        
 ///  Predators                                                                                            
 ///                                                                                                
 ///  Created by Alex Koukoulas on 02/11/2023                                                       
 ///------------------------------------------------------------------------------------------------
 
-#include <game/AnimatedStatCrystal.h>
+#include <game/AnimatedStatContainer.h>
 #include <engine/rendering/Animations.h>
 #include <engine/rendering/AnimationManager.h>
 #include <engine/scene/Scene.h>
@@ -24,7 +24,15 @@ static const float MAX_VALUE_CHANGE_DELAY_SECS = 0.2f;
 
 ///------------------------------------------------------------------------------------------------
 
-AnimatedStatCrystal::AnimatedStatCrystal(const glm::vec3& position, const std::string& textureFilename, const std::string& crystalName, const int& valueToTrack, scene::Scene& scene)
+AnimatedStatContainer::AnimatedStatContainer
+(
+    const glm::vec3& position,
+    const std::string& textureFilename,
+    const std::string& crystalName,
+    const int& valueToTrack,
+    const bool startHidden,
+    scene::Scene& scene
+)
     : mValueToTrack(valueToTrack)
     , mDisplayedValue(valueToTrack)
     , mValueChangeDelaySecs(0.0f)
@@ -35,6 +43,7 @@ AnimatedStatCrystal::AnimatedStatCrystal(const glm::vec3& position, const std::s
     crystalBaseSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + textureFilename);
     crystalBaseSceneObject->mPosition = position;
     crystalBaseSceneObject->mScale = STAT_CRYSTAL_SCALE;
+    crystalBaseSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = startHidden ? 0.0f : 1.0f;
     
     auto crystalValueSceneObject = scene.CreateSceneObject(strutils::StringId(crystalName + VALUE_SCENE_OBJECT_NAME_POSTFIX));
     scene::TextSceneObjectData crystalValueTextData;
@@ -42,6 +51,7 @@ AnimatedStatCrystal::AnimatedStatCrystal(const glm::vec3& position, const std::s
     crystalValueSceneObject->mSceneObjectTypeData = std::move(crystalValueTextData);
     crystalValueSceneObject->mScale = STAT_CRYSTAL_VALUE_SCALE;
     crystalValueSceneObject->mPosition = crystalBaseSceneObject->mPosition + STAT_CRYSTAL_VALUE_POSITION_OFFSET;
+    crystalValueSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = startHidden ? 0.0f : 1.0f;
     
     mSceneObjects.push_back(crystalBaseSceneObject);
     mSceneObjects.push_back(crystalValueSceneObject);
@@ -52,7 +62,7 @@ AnimatedStatCrystal::AnimatedStatCrystal(const glm::vec3& position, const std::s
 
 ///------------------------------------------------------------------------------------------------
 
-AnimatedStatCrystal::~AnimatedStatCrystal()
+AnimatedStatContainer::~AnimatedStatContainer()
 {
     for (auto sceneObject: mSceneObjects)
     {
@@ -62,9 +72,9 @@ AnimatedStatCrystal::~AnimatedStatCrystal()
 
 ///------------------------------------------------------------------------------------------------
 
-AnimatedStatCrystalUpdateResult AnimatedStatCrystal::Update(const float dtMillis)
+AnimatedStatContainerUpdateResult AnimatedStatContainer::Update(const float dtMillis)
 {
-    AnimatedStatCrystalUpdateResult updateResult = AnimatedStatCrystalUpdateResult::ONGOING;
+    AnimatedStatContainerUpdateResult updateResult = AnimatedStatContainerUpdateResult::ONGOING;
     
     auto baseCrystalSo = mSceneObjects.front();
     auto valueCrystalSo = mSceneObjects.back();
@@ -106,7 +116,7 @@ AnimatedStatCrystalUpdateResult AnimatedStatCrystal::Update(const float dtMillis
     }
     else if (mFinishedAnimating)
     {
-        updateResult = AnimatedStatCrystalUpdateResult::FINISHED;
+        updateResult = AnimatedStatContainerUpdateResult::FINISHED;
     }
     
     std::get<scene::TextSceneObjectData>(valueCrystalSo->mSceneObjectTypeData).mText = std::to_string(mDisplayedValue);
@@ -117,6 +127,13 @@ AnimatedStatCrystalUpdateResult AnimatedStatCrystal::Update(const float dtMillis
     
     
     return updateResult;
+}
+
+///------------------------------------------------------------------------------------------------
+
+std::vector<std::shared_ptr<scene::SceneObject>>& AnimatedStatContainer::GetSceneObjects()
+{
+    return mSceneObjects;
 }
 
 ///------------------------------------------------------------------------------------------------

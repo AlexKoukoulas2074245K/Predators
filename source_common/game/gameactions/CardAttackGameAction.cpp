@@ -27,6 +27,7 @@ const std::string CardAttackGameAction::PLAYER_INDEX_PARAM = "playerIndex";
 static const strutils::StringId GAME_OVER_GAME_ACTION_NAME = strutils::StringId("GameOverGameAction");
 static const strutils::StringId CARD_DESTRUCTION_GAME_ACTION_NAME = strutils::StringId("CardDestructionGameAction");
 static const strutils::StringId ATTACKING_CARD_PARTICLE_NAME = strutils::StringId("card_attack");
+
 static const float ATTACKING_CARD_ANIMATION_Y_OFFSET = 0.16f;
 
 static const float ATTACKING_CARD_CAMERA_SHAKE_DURATION = 0.25f;
@@ -72,6 +73,11 @@ void CardAttackGameAction::VSetNewGameState()
     if (mBoardState->GetPlayerStates()[attackingPayerIndex].mBoardModifiers.mGlobalCardStatModifiers.count(CardStatType::DAMAGE))
     {
         damage = math::Max(0, damage + mBoardState->GetPlayerStates()[attackingPayerIndex].mBoardModifiers.mGlobalCardStatModifiers.at(CardStatType::DAMAGE));
+    }
+    
+    if (attackingCardData->get().mCardFamily == game_constants::INSECTS_FAMILY_NAME)
+    {
+        activePlayerState.mPlayerPoisonStack++;
     }
     
     activePlayerState.mPlayerHealth -= damage;
@@ -136,14 +142,20 @@ void CardAttackGameAction::VInitAnimation()
                     
                     CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE)->GetCamera().Shake(ATTACKING_CARD_CAMERA_SHAKE_DURATION, ATTACKING_CARD_CAMERA_SHAKE_STRENGTH);
                     
+                    auto cardIndex = std::stoi(mExtraActionParams.at(CARD_INDEX_PARAM));
+                    auto attackingPayerIndex = std::stoi(mExtraActionParams.at(PLAYER_INDEX_PARAM));
+                    
                     if (mPendingDamage != 0)
                     {
                         events::EventSystem::GetInstance().DispatchEvent<events::HealthChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
                     }
                     
-                    auto cardIndex = std::stoi(mExtraActionParams.at(CARD_INDEX_PARAM));
-                    auto attackingPayerIndex = std::stoi(mExtraActionParams.at(PLAYER_INDEX_PARAM));
                     auto cardSoWrapper = mGameSessionManager->GetBoardCardSoWrappers().at(attackingPayerIndex).at(cardIndex);
+                    
+                    if (!cardSoWrapper->mCardData->IsSpell() && cardSoWrapper->mCardData->mCardFamily == game_constants::INSECTS_FAMILY_NAME)
+                    {
+                        events::EventSystem::GetInstance().DispatchEvent<events::PoisonStackChangeChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, mBoardState->GetActivePlayerState().mPlayerPoisonStack);
+                    }
                     
                     systemsEngine.GetParticleManager().CreateParticleEmitterAtPosition
                     (

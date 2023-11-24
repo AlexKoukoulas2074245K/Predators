@@ -50,8 +50,9 @@ vec4 calculate_golden_card_color(vec4 color, float time, vec2 uv, float light_po
 vec4 calculate_card_color(vec4 color, vec2 uv, int weight_mode, int damage_mode, bool golden_card, bool held_card, float time, float light_pos_x, sampler2D main_texture, sampler2D golden_flakes_mask_tex)
 {
     float perlinNoise = perlin(PERLIN_RESOLUTION, time, PERLIN_TIME_SPEED);
+    vec4 stats_mask_color = texture(golden_flakes_mask_tex, uv);
     
-    if (distance(color, WEIGHT_INTERACTIVE_COLOR) < INTERACTIVE_COLOR_DISTANCE_THRESHOLD)
+    if (stats_mask_color.r < 0.01f && distance(color, WEIGHT_INTERACTIVE_COLOR) < INTERACTIVE_COLOR_DISTANCE_THRESHOLD)
     {
         switch(weight_mode)
         {
@@ -61,7 +62,7 @@ vec4 calculate_card_color(vec4 color, vec2 uv, int weight_mode, int damage_mode,
         }
     }
     
-    if (distance(color, DAMAGE_INTERACTIVE_COLOR) < INTERACTIVE_COLOR_DISTANCE_THRESHOLD * 1.4f)
+    if (stats_mask_color.r < 0.01f && distance(color, DAMAGE_INTERACTIVE_COLOR) < INTERACTIVE_COLOR_DISTANCE_THRESHOLD * 1.4f)
     {
         switch(damage_mode)
         {

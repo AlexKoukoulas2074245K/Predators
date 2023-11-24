@@ -5,7 +5,7 @@
 ///  Created by Alex Koukoulas on 11/10/2023                                                       
 ///------------------------------------------------------------------------------------------------
 
-#include <game/AnimatedStatCrystal.h>
+#include <game/AnimatedStatContainer.h>
 #include <game/BoardState.h>
 #include <game/CardUtils.h>
 #include <game/events/EventSystem.h>
@@ -55,6 +55,7 @@ static const std::string BATTLE_ICON_TEXTURE_FILE_NAME = "battle_icon.png";
 static const std::string TURN_POINTER_TEXTURE_FILE_NAME = "turn_pointer.png";
 static const std::string HEALTH_CRYSTAL_TEXTURE_FILE_NAME = "health_crystal.png";
 static const std::string WEIGHT_CRYSTAL_TEXTURE_FILE_NAME = "weight_crystal.png";
+static const std::string POISON_STACK_TEXTURE_FILE_NAME = "poison_splatter.png";
 static const std::string BOARD_SIDE_EFFECT_REDUCTION_TEXTURE_FILE_NAME = "board_side_reduction.png";
 static const std::string BOARD_SIDE_EFFECT_MASK_TEXTURE_FILE_NAME = "board_side_mask.png";
 static const std::string KILL_SIDE_EFFECT_TEXTURE_FILE_NAME = "trap.png";
@@ -67,11 +68,15 @@ static const std::string HEALTH_CRYSTAL_TOP_SCENE_OBJECT_NAME_PREFIX = "HEALTH_C
 static const std::string HEALTH_CRYSTAL_BOT_SCENE_OBJECT_NAME_PREFIX = "HEALTH_CRYSTAL_BOT_";
 static const std::string WEIGHT_CRYSTAL_TOP_SCENE_OBJECT_NAME_PREFIX = "WEIGHT_CRYSTAL_TOP_";
 static const std::string WEIGHT_CRYSTAL_BOT_SCENE_OBJECT_NAME_PREFIX = "WEIGHT_CRYSTAL_BOT_";
+static const std::string POISON_STACK_TOP_SCENE_OBJECT_NAME_PREFIX = "POISON_STACK_TOP_";
+static const std::string POISON_STACK_BOT_SCENE_OBJECT_NAME_PREFIX = "POISON_STACK_BOT_";
 
 static const glm::vec3 HEALTH_CRYSTAL_TOP_POSITION = {-0.118f, 0.05f, 0.1f};
 static const glm::vec3 HEALTH_CRYSTAL_BOT_POSITION = {-0.118f, -0.05f, 0.1f};
 static const glm::vec3 WEIGHT_CRYSTAL_TOP_POSITION = {0.118f, 0.05f, 0.1f};
 static const glm::vec3 WEIGHT_CRYSTAL_BOT_POSITION = {0.118f, -0.05f, 0.1f};
+static const glm::vec3 POISON_STACK_TOP_POSITION = {-0.118f, 0.025f, 0.1f};
+static const glm::vec3 POISON_STACK_BOT_POSITION = {-0.118f, -0.076f, 0.1f};
 static const glm::vec3 TURN_POINTER_POSITION = {0.2f, 0.0f, 0.1f};
 static const glm::vec3 TURN_POINTER_SCALE = {0.08f, 0.08f, 0.08f};
 static const glm::vec3 BOARD_SIDE_EFFECT_SCALE = {0.372f, 0.346f, 1.0f};
@@ -88,7 +93,6 @@ static const glm::vec3 CARD_TOOLTIP_TEXT_OFFSETS[CARD_TOOLTIP_TEXT_ROWS_COUNT] =
 };
 
 static const float BOARD_SIDE_EFFECT_SHOWING_HIDING_ANIMATION_DURATION_SECS = 0.5f;
-//static const float CARD_TOOLTIP_HIDING_ANIMATION_DURATION_SECS = 0.2f;
 static const float CARD_SELECTION_ANIMATION_DURATION = 0.15f;
 static const float CARD_LOCATION_EFFECT_MIN_TARGET_ALPHA = 0.25f;
 static const float CARD_LOCATION_EFFECT_MAX_TARGET_ALPHA = 1.0f;
@@ -140,9 +144,9 @@ void GameSessionManager::InitGameSession()
     mBoardState->GetPlayerStates().emplace_back();
     
     mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetAllCardIds();
-    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));
+    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("insects"));
     
-    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mGoldenCardIds = {4, 19, 20, 21, 22};//CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));;
+    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mGoldenCardIds = {19, 20, 21, 22};//CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));;
     
     mPlayerHeldCardSceneObjectWrappers.emplace_back();
     mPlayerHeldCardSceneObjectWrappers.emplace_back();
@@ -207,11 +211,13 @@ void GameSessionManager::InitGameSession()
     tunPointerHighlighterSo->mScale = game_constants::TURN_POINTER_HIGHLIGHTER_SCALE;
     tunPointerHighlighterSo->mSnapToEdgeBehavior = scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE;
     
-    // Stat Crystals
-    mStatCrystals.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatCrystal>(HEALTH_CRYSTAL_TOP_POSITION, HEALTH_CRYSTAL_TEXTURE_FILE_NAME, HEALTH_CRYSTAL_TOP_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[0].mPlayerHealth, *activeScene)));
-    mStatCrystals.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatCrystal>(HEALTH_CRYSTAL_BOT_POSITION, HEALTH_CRYSTAL_TEXTURE_FILE_NAME, HEALTH_CRYSTAL_BOT_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[1].mPlayerHealth, *activeScene)));
-    mStatCrystals.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatCrystal>(WEIGHT_CRYSTAL_TOP_POSITION, WEIGHT_CRYSTAL_TEXTURE_FILE_NAME, WEIGHT_CRYSTAL_TOP_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo, *activeScene)));
-    mStatCrystals.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatCrystal>(WEIGHT_CRYSTAL_BOT_POSITION, WEIGHT_CRYSTAL_TEXTURE_FILE_NAME, WEIGHT_CRYSTAL_BOT_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[1].mPlayerCurrentWeightAmmo, *activeScene)));
+    // Stat Containers
+    mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(HEALTH_CRYSTAL_TOP_POSITION, HEALTH_CRYSTAL_TEXTURE_FILE_NAME, HEALTH_CRYSTAL_TOP_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[0].mPlayerHealth, false, *activeScene)));
+    mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(HEALTH_CRYSTAL_BOT_POSITION, HEALTH_CRYSTAL_TEXTURE_FILE_NAME, HEALTH_CRYSTAL_BOT_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[1].mPlayerHealth, false, *activeScene)));
+    mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(WEIGHT_CRYSTAL_TOP_POSITION, WEIGHT_CRYSTAL_TEXTURE_FILE_NAME, WEIGHT_CRYSTAL_TOP_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo, false, *activeScene)));
+    mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(WEIGHT_CRYSTAL_BOT_POSITION, WEIGHT_CRYSTAL_TEXTURE_FILE_NAME, WEIGHT_CRYSTAL_BOT_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[1].mPlayerCurrentWeightAmmo, false, *activeScene)));
+    mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(POISON_STACK_TOP_POSITION, POISON_STACK_TEXTURE_FILE_NAME, POISON_STACK_TOP_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[0].mPlayerPoisonStack, true, *activeScene)));
+    mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(POISON_STACK_BOT_POSITION, POISON_STACK_TEXTURE_FILE_NAME, POISON_STACK_BOT_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[1].mPlayerPoisonStack, true, *activeScene)));
     
     // Board Side Effect Top
     auto boardSideEffectTopSceneObject = activeScene->CreateSceneObject(game_constants::BOARD_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME);
@@ -343,12 +349,12 @@ void GameSessionManager::Update(const float dtMillis)
     
     UpdateMiscSceneObjects(dtMillis);
     
-    auto foundActiveStatCrystal = std::find_if(mStatCrystals.cbegin(), mStatCrystals.cend(), [](const std::pair<bool, std::unique_ptr<AnimatedStatCrystal>>& statCrystalEntry)
+    auto foundActiveStatContainer = std::find_if(mAnimatedStatContainers.cbegin(), mAnimatedStatContainers.cend(), [](const std::pair<bool, std::unique_ptr<AnimatedStatContainer>>& statContainerEntry)
     {
-        return statCrystalEntry.first;
-    }) != mStatCrystals.cend();
+        return statContainerEntry.first;
+    }) != mAnimatedStatContainers.cend();
     
-    if (!foundActiveStatCrystal)
+    if (!foundActiveStatContainer)
     {
         mActionEngine->Update(dtMillis);
     }
@@ -750,11 +756,11 @@ void GameSessionManager::UpdateMiscSceneObjects(const float dtMillis)
     }
     
     // Stat Crystal Values
-    for (auto& statCrystalEntry: mStatCrystals)
+    for (auto& statContainerEntry: mAnimatedStatContainers)
     {
-        if (statCrystalEntry.first)
+        if (statContainerEntry.first)
         {
-            statCrystalEntry.first = statCrystalEntry.second->Update(dtMillis) == AnimatedStatCrystalUpdateResult::ONGOING;
+            statContainerEntry.first = statContainerEntry.second->Update(dtMillis) == AnimatedStatContainerUpdateResult::ONGOING;
         }
     }
     
@@ -973,6 +979,7 @@ void GameSessionManager::RegisterForEvents()
     eventSystem.RegisterForEvent<events::BoardSideCardEffectTriggeredEvent>(this, &GameSessionManager::OnBoardSideCardEffectTriggeredEvent);
     eventSystem.RegisterForEvent<events::BoardSideCardEffectEndedEvent>(this, &GameSessionManager::OnBoardSideCardEffectEndedEvent);
     eventSystem.RegisterForEvent<events::ForceSendCardBackToPositionEvent>(this, &GameSessionManager::OnForceSendCardBackToPositionEvent);
+    eventSystem.RegisterForEvent<events::PoisonStackChangeChangeAnimationTriggerEvent>(this, &GameSessionManager::OnPoisonStackChangeChangeAnimationTriggerEvent);
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -1194,14 +1201,14 @@ void GameSessionManager::OnLastCardPlayedFinalized(const events::LastCardPlayedF
 
 void GameSessionManager::OnHealthChangeAnimationTriggerEvent(const events::HealthChangeAnimationTriggerEvent& event)
 {
-    mStatCrystals[event.mForRemotePlayer ? 0 : 1].first = true;
+    mAnimatedStatContainers[event.mForRemotePlayer ? 0 : 1].first = true;
 }
 
 ///------------------------------------------------------------------------------------------------
 
 void GameSessionManager::OnWeightChangeAnimationTriggerEvent(const events::WeightChangeAnimationTriggerEvent& event)
 {
-    mStatCrystals[event.mForRemotePlayer ? 2 : 3].first = true;
+    mAnimatedStatContainers[event.mForRemotePlayer ? 2 : 3].first = true;
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -1309,6 +1316,19 @@ void GameSessionManager::OnForceSendCardBackToPositionEvent(const events::ForceS
     DestroyCardHighlighterAtIndex(event.mCardIdex);
     
     mCanInteractWithAnyHeldCard = false;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void GameSessionManager::OnPoisonStackChangeChangeAnimationTriggerEvent(const events::PoisonStackChangeChangeAnimationTriggerEvent& event)
+{
+    auto& affectedContainerEntry = mAnimatedStatContainers[event.mForRemotePlayer ? 4 : 5];
+    affectedContainerEntry.first = true;
+    
+    for (auto& sceneObject: affectedContainerEntry.second->GetSceneObjects())
+    {
+        CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, event.mNewPoisonStackValue == 0 ? 0.0f : 1.0f, game_constants::POISON_STACK_SHOW_HIDE_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), [](){});
+    }
 }
 
 ///------------------------------------------------------------------------------------------------

@@ -46,6 +46,7 @@ struct PlayerState
     std::vector<int> mGoldenCardIds;
     BoardModifiers mBoardModifiers;
     int mPlayerHealth = 30;
+    int mPlayerPoisonStack = 0;
     int mPlayerTotalWeightAmmo = 0;
     int mPlayerCurrentWeightAmmo = 0;
 };

@@ -40,7 +40,7 @@ void NextPlayerGameAction::VSetNewGameState()
     targetPlayerState.mPlayerTotalWeightAmmo++;
     targetPlayerState.mPlayerCurrentWeightAmmo = targetPlayerState.mPlayerTotalWeightAmmo;
     
-    // Potentially generate card attack actions for player whose turn was just ended
+    // Potentially generate card attack/destruction/poison stacks for player whose turn was just ended
     if (previousPlayerIndex != -1)
     {
         auto& boardCards = mBoardState->GetPlayerStates()[previousPlayerIndex].mPlayerBoardCards;
@@ -51,6 +51,11 @@ void NextPlayerGameAction::VSetNewGameState()
                 { CardAttackGameAction::PLAYER_INDEX_PARAM, std::to_string(previousPlayerIndex) },
                 { CardAttackGameAction::CARD_INDEX_PARAM, "0" }
             });
+        }
+        
+        if (mBoardState->GetPlayerStates()[previousPlayerIndex].mPlayerPoisonStack > 0)
+        {
+            // Custom poison dmg action
         }
         
         // Destroy all held cards

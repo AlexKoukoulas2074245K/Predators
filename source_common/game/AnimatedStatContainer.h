@@ -1,12 +1,12 @@
 ///------------------------------------------------------------------------------------------------
-///  AnimatedStatCrystal.h                                                                                          
+///  AnimatedStatContainer.h
 ///  Predators                                                                                            
 ///                                                                                                
 ///  Created by Alex Koukoulas on 02/11/2023                                                       
 ///------------------------------------------------------------------------------------------------
 
-#ifndef AnimatedStatCrystal_h
-#define AnimatedStatCrystal_h
+#ifndef AnimatedStatContainer_h
+#define AnimatedStatContainer_h
 
 ///------------------------------------------------------------------------------------------------
 
@@ -22,20 +22,30 @@ namespace scene { struct SceneObject; }
 
 ///------------------------------------------------------------------------------------------------
 
-enum class AnimatedStatCrystalUpdateResult
+enum class AnimatedStatContainerUpdateResult
 {
     FINISHED, ONGOING
 };
 
 ///------------------------------------------------------------------------------------------------
 
-class AnimatedStatCrystal final
+class AnimatedStatContainer final
 {
 public:
-    AnimatedStatCrystal(const glm::vec3& position, const std::string& textureFilename, const std::string& crystalName, const int& valueToTrack, scene::Scene& scene);
-    ~AnimatedStatCrystal();
+    AnimatedStatContainer
+    (
+        const glm::vec3& position,
+        const std::string& textureFilename,
+        const std::string& crystalName,
+        const int& valueToTrack,
+        const bool startHidden,
+        scene::Scene& scene
+    );
+    ~AnimatedStatContainer();
     
-    AnimatedStatCrystalUpdateResult Update(const float dtMillis);
+    AnimatedStatContainerUpdateResult Update(const float dtMillis);
+    
+    std::vector<std::shared_ptr<scene::SceneObject>>& GetSceneObjects();
     
 private:
     const int& mValueToTrack;
@@ -48,4 +58,4 @@ private:
 
 ///------------------------------------------------------------------------------------------------
 
-#endif /* AnimatedStatCrystal_h */
+#endif /* AnimatedStatContainer_h */
