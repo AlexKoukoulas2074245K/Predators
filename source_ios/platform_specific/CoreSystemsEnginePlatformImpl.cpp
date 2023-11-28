@@ -27,6 +27,7 @@ static constexpr int DEFAULT_WINDOW_WIDTH  = 1688;
 static constexpr int DEFAULT_WINDOW_HEIGHT = 780;
 static constexpr int MIN_WINDOW_WIDTH      = 844;
 static constexpr int MIN_WINDOW_HEIGHT     = 390;
+static const float TARGET_FPS_MILLIS       = 1000.0f / 60.0f;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -133,9 +134,6 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
     auto secsAccumulator          = 0.0f;
     auto framesAccumulator        = 0LL;
     
-    std::vector<float> last10dtMillisTimeOrdered;
-    std::vector<float> last10dtMillisValueOrdered;
-    
     bool shouldQuit = false;
     
     while(!shouldQuit)
@@ -170,17 +168,7 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
             }
         }
         
-        // Calculate median dt for game logic updates
-        last10dtMillisTimeOrdered.push_back(dtMillis);
-        if (last10dtMillisTimeOrdered.size() > 10)
-        {
-            last10dtMillisTimeOrdered.erase(last10dtMillisTimeOrdered.begin());
-        }
-        
-        last10dtMillisValueOrdered = last10dtMillisTimeOrdered;
-        std::sort(last10dtMillisValueOrdered.begin(), last10dtMillisValueOrdered.end());
-        float gameLogicMillis = math::Max(16.0f, last10dtMillisValueOrdered[last10dtMillisValueOrdered.size()/2]);
-        
+        float gameLogicMillis = math::Max(16.0f, dtMillis);
         if (secsAccumulator > 1.0f)
         {
             logging::Log(logging::LogType::INFO, "FPS: %d", framesAccumulator);
@@ -210,6 +198,12 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
         }
         
         mSystems->mRenderer.VEndRenderPass();
+        
+        auto frameEndMillisDiff = static_cast<float>(SDL_GetTicks()) - currentMillisSinceInit;
+        if (frameEndMillisDiff < TARGET_FPS_MILLIS)
+        {
+            SDL_Delay(TARGET_FPS_MILLIS - frameEndMillisDiff);
+        }
     }
 }
 
