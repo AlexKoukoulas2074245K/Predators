@@ -29,6 +29,7 @@ static constexpr int DEFAULT_WINDOW_WIDTH  = 1688;
 static constexpr int DEFAULT_WINDOW_HEIGHT = 780;
 static constexpr int MIN_WINDOW_WIDTH      = 844;
 static constexpr int MIN_WINDOW_HEIGHT     = 390;
+static const float TARGET_FPS_MILLIS       = 1000.0f / 60.0f;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -176,8 +177,6 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
     bool shouldQuit = false;
     bool freezeGame = false;
     
-    std::vector<float> last10dtMillisTimeOrdered;
-    std::vector<float> last10dtMillisValueOrdered;
     
     while(!shouldQuit)
     {
@@ -229,17 +228,8 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
             mSystems->mParticleManager.ReloadParticlesFromDisk();
         }
         
-        // Calculate median dt for game logic updates
-        last10dtMillisTimeOrdered.push_back(dtMillis);
-        if (last10dtMillisTimeOrdered.size() > 10)
-        {
-            last10dtMillisTimeOrdered.erase(last10dtMillisTimeOrdered.begin());
-        }
-        
-        last10dtMillisValueOrdered = last10dtMillisTimeOrdered;
-        std::sort(last10dtMillisValueOrdered.begin(), last10dtMillisValueOrdered.end());
-        float gameLogicMillis = math::Max(16.0f, last10dtMillisValueOrdered[last10dtMillisValueOrdered.size()/2]) * sGameSpeed;
-        
+        float gameLogicMillis = math::Max(16.0f, dtMillis * sGameSpeed);
+
         // Update logic
 #if (!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)
         sLastGameLogicDtMillis = gameLogicMillis;
@@ -298,6 +288,12 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
 #endif
         
         mSystems->mRenderer.VEndRenderPass();
+
+        auto frameEndMillisDiff = static_cast<float>(SDL_GetTicks()) - currentMillisSinceInit;
+        if (frameEndMillisDiff < TARGET_FPS_MILLIS)
+        {
+            SDL_Delay(TARGET_FPS_MILLIS - frameEndMillisDiff);
+        }
     }
     
     clientApplicationMovingToBackgroundFunction();
