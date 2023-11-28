@@ -150,29 +150,23 @@ void Game::Update(const float dtMillis)
 {
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
     auto activeScene = systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
-//
-//    for (int i = 0; i < 1; ++i)
-//    {
-//        auto sceneObject = activeScene->FindSceneObject(strutils::StringId("TEST_" + std::to_string(i) + "_CARD"));
-//        sceneObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
-//    }
     
 //    if (systemsEngine.GetInputStateManager().VButtonTapped(input::Button::MAIN_BUTTON))
 //    {
-//        //auto touchPos = systemsEngine.GetInputStateManager().VGetPointingPosInWorldSpace(activeScene->GetCamera().GetViewMatrix(), activeScene->GetCamera().GetProjMatrix());
-//        auto& systemsEngine = CoreSystemsEngine::GetInstance();
-//        auto activeScene = systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
-//        
-//        auto targetPosition = game_constants::HEALTH_CRYSTAL_TOP_POSITION;
-//        
+//        auto touchPos = systemsEngine.GetInputStateManager().VGetPointingPosInWorldSpace(activeScene->GetCamera().GetViewMatrix(), activeScene->GetCamera().GetProjMatrix());
+//        //auto& systemsEngine = CoreSystemsEngine::GetInstance();
+//        //auto activeScene = systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+//
+//        //auto targetPosition = game_constants::HEALTH_CRYSTAL_TOP_POSITION;
+//
 //        systemsEngine.GetParticleManager().CreateParticleEmitterAtPosition
 //        (
-//            strutils::StringId("poison_smoke"),
-//            glm::vec3(targetPosition.x, targetPosition.y, 0.01f),
+//            strutils::StringId("dirt"),
+//            glm::vec3(touchPos.x, touchPos.y, 0.1f),
 //            *systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE) // scene
 //        );
 //    }
-    
+//
 
     mGameSessionManager.Update(dtMillis);
 }

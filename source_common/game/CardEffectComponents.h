@@ -30,15 +30,15 @@ namespace board_modifier_masks
 
 
 // Effect components
-inline const std::string EFFECT_COMPONENT_DAMAGE        = "DAMAGE";
-inline const std::string EFFECT_COMPONENT_WEIGHT        = "WEIGHT";
-inline const std::string EFFECT_COMPONENT_FAMILY        = "FAMILY";
-inline const std::string EFFECT_COMPONENT_ENEMIES       = "ENEMIES";
-inline const std::string EFFECT_COMPONENT_DRAW          = "DRAW";
-inline const std::string EFFECT_COMPONENT_KILL          = "KILL";
-inline const std::string EFFECT_COMPONENT_BOARD         = "BOARD";
-inline const std::string EFFECT_COMPONENT_HELD          = "HELD";
-inline const std::string EFFECT_COMPONENT_CLEAR_EFFECTS = "CLEAR_EFFECTS";
+inline const std::string EFFECT_COMPONENT_DAMAGE             = "DAMAGE";
+inline const std::string EFFECT_COMPONENT_WEIGHT             = "WEIGHT";
+inline const std::string EFFECT_COMPONENT_FAMILY             = "FAMILY";
+inline const std::string EFFECT_COMPONENT_ENEMY_BOARD_DEBUFF = "ENEMY_BOARD_DEBUFF";
+inline const std::string EFFECT_COMPONENT_DRAW               = "DRAW";
+inline const std::string EFFECT_COMPONENT_KILL               = "KILL";
+inline const std::string EFFECT_COMPONENT_BOARD              = "BOARD";
+inline const std::string EFFECT_COMPONENT_HELD               = "HELD";
+inline const std::string EFFECT_COMPONENT_CLEAR_EFFECTS      = "CLEAR_EFFECTS";
 
 inline const std::unordered_set<std::string> STATIC_EFFECT_COMPONENT_NAMES =
 {
@@ -46,7 +46,7 @@ inline const std::unordered_set<std::string> STATIC_EFFECT_COMPONENT_NAMES =
     EFFECT_COMPONENT_DAMAGE,
     EFFECT_COMPONENT_WEIGHT,
     EFFECT_COMPONENT_FAMILY,
-    EFFECT_COMPONENT_ENEMIES,
+    EFFECT_COMPONENT_ENEMY_BOARD_DEBUFF,
     EFFECT_COMPONENT_KILL,
     EFFECT_COMPONENT_BOARD,
     EFFECT_COMPONENT_HELD,

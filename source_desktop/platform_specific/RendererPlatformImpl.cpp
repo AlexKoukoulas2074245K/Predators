@@ -560,7 +560,14 @@ void RendererPlatformImpl::CreateIMGuiWidgets()
                 {
                     if (sUniformMinMaxValues.count(uniformFloatEntry.first) == 0)
                     {
-                        sUniformMinMaxValues[uniformFloatEntry.first] = glm::vec2(uniformFloatEntry.second/100.0f, uniformFloatEntry.second*10.0f);
+                        if (uniformFloatEntry.second == 0.0f)
+                        {
+                            sUniformMinMaxValues[uniformFloatEntry.first] = glm::vec2(-1.0f, 1.0f);
+                        }
+                        else
+                        {
+                            sUniformMinMaxValues[uniformFloatEntry.first] = glm::vec2(uniformFloatEntry.second/100.0f, uniformFloatEntry.second*10.0f);
+                        }
                     }
                     
                     auto uniformMinMaxValues = sUniformMinMaxValues.at(uniformFloatEntry.first);

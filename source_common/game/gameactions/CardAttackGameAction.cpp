@@ -12,6 +12,7 @@
 #include <game/gameactions/CardDestructionGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/GameOverGameAction.h>
+#include <game/gameactions/RodentsDigAnimationGameAction.h>
 #include <game/GameSessionManager.h>
 #include <engine/rendering/AnimationManager.h>
 #include <engine/rendering/ParticleManager.h>
@@ -26,10 +27,10 @@ const std::string CardAttackGameAction::PLAYER_INDEX_PARAM = "playerIndex";
 
 static const strutils::StringId GAME_OVER_GAME_ACTION_NAME = strutils::StringId("GameOverGameAction");
 static const strutils::StringId CARD_DESTRUCTION_GAME_ACTION_NAME = strutils::StringId("CardDestructionGameAction");
+static const strutils::StringId RODENTS_DIG_ANIMATION_GAME_ACTION_NAME = strutils::StringId("RodentsDigAnimationGameAction");
 static const strutils::StringId ATTACKING_CARD_PARTICLE_NAME = strutils::StringId("card_attack");
 
 static const float ATTACKING_CARD_ANIMATION_Y_OFFSET = 0.16f;
-
 static const float ATTACKING_CARD_CAMERA_SHAKE_DURATION = 0.25f;
 static const float ATTACKING_CARD_CAMERA_SHAKE_STRENGTH = 0.005f;
 static const float ATTACKING_CARD_PARTICLE_EMITTER_Z = 0.01f;
@@ -59,15 +60,20 @@ void CardAttackGameAction::VSetNewGameState()
     
     assert(attackingCardData);
     
+    // Card has been destroyed in between this action's creation and it's invocation of setting state here
+    if (mBoardState->GetPlayerStates()[attackingPayerIndex].mBoardCardIndicesToDestroy.count(cardIndex))
+    {
+        return;
+    }
+    
     auto& activePlayerState = mBoardState->GetActivePlayerState();
     auto& attackingPlayerOverrides = mBoardState->GetPlayerStates()[attackingPayerIndex].mPlayerBoardCardStatOverrides;
     
     auto damage = attackingCardData->get().mCardDamage;
     
-    if (!attackingPlayerOverrides.empty() && attackingPlayerOverrides.front().count(CardStatType::DAMAGE))
+    if (!attackingPlayerOverrides.empty() && static_cast<int>(attackingPlayerOverrides.size()) > cardIndex && attackingPlayerOverrides[cardIndex].count(CardStatType::DAMAGE))
     {
-        damage = math::Max(0, attackingPlayerOverrides.front().at(CardStatType::DAMAGE));
-        attackingPlayerOverrides.erase(attackingPlayerOverrides.begin());
+        damage = math::Max(0, attackingPlayerOverrides[cardIndex].at(CardStatType::DAMAGE));
     }
     
     if (mBoardState->GetPlayerStates()[attackingPayerIndex].mBoardModifiers.mGlobalCardStatModifiers.count(CardStatType::DAMAGE))
@@ -93,9 +99,24 @@ void CardAttackGameAction::VSetNewGameState()
     }
     else
     {
+        // Check for rodents respawn flow
+        if (attackingCardData->get().mCardFamily == game_constants::RODENTS_FAMILY_NAME)
+        {
+            bool shouldRespawn = math::ControlledRandomFloat() <= game_constants::RODENTS_RESPAWN_CHANCE;
+            if (shouldRespawn)
+            {
+                mGameActionEngine->AddGameAction(RODENTS_DIG_ANIMATION_GAME_ACTION_NAME,
+                {
+                    { RodentsDigAnimationGameAction::CARD_INDEX_PARAM, std::to_string(cardIndex) },
+                    { RodentsDigAnimationGameAction::PLAYER_INDEX_PARAM, std::to_string(attackingPayerIndex) }
+                });
+                return;
+            }
+        }
+        
         mGameActionEngine->AddGameAction(CARD_DESTRUCTION_GAME_ACTION_NAME,
         {
-            { CardDestructionGameAction::CARD_INDICES_PARAM, {"[0]"}},
+            { CardDestructionGameAction::CARD_INDICES_PARAM, {"[" + std::to_string(cardIndex) + "]"}},
             { CardDestructionGameAction::PLAYER_INDEX_PARAM, std::to_string(attackingPayerIndex)},
             { CardDestructionGameAction::IS_BOARD_CARD_PARAM, "true"},
         });
@@ -111,6 +132,14 @@ void CardAttackGameAction::VInitAnimation()
     
     auto cardIndex = std::stoi(mExtraActionParams.at(CARD_INDEX_PARAM));
     auto attackingPayerIndex = std::stoi(mExtraActionParams.at(PLAYER_INDEX_PARAM));
+    
+    mPendingAnimations = 0;
+    
+    // Card has been destroyed in between this action's creation and it's invocation of setting state here
+    if (mBoardState->GetPlayerStates()[attackingPayerIndex].mBoardCardIndicesToDestroy.count(cardIndex))
+    {
+        return;
+    }
     
     auto cardSoWrapper = mGameSessionManager->GetBoardCardSoWrappers().at(attackingPayerIndex).at(cardIndex);
     

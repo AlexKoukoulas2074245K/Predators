@@ -61,9 +61,11 @@ namespace game_constants
     inline const strutils::StringId LIGHT_POS_X_UNIFORM_NAME = strutils::StringId("light_pos_x");
     inline const strutils::StringId IS_GOLDEN_CARD_UNIFORM_NAME = strutils::StringId("golden_card");
     inline const strutils::StringId IS_HELD_CARD_UNIFORM_NAME = strutils::StringId("held_card");
+    inline const strutils::StringId DORMANT_CARD_VALUE_UNIFORM_NAME = strutils::StringId("dormant_value");
 
     // Card Family Names
     inline const strutils::StringId INSECTS_FAMILY_NAME = strutils::StringId("insects");
+    inline const strutils::StringId RODENTS_FAMILY_NAME = strutils::StringId("rodents");
 
     // Scenes
     inline const strutils::StringId IN_GAME_BATTLE_SCENE = strutils::StringId("BATTLE");
@@ -127,6 +129,7 @@ namespace game_constants
     inline const float KILL_SIDE_EFFECT_SCALE_UP_FACTOR = 1.5f;
     inline const float KILL_SIDE_EFFECT_PULSE_ANIMATION_PULSE_DUARTION_SECS = 1.0f;
     inline const float POISON_STACK_SHOW_HIDE_ANIMATION_DURATION_SECS = 1.0f;
+    inline const float RODENTS_RESPAWN_CHANCE = 0.33f;
 
     inline const glm::vec3 KILL_SIDE_EFFECT_SCALE = {1/20.0f, 1/20.0f, 1/20.0f};
     inline const glm::vec3 TURN_POINTER_HIGHLIGHTER_SCALE = {0.06f, 0.09f, 0.8f};

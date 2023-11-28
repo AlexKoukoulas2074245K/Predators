@@ -95,6 +95,9 @@ void ParticleManager::UpdateSceneParticles(const float dtMillis, scene::Scene& s
                 {
                     particleEmitterData.mParticleAngles[i] += particleEmitterData.mParticleRotationSpeed * dtMillis;
                 }
+                
+                particleEmitterData.mParticleVelocities[i] += particleEmitterData.mParticleGravityVelocity * dtMillis;
+                particleEmitterData.mParticlePositions[i] += particleEmitterData.mParticleVelocities[i] * dtMillis;
             }
             
             if (deadParticles == particleEmitterData.mParticleCount && !IS_FLAG_SET(particle_flags::CONTINUOUS_PARTICLE_GENERATION))
@@ -148,7 +151,7 @@ std::shared_ptr<scene::SceneObject> ParticleManager::CreateParticleEmitterAtPosi
     assert(IS_FLAG_SET(particle_flags::PREFILLED) || IS_FLAG_SET(particle_flags::CONTINUOUS_PARTICLE_GENERATION));
     
     particleEmitterData.mParticleLifetimeSecs.resize(particleEmitterData.mParticleCount);
-    particleEmitterData.mParticleDirections.resize(particleEmitterData.mParticleCount);
+    particleEmitterData.mParticleVelocities.resize(particleEmitterData.mParticleCount);
     particleEmitterData.mParticleSizes.resize(particleEmitterData.mParticleCount);
     particleEmitterData.mParticleAngles.resize(particleEmitterData.mParticleCount);
     particleEmitterData.mParticlePositions.resize(particleEmitterData.mParticleCount);
@@ -240,6 +243,27 @@ void ParticleManager::LoadParticleData(const resources::ResourceReloadMode resou
         particleEmitterData.mParticleSizeRange.x = particleObject["particle_size_range"]["min"].get<float>();
         particleEmitterData.mParticleSizeRange.y = particleObject["particle_size_range"]["max"].get<float>();
         
+        particleEmitterData.mParticleGravityVelocity = glm::vec3(0.0f);
+        if (particleObject.count("gravity_velocity"))
+        {
+            particleEmitterData.mParticleGravityVelocity.x = particleObject["gravity_velocity"]["x"].get<float>();
+            particleEmitterData.mParticleGravityVelocity.y = particleObject["gravity_velocity"]["y"].get<float>();
+        }
+        
+        particleEmitterData.mParticleVelocityXOffsetRange = glm::vec2(0.0f);
+        if (particleObject.count("velocity_x_range"))
+        {
+            particleEmitterData.mParticleVelocityXOffsetRange.x = particleObject["velocity_x_range"]["min"].get<float>();
+            particleEmitterData.mParticleVelocityXOffsetRange.y = particleObject["velocity_x_range"]["max"].get<float>();
+        }
+        
+        particleEmitterData.mParticleVelocityYOffsetRange = glm::vec2(0.0f);
+        if (particleObject.count("velocity_y_range"))
+        {
+            particleEmitterData.mParticleVelocityYOffsetRange.x = particleObject["velocity_y_range"]["min"].get<float>();
+            particleEmitterData.mParticleVelocityYOffsetRange.y = particleObject["velocity_y_range"]["max"].get<float>();
+        }
+        
         if (IS_FLAG_SET(particle_flags::ENLARGE_OVER_TIME))
         {
             particleEmitterData.mParticleEnlargementSpeed = particleObject["particle_enlargement_speed"].get<float>();
@@ -307,14 +331,14 @@ void ParticleManager::SortParticles(scene::ParticleEmitterObjectData& particleEm
     for (size_t i = 0U; i < particleCount; ++i)
     {
         correctedPositions[i]  = particleEmitterData.mParticlePositions[indexVec[i]];
-        correctedDirections[i] = particleEmitterData.mParticleDirections[indexVec[i]];
+        correctedDirections[i] = particleEmitterData.mParticleVelocities[indexVec[i]];
         correctedLifetimes[i]  = particleEmitterData.mParticleLifetimeSecs[indexVec[i]];
         correctedSizes[i]      = particleEmitterData.mParticleSizes[indexVec[i]];
         correctedAngles[i]     = particleEmitterData.mParticleAngles[indexVec[i]];
     }
     
     particleEmitterData.mParticlePositions    = std::move(correctedPositions);
-    particleEmitterData.mParticleDirections   = std::move(correctedDirections);
+    particleEmitterData.mParticleVelocities   = std::move(correctedDirections);
     particleEmitterData.mParticleLifetimeSecs = std::move(correctedLifetimes);
     particleEmitterData.mParticleSizes        = std::move(correctedSizes);
     particleEmitterData.mParticleAngles       = std::move(correctedAngles);
@@ -327,6 +351,8 @@ void ParticleManager::SpawnParticleAtIndex(const size_t index, const glm::vec3& 
     const auto lifeTime = math::RandomFloat(particleEmitterData.mParticleLifetimeRangeSecs.x, particleEmitterData.mParticleLifetimeRangeSecs.y);
     const auto xOffset = math::RandomFloat(particleEmitterData.mParticlePositionXOffsetRange.x, particleEmitterData.mParticlePositionXOffsetRange.y);
     const auto yOffset = math::RandomFloat(particleEmitterData.mParticlePositionYOffsetRange.x, particleEmitterData.mParticlePositionYOffsetRange.y);
+    const auto velXOffset = math::RandomFloat(particleEmitterData.mParticleVelocityXOffsetRange.x, particleEmitterData.mParticleVelocityXOffsetRange.y);
+    const auto velYOffset = math::RandomFloat(particleEmitterData.mParticleVelocityYOffsetRange.x, particleEmitterData.mParticleVelocityYOffsetRange.y);
     const auto zOffset = math::RandomFloat(sceneObjectPosition.z - sceneObjectPosition.z * 0.0001f, sceneObjectPosition.z + sceneObjectPosition.z * 0.0001f);
     const auto size = math::RandomFloat(particleEmitterData.mParticleSizeRange.x, particleEmitterData.mParticleSizeRange.y);
     auto angle = 0.0f;
@@ -341,7 +367,8 @@ void ParticleManager::SpawnParticleAtIndex(const size_t index, const glm::vec3& 
     particleEmitterData.mParticlePositions[index].x += xOffset;
     particleEmitterData.mParticlePositions[index].y += yOffset;
     particleEmitterData.mParticlePositions[index].z += zOffset;
-    particleEmitterData.mParticleDirections[index] = glm::normalize(glm::vec3(xOffset, yOffset, 0.0f));
+    particleEmitterData.mParticleVelocities[index].x += velXOffset;
+    particleEmitterData.mParticleVelocities[index].y += velYOffset;
     particleEmitterData.mParticleSizes[index] = size;
     particleEmitterData.mParticleAngles[index] = angle;
     

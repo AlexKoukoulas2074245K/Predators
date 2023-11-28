@@ -60,28 +60,19 @@ void CardDestructionGameAction::VSetNewGameState()
     auto attackingPayerIndex = std::stoi(mExtraActionParams.at(PLAYER_INDEX_PARAM));
     bool isBoardCard = mExtraActionParams.at(IS_BOARD_CARD_PARAM) == "true";
     
-    auto& cards = isBoardCard ?
-        mBoardState->GetPlayerStates()[attackingPayerIndex].mPlayerBoardCards:
-        mBoardState->GetPlayerStates()[attackingPayerIndex].mPlayerHeldCards;
-    
-    assert(cards.size() >= cardIndices.size());
-    
-    std::vector<int> remainingCards;
-    for (int i = 0; i < static_cast<int>(cards.size()); ++i)
-    {
-        if (std::find_if(cardIndices.cbegin(), cardIndices.cend(), [=](const std::string& index){ return std::stoi(index) == i; }) == cardIndices.end())
-        {
-            remainingCards.emplace_back(cards[i]);
-        }
-    }
-    
     if (isBoardCard)
     {
-        mBoardState->GetPlayerStates()[attackingPayerIndex].mPlayerBoardCards = remainingCards;
-    }
-    else
-    {
-        mBoardState->GetPlayerStates()[attackingPayerIndex].mPlayerHeldCards = remainingCards;
+        for (const auto& cardIndex: cardIndices)
+        {
+            if (isBoardCard)
+            {
+                mBoardState->GetPlayerStates()[attackingPayerIndex].mBoardCardIndicesToDestroy.insert(std::stoi(cardIndex));
+            }
+            else
+            {
+                mBoardState->GetPlayerStates()[attackingPayerIndex].mHeldCardIndicesToDestroy.insert(std::stoi(cardIndex));
+            }
+        }
     }
 }
 
@@ -136,7 +127,6 @@ ActionAnimationUpdateResult CardDestructionGameAction::VUpdateAnimation(const fl
     
     if (finished)
     {
-        events::EventSystem::GetInstance().DispatchEvent<events::CardDestructionEvent>(cardIndices, isBoardCard, attackingPayerIndex == game_constants::REMOTE_PLAYER_INDEX);
         return ActionAnimationUpdateResult::FINISHED;
     }
     

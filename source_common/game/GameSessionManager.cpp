@@ -1169,7 +1169,7 @@ void GameSessionManager::OnLastCardPlayedFinalized(const events::LastCardPlayedF
         auto& currentCardSoWrapper = playerHeldCardSoWrappers.at(i);
         
         // Rename held cards for different indices
-        currentCardSoWrapper->mSceneObject->mName = strutils::StringId((mBoardState->GetActivePlayerIndex() == 0 ? game_constants::TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_HELD_CARD_SO_NAME_PREFIX) + std::to_string(i));
+        currentCardSoWrapper->mSceneObject->mName = strutils::StringId((mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX ? game_constants::TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_HELD_CARD_SO_NAME_PREFIX) + std::to_string(i));
         
         // Reposition held cards for different indices
         if (currentCardSoWrapper->mState != CardSoState::FREE_MOVING)
@@ -1182,12 +1182,17 @@ void GameSessionManager::OnLastCardPlayedFinalized(const events::LastCardPlayedF
     
     const auto currentBoardCardCount = static_cast<int>(playerBoardCardSoWrappers.size());
     
-    // Animate board cards to position. Last one will be animated externally
-    for (int i = 0; i < currentBoardCardCount - 1; ++i)
+    // Animate and rename board cards to position. Last one will be animated externally
+    for (int i = 0; i < currentBoardCardCount; ++i)
     {
         auto& currentCardSoWrapper = playerBoardCardSoWrappers.at(i);
-        auto originalCardPosition = card_utils::CalculateBoardCardPosition(i, currentBoardCardCount, mBoardState->GetActivePlayerIndex() == 0);
-        animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(currentCardSoWrapper->mSceneObject, originalCardPosition, currentCardSoWrapper->mSceneObject->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){});
+        currentCardSoWrapper->mSceneObject->mName = strutils::StringId((mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX ? game_constants::TOP_PLAYER_BOARD_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_BOARD_CARD_SO_NAME_PREFIX) + std::to_string(i));
+        
+        if (i !=  currentBoardCardCount - 1)
+        {
+            auto originalCardPosition = card_utils::CalculateBoardCardPosition(i, currentBoardCardCount, mBoardState->GetActivePlayerIndex() == 0);
+            animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(currentCardSoWrapper->mSceneObject, originalCardPosition, currentCardSoWrapper->mSceneObject->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){});
+        }
     }
 }
 

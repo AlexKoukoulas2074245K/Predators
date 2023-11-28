@@ -65,6 +65,12 @@ void CardEffectGameAction::VSetNewGameState()
     assert(cardEffectData);
     HandleCardEffect(cardEffectData->get().mCardEffect);
     
+    // shouldn't really happen
+    if (activePlayerState.mPlayerBoardCardStatOverrides.size() == activePlayerState.mPlayerBoardCards.size())
+    {
+        activePlayerState.mPlayerBoardCardStatOverrides.pop_back();
+    }
+    
     activePlayerState.mPlayerBoardCards.pop_back();
 }
 
@@ -335,7 +341,7 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
     }
     
     // Next turn effect
-    if (std::find(mEffectComponents.cbegin(), mEffectComponents.cend(), effects::EFFECT_COMPONENT_ENEMIES) != mEffectComponents.cend())
+    if (std::find(mEffectComponents.cbegin(), mEffectComponents.cend(), effects::EFFECT_COMPONENT_ENEMY_BOARD_DEBUFF) != mEffectComponents.cend())
     {
         mBoardState->GetInactivePlayerState().mBoardModifiers.mGlobalCardStatModifiers[sAffectedStatTypeToCardStatType.at(mAffectedBoardCardsStatType)] += mEffectValue;
         mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask |= effects::board_modifier_masks::BOARD_SIDE_STAT_MODIFIER;

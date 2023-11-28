@@ -50,16 +50,18 @@ struct ParticleEmitterObjectData
     resources::ResourceId mTextureResourceId;
     
     std::vector<glm::vec3> mParticlePositions;
-    std::vector<glm::vec3> mParticleDirections;
+    std::vector<glm::vec3> mParticleVelocities;
     std::vector<float> mParticleLifetimeSecs;
     std::vector<float> mParticleSizes;
     std::vector<float> mParticleAngles;
     
     glm::vec3 mRotationAxis;
-    
+    glm::vec3 mParticleGravityVelocity;
     glm::vec2 mParticleLifetimeRangeSecs;
     glm::vec2 mParticlePositionXOffsetRange;
     glm::vec2 mParticlePositionYOffsetRange;
+    glm::vec2 mParticleVelocityXOffsetRange;
+    glm::vec2 mParticleVelocityYOffsetRange;
     glm::vec2 mParticleSizeRange;
     glm::vec2 mParticleInitialAngleRange;
     

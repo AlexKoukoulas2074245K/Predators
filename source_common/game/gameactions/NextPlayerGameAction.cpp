@@ -51,7 +51,7 @@ void NextPlayerGameAction::VSetNewGameState()
             mGameActionEngine->AddGameAction(CARD_ATTACK_GAME_ACTION_NAME,
             {
                 { CardAttackGameAction::PLAYER_INDEX_PARAM, std::to_string(previousPlayerIndex) },
-                { CardAttackGameAction::CARD_INDEX_PARAM, "0" }
+                { CardAttackGameAction::CARD_INDEX_PARAM, std::to_string(i) }
             });
         }
         

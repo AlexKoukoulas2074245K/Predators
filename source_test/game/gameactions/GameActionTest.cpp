@@ -122,6 +122,9 @@ TEST_F(GameActionTests, TestBoardStatePostDrawAndPlayAction)
 
 TEST_F(GameActionTests, TestDrawPlayNextDrawPlayActionRound)
 {
+    mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {24};
+    mBoardState->GetPlayerStates()[1].mPlayerDeckCards = {24};
+    
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     mActionEngine->AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "0" }});
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
@@ -209,8 +212,7 @@ TEST_F(GameActionTests, TestBearTrapEffect)
     EXPECT_EQ(mActionEngine->GetActiveGameActionName(), TRAP_TRIGGERED_ANIMATION_GAME_ACTION_NAME); // Make sure the next stop is at TrapTriggerAnimationGameAction (not IdleGameAction)
     mActionEngine->Update(0);
     EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerBoardCards.size(), 1);
-    mActionEngine->Update(0);
-    mActionEngine->Update(0);
+    UpdateUntilActionOrIdle(DRAW_CARD_GAME_ACTION_NAME);
     EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerBoardCards.size(), 0); // Bunny is destroyed before end of turn
 }
 

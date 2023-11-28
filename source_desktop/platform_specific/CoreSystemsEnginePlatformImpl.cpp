@@ -391,6 +391,11 @@ void CreateEngineDebugWidgets()
     ImGui::Text("Game Logic Dt %.3f", sLastGameLogicDtMillis);
     ImGui::Checkbox("Print FPS", &sPrintFPS);
     ImGui::SliderFloat("Game Speed", &sGameSpeed, 0.01f, 10.0f);
+    ImGui::SameLine();
+    if (ImGui::Button("Reset"))
+    {
+        sGameSpeed = 1.0f;
+    }
     ImGui::SeparatorText("Profilling");
     ImGui::PlotLines("Update Logic Samples", sUpdateLogicMillisSamples, PROFILLING_SAMPLE_COUNT);
     ImGui::PlotLines("Rendering Samples", sRenderingMillisSamples, PROFILLING_SAMPLE_COUNT);

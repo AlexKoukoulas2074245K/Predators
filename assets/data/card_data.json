@@ -202,9 +202,9 @@
         {
             "id": 21,
             "weight": 1,
-            "family": "rodents",
+            "family": "dinosaurs",
             "name": "Throwing Net",
-            "effect": "DAMAGE -2 ENEMIES",
+            "effect": "DAMAGE -2 ENEMY_BOARD_DEBUFF",
             "tooltip": "Damage -2 for$ALL enemies the$opponent plays$  next turn",
             "texture": "net.png",
             "shader": "basic.vs"

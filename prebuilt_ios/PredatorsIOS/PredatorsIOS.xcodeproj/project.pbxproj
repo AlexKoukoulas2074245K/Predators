@@ -86,6 +86,7 @@
 		B3635684978AFF0F4C6AE38E /* CardDestructionGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD346EFDC613D39305CC6BD2 /* CardDestructionGameAction.cpp */; };
 		B4646BE5AB02E3828791D61E /* SceneObjectUtils.h in Sources */ = {isa = PBXBuildFile; fileRef = 4D44F8A7427AB83EA69F0455 /* SceneObjectUtils.h */; };
 		B53BB940C66AA4E0C9B6570C /* GameOverGameAction.h in Sources */ = {isa = PBXBuildFile; fileRef = B525211824678482C123E701 /* GameOverGameAction.h */; };
+		B6E67DBC068AE07FB4029313 /* RodentsDigAnimationGameAction.h in Sources */ = {isa = PBXBuildFile; fileRef = 262BEE079FB81F24BE02CE73 /* RodentsDigAnimationGameAction.h */; };
 		BE61AB91666D512DCBABF147 /* GoldenCardPlayedEffectGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 28CE98C2AE21D8079AF2E907 /* GoldenCardPlayedEffectGameAction.cpp */; };
 		CB531F303F3C1CE853301CBB /* CardEffectGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEDDB72469D33C82815CCED2 /* CardEffectGameAction.cpp */; };
 		CFFDB04B87DCD87C72EECDCC /* PersistenceUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2D6F8E50BAA67ED56A45080A /* PersistenceUtils.cpp */; };
@@ -97,6 +98,7 @@
 		E7764760DE60263102BC16BD /* Cards.h in Sources */ = {isa = PBXBuildFile; fileRef = 7213B89F1A8AC4B38238ECEB /* Cards.h */; };
 		E822BAEB6AFB1F91FA785FA4 /* ParticleManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 07E6A4152BAC640B7D892FEF /* ParticleManager.h */; };
 		F387EFF89C4B3BB095B1E15E /* PlatformMacros.h in Sources */ = {isa = PBXBuildFile; fileRef = 7AACE80E9655088BE13935FF /* PlatformMacros.h */; };
+		F515AD2A1219CD79E9BD1985 /* RodentsDigAnimationGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5811D5357FB7EAA7C007CCBD /* RodentsDigAnimationGameAction.cpp */; };
 		F5518A662447F238CCCAFE51 /* Animations.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C6B01E95D9ABF46EECA93F96 /* Animations.cpp */; };
 		F9C60C48D50922D0BE115757 /* GameSerializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9BFB08A618CB5789C48A0632 /* GameSerializer.cpp */; };
 		FBD1FF1BF1985E3606DD20ED /* GameConstants.h in Sources */ = {isa = PBXBuildFile; fileRef = B3A902E2D8B1AD656D561A89 /* GameConstants.h */; };
@@ -238,6 +240,7 @@
 		045573D2F22AEA547A319CC2 /* Reachability.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Reachability.h; path = Reachability.h; sourceTree = "<group>"; };
 		0680A5C87337FE49848C07E7 /* CardPlayedParticleEffectGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = CardPlayedParticleEffectGameAction.cpp; path = CardPlayedParticleEffectGameAction.cpp; sourceTree = "<group>"; };
 		07E6A4152BAC640B7D892FEF /* ParticleManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ParticleManager.h; path = ParticleManager.h; sourceTree = "<group>"; };
+		262BEE079FB81F24BE02CE73 /* RodentsDigAnimationGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = RodentsDigAnimationGameAction.h; path = RodentsDigAnimationGameAction.h; sourceTree = "<group>"; };
 		269239EC29F8D7713FA897D0 /* GameReplayEngine.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = GameReplayEngine.h; sourceTree = "<group>"; };
 		28CE98C2AE21D8079AF2E907 /* GoldenCardPlayedEffectGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = GoldenCardPlayedEffectGameAction.cpp; path = GoldenCardPlayedEffectGameAction.cpp; sourceTree = "<group>"; };
 		2B8523B9A9A463D59C490EDD /* GameSerializer.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = GameSerializer.h; sourceTree = "<group>"; };
@@ -251,6 +254,7 @@
 		4D44F8A7427AB83EA69F0455 /* SceneObjectUtils.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = SceneObjectUtils.h; sourceTree = "<group>"; };
 		5185CB2E38BF19BD1C54BAF6 /* TrapTriggeredAnimationGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = TrapTriggeredAnimationGameAction.cpp; sourceTree = "<group>"; };
 		549C84D3FE6BA93E39F0B406 /* EventSystem.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = EventSystem.cpp; sourceTree = "<group>"; };
+		5811D5357FB7EAA7C007CCBD /* RodentsDigAnimationGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = RodentsDigAnimationGameAction.cpp; path = RodentsDigAnimationGameAction.cpp; sourceTree = "<group>"; };
 		5FE6AF12B4C779A42A758E5B /* AnimatedStatContainer.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = AnimatedStatContainer.h; path = AnimatedStatContainer.h; sourceTree = "<group>"; };
 		64A0A7BE4A8B84A02E685B42 /* Animations.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = Animations.h; sourceTree = "<group>"; };
 		684882AB57582AA7C028DE3F /* CardEffectGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = CardEffectGameAction.h; sourceTree = "<group>"; };
@@ -497,6 +501,8 @@
 				768D33D1BE87D452631F7F3B /* CardPlayedParticleEffectGameAction.h */,
 				B450F00D571A19EEA2B2018C /* PoisonStackApplicationGameAction.cpp */,
 				01DE8026E42F962701EBA308 /* PoisonStackApplicationGameAction.h */,
+				5811D5357FB7EAA7C007CCBD /* RodentsDigAnimationGameAction.cpp */,
+				262BEE079FB81F24BE02CE73 /* RodentsDigAnimationGameAction.h */,
 			);
 			path = gameactions;
 			sourceTree = "<group>";
@@ -1047,6 +1053,8 @@
 				3A9BD4564DDE3B7F770B61FE /* PoisonStackApplicationGameAction.cpp in Sources */,
 				107445B069A441B257F6C907 /* AnimatedStatContainer.h in Sources */,
 				9DAEE50129D933B49F2D889B /* PoisonStackApplicationGameAction.h in Sources */,
+				F515AD2A1219CD79E9BD1985 /* RodentsDigAnimationGameAction.cpp in Sources */,
+				B6E67DBC068AE07FB4029313 /* RodentsDigAnimationGameAction.h in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
