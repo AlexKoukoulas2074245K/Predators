@@ -45,11 +45,18 @@ void PlayerActionGenerationEngine::DecideAndPushNextActions(BoardState* currentB
         auto& cardDataLhs = cardRepository.GetCardData(lhs)->get();
         auto& cardDataRhs = cardRepository.GetCardData(rhs)->get();
         
-        if (ShouldWaitForFurtherActionsAfterPlayingCard(cardDataLhs))
+        bool shouldWaitForFurtherActionsAfterPlayingLhs = ShouldWaitForFurtherActionsAfterPlayingCard(cardDataLhs);
+        bool shouldWaitForFurtherActionsAfterPlayingRhs = ShouldWaitForFurtherActionsAfterPlayingCard(cardDataRhs);
+        
+        if (shouldWaitForFurtherActionsAfterPlayingLhs && shouldWaitForFurtherActionsAfterPlayingRhs)
+        {
+            return lhs < rhs;
+        }
+        else if (shouldWaitForFurtherActionsAfterPlayingLhs && !shouldWaitForFurtherActionsAfterPlayingRhs)
         {
             return true;
         }
-        else if (ShouldWaitForFurtherActionsAfterPlayingCard(cardDataRhs))
+        else if (!shouldWaitForFurtherActionsAfterPlayingLhs && shouldWaitForFurtherActionsAfterPlayingRhs)
         {
             return false;
         }
