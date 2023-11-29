@@ -31,6 +31,10 @@ namespace card_utils
 
 ///------------------------------------------------------------------------------------------------
 
+int CalculateNonDeadCardsCount(const std::vector<int>& cards, const std::unordered_set<int>& deadIndices);
+
+///------------------------------------------------------------------------------------------------
+
 glm::vec3 CalculateHeldCardPosition(const int cardIndex, const int playerCardCount, bool forRemotePlayer, const rendering::Camera& camera);
 
 ///------------------------------------------------------------------------------------------------

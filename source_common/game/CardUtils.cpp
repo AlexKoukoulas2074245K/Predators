@@ -47,6 +47,13 @@ static float GetZoomVariableHeldCardY(const float zoomFactor)
 
 ///------------------------------------------------------------------------------------------------
 
+int CalculateNonDeadCardsCount(const std::vector<int>& cards, const std::unordered_set<int>& deadIndices)
+{
+    return static_cast<int>(cards.size()) - static_cast<int>(deadIndices.size());
+}
+
+///------------------------------------------------------------------------------------------------
+
 glm::vec3 CalculateHeldCardPosition(const int cardIndex, const int playerCardCount, bool forRemotePlayer, const rendering::Camera& camera)
 {
     float cardBlockWidth = game_constants::IN_GAME_CARD_WIDTH * playerCardCount;

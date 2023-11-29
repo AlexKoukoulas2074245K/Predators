@@ -118,7 +118,11 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
             const auto& activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
             
             const auto& boardCards = mBoardState->GetActivePlayerState().mPlayerBoardCards;
+            const auto& deadBoardCardIndices = mBoardState->GetActivePlayerState().mBoardCardIndicesToDestroy;
+            
             const auto& heldCards = mBoardState->GetActivePlayerState().mPlayerHeldCards;
+            const auto& deadHeldCardIndices = mBoardState->GetActivePlayerState().mHeldCardIndicesToDestroy;
+            
             auto boardCardIndex = boardCards.size();
             auto effectCardSoWrapper = mGameSessionManager->GetBoardCardSoWrappers().at(mBoardState->GetActivePlayerIndex()).at(boardCardIndex);
             effectCardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] += dtMillis * CARD_DISSOLVE_SPEED;
@@ -131,7 +135,7 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
             
             if (effectCardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] >= MAX_CARD_DISSOLVE_VALUE)
             {
-                events::EventSystem::GetInstance().DispatchEvent<events::CardDestructionWithRepositionEvent>(static_cast<int>(boardCardIndex), true, mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
+                events::EventSystem::GetInstance().DispatchEvent<events::ImmediateCardDestructionWithRepositionEvent>(static_cast<int>(boardCardIndex), true, mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
                 
                 // Create particle emitters on affected cards
                 for (size_t i = 0U; i < mAffectedCards.size(); ++i)
@@ -143,8 +147,8 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
                         mGameSessionManager->GetHeldCardSoWrappers().at(mBoardState->GetActivePlayerIndex()).at(affectedCardEntry.mCardIndex);
                     
                     auto targetPosition = affectedCardEntry.mIsBoardCard ?
-                        card_utils::CalculateBoardCardPosition(affectedCardEntry.mCardIndex, static_cast<int>(boardCards.size()), mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX):
-                        card_utils::CalculateHeldCardPosition(affectedCardEntry.mCardIndex, static_cast<int>(heldCards.size()), mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, activeScene->GetCamera());
+                        card_utils::CalculateBoardCardPosition(affectedCardEntry.mCardIndex, card_utils::CalculateNonDeadCardsCount(boardCards, deadBoardCardIndices), mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX):
+                        card_utils::CalculateHeldCardPosition(affectedCardEntry.mCardIndex, card_utils::CalculateNonDeadCardsCount(heldCards, deadHeldCardIndices), mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, activeScene->GetCamera());
                     
                     CoreSystemsEngine::GetInstance().GetParticleManager().CreateParticleEmitterAtPosition
                     (

@@ -24,6 +24,7 @@
 const std::string CardDestructionGameAction::CARD_INDICES_PARAM = "cardIndices";
 const std::string CardDestructionGameAction::PLAYER_INDEX_PARAM = "playerIndex";
 const std::string CardDestructionGameAction::IS_BOARD_CARD_PARAM = "isBoardCard";
+const std::string CardDestructionGameAction::IS_TRAP_TRIGGER_PARAM = "isTrapTrigger";
 
 const std::string CARD_DISSOLVE_SHADER_FILE_NAME = "card_dissolve.vs";
 
@@ -44,7 +45,8 @@ static const std::vector<std::string> sRequiredExtraParamNames =
 {
     CardDestructionGameAction::CARD_INDICES_PARAM,
     CardDestructionGameAction::PLAYER_INDEX_PARAM,
-    CardDestructionGameAction::IS_BOARD_CARD_PARAM
+    CardDestructionGameAction::IS_BOARD_CARD_PARAM,
+    CardDestructionGameAction::IS_TRAP_TRIGGER_PARAM,
 };
 
 ///------------------------------------------------------------------------------------------------
@@ -54,13 +56,15 @@ void CardDestructionGameAction::VSetNewGameState()
     assert(mExtraActionParams.count(CARD_INDICES_PARAM) != 0);
     assert(mExtraActionParams.count(PLAYER_INDEX_PARAM) != 0);
     assert(mExtraActionParams.count(IS_BOARD_CARD_PARAM) != 0);
+    assert(mExtraActionParams.count(IS_TRAP_TRIGGER_PARAM) != 0);
     
     auto cardIndices = strutils::StringToVecOfStrings(mExtraActionParams.at(CARD_INDICES_PARAM));
     
     auto attackingPayerIndex = std::stoi(mExtraActionParams.at(PLAYER_INDEX_PARAM));
     bool isBoardCard = mExtraActionParams.at(IS_BOARD_CARD_PARAM) == "true";
+    bool isTrapTrigger = mExtraActionParams.at(IS_TRAP_TRIGGER_PARAM) == "true";
     
-    if (isBoardCard)
+    if (isBoardCard && !isTrapTrigger)
     {
         for (const auto& cardIndex: cardIndices)
         {
@@ -73,6 +77,10 @@ void CardDestructionGameAction::VSetNewGameState()
                 mBoardState->GetPlayerStates()[attackingPayerIndex].mHeldCardIndicesToDestroy.insert(std::stoi(cardIndex));
             }
         }
+    }
+    else if (isBoardCard && isTrapTrigger)
+    {
+        mBoardState->GetPlayerStates()[attackingPayerIndex].mPlayerBoardCards.pop_back();
     }
 }
 
@@ -107,20 +115,25 @@ void CardDestructionGameAction::VInitAnimation()
 ActionAnimationUpdateResult CardDestructionGameAction::VUpdateAnimation(const float dtMillis)
 {
     auto cardIndices = strutils::StringToVecOfStrings(mExtraActionParams.at(CARD_INDICES_PARAM));
-    auto attackingPayerIndex = std::stoi(mExtraActionParams.at(PLAYER_INDEX_PARAM));
+    auto playerIndex = std::stoi(mExtraActionParams.at(PLAYER_INDEX_PARAM));
     bool isBoardCard = mExtraActionParams.at(IS_BOARD_CARD_PARAM) == "true";
+    bool isTrapTrigger = mExtraActionParams.at(IS_TRAP_TRIGGER_PARAM) == "true";
     
     bool finished = false;
     for (const auto& cardIndex: cardIndices)
     {
         auto cardIndexInt = std::stoi(cardIndex);
         auto cardSoWrapper = isBoardCard ?
-            mGameSessionManager->GetBoardCardSoWrappers().at(attackingPayerIndex).at(cardIndexInt) :
-            mGameSessionManager->GetHeldCardSoWrappers().at(attackingPayerIndex).at(cardIndexInt);
+            mGameSessionManager->GetBoardCardSoWrappers().at(playerIndex).at(cardIndexInt) :
+            mGameSessionManager->GetHeldCardSoWrappers().at(playerIndex).at(cardIndexInt);
         cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] += dtMillis * CARD_DISSOLVE_SPEED;
         
         if (cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] >= MAX_CARD_DISSOLVE_VALUE)
         {
+            if (isTrapTrigger)
+            {
+                events::EventSystem::GetInstance().DispatchEvent<events::ImmediateCardDestructionWithRepositionEvent>(cardIndexInt, true, playerIndex == game_constants::REMOTE_PLAYER_INDEX);
+            }
             finished = true;
         }
     }

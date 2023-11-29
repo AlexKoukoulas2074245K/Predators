@@ -61,8 +61,8 @@ private:
     void OnApplicationMovedToBackground(const events::ApplicationMovedToBackgroundEvent&);
     void OnWindowResize(const events::WindowResizeEvent&);
     void OnLocalPlayerTurnStarted(const events::LocalPlayerTurnStarted&);
-    void OnCardDestruction(const events::CardDestructionEvent&);
-    void OnCardDestructionWithReposition(const events::CardDestructionWithRepositionEvent&);
+    void OnEndOfTurnCardDestruction(const events::EndOfTurnCardDestructionEvent&);
+    void OnImmediateCardDestructionWithReposition(const events::ImmediateCardDestructionWithRepositionEvent&);
     void OnCardCreation(const events::CardCreationEvent& event);
     void OnCardBuffedDebuffed(const events::CardBuffedDebuffedEvent& event);
     void OnHeldCardSwap(const events::HeldCardSwapEvent& event);

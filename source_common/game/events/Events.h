@@ -38,10 +38,10 @@ class LocalPlayerTurnStarted final
 
 ///------------------------------------------------------------------------------------------------
 
-class CardDestructionEvent final
+class EndOfTurnCardDestructionEvent final
 {
 public:
-    CardDestructionEvent(const std::vector<std::string> cardIndices, const bool isBoardCard, const bool forRemotePlayer)
+    EndOfTurnCardDestructionEvent(const std::vector<std::string> cardIndices, const bool isBoardCard, const bool forRemotePlayer)
     : mCardIndices(cardIndices)
     , mIsBoardCard(isBoardCard)
     , mForRemotePlayer(forRemotePlayer)
@@ -55,10 +55,10 @@ public:
 
 ///------------------------------------------------------------------------------------------------
 
-class CardDestructionWithRepositionEvent final
+class ImmediateCardDestructionWithRepositionEvent final
 {
 public:
-    CardDestructionWithRepositionEvent(const int cardIndex, const bool isBoardCard, const bool forRemotePlayer)
+    ImmediateCardDestructionWithRepositionEvent(const int cardIndex, const bool isBoardCard, const bool forRemotePlayer)
     : mCardIndex(cardIndex)
     , mIsBoardCard(isBoardCard)
     , mForRemotePlayer(forRemotePlayer)

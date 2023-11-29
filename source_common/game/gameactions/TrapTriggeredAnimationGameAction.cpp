@@ -56,6 +56,7 @@ void TrapTriggeredAnimationGameAction::VSetNewGameState()
             { CardDestructionGameAction::CARD_INDICES_PARAM, {"[" + std::to_string(activePlayerState.mPlayerBoardCards.size() - 1) + "]"}},
             { CardDestructionGameAction::PLAYER_INDEX_PARAM, std::to_string(mBoardState->GetActivePlayerIndex())},
             { CardDestructionGameAction::IS_BOARD_CARD_PARAM, "true"},
+            { CardDestructionGameAction::IS_TRAP_TRIGGER_PARAM, "true"},
         });
     }
 }

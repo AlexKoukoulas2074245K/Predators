@@ -103,6 +103,7 @@ static const float BOARD_SIDE_EFFECT_VALUE_LEFT_X = -0.075f;
 static const float BOARD_SIDE_EFFECT_VALUE_RIGHT_X = 0.045f;
 static const float BOARD_SIDE_EFFECT_VALUE_Z_OFFSET = 0.01f;
 static const float BOARD_SIDE_EFFECT_VALUE_SCALE = 0.0003f;
+static const float KILL_SIDE_EFFECT_Z_OFFSET = 1.0f;
 
 #if defined(MOBILE_FLOW)
 static const float MOBILE_DISTANCE_FROM_CARD_LOCATION_INDICATOR = 0.003f;
@@ -137,8 +138,8 @@ void GameSessionManager::InitGameSession()
     mBoardState->GetPlayerStates().emplace_back();
     mBoardState->GetPlayerStates().emplace_back();
     
-    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("insects"));
-    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = {19, 20, 21}; CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));
+    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("dinosaurs"));
+    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));
     
     mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mGoldenCardIds = {19, 20, 21, 22};//CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));;
     
@@ -275,7 +276,7 @@ void GameSessionManager::InitGameSession()
     killSideEffectTopSceneObject->mEffectTextureResourceIds[0] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + KILL_SIDE_EFFECT_MASK_TEXTURE_FILE_NAME);
     killSideEffectTopSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + BOARD_SIDE_STAT_EFFECT_SHADER_FILE_NAME);
     killSideEffectTopSceneObject->mPosition = BOARD_SIDE_EFFECT_TOP_POSITION;
-    killSideEffectTopSceneObject->mPosition.z += 0.1f;
+    killSideEffectTopSceneObject->mPosition.z += KILL_SIDE_EFFECT_Z_OFFSET;
     killSideEffectTopSceneObject->mScale = game_constants::KILL_SIDE_EFFECT_SCALE;
     killSideEffectTopSceneObject->mInvisible = true;
     animationManager.StartAnimation(std::make_unique<rendering::ContinuousPulseAnimation>(killSideEffectTopSceneObject, game_constants::KILL_SIDE_EFFECT_SCALE_UP_FACTOR, game_constants::KILL_SIDE_EFFECT_PULSE_ANIMATION_PULSE_DUARTION_SECS), [](){});
@@ -287,7 +288,7 @@ void GameSessionManager::InitGameSession()
     killSideEffectBotSceneObject->mEffectTextureResourceIds[0] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + KILL_SIDE_EFFECT_MASK_TEXTURE_FILE_NAME);
     killSideEffectBotSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + BOARD_SIDE_STAT_EFFECT_SHADER_FILE_NAME);
     killSideEffectBotSceneObject->mPosition = BOARD_SIDE_EFFECT_BOT_POSITION;
-    killSideEffectBotSceneObject->mPosition.z += 0.1f;
+    killSideEffectBotSceneObject->mPosition.z += KILL_SIDE_EFFECT_Z_OFFSET;
     killSideEffectBotSceneObject->mScale = game_constants::KILL_SIDE_EFFECT_SCALE;
     killSideEffectBotSceneObject->mInvisible = true;
     animationManager.StartAnimation(std::make_unique<rendering::ContinuousPulseAnimation>(killSideEffectBotSceneObject, game_constants::KILL_SIDE_EFFECT_SCALE_UP_FACTOR, game_constants::KILL_SIDE_EFFECT_PULSE_ANIMATION_PULSE_DUARTION_SECS), [](){});
@@ -440,7 +441,11 @@ void GameSessionManager::HandleTouchInput(const float dtMillis)
             if (std::find(mPendingCardsToBePlayed.begin(), mPendingCardsToBePlayed.end(), currentCardSoWrapper) == mPendingCardsToBePlayed.end())
             {
                 animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(currentCardSoWrapper->mSceneObject, glm::vec3(worldTouchPos.x, worldTouchPos.y + game_constants::IN_GAME_MOBILE_ONLY_FREE_MOVING_CARD_Y_OFFSET, game_constants::IN_GAME_HIGHLIGHTED_CARD_Z), currentCardSoWrapper->mSceneObject->mScale, game_constants::IN_GAME_CARD_FREE_MOVEMENT_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [](){});
-                auto currentLocalPlayerBoardCardCount = static_cast<int>(mPlayerBoardCardSceneObjectWrappers[game_constants::LOCAL_PLAYER_INDEX].size());
+                
+                const auto& currentLocalPlayerBoardCards = mBoardState->GetPlayerStates().at(game_constants::LOCAL_PLAYER_INDEX).mPlayerBoardCards;
+                const auto& currentLocalPlayerDeadBoardCardIndices = mBoardState->GetPlayerStates().at(game_constants::LOCAL_PLAYER_INDEX).mBoardCardIndicesToDestroy;
+                const auto& currentLocalPlayerBoardCardCount = card_utils::CalculateNonDeadCardsCount(currentLocalPlayerBoardCards, currentLocalPlayerDeadBoardCardIndices);
+                
                 auto cardLocationIndicatorSo = activeScene->FindSceneObject(CARD_LOCATION_INDICATOR_SCENE_OBJECT_NAME);
                 cardLocationIndicatorSo->mPosition = card_utils::CalculateBoardCardPosition(currentLocalPlayerBoardCardCount, currentLocalPlayerBoardCardCount + 1, false);
                 cardLocationIndicatorSo->mPosition.z = game_constants::CARD_LOCATION_EFFECT_Z;
@@ -492,7 +497,11 @@ void GameSessionManager::HandleTouchInput(const float dtMillis)
             if (std::find(mPendingCardsToBePlayed.begin(), mPendingCardsToBePlayed.end(), currentCardSoWrapper) == mPendingCardsToBePlayed.end())
             {
                 animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(currentCardSoWrapper->mSceneObject, glm::vec3(worldTouchPos.x, worldTouchPos.y, game_constants::IN_GAME_HIGHLIGHTED_CARD_Z), currentCardSoWrapper->mSceneObject->mScale, game_constants::IN_GAME_CARD_FREE_MOVEMENT_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [](){});
-                auto currentLocalPlayerBoardCardCount = static_cast<int>(mPlayerBoardCardSceneObjectWrappers[game_constants::LOCAL_PLAYER_INDEX].size());
+                
+                const auto& currentLocalPlayerBoardCards = mBoardState->GetPlayerStates().at(game_constants::LOCAL_PLAYER_INDEX).mPlayerBoardCards;
+                const auto& currentLocalPlayerDeadBoardCardIndices = mBoardState->GetPlayerStates().at(game_constants::LOCAL_PLAYER_INDEX).mBoardCardIndicesToDestroy;
+                const auto& currentLocalPlayerBoardCardCount = card_utils::CalculateNonDeadCardsCount(currentLocalPlayerBoardCards, currentLocalPlayerDeadBoardCardIndices);
+                
                 auto cardLocationIndicatorSo = activeScene->FindSceneObject(CARD_LOCATION_INDICATOR_SCENE_OBJECT_NAME);
                 cardLocationIndicatorSo->mPosition = card_utils::CalculateBoardCardPosition(currentLocalPlayerBoardCardCount, currentLocalPlayerBoardCardCount + 1, false);
                 cardLocationIndicatorSo->mPosition.z = game_constants::CARD_LOCATION_EFFECT_Z;
@@ -700,6 +709,10 @@ void GameSessionManager::UpdateMiscSceneObjects(const float dtMillis)
         bool inBoardDropThreshold = distanceFromCardLocationSo <= DESKTOP_DISTANCE_FROM_CARD_LOCATION_INDICATOR;
 #endif
         
+        const auto& currentLocalPlayerBoardCards = mBoardState->GetPlayerStates().at(game_constants::LOCAL_PLAYER_INDEX).mPlayerBoardCards;
+        const auto& currentLocalPlayerDeadBoardCardIndices = mBoardState->GetPlayerStates().at(game_constants::LOCAL_PLAYER_INDEX).mBoardCardIndicesToDestroy;
+        const auto& currentLocalPlayerBoardCardCount = card_utils::CalculateNonDeadCardsCount(currentLocalPlayerBoardCards, currentLocalPlayerDeadBoardCardIndices);
+        
         // If in drop threshold we lerp to max target location alpha
         if (inBoardDropThreshold)
         {
@@ -711,7 +724,7 @@ void GameSessionManager::UpdateMiscSceneObjects(const float dtMillis)
             
             if (mPreviousProspectiveBoardCardsPushState == ProspectiveBoardCardsPushState::MAKE_SPACE_FOR_NEW_CARD)
             {
-                prospectiveMakeSpaceRevertToPositionLambda(static_cast<int>(mPlayerBoardCardSceneObjectWrappers[game_constants::LOCAL_PLAYER_INDEX].size() + 1));
+                prospectiveMakeSpaceRevertToPositionLambda(currentLocalPlayerBoardCardCount + 1);
             }
             mPreviousProspectiveBoardCardsPushState = ProspectiveBoardCardsPushState::MAKE_SPACE_FOR_NEW_CARD;
         }
@@ -732,7 +745,7 @@ void GameSessionManager::UpdateMiscSceneObjects(const float dtMillis)
             
             if (mPreviousProspectiveBoardCardsPushState != ProspectiveBoardCardsPushState::REVERT_TO_ORIGINAL_POSITION)
             {
-                prospectiveMakeSpaceRevertToPositionLambda(static_cast<int>(mPlayerBoardCardSceneObjectWrappers[game_constants::LOCAL_PLAYER_INDEX].size()));
+                prospectiveMakeSpaceRevertToPositionLambda(currentLocalPlayerBoardCardCount);
             }
             mPreviousProspectiveBoardCardsPushState = ProspectiveBoardCardsPushState::REVERT_TO_ORIGINAL_POSITION;
         }
@@ -964,8 +977,8 @@ void GameSessionManager::RegisterForEvents()
     eventSystem.RegisterForEvent<events::ApplicationMovedToBackgroundEvent>(this, &GameSessionManager::OnApplicationMovedToBackground);
     eventSystem.RegisterForEvent<events::WindowResizeEvent>(this, &GameSessionManager::OnWindowResize);
     eventSystem.RegisterForEvent<events::LocalPlayerTurnStarted>(this, &GameSessionManager::OnLocalPlayerTurnStarted);
-    eventSystem.RegisterForEvent<events::CardDestructionEvent>(this, &GameSessionManager::OnCardDestruction);
-    eventSystem.RegisterForEvent<events::CardDestructionWithRepositionEvent>(this, &GameSessionManager::OnCardDestructionWithReposition);
+    eventSystem.RegisterForEvent<events::EndOfTurnCardDestructionEvent>(this, &GameSessionManager::OnEndOfTurnCardDestruction);
+    eventSystem.RegisterForEvent<events::ImmediateCardDestructionWithRepositionEvent>(this, &GameSessionManager::OnImmediateCardDestructionWithReposition);
     eventSystem.RegisterForEvent<events::CardCreationEvent>(this, &GameSessionManager::OnCardCreation);
     eventSystem.RegisterForEvent<events::CardBuffedDebuffedEvent>(this, &GameSessionManager::OnCardBuffedDebuffed);
     eventSystem.RegisterForEvent<events::HeldCardSwapEvent>(this, &GameSessionManager::OnHeldCardSwap);
@@ -1018,7 +1031,7 @@ void GameSessionManager::OnLocalPlayerTurnStarted(const events::LocalPlayerTurnS
 
 ///------------------------------------------------------------------------------------------------
 
-void GameSessionManager::OnCardDestruction(const events::CardDestructionEvent& event)
+void GameSessionManager::OnEndOfTurnCardDestruction(const events::EndOfTurnCardDestructionEvent& event)
 {
     const auto& activeSceneManager = CoreSystemsEngine::GetInstance().GetActiveSceneManager();
     auto activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
@@ -1052,11 +1065,19 @@ void GameSessionManager::OnCardDestruction(const events::CardDestructionEvent& e
 
 ///------------------------------------------------------------------------------------------------
 
-void GameSessionManager::OnCardDestructionWithReposition(const events::CardDestructionWithRepositionEvent& event)
+void GameSessionManager::OnImmediateCardDestructionWithReposition(const events::ImmediateCardDestructionWithRepositionEvent& event)
 {
     const auto& activeSceneManager = CoreSystemsEngine::GetInstance().GetActiveSceneManager();
     auto activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+    
+    const auto& cards = event.mIsBoardCard ?
+        mBoardState->GetPlayerStates()[(event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)].mPlayerBoardCards:
+        mBoardState->GetPlayerStates()[(event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)].mPlayerHeldCards;
+    const auto& cardIndicesToDestroy = event.mIsBoardCard ?
+        mBoardState->GetPlayerStates()[(event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)].mBoardCardIndicesToDestroy:
+        mBoardState->GetPlayerStates()[(event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)].mHeldCardIndicesToDestroy;
+    auto currentCardCount = card_utils::CalculateNonDeadCardsCount(cards, cardIndicesToDestroy);
     
     auto& cardSoWrappers = event.mIsBoardCard ?
         mPlayerBoardCardSceneObjectWrappers[(event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)]:
@@ -1066,11 +1087,14 @@ void GameSessionManager::OnCardDestructionWithReposition(const events::CardDestr
     cardSoWrappers.erase(cardSoWrappers.begin() + event.mCardIndex);
     
     // Animate rest of the cards to position.
-    const auto currentCardCount = static_cast<int>(cardSoWrappers.size());
     for (int i = 0; i < currentCardCount; ++i)
     {
         auto& currentCardSoWrapper = cardSoWrappers.at(i);
-    
+        
+        currentCardSoWrapper->mSceneObject->mName = event.mIsBoardCard ?
+            strutils::StringId((mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX ? game_constants::TOP_PLAYER_BOARD_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_BOARD_CARD_SO_NAME_PREFIX) + std::to_string(i)):
+            strutils::StringId((mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX ? game_constants::TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_HELD_CARD_SO_NAME_PREFIX) + std::to_string(i));
+        
         auto originalCardPosition = event.mIsBoardCard ?
             card_utils::CalculateBoardCardPosition(i, currentCardCount, event.mForRemotePlayer) :
             card_utils::CalculateHeldCardPosition(i, currentCardCount, event.mForRemotePlayer, activeScene->GetCamera());
@@ -1182,17 +1206,19 @@ void GameSessionManager::OnLastCardPlayedFinalized(const events::LastCardPlayedF
         }
     }
     
-    const auto currentBoardCardCount = static_cast<int>(playerBoardCardSoWrappers.size());
+    const auto& boardCards = mBoardState->GetPlayerStates().at(mBoardState->GetActivePlayerIndex()).mPlayerBoardCards;
+    const auto& deadBoardCardIndices = mBoardState->GetPlayerStates().at(mBoardState->GetActivePlayerIndex()).mBoardCardIndicesToDestroy;
+    const auto& boardCardCount = card_utils::CalculateNonDeadCardsCount(boardCards, deadBoardCardIndices);
     
     // Animate and rename board cards to position. Last one will be animated externally
-    for (int i = 0; i < currentBoardCardCount; ++i)
+    for (int i = 0; i < boardCardCount; ++i)
     {
         auto& currentCardSoWrapper = playerBoardCardSoWrappers.at(i);
         currentCardSoWrapper->mSceneObject->mName = strutils::StringId((mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX ? game_constants::TOP_PLAYER_BOARD_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_BOARD_CARD_SO_NAME_PREFIX) + std::to_string(i));
         
-        if (i !=  currentBoardCardCount - 1)
+        if (i !=  boardCardCount - 1)
         {
-            auto originalCardPosition = card_utils::CalculateBoardCardPosition(i, currentBoardCardCount, mBoardState->GetActivePlayerIndex() == 0);
+            auto originalCardPosition = card_utils::CalculateBoardCardPosition(i, boardCardCount, mBoardState->GetActivePlayerIndex() == 0);
             animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(currentCardSoWrapper->mSceneObject, originalCardPosition, currentCardSoWrapper->mSceneObject->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){});
         }
     }
@@ -1301,10 +1327,18 @@ void GameSessionManager::OnForceSendCardBackToPositionEvent(const events::ForceS
     auto activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
     
+    const auto& cards = event.mBoardCard ?
+        mBoardState->GetPlayerStates()[(event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)].mPlayerBoardCards:
+        mBoardState->GetPlayerStates()[(event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)].mPlayerHeldCards;
+    const auto& cardIndicesToDestroy = event.mBoardCard ?
+        mBoardState->GetPlayerStates()[(event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)].mBoardCardIndicesToDestroy:
+        mBoardState->GetPlayerStates()[(event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)].mHeldCardIndicesToDestroy;
+    auto currentCardCount = card_utils::CalculateNonDeadCardsCount(cards, cardIndicesToDestroy);
+    
     auto& cardSoWrappers = event.mBoardCard ?
         mPlayerBoardCardSceneObjectWrappers[(event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)]:
         mPlayerHeldCardSceneObjectWrappers[(event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)];
-    auto currentCardCount = static_cast<int>(cardSoWrappers.size());
+    
     auto& cardSoWrapper = cardSoWrappers[event.mCardIdex];
     
     cardSoWrapper->mState = CardSoState::IDLE;

@@ -46,7 +46,7 @@ void PostNextPlayerGameAction::VSetNewGameState()
         else
         {
             std::vector<std::string> idx = { std::to_string(i) };
-            events::EventSystem::GetInstance().DispatchEvent<events::CardDestructionEvent>(idx, true, mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX);
+            events::EventSystem::GetInstance().DispatchEvent<events::EndOfTurnCardDestructionEvent>(idx, true, mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX);
         }
     }
     
@@ -55,7 +55,7 @@ void PostNextPlayerGameAction::VSetNewGameState()
     for (int i = static_cast<int>(heldCards.size()) - 1; i >= 0; --i)
     {
         std::vector<std::string> idx = { std::to_string(i) };
-        events::EventSystem::GetInstance().DispatchEvent<events::CardDestructionEvent>(idx, false, mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX);
+        events::EventSystem::GetInstance().DispatchEvent<events::EndOfTurnCardDestructionEvent>(idx, false, mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX);
     }
     
     mBoardState->GetInactivePlayerState().mPlayerBoardCards = remainingBoardCards;

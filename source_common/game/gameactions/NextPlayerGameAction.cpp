@@ -67,6 +67,7 @@ void NextPlayerGameAction::VSetNewGameState()
                 { CardDestructionGameAction::CARD_INDICES_PARAM, strutils::VecToString(cardIndices)},
                 { CardDestructionGameAction::PLAYER_INDEX_PARAM, std::to_string(previousPlayerIndex)},
                 { CardDestructionGameAction::IS_BOARD_CARD_PARAM, "false"},
+                { CardDestructionGameAction::IS_TRAP_TRIGGER_PARAM, "false"}
             });
         }
     }

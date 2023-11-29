@@ -119,6 +119,7 @@ void CardAttackGameAction::VSetNewGameState()
             { CardDestructionGameAction::CARD_INDICES_PARAM, {"[" + std::to_string(cardIndex) + "]"}},
             { CardDestructionGameAction::PLAYER_INDEX_PARAM, std::to_string(attackingPayerIndex)},
             { CardDestructionGameAction::IS_BOARD_CARD_PARAM, "true"},
+            { CardDestructionGameAction::IS_TRAP_TRIGGER_PARAM, "false"},
         });
     }
 }
