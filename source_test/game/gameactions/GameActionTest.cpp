@@ -381,17 +381,15 @@ void GameActionTests::SimulateBattle(strutils::StringId topDeckFamilyName /*= st
     std::set<int> uniquePlayedCardIds[2];
     
     std::cout << "            0%  5%  10%  15%  20%  25%  30%  35%  40%  45%  50%  55%  60%  65%  70%  75%  80%  85%  90%  95%  100%\n";
+    std::cout << "Progress:   [";
     
     for (int i = 0; i < GAME_COUNT; ++i)
     {
         if (i % PROGRESS_INCREMENTS == 0)
         {
-            std::cout << "\rProgress:   [" << std::flush;
-            for (int j = 0; j < i / PROGRESS_INCREMENTS; ++j)
-            {
-                std::cout << "#";
-            }
+            std::cout << "#" << std::flush;
         }
+        
         uniquePlayedCardIds[0].clear();
         uniquePlayedCardIds[1].clear();
         
