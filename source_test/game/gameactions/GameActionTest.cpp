@@ -367,7 +367,8 @@ TEST_F(GameActionTests, TestBearTrapEffectFollowedByGustOfWind)
 
 void GameActionTests::SimulateBattle(strutils::StringId topDeckFamilyName /*= strutils::StringId()*/, strutils::StringId botDeckFamilyName /*= strutils::StringId()*/)
 {
-    constexpr int GAME_COUNT = 1000;
+    constexpr int GAME_COUNT = 10000;
+    constexpr int PROGRESS_INCREMENTS = GAME_COUNT/100;
     
     std::stringstream statistics;
     int gamesTopPlayerWonCounter = 0;
@@ -379,8 +380,18 @@ void GameActionTests::SimulateBattle(strutils::StringId topDeckFamilyName /*= st
     std::vector<std::pair<float, int>> powerLevelAndCardIds;
     std::set<int> uniquePlayedCardIds[2];
     
+    std::cout << "            0%  5%  10%  15%  20%  25%  30%  35%  40%  45%  50%  55%  60%  65%  70%  75%  80%  85%  90%  95%  100%\n";
+    
     for (int i = 0; i < GAME_COUNT; ++i)
     {
+        if (i % PROGRESS_INCREMENTS == 0)
+        {
+            std::cout << "\rProgress:   [" << std::flush;
+            for (int j = 0; j < i / PROGRESS_INCREMENTS; ++j)
+            {
+                std::cout << "#";
+            }
+        }
         uniquePlayedCardIds[0].clear();
         uniquePlayedCardIds[1].clear();
         
@@ -464,6 +475,8 @@ void GameActionTests::SimulateBattle(strutils::StringId topDeckFamilyName /*= st
         weightAmmoCounter += mBoardState->GetPlayerStates()[winnerPlayerIndex].mPlayerTotalWeightAmmo;
     }
     
+    std::cout << "#]\n";
+    
     std::sort(winnerGameCountsAndCardIds.begin(), winnerGameCountsAndCardIds.end(), [](const std::pair<int, int>& lhs, const std::pair<int, int>& rhs)
     {
         return lhs.first > rhs.first;
@@ -476,6 +489,7 @@ void GameActionTests::SimulateBattle(strutils::StringId topDeckFamilyName /*= st
     
     if (mFamilyBattles)
     {
+        statistics << "Total Games: " << GAME_COUNT << "\n";
         statistics << "Games won: Top=" << 100.0f * gamesTopPlayerWonCounter/static_cast<float>(GAME_COUNT) << "%  Bot=" << 100.0f * (GAME_COUNT - gamesTopPlayerWonCounter)/static_cast<float>(GAME_COUNT) << "%\n";
         statistics << "Average weight ammo per game on victory: " << weightAmmoCounter/static_cast<float>(GAME_COUNT) << "\n";
         statistics << "Average turns per game: " << turnCounter/static_cast<float>(GAME_COUNT) << "\n";
@@ -483,6 +497,7 @@ void GameActionTests::SimulateBattle(strutils::StringId topDeckFamilyName /*= st
     }
     else
     {
+        statistics << "Total Games: " << GAME_COUNT << "\n";
         statistics << "Games won: Top=" << 100.0f * gamesTopPlayerWonCounter/static_cast<float>(GAME_COUNT) << "%  Bot=" << 100.0f * (GAME_COUNT - gamesTopPlayerWonCounter)/static_cast<float>(GAME_COUNT) << "%\n";
         statistics << "Average weight ammo per game on victory: " << weightAmmoCounter/static_cast<float>(GAME_COUNT) << "\n";
         statistics << "Average turns per game: " << turnCounter/static_cast<float>(GAME_COUNT) << "\n";

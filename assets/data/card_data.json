@@ -18,30 +18,21 @@
             "shader": "basic.vs"
         },
         {
-            "id": 1,
+            "id": 13,
             "damage": 2,
-            "weight": 3,
-            "family": "insects",
-            "name": "Bee",
-            "texture": "bee.png",
+            "weight": 2,
+            "family": "rodents",
+            "name": "Rat",
+            "texture": "rat.png",
             "shader": "basic.vs"
         },
         {
-            "id": 2,
+            "id": 15,
             "damage": 2,
             "weight": 3,
-            "family": "insects",
-            "name": "Beetle",
-            "texture": "beetle.png",
-            "shader": "basic.vs"
-        },
-        {
-            "id": 3,
-            "damage": 9,
-            "weight": 9,
-            "family": "dinosaurs",
-            "name": "Brachiosaurus",
-            "texture": "brachiosaurus.png",
+            "family": "rodents",
+            "name": "Squirrel",
+            "texture": "squirrel.png",
             "shader": "basic.vs"
         },
         {
@@ -54,12 +45,21 @@
             "shader": "basic.vs"
         },
         {
-            "id": 5,
-            "damage": 7,
-            "weight": 6,
-            "family": "dinosaurs",
-            "name": "Dilophosaurus",
-            "texture": "dilophosaurus.png",
+            "id": 8,
+            "damage": 2,
+            "weight": 4,
+            "family": "rodents",
+            "name": "Ground Hog",
+            "texture": "ground_hog.png",
+            "shader": "basic.vs"
+        },
+        {
+            "id": 9,
+            "damage": 1,
+            "weight": 2,
+            "family": "rodents",
+            "name": "Guinea Pig",
+            "texture": "guinea_pig.png",
             "shader": "basic.vs"
         },
         {
@@ -81,21 +81,21 @@
             "shader": "basic.vs"
         },
         {
-            "id": 8,
+            "id": 1,
             "damage": 2,
-            "weight": 4,
-            "family": "rodents",
-            "name": "Ground Hog",
-            "texture": "ground_hog.png",
+            "weight": 3,
+            "family": "insects",
+            "name": "Bee",
+            "texture": "bee.png",
             "shader": "basic.vs"
         },
         {
-            "id": 9,
-            "damage": 1,
-            "weight": 2,
-            "family": "rodents",
-            "name": "Guinea Pig",
-            "texture": "guinea_pig.png",
+            "id": 2,
+            "damage": 2,
+            "weight": 3,
+            "family": "insects",
+            "name": "Beetle",
+            "texture": "beetle.png",
             "shader": "basic.vs"
         },
         {
@@ -126,12 +126,12 @@
             "shader": "basic.vs"
         },
         {
-            "id": 13,
-            "damage": 2,
-            "weight": 2,
-            "family": "rodents",
-            "name": "Rat",
-            "texture": "rat.png",
+            "id": 3,
+            "damage": 9,
+            "weight": 9,
+            "family": "dinosaurs",
+            "name": "Brachiosaurus",
+            "texture": "brachiosaurus.png",
             "shader": "basic.vs"
         },
         {
@@ -141,15 +141,6 @@
             "family": "dinosaurs",
             "name": "Rex",
             "texture": "rex.png",
-            "shader": "basic.vs"
-        },
-        {
-            "id": 15,
-            "damage": 2,
-            "weight": 3,
-            "family": "rodents",
-            "name": "Squirrel",
-            "texture": "squirrel.png",
             "shader": "basic.vs"
         },
         {
@@ -168,6 +159,15 @@
             "family": "dinosaurs",
             "name": "Triceratops",
             "texture": "triceratops.png",
+            "shader": "basic.vs"
+        },
+        {
+            "id": 5,
+            "damage": 7,
+            "weight": 6,
+            "family": "dinosaurs",
+            "name": "Dilophosaurus",
+            "texture": "dilophosaurus.png",
             "shader": "basic.vs"
         },
         {
