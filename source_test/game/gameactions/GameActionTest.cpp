@@ -341,7 +341,7 @@ TEST_F(GameActionTests, TestFeatheryDinoEffect)
     EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, 30);
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
-    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, 21); // Triceratops attacks
+    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, 22); // Triceratops attacks
 }
 
 TEST_F(GameActionTests, TestBearTrapEffectFollowedByGustOfWind)
@@ -367,7 +367,7 @@ TEST_F(GameActionTests, TestBearTrapEffectFollowedByGustOfWind)
 
 void GameActionTests::SimulateBattle(strutils::StringId topDeckFamilyName /*= strutils::StringId()*/, strutils::StringId botDeckFamilyName /*= strutils::StringId()*/)
 {
-    constexpr int GAME_COUNT = 10000;
+    constexpr int GAME_COUNT = 1000;
     constexpr int PROGRESS_INCREMENTS = GAME_COUNT/100;
     
     std::stringstream statistics;

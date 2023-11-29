@@ -64,8 +64,8 @@
         },
         {
             "id": 6,
-            "damage": 2,
-            "weight": 3,
+            "damage": 1,
+            "weight": 2,
             "family": "insects",
             "name": "Dragonfly",
             "texture": "dragonfly.png",
@@ -74,7 +74,7 @@
         {
             "id": 7,
             "damage": 1,
-            "weight": 3,
+            "weight": 2,
             "family": "insects",
             "name": "Fly",
             "texture": "fly.png",
@@ -83,7 +83,7 @@
         {
             "id": 1,
             "damage": 2,
-            "weight": 3,
+            "weight": 2,
             "family": "insects",
             "name": "Bee",
             "texture": "bee.png",
@@ -91,8 +91,8 @@
         },
         {
             "id": 2,
-            "damage": 2,
-            "weight": 3,
+            "damage": 3,
+            "weight": 4,
             "family": "insects",
             "name": "Beetle",
             "texture": "beetle.png",
@@ -101,7 +101,7 @@
         {
             "id": 10,
             "damage": 1,
-            "weight": 3,
+            "weight": 2,
             "family": "insects",
             "name": "Ladybug",
             "texture": "ladybug.png",
@@ -128,7 +128,7 @@
         {
             "id": 3,
             "damage": 9,
-            "weight": 9,
+            "weight": 8,
             "family": "dinosaurs",
             "name": "Brachiosaurus",
             "texture": "brachiosaurus.png",
@@ -145,8 +145,8 @@
         },
         {
             "id": 16,
-            "damage": 8,
-            "weight": 7,
+            "damage": 7,
+            "weight": 6,
             "family": "dinosaurs",
             "name": "Stegosaurus",
             "texture": "stegosaurus.png",
@@ -154,8 +154,8 @@
         },
         {
             "id": 17,
-            "damage": 9,
-            "weight": 9,
+            "damage": 8,
+            "weight": 8,
             "family": "dinosaurs",
             "name": "Triceratops",
             "texture": "triceratops.png",
@@ -172,8 +172,8 @@
         },
         {
             "id": 18,
-            "damage": 6,
-            "weight": 5,
+            "damage": 5,
+            "weight": 4,
             "family": "dinosaurs",
             "name": "Velociraptor",
             "texture": "velociraptor.png",
