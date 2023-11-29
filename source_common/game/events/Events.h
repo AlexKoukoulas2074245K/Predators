@@ -139,13 +139,15 @@ public:
 class BoardSideCardEffectEndedEvent final
 {
 public:
-    BoardSideCardEffectEndedEvent(const bool forRemotePlayer, const effects::EffectBoardModifierMask effectBoardModifierMask)
+    BoardSideCardEffectEndedEvent(const bool forRemotePlayer, const bool massClear, const effects::EffectBoardModifierMask effectBoardModifierMask)
     : mForRemotePlayer(forRemotePlayer)
+    , mMassClear(massClear)
     , mEffectBoardModifierMask(effectBoardModifierMask)
     {
     }
     
     const bool mForRemotePlayer;
+    const bool mMassClear;
     const effects::EffectBoardModifierMask mEffectBoardModifierMask;
 };
 

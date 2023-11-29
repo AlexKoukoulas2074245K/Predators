@@ -26,6 +26,7 @@ namespace board_modifier_masks
     static constexpr EffectBoardModifierMask NONE = 0x0;
     static constexpr EffectBoardModifierMask KILL_NEXT = 0x1;
     static constexpr EffectBoardModifierMask BOARD_SIDE_STAT_MODIFIER = 0x2;
+    static constexpr EffectBoardModifierMask DUPLICATE_NEXT_INSECT = 0x4;
 };
 
 
@@ -38,6 +39,7 @@ inline const std::string EFFECT_COMPONENT_DRAW               = "DRAW";
 inline const std::string EFFECT_COMPONENT_KILL               = "KILL";
 inline const std::string EFFECT_COMPONENT_BOARD              = "BOARD";
 inline const std::string EFFECT_COMPONENT_HELD               = "HELD";
+inline const std::string EFFECT_COMPONENT_DUPLICATE_INSECT   = "DUPLICATE_NEXT_INSECT";
 inline const std::string EFFECT_COMPONENT_CLEAR_EFFECTS      = "CLEAR_EFFECTS";
 
 inline const std::unordered_set<std::string> STATIC_EFFECT_COMPONENT_NAMES =
@@ -50,7 +52,8 @@ inline const std::unordered_set<std::string> STATIC_EFFECT_COMPONENT_NAMES =
     EFFECT_COMPONENT_KILL,
     EFFECT_COMPONENT_BOARD,
     EFFECT_COMPONENT_HELD,
-    EFFECT_COMPONENT_CLEAR_EFFECTS
+    EFFECT_COMPONENT_CLEAR_EFFECTS,
+    EFFECT_COMPONENT_DUPLICATE_INSECT
 };
 
 ///------------------------------------------------------------------------------------------------

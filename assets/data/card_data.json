@@ -83,7 +83,7 @@
         {
             "id": 1,
             "damage": 2,
-            "weight": 2,
+            "weight": 0,
             "family": "insects",
             "name": "Bee",
             "texture": "bee.png",
@@ -236,8 +236,18 @@
             "name": "Gust of Wind",
             "effect": "CLEAR_EFFECTS",
             "particle_effect": "feathers",
-            "tooltip": "Clears all active$    effects on your $ side of the$    board$",
+            "tooltip": "Clears all active$    effects on your $ side of the$    board",
             "texture": "tornado.png",
+            "shader": "basic.vs"
+        },
+        {
+            "id": 25,
+            "weight": 1,
+            "family": "insects",
+            "name": "Insect Duplication",
+            "effect": "DUPLICATE_NEXT_INSECT",
+            "tooltip": "Duplicates the$next insect played$  this turn",
+            "texture": "insect_duplication.png",
             "shader": "basic.vs"
         }
     ]

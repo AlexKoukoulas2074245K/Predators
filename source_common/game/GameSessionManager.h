@@ -73,6 +73,7 @@ private:
     void OnBoardSideCardEffectEndedEvent(const events::BoardSideCardEffectEndedEvent&);
     void OnForceSendCardBackToPositionEvent(const events::ForceSendCardBackToPositionEvent&);
     void OnPoisonStackChangeChangeAnimationTriggerEvent(const events::PoisonStackChangeChangeAnimationTriggerEvent&);
+    glm::vec3 CalculateBoardEffectPosition(const size_t effectIndex, const size_t effectsCount, bool forRemotePlayer);
     
 private:
     enum class ProspectiveBoardCardsPushState
@@ -86,6 +87,7 @@ private:
     std::unique_ptr<GameRuleEngine> mRuleEngine;
     std::unique_ptr<GameSerializer> mGameSerializer;
     std::unique_ptr<PlayerActionGenerationEngine> mPlayerActionGenerationEngine;
+    std::vector<std::vector<std::shared_ptr<scene::SceneObject>>> mActiveIndividualCardBoardEffectSceneObjects;
     std::vector<std::vector<std::shared_ptr<CardSoWrapper>>> mPlayerHeldCardSceneObjectWrappers;
     std::vector<std::vector<std::shared_ptr<CardSoWrapper>>> mPlayerBoardCardSceneObjectWrappers;
     std::vector<std::pair<bool, std::unique_ptr<AnimatedStatContainer>>> mAnimatedStatContainers;

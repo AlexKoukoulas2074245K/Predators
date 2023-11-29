@@ -42,6 +42,8 @@ namespace game_constants
     inline const strutils::StringId BOARD_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("BOARD_SIDE_EFFECT_BOT");
     inline const strutils::StringId KILL_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME = strutils::StringId("KILL_SIDE_EFFECT_TOP");
     inline const strutils::StringId KILL_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("KILL_SIDE_EFFECT_BOT");
+    inline const strutils::StringId INSECT_DUPLICATION_EFFECT_TOP_SCENE_OBJECT_NAME = strutils::StringId("INSECT_DUPLICATION_EFFECT_TOP");
+    inline const strutils::StringId INSECT_DUPLICATION_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("INSECT_DUPLICATION_EFFECT_BOT");
 
     // Fonts
     inline const strutils::StringId DEFAULT_FONT_NAME = strutils::StringId("font");
@@ -83,7 +85,7 @@ namespace game_constants
     inline const float CARD_COMPONENT_Z_OFFSET = 0.1f;
     inline const float CARD_BOUNDING_RECT_X_MULTIPLIER = 0.5f;
     inline const float IN_GAME_PLAYED_CARD_Z = 0.1f;
-    inline const float IN_GAME_HELD_CARD_Z = 0.3f;
+    inline const float IN_GAME_HELD_CARD_Z = 1.3f;
     inline const float IN_GAME_CARD_BASE_SCALE = 0.1f;
     inline const float IN_GAME_CARD_PORTRAIT_SCALE = 0.025f;
     inline const float IN_GAME_CARD_PORTRAIT_Y_OFFSET = 0.008f;
@@ -122,16 +124,16 @@ namespace game_constants
     inline const float ACTION_HIGLIGHTER_PERLIN_TIME_SPEED = 12.595f;
     inline const float ACTION_HIGLIGHTER_PERLIN_RESOLUTION = 312.0f;
     inline const float ACTION_HIGLIGHTER_PERLIN_CLARITY = 5.23f;
-    inline const float CARD_LOCATION_EFFECT_Z = 1.0f;
+    inline const float CARD_LOCATION_EFFECT_Z = 1.5f;
     inline const float CARD_LOCATION_EFFECT_TIME_SPEED = 1.0f;
     inline const float CARD_LOCATION_EFFECT_PERLIN_RESOLUTION = 70.0f;
     inline const float TURN_POINTER_ANIMATION_DURATION_SECS = 0.33f;
-    inline const float KILL_SIDE_EFFECT_SCALE_UP_FACTOR = 1.5f;
-    inline const float KILL_SIDE_EFFECT_PULSE_ANIMATION_PULSE_DUARTION_SECS = 1.0f;
+    inline const float INDIVIDUAL_CARD_BOARD_EFFECT_SCALE_UP_FACTOR = 1.5f;
+    inline const float INDIVIDUAL_CARD_BOARD_EFFECT_PULSE_ANIMATION_PULSE_DUARTION_SECS = 1.0f;
     inline const float POISON_STACK_SHOW_HIDE_ANIMATION_DURATION_SECS = 1.0f;
     inline const float RODENTS_RESPAWN_CHANCE = 0.33f;
 
-    inline const glm::vec3 KILL_SIDE_EFFECT_SCALE = {1/20.0f, 1/20.0f, 1/20.0f};
+    inline const glm::vec3 INDIVIDUAL_CARD_BOARD_EFFECT_SCALE = {1/20.0f, 1/20.0f, 1/20.0f};
     inline const glm::vec3 TURN_POINTER_HIGHLIGHTER_SCALE = {0.06f, 0.09f, 0.8f};
     inline const glm::vec3 CARD_HIGHLIGHTER_SCALE = {0.08f, 0.13f, 1.0f};
     inline const glm::vec3 HEALTH_CRYSTAL_TOP_POSITION = {-0.118f, 0.05f, 0.1f};

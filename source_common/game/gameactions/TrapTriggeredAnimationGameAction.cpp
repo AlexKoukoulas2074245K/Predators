@@ -150,7 +150,7 @@ ActionAnimationUpdateResult TrapTriggeredAnimationGameAction::VUpdateAnimation(c
         {
             if (mExtraActionParams.at(TRAP_TRIGGER_TYPE_PARAM) == TRAP_TRIGGER_TYPE_KILL)
             {
-                events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, effects::board_modifier_masks::KILL_NEXT);
+                events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, false,  effects::board_modifier_masks::KILL_NEXT);
             }
             return ActionAnimationUpdateResult::FINISHED;
         }

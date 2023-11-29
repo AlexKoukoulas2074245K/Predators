@@ -170,10 +170,16 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
                 events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectTriggeredEvent>(mBoardState->GetActivePlayerIndex() != game_constants::REMOTE_PLAYER_INDEX, mCardBoardEffectMask);
             }
             
+            if (mBoardState->GetActivePlayerState().mBoardModifiers.mBoardModifierMask != effects::board_modifier_masks::NONE && mCardBoardEffectMask != effects::board_modifier_masks::NONE)
+            {
+                events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectTriggeredEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, mCardBoardEffectMask);
+            }
+            
             if (std::find(mEffectComponents.cbegin(), mEffectComponents.cend(), effects::EFFECT_COMPONENT_CLEAR_EFFECTS) != mEffectComponents.cend())
             {
-                events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, effects::board_modifier_masks::BOARD_SIDE_STAT_MODIFIER);
-                events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, effects::board_modifier_masks::KILL_NEXT);
+                events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, true,  effects::board_modifier_masks::BOARD_SIDE_STAT_MODIFIER);
+                events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, true,  effects::board_modifier_masks::KILL_NEXT);
+                events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, true,  effects::board_modifier_masks::DUPLICATE_NEXT_INSECT);
             }
             
             if (mAffectedCards.empty())
@@ -243,6 +249,7 @@ const std::vector<std::string>& CardEffectGameAction::VGetRequiredExtraParamName
 
 void CardEffectGameAction::HandleCardEffect(const std::string& effect)
 {
+    mCardBoardEffectMask = effects::board_modifier_masks::NONE;
     mAffectedBoardCardsStatType = AffectedStatType::NONE;
     mEffectValue = 0;
     mAffectedCards.clear();
@@ -286,6 +293,13 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
         {
             mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask |= effects::board_modifier_masks::KILL_NEXT;
             mCardBoardEffectMask = effects::board_modifier_masks::KILL_NEXT;
+        }
+        
+        // Insect Duplication component
+        else if (effectComponent == effects::EFFECT_COMPONENT_DUPLICATE_INSECT)
+        {
+            mBoardState->GetActivePlayerState().mBoardModifiers.mBoardModifierMask |= effects::board_modifier_masks::DUPLICATE_NEXT_INSECT;
+            mCardBoardEffectMask = effects::board_modifier_masks::DUPLICATE_NEXT_INSECT;
         }
         
         // Modifier/Offset value component
