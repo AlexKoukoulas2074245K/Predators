@@ -69,6 +69,7 @@ void PostNextPlayerGameAction::VSetNewGameState()
     events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX, true, effects::board_modifier_masks::BOARD_SIDE_STAT_MODIFIER);
     events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX, true, effects::board_modifier_masks::KILL_NEXT);
     events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX, true, effects::board_modifier_masks::DUPLICATE_NEXT_INSECT);
+    events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX, true, effects::board_modifier_masks::DOUBLE_NEXT_DINO_DAMAGE);
     
     events::EventSystem::GetInstance().DispatchEvent<events::WeightChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
 }

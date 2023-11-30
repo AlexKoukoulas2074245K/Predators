@@ -37,7 +37,7 @@ void InsectDuplicationGameAction::VSetNewGameState()
     assert(!activePlayerState.mPlayerBoardCards.empty());
     
     activePlayerState.mPlayerBoardCards.push_back(activePlayerState.mPlayerBoardCards.back());
-    events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, true, effects::board_modifier_masks::DUPLICATE_NEXT_INSECT);
+    events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, false, effects::board_modifier_masks::DUPLICATE_NEXT_INSECT);
 }
 
 ///------------------------------------------------------------------------------------------------

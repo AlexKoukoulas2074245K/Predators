@@ -341,7 +341,7 @@ TEST_F(GameActionTests, TestFeatheryDinoEffect)
     EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, 30);
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
-    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, 22); // Triceratops attacks
+    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, 23); // Triceratops attacks
 }
 
 TEST_F(GameActionTests, TestBearTrapEffectFollowedByGustOfWind)

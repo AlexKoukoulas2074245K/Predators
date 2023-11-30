@@ -127,7 +127,7 @@
         },
         {
             "id": 3,
-            "damage": 9,
+            "damage": 8,
             "weight": 8,
             "family": "dinosaurs",
             "name": "Brachiosaurus",
@@ -136,8 +136,8 @@
         },
         {
             "id": 14,
-            "damage": 9,
-            "weight": 8,
+            "damage": 8,
+            "weight": 7,
             "family": "dinosaurs",
             "name": "Rex",
             "texture": "rex.png",
@@ -145,7 +145,7 @@
         },
         {
             "id": 16,
-            "damage": 7,
+            "damage": 6,
             "weight": 6,
             "family": "dinosaurs",
             "name": "Stegosaurus",
@@ -154,8 +154,8 @@
         },
         {
             "id": 17,
-            "damage": 8,
-            "weight": 8,
+            "damage": 7,
+            "weight": 7,
             "family": "dinosaurs",
             "name": "Triceratops",
             "texture": "triceratops.png",
@@ -163,8 +163,8 @@
         },
         {
             "id": 5,
-            "damage": 7,
-            "weight": 6,
+            "damage": 6,
+            "weight": 5,
             "family": "dinosaurs",
             "name": "Dilophosaurus",
             "texture": "dilophosaurus.png",
@@ -248,6 +248,16 @@
             "effect": "DUPLICATE_NEXT_INSECT",
             "tooltip": "Duplicates the$next insect played$  this turn",
             "texture": "insect_duplication.png",
+            "shader": "basic.vs"
+        },
+        {
+            "id": 26,
+            "weight": 1,
+            "family": "dinosaurs",
+            "name": "Mighty Dino Roar",
+            "effect": "DOUBLE_NEXT_DINO_DAMAGE",
+            "tooltip": "Doubles the$damage of the next$dinosaur played",
+            "texture": "mighty_roar.png",
             "shader": "basic.vs"
         }
     ]

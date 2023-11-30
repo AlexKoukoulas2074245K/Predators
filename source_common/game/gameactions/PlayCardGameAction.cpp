@@ -30,6 +30,7 @@ static const strutils::StringId TRAP_TRIGGERED_ANIMATION_GAME_ACTION_NAME = stru
 static const strutils::StringId GOLDEN_CARD_PLAYED_EFFECT_GAME_ACTION_NAME = strutils::StringId("GoldenCardPlayedEffectGameAction");
 static const strutils::StringId CARD_PLAYED_PARTICLE_EFFECT_GAME_ACTION_NAME = strutils::StringId("CardPlayedParticleEffectGameAction");
 static const strutils::StringId INSECT_DUPLICATION_GAME_ACTION_NAME = strutils::StringId("InsectDuplicationGameAction");
+static const strutils::StringId NEXT_DINO_DAMAGE_DOUBLING_GAME_ACTION_NAME = strutils::StringId("NextDinoDamageDoublingGameAction");
 static const strutils::StringId CARD_PLAY_PARTICLE_NAME = strutils::StringId("card_play");
 
 static const float CARD_CAMERA_SHAKE_DURATION = 0.25f;
@@ -79,7 +80,8 @@ void PlayCardGameAction::VSetNewGameState()
     {
         if (!mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides[lastPlayedCardIndex].empty())
         {
-            mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.emplace_back(mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides[lastPlayedCardIndex]);
+            mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.resize(activePlayerState.mPlayerBoardCards.size() + 1);
+            mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides[activePlayerState.mPlayerBoardCards.size()] = mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides[lastPlayedCardIndex];
         }
         
         mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.erase(mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.begin() + lastPlayedCardIndex);
@@ -124,11 +126,19 @@ void PlayCardGameAction::VSetNewGameState()
                 { TrapTriggeredAnimationGameAction::TRAP_TRIGGER_TYPE_PARAM, TrapTriggeredAnimationGameAction::TRAP_TRIGGER_TYPE_DEBUFF }
             });
         }
+        
         if ((activePlayerState.mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::DUPLICATE_NEXT_INSECT) != 0 &&
             cardData->get().mCardFamily == game_constants::INSECTS_FAMILY_NAME)
         {
             mGameActionEngine->AddGameAction(INSECT_DUPLICATION_GAME_ACTION_NAME, {});
             activePlayerState.mBoardModifiers.mBoardModifierMask &= (~effects::board_modifier_masks::DUPLICATE_NEXT_INSECT);
+        }
+        
+        if ((activePlayerState.mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::DOUBLE_NEXT_DINO_DAMAGE) != 0 &&
+            cardData->get().mCardFamily == game_constants::DINOSAURS_FAMILY_NAME)
+        {
+            mGameActionEngine->AddGameAction(NEXT_DINO_DAMAGE_DOUBLING_GAME_ACTION_NAME, {});
+            activePlayerState.mBoardModifiers.mBoardModifierMask &= (~effects::board_modifier_masks::DOUBLE_NEXT_DINO_DAMAGE);
         }
     }
 }
@@ -143,6 +153,7 @@ void PlayCardGameAction::VInitAnimation()
     auto& activeSceneManager = CoreSystemsEngine::GetInstance().GetActiveSceneManager();
     auto activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
     const auto lastPlayedCardIndex = std::stoi(mExtraActionParams.at(LAST_PLAYED_CARD_INDEX_PARAM));
+    const auto boardCardIndex = static_cast<int>(mBoardState->GetActivePlayerState().mPlayerBoardCards.size() - 1);
     
     auto lastPlayedCardSoWrapper = mGameSessionManager->GetHeldCardSoWrappers()[mBoardState->GetActivePlayerIndex()].at(lastPlayedCardIndex);
     
@@ -165,7 +176,7 @@ void PlayCardGameAction::VInitAnimation()
             false,
             true,
             true,
-            (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.size()) > lastPlayedCardIndex ? mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.at(lastPlayedCardIndex) : CardStatOverrides()), // held card stat overrides have moved to board card stat overrides from the setstate above
+            (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.size()) > boardCardIndex ? mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.at(boardCardIndex) : CardStatOverrides()), // held card stat overrides have moved to board card stat overrides from the setstate above
             {},
             *activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE)
          );

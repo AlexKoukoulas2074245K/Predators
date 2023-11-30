@@ -44,6 +44,8 @@ namespace game_constants
     inline const strutils::StringId KILL_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("KILL_SIDE_EFFECT_BOT");
     inline const strutils::StringId INSECT_DUPLICATION_EFFECT_TOP_SCENE_OBJECT_NAME = strutils::StringId("INSECT_DUPLICATION_EFFECT_TOP");
     inline const strutils::StringId INSECT_DUPLICATION_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("INSECT_DUPLICATION_EFFECT_BOT");
+    inline const strutils::StringId NEXT_DINO_DAMAGE_DOUBLING_EFFECT_TOP_SCENE_OBJECT_NAME = strutils::StringId("NEXT_DINO_DAMAGE_DOUBLING_EFFECT_TOP");
+    inline const strutils::StringId NEXT_DINO_DAMAGE_DOUBLING_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("NEXT_DINO_DAMAGE_DOUBLING_EFFECT_BOT");
 
     // Fonts
     inline const strutils::StringId DEFAULT_FONT_NAME = strutils::StringId("font");
@@ -68,6 +70,7 @@ namespace game_constants
     // Card Family Names
     inline const strutils::StringId INSECTS_FAMILY_NAME = strutils::StringId("insects");
     inline const strutils::StringId RODENTS_FAMILY_NAME = strutils::StringId("rodents");
+    inline const strutils::StringId DINOSAURS_FAMILY_NAME = strutils::StringId("dinosaurs");
 
     // Scenes
     inline const strutils::StringId IN_GAME_BATTLE_SCENE = strutils::StringId("BATTLE");

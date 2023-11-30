@@ -136,7 +136,12 @@ bool PlayerActionGenerationEngine::ShouldWaitForFurtherActionsAfterPlayingCard(c
         cardData.IsSpell() &&
         strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_DUPLICATE_INSECT)
     ) return true;
-        
+    else if
+    (
+        cardData.IsSpell() &&
+        strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_DOUBLE_NEXT_DINO_DAMAGE)
+    ) return true;
+  
     return false;
 }
 

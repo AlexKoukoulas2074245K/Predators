@@ -60,6 +60,7 @@ static const std::string BOARD_SIDE_EFFECT_REDUCTION_TEXTURE_FILE_NAME = "board_
 static const std::string BOARD_SIDE_EFFECT_MASK_TEXTURE_FILE_NAME = "board_side_mask.png";
 static const std::string KILL_SIDE_EFFECT_TEXTURE_FILE_NAME = "trap.png";
 static const std::string INSECT_DUPLICATION_EFFECT_TEXTURE_FILE_NAME = "insect_duplication.png";
+static const std::string NEXT_DINO_DAMAGE_DOUBLING_EFFECT_TEXTURE_FILE_NAME = "mighty_roar.png";
 static const std::string INDIVIDUAL_CARD_BOARD_EFFECT_MASK_TEXTURE_FILE_NAME = "trap_mask.png";
 static const std::string BOARD_SIDE_STAT_EFFECT_SHADER_FILE_NAME = "board_side_stat_effect.vs";
 static const std::string CARD_TOOLTIP_TEXTURE_FILE_NAME = "tooltip.png";
@@ -141,7 +142,7 @@ void GameSessionManager::InitGameSession()
     mBoardState->GetPlayerStates().emplace_back();
     mBoardState->GetPlayerStates().emplace_back();
     
-    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("insects"));
+    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("dinosaurs"));
     mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));
     
     mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mGoldenCardIds = {19, 20, 21, 22};//CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));;
@@ -157,7 +158,7 @@ void GameSessionManager::InitGameSession()
     
     mRuleEngine = std::make_unique<GameRuleEngine>(mBoardState.get());
     
-    
+#define AUTO_PLAY
 //#define REPLAY_FLOW
     
 #if defined(REPLAY_FLOW)
@@ -308,6 +309,9 @@ void GameSessionManager::InitGameSession()
     // Insect Duplication Effects
     individualCardBoardEffectCreation(game_constants::INSECT_DUPLICATION_EFFECT_TOP_SCENE_OBJECT_NAME, game_constants::INSECT_DUPLICATION_EFFECT_BOT_SCENE_OBJECT_NAME, INSECT_DUPLICATION_EFFECT_TEXTURE_FILE_NAME);
     
+    // Double Dino Damage Effects
+    individualCardBoardEffectCreation(game_constants::NEXT_DINO_DAMAGE_DOUBLING_EFFECT_TOP_SCENE_OBJECT_NAME, game_constants::NEXT_DINO_DAMAGE_DOUBLING_EFFECT_BOT_SCENE_OBJECT_NAME, NEXT_DINO_DAMAGE_DOUBLING_EFFECT_TEXTURE_FILE_NAME);
+    
     // Card Tooltips
     auto tooltipSceneObject = activeScene->CreateSceneObject(CARD_TOOLTIP_SCENE_OBJECT_NAME);
     tooltipSceneObject->mScale = CARD_TOOLTIP_SCALE;
@@ -345,9 +349,12 @@ void GameSessionManager::Update(const float dtMillis)
             mPendingCardsToBePlayed.erase(mPendingCardsToBePlayed.begin());
         }
     }
-    
-    if (mActionEngine->GetActiveGameActionName() == IDLE_GAME_ACTION_NAME &&
-        mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX)
+
+#if defined(AUTO_PLAY)
+    if (mActionEngine->GetActiveGameActionName() == IDLE_GAME_ACTION_NAME)
+#else
+    if (mActionEngine->GetActiveGameActionName() == IDLE_GAME_ACTION_NAME && mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX)
+#endif
     {
         mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get());
     }
@@ -1307,6 +1314,11 @@ void GameSessionManager::OnBoardSideCardEffectTriggered(const events::BoardSideC
         {
             sideEffectSceneObject = activeScene->FindSceneObject(event.mForRemotePlayer ? game_constants::INSECT_DUPLICATION_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::INSECT_DUPLICATION_EFFECT_BOT_SCENE_OBJECT_NAME);
         }
+        else if (event.mEffectBoardModifierMask == effects::board_modifier_masks::DOUBLE_NEXT_DINO_DAMAGE)
+        {
+            sideEffectSceneObject = activeScene->FindSceneObject(event.mForRemotePlayer ? game_constants::NEXT_DINO_DAMAGE_DOUBLING_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::NEXT_DINO_DAMAGE_DOUBLING_EFFECT_BOT_SCENE_OBJECT_NAME);
+        }
+        
         assert(sideEffectSceneObject);
         
         if (!sideEffectSceneObject->mInvisible)
@@ -1376,6 +1388,10 @@ void GameSessionManager::OnBoardSideCardEffectEnded(const events::BoardSideCardE
         else if (event.mEffectBoardModifierMask == effects::board_modifier_masks::DUPLICATE_NEXT_INSECT)
         {
             sideEffectSceneObject = activeScene->FindSceneObject(event.mForRemotePlayer ? game_constants::INSECT_DUPLICATION_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::INSECT_DUPLICATION_EFFECT_BOT_SCENE_OBJECT_NAME);
+        }
+        else if (event.mEffectBoardModifierMask == effects::board_modifier_masks::DOUBLE_NEXT_DINO_DAMAGE)
+        {
+            sideEffectSceneObject = activeScene->FindSceneObject(event.mForRemotePlayer ? game_constants::NEXT_DINO_DAMAGE_DOUBLING_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::NEXT_DINO_DAMAGE_DOUBLING_EFFECT_BOT_SCENE_OBJECT_NAME);
         }
         assert(sideEffectSceneObject);
         

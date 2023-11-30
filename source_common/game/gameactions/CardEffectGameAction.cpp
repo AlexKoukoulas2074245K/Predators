@@ -165,14 +165,19 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
             
         case ActionState::AFFECTED_CARDS_SPARKLE_ANIMATION:
         {
-            if (mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask != effects::board_modifier_masks::NONE && mCardBoardEffectMask != effects::board_modifier_masks::NONE)
+            switch (mCardBoardEffectMask)
             {
-                events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectTriggeredEvent>(mBoardState->GetActivePlayerIndex() != game_constants::REMOTE_PLAYER_INDEX, mCardBoardEffectMask);
-            }
-            
-            if (mBoardState->GetActivePlayerState().mBoardModifiers.mBoardModifierMask != effects::board_modifier_masks::NONE && mCardBoardEffectMask != effects::board_modifier_masks::NONE)
-            {
-                events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectTriggeredEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, mCardBoardEffectMask);
+                case effects::board_modifier_masks::KILL_NEXT:
+                case effects::board_modifier_masks::BOARD_SIDE_STAT_MODIFIER:
+                {
+                    events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectTriggeredEvent>(mBoardState->GetActivePlayerIndex() != game_constants::REMOTE_PLAYER_INDEX, mCardBoardEffectMask);
+                } break;
+                    
+                case effects::board_modifier_masks::DUPLICATE_NEXT_INSECT:
+                case effects::board_modifier_masks::DOUBLE_NEXT_DINO_DAMAGE:
+                {
+                    events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectTriggeredEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, mCardBoardEffectMask);
+                }
             }
             
             if (std::find(mEffectComponents.cbegin(), mEffectComponents.cend(), effects::EFFECT_COMPONENT_CLEAR_EFFECTS) != mEffectComponents.cend())
@@ -180,6 +185,7 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
                 events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, true,  effects::board_modifier_masks::BOARD_SIDE_STAT_MODIFIER);
                 events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, true,  effects::board_modifier_masks::KILL_NEXT);
                 events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, true,  effects::board_modifier_masks::DUPLICATE_NEXT_INSECT);
+                events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, true,  effects::board_modifier_masks::DOUBLE_NEXT_DINO_DAMAGE);
             }
             
             if (mAffectedCards.empty())
@@ -300,6 +306,13 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
         {
             mBoardState->GetActivePlayerState().mBoardModifiers.mBoardModifierMask |= effects::board_modifier_masks::DUPLICATE_NEXT_INSECT;
             mCardBoardEffectMask = effects::board_modifier_masks::DUPLICATE_NEXT_INSECT;
+        }
+        
+        // Doubling Dino Damage component
+        else if (effectComponent == effects::EFFECT_COMPONENT_DOUBLE_NEXT_DINO_DAMAGE)
+        {
+            mBoardState->GetActivePlayerState().mBoardModifiers.mBoardModifierMask |= effects::board_modifier_masks::DOUBLE_NEXT_DINO_DAMAGE;
+            mCardBoardEffectMask = effects::board_modifier_masks::DOUBLE_NEXT_DINO_DAMAGE;
         }
         
         // Modifier/Offset value component
