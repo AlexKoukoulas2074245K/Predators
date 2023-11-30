@@ -12,6 +12,7 @@
 #include <game/gameactions/CardEffectGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/PlayCardGameAction.h>
+#include <game/gameactions/InsectDuplicationGameAction.h>
 #include <game/GameRuleEngine.h>
 #include <game/GameSessionManager.h>
 #include <engine/rendering/AnimationManager.h>
@@ -28,6 +29,7 @@ static const strutils::StringId CARD_EFFECT_GAME_ACTION_NAME = strutils::StringI
 static const strutils::StringId TRAP_TRIGGERED_ANIMATION_GAME_ACTION_NAME = strutils::StringId("TrapTriggeredAnimationGameAction");
 static const strutils::StringId GOLDEN_CARD_PLAYED_EFFECT_GAME_ACTION_NAME = strutils::StringId("GoldenCardPlayedEffectGameAction");
 static const strutils::StringId CARD_PLAYED_PARTICLE_EFFECT_GAME_ACTION_NAME = strutils::StringId("CardPlayedParticleEffectGameAction");
+static const strutils::StringId INSECT_DUPLICATION_GAME_ACTION_NAME = strutils::StringId("InsectDuplicationGameAction");
 static const strutils::StringId CARD_PLAY_PARTICLE_NAME = strutils::StringId("card_play");
 
 static const float CARD_CAMERA_SHAKE_DURATION = 0.25f;
@@ -112,13 +114,21 @@ void PlayCardGameAction::VSetNewGameState()
                 { TrapTriggeredAnimationGameAction::TRAP_TRIGGER_TYPE_PARAM, TrapTriggeredAnimationGameAction::TRAP_TRIGGER_TYPE_KILL }
             });
             activePlayerState.mBoardModifiers.mBoardModifierMask &= (~effects::board_modifier_masks::KILL_NEXT);
+            return;
         }
-        else if ((activePlayerState.mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::BOARD_SIDE_STAT_MODIFIER) != 0)
+        
+        if ((activePlayerState.mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::BOARD_SIDE_STAT_MODIFIER) != 0)
         {
             mGameActionEngine->AddGameAction(TRAP_TRIGGERED_ANIMATION_GAME_ACTION_NAME,
             {
                 { TrapTriggeredAnimationGameAction::TRAP_TRIGGER_TYPE_PARAM, TrapTriggeredAnimationGameAction::TRAP_TRIGGER_TYPE_DEBUFF }
             });
+        }
+        if ((activePlayerState.mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::DUPLICATE_NEXT_INSECT) != 0 &&
+            cardData->get().mCardFamily == game_constants::INSECTS_FAMILY_NAME)
+        {
+            mGameActionEngine->AddGameAction(INSECT_DUPLICATION_GAME_ACTION_NAME, {});
+            activePlayerState.mBoardModifiers.mBoardModifierMask &= (~effects::board_modifier_masks::DUPLICATE_NEXT_INSECT);
         }
     }
 }

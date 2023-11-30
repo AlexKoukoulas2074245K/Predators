@@ -170,6 +170,23 @@ public:
 
 ///------------------------------------------------------------------------------------------------
 
+class NewBoardCardCreatedEvent final
+{
+public:
+    NewBoardCardCreatedEvent(const std::shared_ptr<CardSoWrapper> cardSoWrapper, const int cardIndex, const bool forRemotePlayer)
+    : mCardSoWrapper(cardSoWrapper)
+    , mCardIndex(cardIndex)
+    , mForRemotePlayer(forRemotePlayer)
+    {
+    }
+    
+    const std::shared_ptr<CardSoWrapper> mCardSoWrapper;
+    const int mCardIndex;
+    const bool mForRemotePlayer;
+};
+
+///------------------------------------------------------------------------------------------------
+
 class LastCardPlayedFinalizedEvent final
 {
 public:

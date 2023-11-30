@@ -14,6 +14,7 @@
 #include <game/gameactions/GameOverGameAction.h>
 #include <game/gameactions/GoldenCardPlayedEffectGameAction.h>
 #include <game/gameactions/IdleGameAction.h>
+#include <game/gameactions/InsectDuplicationGameAction.h>
 #include <game/gameactions/NextPlayerGameAction.h>
 #include <game/gameactions/PlayCardGameAction.h>
 #include <game/gameactions/PoisonStackApplicationGameAction.h>
@@ -52,6 +53,7 @@ void GameActionFactory::RegisterGameActions()
     REGISTER_ACTION(GoldenCardPlayedEffectGameAction);
     REGISTER_ACTION(PoisonStackApplicationGameAction);
     REGISTER_ACTION(RodentsDigAnimationGameAction);
+    REGISTER_ACTION(InsectDuplicationGameAction);
     std::sort(REGISTERED_ACTION_NAMES.begin(), REGISTERED_ACTION_NAMES.end(), [&](const strutils::StringId& lhs, const strutils::StringId& rhs)
     {
         return lhs.GetString() < rhs.GetString();
@@ -83,6 +85,7 @@ std::unique_ptr<BaseGameAction> GameActionFactory::CreateGameAction(const struti
     ACTION_CASE(GoldenCardPlayedEffectGameAction);
     ACTION_CASE(PoisonStackApplicationGameAction);
     ACTION_CASE(RodentsDigAnimationGameAction);
+    ACTION_CASE(InsectDuplicationGameAction);
     assert(false && "Invalid game action name");
     return nullptr;
 }

@@ -66,13 +66,14 @@ private:
     void OnCardCreation(const events::CardCreationEvent& event);
     void OnCardBuffedDebuffed(const events::CardBuffedDebuffedEvent& event);
     void OnHeldCardSwap(const events::HeldCardSwapEvent& event);
+    void OnNewBoardCardCreated(const events::NewBoardCardCreatedEvent& event);
     void OnLastCardPlayedFinalized(const events::LastCardPlayedFinalizedEvent& event);
-    void OnHealthChangeAnimationTriggerEvent(const events::HealthChangeAnimationTriggerEvent&);
-    void OnWeightChangeAnimationTriggerEvent(const events::WeightChangeAnimationTriggerEvent&);
-    void OnBoardSideCardEffectTriggeredEvent(const events::BoardSideCardEffectTriggeredEvent&);
-    void OnBoardSideCardEffectEndedEvent(const events::BoardSideCardEffectEndedEvent&);
-    void OnForceSendCardBackToPositionEvent(const events::ForceSendCardBackToPositionEvent&);
-    void OnPoisonStackChangeChangeAnimationTriggerEvent(const events::PoisonStackChangeChangeAnimationTriggerEvent&);
+    void OnHealthChangeAnimationTrigger(const events::HealthChangeAnimationTriggerEvent&);
+    void OnWeightChangeAnimationTrigger(const events::WeightChangeAnimationTriggerEvent&);
+    void OnBoardSideCardEffectTriggered(const events::BoardSideCardEffectTriggeredEvent&);
+    void OnBoardSideCardEffectEnded(const events::BoardSideCardEffectEndedEvent&);
+    void OnForceSendCardBackToPosition(const events::ForceSendCardBackToPositionEvent&);
+    void OnPoisonStackChangeChangeAnimationTrigger(const events::PoisonStackChangeChangeAnimationTriggerEvent&);
     glm::vec3 CalculateBoardEffectPosition(const size_t effectIndex, const size_t effectsCount, bool forRemotePlayer);
     
 private:

@@ -999,13 +999,14 @@ void GameSessionManager::RegisterForEvents()
     eventSystem.RegisterForEvent<events::CardCreationEvent>(this, &GameSessionManager::OnCardCreation);
     eventSystem.RegisterForEvent<events::CardBuffedDebuffedEvent>(this, &GameSessionManager::OnCardBuffedDebuffed);
     eventSystem.RegisterForEvent<events::HeldCardSwapEvent>(this, &GameSessionManager::OnHeldCardSwap);
+    eventSystem.RegisterForEvent<events::NewBoardCardCreatedEvent>(this, &GameSessionManager::OnNewBoardCardCreated);
     eventSystem.RegisterForEvent<events::LastCardPlayedFinalizedEvent>(this, &GameSessionManager::OnLastCardPlayedFinalized);
-    eventSystem.RegisterForEvent<events::HealthChangeAnimationTriggerEvent>(this, &GameSessionManager::OnHealthChangeAnimationTriggerEvent);
-    eventSystem.RegisterForEvent<events::WeightChangeAnimationTriggerEvent>(this, &GameSessionManager::OnWeightChangeAnimationTriggerEvent);
-    eventSystem.RegisterForEvent<events::BoardSideCardEffectTriggeredEvent>(this, &GameSessionManager::OnBoardSideCardEffectTriggeredEvent);
-    eventSystem.RegisterForEvent<events::BoardSideCardEffectEndedEvent>(this, &GameSessionManager::OnBoardSideCardEffectEndedEvent);
-    eventSystem.RegisterForEvent<events::ForceSendCardBackToPositionEvent>(this, &GameSessionManager::OnForceSendCardBackToPositionEvent);
-    eventSystem.RegisterForEvent<events::PoisonStackChangeChangeAnimationTriggerEvent>(this, &GameSessionManager::OnPoisonStackChangeChangeAnimationTriggerEvent);
+    eventSystem.RegisterForEvent<events::HealthChangeAnimationTriggerEvent>(this, &GameSessionManager::OnHealthChangeAnimationTrigger);
+    eventSystem.RegisterForEvent<events::WeightChangeAnimationTriggerEvent>(this, &GameSessionManager::OnWeightChangeAnimationTrigger);
+    eventSystem.RegisterForEvent<events::BoardSideCardEffectTriggeredEvent>(this, &GameSessionManager::OnBoardSideCardEffectTriggered);
+    eventSystem.RegisterForEvent<events::BoardSideCardEffectEndedEvent>(this, &GameSessionManager::OnBoardSideCardEffectEnded);
+    eventSystem.RegisterForEvent<events::ForceSendCardBackToPositionEvent>(this, &GameSessionManager::OnForceSendCardBackToPosition);
+    eventSystem.RegisterForEvent<events::PoisonStackChangeChangeAnimationTriggerEvent>(this, &GameSessionManager::OnPoisonStackChangeChangeAnimationTrigger);
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -1193,6 +1194,31 @@ void GameSessionManager::OnHeldCardSwap(const events::HeldCardSwapEvent& event)
 
 ///------------------------------------------------------------------------------------------------
 
+void GameSessionManager::OnNewBoardCardCreated(const events::NewBoardCardCreatedEvent& event)
+{
+    auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+    auto& playerBoardCardSoWrappers = mPlayerBoardCardSceneObjectWrappers[event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX];
+    
+    playerBoardCardSoWrappers.push_back(event.mCardSoWrapper);
+    
+    const auto& boardCards = mBoardState->GetPlayerStates().at(mBoardState->GetActivePlayerIndex()).mPlayerBoardCards;
+    const auto& deadBoardCardIndices = mBoardState->GetPlayerStates().at(mBoardState->GetActivePlayerIndex()).mBoardCardIndicesToDestroy;
+    const auto& boardCardCount = card_utils::CalculateNonDeadCardsCount(boardCards, deadBoardCardIndices);
+    
+    // Animate and rename board cards to position. Last one will be animated externally
+    for (int i = 0; i < boardCardCount; ++i)
+    {
+        auto& currentCardSoWrapper = playerBoardCardSoWrappers.at(i);
+        if (i !=  boardCardCount - 1)
+        {
+            auto originalCardPosition = card_utils::CalculateBoardCardPosition(i, boardCardCount, mBoardState->GetActivePlayerIndex() == 0);
+            animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(currentCardSoWrapper->mSceneObject, originalCardPosition, currentCardSoWrapper->mSceneObject->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){});
+        }
+    }
+}
+
+///------------------------------------------------------------------------------------------------
+
 void GameSessionManager::OnLastCardPlayedFinalized(const events::LastCardPlayedFinalizedEvent& event)
 {
     const auto& activeSceneManager = CoreSystemsEngine::GetInstance().GetActiveSceneManager();
@@ -1243,21 +1269,21 @@ void GameSessionManager::OnLastCardPlayedFinalized(const events::LastCardPlayedF
 
 ///------------------------------------------------------------------------------------------------
 
-void GameSessionManager::OnHealthChangeAnimationTriggerEvent(const events::HealthChangeAnimationTriggerEvent& event)
+void GameSessionManager::OnHealthChangeAnimationTrigger(const events::HealthChangeAnimationTriggerEvent& event)
 {
     mAnimatedStatContainers[event.mForRemotePlayer ? 0 : 1].first = true;
 }
 
 ///------------------------------------------------------------------------------------------------
 
-void GameSessionManager::OnWeightChangeAnimationTriggerEvent(const events::WeightChangeAnimationTriggerEvent& event)
+void GameSessionManager::OnWeightChangeAnimationTrigger(const events::WeightChangeAnimationTriggerEvent& event)
 {
     mAnimatedStatContainers[event.mForRemotePlayer ? 2 : 3].first = true;
 }
 
 ///------------------------------------------------------------------------------------------------
 
-void GameSessionManager::OnBoardSideCardEffectTriggeredEvent(const events::BoardSideCardEffectTriggeredEvent& event)
+void GameSessionManager::OnBoardSideCardEffectTriggered(const events::BoardSideCardEffectTriggeredEvent& event)
 {
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
     auto& animationManager = systemsEngine.GetAnimationManager();
@@ -1327,7 +1353,7 @@ void GameSessionManager::OnBoardSideCardEffectTriggeredEvent(const events::Board
 
 ///------------------------------------------------------------------------------------------------
 
-void GameSessionManager::OnBoardSideCardEffectEndedEvent(const events::BoardSideCardEffectEndedEvent& event)
+void GameSessionManager::OnBoardSideCardEffectEnded(const events::BoardSideCardEffectEndedEvent& event)
 {
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
     auto& animationManager = systemsEngine.GetAnimationManager();
@@ -1392,7 +1418,7 @@ void GameSessionManager::OnBoardSideCardEffectEndedEvent(const events::BoardSide
 
 ///------------------------------------------------------------------------------------------------
 
-void GameSessionManager::OnForceSendCardBackToPositionEvent(const events::ForceSendCardBackToPositionEvent& event)
+void GameSessionManager::OnForceSendCardBackToPosition(const events::ForceSendCardBackToPositionEvent& event)
 {
     const auto& activeSceneManager = CoreSystemsEngine::GetInstance().GetActiveSceneManager();
     auto activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
@@ -1426,7 +1452,7 @@ void GameSessionManager::OnForceSendCardBackToPositionEvent(const events::ForceS
 
 ///------------------------------------------------------------------------------------------------
 
-void GameSessionManager::OnPoisonStackChangeChangeAnimationTriggerEvent(const events::PoisonStackChangeChangeAnimationTriggerEvent& event)
+void GameSessionManager::OnPoisonStackChangeChangeAnimationTrigger(const events::PoisonStackChangeChangeAnimationTriggerEvent& event)
 {
     auto& affectedContainerEntry = mAnimatedStatContainers[event.mForRemotePlayer ? 4 : 5];
     affectedContainerEntry.first = true;

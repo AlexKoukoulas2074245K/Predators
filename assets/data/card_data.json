@@ -83,7 +83,7 @@
         {
             "id": 1,
             "damage": 2,
-            "weight": 0,
+            "weight": 2,
             "family": "insects",
             "name": "Bee",
             "texture": "bee.png",
