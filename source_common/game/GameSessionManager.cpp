@@ -141,8 +141,8 @@ void GameSessionManager::InitGameSession()
     mBoardState->GetPlayerStates().emplace_back();
     mBoardState->GetPlayerStates().emplace_back();
     
-    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = {21,22}; CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("insects"));
-    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = {1,25}; CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));
+    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("insects"));
+    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));
     
     mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mGoldenCardIds = {19, 20, 21, 22};//CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));;
     

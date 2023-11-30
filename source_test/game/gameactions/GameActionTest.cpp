@@ -360,14 +360,37 @@ TEST_F(GameActionTests, TestBearTrapEffectFollowedByGustOfWind)
     mBoardState->GetPlayerStates()[1].mPlayerHeldCards = {24, 4};
     
     mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Gust of Wind is played
-    
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Bunny is played
     UpdateUntilActionOrIdle(CARD_DESTRUCTION_GAME_ACTION_NAME);
     EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, 29); // Bunny is not killed due to Gust of Windw clearing the bear trap and attacks
 }
 
+TEST_F(GameActionTests, TestInsectDuplicationEffect)
+{
+    mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {25, 1}; // Top player has a deck of Insect Duplications and Bees
+    
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = 3;
+    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = 3;
+    mBoardState->GetPlayerStates()[0].mPlayerHeldCards = {25, 1};
+    
+    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Insect Duplication is played
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Bee is played
+    
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(DRAW_CARD_GAME_ACTION_NAME);
+    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, 24); // 2 Bees attack instead of 1
+}
+
 void GameActionTests::SimulateBattle(strutils::StringId topDeckFamilyName /*= strutils::StringId()*/, strutils::StringId botDeckFamilyName /*= strutils::StringId()*/)
 {
-    constexpr int GAME_COUNT = 10000;
+    constexpr int GAME_COUNT = 1000;
     constexpr int PROGRESS_INCREMENTS = GAME_COUNT/100;
     
     std::stringstream statistics;

@@ -95,6 +95,10 @@ void PlayerActionGenerationEngine::DecideAndPushNextActions(BoardState* currentB
             iter = currentHeldCardsCopySorted.erase(iter);
             
             shouldWaitForFurtherActions = ShouldWaitForFurtherActionsAfterPlayingCard(*cardData);
+            if (shouldWaitForFurtherActions)
+            {
+                break;
+            }
         }
         else
         {
