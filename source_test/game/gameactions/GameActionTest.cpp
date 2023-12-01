@@ -341,7 +341,7 @@ TEST_F(GameActionTests, TestFeatheryDinoEffect)
     EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, 30);
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
-    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, 23); // Triceratops attacks
+    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, 24); // Triceratops attacks
 }
 
 TEST_F(GameActionTests, TestBearTrapEffectFollowedByGustOfWind)
@@ -414,7 +414,7 @@ TEST_F(GameActionTests, TestToxicWaveAndInsectDuplicationEffect)
 
 TEST_F(GameActionTests, TestMightyDinoRoarEffect)
 {
-    mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {26, 5}; // Top player has a deck of Mighty Dino Roars (w=2) and  Dilophosaurus (d=6,w=5)
+    mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {26, 5}; // Top player has a deck of Mighty Dino Roars (w=2) and  Dilophosaurus (d=5,w=4)
     
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
@@ -431,12 +431,12 @@ TEST_F(GameActionTests, TestMightyDinoRoarEffect)
     
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     UpdateUntilActionOrIdle(DRAW_CARD_GAME_ACTION_NAME);
-    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, 12); // First dilophosaurus has double attack, the second one has normal attack
+    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, 15); // First dilophosaurus has double attack, the second one has normal attack
 }
 
 TEST_F(GameActionTests, TestDinoMultiBuff)
 {
-    mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {23, 28, 5}; // Top player has a deck of Feathery Dinos, Metal Claws and Dilophosaurus (d=6,w=5)
+    mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {23, 28, 5}; // Top player has a deck of Feathery Dinos, Metal Claws and Dilophosaurus (d=5,w=4)
     
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
@@ -453,7 +453,7 @@ TEST_F(GameActionTests, TestDinoMultiBuff)
     
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     UpdateUntilActionOrIdle(DRAW_CARD_GAME_ACTION_NAME);
-    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, 22); // Dilophosaurus can be played due to reduced weight cost and also has +2 attack due to Metal Claws
+    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, 23); // Dilophosaurus can be played due to reduced weight cost and also has +2 attack due to Metal Claws
 }
 
 TEST_F(GameActionTests, TestBuffedDugOutRodentsHaveCorrectModifiersPostClearingNetWithGustOfWind)
@@ -745,6 +745,7 @@ TEST_F(GameActionTests, BattleSimulation)
         for (const auto& rhsFamily: battleCombinationEntry.second)
         {
             SimulateBattle(battleCombinationEntry.first, rhsFamily);
+            SimulateBattle(rhsFamily, battleCombinationEntry.first);
         }
     }
 }
