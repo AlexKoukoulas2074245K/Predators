@@ -30,9 +30,16 @@ private:
     bool IsCardHighPriority(const CardData& cardData) const;
     
 private:
+    struct LastPlayedCardData
+    {
+        int mPlayerIndex = -1;
+        int mCardId = -1;
+    };
+    
     GameRuleEngine* mGameRuleEngine;
     GameActionEngine* mGameActionEngine;
     const ActionGenerationType mActionGenerationType;
+    LastPlayedCardData mLastPlayedCard;
 };
 
 ///------------------------------------------------------------------------------------------------

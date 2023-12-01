@@ -49,6 +49,9 @@ void PlayerActionGenerationEngine::DecideAndPushNextActions(BoardState* currentB
         bool isLhsCardHighPriority = IsCardHighPriority(cardDataLhs);
         bool isRhsCardHighPriority = IsCardHighPriority(cardDataRhs);
         
+        isLhsCardHighPriority &= (cardDataLhs.mCardId != mLastPlayedCard.mCardId || boardStateCopy.GetActivePlayerIndex() != mLastPlayedCard.mPlayerIndex);
+        isRhsCardHighPriority &= (cardDataRhs.mCardId != mLastPlayedCard.mCardId || boardStateCopy.GetActivePlayerIndex() != mLastPlayedCard.mPlayerIndex);
+        
         if (isLhsCardHighPriority && isRhsCardHighPriority)
         {
             return lhs < rhs;
@@ -80,6 +83,8 @@ void PlayerActionGenerationEngine::DecideAndPushNextActions(BoardState* currentB
             assert(originalHeldCardIter != currentHeldCards.cend());
             
             mGameActionEngine->AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, std::to_string(cardIndex)}});
+            mLastPlayedCard.mCardId = *iter;
+            mLastPlayedCard.mPlayerIndex = boardStateCopy.GetActivePlayerIndex();
             
             // Simulate card play effects on copy of board state
             auto cardWeight = cardData->mCardWeight;
