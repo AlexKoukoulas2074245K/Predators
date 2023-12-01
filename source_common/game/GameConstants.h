@@ -87,8 +87,8 @@ namespace game_constants
     inline constexpr int IN_GAME_CARD_PUSH_THRESHOLD = 4;
     inline constexpr int BOARD_SIDE_EFFECT_VALUE_SO_COUNT = 2;
     inline constexpr int CARD_TOOLTIP_TEXT_ROWS_COUNT = 4;
-    inline constexpr int TOP_PLAYER_DEFAULT_HEALTH = 30;
-    inline constexpr int BOT_PLAYER_DEFAULT_HEALTH = 33;
+    inline constexpr int TOP_PLAYER_DEFAULT_HEALTH = 33;
+    inline constexpr int BOT_PLAYER_DEFAULT_HEALTH = 35;
 
     inline const float CARD_COMPONENT_Z_OFFSET = 0.1f;
     inline const float CARD_BOUNDING_RECT_X_MULTIPLIER = 0.5f;
@@ -139,7 +139,7 @@ namespace game_constants
     inline const float INDIVIDUAL_CARD_BOARD_EFFECT_SCALE_UP_FACTOR = 1.5f;
     inline const float INDIVIDUAL_CARD_BOARD_EFFECT_PULSE_ANIMATION_PULSE_DUARTION_SECS = 1.0f;
     inline const float POISON_STACK_SHOW_HIDE_ANIMATION_DURATION_SECS = 1.0f;
-    inline const float RODENTS_RESPAWN_CHANCE = 0.33f;
+    inline const float RODENTS_RESPAWN_CHANCE = 0.4f;
 
     inline const glm::vec3 INDIVIDUAL_CARD_BOARD_EFFECT_SCALE = {1/20.0f, 1/20.0f, 1/20.0f};
     inline const glm::vec3 TURN_POINTER_HIGHLIGHTER_SCALE = {0.06f, 0.09f, 0.8f};

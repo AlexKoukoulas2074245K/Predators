@@ -266,10 +266,9 @@ TEST_F(GameActionTests, TestNetAndFluffAttackCombinedEffects)
     mBoardState->GetPlayerStates()[1].mPlayerCurrentWeightAmmo = 5;
     mBoardState->GetPlayerStates()[1].mPlayerHeldCards = {19,0};
     
-    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Beaver and Fluff Attack are played
-    
-    UpdateUntilActionOrIdle(CARD_EFFECT_GAME_ACTION_NAME);
-    EXPECT_EQ(mActionEngine->GetActiveGameActionName(), CARD_EFFECT_GAME_ACTION_NAME); // Make sure the next stop is at Card Effect (for fluff attack) (not IdleGameAction)
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Fluff Attack is played
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Beaver is played
     
     EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, 30);
     
@@ -328,11 +327,10 @@ TEST_F(GameActionTests, TestDoubleNetAndFluffAttackCombinedEffects)
     mBoardState->GetPlayerStates()[1].mPlayerCurrentWeightAmmo = 5;
     mBoardState->GetPlayerStates()[1].mPlayerHeldCards = {19,0};
     
-    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Beaver and Fluff Attack are played
-    
-    UpdateUntilActionOrIdle(CARD_EFFECT_GAME_ACTION_NAME);
-    EXPECT_EQ(mActionEngine->GetActiveGameActionName(), CARD_EFFECT_GAME_ACTION_NAME); // Make sure the next stop is at Card Effect (for fluff attack) (not IdleGameAction)
-    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Fluff Attack is played
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Beaver is played
+   
     EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, 30);
     
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
@@ -485,7 +483,10 @@ TEST_F(GameActionTests, TestDinoMultiBuff)
     mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Feathery Dino is played
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
     
-    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Dilophosaurus -> Metal Claws are played
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Metal Claws are played
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Dilophosaurus is played
     
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     UpdateUntilActionOrIdle(DRAW_CARD_GAME_ACTION_NAME);
@@ -513,7 +514,10 @@ TEST_F(GameActionTests, TestBuffedDugOutRodentsHaveCorrectModifiersPostClearingN
         mBoardState->GetPlayerStates()[1].mPlayerCurrentWeightAmmo = 6;
         mBoardState->GetPlayerStates()[1].mPlayerHeldCards = {4, 15, 19};
         
-        mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Squirrel, Bunny followed by Fluff Attack are played
+        mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Fluff Attack is played
+        UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+        mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Squirrel and Bunny are played
+        
         UpdateUntilActionOrIdle(DRAW_CARD_GAME_ACTION_NAME);
         
         if (mBoardState->GetPlayerStates()[1].mPlayerBoardCards.size() == 2 && mBoardState->GetPlayerStates()[0].mPlayerHealth == 23) // We want both rodents to have dug

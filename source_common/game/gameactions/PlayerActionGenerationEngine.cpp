@@ -49,8 +49,11 @@ void PlayerActionGenerationEngine::DecideAndPushNextActions(BoardState* currentB
         bool isLhsCardHighPriority = IsCardHighPriority(cardDataLhs);
         bool isRhsCardHighPriority = IsCardHighPriority(cardDataRhs);
         
-        isLhsCardHighPriority &= (cardDataLhs.mCardId != mLastPlayedCard.mCardId || boardStateCopy.GetActivePlayerIndex() != mLastPlayedCard.mPlayerIndex);
-        isRhsCardHighPriority &= (cardDataRhs.mCardId != mLastPlayedCard.mCardId || boardStateCopy.GetActivePlayerIndex() != mLastPlayedCard.mPlayerIndex);
+        if (mActionGenerationType == ActionGenerationType::OPTIMISED)
+        {
+            isLhsCardHighPriority &= (cardDataLhs.mCardId != mLastPlayedCard.mCardId || boardStateCopy.GetActivePlayerIndex() != mLastPlayedCard.mPlayerIndex);
+            isRhsCardHighPriority &= (cardDataRhs.mCardId != mLastPlayedCard.mCardId || boardStateCopy.GetActivePlayerIndex() != mLastPlayedCard.mPlayerIndex);
+        }
         
         if (isLhsCardHighPriority && isRhsCardHighPriority)
         {
@@ -124,24 +127,20 @@ bool PlayerActionGenerationEngine::IsCardHighPriority(const CardData& cardData) 
 {
     if (
         cardData.IsSpell() &&
-        strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_DRAW) &&
-        (math::ControlledRandomInt(0, 1) == 1 || mActionGenerationType != ActionGenerationType::OPTIMISED)
+        strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_DRAW)
     ) return true;
     
     else if
     (
         cardData.IsSpell() &&
-        strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_WEIGHT) &&
         strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_FAMILY) &&
-        strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_HELD) &&
-        !strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_BOARD)
+        strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_HELD)
     ) return true;
     
     else if
     (
         cardData.IsSpell() &&
-        strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_CLEAR_EFFECTS) &&
-        (math::ControlledRandomInt(0, 1) == 1 || mActionGenerationType != ActionGenerationType::OPTIMISED)
+        strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_CLEAR_EFFECTS)
     ) return true;
     
     else if
