@@ -272,11 +272,11 @@
         },
         {
             "id": 28,
-            "weight": 1,
+            "weight": 0,
             "family": "dinosaurs",
             "name": "Metal Claws",
-            "effect": "DAMAGE +2 FAMILY BOARD HELD",
-            "tooltip": "Damage +2 for$ALL Dinosaurs on$hand & board",
+            "effect": "DAMAGE +1 FAMILY BOARD HELD",
+            "tooltip": "Damage +1 for$ALL Dinosaurs on$hand & board",
             "texture": "metal_claw.png",
             "shader": "basic.vs"
         }

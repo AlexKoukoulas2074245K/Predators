@@ -475,8 +475,8 @@ TEST_F(GameActionTests, TestDinoMultiBuff)
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
     
-    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = 5;
-    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = 5;
+    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = 4;
+    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = 4;
     mBoardState->GetPlayerStates()[0].mPlayerHeldCards = {23, 28, 5};
     
     
@@ -490,7 +490,7 @@ TEST_F(GameActionTests, TestDinoMultiBuff)
     
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     UpdateUntilActionOrIdle(DRAW_CARD_GAME_ACTION_NAME);
-    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, 23); // Dilophosaurus can be played due to reduced weight cost and also has +2 attack due to Metal Claws
+    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, 24); // Dilophosaurus can be played due to reduced weight cost and also has +2 attack due to Metal Claws
 }
 
 TEST_F(GameActionTests, TestBuffedDugOutRodentsHaveCorrectModifiersPostClearingNetWithGustOfWind)
