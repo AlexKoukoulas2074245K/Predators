@@ -11,6 +11,7 @@
 #include <engine/resloading/TextureResource.h>
 #include <engine/utils/OSMessageBox.h>
 #include <game/Cards.h>
+#include <game/GameConstants.h>
 #include <nlohmann/json.hpp>
 
 ///------------------------------------------------------------------------------------------------
@@ -126,6 +127,8 @@ void CardDataRepository::LoadCardData(bool loadCardAssets)
         {
             cardData.mCardEffect = cardObject["effect"].get<std::string>();
             cardData.mCardEffectTooltip = cardObject["tooltip"].get<std::string>();
+            
+            assert(strutils::StringSplit(cardData.mCardEffectTooltip, '$').size() <= game_constants::CARD_TOOLTIP_TEXT_ROWS_COUNT);
         }
         
         // Optional particle effect
@@ -148,7 +151,7 @@ void CardDataRepository::LoadCardData(bool loadCardAssets)
             cardData.mCardTextureResourceId = resourceService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + cardObject["texture"].get<std::string>());
             cardData.mCardShaderResourceId = resourceService.LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + cardObject["shader"].get<std::string>());
         }
-        
+            
         assert(!mCardDataMap.count(cardData.mCardId));
         mCardDataMap[cardData.mCardId] = cardData;
     }

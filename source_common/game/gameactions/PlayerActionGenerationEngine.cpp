@@ -21,9 +21,10 @@ static const strutils::StringId NEXT_PLAYER_GAME_ACTION_NAME = strutils::StringI
 
 ///------------------------------------------------------------------------------------------------
 
-PlayerActionGenerationEngine::PlayerActionGenerationEngine(GameRuleEngine* gameRuleEngine, GameActionEngine* gameActionEngine)
+PlayerActionGenerationEngine::PlayerActionGenerationEngine(GameRuleEngine* gameRuleEngine, GameActionEngine* gameActionEngine, ActionGenerationType actionGenerationType)
     : mGameRuleEngine(gameRuleEngine)
     , mGameActionEngine(gameActionEngine)
+    , mActionGenerationType(actionGenerationType)
 {
     
 }
@@ -45,18 +46,18 @@ void PlayerActionGenerationEngine::DecideAndPushNextActions(BoardState* currentB
         auto& cardDataLhs = cardRepository.GetCardData(lhs)->get();
         auto& cardDataRhs = cardRepository.GetCardData(rhs)->get();
         
-        bool shouldWaitForFurtherActionsAfterPlayingLhs = ShouldWaitForFurtherActionsAfterPlayingCard(cardDataLhs);
-        bool shouldWaitForFurtherActionsAfterPlayingRhs = ShouldWaitForFurtherActionsAfterPlayingCard(cardDataRhs);
+        bool isLhsCardHighPriority = IsCardHighPriority(cardDataLhs);
+        bool isRhsCardHighPriority = IsCardHighPriority(cardDataRhs);
         
-        if (shouldWaitForFurtherActionsAfterPlayingLhs && shouldWaitForFurtherActionsAfterPlayingRhs)
+        if (isLhsCardHighPriority && isRhsCardHighPriority)
         {
             return lhs < rhs;
         }
-        else if (shouldWaitForFurtherActionsAfterPlayingLhs && !shouldWaitForFurtherActionsAfterPlayingRhs)
+        else if (isLhsCardHighPriority && !isRhsCardHighPriority)
         {
             return true;
         }
-        else if (!shouldWaitForFurtherActionsAfterPlayingLhs && shouldWaitForFurtherActionsAfterPlayingRhs)
+        else if (!isLhsCardHighPriority && isRhsCardHighPriority)
         {
             return false;
         }
@@ -94,7 +95,7 @@ void PlayerActionGenerationEngine::DecideAndPushNextActions(BoardState* currentB
             currentHeldCards.erase(originalHeldCardIter);
             iter = currentHeldCardsCopySorted.erase(iter);
             
-            shouldWaitForFurtherActions = ShouldWaitForFurtherActionsAfterPlayingCard(*cardData);
+            shouldWaitForFurtherActions = IsCardHighPriority(*cardData);
             if (shouldWaitForFurtherActions)
             {
                 break;
@@ -114,10 +115,14 @@ void PlayerActionGenerationEngine::DecideAndPushNextActions(BoardState* currentB
 
 ///------------------------------------------------------------------------------------------------
 
-bool PlayerActionGenerationEngine::ShouldWaitForFurtherActionsAfterPlayingCard(const CardData& cardData) const
+bool PlayerActionGenerationEngine::IsCardHighPriority(const CardData& cardData) const
 {
-    if (cardData.IsSpell() && strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_DRAW))
-        return true;
+    if (
+        cardData.IsSpell() &&
+        strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_DRAW) &&
+        (math::ControlledRandomInt(0, 1) == 1 || mActionGenerationType != ActionGenerationType::OPTIMISED)
+    ) return true;
+    
     else if
     (
         cardData.IsSpell() &&
@@ -126,22 +131,32 @@ bool PlayerActionGenerationEngine::ShouldWaitForFurtherActionsAfterPlayingCard(c
         strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_HELD) &&
         !strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_BOARD)
     ) return true;
+    
     else if
     (
         cardData.IsSpell() &&
-        strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_CLEAR_EFFECTS)
+        strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_CLEAR_EFFECTS) &&
+        (math::ControlledRandomInt(0, 1) == 1 || mActionGenerationType != ActionGenerationType::OPTIMISED)
     ) return true;
+    
     else if
     (
         cardData.IsSpell() &&
         strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_DUPLICATE_INSECT)
     ) return true;
+    
     else if
     (
         cardData.IsSpell() &&
         strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_DOUBLE_NEXT_DINO_DAMAGE)
     ) return true;
-  
+    
+    else if
+    (
+        cardData.IsSpell() &&
+        strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_DOUBLE_POISON_ATTACKS)
+    ) return true;
+    
     return false;
 }
 

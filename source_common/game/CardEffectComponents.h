@@ -28,6 +28,7 @@ namespace board_modifier_masks
     static constexpr EffectBoardModifierMask BOARD_SIDE_DEBUFF = 0x2;
     static constexpr EffectBoardModifierMask DUPLICATE_NEXT_INSECT = 0x4;
     static constexpr EffectBoardModifierMask DOUBLE_NEXT_DINO_DAMAGE = 0x8;
+    static constexpr EffectBoardModifierMask DOUBLE_POISON_ATTACKS = 0x10;
 };
 
 
@@ -43,6 +44,7 @@ inline const std::string EFFECT_COMPONENT_HELD                    = "HELD";
 inline const std::string EFFECT_COMPONENT_DUPLICATE_INSECT        = "DUPLICATE_NEXT_INSECT";
 inline const std::string EFFECT_COMPONENT_CLEAR_EFFECTS           = "CLEAR_EFFECTS";
 inline const std::string EFFECT_COMPONENT_DOUBLE_NEXT_DINO_DAMAGE = "DOUBLE_NEXT_DINO_DAMAGE";
+inline const std::string EFFECT_COMPONENT_DOUBLE_POISON_ATTACKS   = "DOUBLE_POISON_ATTACKS";
 
 inline const std::unordered_set<std::string> STATIC_EFFECT_COMPONENT_NAMES =
 {
@@ -56,7 +58,8 @@ inline const std::unordered_set<std::string> STATIC_EFFECT_COMPONENT_NAMES =
     EFFECT_COMPONENT_HELD,
     EFFECT_COMPONENT_CLEAR_EFFECTS,
     EFFECT_COMPONENT_DUPLICATE_INSECT,
-    EFFECT_COMPONENT_DOUBLE_NEXT_DINO_DAMAGE
+    EFFECT_COMPONENT_DOUBLE_NEXT_DINO_DAMAGE,
+    EFFECT_COMPONENT_DOUBLE_POISON_ATTACKS,
 };
 
 ///------------------------------------------------------------------------------------------------

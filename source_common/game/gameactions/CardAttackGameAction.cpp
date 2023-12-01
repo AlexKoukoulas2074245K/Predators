@@ -84,6 +84,11 @@ void CardAttackGameAction::VSetNewGameState()
     if (attackingCardData->get().mCardFamily == game_constants::INSECTS_FAMILY_NAME)
     {
         activePlayerState.mPlayerPoisonStack++;
+        
+        if ((mBoardState->GetActivePlayerState().mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::DOUBLE_POISON_ATTACKS) != 0)
+        {
+            activePlayerState.mPlayerPoisonStack++;
+        }
     }
     
     activePlayerState.mPlayerHealth -= damage;

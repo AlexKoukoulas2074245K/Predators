@@ -21,7 +21,7 @@
 ///------------------------------------------------------------------------------------------------
 
 static const strutils::StringId CARD_BUFFED_DEBUFFED_ANIMATION_GAME_ACTION_NAME = strutils::StringId("CardBuffedDebuffedAnimationGameAction");
-static const float CARD_SCALE_FACTOR = 2.5f;
+static const float CARD_SCALE_FACTOR = 2.2f;
 
 ///------------------------------------------------------------------------------------------------
 

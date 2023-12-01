@@ -17,16 +17,22 @@ struct CardData;
 class PlayerActionGenerationEngine final
 {
 public:
-    PlayerActionGenerationEngine(GameRuleEngine* gameRuleEngine, GameActionEngine* gameActionEngine);
+    enum class ActionGenerationType
+    {
+        FULLY_DETERMINISTIC, OPTIMISED
+    };
+    
+    PlayerActionGenerationEngine(GameRuleEngine* gameRuleEngine, GameActionEngine* gameActionEngine, ActionGenerationType actionGenerationType);
     
     void DecideAndPushNextActions(BoardState* currentBoardState);
 
 private:
-    bool ShouldWaitForFurtherActionsAfterPlayingCard(const CardData& cardData) const;
+    bool IsCardHighPriority(const CardData& cardData) const;
     
 private:
     GameRuleEngine* mGameRuleEngine;
     GameActionEngine* mGameActionEngine;
+    const ActionGenerationType mActionGenerationType;
 };
 
 ///------------------------------------------------------------------------------------------------

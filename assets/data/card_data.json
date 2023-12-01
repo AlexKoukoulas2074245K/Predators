@@ -259,6 +259,26 @@
             "tooltip": "Doubles the$damage of the next$dinosaur played",
             "texture": "mighty_roar.png",
             "shader": "basic.vs"
+        },
+        {
+            "id": 27,
+            "weight": 1,
+            "family": "insects",
+            "name": "Toxic Wave",
+            "effect": "DOUBLE_POISON_ATTACKS",
+            "tooltip": "Doubles the$poison stacks taken$by the opponent$ this turn",
+            "texture": "poison_smoke.png",
+            "shader": "basic.vs"
+        },
+        {
+            "id": 28,
+            "weight": 1,
+            "family": "dinosaurs",
+            "name": "Metal Claws",
+            "effect": "DAMAGE +2 FAMILY BOARD HELD",
+            "tooltip": "Damage +2 for$ALL Dinosaurs on$hand & board",
+            "texture": "metal_claw.png",
+            "shader": "basic.vs"
         }
     ]
 }

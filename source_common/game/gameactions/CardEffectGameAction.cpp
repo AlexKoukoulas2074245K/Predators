@@ -172,6 +172,7 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
             {
                 case effects::board_modifier_masks::KILL_NEXT:
                 case effects::board_modifier_masks::BOARD_SIDE_DEBUFF:
+                case effects::board_modifier_masks::DOUBLE_POISON_ATTACKS:
                 {
                     events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectTriggeredEvent>(mBoardState->GetActivePlayerIndex() != game_constants::REMOTE_PLAYER_INDEX, mCardBoardEffectMask);
                 } break;
@@ -302,6 +303,13 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
             mCardBoardEffectMask = effects::board_modifier_masks::DOUBLE_NEXT_DINO_DAMAGE;
         }
         
+        // Doubling Poison Attacks component
+        else if (effectComponent == effects::EFFECT_COMPONENT_DOUBLE_POISON_ATTACKS)
+        {
+            mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask |= effects::board_modifier_masks::DOUBLE_POISON_ATTACKS;
+            mCardBoardEffectMask = effects::board_modifier_masks::DOUBLE_POISON_ATTACKS;
+        }
+        
         // Modifier/Offset value component
         else if (!effects::STATIC_EFFECT_COMPONENT_NAMES.count(effectComponent))
         {
@@ -374,7 +382,8 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
         auto cardData = CardDataRepository::GetInstance().GetCardData(mBoardState->GetActivePlayerState().mPlayerBoardCards.at(*affectedBoardCardIter))->get();
         auto currentValue = mAffectedBoardCardsStatType == AffectedStatType::DAMAGE ? cardData.mCardDamage : cardData.mCardWeight;
         
-        if (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.size()) > *affectedBoardCardIter)
+        if (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.size()) > *affectedBoardCardIter &&
+            mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides[*affectedBoardCardIter].count(affectedStat))
         {
             currentValue = mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides[*affectedBoardCardIter][affectedStat];
         }
@@ -403,7 +412,8 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
         auto cardData = CardDataRepository::GetInstance().GetCardData(mBoardState->GetActivePlayerState().mPlayerHeldCards.at(*affectedHeldCardIter))->get();
         auto currentValue = mAffectedBoardCardsStatType == AffectedStatType::DAMAGE ? cardData.mCardDamage : cardData.mCardWeight;
         
-        if (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.size()) > *affectedHeldCardIter)
+        if (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.size()) > *affectedHeldCardIter &&
+            mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides[*affectedHeldCardIter].count(affectedStat))
         {
             currentValue = mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides[*affectedHeldCardIter][affectedStat];
         }

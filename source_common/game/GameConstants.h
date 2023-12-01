@@ -46,6 +46,8 @@ namespace game_constants
     inline const strutils::StringId INSECT_DUPLICATION_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("INSECT_DUPLICATION_EFFECT_BOT");
     inline const strutils::StringId NEXT_DINO_DAMAGE_DOUBLING_EFFECT_TOP_SCENE_OBJECT_NAME = strutils::StringId("NEXT_DINO_DAMAGE_DOUBLING_EFFECT_TOP");
     inline const strutils::StringId NEXT_DINO_DAMAGE_DOUBLING_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("NEXT_DINO_DAMAGE_DOUBLING_EFFECT_BOT");
+    inline const strutils::StringId DOUBLE_POISON_ATTACKS_EFFECT_TOP_SCENE_OBJECT_NAME = strutils::StringId("DOUBLE_POISON_ATTACKS_EFFECT_TOP");
+    inline const strutils::StringId DOUBLE_POISON_ATTACKS_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("DOUBLE_POISON_ATTACKS_EFFECT_BOT");
 
     // Fonts
     inline const strutils::StringId DEFAULT_FONT_NAME = strutils::StringId("font");
@@ -76,14 +78,15 @@ namespace game_constants
     inline const strutils::StringId IN_GAME_BATTLE_SCENE = strutils::StringId("BATTLE");
     
     // General Game Constants
-    inline const int REMOTE_PLAYER_INDEX = 0;
-    inline const int LOCAL_PLAYER_INDEX = 1;
-    inline const int MAX_BOARD_CARDS = 5;
-    inline const int CARD_INTERACTIVE_MODE_DEFAULT = 0;
-    inline const int CARD_INTERACTIVE_MODE_INTERACTIVE = 1;
-    inline const int CARD_INTERACTIVE_MODE_NONINTERACTIVE = 2;
-    inline const int IN_GAME_CARD_PUSH_THRESHOLD = 4;
-    inline const int BOARD_SIDE_EFFECT_VALUE_SO_COUNT = 2;
+    inline constexpr int REMOTE_PLAYER_INDEX = 0;
+    inline constexpr int LOCAL_PLAYER_INDEX = 1;
+    inline constexpr int MAX_BOARD_CARDS = 5;
+    inline constexpr int CARD_INTERACTIVE_MODE_DEFAULT = 0;
+    inline constexpr int CARD_INTERACTIVE_MODE_INTERACTIVE = 1;
+    inline constexpr int CARD_INTERACTIVE_MODE_NONINTERACTIVE = 2;
+    inline constexpr int IN_GAME_CARD_PUSH_THRESHOLD = 4;
+    inline constexpr int BOARD_SIDE_EFFECT_VALUE_SO_COUNT = 2;
+    inline constexpr int CARD_TOOLTIP_TEXT_ROWS_COUNT = 4;
 
     inline const float CARD_COMPONENT_Z_OFFSET = 0.1f;
     inline const float CARD_BOUNDING_RECT_X_MULTIPLIER = 0.5f;

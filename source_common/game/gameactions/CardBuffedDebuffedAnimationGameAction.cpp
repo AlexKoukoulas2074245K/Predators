@@ -28,6 +28,7 @@ const std::string CardBuffedDebuffedAnimationGameAction::PARTICLE_EMITTER_NAME_T
 
 static const float CARD_SCALE_ANIMATION_MIN_DURATION_SECS = 0.6f;
 static const float CARD_SCALE_ANIMATION_MIN_SCALE_FACTOR = 1.5f;
+static const float CARD_SCALE_ANIMATION_TARGET_Z = 10.0f;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -67,8 +68,11 @@ void CardBuffedDebuffedAnimationGameAction::VInitAnimation()
     
     auto targetDuration = CARD_SCALE_ANIMATION_MIN_DURATION_SECS + math::Max(0.0f, (scaleFactor - CARD_SCALE_ANIMATION_MIN_SCALE_FACTOR)/2);
     auto originalScale = cardSoWrapper->mSceneObject->mScale;
+    auto originalPosition = cardSoWrapper->mSceneObject->mPosition;
+    auto targetPosition = originalPosition;
+    targetPosition.z += CARD_SCALE_ANIMATION_TARGET_Z;
     
-    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObject, cardSoWrapper->mSceneObject->mPosition, originalScale * scaleFactor, targetDuration/2, animation_flags::IGNORE_X_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObject, targetPosition, originalScale * scaleFactor, targetDuration/2, animation_flags::IGNORE_X_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
     {
         if (!particleEmitterNameToRemove.isEmpty())
         {
@@ -82,7 +86,7 @@ void CardBuffedDebuffedAnimationGameAction::VInitAnimation()
             mGameSessionManager->GetHeldCardSoWrappers().at(playerIndex).at(cardIndex);
         
         auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
-        animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObject, cardSoWrapper->mSceneObject->mPosition, originalScale, targetDuration/2, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+        animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObject, originalPosition, originalScale, targetDuration/2, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
         {
             mFinished = true;
         });

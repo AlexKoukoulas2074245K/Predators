@@ -6,6 +6,7 @@ const float INTERACTIVE_COLOR_DISTANCE_THRESHOLD = 0.4f;
 const float PERLIN_TIME_SPEED = 6.0f;
 const float PERLIN_RESOLUTION = 170.0f;
 const float PERLIN_CLARITY = 1.110f;
+const float CARD_STAT_CUTOFF_UV_Y = 0.66f;
 
 float gray(vec4 col)
 {
@@ -52,7 +53,8 @@ vec4 calculate_card_color(vec4 color, vec2 uv, int weight_mode, int damage_mode,
     float perlinNoise = perlin(PERLIN_RESOLUTION, time, PERLIN_TIME_SPEED);
     vec4 stats_mask_color = texture(golden_flakes_mask_tex, uv);
     
-    if (stats_mask_color.r < 0.01f && distance(color, WEIGHT_INTERACTIVE_COLOR) < INTERACTIVE_COLOR_DISTANCE_THRESHOLD)
+        
+    if (uv.y > CARD_STAT_CUTOFF_UV_Y && stats_mask_color.r < 0.01f && distance(color, WEIGHT_INTERACTIVE_COLOR) < INTERACTIVE_COLOR_DISTANCE_THRESHOLD)
     {
         switch(weight_mode)
         {
@@ -62,7 +64,7 @@ vec4 calculate_card_color(vec4 color, vec2 uv, int weight_mode, int damage_mode,
         }
     }
     
-    if (stats_mask_color.r < 0.01f && distance(color, DAMAGE_INTERACTIVE_COLOR) < INTERACTIVE_COLOR_DISTANCE_THRESHOLD * 1.4f)
+    if (uv.y > CARD_STAT_CUTOFF_UV_Y && stats_mask_color.r < 0.01f && distance(color, DAMAGE_INTERACTIVE_COLOR) < INTERACTIVE_COLOR_DISTANCE_THRESHOLD * 1.4f)
     {
         switch(damage_mode)
         {

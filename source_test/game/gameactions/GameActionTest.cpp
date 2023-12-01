@@ -46,13 +46,13 @@ protected:
     
     void SimulateBattle(strutils::StringId topDeckFamilyName = strutils::StringId(), strutils::StringId botDeckFamilyName = strutils::StringId());
     
-    void Init(const CardCollectionType& cardCollectionType, const bool useRuleEngine)
+    void Init(const PlayerActionGenerationEngine::ActionGenerationType actionGenerationType, const CardCollectionType& cardCollectionType, const bool useRuleEngine)
     {
         mBoardState = std::make_unique<BoardState>();
         mGameRuleEngine = std::make_unique<GameRuleEngine>(mBoardState.get());
         mActionEngine = std::make_unique<GameActionEngine>(GameActionEngine::EngineOperationMode::HEADLESS, math::RandomInt(), mBoardState.get(), nullptr, useRuleEngine ? mGameRuleEngine.get() : nullptr, nullptr);
         
-        mPlayerActionGenerationEngine = std::make_unique<PlayerActionGenerationEngine>(mGameRuleEngine.get(), mActionEngine.get());
+        mPlayerActionGenerationEngine = std::make_unique<PlayerActionGenerationEngine>(mGameRuleEngine.get(), mActionEngine.get(), actionGenerationType);
         mBoardState->GetPlayerStates().emplace_back();
         mBoardState->GetPlayerStates().back().mPlayerDeckCards = cardCollectionType == CardCollectionType::ALL_NON_SPELL_CARDS ? CardDataRepository::GetInstance().GetAllNonSpellCardIds() : CardDataRepository::GetInstance().GetAllCardIds();
         mBoardState->GetPlayerStates().emplace_back();
@@ -69,7 +69,7 @@ protected:
     
     void SetUp() override
     {
-        Init(CardCollectionType::ALL_NON_SPELL_CARDS, false);
+        Init(PlayerActionGenerationEngine::ActionGenerationType::FULLY_DETERMINISTIC, CardCollectionType::ALL_NON_SPELL_CARDS, false);
     }
     
     void TearDown() override
@@ -388,6 +388,30 @@ TEST_F(GameActionTests, TestInsectDuplicationEffect)
     EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, 24); // 2 Bees attack instead of 1
 }
 
+TEST_F(GameActionTests, TestToxicWaveAndInsectDuplicationEffect)
+{
+    mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {25, 27, 1}; // Top player has a deck of Insect Duplications, Toxic Wave and Bees
+    
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = 4;
+    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = 4;
+    mBoardState->GetPlayerStates()[0].mPlayerHeldCards = {25, 27, 1};
+    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Insect Duplication (or Toxic Wave) is played
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Toxic Wave (or Insect Duplication) is played
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Bee is played
+    
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(DRAW_CARD_GAME_ACTION_NAME);
+    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, 22); // 2 Bees attack instead of 1 and apply double the poison each
+}
+
 TEST_F(GameActionTests, TestMightyDinoRoarEffect)
 {
     mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {26, 5}; // Top player has a deck of Mighty Dino Roars (w=2) and  Dilophosaurus (d=6,w=5)
@@ -408,6 +432,28 @@ TEST_F(GameActionTests, TestMightyDinoRoarEffect)
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     UpdateUntilActionOrIdle(DRAW_CARD_GAME_ACTION_NAME);
     EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, 12); // First dilophosaurus has double attack, the second one has normal attack
+}
+
+TEST_F(GameActionTests, TestDinoMultiBuff)
+{
+    mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {23, 28, 5}; // Top player has a deck of Feathery Dinos, Metal Claws and Dilophosaurus (d=6,w=5)
+    
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = 5;
+    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = 5;
+    mBoardState->GetPlayerStates()[0].mPlayerHeldCards = {23, 28, 5};
+    
+    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Feathery Dino is played
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Dilophosaurus -> Metal Claws are played
+    
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(DRAW_CARD_GAME_ACTION_NAME);
+    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, 22); // Dilophosaurus can be played due to reduced weight cost and also has +2 attack due to Metal Claws
 }
 
 TEST_F(GameActionTests, TestBuffedDugOutRodentsHaveCorrectModifiersPostClearingNetWithGustOfWind)
@@ -445,9 +491,9 @@ TEST_F(GameActionTests, TestBuffedDugOutRodentsHaveCorrectModifiersPostClearingN
     mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Net is played
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
     
-    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = 1;
-    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = 1;
-    mBoardState->GetPlayerStates()[0].mPlayerHeldCards = {24};
+    mBoardState->GetPlayerStates()[1].mPlayerTotalWeightAmmo = 1;
+    mBoardState->GetPlayerStates()[1].mPlayerCurrentWeightAmmo = 1;
+    mBoardState->GetPlayerStates()[1].mPlayerHeldCards = {24};
     
     mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Gust of wind is played
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
@@ -490,7 +536,7 @@ void GameActionTests::SimulateBattle(strutils::StringId topDeckFamilyName /*= st
         uniquePlayedCardIds[0].clear();
         uniquePlayedCardIds[1].clear();
         
-        Init(CardCollectionType::ALL_CARDS, true);
+        Init(PlayerActionGenerationEngine::ActionGenerationType::OPTIMISED, CardCollectionType::ALL_CARDS, true);
         
         if (mFamilyBattles)
         {

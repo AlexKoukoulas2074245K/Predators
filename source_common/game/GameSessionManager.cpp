@@ -32,8 +32,6 @@
 
 ///------------------------------------------------------------------------------------------------
 
-static constexpr int CARD_TOOLTIP_TEXT_ROWS_COUNT = 4;
-
 static const strutils::StringId CARD_LOCATION_INDICATOR_SCENE_OBJECT_NAME = strutils::StringId("CARD_LOCATION_INDICATOR");
 static const strutils::StringId CARD_TOOLTIP_SCENE_OBJECT_NAME = strutils::StringId("CARD_TOOLTIP");
 static const strutils::StringId CARD_TOOLTIP_REVEAL_THRESHOLD_UNIFORM_NAME = strutils::StringId("reveal_threshold");
@@ -41,8 +39,9 @@ static const strutils::StringId CARD_TOOLTIP_REVEAL_RGB_EXPONENT_UNIFORM_NAME = 
 static const strutils::StringId IDLE_GAME_ACTION_NAME = strutils::StringId("IdleGameAction");
 static const strutils::StringId PLAY_CARD_ACTION_NAME = strutils::StringId("PlayCardGameAction");
 static const strutils::StringId NEXT_PLAYER_ACTION_NAME = strutils::StringId("NextPlayerGameAction");
+static const strutils::StringId CARD_BUFFED_DEBUFFED_ANIMATION_GAME_ACTION_NAME = strutils::StringId("CardBuffedDebuffedAnimationGameAction");
 static const strutils::StringId CARD_EFFECT_GAME_ACTION_NAME = strutils::StringId("CardEffectGameAction");
-static const strutils::StringId CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES [CARD_TOOLTIP_TEXT_ROWS_COUNT] =
+static const strutils::StringId CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES [game_constants::CARD_TOOLTIP_TEXT_ROWS_COUNT] =
 {
     strutils::StringId("CARD_TOOLTIP_TEXT_0"),
     strutils::StringId("CARD_TOOLTIP_TEXT_1"),
@@ -61,6 +60,7 @@ static const std::string BOARD_SIDE_EFFECT_MASK_TEXTURE_FILE_NAME = "board_side_
 static const std::string KILL_SIDE_EFFECT_TEXTURE_FILE_NAME = "trap.png";
 static const std::string INSECT_DUPLICATION_EFFECT_TEXTURE_FILE_NAME = "insect_duplication.png";
 static const std::string NEXT_DINO_DAMAGE_DOUBLING_EFFECT_TEXTURE_FILE_NAME = "mighty_roar.png";
+static const std::string DOUBLE_POISON_ATTACKS_EFFECT_TEXTURE_FILE_NAME = "poison_smoke.png";
 static const std::string INDIVIDUAL_CARD_BOARD_EFFECT_MASK_TEXTURE_FILE_NAME = "trap_mask.png";
 static const std::string BOARD_SIDE_STAT_EFFECT_SHADER_FILE_NAME = "board_side_stat_effect.vs";
 static const std::string CARD_TOOLTIP_TEXTURE_FILE_NAME = "tooltip.png";
@@ -80,7 +80,7 @@ static const glm::vec3 BOARD_SIDE_EFFECT_TOP_POSITION = { 0.0f, 0.044f, 1.0f};
 static const glm::vec3 BOARD_SIDE_EFFECT_BOT_POSITION = { 0.0f, -0.044f, 1.0f};
 static const glm::vec3 CARD_TOOLTIP_SCALE = {0.137f, 0.137f, 1/10.0f};
 static const glm::vec3 CARD_TOOLTIP_OFFSET = {0.084f, 0.08f, 0.1f};
-static const glm::vec3 CARD_TOOLTIP_TEXT_OFFSETS[CARD_TOOLTIP_TEXT_ROWS_COUNT] =
+static const glm::vec3 CARD_TOOLTIP_TEXT_OFFSETS[game_constants::CARD_TOOLTIP_TEXT_ROWS_COUNT] =
 {
     { -0.033f, 0.029f, 0.1f },
     { -0.051f, 0.014f, 0.1f },
@@ -142,8 +142,8 @@ void GameSessionManager::InitGameSession()
     mBoardState->GetPlayerStates().emplace_back();
     mBoardState->GetPlayerStates().emplace_back();
     
-    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("insects"));
-    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));
+    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));
+    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("dinosaurs"));
     
     mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mGoldenCardIds = {4, 19, 20, 21, 22};//CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));;
     
@@ -158,7 +158,7 @@ void GameSessionManager::InitGameSession()
     
     mRuleEngine = std::make_unique<GameRuleEngine>(mBoardState.get());
 
-//#define AUTO_PLAY
+#define AUTO_PLAY
 //#define REPLAY_FLOW
     
 #if defined(REPLAY_FLOW)
@@ -171,7 +171,7 @@ void GameSessionManager::InitGameSession()
     
     mGameSerializer = std::make_unique<GameSerializer>(seed);
     mActionEngine = std::make_unique<GameActionEngine>(GameActionEngine::EngineOperationMode::ANIMATED, seed, mBoardState.get(), this, mRuleEngine.get(), mGameSerializer.get());
-    mPlayerActionGenerationEngine = std::make_unique<PlayerActionGenerationEngine>(mRuleEngine.get(), mActionEngine.get());
+    mPlayerActionGenerationEngine = std::make_unique<PlayerActionGenerationEngine>(mRuleEngine.get(), mActionEngine.get(), PlayerActionGenerationEngine::ActionGenerationType::OPTIMISED);
     
 #if defined(REPLAY_FLOW)
     replayEngine.ReplayActions(mActionEngine.get());
@@ -312,6 +312,9 @@ void GameSessionManager::InitGameSession()
     // Double Dino Damage Effects
     individualCardBoardEffectCreation(game_constants::NEXT_DINO_DAMAGE_DOUBLING_EFFECT_TOP_SCENE_OBJECT_NAME, game_constants::NEXT_DINO_DAMAGE_DOUBLING_EFFECT_BOT_SCENE_OBJECT_NAME, NEXT_DINO_DAMAGE_DOUBLING_EFFECT_TEXTURE_FILE_NAME);
     
+    // Double Poison Attacks Effects
+    individualCardBoardEffectCreation(game_constants::DOUBLE_POISON_ATTACKS_EFFECT_TOP_SCENE_OBJECT_NAME, game_constants::DOUBLE_POISON_ATTACKS_EFFECT_BOT_SCENE_OBJECT_NAME, DOUBLE_POISON_ATTACKS_EFFECT_TEXTURE_FILE_NAME);
+    
     // Card Tooltips
     auto tooltipSceneObject = activeScene->CreateSceneObject(CARD_TOOLTIP_SCENE_OBJECT_NAME);
     tooltipSceneObject->mScale = CARD_TOOLTIP_SCALE;
@@ -322,7 +325,7 @@ void GameSessionManager::InitGameSession()
     tooltipSceneObject->mShaderFloatUniformValues[CARD_TOOLTIP_REVEAL_RGB_EXPONENT_UNIFORM_NAME] = CARD_TOOLTIP_REVEAL_RGB_EXPONENT;
     tooltipSceneObject->mInvisible = true;
     
-    for (auto i = 0; i < CARD_TOOLTIP_TEXT_ROWS_COUNT; ++i)
+    for (auto i = 0; i < game_constants::CARD_TOOLTIP_TEXT_ROWS_COUNT; ++i)
     {
         auto tooltipTextSceneObject = activeScene->CreateSceneObject(CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES[i]);
         scene::TextSceneObjectData tooltipTextData;
@@ -651,7 +654,8 @@ void GameSessionManager::UpdateMiscSceneObjects(const float dtMillis)
         auto& cardSoWrapper = localPlayerHeldCards[i];
         cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
         
-        if (mActionEngine->GetActiveGameActionName() != CARD_EFFECT_GAME_ACTION_NAME)
+        if (mActionEngine->GetActiveGameActionName() != CARD_BUFFED_DEBUFFED_ANIMATION_GAME_ACTION_NAME &&
+            mActionEngine->GetActiveGameActionName() != CARD_EFFECT_GAME_ACTION_NAME)
         {
             auto canCardBePlayed = mRuleEngine->CanCardBePlayed(cardSoWrapper->mCardData, i, game_constants::LOCAL_PLAYER_INDEX);
             cardSoWrapper->mSceneObject->mShaderIntUniformValues[game_constants::CARD_WEIGHT_INTERACTIVE_MODE_UNIFORM_NAME] = canCardBePlayed ? game_constants::CARD_INTERACTIVE_MODE_DEFAULT : game_constants::CARD_INTERACTIVE_MODE_NONINTERACTIVE;
@@ -816,7 +820,7 @@ void GameSessionManager::UpdateMiscSceneObjects(const float dtMillis)
     {
         cardTooltipSceneObject->mShaderFloatUniformValues[CARD_TOOLTIP_REVEAL_THRESHOLD_UNIFORM_NAME] = CARD_TOOLTIP_MAX_REVEAL_THRESHOLD;
         
-        for (auto i = 0; i < CARD_TOOLTIP_TEXT_ROWS_COUNT; ++i)
+        for (auto i = 0; i < game_constants::CARD_TOOLTIP_TEXT_ROWS_COUNT; ++i)
         {
             auto tooltipTextSceneObject = activeScene->FindSceneObject(CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES[i]);
             tooltipTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = math::Min(1.0f, tooltipTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] +  dtMillis * CARD_TOOLTIP_TEXT_REVEAL_SPEED);
@@ -949,7 +953,7 @@ void GameSessionManager::CreateCardTooltip(const glm::vec3& cardOriginPostion, c
     {
         for (auto i = 0U; i < tooltipTextRows.size(); ++i)
         {
-            assert(i < CARD_TOOLTIP_TEXT_ROWS_COUNT);
+            assert(i < game_constants::CARD_TOOLTIP_TEXT_ROWS_COUNT);
             auto tooltipTextSceneObject = activeScene->FindSceneObject(CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES[i]);
             tooltipTextSceneObject->mPosition = tooltipSceneObject->mPosition;
             tooltipTextSceneObject->mPosition += CARD_TOOLTIP_TEXT_OFFSETS[i];
@@ -985,7 +989,7 @@ void GameSessionManager::DestroyCardTooltip()
     auto tooltipSceneObject = activeScene->FindSceneObject(CARD_TOOLTIP_SCENE_OBJECT_NAME);
     tooltipSceneObject->mInvisible = true;
     
-    for (auto i = 0; i < CARD_TOOLTIP_TEXT_ROWS_COUNT; ++i)
+    for (auto i = 0; i < game_constants::CARD_TOOLTIP_TEXT_ROWS_COUNT; ++i)
     {
         auto tooltipTextSceneObject = activeScene->FindSceneObject(CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES[i]);
         tooltipTextSceneObject->mInvisible = true;
@@ -1318,6 +1322,10 @@ void GameSessionManager::OnBoardSideCardEffectTriggered(const events::BoardSideC
         {
             sideEffectSceneObject = activeScene->FindSceneObject(event.mForRemotePlayer ? game_constants::NEXT_DINO_DAMAGE_DOUBLING_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::NEXT_DINO_DAMAGE_DOUBLING_EFFECT_BOT_SCENE_OBJECT_NAME);
         }
+        else if (event.mEffectBoardModifierMask == effects::board_modifier_masks::DOUBLE_POISON_ATTACKS)
+        {
+            sideEffectSceneObject = activeScene->FindSceneObject(event.mForRemotePlayer ? game_constants::DOUBLE_POISON_ATTACKS_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::DOUBLE_POISON_ATTACKS_EFFECT_BOT_SCENE_OBJECT_NAME);
+        }
         
         assert(sideEffectSceneObject);
         
@@ -1393,6 +1401,11 @@ void GameSessionManager::OnBoardSideCardEffectEnded(const events::BoardSideCardE
         {
             sideEffectSceneObject = activeScene->FindSceneObject(event.mForRemotePlayer ? game_constants::NEXT_DINO_DAMAGE_DOUBLING_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::NEXT_DINO_DAMAGE_DOUBLING_EFFECT_BOT_SCENE_OBJECT_NAME);
         }
+        else if (event.mEffectBoardModifierMask == effects::board_modifier_masks::DOUBLE_POISON_ATTACKS)
+        {
+            sideEffectSceneObject = activeScene->FindSceneObject(event.mForRemotePlayer ? game_constants::DOUBLE_POISON_ATTACKS_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::DOUBLE_POISON_ATTACKS_EFFECT_BOT_SCENE_OBJECT_NAME);
+        }
+        
         assert(sideEffectSceneObject);
         
         auto& activeEffects = mActiveIndividualCardBoardEffectSceneObjects[event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX];

@@ -37,6 +37,7 @@ static const float CARD_NAME_AREA_LENGTH = 0.042f;
 static const float CARD_NAME_TEST_DEDUCT_INCREMENTS = 0.00001f;
 static const float CARD_INDEX_Z_OFFSET = 1.0f;
 static const float BARD_CARD_POSITION_Z_OFFSET = 0.01f;
+static const float DOUBLE_DIGIT_STAT_X_OFFSET = 0.003f;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -193,7 +194,7 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
             cardComponents.back()->mSceneObjectTypeData = std::move(weightTextData);
             cardComponents.back()->mScale = glm::vec3(game_constants::IN_GAME_CARD_PROPERTY_SCALE);
             cardComponents.back()->mPosition = position;
-            cardComponents.back()->mPosition.x += game_constants::IN_GAME_CARD_SPELL_PROPERTY_ICON_X_OFFSET;
+            cardComponents.back()->mPosition.x -= game_constants::IN_GAME_CARD_SPELL_PROPERTY_ICON_X_OFFSET - (cardData->mCardWeight >= 10 ? DOUBLE_DIGIT_STAT_X_OFFSET : 0.0f);
             cardComponents.back()->mPosition.y += game_constants::IN_GAME_CARD_SPELL_PROPERTY_ICON_Y_OFFSET;
             cardComponents.back()->mPosition.z += 3 * game_constants::CARD_COMPONENT_Z_OFFSET;
         }
@@ -223,7 +224,7 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
             cardComponents.back()->mSceneObjectTypeData = std::move(damageTextData);
             cardComponents.back()->mScale = glm::vec3(game_constants::IN_GAME_CARD_PROPERTY_SCALE);
             cardComponents.back()->mPosition = position;
-            cardComponents.back()->mPosition.x += game_constants::IN_GAME_CARD_PROPERTY_X_OFFSET;
+            cardComponents.back()->mPosition.x += game_constants::IN_GAME_CARD_PROPERTY_X_OFFSET - (damage >= 10 ? DOUBLE_DIGIT_STAT_X_OFFSET : 0.0f);
             cardComponents.back()->mPosition.y += game_constants::IN_GAME_CARD_PROPERTY_Y_OFFSET;
             cardComponents.back()->mPosition.z += 3 * game_constants::CARD_COMPONENT_Z_OFFSET;
             
@@ -264,7 +265,7 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
             cardComponents.back()->mSceneObjectTypeData = std::move(weightTextData);
             cardComponents.back()->mScale = glm::vec3(game_constants::IN_GAME_CARD_PROPERTY_SCALE);
             cardComponents.back()->mPosition = position;
-            cardComponents.back()->mPosition.x -= game_constants::IN_GAME_CARD_PROPERTY_X_OFFSET;
+            cardComponents.back()->mPosition.x -= game_constants::IN_GAME_CARD_PROPERTY_X_OFFSET + (weight >= 10 ? DOUBLE_DIGIT_STAT_X_OFFSET : 0.0f);
             cardComponents.back()->mPosition.y += game_constants::IN_GAME_CARD_PROPERTY_Y_OFFSET;
             cardComponents.back()->mPosition.z += 3 * game_constants::CARD_COMPONENT_Z_OFFSET;
         }

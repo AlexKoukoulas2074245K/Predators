@@ -21,7 +21,7 @@
 
 static const float DUPLICATED_CARD_Z_OFFSET = -0.01f;
 static const float DUPLICATED_CARD_INIT_SCALE_FACTOR = 0.01f;
-static const float DUPLICATION_ANIMATION_SECS_DURATION = 2.0f;
+static const float DUPLICATION_ANIMATION_SECS_DURATION = 1.3f;
 
 ///------------------------------------------------------------------------------------------------
 
