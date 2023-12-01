@@ -41,7 +41,6 @@ private:
     {
         EFFECT_CARD_ANIMATION,
         AFFECTED_CARDS_SPARKLE_ANIMATION,
-        AFFECTED_CARDS_SCALE_ANIMATION,
         FINISHED
     };
     ActionState mActionState;

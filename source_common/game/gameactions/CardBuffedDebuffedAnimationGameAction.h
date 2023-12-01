@@ -1,12 +1,12 @@
 ///------------------------------------------------------------------------------------------------
-///  NextDinoDamageDoublingGameAction.h
+///  CardBuffedDebuffedAnimationGameAction.h
 ///  Predators                                                                                            
 ///                                                                                                
 ///  Created by Alex Koukoulas on 30/11/2023
 ///------------------------------------------------------------------------------------------------
 
-#ifndef NextDinoDamageDoublingGameAction_h
-#define NextDinoDamageDoublingGameAction_h
+#ifndef CardBuffedDebuffedAnimationGameAction_h
+#define CardBuffedDebuffedAnimationGameAction_h
 
 ///------------------------------------------------------------------------------------------------
 
@@ -14,9 +14,15 @@
 
 ///------------------------------------------------------------------------------------------------
 
-class NextDinoDamageDoublingGameAction final: public BaseGameAction
+class CardBuffedDebuffedAnimationGameAction final: public BaseGameAction
 {
 public:
+    static const std::string CARD_INDEX_PARAM;
+    static const std::string PLAYER_INDEX_PARAM;
+    static const std::string IS_BOARD_CARD_PARAM;
+    static const std::string SCALE_FACTOR_PARAM;
+    static const std::string PARTICLE_EMITTER_NAME_TO_REMOVE_PARAM;
+    
     void VSetNewGameState() override;
     
     void VInitAnimation() override;
@@ -26,8 +32,11 @@ public:
     bool VShouldBeSerialized() const override;
     
     const std::vector<std::string>& VGetRequiredExtraParamNames() const override;
+    
+private:
+    bool mFinished;
 };
 
 ///------------------------------------------------------------------------------------------------
 
-#endif /* NextDinoDamageDoublingGameAction_h */
+#endif /* CardBuffedDebuffedAnimationGameAction_h */

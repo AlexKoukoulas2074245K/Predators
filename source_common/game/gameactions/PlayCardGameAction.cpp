@@ -119,7 +119,7 @@ void PlayCardGameAction::VSetNewGameState()
             return;
         }
         
-        if ((activePlayerState.mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::BOARD_SIDE_STAT_MODIFIER) != 0)
+        if ((activePlayerState.mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::BOARD_SIDE_DEBUFF) != 0)
         {
             mGameActionEngine->AddGameAction(TRAP_TRIGGERED_ANIMATION_GAME_ACTION_NAME,
             {

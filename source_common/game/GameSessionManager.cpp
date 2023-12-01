@@ -142,10 +142,10 @@ void GameSessionManager::InitGameSession()
     mBoardState->GetPlayerStates().emplace_back();
     mBoardState->GetPlayerStates().emplace_back();
     
-    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("dinosaurs"));
+    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("insects"));
     mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));
     
-    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mGoldenCardIds = {19, 20, 21, 22};//CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));;
+    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mGoldenCardIds = {4, 19, 20, 21, 22};//CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));;
     
     mActiveIndividualCardBoardEffectSceneObjects.emplace_back();
     mActiveIndividualCardBoardEffectSceneObjects.emplace_back();
@@ -157,8 +157,8 @@ void GameSessionManager::InitGameSession()
     mPlayerBoardCardSceneObjectWrappers.emplace_back();
     
     mRuleEngine = std::make_unique<GameRuleEngine>(mBoardState.get());
-    
-#define AUTO_PLAY
+
+//#define AUTO_PLAY
 //#define REPLAY_FLOW
     
 #if defined(REPLAY_FLOW)
@@ -1299,7 +1299,7 @@ void GameSessionManager::OnBoardSideCardEffectTriggered(const events::BoardSideC
     auto activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
     
     std::shared_ptr<scene::SceneObject> sideEffectSceneObject = nullptr;
-    if (event.mEffectBoardModifierMask == effects::board_modifier_masks::BOARD_SIDE_STAT_MODIFIER)
+    if (event.mEffectBoardModifierMask == effects::board_modifier_masks::BOARD_SIDE_DEBUFF)
     {
         sideEffectSceneObject = activeScene->FindSceneObject(event.mForRemotePlayer ? game_constants::BOARD_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::BOARD_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME);
     }
@@ -1349,7 +1349,7 @@ void GameSessionManager::OnBoardSideCardEffectTriggered(const events::BoardSideC
     
     
     // Update text specifically for board side stat modifier
-    if (event.mEffectBoardModifierMask == effects::board_modifier_masks::BOARD_SIDE_STAT_MODIFIER)
+    if (event.mEffectBoardModifierMask == effects::board_modifier_masks::BOARD_SIDE_DEBUFF)
     {
         for (int i = 0; i < game_constants::BOARD_SIDE_EFFECT_VALUE_SO_COUNT; ++i)
         {
@@ -1374,7 +1374,7 @@ void GameSessionManager::OnBoardSideCardEffectEnded(const events::BoardSideCardE
     auto activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
     
     std::shared_ptr<scene::SceneObject> sideEffectSceneObject = nullptr;
-    if (event.mEffectBoardModifierMask == effects::board_modifier_masks::BOARD_SIDE_STAT_MODIFIER)
+    if (event.mEffectBoardModifierMask == effects::board_modifier_masks::BOARD_SIDE_DEBUFF)
     {
         sideEffectSceneObject = activeScene->FindSceneObject(event.mForRemotePlayer ? game_constants::BOARD_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::BOARD_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME);
     }
@@ -1419,7 +1419,7 @@ void GameSessionManager::OnBoardSideCardEffectEnded(const events::BoardSideCardE
         sideEffectSceneObject->mInvisible = true;
     });
     
-    if (event.mEffectBoardModifierMask == effects::board_modifier_masks::BOARD_SIDE_STAT_MODIFIER)
+    if (event.mEffectBoardModifierMask == effects::board_modifier_masks::BOARD_SIDE_DEBUFF)
     {
         for (int i = 0; i < game_constants::BOARD_SIDE_EFFECT_VALUE_SO_COUNT; ++i)
         {

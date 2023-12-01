@@ -9,9 +9,9 @@
 #include <game/Cards.h>
 #include <game/CardUtils.h>
 #include <game/events/EventSystem.h>
+#include <game/gameactions/CardBuffedDebuffedAnimationGameAction.h>
 #include <game/gameactions/CardEffectGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
-#include <game/gameactions/GameOverGameAction.h>
 #include <game/GameSessionManager.h>
 #include <engine/rendering/AnimationManager.h>
 #include <engine/rendering/ParticleManager.h>
@@ -26,6 +26,9 @@ const std::unordered_map<CardEffectGameAction::AffectedStatType, CardStatType> C
     {AffectedStatType::DAMAGE, CardStatType::DAMAGE},
     {AffectedStatType::WEIGHT, CardStatType::WEIGHT}
 };
+
+// Follow up game actions
+static const strutils::StringId CARD_BUFFED_DEBUFFED_ANIMATION_GAME_ACTION_NAME = strutils::StringId("CardBuffedDebuffedAnimationGameAction");
 
 // Resources
 static const std::string CARD_DISSOLVE_SHADER_FILE_NAME = "card_spell_dissolve.vs";
@@ -44,9 +47,9 @@ static const strutils::StringId DRAW_CARD_GAME_ACTION_NAME = strutils::StringId(
 static const float CARD_DISSOLVE_SPEED = 0.001f;
 static const float MAX_CARD_DISSOLVE_VALUE = 1.2f;
 static const float CARD_EFFECT_PARTICLE_EMITTER_Z_OFFSET = 22.0f;
-static const float CARD_SCALE_ANIMATION_DURATION_SECS = 0.6f;
+static const float CARD_SCALE_UP_FACTOR = 1.5f;
 
-static const glm::vec2 CARD_DISSOLVE_EFFECT_MAG_RANGE      = {10.0f, 18.0f};
+static const glm::vec2 CARD_DISSOLVE_EFFECT_MAG_RANGE = {10.0f, 18.0f};
 
 ///------------------------------------------------------------------------------------------------
 
@@ -168,7 +171,7 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
             switch (mCardBoardEffectMask)
             {
                 case effects::board_modifier_masks::KILL_NEXT:
-                case effects::board_modifier_masks::BOARD_SIDE_STAT_MODIFIER:
+                case effects::board_modifier_masks::BOARD_SIDE_DEBUFF:
                 {
                     events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectTriggeredEvent>(mBoardState->GetActivePlayerIndex() != game_constants::REMOTE_PLAYER_INDEX, mCardBoardEffectMask);
                 } break;
@@ -182,7 +185,7 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
             
             if (std::find(mEffectComponents.cbegin(), mEffectComponents.cend(), effects::EFFECT_COMPONENT_CLEAR_EFFECTS) != mEffectComponents.cend())
             {
-                events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, true,  effects::board_modifier_masks::BOARD_SIDE_STAT_MODIFIER);
+                events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, true,  effects::board_modifier_masks::BOARD_SIDE_DEBUFF);
                 events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, true,  effects::board_modifier_masks::KILL_NEXT);
                 events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, true,  effects::board_modifier_masks::DUPLICATE_NEXT_INSECT);
                 events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, true,  effects::board_modifier_masks::DOUBLE_NEXT_DINO_DAMAGE);
@@ -197,37 +200,7 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
             if (mAnimationDelayCounterSecs > 1.0f)
             {
                 mAnimationDelayCounterSecs = 0.0f;
-                
-                auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
-                
-                // Create particle emitters on affected cards
-                for (size_t i = 0; i < mAffectedCards.size(); ++i)
-                {
-                    auto& affectedCardEntry = mAffectedCards.at(i);
-                    
-                    auto originalScale = affectedCardEntry.mCardSoWrapper->mSceneObject->mScale;
-                    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(affectedCardEntry.mCardSoWrapper->mSceneObject, affectedCardEntry.mCardSoWrapper->mSceneObject->mPosition, originalScale * 1.5f, CARD_SCALE_ANIMATION_DURATION_SECS/2, animation_flags::NONE, i * CARD_SCALE_ANIMATION_DURATION_SECS, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
-                    {
-                        CoreSystemsEngine::GetInstance().GetParticleManager().RemoveParticleEmitterFlag(particle_flags::CONTINUOUS_PARTICLE_GENERATION, strutils::StringId(BUFFED_CARD_PARTICLE_EMITTER_NAME_PREFIX + std::to_string(i)), *CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE));
-                        
-                        events::EventSystem::GetInstance().DispatchEvent<events::CardBuffedDebuffedEvent>(static_cast<int>(mAffectedCards[i].mCardIndex), mAffectedCards[i].mIsBoardCard, mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
-                        
-                        mAffectedCards[i].mCardSoWrapper = mAffectedCards[i].mIsBoardCard ?
-                            mGameSessionManager->GetBoardCardSoWrappers()[mBoardState->GetActivePlayerIndex()][mAffectedCards[i].mCardIndex]:
-                            mGameSessionManager->GetHeldCardSoWrappers()[mBoardState->GetActivePlayerIndex()][mAffectedCards[i].mCardIndex];
-                        
-                        auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
-                        animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(mAffectedCards[i].mCardSoWrapper->mSceneObject, mAffectedCards[i].mCardSoWrapper->mSceneObject->mPosition, originalScale, CARD_SCALE_ANIMATION_DURATION_SECS/2, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
-                        {
-                            if (i == mAffectedCards.size() - 1)
-                            {
-                                mActionState = ActionState::FINISHED;
-                            }
-                        });
-                    });
-                }
-                
-                mActionState = ActionState::AFFECTED_CARDS_SCALE_ANIMATION;
+                mActionState = ActionState::FINISHED;
             }
         } break;
             
@@ -290,6 +263,20 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
         // Clear effects component
         else if (effectComponent == effects::EFFECT_COMPONENT_CLEAR_EFFECTS)
         {
+            if ((mBoardState->GetActivePlayerState().mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::BOARD_SIDE_DEBUFF) != 0)
+            {
+                for (auto i = 0U; i < boardCards.size() - 1; ++i)
+                {
+                    mGameActionEngine->AddGameAction(CARD_BUFFED_DEBUFFED_ANIMATION_GAME_ACTION_NAME,
+                    {
+                        { CardBuffedDebuffedAnimationGameAction::CARD_INDEX_PARAM, std::to_string(i)},
+                        { CardBuffedDebuffedAnimationGameAction::PLAYER_INDEX_PARAM, std::to_string(mBoardState->GetActivePlayerIndex())},
+                        { CardBuffedDebuffedAnimationGameAction::IS_BOARD_CARD_PARAM, "true" },
+                        { CardBuffedDebuffedAnimationGameAction::SCALE_FACTOR_PARAM, std::to_string(CARD_SCALE_UP_FACTOR) }
+                    });
+                }
+            }
+            
             mBoardState->GetActivePlayerState().mBoardModifiers.mGlobalCardStatModifiers.clear();
             mBoardState->GetActivePlayerState().mBoardModifiers.mBoardModifierMask = effects::board_modifier_masks::NONE;
         }
@@ -375,11 +362,12 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
     if (std::find(mEffectComponents.cbegin(), mEffectComponents.cend(), effects::EFFECT_COMPONENT_ENEMY_BOARD_DEBUFF) != mEffectComponents.cend())
     {
         mBoardState->GetInactivePlayerState().mBoardModifiers.mGlobalCardStatModifiers[sAffectedStatTypeToCardStatType.at(mAffectedBoardCardsStatType)] += mEffectValue;
-        mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask |= effects::board_modifier_masks::BOARD_SIDE_STAT_MODIFIER;
-        mCardBoardEffectMask = effects::board_modifier_masks::BOARD_SIDE_STAT_MODIFIER;
+        mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask |= effects::board_modifier_masks::BOARD_SIDE_DEBUFF;
+        mCardBoardEffectMask = effects::board_modifier_masks::BOARD_SIDE_DEBUFF;
     }
     
     // Create/Modify board card stat overrides
+    int particleEmitterIndex = 0;
     for (auto affectedBoardCardIter = affectedBoardCardIndices.begin(); affectedBoardCardIter != affectedBoardCardIndices.end();)
     {
         const auto affectedStat = sAffectedStatTypeToCardStatType.at(mAffectedBoardCardsStatType);
@@ -394,6 +382,15 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
         {
             mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.resize(*affectedBoardCardIter + 1);
         }
+        
+        mGameActionEngine->AddGameAction(CARD_BUFFED_DEBUFFED_ANIMATION_GAME_ACTION_NAME,
+        {
+            { CardBuffedDebuffedAnimationGameAction::CARD_INDEX_PARAM, std::to_string(*affectedBoardCardIter)},
+            { CardBuffedDebuffedAnimationGameAction::PLAYER_INDEX_PARAM, std::to_string(mBoardState->GetActivePlayerIndex())},
+            { CardBuffedDebuffedAnimationGameAction::IS_BOARD_CARD_PARAM, "true" },
+            { CardBuffedDebuffedAnimationGameAction::SCALE_FACTOR_PARAM, std::to_string(CARD_SCALE_UP_FACTOR) },
+            { CardBuffedDebuffedAnimationGameAction::PARTICLE_EMITTER_NAME_TO_REMOVE_PARAM, BUFFED_CARD_PARTICLE_EMITTER_NAME_PREFIX + std::to_string(particleEmitterIndex++) }
+        });
         
         mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides[*affectedBoardCardIter][affectedStat] = currentValue + mEffectValue;
         affectedBoardCardIter++;
@@ -423,6 +420,15 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
             affectedHeldCardIter = affectedHeldCardIndices.erase(affectedHeldCardIter);
             continue;
         }
+        
+        mGameActionEngine->AddGameAction(CARD_BUFFED_DEBUFFED_ANIMATION_GAME_ACTION_NAME,
+        {
+            { CardBuffedDebuffedAnimationGameAction::CARD_INDEX_PARAM, std::to_string(*affectedHeldCardIter)},
+            { CardBuffedDebuffedAnimationGameAction::PLAYER_INDEX_PARAM, std::to_string(mBoardState->GetActivePlayerIndex())},
+            { CardBuffedDebuffedAnimationGameAction::IS_BOARD_CARD_PARAM, "false" },
+            { CardBuffedDebuffedAnimationGameAction::SCALE_FACTOR_PARAM, std::to_string(CARD_SCALE_UP_FACTOR) },
+            { CardBuffedDebuffedAnimationGameAction::PARTICLE_EMITTER_NAME_TO_REMOVE_PARAM, BUFFED_CARD_PARTICLE_EMITTER_NAME_PREFIX + std::to_string(particleEmitterIndex++) }
+        });
         
         affectedHeldCardIter++;
     }

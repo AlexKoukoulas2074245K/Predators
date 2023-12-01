@@ -102,8 +102,7 @@ void CardAttackGameAction::VSetNewGameState()
         // Check for rodents respawn flow
         if (attackingCardData->get().mCardFamily == game_constants::RODENTS_FAMILY_NAME)
         {
-            bool shouldRespawn = math::ControlledRandomFloat() <= game_constants::RODENTS_RESPAWN_CHANCE;
-            if (shouldRespawn)
+            if (math::ControlledRandomFloat() <= game_constants::RODENTS_RESPAWN_CHANCE)
             {
                 mGameActionEngine->AddGameAction(RODENTS_DIG_ANIMATION_GAME_ACTION_NAME,
                 {

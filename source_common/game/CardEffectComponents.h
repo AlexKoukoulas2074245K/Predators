@@ -25,7 +25,7 @@ namespace board_modifier_masks
 {
     static constexpr EffectBoardModifierMask NONE = 0x0;
     static constexpr EffectBoardModifierMask KILL_NEXT = 0x1;
-    static constexpr EffectBoardModifierMask BOARD_SIDE_STAT_MODIFIER = 0x2;
+    static constexpr EffectBoardModifierMask BOARD_SIDE_DEBUFF = 0x2;
     static constexpr EffectBoardModifierMask DUPLICATE_NEXT_INSECT = 0x4;
     static constexpr EffectBoardModifierMask DOUBLE_NEXT_DINO_DAMAGE = 0x8;
 };

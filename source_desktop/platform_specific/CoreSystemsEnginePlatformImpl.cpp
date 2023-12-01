@@ -228,7 +228,7 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
             mSystems->mParticleManager.ReloadParticlesFromDisk();
         }
         
-        float gameLogicMillis = math::Max(16.0f, dtMillis * sGameSpeed);
+        float gameLogicMillis = math::Max(16.0f, dtMillis) * sGameSpeed;
 
         // Update logic
 #if (!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)

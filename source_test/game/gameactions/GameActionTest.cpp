@@ -388,10 +388,84 @@ TEST_F(GameActionTests, TestInsectDuplicationEffect)
     EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, 24); // 2 Bees attack instead of 1
 }
 
+TEST_F(GameActionTests, TestMightyDinoRoarEffect)
+{
+    mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {26, 5}; // Top player has a deck of Mighty Dino Roars (w=2) and  Dilophosaurus (d=6,w=5)
+    
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = 12;
+    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = 12;
+    mBoardState->GetPlayerStates()[0].mPlayerHeldCards = {26, 5, 5};
+    
+    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Mighty Dino Roar is played
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // 2 Dilophosaurus' are played
+    
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(DRAW_CARD_GAME_ACTION_NAME);
+    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, 12); // First dilophosaurus has double attack, the second one has normal attack
+}
+
+TEST_F(GameActionTests, TestBuffedDugOutRodentsHaveCorrectModifiersPostClearingNetWithGustOfWind)
+{
+    mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {21}; // Top player has a deck of Nets
+    mBoardState->GetPlayerStates()[1].mPlayerDeckCards = {19, 4, 15, 24}; // Bot player has a deck of Fluff Attacks, Bunnies, Squirrels and Gusts of Winds
+    
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    do
+    {
+        mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME); // Skip top player's turn
+        UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+        
+        mBoardState->GetPlayerStates()[0].mPlayerHealth = 30;
+        mBoardState->GetPlayerStates()[1].mPlayerTotalWeightAmmo = 6;
+        mBoardState->GetPlayerStates()[1].mPlayerCurrentWeightAmmo = 6;
+        mBoardState->GetPlayerStates()[1].mPlayerHeldCards = {4, 15, 19};
+        
+        mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Squirrel, Bunny followed by Fluff Attack are played
+        UpdateUntilActionOrIdle(DRAW_CARD_GAME_ACTION_NAME);
+        
+        if (mBoardState->GetPlayerStates()[1].mPlayerBoardCards.size() == 2 && mBoardState->GetPlayerStates()[0].mPlayerHealth == 23) // We want both rodents to have dug
+        {
+            break;
+        }
+    } while (true);
+    
+    
+    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = 1;
+    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = 1;
+    mBoardState->GetPlayerStates()[0].mPlayerHeldCards = {21};
+    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Net is played
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = 1;
+    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = 1;
+    mBoardState->GetPlayerStates()[0].mPlayerHeldCards = {24};
+    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Gust of wind is played
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerBoardCardStatOverrides.size(), 2U);
+    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerBoardCardStatOverrides[0].at(CardStatType::DAMAGE), 4); // Position and value of overrides is maintained
+    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerBoardCardStatOverrides[1].at(CardStatType::DAMAGE), 3); // Position and value of overrides is maintained
+    
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, 16); // 23 - 4 -3 = 16 (gust of wind cleared net)
+}
+
+int BATTLE_SIMULATION_ITERATIONS = 1000;
+
 void GameActionTests::SimulateBattle(strutils::StringId topDeckFamilyName /*= strutils::StringId()*/, strutils::StringId botDeckFamilyName /*= strutils::StringId()*/)
 {
-    constexpr int GAME_COUNT = 1000;
-    constexpr int PROGRESS_INCREMENTS = GAME_COUNT/100;
+    const int PROGRESS_INCREMENTS = BATTLE_SIMULATION_ITERATIONS/100;
     
     std::stringstream statistics;
     int gamesTopPlayerWonCounter = 0;
@@ -406,7 +480,7 @@ void GameActionTests::SimulateBattle(strutils::StringId topDeckFamilyName /*= st
     std::cout << "            0%  5%  10%  15%  20%  25%  30%  35%  40%  45%  50%  55%  60%  65%  70%  75%  80%  85%  90%  95%  100%\n";
     std::cout << "Progress:   [";
     
-    for (int i = 0; i < GAME_COUNT; ++i)
+    for (int i = 0; i < BATTLE_SIMULATION_ITERATIONS; ++i)
     {
         if (i % PROGRESS_INCREMENTS == 0)
         {
@@ -510,18 +584,18 @@ void GameActionTests::SimulateBattle(strutils::StringId topDeckFamilyName /*= st
     
     if (mFamilyBattles)
     {
-        statistics << "Total Games: " << GAME_COUNT << "\n";
-        statistics << "Games won: Top=" << 100.0f * gamesTopPlayerWonCounter/static_cast<float>(GAME_COUNT) << "%  Bot=" << 100.0f * (GAME_COUNT - gamesTopPlayerWonCounter)/static_cast<float>(GAME_COUNT) << "%\n";
-        statistics << "Average weight ammo per game on victory: " << weightAmmoCounter/static_cast<float>(GAME_COUNT) << "\n";
-        statistics << "Average turns per game: " << turnCounter/static_cast<float>(GAME_COUNT) << "\n";
+        statistics << "Total Games: " << BATTLE_SIMULATION_ITERATIONS << "\n";
+        statistics << "Games won: Top=" << 100.0f * gamesTopPlayerWonCounter/static_cast<float>(BATTLE_SIMULATION_ITERATIONS) << "%  Bot=" << 100.0f * (BATTLE_SIMULATION_ITERATIONS - gamesTopPlayerWonCounter)/static_cast<float>(BATTLE_SIMULATION_ITERATIONS) << "%\n";
+        statistics << "Average weight ammo per game on victory: " << weightAmmoCounter/static_cast<float>(BATTLE_SIMULATION_ITERATIONS) << "\n";
+        statistics << "Average turns per game: " << turnCounter/static_cast<float>(BATTLE_SIMULATION_ITERATIONS) << "\n";
         logging::Log(logging::LogType::INFO, "Card Family battle: %s vs %s:\n%s", topDeckFamilyName.GetString().c_str(), botDeckFamilyName.GetString().c_str(), statistics.str().c_str());
     }
     else
     {
-        statistics << "Total Games: " << GAME_COUNT << "\n";
-        statistics << "Games won: Top=" << 100.0f * gamesTopPlayerWonCounter/static_cast<float>(GAME_COUNT) << "%  Bot=" << 100.0f * (GAME_COUNT - gamesTopPlayerWonCounter)/static_cast<float>(GAME_COUNT) << "%\n";
-        statistics << "Average weight ammo per game on victory: " << weightAmmoCounter/static_cast<float>(GAME_COUNT) << "\n";
-        statistics << "Average turns per game: " << turnCounter/static_cast<float>(GAME_COUNT) << "\n";
+        statistics << "Total Games: " << BATTLE_SIMULATION_ITERATIONS << "\n";
+        statistics << "Games won: Top=" << 100.0f * gamesTopPlayerWonCounter/static_cast<float>(BATTLE_SIMULATION_ITERATIONS) << "%  Bot=" << 100.0f * (BATTLE_SIMULATION_ITERATIONS - gamesTopPlayerWonCounter)/static_cast<float>(BATTLE_SIMULATION_ITERATIONS) << "%\n";
+        statistics << "Average weight ammo per game on victory: " << weightAmmoCounter/static_cast<float>(BATTLE_SIMULATION_ITERATIONS) << "\n";
+        statistics << "Average turns per game: " << turnCounter/static_cast<float>(BATTLE_SIMULATION_ITERATIONS) << "\n";
         
         
         statistics << "Card pressence in won games: \n";
@@ -534,9 +608,9 @@ void GameActionTests::SimulateBattle(strutils::StringId topDeckFamilyName /*= st
             row << cardData.mCardName ;
             row << std::setw(43 - static_cast<int>(row.str().size()));
             row << std::setprecision(2);
-            row << " in " << 100.0f * entry.first/static_cast<float>(GAME_COUNT) << "%";
+            row << " in " << 100.0f * entry.first/static_cast<float>(BATTLE_SIMULATION_ITERATIONS) << "%";
             row << std::setw(55 - static_cast<int>(row.str().size()));
-            row << " of games (" << entry.first << " out of " << GAME_COUNT << " games) \n";
+            row << " of games (" << entry.first << " out of " << BATTLE_SIMULATION_ITERATIONS << " games) \n";
             statistics << row.str();
         };
         
@@ -554,7 +628,7 @@ void GameActionTests::SimulateBattle(strutils::StringId topDeckFamilyName /*= st
         statistics << "\nCard power score: \n"; // won games - lost games
         for (const auto& entry: winnerGameCountsAndCardIds)
         {
-            float powerLevel = (entry.first / static_cast<float>(GAME_COUNT)) * 100.0f;
+            float powerLevel = (entry.first / static_cast<float>(BATTLE_SIMULATION_ITERATIONS)) * 100.0f;
             
             auto foundInLostGamesContainer = std::find_if(looserGameCountsAndCardIds.cbegin(), looserGameCountsAndCardIds.cend(), [=](const std::pair<int, int>& looseEntry)
             {
@@ -562,7 +636,7 @@ void GameActionTests::SimulateBattle(strutils::StringId topDeckFamilyName /*= st
             });
             if (foundInLostGamesContainer != looserGameCountsAndCardIds.cend())
             {
-                powerLevel -= (foundInLostGamesContainer->first / static_cast<float>(GAME_COUNT) * 100.0f);
+                powerLevel -= (foundInLostGamesContainer->first / static_cast<float>(BATTLE_SIMULATION_ITERATIONS) * 100.0f);
             }
             
             powerLevelAndCardIds.push_back(std::make_pair(powerLevel, entry.second));

@@ -9,6 +9,7 @@
 #include <game/CardUtils.h>
 #include <game/events/EventSystem.h>
 #include <game/gameactions/TrapTriggeredAnimationGameAction.h>
+#include <game/gameactions/CardBuffedDebuffedAnimationGameAction.h>
 #include <game/gameactions/CardDestructionGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/GameSessionManager.h>
@@ -25,13 +26,14 @@ const std::string TrapTriggeredAnimationGameAction::TRAP_TRIGGER_TYPE_KILL = "tr
 const std::string TrapTriggeredAnimationGameAction::TRAP_TRIGGER_TYPE_DEBUFF = "trapTriggerTypeDebuff";
 
 static const strutils::StringId CARD_DESTRUCTION_GAME_ACTION_NAME = strutils::StringId("CardDestructionGameAction");
+static const strutils::StringId CARD_BUFFED_DEBUFFED_ANIMATION_GAME_ACTION_NAME = strutils::StringId("CardBuffedDebuffedAnimationGameAction");
+
 static const float ANIMATION_STEP_DURATION = 0.75f;
 static const float ANIMATION_MAX_ALPHA = 0.7f;
 static const float ANIMATION_STEP_1_SCALE_FACTOR = 1.5f;
 static const float ANIMATION_STEP_2_SCALE_FACTOR = 1.2f;
 static const float ANIMATION_STEP_1_ROTATION_INCREMENT = math::PI/5;
 static const float ANIMATION_STEP_2_ROTATION_INCREMENT = -math::PI/3;
-static const float CARD_SCALE_ANIMATION_DURATION_SECS = 0.6f;
 static const float CARD_DEBUFF_SCALE_DOWN_FACTOR = 0.5f;
 
 ///------------------------------------------------------------------------------------------------
@@ -57,6 +59,16 @@ void TrapTriggeredAnimationGameAction::VSetNewGameState()
             { CardDestructionGameAction::PLAYER_INDEX_PARAM, std::to_string(mBoardState->GetActivePlayerIndex())},
             { CardDestructionGameAction::IS_BOARD_CARD_PARAM, "true"},
             { CardDestructionGameAction::IS_TRAP_TRIGGER_PARAM, "true"},
+        });
+    }
+    else if (mExtraActionParams.at(TRAP_TRIGGER_TYPE_PARAM) == TRAP_TRIGGER_TYPE_DEBUFF)
+    {
+        mGameActionEngine->AddGameAction(CARD_BUFFED_DEBUFFED_ANIMATION_GAME_ACTION_NAME,
+        {
+            { CardBuffedDebuffedAnimationGameAction::CARD_INDEX_PARAM, std::to_string(activePlayerState.mPlayerBoardCards.size() - 1)},
+            { CardBuffedDebuffedAnimationGameAction::PLAYER_INDEX_PARAM, std::to_string(mBoardState->GetActivePlayerIndex())},
+            { CardBuffedDebuffedAnimationGameAction::IS_BOARD_CARD_PARAM, "true" },
+            { CardBuffedDebuffedAnimationGameAction::SCALE_FACTOR_PARAM, std::to_string(CARD_DEBUFF_SCALE_DOWN_FACTOR) }
         });
     }
 }
@@ -94,22 +106,7 @@ void TrapTriggeredAnimationGameAction::VInitAnimation()
     }
     else if (mExtraActionParams.at(TRAP_TRIGGER_TYPE_PARAM) == TRAP_TRIGGER_TYPE_DEBUFF)
     {
-        mAnimationState = ActionState::ANIMATION_STEP_WAIT;
-        
-        auto originalScale = lastPlayedCardSoWrapper->mSceneObject->mScale;
-        animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(lastPlayedCardSoWrapper->mSceneObject, lastPlayedCardSoWrapper->mSceneObject->mPosition, originalScale * CARD_DEBUFF_SCALE_DOWN_FACTOR, CARD_SCALE_ANIMATION_DURATION_SECS/2, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
-        {
-    
-            events::EventSystem::GetInstance().DispatchEvent<events::CardBuffedDebuffedEvent>(static_cast<int>(lastPlayedBoardCardIndex), true, mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
-            auto cardSoWrapper = mGameSessionManager->GetBoardCardSoWrappers().at(mBoardState->GetActivePlayerIndex()).at(lastPlayedBoardCardIndex);
-            cardSoWrapper->mSceneObject->mScale = originalScale * CARD_DEBUFF_SCALE_DOWN_FACTOR;
-            
-            auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
-            animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObject, cardSoWrapper->mSceneObject->mPosition, originalScale, CARD_SCALE_ANIMATION_DURATION_SECS/2, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
-            {
-                mAnimationState = ActionState::FINISHED;
-            });
-        });
+        mAnimationState = ActionState::FINISHED;
     }
 }
 

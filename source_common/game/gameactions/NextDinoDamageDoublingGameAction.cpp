@@ -8,6 +8,7 @@
 #include <game/Cards.h>
 #include <game/CardUtils.h>
 #include <game/events/EventSystem.h>
+#include <game/gameactions/CardBuffedDebuffedAnimationGameAction.h>
 #include <game/gameactions/NextDinoDamageDoublingGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/GameSessionManager.h>
@@ -19,7 +20,7 @@
 
 ///------------------------------------------------------------------------------------------------
 
-static const float CARD_SCALE_ANIMATION_DURATION_SECS = 1.0f;
+static const strutils::StringId CARD_BUFFED_DEBUFFED_ANIMATION_GAME_ACTION_NAME = strutils::StringId("CardBuffedDebuffedAnimationGameAction");
 static const float CARD_SCALE_FACTOR = 2.5f;
 
 ///------------------------------------------------------------------------------------------------
@@ -49,37 +50,27 @@ void NextDinoDamageDoublingGameAction::VSetNewGameState()
     }
     
     events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, false, effects::board_modifier_masks::DOUBLE_NEXT_DINO_DAMAGE);
+    
+    mGameActionEngine->AddGameAction(CARD_BUFFED_DEBUFFED_ANIMATION_GAME_ACTION_NAME,
+    {
+        { CardBuffedDebuffedAnimationGameAction::CARD_INDEX_PARAM, std::to_string(playerBoardCards.size() - 1)},
+        { CardBuffedDebuffedAnimationGameAction::PLAYER_INDEX_PARAM, std::to_string(mBoardState->GetActivePlayerIndex())},
+        { CardBuffedDebuffedAnimationGameAction::IS_BOARD_CARD_PARAM, "true" },
+        { CardBuffedDebuffedAnimationGameAction::SCALE_FACTOR_PARAM, std::to_string(CARD_SCALE_FACTOR) }
+    });
 }
 
 ///------------------------------------------------------------------------------------------------
 
 void NextDinoDamageDoublingGameAction::VInitAnimation()
 {
-    mFinished = false;
-    auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
-    
-    auto affectedCardSoWrapper = mGameSessionManager->GetBoardCardSoWrappers()[mBoardState->GetActivePlayerIndex()].back();
-    auto originalScale = affectedCardSoWrapper->mSceneObject->mScale;
-    
-    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(affectedCardSoWrapper->mSceneObject, affectedCardSoWrapper->mSceneObject->mPosition, originalScale * CARD_SCALE_FACTOR, CARD_SCALE_ANIMATION_DURATION_SECS/2, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
-    {
-        events::EventSystem::GetInstance().DispatchEvent<events::CardBuffedDebuffedEvent>(static_cast<int>(mBoardState->GetActivePlayerState().mPlayerBoardCards.size() - 1), true, mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
-        
-        auto affectedCardSoWrapper = mGameSessionManager->GetBoardCardSoWrappers()[mBoardState->GetActivePlayerIndex()].back();
-        auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
-        
-        animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(affectedCardSoWrapper->mSceneObject, affectedCardSoWrapper->mSceneObject->mPosition, originalScale, CARD_SCALE_ANIMATION_DURATION_SECS/2, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
-        {
-            mFinished = true;
-        });
-    });
 }
 
 ///------------------------------------------------------------------------------------------------
 
 ActionAnimationUpdateResult NextDinoDamageDoublingGameAction::VUpdateAnimation(const float)
 {
-    return mFinished ? ActionAnimationUpdateResult::FINISHED : ActionAnimationUpdateResult::ONGOING;
+    return ActionAnimationUpdateResult::FINISHED;
 }
 
 ///------------------------------------------------------------------------------------------------

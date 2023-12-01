@@ -313,11 +313,11 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
             }
         }
         
-        if (globalStatModifiers.count(CardStatType::DAMAGE))
+        if (isOnBoard && globalStatModifiers.count(CardStatType::DAMAGE))
         {
             generatedTextureOverridePostfixSS << "_global_damage_" << globalStatModifiers.at(CardStatType::DAMAGE);
         }
-        if (globalStatModifiers.count(CardStatType::WEIGHT))
+        if (isOnBoard && globalStatModifiers.count(CardStatType::WEIGHT))
         {
             generatedTextureOverridePostfixSS << "_global_weight_" << globalStatModifiers.at(CardStatType::WEIGHT);
         }

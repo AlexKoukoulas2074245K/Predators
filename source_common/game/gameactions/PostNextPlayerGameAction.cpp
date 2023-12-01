@@ -36,11 +36,11 @@ void PostNextPlayerGameAction::VSetNewGameState()
     {
         if (boardCardIndicesToDestroy.count(i) == 0)
         {
-            remainingBoardCards.emplace_back(boardCards[i]);
+            remainingBoardCards.insert(remainingBoardCards.begin(), boardCards[i]);
             
             if (static_cast<int>(mBoardState->GetInactivePlayerState().mPlayerBoardCardStatOverrides.size()) > i)
             {
-                remainingBoardCardStatOverrides.emplace_back(mBoardState->GetInactivePlayerState().mPlayerBoardCardStatOverrides[i]);
+                remainingBoardCardStatOverrides.insert(remainingBoardCardStatOverrides.begin(), mBoardState->GetInactivePlayerState().mPlayerBoardCardStatOverrides[i]);
             }
         }
         else
@@ -66,7 +66,8 @@ void PostNextPlayerGameAction::VSetNewGameState()
     mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask = effects::board_modifier_masks::NONE;
     mBoardState->GetInactivePlayerState().mBoardCardIndicesToDestroy.clear();
     mBoardState->GetInactivePlayerState().mHeldCardIndicesToDestroy.clear();
-    events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX, true, effects::board_modifier_masks::BOARD_SIDE_STAT_MODIFIER);
+    
+    events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX, true, effects::board_modifier_masks::BOARD_SIDE_DEBUFF);
     events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX, true, effects::board_modifier_masks::KILL_NEXT);
     events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX, true, effects::board_modifier_masks::DUPLICATE_NEXT_INSECT);
     events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX, true, effects::board_modifier_masks::DOUBLE_NEXT_DINO_DAMAGE);

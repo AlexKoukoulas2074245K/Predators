@@ -252,7 +252,7 @@
         },
         {
             "id": 26,
-            "weight": 1,
+            "weight": 2,
             "family": "dinosaurs",
             "name": "Mighty Dino Roar",
             "effect": "DOUBLE_NEXT_DINO_DAMAGE",
