@@ -9,6 +9,7 @@
 #include <engine/utils/Logging.h>
 #include <game/BoardState.h>
 #include <game/Cards.h>
+#include <game/GameConstants.h>
 #include <game/GameRuleEngine.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/PlayCardGameAction.h>
@@ -55,8 +56,10 @@ protected:
         mPlayerActionGenerationEngine = std::make_unique<PlayerActionGenerationEngine>(mGameRuleEngine.get(), mActionEngine.get(), actionGenerationType);
         mBoardState->GetPlayerStates().emplace_back();
         mBoardState->GetPlayerStates().back().mPlayerDeckCards = cardCollectionType == CardCollectionType::ALL_NON_SPELL_CARDS ? CardDataRepository::GetInstance().GetAllNonSpellCardIds() : CardDataRepository::GetInstance().GetAllCardIds();
+        mBoardState->GetPlayerStates().back().mPlayerHealth = game_constants::TOP_PLAYER_DEFAULT_HEALTH;
         mBoardState->GetPlayerStates().emplace_back();
         mBoardState->GetPlayerStates().back().mPlayerDeckCards = cardCollectionType == CardCollectionType::ALL_NON_SPELL_CARDS ? CardDataRepository::GetInstance().GetAllNonSpellCardIds() : CardDataRepository::GetInstance().GetAllCardIds();
+        mBoardState->GetPlayerStates().back().mPlayerHealth = game_constants::BOT_PLAYER_DEFAULT_HEALTH;
     }
     
     void UpdateUntilActionOrIdle(const strutils::StringId& actionName)
@@ -104,7 +107,7 @@ TEST_F(GameActionTests, TestBoardStatePostDrawAction)
     
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
     
-    EXPECT_EQ(mBoardState->GetActivePlayerState().mPlayerHeldCards.size(), 3);
+    EXPECT_EQ(mBoardState->GetActivePlayerState().mPlayerHeldCards.size(), 4);
     EXPECT_EQ(mActionEngine->GetActiveGameActionName(), IDLE_GAME_ACTION_NAME);
 }
 
@@ -115,7 +118,7 @@ TEST_F(GameActionTests, TestBoardStatePostDrawAndPlayAction)
     
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
     
-    EXPECT_EQ(mBoardState->GetActivePlayerState().mPlayerHeldCards.size(), 2);
+    EXPECT_EQ(mBoardState->GetActivePlayerState().mPlayerHeldCards.size(), 3);
     EXPECT_EQ(mBoardState->GetActivePlayerState().mPlayerBoardCards.size(), 1);
     EXPECT_EQ(mActionEngine->GetActiveGameActionName(), IDLE_GAME_ACTION_NAME);
 }
@@ -133,7 +136,7 @@ TEST_F(GameActionTests, TestDrawPlayNextDrawPlayActionRound)
     
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
     
-    EXPECT_EQ(mBoardState->GetPlayerStates().at(0).mPlayerHeldCards.size(), 3);
+    EXPECT_EQ(mBoardState->GetPlayerStates().at(0).mPlayerHeldCards.size(), 4);
     EXPECT_EQ(mBoardState->GetPlayerStates().at(0).mPlayerBoardCards.size(), 0);
     
     EXPECT_EQ(mBoardState->GetPlayerStates().at(1).mPlayerHeldCards.size(), 0);
@@ -197,6 +200,9 @@ TEST_F(GameActionTests, TestPlayerActionGenerationEngine)
 
 TEST_F(GameActionTests, TestBearTrapEffect)
 {
+    mBoardState->GetPlayerStates()[0].mPlayerHealth = 30;
+    mBoardState->GetPlayerStates()[1].mPlayerHealth = 30;
+    
     mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {22}; // Top player has a deck of bear traps
     mBoardState->GetPlayerStates()[1].mPlayerDeckCards = {4}; // Bot player has a deck of bunnies
     
@@ -218,6 +224,9 @@ TEST_F(GameActionTests, TestBearTrapEffect)
 
 TEST_F(GameActionTests, TestNetEffect)
 {
+    mBoardState->GetPlayerStates()[0].mPlayerHealth = 30;
+    mBoardState->GetPlayerStates()[1].mPlayerHealth = 30;
+    
     mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {21}; // Top player has a deck of nets traps
     mBoardState->GetPlayerStates()[1].mPlayerDeckCards = {4}; // Bot player has a deck of bunnies
     
@@ -241,6 +250,9 @@ TEST_F(GameActionTests, TestNetEffect)
 
 TEST_F(GameActionTests, TestNetAndFluffAttackCombinedEffects)
 {
+    mBoardState->GetPlayerStates()[0].mPlayerHealth = 30;
+    mBoardState->GetPlayerStates()[1].mPlayerHealth = 30;
+    
     mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {21}; // Top player has a deck of nets
     mBoardState->GetPlayerStates()[1].mPlayerDeckCards = {19, 0}; // Bot player has a deck of Beavers(3,3) and fluff attack
     
@@ -267,6 +279,9 @@ TEST_F(GameActionTests, TestNetAndFluffAttackCombinedEffects)
 
 TEST_F(GameActionTests, TestDoubleFluffAttackFollowedByBunnyStats)
 {
+    mBoardState->GetPlayerStates()[0].mPlayerHealth = 30;
+    mBoardState->GetPlayerStates()[1].mPlayerHealth = 30;
+    
     mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {4}; // Top player has a deck of bunnies
     mBoardState->GetPlayerStates()[1].mPlayerDeckCards = {4, 19}; // Bot player has a deck of Beavers(3,3) and fluff attack
     
@@ -294,6 +309,9 @@ TEST_F(GameActionTests, TestDoubleFluffAttackFollowedByBunnyStats)
 
 TEST_F(GameActionTests, TestDoubleNetAndFluffAttackCombinedEffects)
 {
+    mBoardState->GetPlayerStates()[0].mPlayerHealth = 30;
+    mBoardState->GetPlayerStates()[1].mPlayerHealth = 30;
+    
     mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {21}; // Top player has a deck of nets
     mBoardState->GetPlayerStates()[1].mPlayerDeckCards = {19, 0}; // Bot player has a deck of Beavers(3,3) and fluff attack
     
@@ -323,6 +341,9 @@ TEST_F(GameActionTests, TestDoubleNetAndFluffAttackCombinedEffects)
 
 TEST_F(GameActionTests, TestFeatheryDinoEffect)
 {
+    mBoardState->GetPlayerStates()[0].mPlayerHealth = 30;
+    mBoardState->GetPlayerStates()[1].mPlayerHealth = 30;
+    
     mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {23, 17}; // Top player has a deck of Feathery Dino and Triceratops
     
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
@@ -346,6 +367,9 @@ TEST_F(GameActionTests, TestFeatheryDinoEffect)
 
 TEST_F(GameActionTests, TestBearTrapEffectFollowedByGustOfWind)
 {
+    mBoardState->GetPlayerStates()[0].mPlayerHealth = 30;
+    mBoardState->GetPlayerStates()[1].mPlayerHealth = 30;
+    
     mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {22}; // Top player has a deck of bear traps
     mBoardState->GetPlayerStates()[1].mPlayerDeckCards = {24, 4}; // Bot player has a deck of Gusts of Wind and Bunnies
     
@@ -368,6 +392,9 @@ TEST_F(GameActionTests, TestBearTrapEffectFollowedByGustOfWind)
 
 TEST_F(GameActionTests, TestInsectDuplicationEffect)
 {
+    mBoardState->GetPlayerStates()[0].mPlayerHealth = 30;
+    mBoardState->GetPlayerStates()[1].mPlayerHealth = 30;
+    
     mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {25, 1}; // Top player has a deck of Insect Duplications and Bees
     
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
@@ -390,6 +417,9 @@ TEST_F(GameActionTests, TestInsectDuplicationEffect)
 
 TEST_F(GameActionTests, TestToxicWaveAndInsectDuplicationEffect)
 {
+    mBoardState->GetPlayerStates()[0].mPlayerHealth = 30;
+    mBoardState->GetPlayerStates()[1].mPlayerHealth = 30;
+    
     mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {25, 27, 1}; // Top player has a deck of Insect Duplications, Toxic Wave and Bees
     
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
@@ -414,6 +444,9 @@ TEST_F(GameActionTests, TestToxicWaveAndInsectDuplicationEffect)
 
 TEST_F(GameActionTests, TestMightyDinoRoarEffect)
 {
+    mBoardState->GetPlayerStates()[0].mPlayerHealth = 30;
+    mBoardState->GetPlayerStates()[1].mPlayerHealth = 30;
+    
     mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {26, 5}; // Top player has a deck of Mighty Dino Roars (w=2) and  Dilophosaurus (d=5,w=4)
     
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
@@ -436,6 +469,9 @@ TEST_F(GameActionTests, TestMightyDinoRoarEffect)
 
 TEST_F(GameActionTests, TestDinoMultiBuff)
 {
+    mBoardState->GetPlayerStates()[0].mPlayerHealth = 30;
+    mBoardState->GetPlayerStates()[1].mPlayerHealth = 30;
+    
     mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {23, 28, 5}; // Top player has a deck of Feathery Dinos, Metal Claws and Dilophosaurus (d=5,w=4)
     
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
@@ -458,6 +494,9 @@ TEST_F(GameActionTests, TestDinoMultiBuff)
 
 TEST_F(GameActionTests, TestBuffedDugOutRodentsHaveCorrectModifiersPostClearingNetWithGustOfWind)
 {
+    mBoardState->GetPlayerStates()[0].mPlayerHealth = 30;
+    mBoardState->GetPlayerStates()[1].mPlayerHealth = 30;
+    
     mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {21}; // Top player has a deck of Nets
     mBoardState->GetPlayerStates()[1].mPlayerDeckCards = {19, 4, 15, 24}; // Bot player has a deck of Fluff Attacks, Bunnies, Squirrels and Gusts of Winds
     

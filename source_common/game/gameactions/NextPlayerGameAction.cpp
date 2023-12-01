@@ -75,7 +75,8 @@ void NextPlayerGameAction::VSetNewGameState()
     mGameActionEngine->AddGameAction(POISON_STACK_APPLICATION_GAME_ACTION_NAME, {});
     mGameActionEngine->AddGameAction(POST_NEXT_PLAYER_GAME_ACTION_NAME);
     
-    // Both players get 3 cards
+    // Both players get 4 cards
+    mGameActionEngine->AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
     mGameActionEngine->AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
     mGameActionEngine->AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
     mGameActionEngine->AddGameAction(DRAW_CARD_GAME_ACTION_NAME);

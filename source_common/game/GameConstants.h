@@ -87,6 +87,8 @@ namespace game_constants
     inline constexpr int IN_GAME_CARD_PUSH_THRESHOLD = 4;
     inline constexpr int BOARD_SIDE_EFFECT_VALUE_SO_COUNT = 2;
     inline constexpr int CARD_TOOLTIP_TEXT_ROWS_COUNT = 4;
+    inline constexpr int TOP_PLAYER_DEFAULT_HEALTH = 30;
+    inline constexpr int BOT_PLAYER_DEFAULT_HEALTH = 33;
 
     inline const float CARD_COMPONENT_Z_OFFSET = 0.1f;
     inline const float CARD_BOUNDING_RECT_X_MULTIPLIER = 0.5f;
