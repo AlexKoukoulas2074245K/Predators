@@ -109,6 +109,8 @@ static const float BOARD_SIDE_EFFECT_VALUE_SCALE = 0.0003f;
 static const float INDIVIDUAL_CARD_BOARD_EFFECT_BASE_Z = 1.1f;
 static const float INDIVIDUAL_CARD_BOARD_EFFECT_Z_INCREMENT = 0.01f;
 static const float BOARD_EFFECT_MAX_ALPHA = 0.25f;
+static const float TURN_POINTER_INTERACTOR_SCALE_FACTOR = 0.5f;
+static const float TURN_POINTER_INTERACTION_PULSE_DURATION = 0.1f;
 
 #if defined(MOBILE_FLOW)
 static const float MOBILE_DISTANCE_FROM_CARD_LOCATION_INDICATOR = 0.003f;
@@ -146,8 +148,8 @@ void GameSessionManager::InitGameSession()
     mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerHealth = game_constants::TOP_PLAYER_DEFAULT_HEALTH;
     mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth = game_constants::BOT_PLAYER_DEFAULT_HEALTH;
     
-    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("dinosaurs"));
-    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));
+    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));
+    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("dinosaurs"));
     
     //mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mGoldenCardIds = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("insects"));
     //mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mGoldenCardIds = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));;
@@ -163,7 +165,7 @@ void GameSessionManager::InitGameSession()
     
     mRuleEngine = std::make_unique<GameRuleEngine>(mBoardState.get());
 
-#define AUTO_PLAY
+//#define AUTO_PLAY
 //#define REPLAY_FLOW
     
 #if defined(REPLAY_FLOW)
@@ -295,7 +297,7 @@ void GameSessionManager::InitGameSession()
         effectTopSceneObject->mPosition = BOARD_SIDE_EFFECT_TOP_POSITION;
         effectTopSceneObject->mScale = game_constants::INDIVIDUAL_CARD_BOARD_EFFECT_SCALE;
         effectTopSceneObject->mInvisible = true;
-        CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::ContinuousPulseAnimation>(effectTopSceneObject, game_constants::INDIVIDUAL_CARD_BOARD_EFFECT_SCALE_UP_FACTOR, game_constants::INDIVIDUAL_CARD_BOARD_EFFECT_PULSE_ANIMATION_PULSE_DUARTION_SECS), [](){});
+        CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::PulseAnimation>(effectTopSceneObject, game_constants::INDIVIDUAL_CARD_BOARD_EFFECT_SCALE_UP_FACTOR, game_constants::INDIVIDUAL_CARD_BOARD_EFFECT_PULSE_ANIMATION_PULSE_DUARTION_SECS, animation_flags::ANIMATE_CONTINUOUSLY), [](){});
         
         auto effectBotSceneObject = activeScene->CreateSceneObject(botSceneObjectName);
         effectBotSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + textureFilename);
@@ -305,7 +307,7 @@ void GameSessionManager::InitGameSession()
         effectBotSceneObject->mPosition = BOARD_SIDE_EFFECT_BOT_POSITION;
         effectBotSceneObject->mScale = game_constants::INDIVIDUAL_CARD_BOARD_EFFECT_SCALE;
         effectBotSceneObject->mInvisible = true;
-        CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::ContinuousPulseAnimation>(effectBotSceneObject, game_constants::INDIVIDUAL_CARD_BOARD_EFFECT_SCALE_UP_FACTOR, game_constants::INDIVIDUAL_CARD_BOARD_EFFECT_PULSE_ANIMATION_PULSE_DUARTION_SECS), [](){});
+        CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::PulseAnimation>(effectBotSceneObject, game_constants::INDIVIDUAL_CARD_BOARD_EFFECT_SCALE_UP_FACTOR, game_constants::INDIVIDUAL_CARD_BOARD_EFFECT_PULSE_ANIMATION_PULSE_DUARTION_SECS, animation_flags::ANIMATE_CONTINUOUSLY), [](){});
     };
     
     // Kill Side Effects
@@ -622,6 +624,7 @@ void GameSessionManager::HandleTouchInput(const float dtMillis)
         
         if (cursorInSceneObject && inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON) && mCanIssueNextTurnInteraction)
         {
+            animationManager.StartAnimation(std::make_unique<rendering::PulseAnimation>(turnPointerSo, TURN_POINTER_INTERACTOR_SCALE_FACTOR, TURN_POINTER_INTERACTION_PULSE_DURATION), [](){});
             animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(turnPointerHighlighterSo, 0.0f, game_constants::TURN_POINTER_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), [](){});
             mActionEngine->AddGameAction(NEXT_PLAYER_ACTION_NAME);
             mCanIssueNextTurnInteraction = false;
@@ -1360,7 +1363,7 @@ void GameSessionManager::OnBoardSideCardEffectTriggered(const events::BoardSideC
         
         sideEffectSceneObject->mScale = game_constants::INDIVIDUAL_CARD_BOARD_EFFECT_SCALE;
         sideEffectSceneObject->mRotation = glm::vec3(0.0f);
-        animationManager.StartAnimation(std::make_unique<rendering::ContinuousPulseAnimation>(sideEffectSceneObject, game_constants::INDIVIDUAL_CARD_BOARD_EFFECT_SCALE_UP_FACTOR, game_constants::INDIVIDUAL_CARD_BOARD_EFFECT_PULSE_ANIMATION_PULSE_DUARTION_SECS), [](){});
+        animationManager.StartAnimation(std::make_unique<rendering::PulseAnimation>(sideEffectSceneObject, game_constants::INDIVIDUAL_CARD_BOARD_EFFECT_SCALE_UP_FACTOR, game_constants::INDIVIDUAL_CARD_BOARD_EFFECT_PULSE_ANIMATION_PULSE_DUARTION_SECS, animation_flags::ANIMATE_CONTINUOUSLY), [](){});
         
         auto& activeEffects = mActiveIndividualCardBoardEffectSceneObjects[event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX];
         if (std::find(activeEffects.cbegin(), activeEffects.cend(), sideEffectSceneObject) == activeEffects.cend())

@@ -41,7 +41,7 @@ public:
     virtual bool VIsTouchInputPlatform() const = 0;
     
     virtual void VProcessInputEvent(const SDL_Event& event, bool& shouldQuit, bool& windowSizeChange, bool& applicationMovingToBackground) = 0;
-    virtual void VUpdate(const float dtMillis) = 0;
+    virtual void VUpdate() = 0;
 };
 
 ///------------------------------------------------------------------------------------------------

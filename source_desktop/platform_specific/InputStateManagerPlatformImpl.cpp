@@ -108,7 +108,7 @@ void InputStateManagerPlatformImpl::VProcessInputEvent(const SDL_Event& event, b
 
 ///------------------------------------------------------------------------------------------------
 
-void InputStateManagerPlatformImpl::VUpdate(const float)
+void InputStateManagerPlatformImpl::VUpdate()
 {
     mPreviousFrameButtonState = mCurrentFrameButtonState;
 }

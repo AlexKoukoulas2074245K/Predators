@@ -53,11 +53,14 @@ public:
     [[nodiscard]] rendering::Camera& GetCamera();
     [[nodiscard]] const rendering::Camera& GetCamera() const;
     [[nodiscard]] const strutils::StringId& GetName() const;
+    [[nodiscard]] float GetUpdateTimeSpeedFactor() const;
+    [[nodiscard]] float& GetUpdateTimeSpeedFactor();
     
 private:
     const strutils::StringId mSceneName;
     std::vector<std::shared_ptr<SceneObject>> mSceneObjects;
     rendering::Camera mCamera;
+    float mUpdateTimeSpeedFactor;
 };
 
 ///------------------------------------------------------------------------------------------------

@@ -181,12 +181,12 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
   
         mSystems->mAnimationManager.Update(gameLogicMillis);
         clientUpdateFunction(gameLogicMillis);
-        mSystems->mInputStateManager.VUpdate(gameLogicMillis);
+        mSystems->mInputStateManager.VUpdate();
         
         for (auto& scene: mSystems->mActiveSceneManager.GetScenes())
         {
-            scene->GetCamera().Update(gameLogicMillis);
-            mSystems->mParticleManager.UpdateSceneParticles(gameLogicMillis, *scene);
+            scene->GetCamera().Update(scene->GetUpdateTimeSpeedFactor() * gameLogicMillis);
+            mSystems->mParticleManager.UpdateSceneParticles(scene->GetUpdateTimeSpeedFactor() * gameLogicMillis, *scene);
             mSystems->mActiveSceneManager.SortSceneObjects(scene);
         }
         

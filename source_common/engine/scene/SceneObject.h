@@ -96,8 +96,10 @@ inline constexpr int EFFECT_TEXTURES_COUNT = 3;
 
 ///------------------------------------------------------------------------------------------------
 
+class Scene;
 struct SceneObject
 {
+    const Scene* mScene = nullptr;
     strutils::StringId mName = strutils::StringId();
     std::variant<DefaultSceneObjectData, TextSceneObjectData, ParticleEmitterObjectData> mSceneObjectTypeData;
     std::unordered_map<strutils::StringId, glm::vec3, strutils::StringIdHasher> mShaderVec3UniformValues;

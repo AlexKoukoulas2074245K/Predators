@@ -17,7 +17,8 @@ namespace scene
 ///------------------------------------------------------------------------------------------------
 
 Scene::Scene(const strutils::StringId& sceneName)
-    : mSceneName(sceneName)
+: mSceneName(sceneName)
+, mUpdateTimeSpeedFactor(1.0f)
 {
 }
 
@@ -26,6 +27,7 @@ Scene::Scene(const strutils::StringId& sceneName)
 std::shared_ptr<SceneObject> Scene::CreateSceneObject(const strutils::StringId sceneObjectName /* = strutils::StringId() */)
 {
     auto newSceneObject = std::make_shared<SceneObject>();
+    newSceneObject->mScene = this;
     newSceneObject->mName = sceneObjectName;
     mSceneObjects.push_back(newSceneObject);
     return newSceneObject;
@@ -36,7 +38,7 @@ std::shared_ptr<SceneObject> Scene::CreateSceneObject(const strutils::StringId s
 std::shared_ptr<SceneObject> Scene::FindSceneObject(const strutils::StringId& sceneObjectName)
 {
     auto findIter = std::find_if(mSceneObjects.begin(), mSceneObjects.end(), [&](const std::shared_ptr<SceneObject>& sceneObject)
-    {
+                                 {
         return sceneObject->mName == sceneObjectName;
     });
     
@@ -131,7 +133,7 @@ void Scene::RecalculatePositionOfEdgeSnappingSceneObjects()
 void Scene::RemoveSceneObject(const strutils::StringId& sceneObjectName)
 {
     auto findIter = std::find_if(mSceneObjects.begin(), mSceneObjects.end(), [&](const std::shared_ptr<SceneObject>& sceneObject)
-    {
+                                 {
         return sceneObject->mName == sceneObjectName;
     });
     if (findIter != mSceneObjects.end())
@@ -178,6 +180,14 @@ const rendering::Camera& Scene::GetCamera() const { return mCamera; }
 ///------------------------------------------------------------------------------------------------
 
 const strutils::StringId& Scene::GetName() const { return mSceneName; }
+
+///------------------------------------------------------------------------------------------------
+
+float Scene::GetUpdateTimeSpeedFactor() const { return mUpdateTimeSpeedFactor; }
+
+///------------------------------------------------------------------------------------------------
+
+float& Scene::GetUpdateTimeSpeedFactor() { return mUpdateTimeSpeedFactor; }
 
 ///------------------------------------------------------------------------------------------------
 

@@ -506,6 +506,17 @@ void RendererPlatformImpl::CreateIMGuiWidgets()
         ImGui::Begin(viewerName.GetString().c_str(), nullptr, GLOBAL_WINDOW_LOCKING);
         
         // Scene Input propertues
+        if (ImGui::CollapsingHeader("Time", ImGuiTreeNodeFlags_None))
+        {
+            ImGui::SliderFloat("Time Speed", &sceneRef.get().GetUpdateTimeSpeedFactor(), 0.01f, 10.0f);
+            ImGui::SameLine();
+            if (ImGui::Button("Reset"))
+            {
+                (&sceneRef.get())->GetUpdateTimeSpeedFactor() = 1.0f;
+            }
+        }
+        
+        // Scene Input propertues
         if (ImGui::CollapsingHeader("Input", ImGuiTreeNodeFlags_None))
         {
             auto worldPos = CoreSystemsEngine::GetInstance().GetInputStateManager().VGetPointingPosInWorldSpace(sceneRef.get().GetCamera().GetViewMatrix(), sceneRef.get().GetCamera().GetProjMatrix());

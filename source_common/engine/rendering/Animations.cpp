@@ -64,6 +64,7 @@ TweenPositionScaleAnimation::TweenPositionScaleAnimation(std::shared_ptr<scene::
     , mInitScale(mSceneObjectTarget->mScale)
     , mTargetScale(glm::vec3(mInitScale.x * (targetScale.x/mSceneObjectTarget->mScale.x), mInitScale.y * (targetScale.y/mSceneObjectTarget->mScale.y), mInitScale.z))
 {
+    assert(!IS_FLAG_SET(animation_flags::ANIMATE_CONTINUOUSLY));
 }
 
 AnimationUpdateResult TweenPositionScaleAnimation::VUpdate(const float dtMillis)
@@ -98,7 +99,8 @@ TweenRotationAnimation::TweenRotationAnimation(std::shared_ptr<scene::SceneObjec
     , mTargetRotation(targetRotation)
     , mTweeningFunc(tweeningFunc)
     , mTweeningMode(tweeningMode)
-{    
+{
+    assert(!IS_FLAG_SET(animation_flags::ANIMATE_CONTINUOUSLY));
 }
 
 AnimationUpdateResult TweenRotationAnimation::VUpdate(const float dtMillis)
@@ -132,6 +134,7 @@ TweenAlphaAnimation::TweenAlphaAnimation(std::shared_ptr<scene::SceneObject> sce
     , mTweeningFunc(tweeningFunc)
     , mTweeningMode(tweeningMode)
 {
+    assert(!IS_FLAG_SET(animation_flags::ANIMATE_CONTINUOUSLY));
     assert(!IS_FLAG_SET(animation_flags::IGNORE_X_COMPONENT));
     assert(!IS_FLAG_SET(animation_flags::IGNORE_Y_COMPONENT));
     assert(!IS_FLAG_SET(animation_flags::IGNORE_Z_COMPONENT));
@@ -159,6 +162,7 @@ TweenValueAnimation::TweenValueAnimation(float& value, const float targetValue, 
     , mTweeningFunc(tweeningFunc)
     , mTweeningMode(tweeningMode)
 {
+    assert(!IS_FLAG_SET(animation_flags::ANIMATE_CONTINUOUSLY));
     assert(!IS_FLAG_SET(animation_flags::IGNORE_X_COMPONENT));
     assert(!IS_FLAG_SET(animation_flags::IGNORE_Y_COMPONENT));
     assert(!IS_FLAG_SET(animation_flags::IGNORE_Z_COMPONENT));
@@ -178,12 +182,12 @@ std::shared_ptr<scene::SceneObject> TweenValueAnimation::VGetSceneObject()
 
 ///------------------------------------------------------------------------------------------------
 
-ContinuousPulseAnimation::ContinuousPulseAnimation(std::shared_ptr<scene::SceneObject> sceneObjectTarget, const float scaleUpFactor, const float secsPulseDuration, const uint8_t animationFlags /* = animation_flags::NONE */, const float secsDelay /* = 0.0f */, const std::function<float(const float)> tweeningFunc /* = math::LinearFunction */, const math::TweeningMode tweeningMode /* = math::TweeningMode::EASE_IN */)
-    : BaseAnimation(animationFlags, -1.0f, secsDelay)
+PulseAnimation::PulseAnimation(std::shared_ptr<scene::SceneObject> sceneObjectTarget, const float scaleFactor, const float secsPulseDuration, const uint8_t animationFlags /* = animation_flags::NONE */, const float secsDelay /* = 0.0f */, const std::function<float(const float)> tweeningFunc /* = math::LinearFunction */, const math::TweeningMode tweeningMode /* = math::TweeningMode::EASE_IN */)
+    : BaseAnimation(animationFlags, (animationFlags & animation_flags::ANIMATE_CONTINUOUSLY) != 0 ? -1.0f : secsPulseDuration * 2.0f, secsDelay)
     , mSceneObjectTarget(sceneObjectTarget)
     , mSecsPulseDuration(secsPulseDuration)
     , mInitScale(sceneObjectTarget->mScale)
-    , mTargetScale(sceneObjectTarget->mScale * scaleUpFactor)
+    , mTargetScale(sceneObjectTarget->mScale * scaleFactor)
     , mTweeningFunc(tweeningFunc)
     , mTweeningMode(tweeningMode)
     , mSecsPulseAccum(0.0f)
@@ -194,7 +198,7 @@ ContinuousPulseAnimation::ContinuousPulseAnimation(std::shared_ptr<scene::SceneO
     assert(!IS_FLAG_SET(animation_flags::IGNORE_Z_COMPONENT));
 }
 
-AnimationUpdateResult ContinuousPulseAnimation::VUpdate(const float dtMillis)
+AnimationUpdateResult PulseAnimation::VUpdate(const float dtMillis)
 {
     mSecsPulseAccum += dtMillis/1000.0f;
     if (mSecsPulseAccum >= mSecsPulseDuration)
@@ -215,7 +219,7 @@ AnimationUpdateResult ContinuousPulseAnimation::VUpdate(const float dtMillis)
     return animationUpdateResult;
 }
 
-std::shared_ptr<scene::SceneObject> ContinuousPulseAnimation::VGetSceneObject()
+std::shared_ptr<scene::SceneObject> PulseAnimation::VGetSceneObject()
 {
     return mSceneObjectTarget;
 }
@@ -227,6 +231,7 @@ BezierCurveAnimation::BezierCurveAnimation(std::shared_ptr<scene::SceneObject> s
     , mSceneObjectTarget(sceneObjectTarget)
     , mCurve(curve)
 {
+    assert(!IS_FLAG_SET(animation_flags::ANIMATE_CONTINUOUSLY));
 }
 
 AnimationUpdateResult BezierCurveAnimation::VUpdate(const float dtMillis)

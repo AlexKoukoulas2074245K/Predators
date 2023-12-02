@@ -242,14 +242,14 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
             clientUpdateFunction(gameLogicMillis);
         }
         
-        mSystems->mInputStateManager.VUpdate(gameLogicMillis);
+        mSystems->mInputStateManager.VUpdate();
         
         if (!freezeGame)
         {
             for (auto& scene: mSystems->mActiveSceneManager.GetScenes())
             {
-                scene->GetCamera().Update(gameLogicMillis);
-                mSystems->mParticleManager.UpdateSceneParticles(gameLogicMillis, *scene);
+                scene->GetCamera().Update(gameLogicMillis * scene->GetUpdateTimeSpeedFactor());
+                mSystems->mParticleManager.UpdateSceneParticles(gameLogicMillis * scene->GetUpdateTimeSpeedFactor(), *scene);
                 mSystems->mActiveSceneManager.SortSceneObjects(scene);
             }
         }

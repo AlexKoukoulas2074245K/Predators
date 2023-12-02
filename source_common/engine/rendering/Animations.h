@@ -24,10 +24,11 @@ namespace scene { struct SceneObject; }
 
 namespace animation_flags
 {
-    static constexpr uint8_t NONE                            = 0x0;
-    static constexpr uint8_t IGNORE_Z_COMPONENT              = 0x1;
-    static constexpr uint8_t IGNORE_X_COMPONENT              = 0x2;
-    static constexpr uint8_t IGNORE_Y_COMPONENT              = 0x4;
+    static constexpr uint8_t NONE                 = 0x0;
+    static constexpr uint8_t IGNORE_Z_COMPONENT   = 0x1;
+    static constexpr uint8_t IGNORE_X_COMPONENT   = 0x2;
+    static constexpr uint8_t IGNORE_Y_COMPONENT   = 0x4;
+    static constexpr uint8_t ANIMATE_CONTINUOUSLY = 0x8;
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -143,10 +144,10 @@ private:
 
 ///------------------------------------------------------------------------------------------------
 
-class ContinuousPulseAnimation final: public BaseAnimation
+class PulseAnimation final: public BaseAnimation
 {
 public:
-    ContinuousPulseAnimation(std::shared_ptr<scene::SceneObject> sceneObjectTarget, const float scaleUpFactor, const float secsPulseDuration, const uint8_t animationFlags = animation_flags::NONE, const float secsDelay = 0.0f, const std::function<float(const float)> tweeningFunc = math::LinearFunction , const math::TweeningMode tweeningMode = math::TweeningMode::EASE_IN);
+    PulseAnimation(std::shared_ptr<scene::SceneObject> sceneObjectTarget, const float scaleFactor, const float secsPulseDuration, const uint8_t animationFlags = animation_flags::NONE, const float secsDelay = 0.0f, const std::function<float(const float)> tweeningFunc = math::LinearFunction , const math::TweeningMode tweeningMode = math::TweeningMode::EASE_IN);
     AnimationUpdateResult VUpdate(const float dtMillis) override;
     std::shared_ptr<scene::SceneObject> VGetSceneObject() override;
     
