@@ -196,8 +196,8 @@ void CardAttackGameAction::VInitAnimation()
                         *CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE)
                      );
                     
-                    auto cameraShakeDuration = ATTACKING_CARD_CAMERA_SHAKE_DURATION * (1.0f + 0.2f * cardSoWrapper->mCardData->mCardDamage);
-                    auto cameraShakeStrength = ATTACKING_CARD_CAMERA_SHAKE_STRENGTH * (1.0f + 0.2f * cardSoWrapper->mCardData->mCardDamage);
+                    auto cameraShakeDuration = ATTACKING_CARD_CAMERA_SHAKE_DURATION * (1.0f + 0.05f * std::powf(mPendingDamage, 2));
+                    auto cameraShakeStrength = ATTACKING_CARD_CAMERA_SHAKE_STRENGTH * (1.0f + 0.05f * std::powf(mPendingDamage, 2));
                     CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE)->GetCamera().Shake(cameraShakeDuration, cameraShakeStrength);
                     
                     animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObject, mOriginalCardPosition, mOriginalCardScale, ATTACKING_CARD_LONG_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [&]()
