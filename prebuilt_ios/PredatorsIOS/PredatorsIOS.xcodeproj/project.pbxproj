@@ -28,6 +28,7 @@
 		5BD366D66B0950E4329E1680 /* GameRuleEngine.h in Sources */ = {isa = PBXBuildFile; fileRef = 464BBDD6962488EAF0EDFC8D /* GameRuleEngine.h */; };
 		5C9953DDFEE1C355339E8F4D /* EventSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 549C84D3FE6BA93E39F0B406 /* EventSystem.cpp */; };
 		5D35EB306ABAAA6602F12C00 /* PostNextPlayerGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD189C394560D3EE41F57243 /* PostNextPlayerGameAction.cpp */; };
+		5D419704660E8D39EF808018 /* AnimatedButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41E9B2A6F18FC1E4E07DE13E /* AnimatedButton.cpp */; };
 		660911608ADE1C9EEC6A9623 /* AnimatedStatContainer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 89C7A73D8D9B8551A0B90213 /* AnimatedStatContainer.cpp */; };
 		68A7D5112BBD0BE7D7006FBB /* PersistenceUtils.h in Sources */ = {isa = PBXBuildFile; fileRef = 3C021C422B0B630653CB122A /* PersistenceUtils.h */; };
 		6EC55C29C35CC87CDB0AA6C3 /* NextDinoDamageDoublingGameAction.h in Sources */ = {isa = PBXBuildFile; fileRef = D6D41ED6929574145EC5292C /* NextDinoDamageDoublingGameAction.h */; };
@@ -86,6 +87,7 @@
 		A546A01450E839443B41CA7C /* PlayerActionGenerationEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 412405F5A340366C4088FC72 /* PlayerActionGenerationEngine.cpp */; };
 		AB54A5905F3A5259C0730F07 /* CardDestructionGameAction.h in Sources */ = {isa = PBXBuildFile; fileRef = 93AE986D787BD40CD2934725 /* CardDestructionGameAction.h */; };
 		AD7BB55992EC6177BB3DE6B1 /* RenderingUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 484A6A1B1B0D7ADC1BEEF99A /* RenderingUtils.cpp */; };
+		AE07C58021F06E44D072CA36 /* AnimatedButton.h in Sources */ = {isa = PBXBuildFile; fileRef = 6125D1CA10A2294EDC0D2DE5 /* AnimatedButton.h */; };
 		AE22507215A89C5059C9B6E4 /* ParticleManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E765BE8BAD6EAAC5948DFB99 /* ParticleManager.cpp */; };
 		B1D0C3698F66A0C39401D13C /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AE78F573A1F0686BA8E55D7 /* Reachability.m */; };
 		B3635684978AFF0F4C6AE38E /* CardDestructionGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD346EFDC613D39305CC6BD2 /* CardDestructionGameAction.cpp */; };
@@ -255,6 +257,7 @@
 		3AFDF18B5E2C82DD4F486F53 /* TrapTriggeredAnimationGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = TrapTriggeredAnimationGameAction.h; sourceTree = "<group>"; };
 		3C021C422B0B630653CB122A /* PersistenceUtils.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = PersistenceUtils.h; sourceTree = "<group>"; };
 		412405F5A340366C4088FC72 /* PlayerActionGenerationEngine.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = PlayerActionGenerationEngine.cpp; sourceTree = "<group>"; };
+		41E9B2A6F18FC1E4E07DE13E /* AnimatedButton.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = AnimatedButton.cpp; path = AnimatedButton.cpp; sourceTree = "<group>"; };
 		464BBDD6962488EAF0EDFC8D /* GameRuleEngine.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = GameRuleEngine.h; sourceTree = "<group>"; };
 		484A6A1B1B0D7ADC1BEEF99A /* RenderingUtils.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = RenderingUtils.cpp; sourceTree = "<group>"; };
 		4D44F8A7427AB83EA69F0455 /* SceneObjectUtils.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = SceneObjectUtils.h; sourceTree = "<group>"; };
@@ -262,6 +265,7 @@
 		549C84D3FE6BA93E39F0B406 /* EventSystem.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = EventSystem.cpp; sourceTree = "<group>"; };
 		5811D5357FB7EAA7C007CCBD /* RodentsDigAnimationGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = RodentsDigAnimationGameAction.cpp; path = RodentsDigAnimationGameAction.cpp; sourceTree = "<group>"; };
 		5FE6AF12B4C779A42A758E5B /* AnimatedStatContainer.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = AnimatedStatContainer.h; path = AnimatedStatContainer.h; sourceTree = "<group>"; };
+		6125D1CA10A2294EDC0D2DE5 /* AnimatedButton.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = AnimatedButton.h; path = AnimatedButton.h; sourceTree = "<group>"; };
 		64A0A7BE4A8B84A02E685B42 /* Animations.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = Animations.h; sourceTree = "<group>"; };
 		684882AB57582AA7C028DE3F /* CardEffectGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = CardEffectGameAction.h; sourceTree = "<group>"; };
 		70EAA9FFECCEE753A4D14AFF /* IOSUtils.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = IOSUtils.h; sourceTree = "<group>"; };
@@ -472,6 +476,8 @@
 				9F590974FFD4AB7AC83044F3 /* CardEffectComponents.h */,
 				89C7A73D8D9B8551A0B90213 /* AnimatedStatContainer.cpp */,
 				5FE6AF12B4C779A42A758E5B /* AnimatedStatContainer.h */,
+				41E9B2A6F18FC1E4E07DE13E /* AnimatedButton.cpp */,
+				6125D1CA10A2294EDC0D2DE5 /* AnimatedButton.h */,
 			);
 			path = game;
 			sourceTree = "<group>";
@@ -1079,6 +1085,8 @@
 				58BFF37C7331395F1F003139 /* CardBuffedDebuffedAnimationGameAction.h in Sources */,
 				992F23718D671F5FFA4F1DFC /* InsectDuplicationGameAction.h in Sources */,
 				6EC55C29C35CC87CDB0AA6C3 /* NextDinoDamageDoublingGameAction.h in Sources */,
+				5D419704660E8D39EF808018 /* AnimatedButton.cpp in Sources */,
+				AE07C58021F06E44D072CA36 /* AnimatedButton.h in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

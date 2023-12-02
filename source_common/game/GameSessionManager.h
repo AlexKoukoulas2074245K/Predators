@@ -19,6 +19,7 @@
 
 ///------------------------------------------------------------------------------------------------
 
+class AnimatedButton;
 class AnimatedStatContainer;
 class BoardState;
 class GameActionEngine;
@@ -74,6 +75,7 @@ private:
     void OnBoardSideCardEffectEnded(const events::BoardSideCardEffectEndedEvent&);
     void OnForceSendCardBackToPosition(const events::ForceSendCardBackToPositionEvent&);
     void OnPoisonStackChangeChangeAnimationTrigger(const events::PoisonStackChangeChangeAnimationTriggerEvent&);
+    void OnHistoryButtonPressed();
     glm::vec3 CalculateBoardEffectPosition(const size_t effectIndex, const size_t effectsCount, bool forRemotePlayer);
     
 private:
@@ -88,6 +90,7 @@ private:
     std::unique_ptr<GameRuleEngine> mRuleEngine;
     std::unique_ptr<GameSerializer> mGameSerializer;
     std::unique_ptr<PlayerActionGenerationEngine> mPlayerActionGenerationEngine;
+    std::vector<std::unique_ptr<AnimatedButton>> mAnimatedButtons;
     std::vector<std::vector<std::shared_ptr<scene::SceneObject>>> mActiveIndividualCardBoardEffectSceneObjects;
     std::vector<std::vector<std::shared_ptr<CardSoWrapper>>> mPlayerHeldCardSceneObjectWrappers;
     std::vector<std::vector<std::shared_ptr<CardSoWrapper>>> mPlayerBoardCardSceneObjectWrappers;

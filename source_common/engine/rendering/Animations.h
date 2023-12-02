@@ -130,11 +130,12 @@ private:
 class TweenValueAnimation final: public BaseAnimation
 {
 public:
-    TweenValueAnimation(float& value, const float targetValue, const float secsDuration, const uint8_t animationFlags = animation_flags::NONE, const float secsDelay = 0.0f, const std::function<float(const float)> tweeningFunc = math::LinearFunction , const math::TweeningMode tweeningMode = math::TweeningMode::EASE_IN);
+    TweenValueAnimation(std::shared_ptr<scene::SceneObject> sceneObject, float& value, const float targetValue, const float secsDuration, const uint8_t animationFlags = animation_flags::NONE, const float secsDelay = 0.0f, const std::function<float(const float)> tweeningFunc = math::LinearFunction , const math::TweeningMode tweeningMode = math::TweeningMode::EASE_IN);
     AnimationUpdateResult VUpdate(const float dtMillis) override;
     std::shared_ptr<scene::SceneObject> VGetSceneObject() override;
     
 private:
+    std::shared_ptr<scene::SceneObject> mSceneObjectTarget;
     float& mValue;
     const float mInitValue;
     const float mTargetValue;

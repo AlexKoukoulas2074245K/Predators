@@ -154,8 +154,9 @@ std::shared_ptr<scene::SceneObject> TweenAlphaAnimation::VGetSceneObject()
 
 ///------------------------------------------------------------------------------------------------
 
-TweenValueAnimation::TweenValueAnimation(float& value, const float targetValue, const float secsDuration, const uint8_t animationFlags /* = animation_flags::NONE */, const float secsDelay /* = 0.0f */, const std::function<float(const float)> tweeningFunc /* = math::LinearFunction */, const math::TweeningMode tweeningMode /* = math::TweeningMode::EASE_IN */)
+TweenValueAnimation::TweenValueAnimation(std::shared_ptr<scene::SceneObject> sceneObject, float& value, const float targetValue, const float secsDuration, const uint8_t animationFlags /* = animation_flags::NONE */, const float secsDelay /* = 0.0f */, const std::function<float(const float)> tweeningFunc /* = math::LinearFunction */, const math::TweeningMode tweeningMode /* = math::TweeningMode::EASE_IN */)
     : BaseAnimation(animationFlags, secsDuration, secsDelay)
+    , mSceneObjectTarget(sceneObject)
     , mValue(value)
     , mInitValue(value)
     , mTargetValue(targetValue)
@@ -177,7 +178,7 @@ AnimationUpdateResult TweenValueAnimation::VUpdate(const float dtMillis)
 
 std::shared_ptr<scene::SceneObject> TweenValueAnimation::VGetSceneObject()
 {
-    return nullptr;
+    return mSceneObjectTarget;
 }
 
 ///------------------------------------------------------------------------------------------------

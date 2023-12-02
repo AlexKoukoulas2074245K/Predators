@@ -36,7 +36,7 @@ void GoldenCardPlayedEffectGameAction::VInitAnimation()
     mFinished = false;
     
     mGoldenCardPlayedLightEffectX = GOLDEN_CARD_LIGHT_EFFECT_MIN_X;
-    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(mGoldenCardPlayedLightEffectX, GOLDEN_CARD_LIGHT_EFFECT_MAX_X, GOLDEN_CARD_LIGHT_EFFECT_ANIMATION_DURATION),[=]()
+    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(mGameSessionManager->GetBoardCardSoWrappers()[mBoardState->GetActivePlayerIndex()].front()->mSceneObject, mGoldenCardPlayedLightEffectX, GOLDEN_CARD_LIGHT_EFFECT_MAX_X, GOLDEN_CARD_LIGHT_EFFECT_ANIMATION_DURATION),[=]()
     {
         mFinished = true;
     });

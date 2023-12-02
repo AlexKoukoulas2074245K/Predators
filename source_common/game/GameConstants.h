@@ -142,6 +142,9 @@ namespace game_constants
     inline const float INDIVIDUAL_CARD_BOARD_EFFECT_PULSE_ANIMATION_PULSE_DUARTION_SECS = 1.0f;
     inline const float POISON_STACK_SHOW_HIDE_ANIMATION_DURATION_SECS = 1.0f;
     inline const float RODENTS_RESPAWN_CHANCE = 0.4f;
+    inline const float OVERLAY_Z = 21.0f;
+    inline const float OVERLAY_MAX_ALPHA = 0.75f;
+    inline const float OVERLAY_ANIMATION_DURATION_SECS = 1.0f;
 
     inline const glm::vec3 INDIVIDUAL_CARD_BOARD_EFFECT_SCALE = {1/20.0f, 1/20.0f, 1/20.0f};
     inline const glm::vec3 TURN_POINTER_HIGHLIGHTER_SCALE = {0.06f, 0.09f, 0.8f};

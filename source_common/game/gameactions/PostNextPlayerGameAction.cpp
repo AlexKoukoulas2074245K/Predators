@@ -108,7 +108,7 @@ void PostNextPlayerGameAction::VInitAnimation()
         auto cardSoWrapper = mGameSessionManager->GetBoardCardSoWrappers().at(mBoardState->GetActivePlayerIndex()).at(i);
         
         cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::DORMANT_CARD_VALUE_UNIFORM_NAME] = 1.0f;
-        animationManager.StartAnimation(std::make_unique<rendering::TweenValueAnimation>(cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::DORMANT_CARD_VALUE_UNIFORM_NAME], 0.0f, DORMANT_CARDS_REEMERGE_ANIMATION_DURATION_SECS),[=](){});
+        animationManager.StartAnimation(std::make_unique<rendering::TweenValueAnimation>(cardSoWrapper->mSceneObject, cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::DORMANT_CARD_VALUE_UNIFORM_NAME], 0.0f, DORMANT_CARDS_REEMERGE_ANIMATION_DURATION_SECS),[=](){});
     }
     
     mPendingAnimations = 1;
