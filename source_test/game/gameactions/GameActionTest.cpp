@@ -31,6 +31,15 @@ static const strutils::StringId CARD_EFFECT_GAME_ACTION_NAME = strutils::StringI
 
 ///------------------------------------------------------------------------------------------------
 
+#define GET_CARD_DAMAGE(id) CardDataRepository::GetInstance().GetCardData(id)->get().mCardDamage
+#define GET_CARD_WEIGHT(id) CardDataRepository::GetInstance().GetCardData(id)->get().mCardWeight
+
+///------------------------------------------------------------------------------------------------
+
+static constexpr int TEST_DEFAULT_PLAYER_HEALTH = 30;
+
+///------------------------------------------------------------------------------------------------
+
 class GameActionTests : public testing::Test
 {
 protected:
@@ -56,10 +65,10 @@ protected:
         mPlayerActionGenerationEngine = std::make_unique<PlayerActionGenerationEngine>(mGameRuleEngine.get(), mActionEngine.get(), actionGenerationType);
         mBoardState->GetPlayerStates().emplace_back();
         mBoardState->GetPlayerStates().back().mPlayerDeckCards = cardCollectionType == CardCollectionType::ALL_NON_SPELL_CARDS ? CardDataRepository::GetInstance().GetAllNonSpellCardIds() : CardDataRepository::GetInstance().GetAllCardIds();
-        mBoardState->GetPlayerStates().back().mPlayerHealth = game_constants::TOP_PLAYER_DEFAULT_HEALTH;
+        mBoardState->GetPlayerStates().back().mPlayerHealth = TEST_DEFAULT_PLAYER_HEALTH;
         mBoardState->GetPlayerStates().emplace_back();
         mBoardState->GetPlayerStates().back().mPlayerDeckCards = cardCollectionType == CardCollectionType::ALL_NON_SPELL_CARDS ? CardDataRepository::GetInstance().GetAllNonSpellCardIds() : CardDataRepository::GetInstance().GetAllCardIds();
-        mBoardState->GetPlayerStates().back().mPlayerHealth = game_constants::BOT_PLAYER_DEFAULT_HEALTH;
+        mBoardState->GetPlayerStates().back().mPlayerHealth = TEST_DEFAULT_PLAYER_HEALTH;
     }
     
     void UpdateUntilActionOrIdle(const strutils::StringId& actionName)
@@ -188,21 +197,18 @@ TEST_F(GameActionTests, TestPlayerActionGenerationEngine)
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
     
     mBoardState->GetPlayerStates()[0].mPlayerHeldCards = {3, 9, 3, 11, 4};
-    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = 6;
-    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = 6;
+    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = GET_CARD_WEIGHT(11) + GET_CARD_WEIGHT(3) + GET_CARD_WEIGHT(4);
+    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = GET_CARD_WEIGHT(11) + GET_CARD_WEIGHT(3) + GET_CARD_WEIGHT(4);
     
     mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get());
     UpdateUntilActionOrIdle(NEXT_PLAYER_GAME_ACTION_NAME);
     
-    EXPECT_EQ(mBoardState->GetActivePlayerState().mPlayerHeldCards.size(), 2);
-    EXPECT_EQ(mBoardState->GetActivePlayerState().mPlayerBoardCards.size(), 3);
+    EXPECT_EQ(mBoardState->GetActivePlayerState().mPlayerHeldCards.size(), 2); // Brachiosaurus can't be played
+    EXPECT_EQ(mBoardState->GetActivePlayerState().mPlayerBoardCards.size(), 3); // Mantis, Bunny, Guinea Pig are played
 }
 
 TEST_F(GameActionTests, TestBearTrapEffect)
 {
-    mBoardState->GetPlayerStates()[0].mPlayerHealth = 30;
-    mBoardState->GetPlayerStates()[1].mPlayerHealth = 30;
-    
     mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {22}; // Top player has a deck of bear traps
     mBoardState->GetPlayerStates()[1].mPlayerDeckCards = {4}; // Bot player has a deck of bunnies
     
@@ -224,9 +230,6 @@ TEST_F(GameActionTests, TestBearTrapEffect)
 
 TEST_F(GameActionTests, TestNetEffect)
 {
-    mBoardState->GetPlayerStates()[0].mPlayerHealth = 30;
-    mBoardState->GetPlayerStates()[1].mPlayerHealth = 30;
-    
     mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {21}; // Top player has a deck of nets traps
     mBoardState->GetPlayerStates()[1].mPlayerDeckCards = {4}; // Bot player has a deck of bunnies
     
@@ -243,16 +246,13 @@ TEST_F(GameActionTests, TestNetEffect)
     mActionEngine->Update(0);
     EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerBoardCards.size(), 1);
     mActionEngine->Update(0);
-    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, 30);
+    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH);
     mActionEngine->Update(0);
-    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, 30); // No damage is inflicted since bunny goes down to 0 attack
+    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH); // No damage is inflicted since bunny goes down to 0 attack
 }
 
 TEST_F(GameActionTests, TestNetAndFluffAttackCombinedEffects)
 {
-    mBoardState->GetPlayerStates()[0].mPlayerHealth = 30;
-    mBoardState->GetPlayerStates()[1].mPlayerHealth = 30;
-    
     mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {21}; // Top player has a deck of nets
     mBoardState->GetPlayerStates()[1].mPlayerDeckCards = {19, 0}; // Bot player has a deck of Beavers(3,3) and fluff attack
     
@@ -262,25 +262,22 @@ TEST_F(GameActionTests, TestNetAndFluffAttackCombinedEffects)
     mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Net is played
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
     
-    mBoardState->GetPlayerStates()[1].mPlayerTotalWeightAmmo = 5;
-    mBoardState->GetPlayerStates()[1].mPlayerCurrentWeightAmmo = 5;
+    mBoardState->GetPlayerStates()[1].mPlayerTotalWeightAmmo = GET_CARD_WEIGHT(19) + GET_CARD_WEIGHT(0);
+    mBoardState->GetPlayerStates()[1].mPlayerCurrentWeightAmmo = GET_CARD_WEIGHT(19) + GET_CARD_WEIGHT(0);
     mBoardState->GetPlayerStates()[1].mPlayerHeldCards = {19,0};
     
     mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Fluff Attack is played
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
     mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Beaver is played
     
-    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, 30);
+    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH);
     
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
-    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, 27); // Beaver original attack = 3. Net - 2. Fluff Attack + 2. Final attack = 3.
+    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH - GET_CARD_DAMAGE(0)); // Beaver original attack = 3. Net - 2. Fluff Attack + 2. Final attack = 3.
 }
 
-TEST_F(GameActionTests, TestDoubleFluffAttackFollowedByBunnyStats)
+TEST_F(GameActionTests, TestDoubleFluffAttackFollowedByBunny)
 {
-    mBoardState->GetPlayerStates()[0].mPlayerHealth = 30;
-    mBoardState->GetPlayerStates()[1].mPlayerHealth = 30;
-    
     mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {4}; // Top player has a deck of bunnies
     mBoardState->GetPlayerStates()[1].mPlayerDeckCards = {4, 19}; // Bot player has a deck of Beavers(3,3) and fluff attack
     
@@ -290,8 +287,8 @@ TEST_F(GameActionTests, TestDoubleFluffAttackFollowedByBunnyStats)
     mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Bunny is played by top player
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
     
-    mBoardState->GetPlayerStates()[1].mPlayerTotalWeightAmmo = 5;
-    mBoardState->GetPlayerStates()[1].mPlayerCurrentWeightAmmo = 5;
+    mBoardState->GetPlayerStates()[1].mPlayerTotalWeightAmmo = GET_CARD_WEIGHT(19) + GET_CARD_WEIGHT(4);
+    mBoardState->GetPlayerStates()[1].mPlayerCurrentWeightAmmo = GET_CARD_WEIGHT(19) + GET_CARD_WEIGHT(4);
     mBoardState->GetPlayerStates()[1].mPlayerHeldCards = {4, 19, 19};  // Bot player has 2 fluff attacks and a bunny
     
     mActionEngine->AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "1" }}); // First Fluff Attack is played
@@ -300,56 +297,49 @@ TEST_F(GameActionTests, TestDoubleFluffAttackFollowedByBunnyStats)
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     
     UpdateUntilActionOrIdle(CARD_ATTACK_GAME_ACTION_NAME);
-    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, 30);
+    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH);
     
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
-    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, 25); // Bunny original attack = 1. Fluff Attack + 2. Fluff Attack + 2. Final attack = 5.
+    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH - (GET_CARD_DAMAGE(4) + 2 + 2)); // Bunny original attack = 1. Fluff Attack + 2. Fluff Attack + 2. Final attack = 5.
 }
 
 TEST_F(GameActionTests, TestDoubleNetAndFluffAttackCombinedEffects)
 {
-    mBoardState->GetPlayerStates()[0].mPlayerHealth = 30;
-    mBoardState->GetPlayerStates()[1].mPlayerHealth = 30;
-    
     mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {21}; // Top player has a deck of nets
     mBoardState->GetPlayerStates()[1].mPlayerDeckCards = {19, 0}; // Bot player has a deck of Beavers(3,3) and fluff attack
     
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
     
-    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = 2;
-    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = 2;
+    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = GET_CARD_WEIGHT(21) + GET_CARD_WEIGHT(21);
+    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = GET_CARD_WEIGHT(21) + GET_CARD_WEIGHT(21);
     
     mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // 2 Nets are played
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
     
-    mBoardState->GetPlayerStates()[1].mPlayerTotalWeightAmmo = 5;
-    mBoardState->GetPlayerStates()[1].mPlayerCurrentWeightAmmo = 5;
+    mBoardState->GetPlayerStates()[1].mPlayerTotalWeightAmmo = GET_CARD_WEIGHT(19) + GET_CARD_WEIGHT(0);
+    mBoardState->GetPlayerStates()[1].mPlayerCurrentWeightAmmo = GET_CARD_WEIGHT(19) + GET_CARD_WEIGHT(0);
     mBoardState->GetPlayerStates()[1].mPlayerHeldCards = {19,0};
     
     mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Fluff Attack is played
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
     mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Beaver is played
    
-    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, 30);
+    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH);
     
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
-    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, 29); // Beaver original attack = 3. Net - 2. Net - 2. Fluff Attack + 2. Final attack = 1.
+    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH - (GET_CARD_DAMAGE(0) - 2 - 2 + 2)); // Beaver original attack = 3. Net - 2. Net - 2. Fluff Attack + 2. Final attack = 1.
 }
 
 TEST_F(GameActionTests, TestFeatheryDinoEffect)
 {
-    mBoardState->GetPlayerStates()[0].mPlayerHealth = 30;
-    mBoardState->GetPlayerStates()[1].mPlayerHealth = 30;
-    
     mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {23, 17}; // Top player has a deck of Feathery Dino and Triceratops
     
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
     
-    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = 8;
-    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = 8;
-    
+    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = GET_CARD_WEIGHT(17) - 2 + GET_CARD_WEIGHT(23);
+    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = GET_CARD_WEIGHT(17) - 2 + GET_CARD_WEIGHT(23);;
     mBoardState->GetPlayerStates()[0].mPlayerHeldCards = {23, 17}; // Top player has a hand of Feathery Dino and Triceratops
     
     mActionEngine->AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "0" }}); // Feathery Dino is Played
@@ -357,17 +347,14 @@ TEST_F(GameActionTests, TestFeatheryDinoEffect)
     mActionEngine->AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "0" }}); // Triceratops is Played (with reduced weight cost)
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
     
-    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, 30);
+    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH);
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
-    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, 24); // Triceratops attacks
+    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH - GET_CARD_DAMAGE(17)); // Triceratops attacks
 }
 
 TEST_F(GameActionTests, TestBearTrapEffectFollowedByGustOfWind)
 {
-    mBoardState->GetPlayerStates()[0].mPlayerHealth = 30;
-    mBoardState->GetPlayerStates()[1].mPlayerHealth = 30;
-    
     mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {22}; // Top player has a deck of bear traps
     mBoardState->GetPlayerStates()[1].mPlayerDeckCards = {24, 4}; // Bot player has a deck of Gusts of Wind and Bunnies
     
@@ -377,29 +364,26 @@ TEST_F(GameActionTests, TestBearTrapEffectFollowedByGustOfWind)
     mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Bear trap is played
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
     
-    mBoardState->GetPlayerStates()[1].mPlayerTotalWeightAmmo = 2;
-    mBoardState->GetPlayerStates()[1].mPlayerCurrentWeightAmmo = 2;
+    mBoardState->GetPlayerStates()[1].mPlayerTotalWeightAmmo = GET_CARD_WEIGHT(24) + GET_CARD_WEIGHT(4);
+    mBoardState->GetPlayerStates()[1].mPlayerCurrentWeightAmmo = GET_CARD_WEIGHT(24) + GET_CARD_WEIGHT(4);
     mBoardState->GetPlayerStates()[1].mPlayerHeldCards = {24, 4};
     
     mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Gust of Wind is played
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
     mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Bunny is played
     UpdateUntilActionOrIdle(CARD_DESTRUCTION_GAME_ACTION_NAME);
-    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, 29); // Bunny is not killed due to Gust of Windw clearing the bear trap and attacks
+    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH - GET_CARD_DAMAGE(4)); // Bunny is not killed due to Gust of Windw clearing the bear trap and attacks
 }
 
 TEST_F(GameActionTests, TestInsectDuplicationEffect)
 {
-    mBoardState->GetPlayerStates()[0].mPlayerHealth = 30;
-    mBoardState->GetPlayerStates()[1].mPlayerHealth = 30;
-    
     mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {25, 1}; // Top player has a deck of Insect Duplications and Bees
     
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
     
-    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = 3;
-    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = 3;
+    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = GET_CARD_WEIGHT(25) + GET_CARD_WEIGHT(1);
+    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = GET_CARD_WEIGHT(25) + GET_CARD_WEIGHT(1);
     mBoardState->GetPlayerStates()[0].mPlayerHeldCards = {25, 1};
     
     
@@ -410,21 +394,18 @@ TEST_F(GameActionTests, TestInsectDuplicationEffect)
     
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     UpdateUntilActionOrIdle(DRAW_CARD_GAME_ACTION_NAME);
-    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, 24); // 2 Bees attack instead of 1
+    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH - (GET_CARD_DAMAGE(1) + 1 + GET_CARD_DAMAGE(1) + 1)); // 2 Bees attack instead of 1
 }
 
 TEST_F(GameActionTests, TestToxicWaveAndInsectDuplicationEffect)
 {
-    mBoardState->GetPlayerStates()[0].mPlayerHealth = 30;
-    mBoardState->GetPlayerStates()[1].mPlayerHealth = 30;
-    
     mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {25, 27, 1}; // Top player has a deck of Insect Duplications, Toxic Wave and Bees
     
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
     
-    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = 4;
-    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = 4;
+    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = GET_CARD_WEIGHT(25) + GET_CARD_WEIGHT(27) + GET_CARD_WEIGHT(1);
+    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = GET_CARD_WEIGHT(25) + GET_CARD_WEIGHT(27) + GET_CARD_WEIGHT(1);
     mBoardState->GetPlayerStates()[0].mPlayerHeldCards = {25, 27, 1};
     
     mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Insect Duplication (or Toxic Wave) is played
@@ -437,14 +418,11 @@ TEST_F(GameActionTests, TestToxicWaveAndInsectDuplicationEffect)
     
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     UpdateUntilActionOrIdle(DRAW_CARD_GAME_ACTION_NAME);
-    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, 22); // 2 Bees attack instead of 1 and apply double the poison each
+    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH - (GET_CARD_DAMAGE(1) + 2 + GET_CARD_DAMAGE(1) + 2)); // 2 Bees attack instead of 1 and apply double the poison each
 }
 
 TEST_F(GameActionTests, TestMightyDinoRoarEffect)
 {
-    mBoardState->GetPlayerStates()[0].mPlayerHealth = 30;
-    mBoardState->GetPlayerStates()[1].mPlayerHealth = 30;
-    
     mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {26, 5}; // Top player has a deck of Mighty Dino Roars (w=2) and  Dilophosaurus (d=5,w=4)
     
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
@@ -467,16 +445,13 @@ TEST_F(GameActionTests, TestMightyDinoRoarEffect)
 
 TEST_F(GameActionTests, TestDinoMultiBuff)
 {
-    mBoardState->GetPlayerStates()[0].mPlayerHealth = 30;
-    mBoardState->GetPlayerStates()[1].mPlayerHealth = 30;
-    
     mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {23, 28, 5}; // Top player has a deck of Feathery Dinos, Metal Claws and Dilophosaurus (d=5,w=4)
     
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
     
-    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = 4;
-    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = 4;
+    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = GET_CARD_WEIGHT(23) + GET_CARD_WEIGHT(28) + GET_CARD_WEIGHT(5) - 2;
+    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = GET_CARD_WEIGHT(23) + GET_CARD_WEIGHT(28) + GET_CARD_WEIGHT(5) - 2;
     mBoardState->GetPlayerStates()[0].mPlayerHeldCards = {23, 28, 5};
     
     
@@ -490,14 +465,46 @@ TEST_F(GameActionTests, TestDinoMultiBuff)
     
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     UpdateUntilActionOrIdle(DRAW_CARD_GAME_ACTION_NAME);
-    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, 24); // Dilophosaurus can be played due to reduced weight cost and also has +2 attack due to Metal Claws
+    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH - (GET_CARD_DAMAGE(5) + 1)); // Dilophosaurus can be played due to reduced weight cost and also has +1 attack due to Metal Claws
+}
+
+TEST_F(GameActionTests, TestImpendingDoomAndFeatheryDinoEffects)
+{
+    mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {29, 23, 5}; // Top player has a deck of Impending Doom, Feathery Dino and Dilophosaurus (d=5,w=4)
+    
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = GET_CARD_WEIGHT(29);
+    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = GET_CARD_WEIGHT(29);
+    mBoardState->GetPlayerStates()[0].mPlayerHeldCards = {29};
+    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Impending Doom is played
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = GET_CARD_WEIGHT(23);
+    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = GET_CARD_WEIGHT(23);
+    mBoardState->GetPlayerStates()[0].mPlayerHeldCards = {23, 5};
+    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Feathery Dino is played
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Dilophosaurus is played (-2 from impending doom, -2 from feathery dino
+    
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(DRAW_CARD_GAME_ACTION_NAME);
+    
+    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, 30 - GET_CARD_DAMAGE(5)); // Dilophosaurus can be played due to reduced weight cost and also has +2 attack due to Metal Claws
 }
 
 TEST_F(GameActionTests, TestBuffedDugOutRodentsHaveCorrectModifiersPostClearingNetWithGustOfWind)
 {
-    mBoardState->GetPlayerStates()[0].mPlayerHealth = 30;
-    mBoardState->GetPlayerStates()[1].mPlayerHealth = 30;
-    
     mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {21}; // Top player has a deck of Nets
     mBoardState->GetPlayerStates()[1].mPlayerDeckCards = {19, 4, 15, 24}; // Bot player has a deck of Fluff Attacks, Bunnies, Squirrels and Gusts of Winds
     
@@ -509,9 +516,10 @@ TEST_F(GameActionTests, TestBuffedDugOutRodentsHaveCorrectModifiersPostClearingN
         mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME); // Skip top player's turn
         UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
         
-        mBoardState->GetPlayerStates()[0].mPlayerHealth = 30;
-        mBoardState->GetPlayerStates()[1].mPlayerTotalWeightAmmo = 6;
-        mBoardState->GetPlayerStates()[1].mPlayerCurrentWeightAmmo = 6;
+        mBoardState->GetPlayerStates()[0].mPlayerHealth = TEST_DEFAULT_PLAYER_HEALTH;
+        mBoardState->GetPlayerStates()[1].mPlayerTotalWeightAmmo = GET_CARD_WEIGHT(19) + GET_CARD_WEIGHT(4) + GET_CARD_WEIGHT(15) + GET_CARD_WEIGHT(24);
+        mBoardState->GetPlayerStates()[1].mPlayerCurrentWeightAmmo = GET_CARD_WEIGHT(19) + GET_CARD_WEIGHT(4) + GET_CARD_WEIGHT(15) + GET_CARD_WEIGHT(24);
+        mBoardState->GetPlayerStates()[1].mPlayerBoardCards = {};
         mBoardState->GetPlayerStates()[1].mPlayerHeldCards = {4, 15, 19};
         
         mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Fluff Attack is played
@@ -520,34 +528,35 @@ TEST_F(GameActionTests, TestBuffedDugOutRodentsHaveCorrectModifiersPostClearingN
         
         UpdateUntilActionOrIdle(DRAW_CARD_GAME_ACTION_NAME);
         
-        if (mBoardState->GetPlayerStates()[1].mPlayerBoardCards.size() == 2 && mBoardState->GetPlayerStates()[0].mPlayerHealth == 23) // We want both rodents to have dug
+        if (mBoardState->GetPlayerStates()[1].mPlayerBoardCards.size() == 2 && mBoardState->GetPlayerStates()[0].mPlayerHealth == (TEST_DEFAULT_PLAYER_HEALTH - (GET_CARD_DAMAGE(4) + 2 + GET_CARD_DAMAGE(15) + 2))) // We want both rodents to have dug
         {
             break;
         }
     } while (true);
     
     
-    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = 1;
-    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = 1;
+    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = GET_CARD_WEIGHT(21);
+    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = GET_CARD_WEIGHT(21);
     mBoardState->GetPlayerStates()[0].mPlayerHeldCards = {21};
     
     mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Net is played
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
     
-    mBoardState->GetPlayerStates()[1].mPlayerTotalWeightAmmo = 1;
-    mBoardState->GetPlayerStates()[1].mPlayerCurrentWeightAmmo = 1;
+    mBoardState->GetPlayerStates()[1].mPlayerTotalWeightAmmo = GET_CARD_WEIGHT(24);
+    mBoardState->GetPlayerStates()[1].mPlayerCurrentWeightAmmo = GET_CARD_WEIGHT(24);
     mBoardState->GetPlayerStates()[1].mPlayerHeldCards = {24};
     
     mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Gust of wind is played
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
     
     EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerBoardCardStatOverrides.size(), 2U);
-    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerBoardCardStatOverrides[0].at(CardStatType::DAMAGE), 4); // Position and value of overrides is maintained
-    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerBoardCardStatOverrides[1].at(CardStatType::DAMAGE), 3); // Position and value of overrides is maintained
+    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerBoardCardStatOverrides[0].at(CardStatType::DAMAGE), GET_CARD_DAMAGE(15) + 2); // Position and value of overrides is maintained
+    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerBoardCardStatOverrides[1].at(CardStatType::DAMAGE), GET_CARD_DAMAGE(4) + 2); // Position and value of overrides is maintained
     
+    auto currentHealth = mBoardState->GetPlayerStates()[0].mPlayerHealth;
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
-    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, 16); // 23 - 4 -3 = 16 (gust of wind cleared net)
+    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, currentHealth - (GET_CARD_DAMAGE(15) + 2 + GET_CARD_DAMAGE(4) + 2)); // 23 - 4 -3 = 16 (gust of wind cleared net)
 }
 
 int BATTLE_SIMULATION_ITERATIONS = 1000;
@@ -580,6 +589,8 @@ void GameActionTests::SimulateBattle(strutils::StringId topDeckFamilyName /*= st
         uniquePlayedCardIds[1].clear();
         
         Init(PlayerActionGenerationEngine::ActionGenerationType::OPTIMISED, CardCollectionType::ALL_CARDS, true);
+        mBoardState->GetPlayerStates()[0].mPlayerHealth = game_constants::TOP_PLAYER_DEFAULT_HEALTH;
+        mBoardState->GetPlayerStates()[1].mPlayerHealth = game_constants::TOP_PLAYER_DEFAULT_HEALTH;
         
         if (mFamilyBattles)
         {

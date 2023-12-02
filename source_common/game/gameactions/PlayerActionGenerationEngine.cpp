@@ -46,8 +46,8 @@ void PlayerActionGenerationEngine::DecideAndPushNextActions(BoardState* currentB
         auto& cardDataLhs = cardRepository.GetCardData(lhs)->get();
         auto& cardDataRhs = cardRepository.GetCardData(rhs)->get();
         
-        bool isLhsCardHighPriority = IsCardHighPriority(cardDataLhs);
-        bool isRhsCardHighPriority = IsCardHighPriority(cardDataRhs);
+        bool isLhsCardHighPriority = IsCardHighPriority(cardDataLhs, &boardStateCopy);
+        bool isRhsCardHighPriority = IsCardHighPriority(cardDataRhs, &boardStateCopy);
         
         if (mActionGenerationType == ActionGenerationType::OPTIMISED)
         {
@@ -96,6 +96,10 @@ void PlayerActionGenerationEngine::DecideAndPushNextActions(BoardState* currentB
             {
                 cardWeight = math::Max(0, cardStatOverrides[cardIndex].count(CardStatType::WEIGHT) ? cardStatOverrides[cardIndex].at(CardStatType::WEIGHT) : cardData->mCardWeight);
             }
+            if (!cardData->IsSpell() && boardStateCopy.GetActivePlayerState().mBoardModifiers.mGlobalCardStatModifiers.count(CardStatType::WEIGHT))
+            {
+                cardWeight = math::Max(0, cardWeight + boardStateCopy.GetActivePlayerState().mBoardModifiers.mGlobalCardStatModifiers.at(CardStatType::WEIGHT));
+            }
             
             boardStateCopy.GetActivePlayerState().mPlayerCurrentWeightAmmo -= cardWeight;
             currentBoardCards.push_back(cardData->mCardId);
@@ -103,7 +107,7 @@ void PlayerActionGenerationEngine::DecideAndPushNextActions(BoardState* currentB
             currentHeldCards.erase(originalHeldCardIter);
             iter = currentHeldCardsCopySorted.erase(iter);
             
-            shouldWaitForFurtherActions = IsCardHighPriority(*cardData);
+            shouldWaitForFurtherActions = IsCardHighPriority(*cardData, &boardStateCopy);
             if (shouldWaitForFurtherActions)
             {
                 break;
@@ -123,7 +127,7 @@ void PlayerActionGenerationEngine::DecideAndPushNextActions(BoardState* currentB
 
 ///------------------------------------------------------------------------------------------------
 
-bool PlayerActionGenerationEngine::IsCardHighPriority(const CardData& cardData) const
+bool PlayerActionGenerationEngine::IsCardHighPriority(const CardData& cardData, BoardState* currentBoardState) const
 {
     if (
         cardData.IsSpell() &&
@@ -154,6 +158,13 @@ bool PlayerActionGenerationEngine::IsCardHighPriority(const CardData& cardData) 
     (
         cardData.IsSpell() &&
         strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_DOUBLE_NEXT_DINO_DAMAGE)
+    ) return true;
+    
+    else if
+    (
+        cardData.IsSpell() &&
+        strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_PERMANENT_CONTINUAL_WEIGHT_REDUCTION) &&
+        ((currentBoardState->GetActivePlayerState().mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::PERMANENT_CONTINUAL_WEIGHT_REDUCTION) == 0 || mActionGenerationType != ActionGenerationType::OPTIMISED)
     ) return true;
     
     else if

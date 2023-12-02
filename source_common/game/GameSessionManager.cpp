@@ -61,6 +61,7 @@ static const std::string KILL_SIDE_EFFECT_TEXTURE_FILE_NAME = "trap.png";
 static const std::string INSECT_DUPLICATION_EFFECT_TEXTURE_FILE_NAME = "insect_duplication.png";
 static const std::string NEXT_DINO_DAMAGE_DOUBLING_EFFECT_TEXTURE_FILE_NAME = "mighty_roar.png";
 static const std::string DOUBLE_POISON_ATTACKS_EFFECT_TEXTURE_FILE_NAME = "poison_smoke.png";
+static const std::string PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_TEXTURE_FILE_NAME = "impending_doom.png";
 static const std::string INDIVIDUAL_CARD_BOARD_EFFECT_MASK_TEXTURE_FILE_NAME = "trap_mask.png";
 static const std::string BOARD_SIDE_STAT_EFFECT_SHADER_FILE_NAME = "board_side_stat_effect.vs";
 static const std::string CARD_TOOLTIP_TEXTURE_FILE_NAME = "tooltip.png";
@@ -145,10 +146,11 @@ void GameSessionManager::InitGameSession()
     mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerHealth = game_constants::TOP_PLAYER_DEFAULT_HEALTH;
     mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth = game_constants::BOT_PLAYER_DEFAULT_HEALTH;
     
-    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));
-    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("dinosaurs"));
+    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("insects"));
+    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));
     
-    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mGoldenCardIds = {4, 19, 20, 21, 22};//CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));;
+    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mGoldenCardIds = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("insects"));
+    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mGoldenCardIds = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));;
     
     mActiveIndividualCardBoardEffectSceneObjects.emplace_back();
     mActiveIndividualCardBoardEffectSceneObjects.emplace_back();
@@ -318,6 +320,9 @@ void GameSessionManager::InitGameSession()
     // Double Poison Attacks Effects
     individualCardBoardEffectCreation(game_constants::DOUBLE_POISON_ATTACKS_EFFECT_TOP_SCENE_OBJECT_NAME, game_constants::DOUBLE_POISON_ATTACKS_EFFECT_BOT_SCENE_OBJECT_NAME, DOUBLE_POISON_ATTACKS_EFFECT_TEXTURE_FILE_NAME);
     
+    // Permanent Continual Weight Reduction Effects
+    individualCardBoardEffectCreation(game_constants::PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_TOP_SCENE_OBJECT_NAME, game_constants::PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_BOT_SCENE_OBJECT_NAME, PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_TEXTURE_FILE_NAME);
+
     // Card Tooltips
     auto tooltipSceneObject = activeScene->CreateSceneObject(CARD_TOOLTIP_SCENE_OBJECT_NAME);
     tooltipSceneObject->mScale = CARD_TOOLTIP_SCALE;
@@ -663,14 +668,25 @@ void GameSessionManager::UpdateMiscSceneObjects(const float dtMillis)
             auto canCardBePlayed = mRuleEngine->CanCardBePlayed(cardSoWrapper->mCardData, i, game_constants::LOCAL_PLAYER_INDEX);
             cardSoWrapper->mSceneObject->mShaderIntUniformValues[game_constants::CARD_WEIGHT_INTERACTIVE_MODE_UNIFORM_NAME] = canCardBePlayed ? game_constants::CARD_INTERACTIVE_MODE_DEFAULT : game_constants::CARD_INTERACTIVE_MODE_NONINTERACTIVE;
             
+            if (cardSoWrapper->mCardData->IsSpell())
+            {
+                continue;
+            }
+            
             const auto& heldCardStatOverrides = mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHeldCardStatOverrides;
+            int overriddenWeight = cardSoWrapper->mCardData->mCardWeight;
             if (heldCardStatOverrides.size() > i)
             {
-                int overriddenWeight = math::Max(0, heldCardStatOverrides[i].count(CardStatType::WEIGHT) ? heldCardStatOverrides[i].at(CardStatType::WEIGHT) : cardSoWrapper->mCardData->mCardWeight);
-                if (canCardBePlayed && overriddenWeight < cardSoWrapper->mCardData->mCardWeight)
-                {
-                    cardSoWrapper->mSceneObject->mShaderIntUniformValues[game_constants::CARD_WEIGHT_INTERACTIVE_MODE_UNIFORM_NAME] = game_constants::CARD_INTERACTIVE_MODE_INTERACTIVE;
-                }
+                overriddenWeight = math::Max(0, heldCardStatOverrides[i].count(CardStatType::WEIGHT) ? heldCardStatOverrides[i].at(CardStatType::WEIGHT) : cardSoWrapper->mCardData->mCardWeight);
+            }
+            if (mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mBoardModifiers.mGlobalCardStatModifiers.count(CardStatType::WEIGHT))
+            {
+                overriddenWeight = math::Max(0, overriddenWeight + mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mBoardModifiers.mGlobalCardStatModifiers.at(CardStatType::WEIGHT));
+            }
+            
+            if (canCardBePlayed && overriddenWeight < cardSoWrapper->mCardData->mCardWeight)
+            {
+                cardSoWrapper->mSceneObject->mShaderIntUniformValues[game_constants::CARD_WEIGHT_INTERACTIVE_MODE_UNIFORM_NAME] = game_constants::CARD_INTERACTIVE_MODE_INTERACTIVE;
             }
         }
     }
@@ -1329,6 +1345,10 @@ void GameSessionManager::OnBoardSideCardEffectTriggered(const events::BoardSideC
         {
             sideEffectSceneObject = activeScene->FindSceneObject(event.mForRemotePlayer ? game_constants::DOUBLE_POISON_ATTACKS_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::DOUBLE_POISON_ATTACKS_EFFECT_BOT_SCENE_OBJECT_NAME);
         }
+        else if (event.mEffectBoardModifierMask == effects::board_modifier_masks::PERMANENT_CONTINUAL_WEIGHT_REDUCTION)
+        {
+            sideEffectSceneObject = activeScene->FindSceneObject(event.mForRemotePlayer ? game_constants::PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_BOT_SCENE_OBJECT_NAME);
+        }
         
         assert(sideEffectSceneObject);
         
@@ -1408,6 +1428,10 @@ void GameSessionManager::OnBoardSideCardEffectEnded(const events::BoardSideCardE
         {
             sideEffectSceneObject = activeScene->FindSceneObject(event.mForRemotePlayer ? game_constants::DOUBLE_POISON_ATTACKS_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::DOUBLE_POISON_ATTACKS_EFFECT_BOT_SCENE_OBJECT_NAME);
         }
+        else if (event.mEffectBoardModifierMask == effects::board_modifier_masks::PERMANENT_CONTINUAL_WEIGHT_REDUCTION)
+        {
+            sideEffectSceneObject = activeScene->FindSceneObject(event.mForRemotePlayer ? game_constants::PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_BOT_SCENE_OBJECT_NAME);
+        }
         
         assert(sideEffectSceneObject);
         
@@ -1420,9 +1444,9 @@ void GameSessionManager::OnBoardSideCardEffectEnded(const events::BoardSideCardE
                 activeEffects.erase(std::find(activeEffects.cbegin(), activeEffects.cend(), sideEffectSceneObject));
             }
             
-            if (!event.mMassClear)
+            for (auto i = 0U; i < activeEffects.size(); ++i)
             {
-                for (auto i = 0U; i < activeEffects.size(); ++i)
+                if (!event.mMassClear || (activeEffects[i]->mName == game_constants::PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_TOP_SCENE_OBJECT_NAME || activeEffects[i]->mName == game_constants::PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_BOT_SCENE_OBJECT_NAME))
                 {
                     const auto& targetPosition = CalculateBoardEffectPosition(i, activeEffects.size(), event.mForRemotePlayer);
                     animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(activeEffects[i], targetPosition, activeEffects[i]->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){});

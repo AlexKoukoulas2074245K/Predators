@@ -62,8 +62,18 @@ void PostNextPlayerGameAction::VSetNewGameState()
     mBoardState->GetInactivePlayerState().mPlayerBoardCardStatOverrides = remainingBoardCardStatOverrides;
     mBoardState->GetInactivePlayerState().mPlayerHeldCards.clear();
     mBoardState->GetInactivePlayerState().mPlayerHeldCardStatOverrides.clear();
-    mBoardState->GetInactivePlayerState().mBoardModifiers.mGlobalCardStatModifiers.clear();
-    mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask = effects::board_modifier_masks::NONE;
+    
+    if ((mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::PERMANENT_CONTINUAL_WEIGHT_REDUCTION) != 0)
+    {
+        mBoardState->GetInactivePlayerState().mBoardModifiers.mGlobalCardStatModifiers.erase(CardStatType::DAMAGE);
+        mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask = effects::board_modifier_masks::PERMANENT_CONTINUAL_WEIGHT_REDUCTION;
+    }
+    else
+    {
+        mBoardState->GetInactivePlayerState().mBoardModifiers.mGlobalCardStatModifiers.clear();
+        mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask = effects::board_modifier_masks::NONE;
+    }
+    
     mBoardState->GetInactivePlayerState().mBoardCardIndicesToDestroy.clear();
     mBoardState->GetInactivePlayerState().mHeldCardIndicesToDestroy.clear();
     mBoardState->GetActivePlayerState().mBoardModifiers.mBoardModifierMask &= ~(effects::board_modifier_masks::DOUBLE_POISON_ATTACKS);

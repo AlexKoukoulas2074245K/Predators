@@ -75,6 +75,12 @@ void NextPlayerGameAction::VSetNewGameState()
     mGameActionEngine->AddGameAction(POISON_STACK_APPLICATION_GAME_ACTION_NAME, {});
     mGameActionEngine->AddGameAction(POST_NEXT_PLAYER_GAME_ACTION_NAME);
     
+    // Apply continual weight reduction effects
+    if ((mBoardState->GetActivePlayerState().mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::PERMANENT_CONTINUAL_WEIGHT_REDUCTION) != 0)
+    {
+        mBoardState->GetActivePlayerState().mBoardModifiers.mGlobalCardStatModifiers[CardStatType::WEIGHT]--;
+    }
+    
     // Both players get 4 cards
     mGameActionEngine->AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
     mGameActionEngine->AddGameAction(DRAW_CARD_GAME_ACTION_NAME);

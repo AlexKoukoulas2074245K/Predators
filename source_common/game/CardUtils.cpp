@@ -26,6 +26,7 @@ static const std::string GOLDEN_CARD_FLAKES_MASK_TEXTURE_FILE_NAME = "golden_car
 static const std::string DORMANT_CARD_MASK_TEXTURE_FILE_NAME = "card_dormant_mask.png";
 static const std::string GOLDEN_SPELL_CARD_FLAKES_MASK_TEXTURE_FILE_NAME = "golden_spell_card_flakes_mask.png";
 static const std::string POISON_CRYSTAL_TEXTURE_FILE_NAME = "poison_crystal.png";
+static const std::string DIG_ICON_TEXTURE_FILE_NAME = "dig_icon.png";
 static const std::string CARD_SHADER_FILE_NAME = "card.vs";
 static const std::string CARD_DAMAGE_ICON_TEXTURE_FILE_NAME = "damage_icon.png";
 static const std::string CARD_WEIGHT_ICON_TEXTURE_FILE_NAME = "feather_icon.png";
@@ -239,6 +240,16 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
                 cardComponents.back()->mPosition.y += game_constants::IN_GAME_CARD_PROPERTY_Y_OFFSET;
                 cardComponents.back()->mPosition.z += 2 * game_constants::CARD_COMPONENT_Z_OFFSET;
             }
+            else if (cardData->mCardFamily == game_constants::RODENTS_FAMILY_NAME)
+            {
+                cardComponents.push_back(std::make_shared<scene::SceneObject>());
+                cardComponents.back()->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + DIG_ICON_TEXTURE_FILE_NAME);
+                cardComponents.back()->mScale.x = cardComponents.back()->mScale.y = game_constants::IN_GAME_CARD_PROPERTY_ICON_SCALE/4;
+                cardComponents.back()->mBoundingRectMultiplier.x = game_constants::CARD_BOUNDING_RECT_X_MULTIPLIER;
+                cardComponents.back()->mPosition = position;
+                cardComponents.back()->mPosition.y += game_constants::IN_GAME_CARD_PROPERTY_Y_OFFSET;
+                cardComponents.back()->mPosition.z += 2 * game_constants::CARD_COMPONENT_Z_OFFSET;
+            }
             
             // Create weight icon
             cardComponents.push_back(std::make_shared<scene::SceneObject>());
@@ -256,7 +267,7 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
             weightTextData.mFontName = game_constants::FONT_PLACEHOLDER_WEIGHT_NAME;
             
             int weight = math::Max(0, cardStatOverrides.count(CardStatType::WEIGHT) ? cardStatOverrides.at(CardStatType::WEIGHT) : cardData->mCardWeight);
-            if (!isOnBoard && globalStatModifiers.count(CardStatType::WEIGHT))
+            if (globalStatModifiers.count(CardStatType::WEIGHT))
             {
                 weight = math::Max(0, weight + globalStatModifiers.at(CardStatType::WEIGHT));
             }
@@ -318,9 +329,9 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
         {
             generatedTextureOverridePostfixSS << "_global_damage_" << globalStatModifiers.at(CardStatType::DAMAGE);
         }
-        if (isOnBoard && globalStatModifiers.count(CardStatType::WEIGHT))
+        if (globalStatModifiers.count(CardStatType::WEIGHT))
         {
-            generatedTextureOverridePostfixSS << "_global_weight_" << globalStatModifiers.at(CardStatType::WEIGHT);
+            generatedTextureOverridePostfixSS << "_global_" << (isOnBoard ? "on_board_" : "held_") << "weight_" << globalStatModifiers.at(CardStatType::WEIGHT);
         }
         
         if (cardRarity == CardRarity::GOLDEN)

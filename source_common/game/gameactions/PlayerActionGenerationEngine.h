@@ -27,7 +27,7 @@ public:
     void DecideAndPushNextActions(BoardState* currentBoardState);
 
 private:
-    bool IsCardHighPriority(const CardData& cardData) const;
+    bool IsCardHighPriority(const CardData& cardData, BoardState* currentBoardState) const;
     
 private:
     struct LastPlayedCardData

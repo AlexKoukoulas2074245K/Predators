@@ -32,6 +32,11 @@ bool GameRuleEngine::CanCardBePlayed(const CardData* cardData, const size_t card
         cardWeight = math::Max(0, cardStatOverrides[cardIndex].count(CardStatType::WEIGHT) ? cardStatOverrides[cardIndex].at(CardStatType::WEIGHT) : cardData->mCardWeight);
     }
     
+    if (!cardData->IsSpell() && activePlayerState.mBoardModifiers.mGlobalCardStatModifiers.count(CardStatType::WEIGHT))
+    {
+        cardWeight = math::Max(0, cardWeight + activePlayerState.mBoardModifiers.mGlobalCardStatModifiers.at(CardStatType::WEIGHT));
+    }
+    
     return activePlayerState.mPlayerCurrentWeightAmmo >= cardWeight && activePlayerState.mPlayerBoardCards.size() < game_constants::MAX_BOARD_CARDS;
 }
 

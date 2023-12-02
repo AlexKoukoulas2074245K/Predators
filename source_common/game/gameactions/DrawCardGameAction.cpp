@@ -49,7 +49,7 @@ void DrawCardGameAction::VInitAnimation()
     {
         auto finalCardPosition = card_utils::CalculateHeldCardPosition(i, cardCount, remotePlayerActive, activeScene->GetCamera());
         
-        // The latest added card components need to be created from scratch
+        // The latest added card needs to be created from scratch
         if (i == cardCount - 1)
         {
             int cardId = mBoardState->GetActivePlayerState().mPlayerHeldCards.back();
@@ -68,7 +68,7 @@ void DrawCardGameAction::VInitAnimation()
                 remotePlayerActive,
                 mGameRuleEngine->CanCardBePlayed(&cardOpt->get(), i, mBoardState->GetActivePlayerIndex()),
                 {},
-                {},
+                mBoardState->GetActivePlayerState().mBoardModifiers.mGlobalCardStatModifiers,
                 *activeScene
              );
             
@@ -91,7 +91,7 @@ void DrawCardGameAction::VInitAnimation()
             });
             mPendingAnimations++;
         }
-        // .. The rest can be looked up
+        // .. The rest can be looked up and animated
         else
         {
             auto cardSoWrapper = mGameSessionManager->GetHeldCardSoWrappers()[(remotePlayerActive ? 0 : 1)][i];

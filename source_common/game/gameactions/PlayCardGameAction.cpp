@@ -74,6 +74,10 @@ void PlayCardGameAction::VSetNewGameState()
     {
         cardWeight = math::Max(0, cardStatOverrides[lastPlayedCardIndex].count(CardStatType::WEIGHT) ? cardStatOverrides[lastPlayedCardIndex].at(CardStatType::WEIGHT) : cardData->get().mCardWeight);
     }
+    if (!cardData->get().IsSpell() && activePlayerState.mBoardModifiers.mGlobalCardStatModifiers.count(CardStatType::WEIGHT))
+    {
+        cardWeight = math::Max(0, cardWeight + activePlayerState.mBoardModifiers.mGlobalCardStatModifiers.at(CardStatType::WEIGHT));
+    }
     
     // Transfer held card stat override to the new board position
     if (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.size()) > lastPlayedCardIndex)
@@ -162,7 +166,7 @@ void PlayCardGameAction::VInitAnimation()
         return;
     }
     
-    // For remote plays, the front face card components also need to be created
+    // For remote plays, the front face card also needs to be created
     if (mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX)
     {
         activeScene->RemoveSceneObject(lastPlayedCardSoWrapper->mSceneObject->mName);
@@ -177,7 +181,7 @@ void PlayCardGameAction::VInitAnimation()
             true,
             true,
             (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.size()) > boardCardIndex ? mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.at(boardCardIndex) : CardStatOverrides()), // held card stat overrides have moved to board card stat overrides from the setstate above
-            {},
+            mBoardState->GetActivePlayerState().mBoardModifiers.mGlobalCardStatModifiers,
             *activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE)
          );
         events::EventSystem::GetInstance().DispatchEvent<events::HeldCardSwapEvent>(lastPlayedCardSoWrapper, lastPlayedCardIndex, true);

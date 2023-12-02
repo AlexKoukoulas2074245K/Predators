@@ -48,6 +48,8 @@ namespace game_constants
     inline const strutils::StringId NEXT_DINO_DAMAGE_DOUBLING_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("NEXT_DINO_DAMAGE_DOUBLING_EFFECT_BOT");
     inline const strutils::StringId DOUBLE_POISON_ATTACKS_EFFECT_TOP_SCENE_OBJECT_NAME = strutils::StringId("DOUBLE_POISON_ATTACKS_EFFECT_TOP");
     inline const strutils::StringId DOUBLE_POISON_ATTACKS_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("DOUBLE_POISON_ATTACKS_EFFECT_BOT");
+    inline const strutils::StringId PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_TOP_SCENE_OBJECT_NAME = strutils::StringId("PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_TOP");
+    inline const strutils::StringId PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_BOT");
 
     // Fonts
     inline const strutils::StringId DEFAULT_FONT_NAME = strutils::StringId("font");

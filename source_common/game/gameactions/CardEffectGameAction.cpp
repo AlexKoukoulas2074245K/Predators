@@ -48,6 +48,7 @@ static const float CARD_DISSOLVE_SPEED = 0.001f;
 static const float MAX_CARD_DISSOLVE_VALUE = 1.2f;
 static const float CARD_EFFECT_PARTICLE_EMITTER_Z_OFFSET = 22.0f;
 static const float CARD_SCALE_UP_FACTOR = 1.5f;
+static const float CARD_SCALE_DOWN_FACTOR = 0.5f;
 
 static const glm::vec2 CARD_DISSOLVE_EFFECT_MAG_RANGE = {10.0f, 18.0f};
 
@@ -179,6 +180,7 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
                     
                 case effects::board_modifier_masks::DUPLICATE_NEXT_INSECT:
                 case effects::board_modifier_masks::DOUBLE_NEXT_DINO_DAMAGE:
+                case effects::board_modifier_masks::PERMANENT_CONTINUAL_WEIGHT_REDUCTION:
                 {
                     events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectTriggeredEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, mCardBoardEffectMask);
                 }
@@ -190,6 +192,7 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
                 events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, true,  effects::board_modifier_masks::KILL_NEXT);
                 events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, true,  effects::board_modifier_masks::DUPLICATE_NEXT_INSECT);
                 events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, true,  effects::board_modifier_masks::DOUBLE_NEXT_DINO_DAMAGE);
+                events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, true,  effects::board_modifier_masks::PERMANENT_CONTINUAL_WEIGHT_REDUCTION);
             }
             
             if (mAffectedCards.empty())
@@ -275,6 +278,22 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
                         { CardBuffedDebuffedAnimationGameAction::IS_BOARD_CARD_PARAM, "true" },
                         { CardBuffedDebuffedAnimationGameAction::SCALE_FACTOR_PARAM, std::to_string(CARD_SCALE_UP_FACTOR) }
                     });
+                }
+            }
+            else if ((mBoardState->GetActivePlayerState().mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::PERMANENT_CONTINUAL_WEIGHT_REDUCTION) != 0)
+            {
+                for (auto i = 0U; i < heldCards.size(); ++i)
+                {
+                    if (!CardDataRepository::GetInstance().GetCardData(heldCards[i])->get().IsSpell())
+                    {
+                        mGameActionEngine->AddGameAction(CARD_BUFFED_DEBUFFED_ANIMATION_GAME_ACTION_NAME,
+                        {
+                            { CardBuffedDebuffedAnimationGameAction::CARD_INDEX_PARAM, std::to_string(i)},
+                            { CardBuffedDebuffedAnimationGameAction::PLAYER_INDEX_PARAM, std::to_string(mBoardState->GetActivePlayerIndex())},
+                            { CardBuffedDebuffedAnimationGameAction::IS_BOARD_CARD_PARAM, "false" },
+                            { CardBuffedDebuffedAnimationGameAction::SCALE_FACTOR_PARAM, std::to_string(CARD_SCALE_DOWN_FACTOR) }
+                        });
+                    }
                 }
             }
             
@@ -374,6 +393,19 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
         mCardBoardEffectMask = effects::board_modifier_masks::BOARD_SIDE_DEBUFF;
     }
     
+    // Continual weight reduction component
+    else if (std::find(mEffectComponents.cbegin(), mEffectComponents.cend(), effects::EFFECT_COMPONENT_PERMANENT_CONTINUAL_WEIGHT_REDUCTION) != mEffectComponents.cend())
+    {
+        if (mBoardState->GetActivePlayerState().mBoardModifiers.mGlobalCardStatModifiers.count(sAffectedStatTypeToCardStatType.at(mAffectedBoardCardsStatType)) == 0)
+        {
+            mBoardState->GetActivePlayerState().mBoardModifiers.mGlobalCardStatModifiers[sAffectedStatTypeToCardStatType.at(mAffectedBoardCardsStatType)] = 0;
+        }
+        
+        mBoardState->GetActivePlayerState().mBoardModifiers.mGlobalCardStatModifiers[sAffectedStatTypeToCardStatType.at(mAffectedBoardCardsStatType)]--;
+        mBoardState->GetActivePlayerState().mBoardModifiers.mBoardModifierMask |= effects::board_modifier_masks::PERMANENT_CONTINUAL_WEIGHT_REDUCTION;
+        mCardBoardEffectMask = effects::board_modifier_masks::PERMANENT_CONTINUAL_WEIGHT_REDUCTION;
+    }
+    
     // Create/Modify board card stat overrides
     int particleEmitterIndex = 0;
     for (auto affectedBoardCardIter = affectedBoardCardIndices.begin(); affectedBoardCardIter != affectedBoardCardIndices.end();)
@@ -408,27 +440,30 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
     // Create/Modify held card stat overrides
     for (auto affectedHeldCardIter = affectedHeldCardIndices.begin(); affectedHeldCardIter != affectedHeldCardIndices.end();)
     {
-        const auto affectedStat = sAffectedStatTypeToCardStatType.at(mAffectedBoardCardsStatType);
-        auto cardData = CardDataRepository::GetInstance().GetCardData(mBoardState->GetActivePlayerState().mPlayerHeldCards.at(*affectedHeldCardIter))->get();
-        auto currentValue = mAffectedBoardCardsStatType == AffectedStatType::DAMAGE ? cardData.mCardDamage : cardData.mCardWeight;
-        
-        if (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.size()) > *affectedHeldCardIter &&
-            mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides[*affectedHeldCardIter].count(affectedStat))
+        if (mCardBoardEffectMask != effects::board_modifier_masks::PERMANENT_CONTINUAL_WEIGHT_REDUCTION)
         {
-            currentValue = mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides[*affectedHeldCardIter][affectedStat];
-        }
-        else
-        {
-            mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.resize(*affectedHeldCardIter + 1);
-        }
-        
-        mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides[*affectedHeldCardIter][affectedStat] = currentValue + mEffectValue;
-        
-        // Skip animation for held cards for opponent
-        if (mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX)
-        {
-            affectedHeldCardIter = affectedHeldCardIndices.erase(affectedHeldCardIter);
-            continue;
+            const auto affectedStat = sAffectedStatTypeToCardStatType.at(mAffectedBoardCardsStatType);
+            auto cardData = CardDataRepository::GetInstance().GetCardData(mBoardState->GetActivePlayerState().mPlayerHeldCards.at(*affectedHeldCardIter))->get();
+            auto currentValue = mAffectedBoardCardsStatType == AffectedStatType::DAMAGE ? cardData.mCardDamage : cardData.mCardWeight;
+            
+            if (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.size()) > *affectedHeldCardIter &&
+                mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides[*affectedHeldCardIter].count(affectedStat))
+            {
+                currentValue = mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides[*affectedHeldCardIter][affectedStat];
+            }
+            else
+            {
+                mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.resize(*affectedHeldCardIter + 1);
+            }
+            
+            mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides[*affectedHeldCardIter][affectedStat] = currentValue + mEffectValue;
+            
+            // Skip animation for held cards for opponent
+            if (mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX)
+            {
+                affectedHeldCardIter = affectedHeldCardIndices.erase(affectedHeldCardIter);
+                continue;
+            }
         }
         
         mGameActionEngine->AddGameAction(CARD_BUFFED_DEBUFFED_ANIMATION_GAME_ACTION_NAME,
