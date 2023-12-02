@@ -231,7 +231,7 @@
         },
         {
             "id": 24,
-            "weight": 1,
+            "weight": 0,
             "family": "rodents",
             "name": "Gust of Wind",
             "effect": "CLEAR_EFFECTS",

@@ -174,8 +174,6 @@ void CardAttackGameAction::VInitAnimation()
                 {
                     mPendingAnimations--;
                     
-                    CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE)->GetCamera().Shake(ATTACKING_CARD_CAMERA_SHAKE_DURATION, ATTACKING_CARD_CAMERA_SHAKE_STRENGTH);
-                    
                     auto cardIndex = std::stoi(mExtraActionParams.at(CARD_INDEX_PARAM));
                     auto attackingPayerIndex = std::stoi(mExtraActionParams.at(PLAYER_INDEX_PARAM));
                     
@@ -197,6 +195,10 @@ void CardAttackGameAction::VInitAnimation()
                         glm::vec3(cardSoWrapper->mSceneObject->mPosition.x, cardSoWrapper->mSceneObject->mPosition.y, ATTACKING_CARD_PARTICLE_EMITTER_Z),
                         *CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE)
                      );
+                    
+                    auto cameraShakeDuration = ATTACKING_CARD_CAMERA_SHAKE_DURATION * (1.0f + 0.2f * cardSoWrapper->mCardData->mCardDamage);
+                    auto cameraShakeStrength = ATTACKING_CARD_CAMERA_SHAKE_STRENGTH * (1.0f + 0.2f * cardSoWrapper->mCardData->mCardDamage);
+                    CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE)->GetCamera().Shake(cameraShakeDuration, cameraShakeStrength);
                     
                     animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObject, mOriginalCardPosition, mOriginalCardScale, ATTACKING_CARD_LONG_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [&]()
                     {

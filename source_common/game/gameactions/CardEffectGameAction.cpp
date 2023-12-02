@@ -414,14 +414,18 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
         auto cardData = CardDataRepository::GetInstance().GetCardData(mBoardState->GetActivePlayerState().mPlayerBoardCards.at(*affectedBoardCardIter))->get();
         auto currentValue = mAffectedBoardCardsStatType == AffectedStatType::DAMAGE ? cardData.mCardDamage : cardData.mCardWeight;
         
-        if (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.size()) > *affectedBoardCardIter &&
-            mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides[*affectedBoardCardIter].count(affectedStat))
+        if (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.size()) <= *affectedBoardCardIter)
         {
-            currentValue = mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides[*affectedBoardCardIter][affectedStat];
+            mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.resize(*affectedBoardCardIter + 1);
+        }
+        
+        if (mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides[*affectedBoardCardIter].count(affectedStat) == 0)
+        {
+            mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides[*affectedBoardCardIter][affectedStat] = 0;
         }
         else
         {
-            mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.resize(*affectedBoardCardIter + 1);
+            currentValue = mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides[*affectedBoardCardIter][affectedStat];
         }
         
         mGameActionEngine->AddGameAction(CARD_BUFFED_DEBUFFED_ANIMATION_GAME_ACTION_NAME,
@@ -446,14 +450,18 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
             auto cardData = CardDataRepository::GetInstance().GetCardData(mBoardState->GetActivePlayerState().mPlayerHeldCards.at(*affectedHeldCardIter))->get();
             auto currentValue = mAffectedBoardCardsStatType == AffectedStatType::DAMAGE ? cardData.mCardDamage : cardData.mCardWeight;
             
-            if (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.size()) > *affectedHeldCardIter &&
-                mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides[*affectedHeldCardIter].count(affectedStat))
+            if (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.size()) <= *affectedHeldCardIter)
             {
-                currentValue = mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides[*affectedHeldCardIter][affectedStat];
+                mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.resize(*affectedHeldCardIter + 1);
+            }
+            
+            if (mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides[*affectedHeldCardIter].count(affectedStat) == 0)
+            {
+                mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides[*affectedHeldCardIter][affectedStat] = 0;
             }
             else
             {
-                mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.resize(*affectedHeldCardIter + 1);
+                currentValue = mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides[*affectedHeldCardIter][affectedStat];
             }
             
             mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides[*affectedHeldCardIter][affectedStat] = currentValue + mEffectValue;

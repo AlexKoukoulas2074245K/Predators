@@ -132,7 +132,7 @@ bool PlayerActionGenerationEngine::IsCardHighPriority(const CardData& cardData, 
     if (
         cardData.IsSpell() &&
         strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_DRAW) &&
-        (math::ControlledRandomInt(0, 1) == 1 || mActionGenerationType != ActionGenerationType::OPTIMISED)
+        (math::RandomInt(0, 1) == 1 || mActionGenerationType != ActionGenerationType::OPTIMISED)
     ) return true;
     
     else if
@@ -145,7 +145,7 @@ bool PlayerActionGenerationEngine::IsCardHighPriority(const CardData& cardData, 
     (
         cardData.IsSpell() &&
         strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_CLEAR_EFFECTS) &&
-        (math::ControlledRandomInt(0, 1) == 1 || mActionGenerationType != ActionGenerationType::OPTIMISED)
+        (math::RandomInt(0, 1) == 1 || mActionGenerationType != ActionGenerationType::OPTIMISED)
     ) return true;
     
     else if

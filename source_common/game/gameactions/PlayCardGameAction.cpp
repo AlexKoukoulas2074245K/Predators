@@ -38,7 +38,6 @@ static const float CARD_CAMERA_SHAKE_STRENGTH = 0.005f;
 static const float CARD_PLAY_PARTICLE_EMITTER_Z = 0.01f;
 static const float IN_GAME_PLAYED_CARD_ANIMATION_DURATION = 0.5f;
 
-
 ///------------------------------------------------------------------------------------------------
 
 static const std::vector<std::string> sRequiredExtraParamNames =
