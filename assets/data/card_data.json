@@ -282,7 +282,7 @@
         },
         {
             "id": 29,
-            "weight": 5,
+            "weight": 4,
             "family": "dinosaurs",
             "name": "Impending Doom",
             "effect": "PERMANENT_CONTINUAL_WEIGHT_REDUCTION WEIGHT FAMILY HELD",

@@ -102,9 +102,11 @@ void CardEffectGameAction::VInitAnimation()
     // Force release all held/moving cards back to position
     for (const auto& affectedCardEntry: mAffectedCards)
     {
-        events::EventSystem::GetInstance().DispatchEvent<events::ForceSendCardBackToPositionEvent>(static_cast<int>(affectedCardEntry.mCardIndex), affectedCardEntry.mIsBoardCard, mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
+        if (!affectedCardEntry.mIsBoardCard)
+        {
+            events::EventSystem::GetInstance().DispatchEvent<events::ForceSendCardBackToPositionEvent>(static_cast<int>(affectedCardEntry.mCardIndex), affectedCardEntry.mIsBoardCard, mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
+        }
     }
-    
     
     mActionState = ActionState::EFFECT_CARD_ANIMATION;
     mAnimationDelayCounterSecs = 0.0f;
@@ -465,13 +467,13 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
             }
             
             mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides[*affectedHeldCardIter][affectedStat] = currentValue + mEffectValue;
-            
-            // Skip animation for held cards for opponent
-            if (mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX)
-            {
-                affectedHeldCardIter = affectedHeldCardIndices.erase(affectedHeldCardIter);
-                continue;
-            }
+        }
+        
+        // Skip animation for held cards for opponent
+        if (mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX)
+        {
+            affectedHeldCardIter = affectedHeldCardIndices.erase(affectedHeldCardIter);
+            continue;
         }
         
         mGameActionEngine->AddGameAction(CARD_BUFFED_DEBUFFED_ANIMATION_GAME_ACTION_NAME,

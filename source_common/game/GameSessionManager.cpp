@@ -143,11 +143,11 @@ void GameSessionManager::InitGameSession()
     mBoardState->GetPlayerStates().emplace_back();
     mBoardState->GetPlayerStates().emplace_back();
     
-    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerHealth = game_constants::TOP_PLAYER_DEFAULT_HEALTH * 2;
-    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth = game_constants::BOT_PLAYER_DEFAULT_HEALTH * 2;
+    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerHealth = game_constants::TOP_PLAYER_DEFAULT_HEALTH;
+    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth = game_constants::BOT_PLAYER_DEFAULT_HEALTH;
     
-    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));
-    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("insects"));
+    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("dinosaurs"));
+    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));
     
     //mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mGoldenCardIds = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("insects"));
     //mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mGoldenCardIds = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));;
