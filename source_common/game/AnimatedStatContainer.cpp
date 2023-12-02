@@ -44,6 +44,7 @@ AnimatedStatContainer::AnimatedStatContainer
     crystalBaseSceneObject->mPosition = position;
     crystalBaseSceneObject->mScale = STAT_CRYSTAL_SCALE;
     crystalBaseSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = startHidden ? 0.0f : 1.0f;
+    crystalBaseSceneObject->mInvisible = startHidden;
     
     auto crystalValueSceneObject = scene.CreateSceneObject(strutils::StringId(crystalName + VALUE_SCENE_OBJECT_NAME_POSTFIX));
     scene::TextSceneObjectData crystalValueTextData;
@@ -52,6 +53,7 @@ AnimatedStatContainer::AnimatedStatContainer
     crystalValueSceneObject->mScale = STAT_CRYSTAL_VALUE_SCALE;
     crystalValueSceneObject->mPosition = crystalBaseSceneObject->mPosition + STAT_CRYSTAL_VALUE_POSITION_OFFSET;
     crystalValueSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = startHidden ? 0.0f : 1.0f;
+    crystalValueSceneObject->mInvisible = startHidden;
     
     mSceneObjects.push_back(crystalBaseSceneObject);
     mSceneObjects.push_back(crystalValueSceneObject);

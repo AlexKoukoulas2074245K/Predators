@@ -147,7 +147,7 @@ void GameSessionManager::InitGameSession()
     mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth = game_constants::BOT_PLAYER_DEFAULT_HEALTH * 2;
     
     mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));
-    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("dinosaurs"));
+    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("insects"));
     
     //mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mGoldenCardIds = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("insects"));
     //mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mGoldenCardIds = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));;
@@ -1512,10 +1512,22 @@ void GameSessionManager::OnPoisonStackChangeChangeAnimationTrigger(const events:
 {
     auto& affectedContainerEntry = mAnimatedStatContainers[event.mForRemotePlayer ? 4 : 5];
     affectedContainerEntry.first = true;
+    auto newPoisonStackValue = event.mNewPoisonStackValue;
     
-    for (auto& sceneObject: affectedContainerEntry.second->GetSceneObjects())
+    for (auto sceneObject: affectedContainerEntry.second->GetSceneObjects())
     {
-        CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, event.mNewPoisonStackValue == 0 ? 0.0f : 1.0f, game_constants::POISON_STACK_SHOW_HIDE_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), [](){});
+        if (newPoisonStackValue != 0)
+        {
+            sceneObject->mInvisible = false;
+        }
+        
+        CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, newPoisonStackValue == 0 ? 0.0f : 1.0f, game_constants::POISON_STACK_SHOW_HIDE_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), [=]()
+        {
+            if (newPoisonStackValue == 0)
+            {
+                sceneObject->mInvisible = true;
+            }
+        });
     }
 }
 
