@@ -86,7 +86,7 @@ void CardBuffedDebuffedAnimationGameAction::VInitAnimation()
             mGameSessionManager->GetHeldCardSoWrappers().at(playerIndex).at(cardIndex);
         
         auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
-        animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObject, originalPosition, originalScale, targetDuration/2, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+        animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObject, originalPosition, originalScale, targetDuration/2, animation_flags::IGNORE_X_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
         {
             mFinished = true;
         });
