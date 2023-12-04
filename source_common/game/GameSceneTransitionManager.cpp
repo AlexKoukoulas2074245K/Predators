@@ -94,16 +94,16 @@ void GameSceneTransitionManager::ChangeToScene
         }
     }
     
+    // Create scene from scratch if non-existent
+    auto newScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(sceneName);
+    if (!newScene)
+    {
+        newScene = CoreSystemsEngine::GetInstance().GetSceneManager().CreateScene(sceneName);
+    }
+    
     // With darkening transition
     if (targetTransitionDurationSecs > 0.0f)
     {
-        // Create scene from scratch if non-existent
-        auto newScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(sceneName);
-        if (!newScene)
-        {
-            newScene = CoreSystemsEngine::GetInstance().GetSceneManager().CreateScene(sceneName);
-        }
-        
         // Create and setup overlay object for transition
         auto overlaySceneObject = newScene->CreateSceneObject(OVERLAY_SCENE_OBJECT_NAME);
         overlaySceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
