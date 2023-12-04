@@ -55,7 +55,7 @@ public:
     [[nodiscard]] const strutils::StringId& GetName() const;
     [[nodiscard]] float GetUpdateTimeSpeedFactor() const;
     [[nodiscard]] float& GetUpdateTimeSpeedFactor();
-    
+
 private:
     const strutils::StringId mSceneName;
     std::vector<std::shared_ptr<SceneObject>> mSceneObjects;

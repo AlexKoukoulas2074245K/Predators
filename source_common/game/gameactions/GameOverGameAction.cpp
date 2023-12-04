@@ -8,7 +8,7 @@
 #include <game/Cards.h>
 #include <game/CardUtils.h>
 #include <game/gameactions/GameOverGameAction.h>
-#include <game/GameSessionManager.h>
+#include <game/BattleSceneLogicManager.h>
 #include <engine/rendering/AnimationManager.h>
 #include <engine/rendering/ParticleManager.h>
 #include <engine/scene/SceneManager.h>

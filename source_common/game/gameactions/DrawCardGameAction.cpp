@@ -17,7 +17,7 @@
 #include <game/events/EventSystem.h>
 #include <game/GameConstants.h>
 #include <game/GameRuleEngine.h>
-#include <game/GameSessionManager.h>
+#include <game/BattleSceneLogicManager.h>
 #include <game/gameactions/DrawCardGameAction.h>
 
 ///------------------------------------------------------------------------------------------------
@@ -94,7 +94,7 @@ void DrawCardGameAction::VInitAnimation()
         // .. The rest can be looked up and animated
         else
         {
-            auto cardSoWrapper = mGameSessionManager->GetHeldCardSoWrappers()[(remotePlayerActive ? 0 : 1)][i];
+            auto cardSoWrapper = mBattleSceneLogicManager->GetHeldCardSoWrappers()[(remotePlayerActive ? 0 : 1)][i];
             
             if (cardSoWrapper->mState != CardSoState::FREE_MOVING)
             {

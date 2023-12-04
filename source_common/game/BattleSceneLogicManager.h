@@ -1,15 +1,16 @@
 ///------------------------------------------------------------------------------------------------
-///  GameSessionManager.h                                                                                          
+///  BattleSceneLogicManager.h                                                                                          
 ///  Predators                                                                                            
 ///                                                                                                
 ///  Created by Alex Koukoulas on 11/10/2023                                                       
 ///------------------------------------------------------------------------------------------------
 
-#ifndef GameSessionManager_h
-#define GameSessionManager_h
+#ifndef BattleSceneLogicManager_h
+#define BattleSceneLogicManager_h
 
 ///------------------------------------------------------------------------------------------------
 
+#include <game/ISceneLogicManager.h>
 #include <game/events/EventSystem.h>
 #include <engine/scene/SceneObject.h>
 #include <engine/utils/MathUtils.h>
@@ -33,14 +34,17 @@ struct CardSoWrapper;
 
 ///------------------------------------------------------------------------------------------------
 
-class GameSessionManager final: public events::IListener
+class BattleSceneLogicManager final: public events::IListener, public ISceneLogicManager
 {
 public:
-    GameSessionManager();
-    ~GameSessionManager();
+    BattleSceneLogicManager();
+    ~BattleSceneLogicManager();
     
-    void InitGameSession();
-    void Update(const float dtMillis);
+    const std::vector<strutils::StringId>& VGetApplicableSceneNames() const override;
+    
+    void VInitScene(const strutils::StringId& sceneName) override;
+    void VUpdate(const float dtMillis, const strutils::StringId& activeSceneName) override;
+    void VDestroyScene(const strutils::StringId& sceneName) override;
     
     const BoardState& GetBoardState() const;
     GameActionEngine& GetActionEngine();
@@ -48,9 +52,10 @@ public:
     const std::vector<std::vector<std::shared_ptr<CardSoWrapper>>>& GetHeldCardSoWrappers() const;
     const std::vector<std::vector<std::shared_ptr<CardSoWrapper>>>& GetBoardCardSoWrappers() const;
     
-    int GetLastPlayedCardIndex() const;
-    
 private:
+    void InitBattleScene();
+    void InitHistoryScene();
+    
     void HandleTouchInput(const float dtMillis);
     void UpdateMiscSceneObjects(const float dtMillis);
     void OnFreeMovingCardRelease(std::shared_ptr<CardSoWrapper> cardSoWrapper);
@@ -106,4 +111,4 @@ private:
 
 ///------------------------------------------------------------------------------------------------
 
-#endif /* GameSessionManager_h */
+#endif /* BattleSceneLogicManager_h */

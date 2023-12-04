@@ -12,7 +12,7 @@
 #include <game/gameactions/CardBuffedDebuffedAnimationGameAction.h>
 #include <game/gameactions/CardDestructionGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
-#include <game/GameSessionManager.h>
+#include <game/BattleSceneLogicManager.h>
 #include <engine/rendering/AnimationManager.h>
 #include <engine/rendering/ParticleManager.h>
 #include <engine/scene/SceneManager.h>
@@ -81,7 +81,7 @@ void TrapTriggeredAnimationGameAction::VInitAnimation()
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
     auto scene = sceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
     const auto lastPlayedBoardCardIndex = mBoardState->GetActivePlayerState().mPlayerBoardCards.size() - 1;
-    auto lastPlayedCardSoWrapper = mGameSessionManager->GetBoardCardSoWrappers()[mBoardState->GetActivePlayerIndex()].at(lastPlayedBoardCardIndex);
+    auto lastPlayedCardSoWrapper = mBattleSceneLogicManager->GetBoardCardSoWrappers()[mBoardState->GetActivePlayerIndex()].at(lastPlayedBoardCardIndex);
     
     if (mExtraActionParams.at(TRAP_TRIGGER_TYPE_PARAM) == TRAP_TRIGGER_TYPE_KILL)
     {

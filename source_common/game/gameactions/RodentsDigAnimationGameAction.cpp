@@ -13,7 +13,7 @@
 #include <engine/scene/Scene.h>
 #include <game/events/EventSystem.h>
 #include <game/GameConstants.h>
-#include <game/GameSessionManager.h>
+#include <game/BattleSceneLogicManager.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/RodentsDigAnimationGameAction.h>
 
@@ -66,7 +66,7 @@ void RodentsDigAnimationGameAction::VInitAnimation()
     auto cardIndex = std::stoi(mExtraActionParams.at(CARD_INDEX_PARAM));
     auto playerIndex = std::stoi(mExtraActionParams.at(PLAYER_INDEX_PARAM));
     
-    auto cardSoWrapper = mGameSessionManager->GetBoardCardSoWrappers().at(playerIndex).at(cardIndex);
+    auto cardSoWrapper = mBattleSceneLogicManager->GetBoardCardSoWrappers().at(playerIndex).at(cardIndex);
     
     auto shovelSceneObject = scene->CreateSceneObject(SHOVEL_SCENE_OBEJECT_NAME);
     shovelSceneObject->mPosition = cardSoWrapper->mSceneObject->mPosition + SHOVEL_OFFSET;
@@ -92,7 +92,7 @@ ActionAnimationUpdateResult RodentsDigAnimationGameAction::VUpdateAnimation(cons
     auto cardIndex = std::stoi(mExtraActionParams.at(CARD_INDEX_PARAM));
     auto playerIndex = std::stoi(mExtraActionParams.at(PLAYER_INDEX_PARAM));
     
-    auto cardSoWrapper = mGameSessionManager->GetBoardCardSoWrappers().at(playerIndex).at(cardIndex);
+    auto cardSoWrapper = mBattleSceneLogicManager->GetBoardCardSoWrappers().at(playerIndex).at(cardIndex);
     cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::DORMANT_CARD_VALUE_UNIFORM_NAME] = math::Lerp(0.0f, 1.0f, mSecsAccum/TARGET_ANIMATION_DURATION);
     
     return mStepsFinished == ANIMATION_STEP_COUNT ? ActionAnimationUpdateResult::FINISHED : ActionAnimationUpdateResult::ONGOING;
@@ -124,7 +124,7 @@ void RodentsDigAnimationGameAction::CreateAnimations()
     auto cardIndex = std::stoi(mExtraActionParams.at(CARD_INDEX_PARAM));
     auto playerIndex = std::stoi(mExtraActionParams.at(PLAYER_INDEX_PARAM));
     
-    auto cardSoWrapper = mGameSessionManager->GetBoardCardSoWrappers().at(playerIndex).at(cardIndex);
+    auto cardSoWrapper = mBattleSceneLogicManager->GetBoardCardSoWrappers().at(playerIndex).at(cardIndex);
     
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
     auto targetPosition = shovelSceneObject->mPosition;

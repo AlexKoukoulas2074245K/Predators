@@ -14,7 +14,7 @@
 #include <game/gameactions/PlayCardGameAction.h>
 #include <game/gameactions/InsectDuplicationGameAction.h>
 #include <game/GameRuleEngine.h>
-#include <game/GameSessionManager.h>
+#include <game/BattleSceneLogicManager.h>
 #include <engine/rendering/AnimationManager.h>
 #include <engine/rendering/ParticleManager.h>
 #include <engine/scene/SceneManager.h>
@@ -158,7 +158,7 @@ void PlayCardGameAction::VInitAnimation()
     const auto lastPlayedCardIndex = std::stoi(mExtraActionParams.at(LAST_PLAYED_CARD_INDEX_PARAM));
     const auto boardCardIndex = static_cast<int>(mBoardState->GetActivePlayerState().mPlayerBoardCards.size() - 1);
     
-    auto lastPlayedCardSoWrapper = mGameSessionManager->GetHeldCardSoWrappers()[mBoardState->GetActivePlayerIndex()].at(lastPlayedCardIndex);
+    auto lastPlayedCardSoWrapper = mBattleSceneLogicManager->GetHeldCardSoWrappers()[mBoardState->GetActivePlayerIndex()].at(lastPlayedCardIndex);
     
     if (mAborted)
     {

@@ -12,7 +12,7 @@
 #include <engine/scene/Scene.h>
 #include <game/events/EventSystem.h>
 #include <game/GameConstants.h>
-#include <game/GameSessionManager.h>
+#include <game/BattleSceneLogicManager.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/GoldenCardPlayedEffectGameAction.h>
 
@@ -36,7 +36,7 @@ void GoldenCardPlayedEffectGameAction::VInitAnimation()
     mFinished = false;
     
     mGoldenCardPlayedLightEffectX = GOLDEN_CARD_LIGHT_EFFECT_MIN_X;
-    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(mGameSessionManager->GetBoardCardSoWrappers()[mBoardState->GetActivePlayerIndex()].front()->mSceneObject, mGoldenCardPlayedLightEffectX, GOLDEN_CARD_LIGHT_EFFECT_MAX_X, GOLDEN_CARD_LIGHT_EFFECT_ANIMATION_DURATION),[=]()
+    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(mGoldenCardPlayedLightEffectX, GOLDEN_CARD_LIGHT_EFFECT_MAX_X, GOLDEN_CARD_LIGHT_EFFECT_ANIMATION_DURATION),[=]()
     {
         mFinished = true;
     });
@@ -46,7 +46,7 @@ void GoldenCardPlayedEffectGameAction::VInitAnimation()
 
 ActionAnimationUpdateResult GoldenCardPlayedEffectGameAction::VUpdateAnimation(const float)
 {
-    for (const auto& cardSoWrappers: mGameSessionManager->GetBoardCardSoWrappers()[mBoardState->GetActivePlayerIndex()])
+    for (const auto& cardSoWrappers: mBattleSceneLogicManager->GetBoardCardSoWrappers()[mBoardState->GetActivePlayerIndex()])
     {
         cardSoWrappers->mSceneObject->mShaderFloatUniformValues[game_constants::LIGHT_POS_X_UNIFORM_NAME] = mGoldenCardPlayedLightEffectX;
     }

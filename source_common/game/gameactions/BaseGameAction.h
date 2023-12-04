@@ -16,7 +16,7 @@
 
 ///------------------------------------------------------------------------------------------------
 
-class GameSessionManager;
+class BattleSceneLogicManager;
 class GameActionEngine;
 class GameRuleEngine;
 class BaseGameAction: public IGameAction
@@ -30,14 +30,14 @@ public:
     
 protected:
     void SetName(const strutils::StringId& name) { mName = name; }
-    void SetDependencies(BoardState* boardState, GameSessionManager* gameSessionManager, GameRuleEngine* gameRuleEngine, GameActionEngine* gameActionEngine) { mBoardState = boardState; mGameSessionManager = gameSessionManager; mGameRuleEngine = gameRuleEngine; mGameActionEngine = gameActionEngine; }
+    void SetDependencies(BoardState* boardState, BattleSceneLogicManager* battleSceneLogicManager, GameRuleEngine* gameRuleEngine, GameActionEngine* gameActionEngine) { mBoardState = boardState; mBattleSceneLogicManager = battleSceneLogicManager; mGameRuleEngine = gameRuleEngine; mGameActionEngine = gameActionEngine; }
     void SetExtraActionParams(const std::unordered_map<std::string, std::string>& extraActionParams) { mExtraActionParams = extraActionParams; };
     
 protected:
     std::unordered_map<std::string, std::string> mExtraActionParams;
     strutils::StringId mName = strutils::StringId();
     BoardState* mBoardState = nullptr;
-    GameSessionManager* mGameSessionManager = nullptr;
+    BattleSceneLogicManager* mBattleSceneLogicManager = nullptr;
     GameRuleEngine* mGameRuleEngine = nullptr;
     GameActionEngine* mGameActionEngine = nullptr;
 };

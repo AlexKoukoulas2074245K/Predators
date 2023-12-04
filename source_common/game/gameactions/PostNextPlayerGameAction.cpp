@@ -12,7 +12,7 @@
 #include <engine/scene/Scene.h>
 #include <game/events/EventSystem.h>
 #include <game/GameConstants.h>
-#include <game/GameSessionManager.h>
+#include <game/BattleSceneLogicManager.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/PostNextPlayerGameAction.h>
 
@@ -105,10 +105,10 @@ void PostNextPlayerGameAction::VInitAnimation()
     for (auto i = 0U; i < mBoardState->GetActivePlayerState().mPlayerBoardCards.size(); ++i)
     {
         events::EventSystem::GetInstance().DispatchEvent<events::CardBuffedDebuffedEvent>(i, true, mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
-        auto cardSoWrapper = mGameSessionManager->GetBoardCardSoWrappers().at(mBoardState->GetActivePlayerIndex()).at(i);
+        auto cardSoWrapper = mBattleSceneLogicManager->GetBoardCardSoWrappers().at(mBoardState->GetActivePlayerIndex()).at(i);
         
         cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::DORMANT_CARD_VALUE_UNIFORM_NAME] = 1.0f;
-        animationManager.StartAnimation(std::make_unique<rendering::TweenValueAnimation>(cardSoWrapper->mSceneObject, cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::DORMANT_CARD_VALUE_UNIFORM_NAME], 0.0f, DORMANT_CARDS_REEMERGE_ANIMATION_DURATION_SECS),[=](){});
+        animationManager.StartAnimation(std::make_unique<rendering::TweenValueAnimation>(cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::DORMANT_CARD_VALUE_UNIFORM_NAME], 0.0f, DORMANT_CARDS_REEMERGE_ANIMATION_DURATION_SECS),[=](){});
     }
     
     mPendingAnimations = 1;

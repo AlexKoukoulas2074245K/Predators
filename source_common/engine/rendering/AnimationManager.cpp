@@ -78,7 +78,7 @@ void AnimationManager::Update(const float dtMillis)
     mAnimationContainerLocked = true;
     for(auto iter = mAnimations.begin(); iter != mAnimations.end();)
     {
-        auto updateTimeMillis = dtMillis * iter->mAnimation->VGetSceneObject()->mScene->GetUpdateTimeSpeedFactor();
+        auto updateTimeMillis = dtMillis * (iter->mAnimation->VGetSceneObject() ? iter->mAnimation->VGetSceneObject()->mScene->GetUpdateTimeSpeedFactor() : 1.0f);
         if (iter->mAnimation->VUpdate(updateTimeMillis) == AnimationUpdateResult::FINISHED)
         {
             iter->mCompletionCallback();

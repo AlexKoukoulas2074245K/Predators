@@ -11,7 +11,7 @@
 #include <game/gameactions/CardDestructionGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/GameOverGameAction.h>
-#include <game/GameSessionManager.h>
+#include <game/BattleSceneLogicManager.h>
 #include <engine/rendering/AnimationManager.h>
 #include <engine/rendering/ParticleManager.h>
 #include <engine/scene/SceneManager.h>
@@ -98,8 +98,8 @@ void CardDestructionGameAction::VInitAnimation()
     {
         auto cardIndexInt = std::stoi(cardIndex);
         auto cardSoWrapper = isBoardCard ?
-            mGameSessionManager->GetBoardCardSoWrappers().at(attackingPayerIndex).at(cardIndexInt) :
-            mGameSessionManager->GetHeldCardSoWrappers().at(attackingPayerIndex).at(cardIndexInt);
+            mBattleSceneLogicManager->GetBoardCardSoWrappers().at(attackingPayerIndex).at(cardIndexInt) :
+            mBattleSceneLogicManager->GetHeldCardSoWrappers().at(attackingPayerIndex).at(cardIndexInt);
         
         cardSoWrapper->mSceneObject->mShaderResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CARD_DISSOLVE_SHADER_FILE_NAME);
         cardSoWrapper->mSceneObject->mEffectTextureResourceIds[1] = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + DISSOLVE_TEXTURE_FILE_NAME);
@@ -124,8 +124,8 @@ ActionAnimationUpdateResult CardDestructionGameAction::VUpdateAnimation(const fl
     {
         auto cardIndexInt = std::stoi(cardIndex);
         auto cardSoWrapper = isBoardCard ?
-            mGameSessionManager->GetBoardCardSoWrappers().at(playerIndex).at(cardIndexInt) :
-            mGameSessionManager->GetHeldCardSoWrappers().at(playerIndex).at(cardIndexInt);
+            mBattleSceneLogicManager->GetBoardCardSoWrappers().at(playerIndex).at(cardIndexInt) :
+            mBattleSceneLogicManager->GetHeldCardSoWrappers().at(playerIndex).at(cardIndexInt);
         cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] += dtMillis * CARD_DISSOLVE_SPEED;
         
         if (cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] >= MAX_CARD_DISSOLVE_VALUE)

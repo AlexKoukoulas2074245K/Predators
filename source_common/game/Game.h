@@ -10,11 +10,12 @@
 
 ///------------------------------------------------------------------------------------------------
 
-#include <game/GameSessionManager.h>
 #include <memory>
+#include <game/events/EventSystem.h>
 
 ///------------------------------------------------------------------------------------------------
 
+class GameSceneTransitionManager;
 class Game final
 {
 public:
@@ -27,8 +28,9 @@ public:
     void WindowResize();
     void CreateDebugWidgets();
     
-private:
-    GameSessionManager mGameSessionManager;
+    std::unique_ptr<GameSceneTransitionManager> mGameSceneTransitionManager;
+    std::unique_ptr<events::IListener> mSceneChangeEventListener;
+    std::unique_ptr<events::IListener> mPopModalSceneEventListener;
 };
 
 ///------------------------------------------------------------------------------------------------

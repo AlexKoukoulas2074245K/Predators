@@ -17,8 +17,8 @@ namespace scene
 ///------------------------------------------------------------------------------------------------
 
 Scene::Scene(const strutils::StringId& sceneName)
-: mSceneName(sceneName)
-, mUpdateTimeSpeedFactor(1.0f)
+    : mSceneName(sceneName)
+    , mUpdateTimeSpeedFactor(1.0f)
 {
 }
 

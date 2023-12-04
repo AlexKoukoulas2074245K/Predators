@@ -10,7 +10,7 @@
 #include <game/events/EventSystem.h>
 #include <game/gameactions/InsectDuplicationGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
-#include <game/GameSessionManager.h>
+#include <game/BattleSceneLogicManager.h>
 #include <engine/rendering/AnimationManager.h>
 #include <engine/rendering/ParticleManager.h>
 #include <engine/scene/SceneManager.h>
@@ -47,7 +47,7 @@ void InsectDuplicationGameAction::VInitAnimation()
     mFinished = false;
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
     auto scene = systemsEngine.GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
-    auto lastPlayedCardSoWrapper = mGameSessionManager->GetBoardCardSoWrappers().at(mBoardState->GetActivePlayerIndex()).back();
+    auto lastPlayedCardSoWrapper = mBattleSceneLogicManager->GetBoardCardSoWrappers().at(mBoardState->GetActivePlayerIndex()).back();
     auto lastPlayedCardIndex = mBoardState->GetActivePlayerState().mPlayerBoardCards.size() - 2;
     auto sourcePosition = lastPlayedCardSoWrapper->mSceneObject->mPosition;
     

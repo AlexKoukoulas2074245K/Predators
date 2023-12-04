@@ -13,7 +13,7 @@
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/GameOverGameAction.h>
 #include <game/gameactions/RodentsDigAnimationGameAction.h>
-#include <game/GameSessionManager.h>
+#include <game/BattleSceneLogicManager.h>
 #include <engine/rendering/AnimationManager.h>
 #include <engine/rendering/ParticleManager.h>
 #include <engine/scene/SceneManager.h>
@@ -146,7 +146,7 @@ void CardAttackGameAction::VInitAnimation()
         return;
     }
     
-    auto cardSoWrapper = mGameSessionManager->GetBoardCardSoWrappers().at(attackingPayerIndex).at(cardIndex);
+    auto cardSoWrapper = mBattleSceneLogicManager->GetBoardCardSoWrappers().at(attackingPayerIndex).at(cardIndex);
     
     mOriginalCardPosition = cardSoWrapper->mSceneObject->mPosition;
     mOriginalCardScale = cardSoWrapper->mSceneObject->mScale;
@@ -165,7 +165,7 @@ void CardAttackGameAction::VInitAnimation()
             {
                 auto cardIndex = std::stoi(mExtraActionParams.at(CARD_INDEX_PARAM));
                 auto attackingPayerIndex = std::stoi(mExtraActionParams.at(PLAYER_INDEX_PARAM));
-                auto cardSoWrapper = mGameSessionManager->GetBoardCardSoWrappers().at(attackingPayerIndex).at(cardIndex);
+                auto cardSoWrapper = mBattleSceneLogicManager->GetBoardCardSoWrappers().at(attackingPayerIndex).at(cardIndex);
                 
                 auto targetPos = cardSoWrapper->mSceneObject->mPosition;
                 targetPos.y += attackingPayerIndex == game_constants::LOCAL_PLAYER_INDEX ? ATTACKING_CARD_ANIMATION_Y_OFFSET : - ATTACKING_CARD_ANIMATION_Y_OFFSET;
@@ -182,7 +182,7 @@ void CardAttackGameAction::VInitAnimation()
                         events::EventSystem::GetInstance().DispatchEvent<events::HealthChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
                     }
                     
-                    auto cardSoWrapper = mGameSessionManager->GetBoardCardSoWrappers().at(attackingPayerIndex).at(cardIndex);
+                    auto cardSoWrapper = mBattleSceneLogicManager->GetBoardCardSoWrappers().at(attackingPayerIndex).at(cardIndex);
                     
                     if (!cardSoWrapper->mCardData->IsSpell() && cardSoWrapper->mCardData->mCardFamily == game_constants::INSECTS_FAMILY_NAME)
                     {

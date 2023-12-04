@@ -10,7 +10,7 @@
 #include <game/events/EventSystem.h>
 #include <game/gameactions/CardBuffedDebuffedAnimationGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
-#include <game/GameSessionManager.h>
+#include <game/BattleSceneLogicManager.h>
 #include <engine/rendering/AnimationManager.h>
 #include <engine/rendering/ParticleManager.h>
 #include <engine/scene/SceneManager.h>
@@ -63,8 +63,8 @@ void CardBuffedDebuffedAnimationGameAction::VInitAnimation()
         strutils::StringId();
     
     auto cardSoWrapper = isBoardCard ?
-        mGameSessionManager->GetBoardCardSoWrappers().at(playerIndex).at(cardIndex):
-        mGameSessionManager->GetHeldCardSoWrappers().at(playerIndex).at(cardIndex);
+        mBattleSceneLogicManager->GetBoardCardSoWrappers().at(playerIndex).at(cardIndex):
+        mBattleSceneLogicManager->GetHeldCardSoWrappers().at(playerIndex).at(cardIndex);
     
     auto targetDuration = CARD_SCALE_ANIMATION_MIN_DURATION_SECS + math::Max(0.0f, (scaleFactor - CARD_SCALE_ANIMATION_MIN_SCALE_FACTOR)/2);
     auto originalScale = cardSoWrapper->mSceneObject->mScale;
@@ -82,8 +82,8 @@ void CardBuffedDebuffedAnimationGameAction::VInitAnimation()
         events::EventSystem::GetInstance().DispatchEvent<events::CardBuffedDebuffedEvent>(static_cast<int>(cardIndex), isBoardCard, playerIndex == game_constants::REMOTE_PLAYER_INDEX);
         
         auto cardSoWrapper = isBoardCard ?
-            mGameSessionManager->GetBoardCardSoWrappers().at(playerIndex).at(cardIndex):
-            mGameSessionManager->GetHeldCardSoWrappers().at(playerIndex).at(cardIndex);
+            mBattleSceneLogicManager->GetBoardCardSoWrappers().at(playerIndex).at(cardIndex):
+            mBattleSceneLogicManager->GetHeldCardSoWrappers().at(playerIndex).at(cardIndex);
         
         auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
         animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObject, originalPosition, originalScale, targetDuration/2, animation_flags::IGNORE_X_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()

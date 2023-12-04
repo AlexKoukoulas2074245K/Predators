@@ -13,7 +13,7 @@
 #include <engine/scene/Scene.h>
 #include <game/events/EventSystem.h>
 #include <game/GameConstants.h>
-#include <game/GameSessionManager.h>
+#include <game/BattleSceneLogicManager.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/CardPlayedParticleEffectGameAction.h>
 
@@ -31,7 +31,7 @@ void CardPlayedParticleEffectGameAction::VSetNewGameState()
 
 void CardPlayedParticleEffectGameAction::VInitAnimation()
 {
-    const auto& lastPlayedCardSoWrapper = mGameSessionManager->GetBoardCardSoWrappers()[mBoardState->GetActivePlayerIndex()].back();
+    const auto& lastPlayedCardSoWrapper = mBattleSceneLogicManager->GetBoardCardSoWrappers()[mBoardState->GetActivePlayerIndex()].back();
     auto scene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
     
     assert(!lastPlayedCardSoWrapper->mCardData->mParticleEffect.isEmpty());

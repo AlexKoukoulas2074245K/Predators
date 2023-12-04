@@ -12,7 +12,7 @@
 #include <game/gameactions/CardBuffedDebuffedAnimationGameAction.h>
 #include <game/gameactions/CardEffectGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
-#include <game/GameSessionManager.h>
+#include <game/BattleSceneLogicManager.h>
 #include <engine/rendering/AnimationManager.h>
 #include <engine/rendering/ParticleManager.h>
 #include <engine/scene/SceneManager.h>
@@ -83,7 +83,7 @@ void CardEffectGameAction::VSetNewGameState()
 void CardEffectGameAction::VInitAnimation()
 {
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
-    auto cardSoWrapper = mGameSessionManager->GetBoardCardSoWrappers().at(mBoardState->GetActivePlayerIndex()).at(mBoardState->GetActivePlayerState().mPlayerBoardCards.size());
+    auto cardSoWrapper = mBattleSceneLogicManager->GetBoardCardSoWrappers().at(mBoardState->GetActivePlayerIndex()).at(mBoardState->GetActivePlayerState().mPlayerBoardCards.size());
     cardSoWrapper->mSceneObject->mShaderResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CARD_DISSOLVE_SHADER_FILE_NAME);
     cardSoWrapper->mSceneObject->mEffectTextureResourceIds[1] = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + DISSOLVE_TEXTURE_FILE_NAME);
     cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] = 0.0f;
@@ -130,7 +130,7 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
             const auto& deadHeldCardIndices = mBoardState->GetActivePlayerState().mHeldCardIndicesToDestroy;
             
             auto boardCardIndex = boardCards.size();
-            auto effectCardSoWrapper = mGameSessionManager->GetBoardCardSoWrappers().at(mBoardState->GetActivePlayerIndex()).at(boardCardIndex);
+            auto effectCardSoWrapper = mBattleSceneLogicManager->GetBoardCardSoWrappers().at(mBoardState->GetActivePlayerIndex()).at(boardCardIndex);
             effectCardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] += dtMillis * CARD_DISSOLVE_SPEED;
           
             if (effectCardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] >= MAX_CARD_DISSOLVE_VALUE/2)
@@ -149,8 +149,8 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
                     auto& affectedCardEntry = mAffectedCards[i];
                     
                     auto cardSoWrapper = affectedCardEntry.mIsBoardCard ?
-                        mGameSessionManager->GetBoardCardSoWrappers().at(mBoardState->GetActivePlayerIndex()).at(affectedCardEntry.mCardIndex):
-                        mGameSessionManager->GetHeldCardSoWrappers().at(mBoardState->GetActivePlayerIndex()).at(affectedCardEntry.mCardIndex);
+                        mBattleSceneLogicManager->GetBoardCardSoWrappers().at(mBoardState->GetActivePlayerIndex()).at(affectedCardEntry.mCardIndex):
+                        mBattleSceneLogicManager->GetHeldCardSoWrappers().at(mBoardState->GetActivePlayerIndex()).at(affectedCardEntry.mCardIndex);
                     
                     auto targetPosition = affectedCardEntry.mIsBoardCard ?
                         card_utils::CalculateBoardCardPosition(affectedCardEntry.mCardIndex, card_utils::CalculateNonDeadCardsCount(boardCards, deadBoardCardIndices), mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX):
@@ -489,16 +489,16 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
     }
     
     // For non-headless behavior
-    if (mGameSessionManager)
+    if (mBattleSceneLogicManager)
     {
         for (auto i = 0; i < static_cast<int>(affectedBoardCardIndices.size()); ++i)
         {
-            mAffectedCards.push_back({mGameSessionManager->GetBoardCardSoWrappers()[mBoardState->GetActivePlayerIndex()].at(affectedBoardCardIndices.at(i)), affectedBoardCardIndices.at(i), true});
+            mAffectedCards.push_back({mBattleSceneLogicManager->GetBoardCardSoWrappers()[mBoardState->GetActivePlayerIndex()].at(affectedBoardCardIndices.at(i)), affectedBoardCardIndices.at(i), true});
         }
         
         for (auto i = 0; i < static_cast<int>(affectedHeldCardIndices.size()); ++i)
         {
-            mAffectedCards.push_back({mGameSessionManager->GetHeldCardSoWrappers()[mBoardState->GetActivePlayerIndex()].at(affectedHeldCardIndices.at(i)), affectedHeldCardIndices.at(i), false});
+            mAffectedCards.push_back({mBattleSceneLogicManager->GetHeldCardSoWrappers()[mBoardState->GetActivePlayerIndex()].at(affectedHeldCardIndices.at(i)), affectedHeldCardIndices.at(i), false});
         }
     }
     //

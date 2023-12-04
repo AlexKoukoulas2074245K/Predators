@@ -26,6 +26,8 @@
 #include <game/Cards.h>
 #include <game/CardUtils.h>
 #include <game/events/EventSystem.h>
+#include <game/BattleSceneLogicManager.h>
+#include <game/GameSceneTransitionManager.h>
 #include <game/gameactions/BaseGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/GameActionFactory.h>
@@ -49,15 +51,27 @@ Game::Game(const int argc, char** argv)
 
 ///------------------------------------------------------------------------------------------------
 
-Game::~Game()
-{
-    
-}
+Game::~Game(){}
 
 ///------------------------------------------------------------------------------------------------
 
 void Game::Init()
 {
+    auto& eventSystem = events::EventSystem::GetInstance();
+    
+    mSceneChangeEventListener = eventSystem.RegisterForEvent<events::SceneChangeEvent>([=](const events::SceneChangeEvent& event)
+    {
+        mGameSceneTransitionManager->ChangeToScene(event.mNewSceneName, event.mIsModal, event.mTargetDurationSecs, event.mMaxTransitionDarkeningAlpha);
+    });
+    
+    mPopModalSceneEventListener = eventSystem.RegisterForEvent<events::PopSceneModalEvent>([=](const events::PopSceneModalEvent& event)
+    {
+        mGameSceneTransitionManager->PopModalScene(event.mTargetDurationSecs, event.mMaxTransitionDarkeningAlpha);
+    });
+    
+    mGameSceneTransitionManager = std::make_unique<GameSceneTransitionManager>();
+    mGameSceneTransitionManager->RegisterSceneLogicManager<BattleSceneLogicManager>();
+    
     CardDataRepository::GetInstance().LoadCardData(true);
     
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
@@ -67,6 +81,8 @@ void Game::Init()
     systemsEngine.GetFontRepository().LoadFont(game_constants::FONT_PLACEHOLDER_WEIGHT_NAME.GetString(), resources::ResourceReloadMode::DONT_RELOAD);
     
     auto dummyScene = systemsEngine.GetSceneManager().CreateScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto historyScene = systemsEngine.GetSceneManager().CreateScene(game_constants::HISTORY_SCENE);
+    
     auto boardSceneObject = dummyScene->CreateSceneObject(strutils::StringId("Board"));
     boardSceneObject->mPosition.x = -0.007f;
     boardSceneObject->mPosition.y = 0.011f;
@@ -141,7 +157,7 @@ void Game::Init()
 //        fontRowSceneObject->mMeshResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_MESHES_ROOT + "quad.obj");
 //    }
     
-    mGameSessionManager.InitGameSession();
+    mGameSceneTransitionManager->ChangeToScene(game_constants::IN_GAME_BATTLE_SCENE, false);
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -168,7 +184,7 @@ void Game::Update(const float dtMillis)
 //    }
 //
 
-    mGameSessionManager.Update(dtMillis);
+    mGameSceneTransitionManager->Update(dtMillis);
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -288,17 +304,25 @@ void Game::CreateDebugWidgets()
 {
     // Create game configs
     static bool printGameActionTransitions = false;
-    printGameActionTransitions = mGameSessionManager.GetActionEngine().LoggingActionTransitions();
+    
+    auto* activeSceneLogicManager = mGameSceneTransitionManager->GetActiveSceneLogicManager();
+    if (!dynamic_cast<BattleSceneLogicManager*>(activeSceneLogicManager))
+    {
+        return;
+    }
+    
+    auto& battleSceneLogicManager = *(dynamic_cast<BattleSceneLogicManager*>(activeSceneLogicManager));
+    printGameActionTransitions = battleSceneLogicManager.GetActionEngine().LoggingActionTransitions();
     ImGui::Begin("Game Runtime", nullptr, GLOBAL_IMGUI_WINDOW_FLAGS);
     ImGui::SeparatorText("General");
     ImGui::Checkbox("Print Action Transitions", &printGameActionTransitions);
-    mGameSessionManager.GetActionEngine().SetLoggingActionTransitions(printGameActionTransitions);
+    battleSceneLogicManager.GetActionEngine().SetLoggingActionTransitions(printGameActionTransitions);
     ImGui::End();
     
     // Create Card State Viewer
     ImGui::Begin("Card State Viewer", nullptr, GLOBAL_IMGUI_WINDOW_FLAGS);
     static std::string cardStateName;
-    const auto& localPlayerCardSoWrappers = mGameSessionManager.GetHeldCardSoWrappers();
+    const auto& localPlayerCardSoWrappers = battleSceneLogicManager.GetHeldCardSoWrappers();
     for (size_t i = 0; i < localPlayerCardSoWrappers.size(); ++i)
     {
         ImGui::SeparatorText(i == 0 ? "Remote Player" : "Local Player");
@@ -356,8 +380,8 @@ void Game::CreateDebugWidgets()
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(3 / 7.0f, 0.8f, 0.8f));
     if (ImGui::Button("Create"))
     {
-        mGameSessionManager.GetActionEngine().AddGameAction(strutils::StringId(actions.at(currentIndex)), actionExtraParams);
-        mGameSessionManager.GetActionEngine().Update(1);
+        battleSceneLogicManager.GetActionEngine().AddGameAction(strutils::StringId(actions.at(currentIndex)), actionExtraParams);
+        battleSceneLogicManager.GetActionEngine().Update(1);
     }
     
     // Hacky way of getting all action required params
@@ -377,7 +401,7 @@ void Game::CreateDebugWidgets()
         ImGui::PopID();
     }
     
-    const auto& boardState = mGameSessionManager.GetBoardState();
+    const auto& boardState = battleSceneLogicManager.GetBoardState();
     activePlayerIndex = std::to_string(boardState.GetActivePlayerIndex());
     remotePlayerStats = "Health: " + std::to_string(boardState.GetPlayerStates().front().mPlayerHealth) +
                        " | Total Weight Ammo: " + std::to_string(boardState.GetPlayerStates().front().mPlayerTotalWeightAmmo) +
