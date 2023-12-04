@@ -9,7 +9,7 @@
 #include <engine/rendering/Animations.h>
 #include <engine/rendering/AnimationManager.h>
 #include <engine/rendering/ParticleManager.h>
-#include <engine/scene/ActiveSceneManager.h>
+#include <engine/scene/SceneManager.h>
 #include <engine/scene/Scene.h>
 #include <game/events/EventSystem.h>
 #include <game/GameConstants.h>
@@ -61,21 +61,21 @@ void RodentsDigAnimationGameAction::VInitAnimation()
     mSecsAccum = 0.0f;
     
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
-    auto activeScene = systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto scene = systemsEngine.GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
     
     auto cardIndex = std::stoi(mExtraActionParams.at(CARD_INDEX_PARAM));
     auto playerIndex = std::stoi(mExtraActionParams.at(PLAYER_INDEX_PARAM));
     
     auto cardSoWrapper = mGameSessionManager->GetBoardCardSoWrappers().at(playerIndex).at(cardIndex);
     
-    auto shovelSceneObject = activeScene->CreateSceneObject(SHOVEL_SCENE_OBEJECT_NAME);
+    auto shovelSceneObject = scene->CreateSceneObject(SHOVEL_SCENE_OBEJECT_NAME);
     shovelSceneObject->mPosition = cardSoWrapper->mSceneObject->mPosition + SHOVEL_OFFSET;
     shovelSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
     shovelSceneObject->mScale = SHOVEL_SCALE;
     shovelSceneObject->mRotation.z = SHOVEL_MIN_MAX_ROTATIONS.s;
     shovelSceneObject->mTextureResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + SHOVEL_TEXTURE_FILE_NAME);
     
-    systemsEngine.GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(activeScene->FindSceneObject(SHOVEL_SCENE_OBEJECT_NAME), 1.0f, SHOVEL_SHOWHIDE_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){});
+    systemsEngine.GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(scene->FindSceneObject(SHOVEL_SCENE_OBEJECT_NAME), 1.0f, SHOVEL_SHOWHIDE_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){});
     
     CreateAnimations();
 }
@@ -87,7 +87,7 @@ ActionAnimationUpdateResult RodentsDigAnimationGameAction::VUpdateAnimation(cons
     mSecsAccum += dtMillis/1000.0f;
     
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
-    auto activeScene = systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto scene = systemsEngine.GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
     
     auto cardIndex = std::stoi(mExtraActionParams.at(CARD_INDEX_PARAM));
     auto playerIndex = std::stoi(mExtraActionParams.at(PLAYER_INDEX_PARAM));
@@ -117,9 +117,9 @@ const std::vector<std::string>& RodentsDigAnimationGameAction::VGetRequiredExtra
 void RodentsDigAnimationGameAction::CreateAnimations()
 {
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
-    auto activeScene = systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto scene = systemsEngine.GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
     
-    auto shovelSceneObject = activeScene->FindSceneObject(SHOVEL_SCENE_OBEJECT_NAME);
+    auto shovelSceneObject = scene->FindSceneObject(SHOVEL_SCENE_OBEJECT_NAME);
     
     auto cardIndex = std::stoi(mExtraActionParams.at(CARD_INDEX_PARAM));
     auto playerIndex = std::stoi(mExtraActionParams.at(PLAYER_INDEX_PARAM));
@@ -139,7 +139,7 @@ void RodentsDigAnimationGameAction::CreateAnimations()
         (
             DIRT_PARTICLE_NAME,
             glm::vec3(targetPosition.x, targetPosition.y + DIRT_Y_OFFSET, targetPosition.z),
-            *activeScene
+            *scene
         );
         
         glm::vec3 targetRotation = shovelSceneObject->mRotation;
@@ -152,9 +152,9 @@ void RodentsDigAnimationGameAction::CreateAnimations()
             }
             else
             {
-                CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(activeScene->FindSceneObject(SHOVEL_SCENE_OBEJECT_NAME), 0.0f, SHOVEL_SHOWHIDE_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+                CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(scene->FindSceneObject(SHOVEL_SCENE_OBEJECT_NAME), 0.0f, SHOVEL_SHOWHIDE_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
                 {
-                    activeScene->RemoveSceneObject(SHOVEL_SCENE_OBEJECT_NAME);
+                    scene->RemoveSceneObject(SHOVEL_SCENE_OBEJECT_NAME);
                 });
             }
         });

@@ -8,7 +8,7 @@
 #include <engine/CoreSystemsEngine.h>
 #include <engine/rendering/AnimationManager.h>
 #include <engine/resloading/ResourceLoadingService.h>
-#include <engine/scene/ActiveSceneManager.h>
+#include <engine/scene/SceneManager.h>
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
 #include <engine/utils/MathUtils.h>
@@ -38,16 +38,16 @@ void DrawCardGameAction::VInitAnimation()
     mPendingAnimations = 0;
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
     auto& animationManager = systemsEngine.GetAnimationManager();
-    auto& activeSceneManager = systemsEngine.GetActiveSceneManager();
+    auto& sceneManager = systemsEngine.GetSceneManager();
     
-    auto activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto scene = sceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
     
     const int cardCount = static_cast<int>(mBoardState->GetActivePlayerState().mPlayerHeldCards.size());
     bool remotePlayerActive = mBoardState->GetActivePlayerIndex() == 0;
     
     for (int i = 0; i < cardCount; ++i)
     {
-        auto finalCardPosition = card_utils::CalculateHeldCardPosition(i, cardCount, remotePlayerActive, activeScene->GetCamera());
+        auto finalCardPosition = card_utils::CalculateHeldCardPosition(i, cardCount, remotePlayerActive, scene->GetCamera());
         
         // The latest added card needs to be created from scratch
         if (i == cardCount - 1)
@@ -69,7 +69,7 @@ void DrawCardGameAction::VInitAnimation()
                 mGameRuleEngine->CanCardBePlayed(&cardOpt->get(), i, mBoardState->GetActivePlayerIndex()),
                 {},
                 mBoardState->GetActivePlayerState().mBoardModifiers.mGlobalCardStatModifiers,
-                *activeScene
+                *scene
              );
             
             cardSoWrapper->mState = CardSoState::MOVING_TO_SET_POSITION;

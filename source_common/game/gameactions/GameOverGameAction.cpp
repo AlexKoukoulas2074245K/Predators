@@ -11,7 +11,7 @@
 #include <game/GameSessionManager.h>
 #include <engine/rendering/AnimationManager.h>
 #include <engine/rendering/ParticleManager.h>
-#include <engine/scene/ActiveSceneManager.h>
+#include <engine/scene/SceneManager.h>
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
 #include <engine/utils/Logging.h>
@@ -40,7 +40,7 @@ void GameOverGameAction::VSetNewGameState()
 
 void GameOverGameAction::VInitAnimation()
 {
-    auto& scene = *CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto& scene = *CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
     
     auto victorTextSo = scene.CreateSceneObject(VICTORIOUS_TEXT_SCENE_OBJECT_NAME);
     

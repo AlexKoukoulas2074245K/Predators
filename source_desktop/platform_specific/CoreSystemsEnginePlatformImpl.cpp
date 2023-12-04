@@ -12,7 +12,7 @@
 #include <engine/rendering/OpenGL.h>
 #include <engine/rendering/ParticleManager.h>
 #include <engine/resloading/ResourceLoadingService.h>
-#include <engine/scene/ActiveSceneManager.h>
+#include <engine/scene/SceneManager.h>
 #include <engine/scene/Scene.h>
 #include <engine/utils/Logging.h>
 #include <engine/utils/OSMessageBox.h>
@@ -57,7 +57,7 @@ struct CoreSystemsEngine::SystemsImpl
     rendering::ParticleManager mParticleManager;
     rendering::FontRepository mFontRepository;
     input::InputStateManagerPlatformImpl mInputStateManager;
-    scene::ActiveSceneManager mActiveSceneManager;
+    scene::SceneManager mSceneManager;
     resources::ResourceLoadingService mResourceLoadingService;
 };
 
@@ -206,7 +206,7 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
         
         if (windowSizeChanged)
         {
-            for (auto& scene: mSystems->mActiveSceneManager.GetScenes())
+            for (auto& scene: mSystems->mSceneManager.GetScenes())
             {
                 scene->GetCamera().RecalculateMatrices();
                 clientApplicationWindowResizeFunction();
@@ -246,11 +246,11 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
         
         if (!freezeGame)
         {
-            for (auto& scene: mSystems->mActiveSceneManager.GetScenes())
+            for (auto& scene: mSystems->mSceneManager.GetScenes())
             {
                 scene->GetCamera().Update(gameLogicMillis * scene->GetUpdateTimeSpeedFactor());
                 mSystems->mParticleManager.UpdateSceneParticles(gameLogicMillis * scene->GetUpdateTimeSpeedFactor(), *scene);
-                mSystems->mActiveSceneManager.SortSceneObjects(scene);
+                mSystems->mSceneManager.SortSceneObjects(scene);
             }
         }
         
@@ -269,7 +269,7 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
         const auto renderingTimeStart = std::chrono::system_clock::now();
 #endif
         
-        for (auto& scene: mSystems->mActiveSceneManager.GetScenes())
+        for (auto& scene: mSystems->mSceneManager.GetScenes())
         {
             mSystems->mRenderer.VRenderScene(*scene);
         }
@@ -336,9 +336,9 @@ input::IInputStateManager& CoreSystemsEngine::GetInputStateManager()
 
 ///------------------------------------------------------------------------------------------------
 
-scene::ActiveSceneManager& CoreSystemsEngine::GetActiveSceneManager()
+scene::SceneManager& CoreSystemsEngine::GetSceneManager()
 {
-    return mSystems->mActiveSceneManager;
+    return mSystems->mSceneManager;
 }
 
 ///------------------------------------------------------------------------------------------------

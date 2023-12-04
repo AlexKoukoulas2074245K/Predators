@@ -13,7 +13,7 @@
 #include <engine/rendering/Fonts.h>
 #include <engine/rendering/ParticleManager.h>
 #include <engine/resloading/ResourceLoadingService.h>
-#include <engine/scene/ActiveSceneManager.h>
+#include <engine/scene/SceneManager.h>
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
 #include <engine/utils/Logging.h>
@@ -66,7 +66,7 @@ void Game::Init()
     systemsEngine.GetFontRepository().LoadFont(game_constants::FONT_PLACEHOLDER_DAMAGE_NAME.GetString(), resources::ResourceReloadMode::DONT_RELOAD);
     systemsEngine.GetFontRepository().LoadFont(game_constants::FONT_PLACEHOLDER_WEIGHT_NAME.GetString(), resources::ResourceReloadMode::DONT_RELOAD);
     
-    auto dummyScene = systemsEngine.GetActiveSceneManager().CreateScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto dummyScene = systemsEngine.GetSceneManager().CreateScene(game_constants::IN_GAME_BATTLE_SCENE);
     auto boardSceneObject = dummyScene->CreateSceneObject(strutils::StringId("Board"));
     boardSceneObject->mPosition.x = -0.007f;
     boardSceneObject->mPosition.y = 0.011f;
@@ -104,7 +104,7 @@ void Game::Init()
     dummyScene->GetCamera().SetZoomFactor(120.0f);
 #endif
 //
-//    auto uiScene = systemsEngine.GetActiveSceneManager().CreateScene(strutils::StringId("UI"));
+//    auto uiScene = systemsEngine.GetSceneManager().CreateScene(strutils::StringId("UI"));
 //    std::string texts[6] =
 //    {
 //        "Fuzzy Speed",
@@ -149,13 +149,13 @@ void Game::Init()
 void Game::Update(const float dtMillis)
 {
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
-    auto activeScene = systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto scene = systemsEngine.GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
     
 //    if (systemsEngine.GetInputStateManager().VButtonTapped(input::Button::MAIN_BUTTON))
 //    {
-//        auto touchPos = systemsEngine.GetInputStateManager().VGetPointingPosInWorldSpace(activeScene->GetCamera().GetViewMatrix(), activeScene->GetCamera().GetProjMatrix());
+//        auto touchPos = systemsEngine.GetInputStateManager().VGetPointingPosInWorldSpace(scene->GetCamera().GetViewMatrix(), scene->GetCamera().GetProjMatrix());
 //        //auto& systemsEngine = CoreSystemsEngine::GetInstance();
-//        //auto activeScene = systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+//        //auto scene = systemsEngine.GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
 //
 //        //auto targetPosition = game_constants::HEALTH_CRYSTAL_TOP_POSITION;
 //
@@ -163,7 +163,7 @@ void Game::Update(const float dtMillis)
 //        (
 //            strutils::StringId("dirt"),
 //            glm::vec3(touchPos.x, touchPos.y, 0.1f),
-//            *systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE) // scene
+//            *systemsEngine.GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE) // scene
 //        );
 //    }
 //

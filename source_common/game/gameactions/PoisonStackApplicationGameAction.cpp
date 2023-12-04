@@ -9,7 +9,7 @@
 #include <engine/rendering/Animations.h>
 #include <engine/rendering/AnimationManager.h>
 #include <engine/rendering/ParticleManager.h>
-#include <engine/scene/ActiveSceneManager.h>
+#include <engine/scene/SceneManager.h>
 #include <engine/scene/Scene.h>
 #include <game/events/EventSystem.h>
 #include <game/GameConstants.h>
@@ -76,7 +76,7 @@ void PoisonStackApplicationGameAction::VInitAnimation()
     (
         POISON_GAS_PARTICLE_NAME,
         targetPosition,
-        *CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE)
+        *CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE)
     );
 }
 

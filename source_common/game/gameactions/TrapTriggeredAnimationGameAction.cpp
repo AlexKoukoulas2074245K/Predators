@@ -15,7 +15,7 @@
 #include <game/GameSessionManager.h>
 #include <engine/rendering/AnimationManager.h>
 #include <engine/rendering/ParticleManager.h>
-#include <engine/scene/ActiveSceneManager.h>
+#include <engine/scene/SceneManager.h>
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
 
@@ -77,9 +77,9 @@ void TrapTriggeredAnimationGameAction::VSetNewGameState()
 
 void TrapTriggeredAnimationGameAction::VInitAnimation()
 {
-    auto& activeSceneManager = CoreSystemsEngine::GetInstance().GetActiveSceneManager();
+    auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
-    auto activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto scene = sceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
     const auto lastPlayedBoardCardIndex = mBoardState->GetActivePlayerState().mPlayerBoardCards.size() - 1;
     auto lastPlayedCardSoWrapper = mGameSessionManager->GetBoardCardSoWrappers()[mBoardState->GetActivePlayerIndex()].at(lastPlayedBoardCardIndex);
     
@@ -87,7 +87,7 @@ void TrapTriggeredAnimationGameAction::VInitAnimation()
     {
         mAnimationState = ActionState::ANIMATION_STEP_WAIT;
         
-        auto killEffectSceneObject = activeScene->FindSceneObject(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX ? game_constants::KILL_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::KILL_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME);
+        auto killEffectSceneObject = scene->FindSceneObject(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX ? game_constants::KILL_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::KILL_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME);
         animationManager.StopAllAnimationsPlayingForSceneObject(killEffectSceneObject->mName);
         
         auto targetPosition = killEffectSceneObject->mPosition;
@@ -115,8 +115,8 @@ void TrapTriggeredAnimationGameAction::VInitAnimation()
 ActionAnimationUpdateResult TrapTriggeredAnimationGameAction::VUpdateAnimation(const float)
 {
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
-    auto& activeSceneManager = CoreSystemsEngine::GetInstance().GetActiveSceneManager();
-    auto activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
+    auto scene = sceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
     
     switch (mAnimationState)
     {
@@ -127,7 +127,7 @@ ActionAnimationUpdateResult TrapTriggeredAnimationGameAction::VUpdateAnimation(c
             
         case ActionState::ANIMATION_STEP_2:
         {
-            auto killEffectSceneObject = activeScene->FindSceneObject(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX ? game_constants::KILL_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::KILL_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME);
+            auto killEffectSceneObject = scene->FindSceneObject(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX ? game_constants::KILL_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::KILL_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME);
             
             auto targetScale = killEffectSceneObject->mScale * ANIMATION_STEP_2_SCALE_FACTOR;
             auto targetRotation = killEffectSceneObject->mRotation;

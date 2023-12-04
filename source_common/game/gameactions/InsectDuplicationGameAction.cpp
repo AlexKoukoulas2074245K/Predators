@@ -13,7 +13,7 @@
 #include <game/GameSessionManager.h>
 #include <engine/rendering/AnimationManager.h>
 #include <engine/rendering/ParticleManager.h>
-#include <engine/scene/ActiveSceneManager.h>
+#include <engine/scene/SceneManager.h>
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
 
@@ -46,7 +46,7 @@ void InsectDuplicationGameAction::VInitAnimation()
 {
     mFinished = false;
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
-    auto activeScene = systemsEngine.GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto scene = systemsEngine.GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
     auto lastPlayedCardSoWrapper = mGameSessionManager->GetBoardCardSoWrappers().at(mBoardState->GetActivePlayerIndex()).back();
     auto lastPlayedCardIndex = mBoardState->GetActivePlayerState().mPlayerBoardCards.size() - 2;
     auto sourcePosition = lastPlayedCardSoWrapper->mSceneObject->mPosition;
@@ -63,7 +63,7 @@ void InsectDuplicationGameAction::VInitAnimation()
         true,
         (mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.size() > lastPlayedCardIndex ? mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.at(lastPlayedCardIndex) : CardStatOverrides()), // held card stat overrides have moved to board card stat overrides from the setstate above
         mBoardState->GetActivePlayerState().mBoardModifiers.mGlobalCardStatModifiers,
-        *activeScene
+        *scene
     );
     newCardSoWrapper->mSceneObject->mPosition.z += DUPLICATED_CARD_Z_OFFSET;
     newCardSoWrapper->mSceneObject->mScale *= DUPLICATED_CARD_INIT_SCALE_FACTOR;

@@ -15,7 +15,7 @@
 #include <game/GameSessionManager.h>
 #include <engine/rendering/AnimationManager.h>
 #include <engine/rendering/ParticleManager.h>
-#include <engine/scene/ActiveSceneManager.h>
+#include <engine/scene/SceneManager.h>
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
 
@@ -95,7 +95,7 @@ void CardEffectGameAction::VInitAnimation()
     (
         CARD_SPELL_EFFECT_PARTICLE_NAME,
         glm::vec3(cardSoWrapper->mSceneObject->mPosition.x, cardSoWrapper->mSceneObject->mPosition.y, CARD_EFFECT_PARTICLE_EMITTER_Z_OFFSET), // pos
-        *CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE), // scene
+        *CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE), // scene
         CARD_EFFECT_PARTICLE_EMITTER_NAME
     );
     
@@ -120,8 +120,8 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
     {
         case ActionState::EFFECT_CARD_ANIMATION:
         {
-            const auto& activeSceneManager = CoreSystemsEngine::GetInstance().GetActiveSceneManager();
-            const auto& activeScene = activeSceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+            const auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
+            const auto& scene = sceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
             
             const auto& boardCards = mBoardState->GetActivePlayerState().mPlayerBoardCards;
             const auto& deadBoardCardIndices = mBoardState->GetActivePlayerState().mBoardCardIndicesToDestroy;
@@ -136,7 +136,7 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
             if (effectCardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] >= MAX_CARD_DISSOLVE_VALUE/2)
             {
                 // Fade particle emitter on spell
-                CoreSystemsEngine::GetInstance().GetParticleManager().RemoveParticleEmitterFlag(particle_flags::CONTINUOUS_PARTICLE_GENERATION, CARD_EFFECT_PARTICLE_EMITTER_NAME, *CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE));
+                CoreSystemsEngine::GetInstance().GetParticleManager().RemoveParticleEmitterFlag(particle_flags::CONTINUOUS_PARTICLE_GENERATION, CARD_EFFECT_PARTICLE_EMITTER_NAME, *CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE));
             }
             
             if (effectCardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] >= MAX_CARD_DISSOLVE_VALUE)
@@ -154,13 +154,13 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
                     
                     auto targetPosition = affectedCardEntry.mIsBoardCard ?
                         card_utils::CalculateBoardCardPosition(affectedCardEntry.mCardIndex, card_utils::CalculateNonDeadCardsCount(boardCards, deadBoardCardIndices), mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX):
-                        card_utils::CalculateHeldCardPosition(affectedCardEntry.mCardIndex, card_utils::CalculateNonDeadCardsCount(heldCards, deadHeldCardIndices), mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, activeScene->GetCamera());
+                        card_utils::CalculateHeldCardPosition(affectedCardEntry.mCardIndex, card_utils::CalculateNonDeadCardsCount(heldCards, deadHeldCardIndices), mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, scene->GetCamera());
                     
                     CoreSystemsEngine::GetInstance().GetParticleManager().CreateParticleEmitterAtPosition
                     (
                         CARD_SPELL_EFFECT_PARTICLE_NAME,
                         glm::vec3(targetPosition.x, targetPosition.y, CARD_EFFECT_PARTICLE_EMITTER_Z_OFFSET), // pos
-                        *CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE), // scene
+                        *CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE), // scene
                         strutils::StringId(BUFFED_CARD_PARTICLE_EMITTER_NAME_PREFIX + std::to_string(i))
                     );
                 }

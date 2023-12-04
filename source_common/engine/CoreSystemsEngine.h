@@ -23,7 +23,7 @@ namespace rendering { class IRenderer; }
 namespace rendering { class FontRepository; }
 namespace rendering { class ParticleManager; }
 namespace resources { class ResourceLoadingService; }
-namespace scene { class ActiveSceneManager; }
+namespace scene { class SceneManager; }
 
 struct SDL_Window;
 using SDL_GLContext = void*;
@@ -48,7 +48,7 @@ public:
     rendering::ParticleManager& GetParticleManager();
     rendering::FontRepository& GetFontRepository();
     input::IInputStateManager& GetInputStateManager();
-    scene::ActiveSceneManager& GetActiveSceneManager();
+    scene::SceneManager& GetSceneManager();
     resources::ResourceLoadingService& GetResourceLoadingService();
     
     float GetDefaultAspectRatio() const;

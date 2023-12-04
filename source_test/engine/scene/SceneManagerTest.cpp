@@ -1,19 +1,19 @@
 ///------------------------------------------------------------------------------------------------
-///  ActiveSceneManagerTest.cpp
+///  SceneManagerTest.cpp
 ///  Predators
 ///
 ///  Created by Alex Koukoulas on 03/10/2023
 ///------------------------------------------------------------------------------------------------
 
 #include <gtest/gtest.h>
-#include <engine/scene/ActiveSceneManager.h>
+#include <engine/scene/SceneManager.h>
 #include <engine/scene/Scene.h>
 
-TEST(ActiveSceneManagerOperationTests, TestBasicInsertionAndRetrieval)
+TEST(SceneManagerOperationTests, TestBasicInsertionAndRetrieval)
 {
     const strutils::StringId NAME("ABCD");
     
-    scene::ActiveSceneManager sceneManager;
+    scene::SceneManager sceneManager;
     
     auto testScene = sceneManager.CreateScene(strutils::StringId(NAME));
     
@@ -26,11 +26,11 @@ TEST(ActiveSceneManagerOperationTests, TestBasicInsertionAndRetrieval)
     EXPECT_EQ(sameTestScene->GetName(), NAME);
 }
 
-TEST(ActiveSceneManagerOperationTests, TestPointerValidityPostMassInsertion)
+TEST(SceneManagerOperationTests, TestPointerValidityPostMassInsertion)
 {
     const strutils::StringId NAME("ABCD");
     
-    scene::ActiveSceneManager sceneManager;
+    scene::SceneManager sceneManager;
     
     auto testScene = sceneManager.CreateScene(strutils::StringId(NAME));
     
@@ -56,11 +56,11 @@ TEST(ActiveSceneManagerOperationTests, TestPointerValidityPostMassInsertion)
     EXPECT_EQ(testScene->GetName(), sameTestScene->GetName());
 }
 
-TEST(ActiveSceneManagerOperationTests, TestBasicInsertionAndRemoval)
+TEST(SceneManagerOperationTests, TestBasicInsertionAndRemoval)
 {
     const strutils::StringId NAME("ABCD");
     
-    scene::ActiveSceneManager sceneManager;
+    scene::SceneManager sceneManager;
     
     auto testScene = sceneManager.CreateScene(strutils::StringId(NAME));
     
@@ -77,12 +77,12 @@ TEST(ActiveSceneManagerOperationTests, TestBasicInsertionAndRemoval)
     EXPECT_EQ(sceneManager.FindScene(NAME), nullptr);
 }
 
-TEST(ActiveSceneManagerOperationTests, TestRemovalOfEmptyName)
+TEST(SceneManagerOperationTests, TestRemovalOfEmptyName)
 {
     const strutils::StringId EMPTY_NAME;
     const strutils::StringId NAME("ABCD");
     
-    scene::ActiveSceneManager sceneManager;
+    scene::SceneManager sceneManager;
     
     auto testScene = sceneManager.CreateScene(strutils::StringId(NAME));
     

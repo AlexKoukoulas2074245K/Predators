@@ -1,12 +1,12 @@
 ///------------------------------------------------------------------------------------------------
-///  ActiveSceneManager.h                                                                                          
+///  SceneManager.h                                                                                          
 ///  Predators                                                                                            
 ///                                                                                                
 ///  Created by Alex Koukoulas on 03/10/2023                                                       
 ///------------------------------------------------------------------------------------------------
 
-#ifndef ActiveSceneManager_h
-#define ActiveSceneManager_h
+#ifndef SceneManager_h
+#define SceneManager_h
 
 ///------------------------------------------------------------------------------------------------
 
@@ -22,7 +22,7 @@ namespace scene
 ///------------------------------------------------------------------------------------------------
 
 class Scene;
-class ActiveSceneManager final
+class SceneManager final
 {
 public:
     [[nodiscard]] std::shared_ptr<Scene> CreateScene(const strutils::StringId sceneName = strutils::StringId());
@@ -44,4 +44,4 @@ private:
 
 ///------------------------------------------------------------------------------------------------
 
-#endif /* ActiveSceneManager_h */
+#endif /* SceneManager_h */

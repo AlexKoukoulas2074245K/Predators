@@ -16,7 +16,7 @@
 #include <game/GameSessionManager.h>
 #include <engine/rendering/AnimationManager.h>
 #include <engine/rendering/ParticleManager.h>
-#include <engine/scene/ActiveSceneManager.h>
+#include <engine/scene/SceneManager.h>
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
 
@@ -193,12 +193,12 @@ void CardAttackGameAction::VInitAnimation()
                     (
                         ATTACKING_CARD_PARTICLE_NAME,
                         glm::vec3(cardSoWrapper->mSceneObject->mPosition.x, cardSoWrapper->mSceneObject->mPosition.y, ATTACKING_CARD_PARTICLE_EMITTER_Z),
-                        *CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE)
+                        *CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE)
                      );
                     
                     auto cameraShakeDuration = ATTACKING_CARD_CAMERA_SHAKE_DURATION * (1.0f + 0.05f * std::powf(mPendingDamage, 2));
                     auto cameraShakeStrength = ATTACKING_CARD_CAMERA_SHAKE_STRENGTH * (1.0f + 0.05f * std::powf(mPendingDamage, 2));
-                    CoreSystemsEngine::GetInstance().GetActiveSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE)->GetCamera().Shake(cameraShakeDuration, cameraShakeStrength);
+                    CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE)->GetCamera().Shake(cameraShakeDuration, cameraShakeStrength);
                     
                     animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObject, mOriginalCardPosition, mOriginalCardScale, ATTACKING_CARD_LONG_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [&]()
                     {
