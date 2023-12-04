@@ -33,7 +33,7 @@
 
 ///------------------------------------------------------------------------------------------------
 
-static const strutils::StringId HISTORY_SCENE_NAME = strutils::StringId("HISTORY");
+static const strutils::StringId HISTORY_SCENE_NAME = strutils::StringId("battle_history_scene");
 static const strutils::StringId CARD_LOCATION_INDICATOR_SCENE_OBJECT_NAME = strutils::StringId("CARD_LOCATION_INDICATOR");
 static const strutils::StringId CARD_TOOLTIP_SCENE_OBJECT_NAME = strutils::StringId("CARD_TOOLTIP");
 static const strutils::StringId HISTORY_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("HISTORY_ICON");

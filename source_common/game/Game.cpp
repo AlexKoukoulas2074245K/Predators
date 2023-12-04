@@ -289,14 +289,14 @@ void Game::CreateDebugWidgets()
     // Create game configs
     static bool printGameActionTransitions = false;
     printGameActionTransitions = mGameSessionManager.GetActionEngine().LoggingActionTransitions();
-    ImGui::Begin("Game Runtime", nullptr, GLOBAL_WINDOW_LOCKING);
+    ImGui::Begin("Game Runtime", nullptr, GLOBAL_IMGUI_WINDOW_FLAGS);
     ImGui::SeparatorText("General");
     ImGui::Checkbox("Print Action Transitions", &printGameActionTransitions);
     mGameSessionManager.GetActionEngine().SetLoggingActionTransitions(printGameActionTransitions);
     ImGui::End();
     
     // Create Card State Viewer
-    ImGui::Begin("Card State Viewer", nullptr, GLOBAL_WINDOW_LOCKING);
+    ImGui::Begin("Card State Viewer", nullptr, GLOBAL_IMGUI_WINDOW_FLAGS);
     static std::string cardStateName;
     const auto& localPlayerCardSoWrappers = mGameSessionManager.GetHeldCardSoWrappers();
     for (size_t i = 0; i < localPlayerCardSoWrappers.size(); ++i)
@@ -319,7 +319,7 @@ void Game::CreateDebugWidgets()
     ImGui::End();
     
     // Create action generator
-    ImGui::Begin("Action Generator", nullptr, GLOBAL_WINDOW_LOCKING);
+    ImGui::Begin("Action Generator", nullptr, GLOBAL_IMGUI_WINDOW_FLAGS);
     const auto& actions = GameActionFactory::GetRegisteredActions();
     
     static size_t currentIndex = 0;

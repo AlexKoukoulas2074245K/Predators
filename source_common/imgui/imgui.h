@@ -27,8 +27,6 @@
 #define IMGUI_VERSION_NUM   18993
 #define IMGUI_HAS_TABLE
 //#define IMGUI_IN_RELEASE
-#define GLOBAL_WINDOW_LOCKING ImGuiWindowFlags_NoMove
-//#define GLOBAL_WINDOW_LOCKING ImGuiWindowFlags_None
 
 /*
 
@@ -1006,6 +1004,8 @@ enum ImGuiWindowFlags_
     ImGuiWindowFlags_Modal                  = 1 << 27,  // Don't use! For internal use by BeginPopupModal()
     ImGuiWindowFlags_ChildMenu              = 1 << 28,  // Don't use! For internal use by BeginMenu()
 };
+
+inline ImGuiWindowFlags GLOBAL_IMGUI_WINDOW_FLAGS = ImGuiWindowFlags_NoMove;
 
 // Flags for ImGui::InputText()
 // (Those are per-item flags. There are shared flags in ImGuiIO: io.ConfigInputTextCursorBlink and io.ConfigInputTextEnterKeepActive)

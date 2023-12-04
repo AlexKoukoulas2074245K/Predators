@@ -203,6 +203,13 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
             freezeGame = !freezeGame;
 #endif
         }
+            
+        if (mSystems->mInputStateManager.VButtonTapped(input::Button::MIDDLE_BUTTON))
+        {
+#if (!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)
+            GLOBAL_IMGUI_WINDOW_FLAGS = GLOBAL_IMGUI_WINDOW_FLAGS == ImGuiWindowFlags_NoMove ? ImGuiWindowFlags_None : ImGuiWindowFlags_NoMove;
+#endif
+        }
         
         if (windowSizeChanged)
         {
@@ -382,7 +389,7 @@ void CreateEngineDebugWidgets()
 {
 #if (!defined(NDEBUG) || defined(IMGUI_IN_RELEASE))
     // Create runtime configs
-    ImGui::Begin("Engine Runtime", nullptr, GLOBAL_WINDOW_LOCKING);
+    ImGui::Begin("Engine Runtime", nullptr, GLOBAL_IMGUI_WINDOW_FLAGS);
     ImGui::SeparatorText("General");
     ImGui::Text("Game Logic Dt %.3f", sLastGameLogicDtMillis);
     ImGui::Checkbox("Print FPS", &sPrintFPS);

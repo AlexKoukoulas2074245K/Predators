@@ -431,11 +431,11 @@ static SceneObjectDataIMGuiVisitor imguiVisitor;
 
 void RendererPlatformImpl::CreateIMGuiWidgets()
 {
-    //ImGui::ShowDemoWindow();
+    ImGui::ShowDemoWindow();
     
     auto& resService = CoreSystemsEngine::GetInstance().GetResourceLoadingService();
     
-    ImGui::Begin("Rendering", nullptr, GLOBAL_WINDOW_LOCKING);
+    ImGui::Begin("Rendering", nullptr, GLOBAL_IMGUI_WINDOW_FLAGS);
     ImGui::Text("Draw Calls %d", sDrawCallCounter);
     ImGui::Text("Particle Count %d", sParticleCounter);
     ImGui::Text("Anims Live %d", CoreSystemsEngine::GetInstance().GetAnimationManager().GetAnimationsPlayingCount());
@@ -446,7 +446,7 @@ void RendererPlatformImpl::CreateIMGuiWidgets()
     {
         auto viewerName = strutils::StringId("Scene Data Viewer (" + sceneRef.get().GetName().GetString() + ")");
         
-        ImGui::Begin(viewerName.GetString().c_str(), nullptr, GLOBAL_WINDOW_LOCKING);
+        ImGui::Begin(viewerName.GetString().c_str(), nullptr, GLOBAL_IMGUI_WINDOW_FLAGS);
         
         // Scene Input propertues
         if (ImGui::CollapsingHeader("Time", ImGuiTreeNodeFlags_None))

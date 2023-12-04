@@ -77,7 +77,7 @@ namespace game_constants
     inline const strutils::StringId DINOSAURS_FAMILY_NAME = strutils::StringId("dinosaurs");
 
     // Scenes
-    inline const strutils::StringId IN_GAME_BATTLE_SCENE = strutils::StringId("BATTLE");
+    inline const strutils::StringId IN_GAME_BATTLE_SCENE = strutils::StringId("battle_scene");
     
     // General Game Constants
     inline constexpr int REMOTE_PLAYER_INDEX = 0;
