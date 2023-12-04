@@ -33,6 +33,7 @@
 
 ///------------------------------------------------------------------------------------------------
 
+static const strutils::StringId HISTORY_SCENE = strutils::StringId("battle_history_scene");
 static const strutils::StringId HISTORY_TROLLEY_SCENE_OBJECT_NAME = strutils::StringId("HISTORY_TROLLEY");
 static const strutils::StringId CARD_LOCATION_INDICATOR_SCENE_OBJECT_NAME = strutils::StringId("CARD_LOCATION_INDICATOR");
 static const strutils::StringId CARD_TOOLTIP_SCENE_OBJECT_NAME = strutils::StringId("CARD_TOOLTIP");
@@ -56,7 +57,7 @@ static const strutils::StringId CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES [game_const
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
 {
     game_constants::IN_GAME_BATTLE_SCENE,
-    game_constants::HISTORY_SCENE
+    HISTORY_SCENE
 };
 
 static const std::string MAKE_SPACE_REVERT_TO_POSITION_ANIMATION_NAME_PREFIX = "MAKE_SPACE_REVERT_";
@@ -152,13 +153,13 @@ BattleSceneLogicManager::~BattleSceneLogicManager(){}
 
 ///------------------------------------------------------------------------------------------------
 
-void BattleSceneLogicManager::VInitScene(const strutils::StringId& sceneName)
+void BattleSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 {
-    if (sceneName == game_constants::IN_GAME_BATTLE_SCENE)
+    if (scene->GetName() == game_constants::IN_GAME_BATTLE_SCENE)
     {
         InitBattleScene();
     }
-    else if (sceneName == game_constants::HISTORY_SCENE)
+    else if (scene->GetName() == HISTORY_SCENE)
     {
         InitHistoryScene();
     }
@@ -396,7 +397,7 @@ void BattleSceneLogicManager::InitBattleScene()
 void BattleSceneLogicManager::InitHistoryScene()
 {
     const auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
-    auto historyScene = sceneManager.FindScene(game_constants::HISTORY_SCENE);
+    auto historyScene = sceneManager.FindScene(HISTORY_SCENE);
     
     auto turnPointerSo = historyScene->CreateSceneObject(HISTORY_TROLLEY_SCENE_OBJECT_NAME);
     turnPointerSo->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + TURN_POINTER_TEXTURE_FILE_NAME);
@@ -407,9 +408,9 @@ void BattleSceneLogicManager::InitHistoryScene()
 
 ///------------------------------------------------------------------------------------------------
 
-void BattleSceneLogicManager::VUpdate(const float dtMillis, const strutils::StringId& activeSceneName)
+void BattleSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene::Scene> activeScene)
 {
-    if (activeSceneName == game_constants::IN_GAME_BATTLE_SCENE)
+    if (activeScene->GetName() == game_constants::IN_GAME_BATTLE_SCENE)
     {
 #if defined(AUTO_PLAY)
         if (mActionEngine->GetActiveGameActionName() == IDLE_GAME_ACTION_NAME)
@@ -447,7 +448,7 @@ void BattleSceneLogicManager::VUpdate(const float dtMillis, const strutils::Stri
             }
         }
     }
-    else if (activeSceneName == game_constants::HISTORY_SCENE)
+    else if (activeScene->GetName() == HISTORY_SCENE)
     {
         const auto& inputStateManager = CoreSystemsEngine::GetInstance().GetInputStateManager();
         const auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
@@ -468,11 +469,11 @@ void BattleSceneLogicManager::VUpdate(const float dtMillis, const strutils::Stri
 
 ///------------------------------------------------------------------------------------------------
 
-void BattleSceneLogicManager::VDestroyScene(const strutils::StringId& sceneName)
+void BattleSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene> scene)
 {
-    if (sceneName == game_constants::HISTORY_SCENE)
+    if (scene->GetName() == HISTORY_SCENE)
     {
-        CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::HISTORY_SCENE)->RemoveSceneObject(HISTORY_TROLLEY_SCENE_OBJECT_NAME);
+        CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(HISTORY_SCENE)->RemoveSceneObject(HISTORY_TROLLEY_SCENE_OBJECT_NAME);
     }
 }
 
@@ -1640,7 +1641,7 @@ void BattleSceneLogicManager::OnHistoryButtonPressed()
     
     CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(battleScene->GetUpdateTimeSpeedFactor(), 0.0f, OVERLAY_SCENE_SPEED_ANIMATION_TARGET_DURATION), [](){}, BATTLE_SCENE_SPEED_DILATION_ANIMATION_NAME);
     
-    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::HISTORY_SCENE, true, OVERLAY_SCENE_SPEED_ANIMATION_TARGET_DURATION, HISTORY_MODAL_MAX_ALPHA);
+    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(HISTORY_SCENE, true, OVERLAY_SCENE_SPEED_ANIMATION_TARGET_DURATION, HISTORY_MODAL_MAX_ALPHA);
 }
 
 ///------------------------------------------------------------------------------------------------

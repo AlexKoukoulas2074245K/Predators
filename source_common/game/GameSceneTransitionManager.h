@@ -41,7 +41,6 @@ public:
     }
     
     ISceneLogicManager* GetActiveSceneLogicManager();
-    const strutils::StringId& GetActiveSceneName() const;
     
     void Update(const float dtMillis);
     void ChangeToScene

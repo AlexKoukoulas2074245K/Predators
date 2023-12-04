@@ -42,9 +42,9 @@ public:
     
     const std::vector<strutils::StringId>& VGetApplicableSceneNames() const override;
     
-    void VInitScene(const strutils::StringId& sceneName) override;
-    void VUpdate(const float dtMillis, const strutils::StringId& activeSceneName) override;
-    void VDestroyScene(const strutils::StringId& sceneName) override;
+    void VInitScene(std::shared_ptr<scene::Scene> scene) override;
+    void VUpdate(const float dtMillis, std::shared_ptr<scene::Scene> activeScene) override;
+    void VDestroyScene(std::shared_ptr<scene::Scene> scene) override;
     
     const BoardState& GetBoardState() const;
     GameActionEngine& GetActionEngine();

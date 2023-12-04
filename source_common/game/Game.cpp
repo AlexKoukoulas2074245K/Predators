@@ -81,7 +81,6 @@ void Game::Init()
     systemsEngine.GetFontRepository().LoadFont(game_constants::FONT_PLACEHOLDER_WEIGHT_NAME.GetString(), resources::ResourceReloadMode::DONT_RELOAD);
     
     auto dummyScene = systemsEngine.GetSceneManager().CreateScene(game_constants::IN_GAME_BATTLE_SCENE);
-    auto historyScene = systemsEngine.GetSceneManager().CreateScene(game_constants::HISTORY_SCENE);
     
     auto boardSceneObject = dummyScene->CreateSceneObject(strutils::StringId("Board"));
     boardSceneObject->mPosition.x = -0.007f;

@@ -38,20 +38,13 @@ ISceneLogicManager* GameSceneTransitionManager::GetActiveSceneLogicManager()
 
 ///------------------------------------------------------------------------------------------------
 
-const strutils::StringId& GameSceneTransitionManager::GetActiveSceneName() const
-{
-    return mActiveSceneStack.top().mActiveSceneName;
-}
-
-///------------------------------------------------------------------------------------------------
-
 void GameSceneTransitionManager::Update(const float dtMillis)
 {
     assert(!mActiveSceneStack.empty());
     
     if (!CoreSystemsEngine::GetInstance().GetAnimationManager().IsAnimationPlaying(SCENE_TRANSITION_ANIMATION_NAME))
     {
-        mActiveSceneStack.top().mActiveSceneLogicManager->VUpdate(dtMillis, mActiveSceneStack.top().mActiveSceneName);
+        mActiveSceneStack.top().mActiveSceneLogicManager->VUpdate(dtMillis, CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(mActiveSceneStack.top().mActiveSceneName));
     }
     
 #if (!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)
@@ -83,11 +76,13 @@ void GameSceneTransitionManager::ChangeToScene
     const float maxTransitionDarkeningAlpha /* = 0.0f */
 )
 {
+    // Destroy logic manager only when transitioning to a completely new scene
     if (!isModal && !mActiveSceneStack.empty())
     {
         DestroyActiveSceneLogicManager();
     }
     
+    // Select the applicable logic manager for the given scene name
     ISceneLogicManager* nextActiveSceneLogicManager = nullptr;
     for (const auto& sceneLogicManagerEntry: mRegisteredSceneLogicManagers)
     {
@@ -99,23 +94,32 @@ void GameSceneTransitionManager::ChangeToScene
         }
     }
     
+    // With darkening transition
     if (targetTransitionDurationSecs > 0.0f)
     {
+        // Create scene from scratch if non-existent
         auto newScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(sceneName);
+        if (!newScene)
+        {
+            newScene = CoreSystemsEngine::GetInstance().GetSceneManager().CreateScene(sceneName);
+        }
+        
+        // Create and setup overlay object for transition
         auto overlaySceneObject = newScene->CreateSceneObject(OVERLAY_SCENE_OBJECT_NAME);
         overlaySceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
         overlaySceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + OVERLAY_TEXTURE_FILE_NAME);
         overlaySceneObject->mScale *= OVERLAY_SCALE;
         overlaySceneObject->mPosition.z = OVERLAY_Z;
         
+        // Start darkening transition animation
         auto newSceneNameCopy = sceneName;
-        
         CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(overlaySceneObject, maxTransitionDarkeningAlpha, targetTransitionDurationSecs, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), [=]()
         {
             mActiveSceneStack.push({nextActiveSceneLogicManager, newSceneNameCopy});
             InitializeActiveSceneLogicManager();
         }, SCENE_TRANSITION_ANIMATION_NAME);
     }
+    // Without darkening transition
     else
     {
         mActiveSceneStack.push({nextActiveSceneLogicManager, sceneName});
@@ -136,11 +140,13 @@ void GameSceneTransitionManager::PopModalScene
     auto activeScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(mActiveSceneStack.top().mActiveSceneName);
     auto overlaySceneObject = activeScene->FindSceneObject(OVERLAY_SCENE_OBJECT_NAME);
     
+    // Destroy active scene and pop from stack
     DestroyActiveSceneLogicManager();
     mActiveSceneStack.pop();
     
     if (targetTransitionDurationSecs > 0.0f)
     {
+        // If darkening transition is requested, destroy the overlay object at the end
         CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(overlaySceneObject, maxTransitionDarkeningAlpha, targetTransitionDurationSecs, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), [=]()
         {
             activeScene->RemoveSceneObject(OVERLAY_SCENE_OBJECT_NAME);
@@ -161,7 +167,7 @@ void GameSceneTransitionManager::InitializeActiveSceneLogicManager()
     assert(sceneLogicManagerEntry != mRegisteredSceneLogicManagers.end());
     if (!sceneLogicManagerEntry->mSceneInitStatusMap.at(activeSceneName))
     {
-        mActiveSceneStack.top().mActiveSceneLogicManager->VInitScene(activeSceneName);
+        mActiveSceneStack.top().mActiveSceneLogicManager->VInitScene(CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(activeSceneName));
         events::EventSystem::GetInstance().DispatchEvent<events::WindowResizeEvent>();
         sceneLogicManagerEntry->mSceneInitStatusMap[activeSceneName] = true;
     }
@@ -172,7 +178,7 @@ void GameSceneTransitionManager::InitializeActiveSceneLogicManager()
 void GameSceneTransitionManager::DestroyActiveSceneLogicManager()
 {
     auto activeSceneName = mActiveSceneStack.top().mActiveSceneName;
-    mActiveSceneStack.top().mActiveSceneLogicManager->VDestroyScene(activeSceneName);
+    mActiveSceneStack.top().mActiveSceneLogicManager->VDestroyScene(CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(activeSceneName));
     auto sceneLogicManagerEntry = std::find_if(mRegisteredSceneLogicManagers.begin(), mRegisteredSceneLogicManagers.end(), [=](const SceneLogicManagerEntry& entry)
     {
         return entry.mSceneLogicManager.get() == mActiveSceneStack.top().mActiveSceneLogicManager;
