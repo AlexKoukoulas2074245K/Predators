@@ -496,6 +496,9 @@ void BattleSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scen
     }
     else if (activeScene->GetName() == HISTORY_SCENE)
     {
+        static int sToolTipIndex = -1;
+        static float sToolTipPointeePosX = 0.0f;
+        
         auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
         const auto& cardHistoryContainerUpdateResult = mCardHistoryContainer->Update(dtMillis);
         if (cardHistoryContainerUpdateResult.mInteractionType == InteractionType::NONE)
@@ -511,24 +514,40 @@ void BattleSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scen
                 animationManager.StartAnimation(std::make_unique<rendering::TweenValueAnimation>(CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE)->GetUpdateTimeSpeedFactor(), 1.0f, OVERLAY_SCENE_SPEED_ANIMATION_TARGET_DURATION), [](){}, BATTLE_SCENE_SPEED_DILATION_ANIMATION_NAME);
                     
                 DestroyCardTooltip(activeScene);
+                sToolTipIndex = -1;
                 
                 events::EventSystem::GetInstance().DispatchEvent<events::PopSceneModalEvent>(OVERLAY_SCENE_SPEED_ANIMATION_TARGET_DURATION);
             }
         }
         else if (cardHistoryContainerUpdateResult.mInteractionType == InteractionType::INTERACTED_WITH_ELEMENTS)
         {
-            DestroyCardTooltip(activeScene);
-            
-            auto interactedElementEntry = mCardHistoryContainer->GetItems()[cardHistoryContainerUpdateResult.mInteractedElementId];
-            auto cardData = CardDataRepository::GetInstance().GetCardData(interactedElementEntry.mCardId);
-            
-            if (cardData->get().IsSpell())
+            if (sToolTipIndex != cardHistoryContainerUpdateResult.mInteractedElementId)
             {
-                CreateCardTooltip(interactedElementEntry.mSceneObject->mPosition, cardData->get().mCardEffectTooltip, interactedElementEntry.mSceneObject->mPosition.x < 0.0f ? 0 : 10, activeScene);
+                auto interactedElementEntry = mCardHistoryContainer->GetItems()[cardHistoryContainerUpdateResult.mInteractedElementId];
+                auto cardData = CardDataRepository::GetInstance().GetCardData(interactedElementEntry.mCardId);
+                
+                DestroyCardTooltip(activeScene);
+                
+                if (cardData->get().IsSpell())
+                {
+                    sToolTipIndex = cardHistoryContainerUpdateResult.mInteractedElementId;
+                    sToolTipPointeePosX = interactedElementEntry.mSceneObject->mPosition.x;
+                    
+                    CreateCardTooltip(interactedElementEntry.mSceneObject->mPosition, cardData->get().mCardEffectTooltip, interactedElementEntry.mSceneObject->mPosition.x < 0.0f ? 0 : 10, activeScene);
+                }
             }
         }
         
         // Card tooltip
+        if (sToolTipIndex != -1)
+        {
+            auto interactedElementEntry = mCardHistoryContainer->GetItems()[sToolTipIndex];
+            if (math::Abs(interactedElementEntry.mSceneObject->mPosition.x - sToolTipPointeePosX) > 0.01f)
+            {
+                sToolTipIndex = -1;
+                DestroyCardTooltip(activeScene);
+            }
+        }
         auto cardTooltipSceneObject = activeScene->FindSceneObject(CARD_TOOLTIP_SCENE_OBJECT_NAME);
         
         cardTooltipSceneObject->mShaderFloatUniformValues[CARD_TOOLTIP_REVEAL_THRESHOLD_UNIFORM_NAME] += dtMillis * CARD_TOOLTIP_REVEAL_SPEED;
@@ -549,6 +568,7 @@ void BattleSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scen
 
 void BattleSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene>)
 {
+    
 }
 
 ///------------------------------------------------------------------------------------------------
