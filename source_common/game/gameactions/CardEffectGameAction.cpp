@@ -46,7 +46,7 @@ static const strutils::StringId DRAW_CARD_GAME_ACTION_NAME = strutils::StringId(
 
 static const float CARD_DISSOLVE_SPEED = 0.001f;
 static const float MAX_CARD_DISSOLVE_VALUE = 1.2f;
-static const float CARD_EFFECT_PARTICLE_EMITTER_Z_OFFSET = 22.0f;
+static const float CARD_EFFECT_PARTICLE_EMITTER_Z_OFFSET = 21.0f;
 static const float CARD_SCALE_UP_FACTOR = 1.5f;
 static const float CARD_SCALE_DOWN_FACTOR = 0.5f;
 

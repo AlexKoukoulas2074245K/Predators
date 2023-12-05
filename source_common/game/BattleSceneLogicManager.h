@@ -12,6 +12,8 @@
 
 #include <game/ISceneLogicManager.h>
 #include <game/events/EventSystem.h>
+#include <game/SwipeableContainer.h>
+#include <engine/resloading/ResourceLoadingService.h>
 #include <engine/scene/SceneObject.h>
 #include <engine/utils/MathUtils.h>
 #include <memory>
@@ -53,16 +55,16 @@ public:
     const std::vector<std::vector<std::shared_ptr<CardSoWrapper>>>& GetBoardCardSoWrappers() const;
     
 private:
-    void InitBattleScene();
-    void InitHistoryScene();
+    void InitBattleScene(std::shared_ptr<scene::Scene> scene);
+    void InitHistoryScene(std::shared_ptr<scene::Scene> scene);
     
     void HandleTouchInput(const float dtMillis);
     void UpdateMiscSceneObjects(const float dtMillis);
     void OnFreeMovingCardRelease(std::shared_ptr<CardSoWrapper> cardSoWrapper);
     void CreateCardHighlighter();
-    void CreateCardTooltip(const glm::vec3& cardOriginPostion, const std::string& tooltipText, const size_t cardIndex);
+    void CreateCardTooltip(const glm::vec3& cardOriginPostion, const std::string& tooltipText, const size_t cardIndex, std::shared_ptr<scene::Scene> scene);
     void DestroyCardHighlighterAtIndex(const int index);
-    void DestroyCardTooltip();
+    void DestroyCardTooltip(std::shared_ptr<scene::Scene> scene);
     void RegisterForEvents();
     void OnApplicationMovedToBackground(const events::ApplicationMovedToBackgroundEvent&);
     void OnWindowResize(const events::WindowResizeEvent&);
@@ -89,13 +91,21 @@ private:
         NONE, MAKE_SPACE_FOR_NEW_CARD, REVERT_TO_ORIGINAL_POSITION
     };
     
+    struct CardHistoryEntry
+    {
+        std::shared_ptr<scene::SceneObject> mSceneObject;
+        int mCardId;
+        bool mForOpponent;
+    };
+    
 private:
     std::unique_ptr<BoardState> mBoardState;
     std::unique_ptr<GameActionEngine> mActionEngine;
     std::unique_ptr<GameRuleEngine> mRuleEngine;
     std::unique_ptr<GameSerializer> mGameSerializer;
     std::unique_ptr<PlayerActionGenerationEngine> mPlayerActionGenerationEngine;
-    std::vector<std::unique_ptr<AnimatedButton>> mAnimatedButtons;
+    std::unique_ptr<SwipeableContainer<CardHistoryEntry>> mCardHistoryContainer;
+    std::vector<std::unique_ptr<AnimatedButton>> mBattleSceneAnimatedButtons;
     std::vector<std::vector<std::shared_ptr<scene::SceneObject>>> mActiveIndividualCardBoardEffectSceneObjects;
     std::vector<std::vector<std::shared_ptr<CardSoWrapper>>> mPlayerHeldCardSceneObjectWrappers;
     std::vector<std::vector<std::shared_ptr<CardSoWrapper>>> mPlayerBoardCardSceneObjectWrappers;

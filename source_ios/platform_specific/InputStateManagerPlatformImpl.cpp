@@ -85,25 +85,36 @@ void InputStateManagerPlatformImpl::VProcessInputEvent(const SDL_Event& event, b
         
         case SDL_FINGERDOWN:
         {
-            mPointingPos = glm::vec2(event.tfinger.x, event.tfinger.y);
-            mPointingPos.x = (mPointingPos.x - 0.5f) * 2;
-            mPointingPos.y = -(mPointingPos.y - 0.5f) * 2;
-            mCurrentFrameButtonState |= (1 << static_cast<uint8_t>(Button::MAIN_BUTTON));
+            if (!mCurrentFingerId || event.tfinger.fingerId == mCurrentFingerId)
+            {
+                mCurrentFingerId = event.tfinger.fingerId;
+                mPointingPos = glm::vec2(event.tfinger.x, event.tfinger.y);
+                mPointingPos.x = (mPointingPos.x - 0.5f) * 2;
+                mPointingPos.y = -(mPointingPos.y - 0.5f) * 2;
+                mCurrentFrameButtonState |= (1 << static_cast<uint8_t>(Button::MAIN_BUTTON));
+            }
         } break;
             
         case SDL_FINGERUP:
         {
-            mPointingPos = glm::vec2(event.tfinger.x, event.tfinger.y);
-            mPointingPos.x = (mPointingPos.x - 0.5f) * 2;
-            mPointingPos.y = -(mPointingPos.y - 0.5f) * 2;
-            mCurrentFrameButtonState ^= (1 << static_cast<uint8_t>(Button::MAIN_BUTTON));
+            if (!mCurrentFingerId || event.tfinger.fingerId == mCurrentFingerId)
+            {
+                mCurrentFingerId = 0;
+                mPointingPos = glm::vec2(event.tfinger.x, event.tfinger.y);
+                mPointingPos.x = (mPointingPos.x - 0.5f) * 2;
+                mPointingPos.y = -(mPointingPos.y - 0.5f) * 2;
+                mCurrentFrameButtonState ^= (1 << static_cast<uint8_t>(Button::MAIN_BUTTON));
+            }
         } break;
             
         case SDL_FINGERMOTION:
         {
-            mPointingPos = glm::vec2(event.tfinger.x, event.tfinger.y);
-            mPointingPos.x = (mPointingPos.x - 0.5f) * 2;
-            mPointingPos.y = -(mPointingPos.y - 0.5f) * 2;
+            if (!mCurrentFingerId || event.tfinger.fingerId == mCurrentFingerId)
+            {
+                mPointingPos = glm::vec2(event.tfinger.x, event.tfinger.y);
+                mPointingPos.x = (mPointingPos.x - 0.5f) * 2;
+                mPointingPos.y = -(mPointingPos.y - 0.5f) * 2;
+            }
         } break;
             
         case SDL_MOUSEWHEEL:

@@ -133,7 +133,7 @@ void Scene::RecalculatePositionOfEdgeSnappingSceneObjects()
 void Scene::RemoveSceneObject(const strutils::StringId& sceneObjectName)
 {
     auto findIter = std::find_if(mSceneObjects.begin(), mSceneObjects.end(), [&](const std::shared_ptr<SceneObject>& sceneObject)
-                                 {
+    {
         return sceneObject->mName == sceneObjectName;
     });
     if (findIter != mSceneObjects.end())
@@ -153,6 +153,40 @@ void Scene::RemoveAllSceneObjectsWithName(const strutils::StringId& sceneObjectN
         if (GetSceneObjectCount() == sizeBefore)
         {
             break;
+        }
+    }
+}
+
+///------------------------------------------------------------------------------------------------
+
+void Scene::RemoveAllSceneObjectsButTheOnesNamed(const strutils::StringId& sceneObjectName)
+{
+    for (auto iter = mSceneObjects.begin(); iter != mSceneObjects.end();)
+    {
+        if ((*iter)->mName != sceneObjectName)
+        {
+            iter = mSceneObjects.erase(iter);
+        }
+        else
+        {
+            iter++;
+        }
+    }
+}
+
+///------------------------------------------------------------------------------------------------
+
+void Scene::RemoveAllParticleEffects()
+{
+    for (auto iter = mSceneObjects.begin(); iter != mSceneObjects.end();)
+    {
+        if (std::holds_alternative<scene::ParticleEmitterObjectData>((*iter)->mSceneObjectTypeData))
+        {
+            iter = mSceneObjects.erase(iter);
+        }
+        else
+        {
+            iter++;
         }
     }
 }

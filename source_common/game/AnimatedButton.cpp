@@ -61,11 +61,20 @@ void AnimatedButton::Update(const float)
     {
         mAnimating = true;
         auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
-        animationManager.StartAnimation(std::make_unique<rendering::PulseAnimation>(mSceneObject, INTERACTION_ANIMATION_SCALE_FACTOR, INTERACTION_ANIMATION_DURATION), [=](){ mAnimating = false; });
+        auto originalScale = mSceneObject->mScale;
+        animationManager.StartAnimation(std::make_unique<rendering::PulseAnimation>(mSceneObject, INTERACTION_ANIMATION_SCALE_FACTOR, INTERACTION_ANIMATION_DURATION), [=]()
+        {
+            mSceneObject->mScale = originalScale;
+            mAnimating = false;
+        });
         
         // Dummy animation to invoke callback mid-way pulse animation
         animationManager.StartAnimation(std::make_unique<rendering::TweenRotationAnimation>(mSceneObject, mSceneObject->mRotation, INTERACTION_ANIMATION_DURATION/2, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), [=](){ mOnPressCallback(); });
     }
 }
+
+///------------------------------------------------------------------------------------------------
+
+std::shared_ptr<scene::SceneObject> AnimatedButton::GetSceneObject() { return mSceneObject; }
 
 ///------------------------------------------------------------------------------------------------

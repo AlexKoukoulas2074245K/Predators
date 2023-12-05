@@ -201,6 +201,13 @@ void Camera::Update(const float dtMillis)
 
 ///------------------------------------------------------------------------------------------------
 
+void Camera::StopShake()
+{
+    mShakeData.mShakeCurrentRadius = 0.0f;
+}
+
+///------------------------------------------------------------------------------------------------
+
 void Camera::SetZoomFactor(const float zoomFactor)
 {
     mZoomFactor = zoomFactor;

@@ -39,6 +39,7 @@ public:
     ~AnimatedButton();
     
     void Update(const float dtMillis);
+    std::shared_ptr<scene::SceneObject> GetSceneObject();
     
 private:
     scene::Scene& mScene;

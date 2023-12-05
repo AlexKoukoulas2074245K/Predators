@@ -22,9 +22,7 @@ static const std::string CARD_FRAME_NORMAL_TEXTURE_FILE_NAME = "card_frame_norma
 static const std::string CARD_FRAME_SPELL_TEXTURE_FILE_NAME = "card_frame_spell.png";
 static const std::string CARD_BACK_TEXTURE_FILE_NAME = "card_back.png";
 static const std::string GOLDEN_CARD_TEXTURE_FILE_NAME = "card_frame_golden.png";
-static const std::string GOLDEN_CARD_FLAKES_MASK_TEXTURE_FILE_NAME = "golden_card_flakes_mask.png";
 static const std::string DORMANT_CARD_MASK_TEXTURE_FILE_NAME = "card_dormant_mask.png";
-static const std::string GOLDEN_SPELL_CARD_FLAKES_MASK_TEXTURE_FILE_NAME = "golden_spell_card_flakes_mask.png";
 static const std::string POISON_CRYSTAL_TEXTURE_FILE_NAME = "poison_crystal.png";
 static const std::string DIG_ICON_TEXTURE_FILE_NAME = "dig_icon.png";
 static const std::string CARD_SHADER_FILE_NAME = "card.vs";
@@ -376,7 +374,7 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
         cardComponents.front()->mShaderBoolUniformValues[game_constants::IS_HELD_CARD_UNIFORM_NAME] = !isOnBoard;
         cardComponents.front()->mShaderFloatUniformValues[game_constants::LIGHT_POS_X_UNIFORM_NAME] = -1.0f;
         cardComponents.front()->mShaderFloatUniformValues[game_constants::DORMANT_CARD_VALUE_UNIFORM_NAME] = 0.0f;
-        cardComponents.front()->mEffectTextureResourceIds[0] = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + (cardData->IsSpell() ? GOLDEN_SPELL_CARD_FLAKES_MASK_TEXTURE_FILE_NAME : GOLDEN_CARD_FLAKES_MASK_TEXTURE_FILE_NAME));
+        cardComponents.front()->mEffectTextureResourceIds[0] = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + (cardData->IsSpell() ? game_constants::GOLDEN_SPELL_CARD_FLAKES_MASK_TEXTURE_FILE_NAME : game_constants::GOLDEN_CARD_FLAKES_MASK_TEXTURE_FILE_NAME));
         cardComponents.front()->mEffectTextureResourceIds[1] = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + DORMANT_CARD_MASK_TEXTURE_FILE_NAME);
         cardSoWrapper->mSceneObject = cardComponents.front();
     }

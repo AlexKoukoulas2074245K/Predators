@@ -24,6 +24,8 @@ namespace game_constants
     inline const std::string BOARD_CARD_LOCATION_SHADER_NAME = "card_board_location_perlin_noise.vs";
     inline const std::string DEFAULT_TEXTURE_NAME = "debug.png";
     inline const std::string CARD_LOCATION_MASK_TEXTURE_NAME =  "card_location_mask.png";
+    inline const std::string GOLDEN_CARD_FLAKES_MASK_TEXTURE_FILE_NAME = "golden_card_flakes_mask.png";
+    inline const std::string GOLDEN_SPELL_CARD_FLAKES_MASK_TEXTURE_FILE_NAME = "golden_spell_card_flakes_mask.png";
 
     // SO Name Prefixes/Postfixes
     inline const std::string TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX = "TOP_PLAYER_HELD_CARD_";
@@ -50,6 +52,7 @@ namespace game_constants
     inline const strutils::StringId DOUBLE_POISON_ATTACKS_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("DOUBLE_POISON_ATTACKS_EFFECT_BOT");
     inline const strutils::StringId PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_TOP_SCENE_OBJECT_NAME = strutils::StringId("PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_TOP");
     inline const strutils::StringId PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_BOT");
+    inline const strutils::StringId OVERLAY_SCENE_OBJECT_NAME = strutils::StringId("OVERLAY");
 
     // Fonts
     inline const strutils::StringId DEFAULT_FONT_NAME = strutils::StringId("font");
@@ -70,6 +73,8 @@ namespace game_constants
     inline const strutils::StringId IS_GOLDEN_CARD_UNIFORM_NAME = strutils::StringId("golden_card");
     inline const strutils::StringId IS_HELD_CARD_UNIFORM_NAME = strutils::StringId("held_card");
     inline const strutils::StringId DORMANT_CARD_VALUE_UNIFORM_NAME = strutils::StringId("dormant_value");
+    inline const strutils::StringId CUTOFF_MIN_X_UNIFORM_NAME = strutils::StringId("cutoff_min_x");
+    inline const strutils::StringId CUTOFF_MAX_X_UNIFORM_NAME = strutils::StringId("cutoff_max_x");
 
     // Card Family Names
     inline const strutils::StringId INSECTS_FAMILY_NAME = strutils::StringId("insects");

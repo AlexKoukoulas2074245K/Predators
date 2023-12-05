@@ -45,6 +45,7 @@ public:
     /// @param[in] shakeInterTremmorDelaySecs (optional) specifies the delay in between shake tremmors. Will also naturally lengthen the shake duration
     /// specified by durationSecs. Sane values are around 0.01f - 0.1f
     void Shake(const float targetDurationSecs, const float shakeStrengthRadius = DEFAULT_SHAKE_STRENGTH_RADIUS, const float shakeInterTremmorDelaySecs = 0.0f);
+    void StopShake();
     
     void Update(const float dtMillis);
     void SetZoomFactor(const float zoomFactor);

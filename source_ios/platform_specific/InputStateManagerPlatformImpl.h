@@ -43,6 +43,7 @@ private:
     glm::vec2 mPointingPos;
     uint8_t mCurrentFrameButtonState = 0U;
     uint8_t mPreviousFrameButtonState = 0U;
+    int64_t mCurrentFingerId = 0;
 };
 
 ///------------------------------------------------------------------------------------------------

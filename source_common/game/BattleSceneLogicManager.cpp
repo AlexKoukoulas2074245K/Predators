@@ -1,8 +1,8 @@
 ///------------------------------------------------------------------------------------------------
-///  BattleSceneLogicManager.cpp                                                                                        
-///  Predators                                                                                            
-///                                                                                                
-///  Created by Alex Koukoulas on 11/10/2023                                                       
+///  BattleSceneLogicManager.cpp
+///  Predators
+///
+///  Created by Alex Koukoulas on 11/10/2023
 ///------------------------------------------------------------------------------------------------
 
 #include <game/AnimatedButton.h>
@@ -23,7 +23,6 @@
 #include <engine/input/IInputStateManager.h>
 #include <engine/rendering/AnimationManager.h>
 #include <engine/resloading/MeshResource.h>
-#include <engine/resloading/ResourceLoadingService.h>
 #include <engine/scene/SceneManager.h>
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
@@ -34,6 +33,7 @@
 ///------------------------------------------------------------------------------------------------
 
 static const strutils::StringId HISTORY_SCENE = strutils::StringId("battle_history_scene");
+static const strutils::StringId CARD_HISTORY_CONTAINER_NAME = strutils::StringId("CARD_HISTORY_CONTAINER");
 static const strutils::StringId HISTORY_TROLLEY_SCENE_OBJECT_NAME = strutils::StringId("HISTORY_TROLLEY");
 static const strutils::StringId CARD_LOCATION_INDICATOR_SCENE_OBJECT_NAME = strutils::StringId("CARD_LOCATION_INDICATOR");
 static const strutils::StringId CARD_TOOLTIP_SCENE_OBJECT_NAME = strutils::StringId("CARD_TOOLTIP");
@@ -77,7 +77,7 @@ static const std::string INDIVIDUAL_CARD_BOARD_EFFECT_MASK_TEXTURE_FILE_NAME = "
 static const std::string BOARD_SIDE_STAT_EFFECT_SHADER_FILE_NAME = "board_side_stat_effect.vs";
 static const std::string CARD_TOOLTIP_TEXTURE_FILE_NAME = "tooltip.png";
 static const std::string CARD_TOOLTIP_SHADER_FILE_NAME = "diagonal_reveal.vs";
-static const std::string HISTORY_ICON_TEXTURE_FILE_NAME = "history_icon.png";
+static const std::string HISTORY_ICON_TEXTURE_FILE_NAME = "history_button_icon.png";
 static const std::string HISTORY_OVERLAY_TEXTURE_FILE_NAME = "overlay.png";
 static const std::string CARD_HIGHLIGHTER_SCENE_OBJECT_NAME_PREFIX = "HIGHLIGHTER_CARD_";
 static const std::string HEALTH_CRYSTAL_TOP_SCENE_OBJECT_NAME_PREFIX = "HEALTH_CRYSTAL_TOP_";
@@ -86,6 +86,7 @@ static const std::string WEIGHT_CRYSTAL_TOP_SCENE_OBJECT_NAME_PREFIX = "WEIGHT_C
 static const std::string WEIGHT_CRYSTAL_BOT_SCENE_OBJECT_NAME_PREFIX = "WEIGHT_CRYSTAL_BOT_";
 static const std::string POISON_STACK_TOP_SCENE_OBJECT_NAME_PREFIX = "POISON_STACK_TOP_";
 static const std::string POISON_STACK_BOT_SCENE_OBJECT_NAME_PREFIX = "POISON_STACK_BOT_";
+static const std::string CARD_HISTORY_ENTRY_SHADER_FILE_NAME = "card_history_entry.vs";
 
 static const glm::vec3 TURN_POINTER_POSITION = {0.2f, 0.0f, 0.1f};
 static const glm::vec3 TURN_POINTER_SCALE = {0.08f, 0.08f, 0.08f};
@@ -93,9 +94,12 @@ static const glm::vec3 BOARD_SIDE_EFFECT_SCALE = {0.372f, 0.346f, 1.0f};
 static const glm::vec3 BOARD_SIDE_EFFECT_TOP_POSITION = { 0.0f, 0.044f, 1.0f};
 static const glm::vec3 BOARD_SIDE_EFFECT_BOT_POSITION = { 0.0f, -0.044f, 1.0f};
 static const glm::vec3 CARD_TOOLTIP_SCALE = {0.137f, 0.137f, 1/10.0f};
+static const glm::vec3 CARD_TOOLTIP_HISTORY_SCALE = {0.274f, 0.274f, 1/10.0f};
 static const glm::vec3 CARD_TOOLTIP_OFFSET = {0.084f, 0.08f, 0.1f};
+static const glm::vec3 CARD_TOOLTIP_HISTORY_OFFSET = {0.06f, 0.163f, 0.1f};
 static const glm::vec3 HISTORY_BUTTON_POSITION = {-0.155f, 0.05f, 10.0f};
 static const glm::vec3 HISTORY_BUTTON_SCALE = {0.03f, 0.03f, 0.03f};
+static const glm::vec3 CARD_HISTORY_ENTRY_SCALE = {0.3f, -0.3f, 0.3f};
 
 static const glm::vec3 CARD_TOOLTIP_TEXT_OFFSETS[game_constants::CARD_TOOLTIP_TEXT_ROWS_COUNT] =
 {
@@ -105,12 +109,16 @@ static const glm::vec3 CARD_TOOLTIP_TEXT_OFFSETS[game_constants::CARD_TOOLTIP_TE
     { -0.03f, -0.014f, 0.1f }
 };
 
+static const math::Rectangle CARD_HISTORY_CONTAINER_BOUNDS = {{-0.388f, -0.218f}, {0.388f, 0.0f}};
+static const glm::vec2 CARD_HISTORY_CONTAINER_CUTOFF_VALUES = {-0.2f, 0.2f};
+
 static const float BOARD_SIDE_EFFECT_SHOWING_HIDING_ANIMATION_DURATION_SECS = 0.5f;
 static const float CARD_SELECTION_ANIMATION_DURATION = 0.15f;
 static const float CARD_LOCATION_EFFECT_MIN_TARGET_ALPHA = 0.25f;
 static const float CARD_LOCATION_EFFECT_MAX_TARGET_ALPHA = 1.0f;
 static const float CARD_LOCATION_EFFECT_ALPHA_SPEED = 0.003f;
 static const float CARD_TOOLTIP_TEXT_FONT_SIZE = 0.00016f;
+static const float CARD_TOOLTIP_HISTORY_TEXT_FONT_SIZE = 0.00032f;
 static const float CARD_TOOLTIP_MAX_REVEAL_THRESHOLD = 2.0f;
 static const float CARD_TOOLTIP_REVEAL_RGB_EXPONENT = 1.127f;
 static const float CARD_TOOLTIP_REVEAL_SPEED = 1.0f/200.0f;
@@ -129,6 +137,7 @@ static const float TURN_POINTER_INTERACTOR_SCALE_FACTOR = 0.5f;
 static const float TURN_POINTER_INTERACTION_PULSE_DURATION = 0.1f;
 static const float OVERLAY_SCENE_SPEED_ANIMATION_TARGET_DURATION = 0.5f;
 static const float HISTORY_MODAL_MAX_ALPHA = 0.75f;
+static const float CARD_HISTORY_CONTAINER_Z = 24.0f;
 
 #if defined(MOBILE_FLOW)
 static const float MOBILE_DISTANCE_FROM_CARD_LOCATION_INDICATOR = 0.003f;
@@ -157,24 +166,30 @@ void BattleSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 {
     if (scene->GetName() == game_constants::IN_GAME_BATTLE_SCENE)
     {
-        InitBattleScene();
+        InitBattleScene(scene);
     }
     else if (scene->GetName() == HISTORY_SCENE)
     {
-        InitHistoryScene();
+        InitHistoryScene(scene);
     }
 }
 
-void BattleSceneLogicManager::InitBattleScene()
+void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scene)
 {
     RegisterForEvents();
-    
     mPreviousProspectiveBoardCardsPushState = ProspectiveBoardCardsPushState::NONE;
     mSecsCardHighlighted = 0.0f;
     mShouldShowCardLocationIndicator = false;
     mCanPlayNextCard = false;
     mCanIssueNextTurnInteraction = false;
     mCanInteractWithAnyHeldCard = true;
+    
+    mBattleSceneAnimatedButtons.clear();
+    mActiveIndividualCardBoardEffectSceneObjects.clear();
+    mPlayerHeldCardSceneObjectWrappers.clear();
+    mPlayerBoardCardSceneObjectWrappers.clear();
+    mAnimatedStatContainers.clear();
+    mPendingCardsToBePlayed.clear();
     
     mBoardState = std::make_unique<BoardState>();
     mBoardState->GetPlayerStates().emplace_back();
@@ -199,7 +214,7 @@ void BattleSceneLogicManager::InitBattleScene()
     mPlayerBoardCardSceneObjectWrappers.emplace_back();
     
     mRuleEngine = std::make_unique<GameRuleEngine>(mBoardState.get());
-
+    
 #define AUTO_PLAY
 //#define REPLAY_FLOW
     
@@ -221,11 +236,8 @@ void BattleSceneLogicManager::InitBattleScene()
     mActionEngine->AddGameAction(strutils::StringId("NextPlayerGameAction"));
 #endif
     
-    const auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
-    auto battleScene = sceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
-    
     // Card Location Indicator
-    auto cardLocationIndicatorSo = battleScene->CreateSceneObject(CARD_LOCATION_INDICATOR_SCENE_OBJECT_NAME);
+    auto cardLocationIndicatorSo = scene->CreateSceneObject(CARD_LOCATION_INDICATOR_SCENE_OBJECT_NAME);
     cardLocationIndicatorSo->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + game_constants::CARD_LOCATION_MASK_TEXTURE_NAME);
     cardLocationIndicatorSo->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + game_constants::BOARD_CARD_LOCATION_SHADER_NAME);
     cardLocationIndicatorSo->mShaderFloatUniformValues[game_constants::PERLIN_TIME_SPEED_UNIFORM_NAME] = game_constants::CARD_LOCATION_EFFECT_TIME_SPEED;
@@ -236,14 +248,14 @@ void BattleSceneLogicManager::InitBattleScene()
     cardLocationIndicatorSo->mInvisible = true;
     
     // Turn pointer
-    auto turnPointerSo = battleScene->CreateSceneObject(game_constants::TURN_POINTER_SCENE_OBJECT_NAME);
+    auto turnPointerSo = scene->CreateSceneObject(game_constants::TURN_POINTER_SCENE_OBJECT_NAME);
     turnPointerSo->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + TURN_POINTER_TEXTURE_FILE_NAME);
     turnPointerSo->mPosition = TURN_POINTER_POSITION;
     turnPointerSo->mScale = TURN_POINTER_SCALE;
     turnPointerSo->mSnapToEdgeBehavior = scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE;
     
     // Turn pointer highlighter
-    auto tunPointerHighlighterSo = battleScene->CreateSceneObject(game_constants::TURN_POINTER_HIGHLIGHTER_SCENE_OBJECT_NAME);
+    auto tunPointerHighlighterSo = scene->CreateSceneObject(game_constants::TURN_POINTER_HIGHLIGHTER_SCENE_OBJECT_NAME);
     tunPointerHighlighterSo->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + game_constants::ACTION_HIGHLIGHTER_SHADER_NAME);
     tunPointerHighlighterSo->mShaderFloatUniformValues[game_constants::PERLIN_TIME_SPEED_UNIFORM_NAME] = game_constants::ACTION_HIGLIGHTER_PERLIN_TIME_SPEED;
     tunPointerHighlighterSo->mShaderFloatUniformValues[game_constants::PERLIN_RESOLUTION_UNIFORM_NAME] = game_constants::ACTION_HIGLIGHTER_PERLIN_RESOLUTION;
@@ -255,15 +267,15 @@ void BattleSceneLogicManager::InitBattleScene()
     tunPointerHighlighterSo->mSnapToEdgeBehavior = scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE;
     
     // Stat Containers
-    mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(game_constants::HEALTH_CRYSTAL_TOP_POSITION, HEALTH_CRYSTAL_TEXTURE_FILE_NAME, HEALTH_CRYSTAL_TOP_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[0].mPlayerHealth, false, *battleScene)));
-    mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(game_constants::HEALTH_CRYSTAL_BOT_POSITION, HEALTH_CRYSTAL_TEXTURE_FILE_NAME, HEALTH_CRYSTAL_BOT_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[1].mPlayerHealth, false, *battleScene)));
-    mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(game_constants::WEIGHT_CRYSTAL_TOP_POSITION, WEIGHT_CRYSTAL_TEXTURE_FILE_NAME, WEIGHT_CRYSTAL_TOP_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo, false, *battleScene)));
-    mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(game_constants::WEIGHT_CRYSTAL_BOT_POSITION, WEIGHT_CRYSTAL_TEXTURE_FILE_NAME, WEIGHT_CRYSTAL_BOT_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[1].mPlayerCurrentWeightAmmo, false, *battleScene)));
-    mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(game_constants::POISON_STACK_TOP_POSITION, POISON_STACK_TEXTURE_FILE_NAME, POISON_STACK_TOP_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[0].mPlayerPoisonStack, true, *battleScene)));
-    mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(game_constants::POISON_STACK_BOT_POSITION, POISON_STACK_TEXTURE_FILE_NAME, POISON_STACK_BOT_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[1].mPlayerPoisonStack, true, *battleScene)));
+    mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(game_constants::HEALTH_CRYSTAL_TOP_POSITION, HEALTH_CRYSTAL_TEXTURE_FILE_NAME, HEALTH_CRYSTAL_TOP_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[0].mPlayerHealth, false, *scene)));
+    mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(game_constants::HEALTH_CRYSTAL_BOT_POSITION, HEALTH_CRYSTAL_TEXTURE_FILE_NAME, HEALTH_CRYSTAL_BOT_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[1].mPlayerHealth, false, *scene)));
+    mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(game_constants::WEIGHT_CRYSTAL_TOP_POSITION, WEIGHT_CRYSTAL_TEXTURE_FILE_NAME, WEIGHT_CRYSTAL_TOP_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo, false, *scene)));
+    mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(game_constants::WEIGHT_CRYSTAL_BOT_POSITION, WEIGHT_CRYSTAL_TEXTURE_FILE_NAME, WEIGHT_CRYSTAL_BOT_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[1].mPlayerCurrentWeightAmmo, false, *scene)));
+    mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(game_constants::POISON_STACK_TOP_POSITION, POISON_STACK_TEXTURE_FILE_NAME, POISON_STACK_TOP_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[0].mPlayerPoisonStack, true, *scene)));
+    mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(game_constants::POISON_STACK_BOT_POSITION, POISON_STACK_TEXTURE_FILE_NAME, POISON_STACK_BOT_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[1].mPlayerPoisonStack, true, *scene)));
     
     // Board Side Effect Top
-    auto boardSideEffectTopSceneObject = battleScene->CreateSceneObject(game_constants::BOARD_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME);
+    auto boardSideEffectTopSceneObject = scene->CreateSceneObject(game_constants::BOARD_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME);
     boardSideEffectTopSceneObject->mScale = BOARD_SIDE_EFFECT_SCALE;
     boardSideEffectTopSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + BOARD_SIDE_EFFECT_REDUCTION_TEXTURE_FILE_NAME);
     boardSideEffectTopSceneObject->mEffectTextureResourceIds[0] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + BOARD_SIDE_EFFECT_MASK_TEXTURE_FILE_NAME);
@@ -273,7 +285,7 @@ void BattleSceneLogicManager::InitBattleScene()
     boardSideEffectTopSceneObject->mInvisible = true;
     
     // Board Side Effect Bot
-    auto boardSideEffectBotSceneObject = battleScene->CreateSceneObject(game_constants::BOARD_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME);
+    auto boardSideEffectBotSceneObject = scene->CreateSceneObject(game_constants::BOARD_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME);
     boardSideEffectBotSceneObject->mScale = BOARD_SIDE_EFFECT_SCALE;
     boardSideEffectBotSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + BOARD_SIDE_EFFECT_REDUCTION_TEXTURE_FILE_NAME);
     boardSideEffectBotSceneObject->mEffectTextureResourceIds[0] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + BOARD_SIDE_EFFECT_MASK_TEXTURE_FILE_NAME);
@@ -285,7 +297,7 @@ void BattleSceneLogicManager::InitBattleScene()
     for (int i = 0; i < game_constants::BOARD_SIDE_EFFECT_VALUE_SO_COUNT; ++i)
     {
         {
-            auto boardSideEffectTopValueSceneObject = battleScene->CreateSceneObject(strutils::StringId(game_constants::BOARD_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME_PRE_FIX + std::to_string(i)));
+            auto boardSideEffectTopValueSceneObject = scene->CreateSceneObject(strutils::StringId(game_constants::BOARD_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME_PRE_FIX + std::to_string(i)));
             
             scene::TextSceneObjectData effectValueTextData;
             effectValueTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
@@ -301,7 +313,7 @@ void BattleSceneLogicManager::InitBattleScene()
         }
         
         {
-            auto boardSideEffectBotValueSceneObject = battleScene->CreateSceneObject(strutils::StringId(game_constants::BOARD_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME_PRE_FIX + std::to_string(i)));
+            auto boardSideEffectBotValueSceneObject = scene->CreateSceneObject(strutils::StringId(game_constants::BOARD_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME_PRE_FIX + std::to_string(i)));
             
             scene::TextSceneObjectData effectValueTextData;
             effectValueTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
@@ -324,7 +336,7 @@ void BattleSceneLogicManager::InitBattleScene()
         const std::string& textureFilename
     )
     {
-        auto effectTopSceneObject = battleScene->CreateSceneObject(topSceneObjectName);
+        auto effectTopSceneObject = scene->CreateSceneObject(topSceneObjectName);
         effectTopSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + textureFilename);
         effectTopSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
         effectTopSceneObject->mEffectTextureResourceIds[0] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + INDIVIDUAL_CARD_BOARD_EFFECT_MASK_TEXTURE_FILE_NAME);
@@ -334,7 +346,7 @@ void BattleSceneLogicManager::InitBattleScene()
         effectTopSceneObject->mInvisible = true;
         CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::PulseAnimation>(effectTopSceneObject, game_constants::INDIVIDUAL_CARD_BOARD_EFFECT_SCALE_UP_FACTOR, game_constants::INDIVIDUAL_CARD_BOARD_EFFECT_PULSE_ANIMATION_PULSE_DUARTION_SECS, animation_flags::ANIMATE_CONTINUOUSLY), [](){});
         
-        auto effectBotSceneObject = battleScene->CreateSceneObject(botSceneObjectName);
+        auto effectBotSceneObject = scene->CreateSceneObject(botSceneObjectName);
         effectBotSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + textureFilename);
         effectBotSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
         effectBotSceneObject->mEffectTextureResourceIds[0] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + INDIVIDUAL_CARD_BOARD_EFFECT_MASK_TEXTURE_FILE_NAME);
@@ -361,7 +373,7 @@ void BattleSceneLogicManager::InitBattleScene()
     individualCardBoardEffectCreation(game_constants::PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_TOP_SCENE_OBJECT_NAME, game_constants::PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_BOT_SCENE_OBJECT_NAME, PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_TEXTURE_FILE_NAME);
 
     // Card Tooltips
-    auto tooltipSceneObject = battleScene->CreateSceneObject(CARD_TOOLTIP_SCENE_OBJECT_NAME);
+    auto tooltipSceneObject = scene->CreateSceneObject(CARD_TOOLTIP_SCENE_OBJECT_NAME);
     tooltipSceneObject->mScale = CARD_TOOLTIP_SCALE;
     tooltipSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CARD_TOOLTIP_TEXTURE_FILE_NAME);
     tooltipSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CARD_TOOLTIP_SHADER_FILE_NAME);
@@ -372,7 +384,7 @@ void BattleSceneLogicManager::InitBattleScene()
     
     for (auto i = 0; i < game_constants::CARD_TOOLTIP_TEXT_ROWS_COUNT; ++i)
     {
-        auto tooltipTextSceneObject = battleScene->CreateSceneObject(CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES[i]);
+        auto tooltipTextSceneObject = scene->CreateSceneObject(CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES[i]);
         scene::TextSceneObjectData tooltipTextData;
         tooltipTextData.mFontName = game_constants::DEFAULT_FONT_BLACK_NAME;
         tooltipTextSceneObject->mSceneObjectTypeData = std::move(tooltipTextData);
@@ -381,29 +393,63 @@ void BattleSceneLogicManager::InitBattleScene()
         tooltipTextSceneObject->mInvisible = true;
     }
     
-    mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
+    mBattleSceneAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
     (
         HISTORY_BUTTON_POSITION,
         HISTORY_BUTTON_SCALE,
         HISTORY_ICON_TEXTURE_FILE_NAME,
         HISTORY_BUTTON_SCENE_OBJECT_NAME,
         [=](){ OnHistoryButtonPressed(); },
-        *battleScene
+        *scene
     ));
+    
+    auto historyScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(HISTORY_SCENE);
+    if (!historyScene)
+    {
+        historyScene = CoreSystemsEngine::GetInstance().GetSceneManager().CreateScene(HISTORY_SCENE);
+    }
+    
+    // Card Tooltips
+    tooltipSceneObject = historyScene->CreateSceneObject(CARD_TOOLTIP_SCENE_OBJECT_NAME);
+    tooltipSceneObject->mScale = CARD_TOOLTIP_HISTORY_SCALE;
+    tooltipSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CARD_TOOLTIP_TEXTURE_FILE_NAME);
+    tooltipSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CARD_TOOLTIP_SHADER_FILE_NAME);
+    tooltipSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
+    tooltipSceneObject->mShaderFloatUniformValues[CARD_TOOLTIP_REVEAL_THRESHOLD_UNIFORM_NAME] = 0.0f;
+    tooltipSceneObject->mShaderFloatUniformValues[CARD_TOOLTIP_REVEAL_RGB_EXPONENT_UNIFORM_NAME] = CARD_TOOLTIP_REVEAL_RGB_EXPONENT;
+    tooltipSceneObject->mInvisible = true;
+    
+    for (auto i = 0; i < game_constants::CARD_TOOLTIP_TEXT_ROWS_COUNT; ++i)
+    {
+        auto tooltipTextSceneObject = historyScene->CreateSceneObject(CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES[i]);
+        scene::TextSceneObjectData tooltipTextData;
+        tooltipTextData.mFontName = game_constants::DEFAULT_FONT_BLACK_NAME;
+        tooltipTextSceneObject->mSceneObjectTypeData = std::move(tooltipTextData);
+        tooltipTextSceneObject->mScale = glm::vec3(CARD_TOOLTIP_HISTORY_TEXT_FONT_SIZE);
+        tooltipTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+        tooltipTextSceneObject->mInvisible = true;
+    }
+    
+    mCardHistoryContainer = std::make_unique<SwipeableContainer<CardHistoryEntry>>
+    (
+        SwipeDirection::HORIZONTAL,
+        CARD_HISTORY_CONTAINER_BOUNDS,
+        CARD_HISTORY_CONTAINER_CUTOFF_VALUES,
+        CARD_HISTORY_CONTAINER_NAME,
+        CARD_HISTORY_CONTAINER_Z,
+        *historyScene
+    );
 }
 
 ///------------------------------------------------------------------------------------------------
 
-void BattleSceneLogicManager::InitHistoryScene()
+void BattleSceneLogicManager::InitHistoryScene(std::shared_ptr<scene::Scene>)
 {
-    const auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
-    auto historyScene = sceneManager.FindScene(HISTORY_SCENE);
-    
-    auto turnPointerSo = historyScene->CreateSceneObject(HISTORY_TROLLEY_SCENE_OBJECT_NAME);
-    turnPointerSo->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + TURN_POINTER_TEXTURE_FILE_NAME);
-    turnPointerSo->mPosition.z = 24.0f;
-    turnPointerSo->mScale = TURN_POINTER_SCALE;
-    turnPointerSo->mSnapToEdgeBehavior = scene::SnapToEdgeBehavior::NONE;
+    mCardHistoryContainer->ResetItemPositions();
+    for (auto& containerItem: mCardHistoryContainer->GetItems())
+    {
+        CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(containerItem.mSceneObject, 1.0f, 0.5f), [](){});
+    }
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -450,31 +496,59 @@ void BattleSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scen
     }
     else if (activeScene->GetName() == HISTORY_SCENE)
     {
-        const auto& inputStateManager = CoreSystemsEngine::GetInstance().GetInputStateManager();
-        const auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
         auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
-        
-        auto battleScene = sceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
-        
-        //auto worldTouchPos = inputStateManager.VGetPointingPosInWorldSpace(historyScene->GetCamera().GetViewMatrix(), historyScene->GetCamera().GetProjMatrix());
-        if (inputStateManager.VButtonPressed(input::Button::MAIN_BUTTON))
+        const auto& cardHistoryContainerUpdateResult = mCardHistoryContainer->Update(dtMillis);
+        if (cardHistoryContainerUpdateResult.mInteractionType == InteractionType::NONE)
         {
-            animationManager.StopAnimation(BATTLE_SCENE_SPEED_DILATION_ANIMATION_NAME);
-            animationManager.StartAnimation(std::make_unique<rendering::TweenValueAnimation>(battleScene->GetUpdateTimeSpeedFactor(), 1.0f, OVERLAY_SCENE_SPEED_ANIMATION_TARGET_DURATION), [](){}, BATTLE_SCENE_SPEED_DILATION_ANIMATION_NAME);
+            if (CoreSystemsEngine::GetInstance().GetInputStateManager().VButtonTapped(input::Button::MAIN_BUTTON))
+            {
+                for (const auto& cardHistoryEntry: mCardHistoryContainer->GetItems())
+                {
+                    animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(cardHistoryEntry.mSceneObject, 0.0f, 0.5f), [](){});
+                }
+                
+                animationManager.StopAnimation(BATTLE_SCENE_SPEED_DILATION_ANIMATION_NAME);
+                animationManager.StartAnimation(std::make_unique<rendering::TweenValueAnimation>(CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE)->GetUpdateTimeSpeedFactor(), 1.0f, OVERLAY_SCENE_SPEED_ANIMATION_TARGET_DURATION), [](){}, BATTLE_SCENE_SPEED_DILATION_ANIMATION_NAME);
+                    
+                DestroyCardTooltip(activeScene);
+                
+                events::EventSystem::GetInstance().DispatchEvent<events::PopSceneModalEvent>(OVERLAY_SCENE_SPEED_ANIMATION_TARGET_DURATION);
+            }
+        }
+        else if (cardHistoryContainerUpdateResult.mInteractionType == InteractionType::INTERACTED_WITH_ELEMENTS)
+        {
+            DestroyCardTooltip(activeScene);
             
-            events::EventSystem::GetInstance().DispatchEvent<events::PopSceneModalEvent>(OVERLAY_SCENE_SPEED_ANIMATION_TARGET_DURATION);
+            auto interactedElementEntry = mCardHistoryContainer->GetItems()[cardHistoryContainerUpdateResult.mInteractedElementId];
+            auto cardData = CardDataRepository::GetInstance().GetCardData(interactedElementEntry.mCardId);
+            
+            if (cardData->get().IsSpell())
+            {
+                CreateCardTooltip(interactedElementEntry.mSceneObject->mPosition, cardData->get().mCardEffectTooltip, interactedElementEntry.mSceneObject->mPosition.x < 0.0f ? 0 : 10, activeScene);
+            }
+        }
+        
+        // Card tooltip
+        auto cardTooltipSceneObject = activeScene->FindSceneObject(CARD_TOOLTIP_SCENE_OBJECT_NAME);
+        
+        cardTooltipSceneObject->mShaderFloatUniformValues[CARD_TOOLTIP_REVEAL_THRESHOLD_UNIFORM_NAME] += dtMillis * CARD_TOOLTIP_REVEAL_SPEED;
+        if (cardTooltipSceneObject->mShaderFloatUniformValues[CARD_TOOLTIP_REVEAL_THRESHOLD_UNIFORM_NAME] >= CARD_TOOLTIP_MAX_REVEAL_THRESHOLD)
+        {
+            cardTooltipSceneObject->mShaderFloatUniformValues[CARD_TOOLTIP_REVEAL_THRESHOLD_UNIFORM_NAME] = CARD_TOOLTIP_MAX_REVEAL_THRESHOLD;
+            
+            for (auto i = 0; i < game_constants::CARD_TOOLTIP_TEXT_ROWS_COUNT; ++i)
+            {
+                auto tooltipTextSceneObject = activeScene->FindSceneObject(CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES[i]);
+                tooltipTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = math::Min(1.0f, tooltipTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] +  dtMillis * CARD_TOOLTIP_TEXT_REVEAL_SPEED);
+            }
         }
     }
 }
 
 ///------------------------------------------------------------------------------------------------
 
-void BattleSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene> scene)
+void BattleSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene>)
 {
-    if (scene->GetName() == HISTORY_SCENE)
-    {
-        CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(HISTORY_SCENE)->RemoveSceneObject(HISTORY_TROLLEY_SCENE_OBJECT_NAME);
-    }
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -528,7 +602,7 @@ void BattleSceneLogicManager::HandleTouchInput(const float dtMillis)
         
         if (currentCardSoWrapper->mState == CardSoState::FREE_MOVING)
         {
-            DestroyCardTooltip();
+            DestroyCardTooltip(battleScene);
         }
         
         bool otherHighlightedCardExists = std::find_if(localPlayerCards.begin(), localPlayerCards.end(), [&](const std::shared_ptr<CardSoWrapper>& cardSoWrapper){ return cardSoWrapper.get() != currentCardSoWrapper.get() && cardSoWrapper->mState == CardSoState::HIGHLIGHTED; }) != localPlayerCards.cend();
@@ -546,7 +620,7 @@ void BattleSceneLogicManager::HandleTouchInput(const float dtMillis)
             {
                 if (currentCardSoWrapper->mCardData->IsSpell())
                 {
-                    CreateCardTooltip(currentCardSoWrapper->mSceneObject->mPosition, currentCardSoWrapper->mCardData->mCardEffectTooltip, i);
+                    CreateCardTooltip(currentCardSoWrapper->mSceneObject->mPosition, currentCardSoWrapper->mCardData->mCardEffectTooltip, i, battleScene);
                 }
             }
         }
@@ -937,7 +1011,7 @@ void BattleSceneLogicManager::UpdateMiscSceneObjects(const float dtMillis)
     }
     
     // Animated buttons
-    for (auto& animatedButton: mAnimatedButtons)
+    for (auto& animatedButton: mBattleSceneAnimatedButtons)
     {
         animatedButton->Update(dtMillis);
     }
@@ -1036,30 +1110,44 @@ void BattleSceneLogicManager::CreateCardHighlighter()
 
 ///------------------------------------------------------------------------------------------------
 
-void BattleSceneLogicManager::CreateCardTooltip(const glm::vec3& cardOriginPostion, const std::string& tooltipText, const size_t cardIndex)
+void BattleSceneLogicManager::CreateCardTooltip(const glm::vec3& cardOriginPostion, const std::string& tooltipText, const size_t cardIndex, std::shared_ptr<scene::Scene> scene)
 {
-    auto& systemsEngine = CoreSystemsEngine::GetInstance();
-    const auto& sceneManager = systemsEngine.GetSceneManager();
-    auto battleScene = sceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
-    
-    auto tooltipSceneObject = battleScene->FindSceneObject(CARD_TOOLTIP_SCENE_OBJECT_NAME);
-    
+    auto tooltipSceneObject = scene->FindSceneObject(CARD_TOOLTIP_SCENE_OBJECT_NAME);
+    bool forHistoryScene = scene == CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(HISTORY_SCENE);
     bool shouldBeFlipped = cardIndex >= mPlayerHeldCardSceneObjectWrappers[game_constants::LOCAL_PLAYER_INDEX].size()/2 && cardIndex != 0;
-    tooltipSceneObject->mPosition = cardOriginPostion + CARD_TOOLTIP_OFFSET;
-    tooltipSceneObject->mPosition.x += shouldBeFlipped ? CARD_TOOLTIP_FLIPPED_X_OFFSET : 0.0f;
+    
+    if (forHistoryScene)
+    {
+        tooltipSceneObject->mPosition = cardOriginPostion + CARD_TOOLTIP_HISTORY_OFFSET;
+        tooltipSceneObject->mPosition.x += shouldBeFlipped ? CARD_TOOLTIP_FLIPPED_X_OFFSET : 0.046f;
+    }
+    else
+    {
+        tooltipSceneObject->mPosition = cardOriginPostion + CARD_TOOLTIP_OFFSET;
+        tooltipSceneObject->mPosition.x += shouldBeFlipped ? CARD_TOOLTIP_FLIPPED_X_OFFSET : 0.0f;
+    }
+    
     tooltipSceneObject->mInvisible = false;
     tooltipSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
     tooltipSceneObject->mShaderFloatUniformValues[CARD_TOOLTIP_REVEAL_THRESHOLD_UNIFORM_NAME] = 0.0f;
-    tooltipSceneObject->mScale.x = shouldBeFlipped ? -CARD_TOOLTIP_SCALE.x : CARD_TOOLTIP_SCALE.x;
+   
+    if (forHistoryScene)
+    {
+        tooltipSceneObject->mScale.x = shouldBeFlipped ? -CARD_TOOLTIP_HISTORY_SCALE.x : CARD_TOOLTIP_HISTORY_SCALE.x;
+    }
+    else
+    {
+        tooltipSceneObject->mScale.x = shouldBeFlipped ? -CARD_TOOLTIP_SCALE.x : CARD_TOOLTIP_SCALE.x;
+    }
     
     auto tooltipTextRows = strutils::StringSplit(tooltipText, '$');
     
     if (tooltipTextRows.size() == 1)
     {
-        auto tooltipTextSceneObject = battleScene->FindSceneObject(CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES[1]);
+        auto tooltipTextSceneObject = scene->FindSceneObject(CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES[1]);
         tooltipTextSceneObject->mPosition = tooltipSceneObject->mPosition;
-        tooltipTextSceneObject->mPosition += CARD_TOOLTIP_TEXT_OFFSETS[1];
-        tooltipTextSceneObject->mPosition.x += shouldBeFlipped ? CARD_TOOLTIP_TEXT_FLIPPED_X_OFFSET : 0.0f;
+        tooltipTextSceneObject->mPosition += (forHistoryScene ? 2.0f : 1.0f) * CARD_TOOLTIP_TEXT_OFFSETS[1];
+        tooltipTextSceneObject->mPosition.x += shouldBeFlipped ? ((forHistoryScene ? 2.0f : 1.0f) * CARD_TOOLTIP_TEXT_FLIPPED_X_OFFSET) : 0.0f;
         tooltipTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
         std::get<scene::TextSceneObjectData>(tooltipTextSceneObject->mSceneObjectTypeData).mText = tooltipTextRows[0];
         tooltipTextSceneObject->mInvisible = false;
@@ -1069,10 +1157,10 @@ void BattleSceneLogicManager::CreateCardTooltip(const glm::vec3& cardOriginPosti
         for (auto i = 0U; i < tooltipTextRows.size(); ++i)
         {
             assert(i < game_constants::CARD_TOOLTIP_TEXT_ROWS_COUNT);
-            auto tooltipTextSceneObject = battleScene->FindSceneObject(CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES[i]);
+            auto tooltipTextSceneObject = scene->FindSceneObject(CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES[i]);
             tooltipTextSceneObject->mPosition = tooltipSceneObject->mPosition;
-            tooltipTextSceneObject->mPosition += CARD_TOOLTIP_TEXT_OFFSETS[i];
-            tooltipTextSceneObject->mPosition.x += shouldBeFlipped ? CARD_TOOLTIP_TEXT_FLIPPED_X_OFFSET : 0.0f;
+            tooltipTextSceneObject->mPosition += (forHistoryScene ? 2.0f : 1.0f) * CARD_TOOLTIP_TEXT_OFFSETS[i];
+            tooltipTextSceneObject->mPosition.x += shouldBeFlipped ? ((forHistoryScene ? 2.0f : 1.0f) * CARD_TOOLTIP_TEXT_FLIPPED_X_OFFSET) : 0.0f;
             tooltipTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
             std::get<scene::TextSceneObjectData>(tooltipTextSceneObject->mSceneObjectTypeData).mText = tooltipTextRows[i];
             tooltipTextSceneObject->mInvisible = false;
@@ -1092,21 +1180,19 @@ void BattleSceneLogicManager::DestroyCardHighlighterAtIndex(const int index)
     auto cardHighlighterName = strutils::StringId(CARD_HIGHLIGHTER_SCENE_OBJECT_NAME_PREFIX + std::to_string(index));
     battleScene->RemoveSceneObject(cardHighlighterName);
     
-    DestroyCardTooltip();
+    DestroyCardTooltip(battleScene);
 }
 
 ///------------------------------------------------------------------------------------------------
 
-void BattleSceneLogicManager::DestroyCardTooltip()
+void BattleSceneLogicManager::DestroyCardTooltip(std::shared_ptr<scene::Scene> scene)
 {
-    const auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
-    auto battleScene = sceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
-    auto tooltipSceneObject = battleScene->FindSceneObject(CARD_TOOLTIP_SCENE_OBJECT_NAME);
+    auto tooltipSceneObject = scene->FindSceneObject(CARD_TOOLTIP_SCENE_OBJECT_NAME);
     tooltipSceneObject->mInvisible = true;
     
     for (auto i = 0; i < game_constants::CARD_TOOLTIP_TEXT_ROWS_COUNT; ++i)
     {
-        auto tooltipTextSceneObject = battleScene->FindSceneObject(CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES[i]);
+        auto tooltipTextSceneObject = scene->FindSceneObject(CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES[i]);
         tooltipTextSceneObject->mInvisible = true;
     }
 }
@@ -1362,6 +1448,17 @@ void BattleSceneLogicManager::OnLastCardPlayedFinalized(const events::LastCardPl
     
     playerBoardCardSoWrappers.push_back(playerHeldCardSoWrappers[event.mCardIndex]);
     playerHeldCardSoWrappers.erase(playerHeldCardSoWrappers.begin() + event.mCardIndex);
+    
+    auto historyEntrySceneObject = sceneManager.FindScene(HISTORY_SCENE)->CreateSceneObject();
+    historyEntrySceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CARD_HISTORY_ENTRY_SHADER_FILE_NAME);
+    historyEntrySceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MIN_X_UNIFORM_NAME] = CARD_HISTORY_CONTAINER_BOUNDS.bottomLeft.x;
+    historyEntrySceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MAX_X_UNIFORM_NAME] = CARD_HISTORY_CONTAINER_BOUNDS.topRight.x;
+    historyEntrySceneObject->mScale = CARD_HISTORY_ENTRY_SCALE;
+    historyEntrySceneObject->mTextureResourceId = playerBoardCardSoWrappers.back()->mSceneObject->mTextureResourceId;
+    historyEntrySceneObject->mEffectTextureResourceIds[0] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + (playerBoardCardSoWrappers.back()->mCardData->IsSpell() ? game_constants::GOLDEN_SPELL_CARD_FLAKES_MASK_TEXTURE_FILE_NAME : game_constants::GOLDEN_CARD_FLAKES_MASK_TEXTURE_FILE_NAME));
+    historyEntrySceneObject->mBoundingRectMultiplier.x = game_constants::CARD_BOUNDING_RECT_X_MULTIPLIER;
+    historyEntrySceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+    mCardHistoryContainer->AddItem({historyEntrySceneObject, playerBoardCardSoWrappers.back()->mCardData->mCardId, mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX}, false);
     
     const auto currentPlayerHeldCardCount = static_cast<int>(playerHeldCardSoWrappers.size());
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
@@ -1641,6 +1738,8 @@ void BattleSceneLogicManager::OnHistoryButtonPressed()
     
     CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(battleScene->GetUpdateTimeSpeedFactor(), 0.0f, OVERLAY_SCENE_SPEED_ANIMATION_TARGET_DURATION), [](){}, BATTLE_SCENE_SPEED_DILATION_ANIMATION_NAME);
     
+    battleScene->RemoveAllParticleEffects();
+    battleScene->GetCamera().StopShake();
     events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(HISTORY_SCENE, true, OVERLAY_SCENE_SPEED_ANIMATION_TARGET_DURATION, HISTORY_MODAL_MAX_ALPHA);
 }
 
