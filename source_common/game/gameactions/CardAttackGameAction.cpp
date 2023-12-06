@@ -10,6 +10,7 @@
 #include <game/events/EventSystem.h>
 #include <game/gameactions/CardAttackGameAction.h>
 #include <game/gameactions/CardDestructionGameAction.h>
+#include <game/gameactions/CardHistoryEntryAdditionGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/GameOverGameAction.h>
 #include <game/gameactions/RodentsDigAnimationGameAction.h>
@@ -27,6 +28,7 @@ const std::string CardAttackGameAction::PLAYER_INDEX_PARAM = "playerIndex";
 
 static const strutils::StringId GAME_OVER_GAME_ACTION_NAME = strutils::StringId("GameOverGameAction");
 static const strutils::StringId CARD_DESTRUCTION_GAME_ACTION_NAME = strutils::StringId("CardDestructionGameAction");
+static const strutils::StringId CARD_HISTORY_ENTRY_ADDITION_GAME_ACTION_NAME = strutils::StringId("CardHistoryEntryAdditionGameAction");
 static const strutils::StringId RODENTS_DIG_ANIMATION_GAME_ACTION_NAME = strutils::StringId("RodentsDigAnimationGameAction");
 static const strutils::StringId ATTACKING_CARD_PARTICLE_NAME = strutils::StringId("card_attack");
 
@@ -93,6 +95,12 @@ void CardAttackGameAction::VSetNewGameState()
     
     activePlayerState.mPlayerHealth -= damage;
     mPendingDamage = damage;
+    
+    mGameActionEngine->AddGameAction(CARD_HISTORY_ENTRY_ADDITION_GAME_ACTION_NAME,
+    {
+        { CardHistoryEntryAdditionGameAction::PLAYER_INDEX_PARAM, std::to_string(attackingPayerIndex) },
+        { CardHistoryEntryAdditionGameAction::CARD_INDEX_PARAM, std::to_string(cardIndex) }
+    });
     
     if (activePlayerState.mPlayerHealth <= 0.0f)
     {

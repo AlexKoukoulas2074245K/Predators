@@ -10,6 +10,7 @@
 #include <game/events/EventSystem.h>
 #include <game/gameactions/TrapTriggeredAnimationGameAction.h>
 #include <game/gameactions/CardEffectGameAction.h>
+#include <game/gameactions/CardHistoryEntryAdditionGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/PlayCardGameAction.h>
 #include <game/gameactions/InsectDuplicationGameAction.h>
@@ -31,6 +32,7 @@ static const strutils::StringId GOLDEN_CARD_PLAYED_EFFECT_GAME_ACTION_NAME = str
 static const strutils::StringId CARD_PLAYED_PARTICLE_EFFECT_GAME_ACTION_NAME = strutils::StringId("CardPlayedParticleEffectGameAction");
 static const strutils::StringId INSECT_DUPLICATION_GAME_ACTION_NAME = strutils::StringId("InsectDuplicationGameAction");
 static const strutils::StringId NEXT_DINO_DAMAGE_DOUBLING_GAME_ACTION_NAME = strutils::StringId("NextDinoDamageDoublingGameAction");
+static const strutils::StringId CARD_HISTORY_ENTRY_ADDITION_GAME_ACTION_NAME = strutils::StringId("CardHistoryEntryAdditionGameAction");
 static const strutils::StringId CARD_PLAY_PARTICLE_NAME = strutils::StringId("card_play");
 
 static const float CARD_CAMERA_SHAKE_DURATION = 0.25f;
@@ -108,12 +110,24 @@ void PlayCardGameAction::VSetNewGameState()
     
     if (cardData->get().IsSpell())
     {
+        mGameActionEngine->AddGameAction(CARD_HISTORY_ENTRY_ADDITION_GAME_ACTION_NAME,
+        {
+            { CardHistoryEntryAdditionGameAction::PLAYER_INDEX_PARAM, std::to_string(mBoardState->GetActivePlayerIndex()) },
+            { CardHistoryEntryAdditionGameAction::CARD_INDEX_PARAM, std::to_string(activePlayerState.mPlayerBoardCards.size() - 1) }
+        });
+        
         mGameActionEngine->AddGameAction(CARD_EFFECT_GAME_ACTION_NAME);
     }
     else // normal card
     {
         if ((activePlayerState.mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::KILL_NEXT) != 0)
         {
+            mGameActionEngine->AddGameAction(CARD_HISTORY_ENTRY_ADDITION_GAME_ACTION_NAME,
+            {
+                { CardHistoryEntryAdditionGameAction::PLAYER_INDEX_PARAM, std::to_string(mBoardState->GetActivePlayerIndex()) },
+                { CardHistoryEntryAdditionGameAction::CARD_INDEX_PARAM, std::to_string(activePlayerState.mPlayerBoardCards.size() - 1) }
+            });
+            
             mGameActionEngine->AddGameAction(TRAP_TRIGGERED_ANIMATION_GAME_ACTION_NAME,
             {
                 { TrapTriggeredAnimationGameAction::TRAP_TRIGGER_TYPE_PARAM, TrapTriggeredAnimationGameAction::TRAP_TRIGGER_TYPE_KILL }
