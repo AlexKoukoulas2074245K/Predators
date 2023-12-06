@@ -106,6 +106,7 @@ private:
     std::unique_ptr<GameSerializer> mGameSerializer;
     std::unique_ptr<PlayerActionGenerationEngine> mPlayerActionGenerationEngine;
     std::unique_ptr<SwipeableContainer<CardHistoryEntry>> mCardHistoryContainer;
+    std::shared_ptr<scene::Scene> mActiveScene;
     std::vector<std::unique_ptr<AnimatedButton>> mBattleSceneAnimatedButtons;
     std::vector<std::vector<std::shared_ptr<scene::SceneObject>>> mActiveIndividualCardBoardEffectSceneObjects;
     std::vector<std::vector<std::shared_ptr<CardSoWrapper>>> mPlayerHeldCardSceneObjectWrappers;

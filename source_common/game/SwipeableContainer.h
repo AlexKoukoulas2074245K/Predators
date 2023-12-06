@@ -23,7 +23,7 @@
 ///------------------------------------------------------------------------------------------------
 
 inline const strutils::StringId RUBBER_BANDING_ANIMATION_NAME = strutils::StringId("RUBBER_BANDING_ANIMATION");
-inline const int MIN_ITEMS_TO_ANIMATE = 3;
+inline const int MIN_ITEMS_TO_ANIMATE = 0;
 inline const float CARD_VELOCITY_DAMPING = 0.85f;
 inline const float OVERSWIPE_DAMPING = 100.0f;
 inline const float SWIPE_DELTA_DIRECTION_CHANGE_NOISE_THRESHOLD = 0.00001f;
@@ -174,7 +174,7 @@ public:
                 ResetSwipeData();
             }
         }
-        else if (inputStateManager.VButtonPressed(input::Button::MAIN_BUTTON) && mItems.size() > MIN_ITEMS_TO_ANIMATE)
+        else if (!mBlockedUpdate && inputStateManager.VButtonPressed(input::Button::MAIN_BUTTON) && mItems.size() > MIN_ITEMS_TO_ANIMATE)
         {
             if (mHasStartedSwipe && !animationManager.IsAnimationPlaying(RUBBER_BANDING_ANIMATION_NAME) && firstSceneObject != nullptr && lastSceneObject != nullptr)
             {
@@ -212,7 +212,7 @@ public:
                 mSwipeCurrentPos = glm::vec3(currentTouchPos.x, currentTouchPos.y, 0.0f);
             }
         }
-        else if (!inputStateManager.VButtonPressed(input::Button::MAIN_BUTTON) && mItems.size() > MIN_ITEMS_TO_ANIMATE && firstSceneObject != nullptr && lastSceneObject != nullptr)
+        else if (!mBlockedUpdate && !inputStateManager.VButtonPressed(input::Button::MAIN_BUTTON) && mItems.size() > MIN_ITEMS_TO_ANIMATE && firstSceneObject != nullptr && lastSceneObject != nullptr)
         {
             if (firstSceneObject->mPosition.x > mContainerCutoffValues.t)
             {
@@ -290,6 +290,11 @@ public:
         return mItems;
     }
     
+    void SetBlockedUpdate(const bool blockedUpdate)
+    {
+        mBlockedUpdate = blockedUpdate;
+    }
+    
 private:
     void ResetSwipeData()
     {
@@ -309,6 +314,7 @@ private:
     std::vector<ContainerEntryT> mItems;
     glm::vec3 mSwipeStartPos;
     glm::vec3 mSwipeCurrentPos;
+    bool mBlockedUpdate;
     bool mHasStartedSwipe;
     float mSwipeDurationMillis = 0.0f;
     float mSwipeVelocityDelta = 0.0f;
