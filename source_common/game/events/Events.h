@@ -244,17 +244,19 @@ public:
 
 ///------------------------------------------------------------------------------------------------
 
-class HistoryEntryAdditionEvent final
+class CardHistoryEntryAdditionEvent final
 {
 public:
-    HistoryEntryAdditionEvent(const bool forRemotePlayer, const int cardIndex)
+    CardHistoryEntryAdditionEvent(const bool forRemotePlayer, const int cardIndex, const std::string& entryTypeTextureFileName)
         : mForRemotePlayer(forRemotePlayer)
         , mCardIndex(cardIndex)
+        , mEntryTypeTextureFileName(entryTypeTextureFileName)
     {
     }
     
     const bool mForRemotePlayer;
     const int mCardIndex;
+    const std::string mEntryTypeTextureFileName;
 };
 
 ///------------------------------------------------------------------------------------------------

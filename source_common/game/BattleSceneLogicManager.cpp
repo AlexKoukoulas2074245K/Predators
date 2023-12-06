@@ -1249,7 +1249,7 @@ void BattleSceneLogicManager::RegisterForEvents()
     eventSystem.RegisterForEvent<events::BoardSideCardEffectEndedEvent>(this, &BattleSceneLogicManager::OnBoardSideCardEffectEnded);
     eventSystem.RegisterForEvent<events::ForceSendCardBackToPositionEvent>(this, &BattleSceneLogicManager::OnForceSendCardBackToPosition);
     eventSystem.RegisterForEvent<events::PoisonStackChangeChangeAnimationTriggerEvent>(this, &BattleSceneLogicManager::OnPoisonStackChangeChangeAnimationTrigger);
-    eventSystem.RegisterForEvent<events::HistoryEntryAdditionEvent>(this, &BattleSceneLogicManager::OnHistoryEntryAddition);
+    eventSystem.RegisterForEvent<events::CardHistoryEntryAdditionEvent>(this, &BattleSceneLogicManager::OnCardHistoryEntryAddition);
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -1752,7 +1752,7 @@ void BattleSceneLogicManager::OnPoisonStackChangeChangeAnimationTrigger(const ev
 
 ///------------------------------------------------------------------------------------------------
 
-void BattleSceneLogicManager::OnHistoryEntryAddition(const events::HistoryEntryAdditionEvent& event)
+void BattleSceneLogicManager::OnCardHistoryEntryAddition(const events::CardHistoryEntryAdditionEvent& event)
 {
     auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
     auto cardSoWrapper = mPlayerBoardCardSceneObjectWrappers[(event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)][event.mCardIndex];
@@ -1771,6 +1771,7 @@ void BattleSceneLogicManager::OnHistoryEntryAddition(const events::HistoryEntryA
     historyEntrySceneObject->mTextureResourceId = cardSoWrapper->mSceneObject->mTextureResourceId;
     historyEntrySceneObject->mEffectTextureResourceIds[0] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + (cardSoWrapper->mCardData->IsSpell() ? game_constants::GOLDEN_SPELL_CARD_FLAKES_MASK_TEXTURE_FILE_NAME : game_constants::GOLDEN_CARD_FLAKES_MASK_TEXTURE_FILE_NAME));
     historyEntrySceneObject->mEffectTextureResourceIds[1] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + (cardSoWrapper->mCardData->IsSpell() ? HISTORY_ENTRY_SPELL_MASK_TEXTURE_FILE_NAME : HISTORY_ENTRY_MASK_TEXTURE_FILE_NAME));
+    historyEntrySceneObject->mEffectTextureResourceIds[2] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + event.mEntryTypeTextureFileName, resources::RELOAD_EVERY_SECOND);
     historyEntrySceneObject->mBoundingRectMultiplier.x = game_constants::CARD_BOUNDING_RECT_X_MULTIPLIER;
     historyEntrySceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
     mCardHistoryContainer->AddItem({historyEntrySceneObject, cardSoWrapper->mCardData->mCardId, event.mForRemotePlayer}, false);

@@ -82,7 +82,7 @@ private:
     void OnBoardSideCardEffectEnded(const events::BoardSideCardEffectEndedEvent&);
     void OnForceSendCardBackToPosition(const events::ForceSendCardBackToPositionEvent&);
     void OnPoisonStackChangeChangeAnimationTrigger(const events::PoisonStackChangeChangeAnimationTriggerEvent&);
-    void OnHistoryEntryAddition(const events::HistoryEntryAdditionEvent&);
+    void OnCardHistoryEntryAddition(const events::CardHistoryEntryAdditionEvent&);
     void OnHistoryButtonPressed();
     glm::vec3 CalculateBoardEffectPosition(const size_t effectIndex, const size_t effectsCount, bool forRemotePlayer);
     

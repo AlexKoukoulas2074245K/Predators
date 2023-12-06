@@ -99,7 +99,8 @@ void CardAttackGameAction::VSetNewGameState()
     mGameActionEngine->AddGameAction(CARD_HISTORY_ENTRY_ADDITION_GAME_ACTION_NAME,
     {
         { CardHistoryEntryAdditionGameAction::PLAYER_INDEX_PARAM, std::to_string(attackingPayerIndex) },
-        { CardHistoryEntryAdditionGameAction::CARD_INDEX_PARAM, std::to_string(cardIndex) }
+        { CardHistoryEntryAdditionGameAction::CARD_INDEX_PARAM, std::to_string(cardIndex) },
+        { CardHistoryEntryAdditionGameAction::ENTRY_TYPE_TEXTURE_FILE_NAME_PARAM, CardHistoryEntryAdditionGameAction::ENTRY_TYPE_TEXTURE_FILE_NAME_BATTLE },
     });
     
     if (activePlayerState.mPlayerHealth <= 0.0f)

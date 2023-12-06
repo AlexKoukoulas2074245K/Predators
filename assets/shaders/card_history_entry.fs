@@ -10,6 +10,7 @@ in vec3 frag_unprojected_pos;
 uniform sampler2D tex;
 uniform sampler2D golden_flakes_mask_tex;
 uniform sampler2D history_entry_mask;
+uniform sampler2D history_entry_icon_type_tex;
 uniform vec4 ambient_light_color;
 uniform vec4 point_light_colors[32];
 uniform vec3 point_light_positions[32];
@@ -60,6 +61,15 @@ void main()
     else
     {
         frag_color = calculate_card_color(frag_color, vec2(final_uv_x, final_uv_y), weight_interactive_mode, damage_interactive_mode, false, false, time, light_pos_x, tex, golden_flakes_mask_tex);
+        
+        vec4 history_entry_icon_color = texture(history_entry_icon_type_tex, vec2(final_uv_x, 1.0f - final_uv_y));
+        if (history_entry_icon_color.a > 0.1f)
+        {
+            history_entry_icon_color.r = 1.0f - history_entry_icon_color.r;
+            history_entry_icon_color.g = 1.0f - history_entry_icon_color.g;
+            history_entry_icon_color.b = 1.0f - history_entry_icon_color.b;
+            frag_color.rgb += history_entry_icon_color.rgb * history_entry_icon_color.a * 0.95;
+        }
     }
         
     const float CUTOFF_VALUE = 0.02f;
