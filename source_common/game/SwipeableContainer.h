@@ -147,7 +147,6 @@ public:
         auto lastSceneObject = mScene.FindSceneObject(strutils::StringId(mContainerName.GetString() + "_" + std::to_string(mItems.size() - 1)));
         
         mSwipeVelocityDelta *= CARD_VELOCITY_DAMPING;
-        
         if (inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON))
         {
             bool touchInVisibleContainerArea = math::IsPointInsideRectangle(mContainerBounds.bottomLeft, mContainerBounds.topRight, worldTouchPos);
@@ -241,14 +240,13 @@ public:
             {
                 mHasStartedSwipe = false;
                 auto currentTouchPos = inputStateManager.VGetPointingPosInWorldSpace(mScene.GetCamera().GetViewMatrix(), mScene.GetCamera().GetProjMatrix());
-                mSwipeVelocityDelta = (currentTouchPos.x - mSwipeStartPos.x)/mSwipeDurationMillis;
+                mSwipeVelocityDelta = mSwipeDurationMillis <= 0.0f ? 0.0f : (currentTouchPos.x - mSwipeStartPos.x)/mSwipeDurationMillis;
                 mSwipeDurationMillis = 0.0f;
                 mSwipeDelta = 0.0f;
             }
             else if (!animationManager.IsAnimationPlaying(RUBBER_BANDING_ANIMATION_NAME))
             {
                 float targetDx = mSwipeVelocityDelta * dtMillis;
-                
                 if (firstSceneObject->mPosition.x + targetDx > mContainerCutoffValues.t)
                 {
                     float xOffset = mContainerCutoffValues.t - firstSceneObject->mPosition.x;
