@@ -184,11 +184,13 @@ public:
                 
                 if (firstSceneObject->mPosition.x + targetDx > mContainerCutoffValues.t)
                 {
-                    targetDx /= (firstSceneObject->mPosition.x + targetDx - mContainerCutoffValues.t) * OVERSWIPE_DAMPING;
+                    float overswipeDampingFactor = (firstSceneObject->mPosition.x + targetDx - mContainerCutoffValues.t) * OVERSWIPE_DAMPING;
+                    targetDx = math::Abs(overswipeDampingFactor) <= 0.0f ? 0.0f : targetDx/overswipeDampingFactor;
                 }
                 else if (lastSceneObject->mPosition.x + targetDx < mContainerCutoffValues.s)
                 {
-                    targetDx /= -(lastSceneObject->mPosition.x + targetDx -mContainerCutoffValues.s) * OVERSWIPE_DAMPING;
+                    float overswipeDampingFactor = -(lastSceneObject->mPosition.x + targetDx -mContainerCutoffValues.s) * OVERSWIPE_DAMPING;
+                    targetDx = math::Abs(overswipeDampingFactor) <= 0.0f ? 0.0f : targetDx/overswipeDampingFactor;
                 }
 
                 for (auto& entry: mItems)
