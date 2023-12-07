@@ -169,6 +169,20 @@ public:
         auto lastSceneObject = mScene.FindSceneObject(strutils::StringId(mContainerName.GetString() + "_" + std::to_string(static_cast<int>(mItems.size() - 1)) + "_0"));
         
         mSwipeVelocityDelta *= CARD_VELOCITY_DAMPING;
+        
+        // Find items in view
+        for (int i = 0; i < static_cast<int>(mItems.size()); ++i)
+        {
+            const auto& sceneObjectPos = mItems[i].mSceneObjects.front()->mPosition;
+            const auto& sceneObjectRect = scene_object_utils::GetSceneObjectBoundingRect(*mItems[i].mSceneObjects.front());
+            const auto& sceneObjectRectWidth = sceneObjectRect.topRight.x - sceneObjectRect.bottomLeft.x;
+            
+            for (auto& sceneObject: mItems[i].mSceneObjects)
+            {
+                sceneObject->mInvisible = sceneObjectPos.x - sceneObjectRectWidth > mContainerBounds.topRight.x || sceneObjectPos.x + sceneObjectRectWidth < mContainerBounds.bottomLeft.x;
+            }
+        }
+        
         if (inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON))
         {
             bool touchInVisibleContainerArea = math::IsPointInsideRectangle(mContainerBounds.bottomLeft, mContainerBounds.topRight, worldTouchPos);

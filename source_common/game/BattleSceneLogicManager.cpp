@@ -472,6 +472,7 @@ void BattleSceneLogicManager::InitHistoryScene(std::shared_ptr<scene::Scene> sce
     
     auto capsuleSceneObject = scene->FindSceneObject(CARD_HISTORY_CAPSULE_SCENE_OBJECT_NAME);
     capsuleSceneObject->mPosition.y = HISTORY_SCENE_FADE_IN_OUT_ITEM_OFFSETS;
+    capsuleSceneObject->mInvisible = false;
     capsuleSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
     CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(capsuleSceneObject, CARD_HISTORY_CAPSULE_POSITION, capsuleSceneObject->mScale, 1.0f, animation_flags::NONE, 0.0f, math::ElasticFunction, math::TweeningMode::EASE_IN), [=]()
     {
@@ -482,6 +483,7 @@ void BattleSceneLogicManager::InitHistoryScene(std::shared_ptr<scene::Scene> sce
                 for (auto& sceneObject: containerItem.mSceneObjects)
                 {
                     auto targetPosition = sceneObject->mPosition;
+                    sceneObject->mInvisible = false;
                     sceneObject->mPosition.x += HISTORY_SCENE_FADE_IN_OUT_ITEM_OFFSETS;
                     sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
                     CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(sceneObject, targetPosition, sceneObject->mScale, 1.0f, animation_flags::NONE, 0.0f, math::ElasticFunction, math::TweeningMode::EASE_IN), [=]()
@@ -621,16 +623,22 @@ void BattleSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene> scene)
         
         for (const auto& cardHistoryEntry: mCardHistoryContainer->GetItems())
         {
-            for (auto& sceneObject: cardHistoryEntry.mSceneObjects)
+            for (auto sceneObject: cardHistoryEntry.mSceneObjects)
             {
-                animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, 0.0f, HISTORY_SCENE_FADE_IN_OUT_DURATION_SECS), [](){});
+                animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, 0.0f, HISTORY_SCENE_FADE_IN_OUT_DURATION_SECS), [=]()
+                {
+                    sceneObject->mInvisible = true;
+                });
             }
         }
         
         animationManager.StopAnimation(BATTLE_SCENE_SPEED_DILATION_ANIMATION_NAME);
         animationManager.StartAnimation(std::make_unique<rendering::TweenValueAnimation>(CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE)->GetUpdateTimeSpeedFactor(), 1.0f, OVERLAY_SCENE_SPEED_ANIMATION_TARGET_DURATION), [](){}, BATTLE_SCENE_SPEED_DILATION_ANIMATION_NAME);
         
-        animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(scene->FindSceneObject(CARD_HISTORY_CAPSULE_SCENE_OBJECT_NAME), 0.0f, HISTORY_SCENE_FADE_IN_OUT_DURATION_SECS), [](){});
+        animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(scene->FindSceneObject(CARD_HISTORY_CAPSULE_SCENE_OBJECT_NAME), 0.0f, HISTORY_SCENE_FADE_IN_OUT_DURATION_SECS), [=]()
+        {
+            scene->FindSceneObject(CARD_HISTORY_CAPSULE_SCENE_OBJECT_NAME)->mInvisible = true;
+        });
         DestroyCardTooltip(scene);
     }
 }
@@ -1826,7 +1834,7 @@ void BattleSceneLogicManager::OnCardHistoryEntryAddition(const events::CardHisto
         historyEntrySceneObject->mScale = CARD_HISTORY_TURN_COUNTER_ENTRY_SCALE;
         historyEntrySceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + TURN_COUNTER_HISTORY_ENTRY_TEXTURE_FILE_NAME);
         historyEntrySceneObject->mBoundingRectMultiplier.x = game_constants::CARD_BOUNDING_RECT_X_MULTIPLIER;
-        
+        historyEntrySceneObject->mInvisible = true;
         
         auto turnCounterStringSceneObject = sceneManager.FindScene(HISTORY_SCENE)->CreateSceneObject();
         scene::TextSceneObjectData turnCounterTextData;
@@ -1839,7 +1847,7 @@ void BattleSceneLogicManager::OnCardHistoryEntryAddition(const events::CardHisto
         turnCounterStringSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MAX_X_UNIFORM_NAME] = CARD_HISTORY_CONTAINER_BOUNDS.topRight.x;
         turnCounterStringSceneObject->mPosition += CARD_HISTORY_TURN_COUNTER_TEXT_OFFSET; // Offset to be considered by SwipeableContainer
         turnCounterStringSceneObject->mScale = glm::vec3(CARD_TOOLTIP_TEXT_FONT_SIZE * 2);
-        
+        turnCounterStringSceneObject->mInvisible = true;
         mCardHistoryContainer->AddItem({{historyEntrySceneObject, turnCounterStringSceneObject}, 0, false, true}, false);
     }
     else
@@ -1861,6 +1869,7 @@ void BattleSceneLogicManager::OnCardHistoryEntryAddition(const events::CardHisto
         historyEntrySceneObject->mEffectTextureResourceIds[2] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + event.mEntryTypeTextureFileName);
         historyEntrySceneObject->mBoundingRectMultiplier.x = game_constants::CARD_BOUNDING_RECT_X_MULTIPLIER;
         historyEntrySceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+        historyEntrySceneObject->mInvisible = true;
         mCardHistoryContainer->AddItem({{historyEntrySceneObject}, cardSoWrapper->mCardData->mCardId, event.mForRemotePlayer, event.mIsTurnCounter}, false);
     }
 }
