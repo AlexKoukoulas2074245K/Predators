@@ -111,7 +111,7 @@ static const glm::vec3 CARD_HISTORY_ENTRY_SCALE = {0.3f, -0.3f, 0.3f};
 static const glm::vec3 CARD_HISTORY_TURN_COUNTER_ENTRY_SCALE = {0.266f, -0.3f, 0.3f};
 static const glm::vec3 CARD_HISTORY_CAPSULE_SCALE = {1.0f, 0.767f, 0.3f};
 static const glm::vec3 CARD_HISTORY_CAPSULE_POSITION = {0.0f, -0.102f, 25.0f};
-static const glm::vec3 CARD_HISTORY_TURN_COUNTER_TEXT_OFFSET = {-0.03f, 0.003f, 0.0f};
+static const glm::vec3 CARD_HISTORY_TURN_COUNTER_TEXT_OFFSET = {-0.032f, 0.003f, 0.0f};
 
 static const glm::vec3 CARD_TOOLTIP_TEXT_OFFSETS[game_constants::CARD_TOOLTIP_TEXT_ROWS_COUNT] =
 {
@@ -1846,7 +1846,7 @@ void BattleSceneLogicManager::OnCardHistoryEntryAddition(const events::CardHisto
         turnCounterStringSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MIN_X_UNIFORM_NAME] = CARD_HISTORY_CONTAINER_BOUNDS.bottomLeft.x;
         turnCounterStringSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MAX_X_UNIFORM_NAME] = CARD_HISTORY_CONTAINER_BOUNDS.topRight.x;
         turnCounterStringSceneObject->mPosition += CARD_HISTORY_TURN_COUNTER_TEXT_OFFSET; // Offset to be considered by SwipeableContainer
-        turnCounterStringSceneObject->mScale = glm::vec3(CARD_TOOLTIP_TEXT_FONT_SIZE * 2);
+        turnCounterStringSceneObject->mScale = glm::vec3(CARD_TOOLTIP_TEXT_FONT_SIZE * 1.8f);
         turnCounterStringSceneObject->mInvisible = true;
         mCardHistoryContainer->AddItem({{historyEntrySceneObject, turnCounterStringSceneObject}, 0, false, true}, false);
     }
