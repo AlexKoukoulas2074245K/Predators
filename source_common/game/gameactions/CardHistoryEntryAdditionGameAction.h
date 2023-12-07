@@ -19,6 +19,7 @@ class CardHistoryEntryAdditionGameAction final: public BaseGameAction
 public:
     static const std::string PLAYER_INDEX_PARAM;
     static const std::string CARD_INDEX_PARAM;
+    static const std::string IS_TURN_COUNTER_PARAM;
     static const std::string ENTRY_TYPE_TEXTURE_FILE_NAME_PARAM;
     static const std::string ENTRY_TYPE_TEXTURE_FILE_NAME_BATTLE;
     static const std::string ENTRY_TYPE_TEXTURE_FILE_NAME_EFFECT;

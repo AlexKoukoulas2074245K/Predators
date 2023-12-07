@@ -15,6 +15,7 @@
 #include <game/GameConstants.h>
 #include <game/gameactions/CardAttackGameAction.h>
 #include <game/gameactions/CardDestructionGameAction.h>
+#include <game/gameactions/CardHistoryEntryAdditionGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/NextPlayerGameAction.h>
 #include <game/gameactions/PoisonStackApplicationGameAction.h>
@@ -27,6 +28,7 @@ static const strutils::StringId CARD_ATTACK_GAME_ACTION_NAME = strutils::StringI
 static const strutils::StringId DRAW_CARD_GAME_ACTION_NAME = strutils::StringId("DrawCardGameAction");
 static const strutils::StringId POST_NEXT_PLAYER_GAME_ACTION_NAME = strutils::StringId("PostNextPlayerGameAction");
 static const strutils::StringId CARD_DESTRUCTION_GAME_ACTION_NAME = strutils::StringId("CardDestructionGameAction");
+static const strutils::StringId CARD_HISTORY_ENTRY_ADDITION_GAME_ACTION_NAME = strutils::StringId("CardHistoryEntryAdditionGameAction");
 static const strutils::StringId POISON_STACK_APPLICATION_GAME_ACTION_NAME = strutils::StringId("PoisonStackApplicationGameAction");
 
 ///------------------------------------------------------------------------------------------------
@@ -38,6 +40,7 @@ void NextPlayerGameAction::VSetNewGameState()
     activePlayerIndex = (activePlayerIndex + 1) % mBoardState->GetPlayerCount();
     
     mBoardState->GetTurnCounter()++;
+    
     auto& targetPlayerState = mBoardState->GetPlayerStates()[mBoardState->GetTurnCounter() % mBoardState->GetPlayerCount()];
     targetPlayerState.mPlayerTotalWeightAmmo++;
     targetPlayerState.mPlayerCurrentWeightAmmo = targetPlayerState.mPlayerTotalWeightAmmo;
@@ -71,6 +74,14 @@ void NextPlayerGameAction::VSetNewGameState()
             });
         }
     }
+    
+    mGameActionEngine->AddGameAction(CARD_HISTORY_ENTRY_ADDITION_GAME_ACTION_NAME,
+    {
+        { CardHistoryEntryAdditionGameAction::PLAYER_INDEX_PARAM, "0" },
+        { CardHistoryEntryAdditionGameAction::CARD_INDEX_PARAM, "0" },
+        { CardHistoryEntryAdditionGameAction::ENTRY_TYPE_TEXTURE_FILE_NAME_PARAM, "" },
+        { CardHistoryEntryAdditionGameAction::IS_TURN_COUNTER_PARAM, "true"}
+    });
     
     mGameActionEngine->AddGameAction(POISON_STACK_APPLICATION_GAME_ACTION_NAME, {});
     mGameActionEngine->AddGameAction(POST_NEXT_PLAYER_GAME_ACTION_NAME);

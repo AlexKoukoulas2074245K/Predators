@@ -81,7 +81,12 @@ public:
     {
         if (atTheBack)
         {
-            item.mSceneObject->mName = strutils::StringId(mContainerName.GetString() + "_" + std::to_string(mItems.size()));
+            for (auto i = 0U; i < item.mSceneObjects.size(); ++i)
+            {
+                auto& sceneObject = item.mSceneObjects[i];
+                sceneObject->mName = strutils::StringId(mContainerName.GetString() + "_" + std::to_string(mItems.size()) + "_" + std::to_string(i));
+            }
+            
             mItems.emplace_back(item);
         }
         else
@@ -89,8 +94,13 @@ public:
             mItems.insert(mItems.begin(), item);
             for (int i = 0; i < static_cast<int>(mItems.size()); ++i)
             {
-                auto item = mItems[i];
-                item.mSceneObject->mName = strutils::StringId(mContainerName.GetString() + "_" + std::to_string(i));
+                auto& item = mItems[i];
+                
+                for (auto j = 0U; j < item.mSceneObjects.size(); ++j)
+                {
+                    auto& sceneObject = item.mSceneObjects[j];
+                    sceneObject->mName = strutils::StringId(mContainerName.GetString() + "_" + std::to_string(i) + "_" + std::to_string(j));
+                }
             }
         }
         
@@ -108,26 +118,29 @@ public:
     
     void ResetPositionForItem(int itemIndex, ContainerEntryT& item)
     {
-        switch (mValidSwipeDirection)
+        for (int j = 0; j < static_cast<int>(item.mSceneObjects.size()); ++j)
         {
-            case SwipeDirection::HORIZONTAL:
+            switch (mValidSwipeDirection)
             {
-                item.mSceneObject->mPosition =
+                case SwipeDirection::HORIZONTAL:
                 {
-                    (mContainerBounds.bottomLeft.x + mContainerBounds.topRight.x)/2.0f + itemIndex * item.mSceneObject->mScale.x/2.0f,
-                    (mContainerBounds.bottomLeft.y + mContainerBounds.topRight.y)/2.0f,
-                    mContainerItemsZ
-                };
-            } break;
-            
-            case SwipeDirection::VERTICAL:
-            {
-                item.mSceneObject->mPosition =
+                    item.mSceneObjects[j]->mPosition =
+                    {
+                        (mContainerBounds.bottomLeft.x + mContainerBounds.topRight.x)/2.0f + itemIndex * item.mSceneObjects.front()->mScale.x/2.0f,
+                        (mContainerBounds.bottomLeft.y + mContainerBounds.topRight.y)/2.0f,
+                        mContainerItemsZ
+                    };
+                } break;
+                
+                case SwipeDirection::VERTICAL:
                 {
-                    (mContainerBounds.bottomLeft.x + mContainerBounds.topRight.x)/2.0f,
-                    (mContainerBounds.bottomLeft.y + mContainerBounds.topRight.y)/2.0f + itemIndex * item.mSceneObject->mScale.y/2.0f,
-                    mContainerItemsZ
-                };
+                    item.mSceneObjects[j]->mPosition =
+                    {
+                        (mContainerBounds.bottomLeft.x + mContainerBounds.topRight.x)/2.0f,
+                        (mContainerBounds.bottomLeft.y + mContainerBounds.topRight.y)/2.0f + itemIndex * item.mSceneObjects.front()->mScale.y/2.0f,
+                        mContainerItemsZ
+                    };
+                }
             }
         }
     }
@@ -143,8 +156,8 @@ public:
         
         auto worldTouchPos = inputStateManager.VGetPointingPosInWorldSpace(mScene.GetCamera().GetViewMatrix(), mScene.GetCamera().GetProjMatrix());
         
-        auto firstSceneObject = mScene.FindSceneObject(strutils::StringId(mContainerName.GetString() + "_" + std::to_string(0)));
-        auto lastSceneObject = mScene.FindSceneObject(strutils::StringId(mContainerName.GetString() + "_" + std::to_string(mItems.size() - 1)));
+        auto firstSceneObject = mScene.FindSceneObject(strutils::StringId(mContainerName.GetString() + "_0_0"));
+        auto lastSceneObject = mScene.FindSceneObject(strutils::StringId(mContainerName.GetString() + "_" + std::to_string(static_cast<int>(mItems.size() - 1)) + "_0"));
         
         mSwipeVelocityDelta *= CARD_VELOCITY_DAMPING;
         if (inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON))
@@ -160,7 +173,7 @@ public:
                 
                 for (int i = 0; i < static_cast<int>(mItems.size()); ++i)
                 {
-                    auto sceneObjectRect = scene_object_utils::GetSceneObjectBoundingRect(*mItems[i].mSceneObject);
+                    auto sceneObjectRect = scene_object_utils::GetSceneObjectBoundingRect(*mItems[i].mSceneObjects.front());
                     if (math::IsPointInsideRectangle(sceneObjectRect.bottomLeft, sceneObjectRect.topRight, worldTouchPos))
                     {
                         updateResult.mInteractionType = InteractionType::INTERACTED_WITH_ELEMENTS;
@@ -192,11 +205,13 @@ public:
                     float overswipeDampingFactor = -(lastSceneObject->mPosition.x + targetDx -mContainerCutoffValues.s) * OVERSWIPE_DAMPING;
                     targetDx = math::Abs(overswipeDampingFactor) <= 0.0f ? 0.0f : targetDx/overswipeDampingFactor;
                 }
-
-                for (auto& entry: mItems)
+                
+                for (auto& item: mItems)
                 {
-                    auto entrySceneObject = entry.mSceneObject;
-                    entrySceneObject->mPosition.x += targetDx;
+                    for (auto& sceneObject: item.mSceneObjects)
+                    {
+                        sceneObject->mPosition.x += targetDx;
+                    }
                 }
                 
                 // Direction reversal check
@@ -218,23 +233,27 @@ public:
             if (firstSceneObject->mPosition.x > mContainerCutoffValues.t)
             {
                 float xOffset = mContainerCutoffValues.t - firstSceneObject->mPosition.x;
-                for (auto& entry: mItems)
+                for (auto& item: mItems)
                 {
-                    auto entrySceneObject = entry.mSceneObject;
-                    auto targetPosition = entrySceneObject->mPosition;
-                    targetPosition.x += xOffset;
-                    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(entrySceneObject, targetPosition, entrySceneObject->mScale, RUBBER_BANDING_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::ElasticFunction, math::TweeningMode::EASE_IN), [](){}, RUBBER_BANDING_ANIMATION_NAME);
+                    for (auto& sceneObject: item.mSceneObjects)
+                    {
+                        auto targetPosition = sceneObject->mPosition;
+                        targetPosition.x += xOffset;
+                        animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(sceneObject, targetPosition, sceneObject->mScale, RUBBER_BANDING_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::ElasticFunction, math::TweeningMode::EASE_IN), [](){}, RUBBER_BANDING_ANIMATION_NAME);
+                    }
                 }
             }
             else if (lastSceneObject->mPosition.x < mContainerCutoffValues.s)
             {
                 float xOffset = mContainerCutoffValues.s - lastSceneObject->mPosition.x;
-                for (auto& entry: mItems)
+                for (auto& item: mItems)
                 {
-                    auto entrySceneObject = entry.mSceneObject;
-                    auto targetPosition = entrySceneObject->mPosition;
-                    targetPosition.x += xOffset;
-                    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(entrySceneObject, targetPosition, entrySceneObject->mScale, RUBBER_BANDING_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::ElasticFunction, math::TweeningMode::EASE_IN), [](){}, RUBBER_BANDING_ANIMATION_NAME);
+                    for (auto& sceneObject: item.mSceneObjects)
+                    {
+                        auto targetPosition = sceneObject->mPosition;
+                        targetPosition.x += xOffset;
+                        animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(sceneObject, targetPosition, sceneObject->mScale, RUBBER_BANDING_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::ElasticFunction, math::TweeningMode::EASE_IN), [](){}, RUBBER_BANDING_ANIMATION_NAME);
+                    }
                 }
             }
             
@@ -252,10 +271,12 @@ public:
                 if (firstSceneObject->mPosition.x + targetDx > mContainerCutoffValues.t)
                 {
                     float xOffset = mContainerCutoffValues.t - firstSceneObject->mPosition.x;
-                    for (auto& entry: mItems)
+                    for (auto& item: mItems)
                     {
-                        auto entrySceneObject = entry.mSceneObject;
-                        entrySceneObject->mPosition.x += xOffset;
+                        for (auto& sceneObject: item.mSceneObjects)
+                        {
+                            sceneObject->mPosition.x += xOffset;
+                        }
                     }
                     
                     mSwipeVelocityDelta = 0.0f;
@@ -264,20 +285,24 @@ public:
                 else if (lastSceneObject->mPosition.x + targetDx < mContainerCutoffValues.s)
                 {
                     float xOffset = mContainerCutoffValues.s - lastSceneObject->mPosition.x;
-                    for (auto& entry: mItems)
+                    for (auto& item: mItems)
                     {
-                        auto entrySceneObject = entry.mSceneObject;
-                        entrySceneObject->mPosition.x += xOffset;
+                        for (auto& sceneObject: item.mSceneObjects)
+                        {
+                            sceneObject->mPosition.x += xOffset;
+                        }
                     }
                     
                     mSwipeVelocityDelta = 0.0f;
                     targetDx = 0.0f;
                 }
                 
-                for (auto& entry: mItems)
+                for (auto& item: mItems)
                 {
-                    auto entrySceneObject = entry.mSceneObject;
-                    entrySceneObject->mPosition.x += targetDx;
+                    for (auto& sceneObject: item.mSceneObjects)
+                    {
+                        sceneObject->mPosition.x += targetDx;
+                    }
                 }
             }
         }

@@ -88,9 +88,11 @@ static const std::string WEIGHT_CRYSTAL_BOT_SCENE_OBJECT_NAME_PREFIX = "WEIGHT_C
 static const std::string POISON_STACK_TOP_SCENE_OBJECT_NAME_PREFIX = "POISON_STACK_TOP_";
 static const std::string POISON_STACK_BOT_SCENE_OBJECT_NAME_PREFIX = "POISON_STACK_BOT_";
 static const std::string CARD_HISTORY_ENTRY_SHADER_FILE_NAME = "card_history_entry.vs";
+static const std::string TURN_COUNTER_HISTORY_ENTRY_SHADER_FILE_NAME = "turn_counter_history_entry.vs";
 static const std::string HISTORY_ENTRY_MASK_TEXTURE_FILE_NAME = "history_entry_mask.png";
 static const std::string HISTORY_ENTRY_SPELL_MASK_TEXTURE_FILE_NAME = "history_entry_spell_mask.png";
 static const std::string CARD_HISTORY_CAPSULE_TEXTURE_FILE_NAME = "history_capsule.png";
+static const std::string TURN_COUNTER_HISTORY_ENTRY_TEXTURE_FILE_NAME = "history_turn_counter.png";
 
 static const glm::vec3 TURN_POINTER_POSITION = {0.2f, 0.0f, 0.1f};
 static const glm::vec3 TURN_POINTER_SCALE = {0.08f, 0.08f, 0.08f};
@@ -471,13 +473,16 @@ void BattleSceneLogicManager::InitHistoryScene(std::shared_ptr<scene::Scene> sce
         {
             for (auto& containerItem: mCardHistoryContainer->GetItems())
             {
-                auto targetPosition = containerItem.mSceneObject->mPosition;
-                containerItem.mSceneObject->mPosition.x += HISTORY_SCENE_FADE_IN_OUT_ITEM_OFFSETS;
-                containerItem.mSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
-                CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(containerItem.mSceneObject, targetPosition, containerItem.mSceneObject->mScale, 1.0f, animation_flags::NONE, 0.0f, math::ElasticFunction, math::TweeningMode::EASE_IN), [=]()
+                for (auto& sceneObject: containerItem.mSceneObjects)
                 {
-                    mCardHistoryContainer->SetBlockedUpdate(false);
-                });
+                    auto targetPosition = sceneObject->mPosition;
+                    sceneObject->mPosition.x += HISTORY_SCENE_FADE_IN_OUT_ITEM_OFFSETS;
+                    sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
+                    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(sceneObject, targetPosition, sceneObject->mScale, 1.0f, animation_flags::NONE, 0.0f, math::ElasticFunction, math::TweeningMode::EASE_IN), [=]()
+                    {
+                        mCardHistoryContainer->SetBlockedUpdate(false);
+                    });
+                }
             }
         }
     });
@@ -547,16 +552,19 @@ void BattleSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scen
             if (sToolTipIndex != cardHistoryContainerUpdateResult.mInteractedElementId)
             {
                 auto interactedElementEntry = mCardHistoryContainer->GetItems()[cardHistoryContainerUpdateResult.mInteractedElementId];
-                auto cardData = CardDataRepository::GetInstance().GetCardData(interactedElementEntry.mCardId);
-                
-                DestroyCardTooltip(activeScene);
-                
-                if (cardData->get().IsSpell())
+                if (!interactedElementEntry.mIsTurnCounter)
                 {
-                    sToolTipIndex = cardHistoryContainerUpdateResult.mInteractedElementId;
-                    sToolTipPointeePosX = interactedElementEntry.mSceneObject->mPosition.x;
+                    auto cardData = CardDataRepository::GetInstance().GetCardData(interactedElementEntry.mCardId);
                     
-                    CreateCardTooltip(interactedElementEntry.mSceneObject->mPosition, cardData->get().mCardEffectTooltip, interactedElementEntry.mSceneObject->mPosition.x < 0.0f ? 0 : 10, activeScene);
+                    DestroyCardTooltip(activeScene);
+                    
+                    if (cardData->get().IsSpell())
+                    {
+                        sToolTipIndex = cardHistoryContainerUpdateResult.mInteractedElementId;
+                        sToolTipPointeePosX = interactedElementEntry.mSceneObjects.front()->mPosition.x;
+                        
+                        CreateCardTooltip(interactedElementEntry.mSceneObjects.front()->mPosition, cardData->get().mCardEffectTooltip, interactedElementEntry.mSceneObjects.front()->mPosition.x < 0.0f ? 0 : 10, activeScene);
+                    }
                 }
             }
         }
@@ -565,7 +573,7 @@ void BattleSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scen
         if (sToolTipIndex != -1)
         {
             auto interactedElementEntry = mCardHistoryContainer->GetItems()[sToolTipIndex];
-            if (math::Abs(interactedElementEntry.mSceneObject->mPosition.x - sToolTipPointeePosX) > 0.01f)
+            if (math::Abs(interactedElementEntry.mSceneObjects.front()->mPosition.x - sToolTipPointeePosX) > 0.01f)
             {
                 sToolTipIndex = -1;
                 DestroyCardTooltip(activeScene);
@@ -587,7 +595,10 @@ void BattleSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scen
         
         for (auto& entry: mCardHistoryContainer->GetItems())
         {
-            entry.mSceneObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
+            for (auto& sceneObject: entry.mSceneObjects)
+            {
+                sceneObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
+            }
         }
     }
 }
@@ -604,7 +615,10 @@ void BattleSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene> scene)
         
         for (const auto& cardHistoryEntry: mCardHistoryContainer->GetItems())
         {
-            animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(cardHistoryEntry.mSceneObject, 0.0f, HISTORY_SCENE_FADE_IN_OUT_DURATION_SECS), [](){});
+            for (auto& sceneObject: cardHistoryEntry.mSceneObjects)
+            {
+                animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, 0.0f, HISTORY_SCENE_FADE_IN_OUT_DURATION_SECS), [](){});
+            }
         }
         
         animationManager.StopAnimation(BATTLE_SCENE_SPEED_DILATION_ANIMATION_NAME);
@@ -1789,26 +1803,41 @@ void BattleSceneLogicManager::OnPoisonStackChangeChangeAnimationTrigger(const ev
 void BattleSceneLogicManager::OnCardHistoryEntryAddition(const events::CardHistoryEntryAdditionEvent& event)
 {
     auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
-    auto cardSoWrapper = mPlayerBoardCardSceneObjectWrappers[(event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)][event.mCardIndex];
     
     auto historyEntrySceneObject = sceneManager.FindScene(HISTORY_SCENE)->CreateSceneObject();
-    historyEntrySceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CARD_HISTORY_ENTRY_SHADER_FILE_NAME);
-    historyEntrySceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MIN_X_UNIFORM_NAME] = CARD_HISTORY_CONTAINER_BOUNDS.bottomLeft.x;
-    historyEntrySceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MAX_X_UNIFORM_NAME] = CARD_HISTORY_CONTAINER_BOUNDS.topRight.x;
-    historyEntrySceneObject->mShaderBoolUniformValues[game_constants::CARD_HIGHLIGHTER_INVALID_ACTION_UNIFORM_NAME] = event.mForRemotePlayer;
-    historyEntrySceneObject->mShaderFloatUniformValues[game_constants::PERLIN_TIME_SPEED_UNIFORM_NAME] = game_constants::ACTION_HIGLIGHTER_PERLIN_TIME_SPEED;
-    historyEntrySceneObject->mShaderFloatUniformValues[game_constants::PERLIN_RESOLUTION_UNIFORM_NAME] = game_constants::ACTION_HIGLIGHTER_PERLIN_RESOLUTION;
-    historyEntrySceneObject->mShaderFloatUniformValues[game_constants::PERLIN_CLARITY_UNIFORM_NAME] = game_constants::ACTION_HIGLIGHTER_PERLIN_CLARITY;
-    historyEntrySceneObject->mShaderIntUniformValues[game_constants::CARD_DAMAGE_INTERACTIVE_MODE_UNIFORM_NAME] = cardSoWrapper->mSceneObject->mShaderIntUniformValues[game_constants::CARD_DAMAGE_INTERACTIVE_MODE_UNIFORM_NAME];
-    historyEntrySceneObject->mShaderIntUniformValues[game_constants::CARD_WEIGHT_INTERACTIVE_MODE_UNIFORM_NAME] = cardSoWrapper->mSceneObject->mShaderIntUniformValues[game_constants::CARD_WEIGHT_INTERACTIVE_MODE_UNIFORM_NAME];
-    historyEntrySceneObject->mScale = CARD_HISTORY_ENTRY_SCALE;
-    historyEntrySceneObject->mTextureResourceId = cardSoWrapper->mSceneObject->mTextureResourceId;
-    historyEntrySceneObject->mEffectTextureResourceIds[0] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + (cardSoWrapper->mCardData->IsSpell() ? game_constants::GOLDEN_SPELL_CARD_FLAKES_MASK_TEXTURE_FILE_NAME : game_constants::GOLDEN_CARD_FLAKES_MASK_TEXTURE_FILE_NAME));
-    historyEntrySceneObject->mEffectTextureResourceIds[1] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + (cardSoWrapper->mCardData->IsSpell() ? HISTORY_ENTRY_SPELL_MASK_TEXTURE_FILE_NAME : HISTORY_ENTRY_MASK_TEXTURE_FILE_NAME));
-    historyEntrySceneObject->mEffectTextureResourceIds[2] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + event.mEntryTypeTextureFileName);
-    historyEntrySceneObject->mBoundingRectMultiplier.x = game_constants::CARD_BOUNDING_RECT_X_MULTIPLIER;
-    historyEntrySceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
-    mCardHistoryContainer->AddItem({historyEntrySceneObject, cardSoWrapper->mCardData->mCardId, event.mForRemotePlayer}, false);
+    
+    if (event.mIsTurnCounter)
+    {
+        historyEntrySceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + TURN_COUNTER_HISTORY_ENTRY_SHADER_FILE_NAME);
+        historyEntrySceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MIN_X_UNIFORM_NAME] = CARD_HISTORY_CONTAINER_BOUNDS.bottomLeft.x;
+        historyEntrySceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MAX_X_UNIFORM_NAME] = CARD_HISTORY_CONTAINER_BOUNDS.topRight.x;
+        historyEntrySceneObject->mScale = CARD_HISTORY_ENTRY_SCALE;
+        historyEntrySceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + TURN_COUNTER_HISTORY_ENTRY_TEXTURE_FILE_NAME);
+        historyEntrySceneObject->mBoundingRectMultiplier.x = game_constants::CARD_BOUNDING_RECT_X_MULTIPLIER;
+        historyEntrySceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+        mCardHistoryContainer->AddItem({{historyEntrySceneObject}, 0, false, true}, false);
+    }
+    else
+    {
+        auto cardSoWrapper = mPlayerBoardCardSceneObjectWrappers[(event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)][event.mCardIndex];
+        historyEntrySceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CARD_HISTORY_ENTRY_SHADER_FILE_NAME);
+        historyEntrySceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MIN_X_UNIFORM_NAME] = CARD_HISTORY_CONTAINER_BOUNDS.bottomLeft.x;
+        historyEntrySceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MAX_X_UNIFORM_NAME] = CARD_HISTORY_CONTAINER_BOUNDS.topRight.x;
+        historyEntrySceneObject->mShaderBoolUniformValues[game_constants::CARD_HIGHLIGHTER_INVALID_ACTION_UNIFORM_NAME] = event.mForRemotePlayer;
+        historyEntrySceneObject->mShaderFloatUniformValues[game_constants::PERLIN_TIME_SPEED_UNIFORM_NAME] = game_constants::ACTION_HIGLIGHTER_PERLIN_TIME_SPEED;
+        historyEntrySceneObject->mShaderFloatUniformValues[game_constants::PERLIN_RESOLUTION_UNIFORM_NAME] = game_constants::ACTION_HIGLIGHTER_PERLIN_RESOLUTION;
+        historyEntrySceneObject->mShaderFloatUniformValues[game_constants::PERLIN_CLARITY_UNIFORM_NAME] = game_constants::ACTION_HIGLIGHTER_PERLIN_CLARITY;
+        historyEntrySceneObject->mShaderIntUniformValues[game_constants::CARD_DAMAGE_INTERACTIVE_MODE_UNIFORM_NAME] = cardSoWrapper->mSceneObject->mShaderIntUniformValues[game_constants::CARD_DAMAGE_INTERACTIVE_MODE_UNIFORM_NAME];
+        historyEntrySceneObject->mShaderIntUniformValues[game_constants::CARD_WEIGHT_INTERACTIVE_MODE_UNIFORM_NAME] = cardSoWrapper->mSceneObject->mShaderIntUniformValues[game_constants::CARD_WEIGHT_INTERACTIVE_MODE_UNIFORM_NAME];
+        historyEntrySceneObject->mScale = CARD_HISTORY_ENTRY_SCALE;
+        historyEntrySceneObject->mTextureResourceId = cardSoWrapper->mSceneObject->mTextureResourceId;
+        historyEntrySceneObject->mEffectTextureResourceIds[0] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + (cardSoWrapper->mCardData->IsSpell() ? game_constants::GOLDEN_SPELL_CARD_FLAKES_MASK_TEXTURE_FILE_NAME : game_constants::GOLDEN_CARD_FLAKES_MASK_TEXTURE_FILE_NAME));
+        historyEntrySceneObject->mEffectTextureResourceIds[1] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + (cardSoWrapper->mCardData->IsSpell() ? HISTORY_ENTRY_SPELL_MASK_TEXTURE_FILE_NAME : HISTORY_ENTRY_MASK_TEXTURE_FILE_NAME));
+        historyEntrySceneObject->mEffectTextureResourceIds[2] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + event.mEntryTypeTextureFileName);
+        historyEntrySceneObject->mBoundingRectMultiplier.x = game_constants::CARD_BOUNDING_RECT_X_MULTIPLIER;
+        historyEntrySceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+        mCardHistoryContainer->AddItem({{historyEntrySceneObject}, cardSoWrapper->mCardData->mCardId, event.mForRemotePlayer, event.mIsTurnCounter}, false);
+    }
 }
 
 ///------------------------------------------------------------------------------------------------

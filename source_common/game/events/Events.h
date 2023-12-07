@@ -247,14 +247,16 @@ public:
 class CardHistoryEntryAdditionEvent final
 {
 public:
-    CardHistoryEntryAdditionEvent(const bool forRemotePlayer, const int cardIndex, const std::string& entryTypeTextureFileName)
+    CardHistoryEntryAdditionEvent(const bool forRemotePlayer, const bool isTurnCounter, const int cardIndex, const std::string& entryTypeTextureFileName)
         : mForRemotePlayer(forRemotePlayer)
+        , mIsTurnCounter(isTurnCounter)
         , mCardIndex(cardIndex)
         , mEntryTypeTextureFileName(entryTypeTextureFileName)
     {
     }
     
     const bool mForRemotePlayer;
+    const bool mIsTurnCounter;
     const int mCardIndex;
     const std::string mEntryTypeTextureFileName;
 };

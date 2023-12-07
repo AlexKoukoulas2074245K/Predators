@@ -101,6 +101,7 @@ void CardAttackGameAction::VSetNewGameState()
         { CardHistoryEntryAdditionGameAction::PLAYER_INDEX_PARAM, std::to_string(attackingPayerIndex) },
         { CardHistoryEntryAdditionGameAction::CARD_INDEX_PARAM, std::to_string(cardIndex) },
         { CardHistoryEntryAdditionGameAction::ENTRY_TYPE_TEXTURE_FILE_NAME_PARAM, CardHistoryEntryAdditionGameAction::ENTRY_TYPE_TEXTURE_FILE_NAME_BATTLE },
+        { CardHistoryEntryAdditionGameAction::IS_TURN_COUNTER_PARAM, "false"}
     });
     
     if (activePlayerState.mPlayerHealth <= 0.0f)

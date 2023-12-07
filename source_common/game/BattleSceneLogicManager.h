@@ -94,9 +94,10 @@ private:
     
     struct CardHistoryEntry
     {
-        std::shared_ptr<scene::SceneObject> mSceneObject;
+        std::vector<std::shared_ptr<scene::SceneObject>> mSceneObjects;
         int mCardId;
         bool mForOpponent;
+        bool mIsTurnCounter;
     };
     
 private:
