@@ -89,8 +89,10 @@ static const std::string POISON_STACK_TOP_SCENE_OBJECT_NAME_PREFIX = "POISON_STA
 static const std::string POISON_STACK_BOT_SCENE_OBJECT_NAME_PREFIX = "POISON_STACK_BOT_";
 static const std::string CARD_HISTORY_ENTRY_SHADER_FILE_NAME = "card_history_entry.vs";
 static const std::string TURN_COUNTER_HISTORY_ENTRY_SHADER_FILE_NAME = "turn_counter_history_entry.vs";
+static const std::string TURN_COUNTER_STRING_HISTORY_ENTRY_SHADER_FILE_NAME = "turn_counter_string_history_entry.vs";
 static const std::string HISTORY_ENTRY_MASK_TEXTURE_FILE_NAME = "history_entry_mask.png";
 static const std::string HISTORY_ENTRY_SPELL_MASK_TEXTURE_FILE_NAME = "history_entry_spell_mask.png";
+static const std::string HISTORY_ENTRY_TURN_COUNTER_MASK_TEXTURE_FILE_NAME = "history_entry_turn_counter_mask.png";
 static const std::string CARD_HISTORY_CAPSULE_TEXTURE_FILE_NAME = "history_capsule.png";
 static const std::string TURN_COUNTER_HISTORY_ENTRY_TEXTURE_FILE_NAME = "history_turn_counter.png";
 
@@ -106,8 +108,11 @@ static const glm::vec3 CARD_TOOLTIP_HISTORY_OFFSET = {0.06f, 0.033f, 0.1f};
 static const glm::vec3 HISTORY_BUTTON_POSITION = {-0.155f, 0.05f, 10.0f};
 static const glm::vec3 HISTORY_BUTTON_SCALE = {0.03f, 0.03f, 0.03f};
 static const glm::vec3 CARD_HISTORY_ENTRY_SCALE = {0.3f, -0.3f, 0.3f};
+static const glm::vec3 CARD_HISTORY_TURN_COUNTER_ENTRY_SCALE = {0.266f, -0.3f, 0.3f};
 static const glm::vec3 CARD_HISTORY_CAPSULE_SCALE = {1.0f, 0.767f, 0.3f};
 static const glm::vec3 CARD_HISTORY_CAPSULE_POSITION = {0.0f, -0.102f, 25.0f};
+static const glm::vec3 CARD_HISTORY_TURN_COUNTER_TEXT_OFFSET = {-0.03f, 0.003f, 0.0f};
+
 static const glm::vec3 CARD_TOOLTIP_TEXT_OFFSETS[game_constants::CARD_TOOLTIP_TEXT_ROWS_COUNT] =
 {
     { -0.033f, 0.029f, 0.1f },
@@ -449,6 +454,7 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
     mCardHistoryContainer = std::make_unique<SwipeableContainer<CardHistoryEntry>>
     (
         SwipeDirection::HORIZONTAL,
+        CARD_HISTORY_ENTRY_SCALE,
         CARD_HISTORY_CONTAINER_BOUNDS,
         CARD_HISTORY_CONTAINER_CUTOFF_VALUES,
         CARD_HISTORY_CONTAINER_NAME,
@@ -1811,11 +1817,30 @@ void BattleSceneLogicManager::OnCardHistoryEntryAddition(const events::CardHisto
         historyEntrySceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + TURN_COUNTER_HISTORY_ENTRY_SHADER_FILE_NAME);
         historyEntrySceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MIN_X_UNIFORM_NAME] = CARD_HISTORY_CONTAINER_BOUNDS.bottomLeft.x;
         historyEntrySceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MAX_X_UNIFORM_NAME] = CARD_HISTORY_CONTAINER_BOUNDS.topRight.x;
-        historyEntrySceneObject->mScale = CARD_HISTORY_ENTRY_SCALE;
+        historyEntrySceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+        historyEntrySceneObject->mShaderBoolUniformValues[game_constants::CARD_HIGHLIGHTER_INVALID_ACTION_UNIFORM_NAME] = event.mForRemotePlayer;
+        historyEntrySceneObject->mShaderFloatUniformValues[game_constants::PERLIN_TIME_SPEED_UNIFORM_NAME] = game_constants::ACTION_HIGLIGHTER_PERLIN_TIME_SPEED;
+        historyEntrySceneObject->mShaderFloatUniformValues[game_constants::PERLIN_RESOLUTION_UNIFORM_NAME] = game_constants::ACTION_HIGLIGHTER_PERLIN_RESOLUTION;
+        historyEntrySceneObject->mShaderFloatUniformValues[game_constants::PERLIN_CLARITY_UNIFORM_NAME] = game_constants::ACTION_HIGLIGHTER_PERLIN_CLARITY;
+        historyEntrySceneObject->mEffectTextureResourceIds[0] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + HISTORY_ENTRY_TURN_COUNTER_MASK_TEXTURE_FILE_NAME);
+        historyEntrySceneObject->mScale = CARD_HISTORY_TURN_COUNTER_ENTRY_SCALE;
         historyEntrySceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + TURN_COUNTER_HISTORY_ENTRY_TEXTURE_FILE_NAME);
         historyEntrySceneObject->mBoundingRectMultiplier.x = game_constants::CARD_BOUNDING_RECT_X_MULTIPLIER;
-        historyEntrySceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
-        mCardHistoryContainer->AddItem({{historyEntrySceneObject}, 0, false, true}, false);
+        
+        
+        auto turnCounterStringSceneObject = sceneManager.FindScene(HISTORY_SCENE)->CreateSceneObject();
+        scene::TextSceneObjectData turnCounterTextData;
+        turnCounterTextData.mFontName = game_constants::DEFAULT_FONT_BLACK_NAME;
+        turnCounterTextData.mText = "Turn " + std::to_string(mBoardState->GetTurnCounter() + 1);
+        turnCounterStringSceneObject->mSceneObjectTypeData = std::move(turnCounterTextData);
+        turnCounterStringSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + TURN_COUNTER_STRING_HISTORY_ENTRY_SHADER_FILE_NAME);
+        turnCounterStringSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+        turnCounterStringSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MIN_X_UNIFORM_NAME] = CARD_HISTORY_CONTAINER_BOUNDS.bottomLeft.x;
+        turnCounterStringSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MAX_X_UNIFORM_NAME] = CARD_HISTORY_CONTAINER_BOUNDS.topRight.x;
+        turnCounterStringSceneObject->mPosition += CARD_HISTORY_TURN_COUNTER_TEXT_OFFSET; // Offset to be considered by SwipeableContainer
+        turnCounterStringSceneObject->mScale = glm::vec3(CARD_TOOLTIP_TEXT_FONT_SIZE * 2);
+        
+        mCardHistoryContainer->AddItem({{historyEntrySceneObject, turnCounterStringSceneObject}, 0, false, true}, false);
     }
     else
     {

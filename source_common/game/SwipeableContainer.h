@@ -62,6 +62,7 @@ public:
     SwipeableContainer
     (
         const SwipeDirection validSwipeDirection,
+        const glm::vec3& entryScale,
         const math::Rectangle& containerBounds,
         const glm::vec2& containerCutoffValues,
         const strutils::StringId& containerName,
@@ -69,6 +70,7 @@ public:
         scene::Scene& scene
      )
         : mValidSwipeDirection(validSwipeDirection)
+        , mEntryScale(entryScale)
         , mContainerBounds(containerBounds)
         , mContainerCutoffValues(containerCutoffValues)
         , mContainerName(containerName)
@@ -118,28 +120,35 @@ public:
     
     void ResetPositionForItem(int itemIndex, ContainerEntryT& item)
     {
+        std::vector<glm::vec3> itemOffsetsFromFirst(item.mSceneObjects.size());
+        for (int j = 0; j < static_cast<int>(item.mSceneObjects.size()); ++j)
+        {
+            itemOffsetsFromFirst[j] = item.mSceneObjects[j]->mPosition - item.mSceneObjects[0]->mPosition;
+            itemOffsetsFromFirst[j].z = 0.0f;
+        }
+        
         for (int j = 0; j < static_cast<int>(item.mSceneObjects.size()); ++j)
         {
             switch (mValidSwipeDirection)
             {
                 case SwipeDirection::HORIZONTAL:
                 {
-                    item.mSceneObjects[j]->mPosition =
-                    {
-                        (mContainerBounds.bottomLeft.x + mContainerBounds.topRight.x)/2.0f + itemIndex * item.mSceneObjects.front()->mScale.x/2.0f,
+                    item.mSceneObjects[j]->mPosition = glm::vec3
+                    (
+                        (mContainerBounds.bottomLeft.x + mContainerBounds.topRight.x)/2.0f + itemIndex * mEntryScale.x/2.0f,
                         (mContainerBounds.bottomLeft.y + mContainerBounds.topRight.y)/2.0f,
-                        mContainerItemsZ
-                    };
+                        mContainerItemsZ + j * 0.01f
+                    ) + itemOffsetsFromFirst[j];
                 } break;
                 
                 case SwipeDirection::VERTICAL:
                 {
-                    item.mSceneObjects[j]->mPosition =
-                    {
+                    item.mSceneObjects[j]->mPosition = glm::vec3
+                    (
                         (mContainerBounds.bottomLeft.x + mContainerBounds.topRight.x)/2.0f,
-                        (mContainerBounds.bottomLeft.y + mContainerBounds.topRight.y)/2.0f + itemIndex * item.mSceneObjects.front()->mScale.y/2.0f,
-                        mContainerItemsZ
-                    };
+                        (mContainerBounds.bottomLeft.y + mContainerBounds.topRight.y)/2.0f + itemIndex * mEntryScale.y/2.0f,
+                        mContainerItemsZ + j * 0.01f
+                    ) + itemOffsetsFromFirst[j];
                 }
             }
         }
@@ -331,6 +340,7 @@ private:
     
 private:
     const SwipeDirection mValidSwipeDirection;
+    const glm::vec3 mEntryScale;
     const math::Rectangle mContainerBounds;
     const glm::vec2 mContainerCutoffValues;
     const strutils::StringId mContainerName;
