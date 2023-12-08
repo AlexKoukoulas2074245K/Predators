@@ -29,6 +29,10 @@ public:
     bool VShouldBeSerialized() const override;
     
     const std::vector<std::string>& VGetRequiredExtraParamNames() const override;
+    
+private:
+    void AnimatedCardToBoard(std::shared_ptr<CardSoWrapper> lastPlayedCardSoWrapper);
+    
 private:
     int mPendingAnimations;
     bool mAborted;

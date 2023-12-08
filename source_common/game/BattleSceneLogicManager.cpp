@@ -947,7 +947,8 @@ void BattleSceneLogicManager::UpdateMiscSceneObjects(const float dtMillis)
         cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
         
         if (mActionEngine->GetActiveGameActionName() != CARD_BUFFED_DEBUFFED_ANIMATION_GAME_ACTION_NAME &&
-            mActionEngine->GetActiveGameActionName() != CARD_EFFECT_GAME_ACTION_NAME)
+            mActionEngine->GetActiveGameActionName() != CARD_EFFECT_GAME_ACTION_NAME &&
+            mActionEngine->GetActiveGameActionName() != PLAY_CARD_ACTION_NAME)
         {
             auto canCardBePlayed = mRuleEngine->CanCardBePlayed(cardSoWrapper->mCardData, i, game_constants::LOCAL_PLAYER_INDEX);
             cardSoWrapper->mSceneObject->mShaderIntUniformValues[game_constants::CARD_WEIGHT_INTERACTIVE_MODE_UNIFORM_NAME] = canCardBePlayed ? game_constants::CARD_INTERACTIVE_MODE_DEFAULT : game_constants::CARD_INTERACTIVE_MODE_NONINTERACTIVE;

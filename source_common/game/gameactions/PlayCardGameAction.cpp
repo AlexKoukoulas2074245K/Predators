@@ -39,6 +39,7 @@ static const float CARD_CAMERA_SHAKE_DURATION = 0.25f;
 static const float CARD_CAMERA_SHAKE_STRENGTH = 0.005f;
 static const float CARD_PLAY_PARTICLE_EMITTER_Z = 0.01f;
 static const float IN_GAME_PLAYED_CARD_ANIMATION_DURATION = 0.5f;
+static const float CARD_PLAY_PROTRUDED_Y_OFFSET = 0.06f;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -170,18 +171,44 @@ void PlayCardGameAction::VInitAnimation()
 {
     mPendingAnimations = 0;
     
-    auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
-    auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
-    auto scene = sceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
     const auto lastPlayedCardIndex = std::stoi(mExtraActionParams.at(LAST_PLAYED_CARD_INDEX_PARAM));
-    const auto boardCardIndex = static_cast<int>(mBoardState->GetActivePlayerState().mPlayerBoardCards.size() - 1);
-    
     auto lastPlayedCardSoWrapper = mBattleSceneLogicManager->GetHeldCardSoWrappers()[mBoardState->GetActivePlayerIndex()].at(lastPlayedCardIndex);
     
     if (mAborted)
     {
         return;
     }
+    
+    if (ProgressionDataRepository::GetInstance().GetNextBattleControlType() == BattleControlType::AI_TOP_ONLY && mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX)
+    {
+        AnimatedCardToBoard(lastPlayedCardSoWrapper);
+    }
+    else
+    {
+        auto targetPosition = lastPlayedCardSoWrapper->mSceneObject->mPosition;
+        targetPosition.y += mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX ? -CARD_PLAY_PROTRUDED_Y_OFFSET : CARD_PLAY_PROTRUDED_Y_OFFSET;
+        
+        auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+        animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(lastPlayedCardSoWrapper->mSceneObject, targetPosition, lastPlayedCardSoWrapper->mSceneObject->mScale, IN_GAME_PLAYED_CARD_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+        {
+            mPendingAnimations--;
+            AnimatedCardToBoard(lastPlayedCardSoWrapper);
+        });
+        
+        mPendingAnimations++;
+    }
+}
+
+///------------------------------------------------------------------------------------------------
+
+void PlayCardGameAction::AnimatedCardToBoard(std::shared_ptr<CardSoWrapper> lastPlayedCardSoWrapper)
+{
+    const auto lastPlayedCardIndex = std::stoi(mExtraActionParams.at(LAST_PLAYED_CARD_INDEX_PARAM));
+    const auto boardCardIndex = static_cast<int>(mBoardState->GetActivePlayerState().mPlayerBoardCards.size() - 1);
+    
+    auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+    auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
+    auto scene = sceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
     
     // For remote plays, the front face card also needs to be created
     if (mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX)
@@ -216,7 +243,7 @@ void PlayCardGameAction::VInitAnimation()
     
     auto targetPosition = card_utils::CalculateBoardCardPosition(nonDeadBoardCardCount - 1, nonDeadBoardCardCount, mBoardState->GetActivePlayerIndex() == 0);
     animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(lastPlayedCardSoWrapper->mSceneObject, targetPosition, lastPlayedCardSoWrapper->mSceneObject->mScale * game_constants::IN_GAME_PLAYED_CARD_SCALE_FACTOR, IN_GAME_PLAYED_CARD_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
-    {   
+    {
         mPendingAnimations--;
         CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE)->GetCamera().Shake(CARD_CAMERA_SHAKE_DURATION, CARD_CAMERA_SHAKE_STRENGTH);
         
