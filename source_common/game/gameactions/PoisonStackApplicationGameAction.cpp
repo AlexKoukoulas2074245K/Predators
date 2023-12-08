@@ -46,10 +46,10 @@ void PoisonStackApplicationGameAction::VSetNewGameState()
     events::EventSystem::GetInstance().DispatchEvent<events::HealthChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
     events::EventSystem::GetInstance().DispatchEvent<events::PoisonStackChangeChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, 0);
     
-    if (activePlayerState.mPlayerHealth <= 0.0f)
+    if (activePlayerState.mPlayerHealth <= 0)
     {
         mPendingDurationSecs = 0.0f;
-        activePlayerState.mPlayerHealth = 0.0f;
+        activePlayerState.mPlayerHealth = 0;
         mGameActionEngine->AddGameAction(GAME_OVER_GAME_ACTION_NAME,
         {
             { GameOverGameAction::VICTORIOUS_PLAYER_INDEX_PARAM, std::to_string(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX ? game_constants::LOCAL_PLAYER_INDEX : game_constants::REMOTE_PLAYER_INDEX) }
