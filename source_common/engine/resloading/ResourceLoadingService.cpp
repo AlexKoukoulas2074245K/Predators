@@ -8,6 +8,7 @@
 #include <cassert>
 #include <engine/resloading/DataFileLoader.h>
 #include <engine/resloading/IResource.h>
+#include <engine/resloading/ImageSurfaceLoader.h>
 #include <engine/resloading/OBJMeshLoader.h>
 #include <engine/resloading/ResourceLoadingService.h>
 #include <engine/resloading/ShaderLoader.h>
@@ -17,10 +18,13 @@
 #include <engine/utils/Logging.h>
 #include <engine/utils/OSMessageBox.h>
 #include <engine/utils/StringUtils.h>
+#include <engine/utils/ThreadSafeQueue.h>
 #include <engine/utils/TypeTraits.h>
 #include <fstream>
+#include <thread>
 
 //#define UNZIP_FLOW
+bool ARTIFICIAL_LOADING_DELAY = 0;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -58,6 +62,74 @@ static const std::string ZIPPED_ASSETS_FILE_NAME = "assets.zip";
 
 ///------------------------------------------------------------------------------------------------
 
+class LoadingJob
+{
+public:
+    LoadingJob(const IResourceLoader* loader, const std::string& resourcePath, const ResourceId targetResourceId)
+        : mLoader(loader)
+        , mResourcePath(resourcePath)
+        , mTargetResourceId(targetResourceId)
+    {
+    }
+    
+    const IResourceLoader* mLoader;
+    const std::string mResourcePath;
+    const ResourceId mTargetResourceId;
+};
+
+class JobResult
+{
+public:
+    JobResult(std::shared_ptr<IResource> resource, const IResourceLoader* loader, const std::string& resourcePath, const ResourceId targetResourceId)
+        : mResource(std::move(resource))
+        , mLoader(loader)
+        , mResourcePath(resourcePath)
+        , mTargetResourceId(targetResourceId)
+    {
+    }
+    
+    std::shared_ptr<IResource> mResource;
+    const IResourceLoader* mLoader;
+    const std::string mResourcePath;
+    const ResourceId mTargetResourceId;
+};
+
+
+class ResourceLoadingService::AsyncLoaderWorker
+{
+public:
+    void StartWorker()
+    {
+        mThread = std::thread([&]
+        {
+            while(true)
+            {
+                using namespace std::chrono_literals;
+                auto job = mJobs.dequeue();
+                auto resource = job.mLoader->VCreateAndLoadResource(job.mResourcePath);
+                
+                if (ARTIFICIAL_LOADING_DELAY)
+                {
+                    std::this_thread::sleep_for(50ms);
+                }
+                
+                mResults.enqueue({resource, job.mLoader, job.mResourcePath, job.mTargetResourceId});
+            }
+        });
+        mThread.detach();
+    }
+    
+public:
+    ThreadSafeQueue<LoadingJob> mJobs;
+    ThreadSafeQueue<JobResult> mResults;
+    
+private:
+    std::thread mThread;
+    
+};
+
+///------------------------------------------------------------------------------------------------
+
 ResourceLoadingService::ResourceLoadingService()
 {
     
@@ -81,10 +153,11 @@ void ResourceLoadingService::Initialize()
     
     // No make unique due to constructing the loaders with their private constructors
     // via friendship
-    mResourceLoaders.push_back(std::unique_ptr<TextureLoader>(new TextureLoader));
+    mResourceLoaders.push_back(std::unique_ptr<ImageSurfaceLoader>(new ImageSurfaceLoader));
     mResourceLoaders.push_back(std::unique_ptr<DataFileLoader>(new DataFileLoader));
     mResourceLoaders.push_back(std::unique_ptr<ShaderLoader>(new ShaderLoader));
     mResourceLoaders.push_back(std::unique_ptr<OBJMeshLoader>(new OBJMeshLoader));
+    mResourceLoaders.push_back(std::unique_ptr<TextureLoader>(new TextureLoader));
     
     // Map resource extensions to loaders
     mResourceExtensionsToLoadersMap[StringId("png")]  = mResourceLoaders[0].get();
@@ -102,6 +175,39 @@ void ResourceLoadingService::Initialize()
     }
     
     mInitialized = true;
+    mAsyncLoaderWorker = std::make_unique<AsyncLoaderWorker>();
+    mAsyncLoaderWorker->StartWorker();
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ResourceLoadingService::Update()
+{
+    while (mAsyncLoaderWorker->mResults.size())
+    {
+        auto finishedJob = mAsyncLoaderWorker->mResults.dequeue();
+        mResourceMap[finishedJob.mTargetResourceId] = finishedJob.mResource;
+ 
+        if (dynamic_cast<const ImageSurfaceLoader*>(finishedJob.mLoader))
+        {
+            mResourceMap[finishedJob.mTargetResourceId] = mResourceLoaders.back()->VCreateAndLoadResource(finishedJob.mResourcePath);
+        }
+        
+        mResourceIdToPaths[finishedJob.mTargetResourceId] = finishedJob.mResourcePath;
+        mOutstandingLoadingJobCount--;
+        logging::Log(logging::LogType::INFO, "Finished loading asset: %s in %s", finishedJob.mResourcePath.c_str(), std::to_string(finishedJob.mTargetResourceId).c_str());
+    }
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ResourceLoadingService::SetAsyncLoading(const bool asyncLoading)
+{
+    mAsyncLoading = asyncLoading;
+    if (asyncLoading)
+    {
+        mOutstandingLoadingJobCount = 0;
+    }
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -240,6 +346,13 @@ std::string ResourceLoadingService::GetResourcePath(const ResourceId resourceId)
 
 ///------------------------------------------------------------------------------------------------
 
+int ResourceLoadingService::GetOustandingLoadingJobCount() const
+{
+    return mOutstandingLoadingJobCount;
+}
+
+///------------------------------------------------------------------------------------------------
+
 void ResourceLoadingService::LoadResourceInternal(const std::string& resourcePath, const ResourceId resourceId)
 {
     // Get resource extension
@@ -250,14 +363,29 @@ void ResourceLoadingService::LoadResourceInternal(const std::string& resourcePat
     auto loadersIter = mResourceExtensionsToLoadersMap.find(fileExtension);
     if (loadersIter != mResourceExtensionsToLoadersMap.end())
     {
-        auto& selectedLoader = mResourceExtensionsToLoadersMap.at(strutils::StringId(fileutils::GetFileExtension(resourcePath)));
+        auto* selectedLoader = mResourceExtensionsToLoadersMap.at(strutils::StringId(fileutils::GetFileExtension(resourcePath)));
         
-        //auto localSaveFilePath = objectiveC_utils::GetLocalFileSaveLocation();
-        //auto loadedResource = selectedLoader->VCreateAndLoadResource(strutils::StringStartsWith(resourcePath, localSaveFilePath) ? resourcePath : (RES_ROOT + resourcePath));
-        auto loadedResource = selectedLoader->VCreateAndLoadResource(RES_ROOT + resourcePath);
-        mResourceMap[resourceId] = std::move(loadedResource);
-        logging::Log(logging::LogType::INFO, "Loading asset: %s in %s", resourcePath.c_str(), std::to_string(resourceId).c_str());
-        mResourceIdToPaths[resourceId] = resourcePath;
+        if (mAsyncLoading && selectedLoader->VCanLoadAsync())
+        {
+            mAsyncLoaderWorker->mJobs.enqueue(LoadingJob(selectedLoader, RES_ROOT + resourcePath, resourceId));
+            mOutstandingLoadingJobCount++;
+        }
+        else
+        {
+            auto loadedResource = selectedLoader->VCreateAndLoadResource(RES_ROOT + resourcePath);
+            mResourceMap[resourceId] = std::move(loadedResource);
+            
+            // Images are loaded in 2 steps so that we can separate the file I/O and GL part
+            // for async loading
+            if (dynamic_cast<ImageSurfaceLoader*>(selectedLoader))
+            {
+                loadedResource = mResourceLoaders.back()->VCreateAndLoadResource(RES_ROOT + resourcePath);
+                mResourceMap[resourceId] = std::move(loadedResource);
+            }
+            
+            logging::Log(logging::LogType::INFO, "Finished loading asset: %s in %s", resourcePath.c_str(), std::to_string(resourceId).c_str());
+            mResourceIdToPaths[resourceId] = resourcePath;
+        }
     }
     else
     {

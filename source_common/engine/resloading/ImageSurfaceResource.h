@@ -1,16 +1,20 @@
 ///------------------------------------------------------------------------------------------------
-///  OBJMeshLoader.h
+///  ImageSurfaceResource.h
 ///  Predators
 ///
-///  Created by Alex Koukoulas on 20/09/2023.
+///  Created by Alex Koukoulas on 08/12/2023.
 ///------------------------------------------------------------------------------------------------
 
-#ifndef OBJMeshLoader_h
-#define OBJMeshLoader_h
+#ifndef ImageSurfaceResource_h
+#define ImageSurfaceResource_h
 
 ///------------------------------------------------------------------------------------------------
 
-#include <engine/resloading/IResourceLoader.h>
+#include <engine/resloading/IResource.h>
+#include <engine/utils/MathUtils.h>
+#include <memory>
+#include <SDL_surface.h>
+#include <vector>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -19,17 +23,21 @@ namespace resources
 
 ///------------------------------------------------------------------------------------------------
 
-class OBJMeshLoader final: public IResourceLoader
+class ImageSurfaceResource final: public IResource
 {
+    friend class ImageSurfaceLoader;
     friend class ResourceLoadingService;
     
 public:
-    void VInitialize() override;
-    bool VCanLoadAsync() const override;
-    std::shared_ptr<IResource> VCreateAndLoadResource(const std::string& path) const override;
+    ~ImageSurfaceResource();
+ 
+    SDL_Surface* GetSurface();
     
 private:
-    OBJMeshLoader() = default;
+    ImageSurfaceResource(SDL_Surface* surface);
+    
+private:
+    SDL_Surface* mSurface;
 };
 
 ///------------------------------------------------------------------------------------------------
@@ -38,4 +46,4 @@ private:
 
 ///------------------------------------------------------------------------------------------------
 
-#endif /* OBJMeshLoader_h */
+#endif /* ImageSurfaceResource_h */

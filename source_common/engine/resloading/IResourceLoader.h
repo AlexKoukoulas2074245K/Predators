@@ -32,7 +32,8 @@ public:
     const IResourceLoader& operator = (const IResourceLoader&) = delete;
     
     virtual void VInitialize() = 0;    
-    virtual std::unique_ptr<IResource> VCreateAndLoadResource(const std::string& path) const = 0;
+    virtual bool VCanLoadAsync() const = 0;
+    virtual std::shared_ptr<IResource> VCreateAndLoadResource(const std::string& path) const = 0;
 
 protected:
     IResourceLoader() = default;

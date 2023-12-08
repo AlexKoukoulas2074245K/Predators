@@ -22,6 +22,7 @@
 #include <engine/CoreSystemsEngine.h>
 #include <engine/input/IInputStateManager.h>
 #include <engine/rendering/AnimationManager.h>
+#include <engine/rendering/Fonts.h>
 #include <engine/resloading/MeshResource.h>
 #include <engine/scene/SceneManager.h>
 #include <engine/scene/Scene.h>
@@ -29,6 +30,9 @@
 #include <engine/scene/SceneObjectUtils.h>
 #include <engine/utils/Logging.h>
 #include <engine/utils/PlatformMacros.h>
+#if defined(MOBILE_FLOW)
+#include <platform_specific/IOSUtils.h>
+#endif
 
 ///------------------------------------------------------------------------------------------------
 
@@ -190,6 +194,24 @@ void BattleSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 
 void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scene)
 {
+#if defined(MOBILE_FLOW)
+    if (ios_utils::IsIPad())
+    {
+        scene->GetCamera().SetZoomFactor(120.0f);
+    }
+    else
+    {
+        scene->GetCamera().SetZoomFactor(130.0f);
+    }
+    
+#else
+    scene->GetCamera().SetZoomFactor(120.0f);
+#endif
+    
+    CardDataRepository::GetInstance().LoadCardData(true);
+    
+    auto& systemsEngine = CoreSystemsEngine::GetInstance();
+    
     RegisterForEvents();
     mPreviousProspectiveBoardCardsPushState = ProspectiveBoardCardsPushState::NONE;
     mSecsCardHighlighted = 0.0f;
@@ -249,6 +271,12 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
 #else
     mActionEngine->AddGameAction(strutils::StringId("NextPlayerGameAction"));
 #endif
+    
+    auto boardSceneObject = scene->CreateSceneObject(strutils::StringId("Board"));
+    boardSceneObject->mPosition.x = -0.007f;
+    boardSceneObject->mPosition.y = 0.011f;
+    boardSceneObject->mTextureResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "board.png");
+    boardSceneObject->mRotation.z = math::PI/2.0f;
     
     // Card Location Indicator
     auto cardLocationIndicatorSo = scene->CreateSceneObject(CARD_LOCATION_INDICATOR_SCENE_OBJECT_NAME);
@@ -358,7 +386,7 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
         effectTopSceneObject->mPosition = BOARD_SIDE_EFFECT_TOP_POSITION;
         effectTopSceneObject->mScale = game_constants::INDIVIDUAL_CARD_BOARD_EFFECT_SCALE;
         effectTopSceneObject->mInvisible = true;
-        CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::PulseAnimation>(effectTopSceneObject, game_constants::INDIVIDUAL_CARD_BOARD_EFFECT_SCALE_UP_FACTOR, game_constants::INDIVIDUAL_CARD_BOARD_EFFECT_PULSE_ANIMATION_PULSE_DUARTION_SECS, animation_flags::ANIMATE_CONTINUOUSLY), [](){});
+        CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::PulseAnimation>(effectTopSceneObject, game_constants::INDIVIDUAL_CARD_BOARD_EFFECT_SCALE_UP_FACTOR, game_constants::INDIVIDUAL_CARD_BOARD_EFFECT_PULSE_ANIMATION_PULSE_DURATION_SECS, animation_flags::ANIMATE_CONTINUOUSLY), [](){});
         
         auto effectBotSceneObject = scene->CreateSceneObject(botSceneObjectName);
         effectBotSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + textureFilename);
@@ -368,7 +396,7 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
         effectBotSceneObject->mPosition = BOARD_SIDE_EFFECT_BOT_POSITION;
         effectBotSceneObject->mScale = game_constants::INDIVIDUAL_CARD_BOARD_EFFECT_SCALE;
         effectBotSceneObject->mInvisible = true;
-        CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::PulseAnimation>(effectBotSceneObject, game_constants::INDIVIDUAL_CARD_BOARD_EFFECT_SCALE_UP_FACTOR, game_constants::INDIVIDUAL_CARD_BOARD_EFFECT_PULSE_ANIMATION_PULSE_DUARTION_SECS, animation_flags::ANIMATE_CONTINUOUSLY), [](){});
+        CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::PulseAnimation>(effectBotSceneObject, game_constants::INDIVIDUAL_CARD_BOARD_EFFECT_SCALE_UP_FACTOR, game_constants::INDIVIDUAL_CARD_BOARD_EFFECT_PULSE_ANIMATION_PULSE_DURATION_SECS, animation_flags::ANIMATE_CONTINUOUSLY), [](){});
     };
     
     // Kill Side Effects
@@ -1641,7 +1669,7 @@ void BattleSceneLogicManager::OnBoardSideCardEffectTriggered(const events::Board
         
         sideEffectSceneObject->mScale = game_constants::INDIVIDUAL_CARD_BOARD_EFFECT_SCALE;
         sideEffectSceneObject->mRotation = glm::vec3(0.0f);
-        animationManager.StartAnimation(std::make_unique<rendering::PulseAnimation>(sideEffectSceneObject, game_constants::INDIVIDUAL_CARD_BOARD_EFFECT_SCALE_UP_FACTOR, game_constants::INDIVIDUAL_CARD_BOARD_EFFECT_PULSE_ANIMATION_PULSE_DUARTION_SECS, animation_flags::ANIMATE_CONTINUOUSLY), [](){});
+        animationManager.StartAnimation(std::make_unique<rendering::PulseAnimation>(sideEffectSceneObject, game_constants::INDIVIDUAL_CARD_BOARD_EFFECT_SCALE_UP_FACTOR, game_constants::INDIVIDUAL_CARD_BOARD_EFFECT_PULSE_ANIMATION_PULSE_DURATION_SECS, animation_flags::ANIMATE_CONTINUOUSLY), [](){});
         
         auto& activeEffects = mActiveIndividualCardBoardEffectSceneObjects[event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX];
         if (std::find(activeEffects.cbegin(), activeEffects.cend(), sideEffectSceneObject) == activeEffects.cend())
@@ -1884,7 +1912,7 @@ void BattleSceneLogicManager::OnHistoryButtonPressed()
     
     battleScene->RemoveAllParticleEffects();
     battleScene->GetCamera().StopShake();
-    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(HISTORY_SCENE, true, OVERLAY_SCENE_SPEED_ANIMATION_TARGET_DURATION, HISTORY_MODAL_MAX_ALPHA);
+    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(HISTORY_SCENE, true, false, OVERLAY_SCENE_SPEED_ANIMATION_TARGET_DURATION, HISTORY_MODAL_MAX_ALPHA);
 }
 
 ///------------------------------------------------------------------------------------------------

@@ -47,6 +47,7 @@ public:
     (
         const strutils::StringId& sceneName,
         const bool isModal,
+        const bool useLoadingScene,
         const float targetTransitionDurationSecs = 0.0f,
         const float maxTransitionDarkeningAlpha = 0.0f
     );
@@ -59,6 +60,8 @@ public:
 private:
     void InitializeActiveSceneLogicManager();
     void DestroyActiveSceneLogicManager();
+    void SetLoadingProgress(const int progressPercent);
+    void CreateLoadingScene();
     
 private:
     struct SceneLogicManagerEntry
@@ -76,6 +79,7 @@ private:
     };
     
     std::stack<ActiveSceneEntry> mActiveSceneStack;
+    size_t mTotalLoadingJobCount;
 };
 
 ///------------------------------------------------------------------------------------------------

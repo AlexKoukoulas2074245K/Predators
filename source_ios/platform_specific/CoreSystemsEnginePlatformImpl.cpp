@@ -168,7 +168,9 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
             }
         }
         
-        float gameLogicMillis = math::Max(16.0f, dtMillis);
+        mSystems->mResourceLoadingService.Update();
+        
+        float gameLogicMillis = math::Max(16.0f, math::Min(32.0f, dtMillis));
         if (secsAccumulator > 1.0f)
         {
             logging::Log(logging::LogType::INFO, "FPS: %d", framesAccumulator);
@@ -185,16 +187,22 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
         
         for (auto& scene: mSystems->mSceneManager.GetScenes())
         {
-            scene->GetCamera().Update(scene->GetUpdateTimeSpeedFactor() * gameLogicMillis);
-            mSystems->mParticleManager.UpdateSceneParticles(scene->GetUpdateTimeSpeedFactor() * gameLogicMillis, *scene);
-            mSystems->mSceneManager.SortSceneObjects(scene);
+            if (scene->IsLoaded())
+            {
+                scene->GetCamera().Update(gameLogicMillis * scene->GetUpdateTimeSpeedFactor());
+                mSystems->mParticleManager.UpdateSceneParticles(gameLogicMillis * scene->GetUpdateTimeSpeedFactor(), *scene);
+                mSystems->mSceneManager.SortSceneObjects(scene);
+            }
         }
         
         mSystems->mRenderer.VBeginRenderPass();
         
         for (auto& scene: mSystems->mSceneManager.GetScenes())
         {
-            mSystems->mRenderer.VRenderScene(*scene);
+            if (scene->IsLoaded())
+            {
+                mSystems->mRenderer.VRenderScene(*scene);
+            }
         }
         
         mSystems->mRenderer.VEndRenderPass();

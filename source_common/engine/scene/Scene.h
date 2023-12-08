@@ -57,12 +57,15 @@ public:
     [[nodiscard]] const strutils::StringId& GetName() const;
     [[nodiscard]] float GetUpdateTimeSpeedFactor() const;
     [[nodiscard]] float& GetUpdateTimeSpeedFactor();
-
+    [[nodiscard]] bool IsLoaded() const;
+    void SetLoaded(const bool loaded);
+    
 private:
     const strutils::StringId mSceneName;
     std::vector<std::shared_ptr<SceneObject>> mSceneObjects;
     rendering::Camera mCamera;
     float mUpdateTimeSpeedFactor;
+    bool mLoaded;
 };
 
 ///------------------------------------------------------------------------------------------------

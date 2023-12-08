@@ -19,6 +19,7 @@ namespace scene
 Scene::Scene(const strutils::StringId& sceneName)
     : mSceneName(sceneName)
     , mUpdateTimeSpeedFactor(1.0f)
+    , mLoaded(false)
 {
 }
 
@@ -222,6 +223,14 @@ float Scene::GetUpdateTimeSpeedFactor() const { return mUpdateTimeSpeedFactor; }
 ///------------------------------------------------------------------------------------------------
 
 float& Scene::GetUpdateTimeSpeedFactor() { return mUpdateTimeSpeedFactor; }
+
+///------------------------------------------------------------------------------------------------
+
+bool Scene::IsLoaded() const { return mLoaded; }
+
+///------------------------------------------------------------------------------------------------
+
+void Scene::SetLoaded(const bool loaded) { mLoaded = loaded; }
 
 ///------------------------------------------------------------------------------------------------
 

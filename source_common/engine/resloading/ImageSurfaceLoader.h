@@ -1,16 +1,23 @@
 ///------------------------------------------------------------------------------------------------
-///  OBJMeshLoader.h
+///  ImageSurfaceLoader.h
 ///  Predators
 ///
-///  Created by Alex Koukoulas on 20/09/2023.
+///  Created by Alex Koukoulas on 08/12/2023.
 ///------------------------------------------------------------------------------------------------
 
-#ifndef OBJMeshLoader_h
-#define OBJMeshLoader_h
+#ifndef ImageSurfaceLoader_h
+#define ImageSurfaceLoader_h
 
 ///------------------------------------------------------------------------------------------------
 
 #include <engine/resloading/IResourceLoader.h>
+#include <memory>
+#include <SDL_stdinc.h>
+#include <set>
+
+///------------------------------------------------------------------------------------------------
+
+struct SDL_Surface;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -19,17 +26,18 @@ namespace resources
 
 ///------------------------------------------------------------------------------------------------
 
-class OBJMeshLoader final: public IResourceLoader
+class ImageSurfaceLoader final: public IResourceLoader
 {
     friend class ResourceLoadingService;
-    
+
 public:
     void VInitialize() override;
     bool VCanLoadAsync() const override;
     std::shared_ptr<IResource> VCreateAndLoadResource(const std::string& path) const override;
-    
+
 private:
-    OBJMeshLoader() = default;
+    ImageSurfaceLoader() = default;
+    
 };
 
 ///------------------------------------------------------------------------------------------------
@@ -38,4 +46,4 @@ private:
 
 ///------------------------------------------------------------------------------------------------
 
-#endif /* OBJMeshLoader_h */
+#endif /* TextureLoader_h */

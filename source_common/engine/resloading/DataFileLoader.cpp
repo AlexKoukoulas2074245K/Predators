@@ -24,7 +24,14 @@ void DataFileLoader::VInitialize()
 
 ///-----------------------------------------------------------------------------------------------
 
-std::unique_ptr<IResource> DataFileLoader::VCreateAndLoadResource(const std::string& resourcePath) const
+bool DataFileLoader::VCanLoadAsync() const
+{
+    return false;
+}
+
+///------------------------------------------------------------------------------------------------
+
+std::shared_ptr<IResource> DataFileLoader::VCreateAndLoadResource(const std::string& resourcePath) const
 {
     std::ifstream file(resourcePath);
     
@@ -43,7 +50,7 @@ std::unique_ptr<IResource> DataFileLoader::VCreateAndLoadResource(const std::str
     str.assign((std::istreambuf_iterator<char>(file)),
                std::istreambuf_iterator<char>());
     
-    return std::unique_ptr<IResource>(new DataFileResource(str));
+    return std::shared_ptr<IResource>(new DataFileResource(str));
 }
 
 ///-----------------------------------------------------------------------------------------------

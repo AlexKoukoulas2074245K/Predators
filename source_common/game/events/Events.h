@@ -266,9 +266,10 @@ public:
 class SceneChangeEvent final
 {
 public:
-    SceneChangeEvent(const strutils::StringId& newSceneName, const bool isModal, const float targetDurationSecs = 0.0f, const float maxTransitionDarkeningAlpha = 0.0f)
+    SceneChangeEvent(const strutils::StringId& newSceneName, const bool isModal, const bool useLoadingScene, const float targetDurationSecs = 0.0f, const float maxTransitionDarkeningAlpha = 0.0f)
         : mNewSceneName(newSceneName)
         , mIsModal(isModal)
+        , mUseLoadingScene(useLoadingScene)
         , mTargetDurationSecs(targetDurationSecs)
         , mMaxTransitionDarkeningAlpha(maxTransitionDarkeningAlpha)
     {
@@ -277,6 +278,7 @@ public:
     
     const strutils::StringId mNewSceneName;
     const bool mIsModal;
+    const bool mUseLoadingScene;
     const float mTargetDurationSecs;
     const float mMaxTransitionDarkeningAlpha;
 };

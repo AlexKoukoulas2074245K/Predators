@@ -33,10 +33,6 @@
 #include <game/gameactions/GameActionFactory.h>
 #include <game/utils/PersistenceUtils.h>
 
-#if defined(MOBILE_FLOW)
-#include <platform_specific/IOSUtils.h>
-#endif
-
 ///------------------------------------------------------------------------------------------------
 
 Game::Game(const int argc, char** argv)
@@ -57,11 +53,16 @@ Game::~Game(){}
 
 void Game::Init()
 {
-    auto& eventSystem = events::EventSystem::GetInstance();
+    auto& systemsEngine = CoreSystemsEngine::GetInstance();
+    systemsEngine.GetFontRepository().LoadFont(game_constants::DEFAULT_FONT_NAME.GetString(), resources::ResourceReloadMode::DONT_RELOAD);
+    systemsEngine.GetFontRepository().LoadFont(game_constants::DEFAULT_FONT_BLACK_NAME.GetString(), resources::ResourceReloadMode::DONT_RELOAD);
+    systemsEngine.GetFontRepository().LoadFont(game_constants::FONT_PLACEHOLDER_DAMAGE_NAME.GetString(), resources::ResourceReloadMode::DONT_RELOAD);
+    systemsEngine.GetFontRepository().LoadFont(game_constants::FONT_PLACEHOLDER_WEIGHT_NAME.GetString(), resources::ResourceReloadMode::DONT_RELOAD);
     
+    auto& eventSystem = events::EventSystem::GetInstance();
     mSceneChangeEventListener = eventSystem.RegisterForEvent<events::SceneChangeEvent>([=](const events::SceneChangeEvent& event)
     {
-        mGameSceneTransitionManager->ChangeToScene(event.mNewSceneName, event.mIsModal, event.mTargetDurationSecs, event.mMaxTransitionDarkeningAlpha);
+        mGameSceneTransitionManager->ChangeToScene(event.mNewSceneName, event.mIsModal, event.mUseLoadingScene, event.mTargetDurationSecs, event.mMaxTransitionDarkeningAlpha);
     });
     
     mPopModalSceneEventListener = eventSystem.RegisterForEvent<events::PopSceneModalEvent>([=](const events::PopSceneModalEvent& event)
@@ -71,22 +72,6 @@ void Game::Init()
     
     mGameSceneTransitionManager = std::make_unique<GameSceneTransitionManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<BattleSceneLogicManager>();
-    
-    CardDataRepository::GetInstance().LoadCardData(true);
-    
-    auto& systemsEngine = CoreSystemsEngine::GetInstance();
-    systemsEngine.GetFontRepository().LoadFont(game_constants::DEFAULT_FONT_NAME.GetString(), resources::ResourceReloadMode::DONT_RELOAD);
-    systemsEngine.GetFontRepository().LoadFont(game_constants::DEFAULT_FONT_BLACK_NAME.GetString(), resources::ResourceReloadMode::DONT_RELOAD);
-    systemsEngine.GetFontRepository().LoadFont(game_constants::FONT_PLACEHOLDER_DAMAGE_NAME.GetString(), resources::ResourceReloadMode::DONT_RELOAD);
-    systemsEngine.GetFontRepository().LoadFont(game_constants::FONT_PLACEHOLDER_WEIGHT_NAME.GetString(), resources::ResourceReloadMode::DONT_RELOAD);
-    
-    auto dummyScene = systemsEngine.GetSceneManager().CreateScene(game_constants::IN_GAME_BATTLE_SCENE);
-    
-    auto boardSceneObject = dummyScene->CreateSceneObject(strutils::StringId("Board"));
-    boardSceneObject->mPosition.x = -0.007f;
-    boardSceneObject->mPosition.y = 0.011f;
-    boardSceneObject->mTextureResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "board.png");
-    boardSceneObject->mRotation.z = math::PI/2.0f;
     
 //    auto flameSceneObject = dummyScene->CreateSceneObject(strutils::StringId("Fire"));
 //    flameSceneObject->mTextureResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "fire.png");
@@ -105,19 +90,7 @@ void Game::Init()
 //    flameSceneObject->mShaderFloatUniformValues[strutils::StringId("noise_4_factor")] = 1.0f;
 //    flameSceneObject->mShaderFloatUniformValues[strutils::StringId("noise_5_factor")] = 1.0f;
  //   flameSceneObject->mInvisible = true;
-#if defined(MOBILE_FLOW)
-    if (ios_utils::IsIPad())
-    {
-        dummyScene->GetCamera().SetZoomFactor(120.0f);
-    }
-    else
-    {
-        dummyScene->GetCamera().SetZoomFactor(130.0f);
-    }
-    
-#else
-    dummyScene->GetCamera().SetZoomFactor(120.0f);
-#endif
+
 //
 //    auto uiScene = systemsEngine.GetSceneManager().CreateScene(strutils::StringId("UI"));
 //    std::string texts[6] =
@@ -156,7 +129,7 @@ void Game::Init()
 //        fontRowSceneObject->mMeshResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_MESHES_ROOT + "quad.obj");
 //    }
     
-    mGameSceneTransitionManager->ChangeToScene(game_constants::IN_GAME_BATTLE_SCENE, false);
+    mGameSceneTransitionManager->ChangeToScene(game_constants::IN_GAME_BATTLE_SCENE, false, true);
 }
 
 ///------------------------------------------------------------------------------------------------

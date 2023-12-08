@@ -34,7 +34,8 @@ class ShaderLoader final : public IResourceLoader
 
 public:
     void VInitialize() override;
-    std::unique_ptr<IResource> VCreateAndLoadResource(const std::string& path) const override;
+    bool VCanLoadAsync() const override;
+    std::shared_ptr<IResource> VCreateAndLoadResource(const std::string& path) const override;
 
 private:
     static const std::string VERTEX_SHADER_FILE_EXTENSION;

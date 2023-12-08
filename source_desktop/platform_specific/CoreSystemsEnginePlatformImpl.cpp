@@ -235,12 +235,16 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
             mSystems->mParticleManager.ReloadParticlesFromDisk();
         }
         
-        float gameLogicMillis = math::Max(16.0f, dtMillis) * sGameSpeed;
+        mSystems->mResourceLoadingService.Update();
+        
+        float gameLogicMillis = math::Max(16.0f, math::Min(32.0f, dtMillis)) * sGameSpeed;
 
         // Update logic
 #if (!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)
         sLastGameLogicDtMillis = gameLogicMillis;
         const auto logicUpdateTimeStart = std::chrono::system_clock::now();
+#else
+        (void)sLastGameLogicDtMillis;
 #endif
         
         if (!freezeGame)
@@ -255,9 +259,12 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
         {
             for (auto& scene: mSystems->mSceneManager.GetScenes())
             {
-                scene->GetCamera().Update(gameLogicMillis * scene->GetUpdateTimeSpeedFactor());
-                mSystems->mParticleManager.UpdateSceneParticles(gameLogicMillis * scene->GetUpdateTimeSpeedFactor(), *scene);
-                mSystems->mSceneManager.SortSceneObjects(scene);
+                if (scene->IsLoaded())
+                {
+                    scene->GetCamera().Update(gameLogicMillis * scene->GetUpdateTimeSpeedFactor());
+                    mSystems->mParticleManager.UpdateSceneParticles(gameLogicMillis * scene->GetUpdateTimeSpeedFactor(), *scene);
+                    mSystems->mSceneManager.SortSceneObjects(scene);
+                }
             }
         }
         
@@ -278,7 +285,10 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
         
         for (auto& scene: mSystems->mSceneManager.GetScenes())
         {
-            mSystems->mRenderer.VRenderScene(*scene);
+            if (scene->IsLoaded())
+            {
+                mSystems->mRenderer.VRenderScene(*scene);
+            }
         }
         
 #if (!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)

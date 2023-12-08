@@ -69,9 +69,16 @@ public:
     const ResourceLoadingService& operator = (const ResourceLoadingService&) = delete;
     ResourceLoadingService& operator = (ResourceLoadingService&&) = delete;
     
-    // Initializes loaders for different types of assets.
-    // Called internally by the engine.
+    /// Initializes loaders for different types of assets.
+    /// Called internally by the engine.
     void Initialize();
+    
+    /// Polls finished loading jobs in async mode
+    void Update();
+    
+    /// Starts/Stop async loading of resources
+    /// @param[in] asyncLoading whether or not the service will start loading resources asynchronously
+    void SetAsyncLoading(const bool asyncLoading);
     
     /// Computes the hashed resource id, for a given file path.
     ///
@@ -174,6 +181,9 @@ public:
     /// returns the original path of the resource
     std::string GetResourcePath(const ResourceId resourceId) const;
     
+    /// Gets the number of  loading jobs to be completed
+    int GetOustandingLoadingJobCount() const;
+    
 private:
     ResourceLoadingService();
     
@@ -185,12 +195,18 @@ private:
     std::string AdjustResourcePath(const std::string& resourcePath) const;
     
 private:
-    std::unordered_map<ResourceId, std::unique_ptr<IResource>, ResourceIdHasher> mResourceMap;
+    class AsyncLoaderWorker;
+    
+private:
+    std::unordered_map<ResourceId, std::shared_ptr<IResource>, ResourceIdHasher> mResourceMap;
     std::unordered_map<strutils::StringId, IResourceLoader*, strutils::StringIdHasher> mResourceExtensionsToLoadersMap;
     std::unordered_map<ResourceId, std::string, ResourceIdHasher> mResourceIdMapToAutoReload;
     std::unordered_map<ResourceId, std::string, ResourceIdHasher> mResourceIdToPaths;
     std::vector<std::unique_ptr<IResourceLoader>> mResourceLoaders;
+    std::unique_ptr<AsyncLoaderWorker> mAsyncLoaderWorker;
+    int mOutstandingLoadingJobCount = 0;
     bool mInitialized = false;
+    bool mAsyncLoading = false;
 };
 
 ///------------------------------------------------------------------------------------------------

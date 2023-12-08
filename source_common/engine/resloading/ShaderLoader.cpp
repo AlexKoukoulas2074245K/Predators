@@ -43,7 +43,14 @@ void ShaderLoader::VInitialize()
 
 ///------------------------------------------------------------------------------------------------
 
-std::unique_ptr<IResource> ShaderLoader::VCreateAndLoadResource(const std::string& resourcePathWithExtension) const
+bool ShaderLoader::VCanLoadAsync() const
+{
+    return false;
+}
+
+///------------------------------------------------------------------------------------------------
+
+std::shared_ptr<IResource> ShaderLoader::VCreateAndLoadResource(const std::string& resourcePathWithExtension) const
 {
     // Since the shader loading is signalled by the .vs or .fs extension, we need to trim it here after
     // being added by the ResourceLoadingService prior to this call
@@ -134,7 +141,7 @@ std::unique_ptr<IResource> ShaderLoader::VCreateAndLoadResource(const std::strin
     
     const auto uniformNamesToLocations = GetUniformNamesToLocationsMap(programId, resourcePath,  finalVertexShaderContents, finalFragmentShaderContents, uniformArrayElementCounts, samplerNamesInOrder);
     
-    return std::make_unique<ShaderResource>(uniformNamesToLocations, uniformArrayElementCounts, samplerNamesInOrder, programId);
+    return std::make_shared<ShaderResource>(uniformNamesToLocations, uniformArrayElementCounts, samplerNamesInOrder, programId);
 }
 
 ///------------------------------------------------------------------------------------------------

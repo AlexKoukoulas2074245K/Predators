@@ -25,7 +25,8 @@ class DataFileLoader final: public IResourceLoader
 
 public:
     void VInitialize() override;
-    std::unique_ptr<IResource> VCreateAndLoadResource(const std::string& path) const override;
+    bool VCanLoadAsync() const override;
+    std::shared_ptr<IResource> VCreateAndLoadResource(const std::string& path) const override;
     
 private:
     DataFileLoader() = default;

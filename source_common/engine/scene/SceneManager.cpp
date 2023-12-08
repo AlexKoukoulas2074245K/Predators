@@ -52,7 +52,14 @@ void SceneManager::RemoveScene(const strutils::StringId& sceneName)
                                  {
         return scene->GetName() == sceneName;
     });
-    if (findIter != mScenes.end()) mScenes.erase(findIter);
+    if (findIter != mScenes.end())
+    {
+        for (auto& sceneObject: (*findIter)->GetSceneObjects())
+        {
+            sceneObject->mScene = nullptr;
+        }
+        mScenes.erase(findIter);
+    }
 }
 
 ///------------------------------------------------------------------------------------------------

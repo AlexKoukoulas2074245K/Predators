@@ -33,8 +33,15 @@ void OBJMeshLoader::VInitialize()
 }
 
 ///------------------------------------------------------------------------------------------------
-///
-std::unique_ptr<IResource> OBJMeshLoader::VCreateAndLoadResource(const std::string& path) const
+
+bool OBJMeshLoader::VCanLoadAsync() const
+{
+    return false;
+}
+
+///------------------------------------------------------------------------------------------------
+
+std::shared_ptr<IResource> OBJMeshLoader::VCreateAndLoadResource(const std::string& path) const
 {
     auto trimmedPath = path;
     std::vector<unsigned int> vertexIndices, uvIndices, normalIndices;
@@ -207,7 +214,7 @@ std::unique_ptr<IResource> OBJMeshLoader::VCreateAndLoadResource(const std::stri
     
     // Calculate dimensions
     glm::vec3 meshDimensions(math::Abs(minX - maxX), math::Abs(minY - maxY), math::Abs(minZ - maxZ));
-    return std::unique_ptr<MeshResource>(new MeshResource(vertexArrayObject, (GLuint)finalIndices.size(), meshDimensions, std::move(meshData)));
+    return std::shared_ptr<MeshResource>(new MeshResource(vertexArrayObject, (GLuint)finalIndices.size(), meshDimensions, std::move(meshData)));
 }
 
 ///------------------------------------------------------------------------------------------------
