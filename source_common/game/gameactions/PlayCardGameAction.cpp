@@ -200,7 +200,7 @@ void PlayCardGameAction::VInitAnimation()
             (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.size()) > boardCardIndex ? mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.at(boardCardIndex) : CardStatOverrides()), // held card stat overrides have moved to board card stat overrides from the setstate above
             mBoardState->GetActivePlayerState().mBoardModifiers.mGlobalCardStatModifiers,
             *sceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE)
-         );
+        );
         events::EventSystem::GetInstance().DispatchEvent<events::HeldCardSwapEvent>(lastPlayedCardSoWrapper, lastPlayedCardIndex, true);
     }
     

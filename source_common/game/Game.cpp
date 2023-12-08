@@ -28,6 +28,7 @@
 #include <game/events/EventSystem.h>
 #include <game/BattleSceneLogicManager.h>
 #include <game/GameSceneTransitionManager.h>
+#include <game/ProgressionDataRepository.h>
 #include <game/gameactions/BaseGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/GameActionFactory.h>
@@ -72,6 +73,8 @@ void Game::Init()
     
     mGameSceneTransitionManager = std::make_unique<GameSceneTransitionManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<BattleSceneLogicManager>();
+    
+    ProgressionDataRepository::GetInstance().SetNextBattleControlType(BattleControlType::AI_TOP_BOT);
     
 //    auto flameSceneObject = dummyScene->CreateSceneObject(strutils::StringId("Fire"));
 //    flameSceneObject->mTextureResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "fire.png");

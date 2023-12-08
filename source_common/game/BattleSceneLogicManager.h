@@ -12,6 +12,7 @@
 
 #include <game/ISceneLogicManager.h>
 #include <game/events/EventSystem.h>
+#include <game/ProgressionDataRepository.h>
 #include <game/SwipeableContainer.h>
 #include <engine/resloading/ResourceLoadingService.h>
 #include <engine/scene/SceneObject.h>
@@ -115,6 +116,7 @@ private:
     std::vector<std::pair<bool, std::unique_ptr<AnimatedStatContainer>>> mAnimatedStatContainers;
     std::vector<std::shared_ptr<CardSoWrapper>> mPendingCardsToBePlayed;
     ProspectiveBoardCardsPushState mPreviousProspectiveBoardCardsPushState;
+    BattleControlType mCurrentBattleControlType;
     float mSecsCardHighlighted;
     bool mShouldShowCardLocationIndicator;
     bool mCanPlayNextCard;

@@ -117,6 +117,7 @@ void GameSceneTransitionManager::ChangeToScene
 )
 {
     assert(!useLoadingScene || targetTransitionDurationSecs <= 0.0f);
+    assert(!useLoadingScene || !isModal);
     
     // Destroy logic manager only when transitioning to a completely new scene
     if (!isModal && !mActiveSceneStack.empty())

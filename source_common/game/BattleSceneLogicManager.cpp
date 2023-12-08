@@ -182,6 +182,8 @@ BattleSceneLogicManager::~BattleSceneLogicManager(){}
 
 void BattleSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 {
+    mCurrentBattleControlType = ProgressionDataRepository::GetInstance().GetNextBattleControlType();
+    
     if (scene->GetName() == game_constants::IN_GAME_BATTLE_SCENE)
     {
         InitBattleScene(scene);
@@ -250,27 +252,28 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
     mPlayerBoardCardSceneObjectWrappers.emplace_back();
     
     mRuleEngine = std::make_unique<GameRuleEngine>(mBoardState.get());
+
     
-#define AUTO_PLAY
-//#define REPLAY_FLOW
-    
-#if defined(REPLAY_FLOW)
-    GameReplayEngine replayEngine(persistence_utils::GetProgressDirectoryPath() + "game");
-    auto seed = replayEngine.GetGameFileSeed();
-#else
-    //auto seed = 51329216;
-    auto seed = math::RandomInt();
-#endif
-    
-    mGameSerializer = std::make_unique<GameSerializer>(seed);
-    mActionEngine = std::make_unique<GameActionEngine>(GameActionEngine::EngineOperationMode::ANIMATED, seed, mBoardState.get(), this, mRuleEngine.get(), mGameSerializer.get());
-    mPlayerActionGenerationEngine = std::make_unique<PlayerActionGenerationEngine>(mRuleEngine.get(), mActionEngine.get(), PlayerActionGenerationEngine::ActionGenerationType::OPTIMISED);
-    
-#if defined(REPLAY_FLOW)
-    replayEngine.ReplayActions(mActionEngine.get());
-#else
-    mActionEngine->AddGameAction(strutils::StringId("NextPlayerGameAction"));
-#endif
+    if (mCurrentBattleControlType == BattleControlType::REPLAY)
+    {
+        GameReplayEngine replayEngine(persistence_utils::GetProgressDirectoryPath() + "game");
+        auto seed = replayEngine.GetGameFileSeed();
+        
+        mGameSerializer = std::make_unique<GameSerializer>(seed);
+        mActionEngine = std::make_unique<GameActionEngine>(GameActionEngine::EngineOperationMode::ANIMATED, seed, mBoardState.get(), this, mRuleEngine.get(), mGameSerializer.get());
+        mPlayerActionGenerationEngine = std::make_unique<PlayerActionGenerationEngine>(mRuleEngine.get(), mActionEngine.get(), PlayerActionGenerationEngine::ActionGenerationType::OPTIMISED);
+        
+        replayEngine.ReplayActions(mActionEngine.get());
+    }
+    else
+    {
+        auto seed = math::RandomInt();
+        mGameSerializer = std::make_unique<GameSerializer>(seed);
+        mActionEngine = std::make_unique<GameActionEngine>(GameActionEngine::EngineOperationMode::ANIMATED, seed, mBoardState.get(), this, mRuleEngine.get(), mGameSerializer.get());
+        mPlayerActionGenerationEngine = std::make_unique<PlayerActionGenerationEngine>(mRuleEngine.get(), mActionEngine.get(), PlayerActionGenerationEngine::ActionGenerationType::OPTIMISED);
+        
+        mActionEngine->AddGameAction(strutils::StringId("NextPlayerGameAction"));
+    }
     
     auto boardSceneObject = scene->CreateSceneObject(strutils::StringId("Board"));
     boardSceneObject->mPosition.x = -0.007f;
@@ -534,16 +537,13 @@ void BattleSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scen
     
     if (activeScene->GetName() == game_constants::IN_GAME_BATTLE_SCENE)
     {
-#if defined(AUTO_PLAY)
         if (mActionEngine->GetActiveGameActionName() == IDLE_GAME_ACTION_NAME)
-#else
-        if (mActionEngine->GetActiveGameActionName() == IDLE_GAME_ACTION_NAME && mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX)
-#endif
         {
+            if (mCurrentBattleControlType == BattleControlType::AI_TOP_BOT || (mCurrentBattleControlType == BattleControlType::AI_TOP_ONLY && mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX))
             mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get());
         }
         
-        if (mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX)
+        if (mCurrentBattleControlType == BattleControlType::AI_TOP_ONLY && mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX)
         {
             HandleTouchInput(dtMillis);
         }
