@@ -170,6 +170,7 @@ void PlayCardGameAction::VSetNewGameState()
 void PlayCardGameAction::VInitAnimation()
 {
     mPendingAnimations = 0;
+    mHasFinalizedCardPlay = false;
     
     const auto lastPlayedCardIndex = std::stoi(mExtraActionParams.at(LAST_PLAYED_CARD_INDEX_PARAM));
     auto lastPlayedCardSoWrapper = mBattleSceneLogicManager->GetHeldCardSoWrappers()[mBoardState->GetActivePlayerIndex()].at(lastPlayedCardIndex);
@@ -177,6 +178,12 @@ void PlayCardGameAction::VInitAnimation()
     if (mAborted)
     {
         return;
+    }
+    
+    if (mBoardState->GetActivePlayerIndex() != game_constants::REMOTE_PLAYER_INDEX)
+    {
+        events::EventSystem::GetInstance().DispatchEvent<events::LastCardPlayedFinalizedEvent>(lastPlayedCardIndex);
+        mHasFinalizedCardPlay = true;
     }
     
     if (ProgressionDataRepository::GetInstance().GetNextBattleControlType() == BattleControlType::AI_TOP_ONLY && mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX)
@@ -231,7 +238,11 @@ void PlayCardGameAction::AnimatedCardToBoard(std::shared_ptr<CardSoWrapper> last
         events::EventSystem::GetInstance().DispatchEvent<events::HeldCardSwapEvent>(lastPlayedCardSoWrapper, lastPlayedCardIndex, true);
     }
     
-    events::EventSystem::GetInstance().DispatchEvent<events::LastCardPlayedFinalizedEvent>(lastPlayedCardIndex);
+    if (!mHasFinalizedCardPlay)
+    {
+        events::EventSystem::GetInstance().DispatchEvent<events::LastCardPlayedFinalizedEvent>(lastPlayedCardIndex);
+        mHasFinalizedCardPlay = true;
+    }
     
     // Rename played card components
     lastPlayedCardSoWrapper->mSceneObject->mName = strutils::StringId((mBoardState->GetActivePlayerIndex() == 0 ? game_constants::TOP_PLAYER_BOARD_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_BOARD_CARD_SO_NAME_PREFIX) + std::to_string(mBoardState->GetActivePlayerState().mPlayerBoardCards.size() - 1));

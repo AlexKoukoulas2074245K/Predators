@@ -36,6 +36,7 @@ private:
 private:
     int mPendingAnimations;
     bool mAborted;
+    bool mHasFinalizedCardPlay;
 };
 
 ///------------------------------------------------------------------------------------------------
