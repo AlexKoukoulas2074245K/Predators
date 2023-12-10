@@ -1,0 +1,16 @@
+{
+    "children_scenes":
+    [
+    ],
+    
+    "scene_objects":
+    [
+        {
+            "name": "card_history_capsule",
+            "texture": "history_capsule.png",
+            "scale": { "x": 1.0, "y": 0.767, "z": 1.0 },
+            "position": { "x": 0.0, "y": -0.102, "z": 24.5 },
+            "alpha": 0.0
+        }
+    ]
+}
