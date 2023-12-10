@@ -58,7 +58,10 @@ public:
     [[nodiscard]] float GetUpdateTimeSpeedFactor() const;
     [[nodiscard]] float& GetUpdateTimeSpeedFactor();
     [[nodiscard]] bool IsLoaded() const;
+    [[nodiscard]] bool HasLoadedPredefinedObjects() const;
+    
     void SetLoaded(const bool loaded);
+    void SetHasLoadedPredefinedObjects(const bool hasLoadedPredefinedObjects);
     
 private:
     const strutils::StringId mSceneName;
@@ -66,6 +69,7 @@ private:
     rendering::Camera mCamera;
     float mUpdateTimeSpeedFactor;
     bool mLoaded;
+    bool mHasLoadedPredefinedObjects;
 };
 
 ///------------------------------------------------------------------------------------------------

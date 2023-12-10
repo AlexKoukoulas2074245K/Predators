@@ -40,7 +40,7 @@ static const strutils::StringId HISTORY_SCENE = strutils::StringId("battle_histo
 static const strutils::StringId CARD_HISTORY_CONTAINER_NAME = strutils::StringId("CARD_HISTORY_CONTAINER");
 static const strutils::StringId HISTORY_TROLLEY_SCENE_OBJECT_NAME = strutils::StringId("HISTORY_TROLLEY");
 static const strutils::StringId CARD_LOCATION_INDICATOR_SCENE_OBJECT_NAME = strutils::StringId("CARD_LOCATION_INDICATOR");
-static const strutils::StringId CARD_HISTORY_CAPSULE_SCENE_OBJECT_NAME = strutils::StringId("CARD_HISTORY_CAPSULE");
+static const strutils::StringId CARD_HISTORY_CAPSULE_SCENE_OBJECT_NAME = strutils::StringId("card_history_capsule");
 static const strutils::StringId CARD_TOOLTIP_SCENE_OBJECT_NAME = strutils::StringId("CARD_TOOLTIP");
 static const strutils::StringId HISTORY_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("HISTORY_ICON");
 static const strutils::StringId HISTORY_OVERLAY_SCENE_OBJECT_NAME = strutils::StringId("HISTORY_OVERLAY");
@@ -97,7 +97,6 @@ static const std::string TURN_COUNTER_STRING_HISTORY_ENTRY_SHADER_FILE_NAME = "t
 static const std::string HISTORY_ENTRY_MASK_TEXTURE_FILE_NAME = "history_entry_mask.png";
 static const std::string HISTORY_ENTRY_SPELL_MASK_TEXTURE_FILE_NAME = "history_entry_spell_mask.png";
 static const std::string HISTORY_ENTRY_TURN_COUNTER_MASK_TEXTURE_FILE_NAME = "history_entry_turn_counter_mask.png";
-static const std::string CARD_HISTORY_CAPSULE_TEXTURE_FILE_NAME = "history_capsule.png";
 static const std::string TURN_COUNTER_HISTORY_ENTRY_TEXTURE_FILE_NAME = "history_turn_counter.png";
 
 static const glm::vec3 TURN_POINTER_POSITION = {0.2f, 0.0f, 0.1f};
@@ -113,7 +112,6 @@ static const glm::vec3 HISTORY_BUTTON_POSITION = {-0.155f, 0.05f, 10.0f};
 static const glm::vec3 HISTORY_BUTTON_SCALE = {0.03f, 0.03f, 0.03f};
 static const glm::vec3 CARD_HISTORY_ENTRY_SCALE = {0.3f, -0.3f, 0.3f};
 static const glm::vec3 CARD_HISTORY_TURN_COUNTER_ENTRY_SCALE = {0.266f, -0.3f, 0.3f};
-static const glm::vec3 CARD_HISTORY_CAPSULE_SCALE = {1.0f, 0.767f, 0.3f};
 static const glm::vec3 CARD_HISTORY_CAPSULE_POSITION = {0.0f, -0.102f, 25.0f};
 static const glm::vec3 CARD_HISTORY_TURN_COUNTER_TEXT_OFFSET = {-0.032f, 0.003f, 0.0f};
 
@@ -470,14 +468,7 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
         tooltipTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
         tooltipTextSceneObject->mInvisible = true;
     }
-    
-    auto capsuleSceneObject = historyScene->CreateSceneObject(CARD_HISTORY_CAPSULE_SCENE_OBJECT_NAME);
-    capsuleSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CARD_HISTORY_CAPSULE_TEXTURE_FILE_NAME);
-    capsuleSceneObject->mScale = CARD_HISTORY_CAPSULE_SCALE;
-    capsuleSceneObject->mPosition = CARD_HISTORY_CAPSULE_POSITION;
-    capsuleSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
-    
-    
+
     mCardHistoryContainer = std::make_unique<SwipeableContainer<CardHistoryEntry>>
     (
         SwipeDirection::HORIZONTAL,

@@ -20,6 +20,7 @@ Scene::Scene(const strutils::StringId& sceneName)
     : mSceneName(sceneName)
     , mUpdateTimeSpeedFactor(1.0f)
     , mLoaded(false)
+    , mHasLoadedPredefinedObjects(false)
 {
 }
 
@@ -134,7 +135,7 @@ void Scene::RecalculatePositionOfEdgeSnappingSceneObjects()
 void Scene::RemoveSceneObject(const strutils::StringId& sceneObjectName)
 {
     auto findIter = std::find_if(mSceneObjects.begin(), mSceneObjects.end(), [&](const std::shared_ptr<SceneObject>& sceneObject)
-    {
+                                 {
         return sceneObject->mName == sceneObjectName;
     });
     if (findIter != mSceneObjects.end())
@@ -230,7 +231,15 @@ bool Scene::IsLoaded() const { return mLoaded; }
 
 ///------------------------------------------------------------------------------------------------
 
+bool Scene::HasLoadedPredefinedObjects() const { return mHasLoadedPredefinedObjects; }
+
+///------------------------------------------------------------------------------------------------
+
 void Scene::SetLoaded(const bool loaded) { mLoaded = loaded; }
+
+///------------------------------------------------------------------------------------------------
+
+void Scene::SetHasLoadedPredefinedObjects(const bool hasLoadedPredefinedObjects) { mHasLoadedPredefinedObjects = hasLoadedPredefinedObjects; }
 
 ///------------------------------------------------------------------------------------------------
 

@@ -45,6 +45,13 @@ std::shared_ptr<Scene> SceneManager::FindScene(const strutils::StringId& sceneNa
 
 void SceneManager::LoadPredefinedObjectsFromDescriptorForScene(std::shared_ptr<Scene> scene)
 {
+    if (scene->HasLoadedPredefinedObjects())
+    {
+        return;
+    }
+    
+    scene->SetHasLoadedPredefinedObjects(true);
+    
     auto sceneDescriptorPath = resources::ResourceLoadingService::RES_DATA_ROOT + SCENE_DESCRIPTORS_PATH + scene->GetName().GetString() + ".json";
     std::ifstream testFile(sceneDescriptorPath);
     if (!testFile.is_open())
@@ -70,7 +77,9 @@ void SceneManager::LoadPredefinedObjectsFromDescriptorForScene(std::shared_ptr<S
     
     for (const auto& sceneObjectJson: sceneDescriptorJson["scene_objects"])
     {
-        auto sceneObject = scene->CreateSceneObject(strutils::StringId(sceneObjectJson["name"].get<std::string>()));
+        auto sceneObjectName = strutils::StringId(sceneObjectJson["name"].get<std::string>());
+        assert (!scene->FindSceneObject(sceneObjectName));
+        auto sceneObject = scene->CreateSceneObject(strutils::StringId(sceneObjectName));
         
         if (sceneObjectJson.count("texture"))
         {
