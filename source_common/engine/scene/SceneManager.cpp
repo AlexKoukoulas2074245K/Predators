@@ -5,13 +5,21 @@
 ///  Created by Alex Koukoulas on 03/10/2023                                                       
 ///------------------------------------------------------------------------------------------------
 
+#include <engine/resloading/DataFileResource.h>
+#include <engine/resloading/ResourceLoadingService.h>
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneManager.h>
+#include <fstream>
+#include <nlohmann/json.hpp>
 
 ///------------------------------------------------------------------------------------------------
 
 namespace scene
 {
+
+///------------------------------------------------------------------------------------------------
+
+static const std::string SCENE_DESCRIPTORS_PATH = "scene_descriptors/";
 
 ///------------------------------------------------------------------------------------------------
 
@@ -31,6 +39,84 @@ std::shared_ptr<Scene> SceneManager::FindScene(const strutils::StringId& sceneNa
     });
     
     return findIter != mScenes.end() ? *findIter : nullptr;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void SceneManager::LoadPredefinedObjectsFromDescriptorForScene(std::shared_ptr<Scene> scene)
+{
+    auto sceneDescriptorPath = resources::ResourceLoadingService::RES_DATA_ROOT + SCENE_DESCRIPTORS_PATH + scene->GetName().GetString() + ".json";
+    std::ifstream testFile(sceneDescriptorPath);
+    if (!testFile.is_open())
+    {
+        return;
+    }
+        
+    auto sceneDescriptorJsonResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(sceneDescriptorPath);
+    auto& resourceService = CoreSystemsEngine::GetInstance().GetResourceLoadingService();
+    auto sceneDescriptorJson =  nlohmann::json::parse(resourceService.GetResource<resources::DataFileResource>(sceneDescriptorJsonResourceId).GetContents());
+    
+    for (const auto& childSceneJson: sceneDescriptorJson["children_scenes"])
+    {
+        const auto& childSceneName = strutils::StringId(childSceneJson.get<std::string>());
+        auto childScene = FindScene(childSceneName);
+        if (!childScene)
+        {
+            childScene = CoreSystemsEngine::GetInstance().GetSceneManager().CreateScene(childSceneName);
+        }
+        
+        LoadPredefinedObjectsFromDescriptorForScene(childScene);
+    }
+    
+    for (const auto& sceneObjectJson: sceneDescriptorJson["scene_objects"])
+    {
+        auto sceneObject = scene->CreateSceneObject(strutils::StringId(sceneObjectJson["name"].get<std::string>()));
+        
+        if (sceneObjectJson.count("texture"))
+        {
+            sceneObject->mTextureResourceId = resourceService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + sceneObjectJson["texture"].get<std::string>());
+        }
+        
+        if (sceneObjectJson.count("position"))
+        {
+            sceneObject->mPosition = glm::vec3
+            (
+                sceneObjectJson["position"]["x"].get<float>(),
+                sceneObjectJson["position"]["y"].get<float>(),
+                sceneObjectJson["position"]["z"].get<float>()
+            );
+        }
+        
+        if (sceneObjectJson.count("scale"))
+        {
+            sceneObject->mScale = glm::vec3
+            (
+                sceneObjectJson["scale"]["x"].get<float>(),
+                sceneObjectJson["scale"]["y"].get<float>(),
+                sceneObjectJson["scale"]["z"].get<float>()
+            );
+        }
+        
+        if (sceneObjectJson.count("alpha"))
+        {
+            sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = sceneObjectJson["alpha"].get<float>();
+        }
+        
+        scene::TextSceneObjectData textData;
+        if (sceneObjectJson.count("font"))
+        {
+            textData.mFontName = strutils::StringId(sceneObjectJson["font"].get<std::string>());
+        }
+        if (sceneObjectJson.count("text"))
+        {
+            textData.mText = sceneObjectJson["text"].get<std::string>();
+        }
+        
+        if (!textData.mText.empty() || !textData.mFontName.isEmpty())
+        {
+            sceneObject->mSceneObjectTypeData = std::move(textData);
+        }
+    }
 }
 
 ///------------------------------------------------------------------------------------------------

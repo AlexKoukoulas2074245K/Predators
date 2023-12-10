@@ -449,10 +449,6 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
     ));
     
     auto historyScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(HISTORY_SCENE);
-    if (!historyScene)
-    {
-        historyScene = CoreSystemsEngine::GetInstance().GetSceneManager().CreateScene(HISTORY_SCENE);
-    }
     
     // Card Tooltips
     tooltipSceneObject = historyScene->CreateSceneObject(CARD_TOOLTIP_SCENE_OBJECT_NAME);

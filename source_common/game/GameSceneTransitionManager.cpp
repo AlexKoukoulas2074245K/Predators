@@ -17,16 +17,11 @@
 ///------------------------------------------------------------------------------------------------
 
 static const strutils::StringId SCENE_TRANSITION_ANIMATION_NAME = strutils::StringId("SCENE_TRANSITION_ANIMATION");
-static const strutils::StringId LOADING_SCENE_NAME = strutils::StringId("LOADING_SCENE");
-static const strutils::StringId LOADING_SCENE_BACKGROUND_SCENE_OBJECT_NAME = strutils::StringId("LOADING_BACKGROUND");
-static const strutils::StringId LOADING_PROGRESS_TEXT_SCENE_OBJECT_NAME = strutils::StringId("LOADING_TEXT");
+static const strutils::StringId LOADING_SCENE_NAME = strutils::StringId("loading_scene");
+static const strutils::StringId LOADING_SCENE_BACKGROUND_SCENE_OBJECT_NAME = strutils::StringId("loading_background");
+static const strutils::StringId LOADING_PROGRESS_TEXT_SCENE_OBJECT_NAME = strutils::StringId("loading_text");
 
-static const std::string LOADING_BACKGROUND_TEXTURE_FILE_NAME = "valley.png";
 static const std::string OVERLAY_TEXTURE_FILE_NAME = "overlay.png";
-
-static const glm::vec3 LOADING_BACKGROUND_SCALE = {1.2f, 1.2f, 1.2f};
-static const glm::vec3 LOADING_PROGRES_TEXT_POSITION = {-0.204f, 0.0f, 24.1f};
-static const glm::vec3 LOADING_PROGRESS_SCALE = {0.0005f, 0.0005f, 0.0005f};
 
 static const float LOADING_SCENE_FADE_IN_OUT_DURATION_SECS = 0.5f;
 static const float LOADING_PROGRESS_TEXT_PULSE_SCALE_FACTOR = 1.05f;
@@ -208,6 +203,8 @@ void GameSceneTransitionManager::PopModalScene
 
 void GameSceneTransitionManager::InitializeActiveSceneLogicManager()
 {
+    auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
+    
     auto sceneLogicManagerEntry = std::find_if(mRegisteredSceneLogicManagers.begin(), mRegisteredSceneLogicManagers.end(), [=](const SceneLogicManagerEntry& entry)
     {
         return entry.mSceneLogicManager.get() == mActiveSceneStack.top().mActiveSceneLogicManager;
@@ -217,7 +214,9 @@ void GameSceneTransitionManager::InitializeActiveSceneLogicManager()
     assert(sceneLogicManagerEntry != mRegisteredSceneLogicManagers.end());
     if (!sceneLogicManagerEntry->mSceneInitStatusMap.at(activeSceneName))
     {
-        mActiveSceneStack.top().mActiveSceneLogicManager->VInitScene(CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(activeSceneName));
+        auto scene = sceneManager.FindScene(activeSceneName);
+        sceneManager.LoadPredefinedObjectsFromDescriptorForScene(scene);
+        mActiveSceneStack.top().mActiveSceneLogicManager->VInitScene(scene);
         events::EventSystem::GetInstance().DispatchEvent<events::WindowResizeEvent>();
         sceneLogicManagerEntry->mSceneInitStatusMap[activeSceneName] = true;
     }
@@ -250,26 +249,13 @@ void GameSceneTransitionManager::SetLoadingProgress(const int progressPercent)
 
 void GameSceneTransitionManager::CreateLoadingScene()
 {
-    auto loadingScene = CoreSystemsEngine::GetInstance().GetSceneManager().CreateScene(LOADING_SCENE_NAME);
+    auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
+    auto loadingScene = sceneManager.CreateScene(LOADING_SCENE_NAME);
     
-    auto backgroundSceneObject = loadingScene->CreateSceneObject(LOADING_SCENE_BACKGROUND_SCENE_OBJECT_NAME);
-    backgroundSceneObject->mScale = LOADING_BACKGROUND_SCALE;
-    backgroundSceneObject->mPosition.z = OVERLAY_Z;
-    backgroundSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
-    backgroundSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + LOADING_BACKGROUND_TEXTURE_FILE_NAME);
-    
-    auto loadingProgressTextSceneObject = loadingScene->CreateSceneObject(LOADING_PROGRESS_TEXT_SCENE_OBJECT_NAME);
-    scene::TextSceneObjectData loadingProgressValueTextData;
-    loadingProgressValueTextData.mFontName = game_constants::DEFAULT_FONT_BLACK_NAME;
-    
-    loadingProgressTextSceneObject->mSceneObjectTypeData = std::move(loadingProgressValueTextData);
-    loadingProgressTextSceneObject->mPosition = LOADING_PROGRES_TEXT_POSITION;
-    loadingProgressTextSceneObject->mScale = LOADING_PROGRESS_SCALE;
-    loadingProgressTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
-    
+    sceneManager.LoadPredefinedObjectsFromDescriptorForScene(loadingScene);
     SetLoadingProgress(0);
     
-    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::PulseAnimation>(loadingProgressTextSceneObject, LOADING_PROGRESS_TEXT_PULSE_SCALE_FACTOR, LOADING_PROGRESS_TEXT_INTER_PULSE_DURATION_SECS, animation_flags::ANIMATE_CONTINUOUSLY), [](){});
+    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::PulseAnimation>(loadingScene->FindSceneObject(LOADING_PROGRESS_TEXT_SCENE_OBJECT_NAME), LOADING_PROGRESS_TEXT_PULSE_SCALE_FACTOR, LOADING_PROGRESS_TEXT_INTER_PULSE_DURATION_SECS, animation_flags::ANIMATE_CONTINUOUSLY), [](){});
     
     loadingScene->SetLoaded(true);
 }
