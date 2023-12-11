@@ -13,7 +13,7 @@
 #include <engine/scene/Scene.h>
 #include <game/events/EventSystem.h>
 #include <game/GameConstants.h>
-#include <game/BattleSceneLogicManager.h>
+#include <game/scenelogicmanagers/BattleSceneLogicManager.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/PoisonStackApplicationGameAction.h>
 #include <game/gameactions/GameOverGameAction.h>

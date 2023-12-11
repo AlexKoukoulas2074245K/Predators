@@ -18,14 +18,10 @@
 
 static const strutils::StringId SCENE_TRANSITION_ANIMATION_NAME = strutils::StringId("SCENE_TRANSITION_ANIMATION");
 static const strutils::StringId LOADING_SCENE_NAME = strutils::StringId("loading_scene");
-static const strutils::StringId LOADING_SCENE_BACKGROUND_SCENE_OBJECT_NAME = strutils::StringId("loading_background");
-static const strutils::StringId LOADING_PROGRESS_TEXT_SCENE_OBJECT_NAME = strutils::StringId("loading_text");
 
 static const std::string OVERLAY_TEXTURE_FILE_NAME = "overlay.png";
 
 static const float LOADING_SCENE_FADE_IN_OUT_DURATION_SECS = 0.5f;
-static const float LOADING_PROGRESS_TEXT_PULSE_SCALE_FACTOR = 1.05f;
-static const float LOADING_PROGRESS_TEXT_INTER_PULSE_DURATION_SECS = 1.0f;
 static const float OVERLAY_SCALE = 10.0f;
 static const float OVERLAY_Z = 23.0f;
 
@@ -47,37 +43,32 @@ ISceneLogicManager* GameSceneTransitionManager::GetActiveSceneLogicManager()
 void GameSceneTransitionManager::Update(const float dtMillis)
 {
     assert(!mActiveSceneStack.empty());
+    auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
     
     if (!CoreSystemsEngine::GetInstance().GetAnimationManager().IsAnimationPlaying(SCENE_TRANSITION_ANIMATION_NAME))
     {
-        auto activeScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(mActiveSceneStack.top().mActiveSceneName);
-        auto currentSceneLoadedStatus = activeScene->IsLoaded();
         auto outstandingLoadingJobCount = CoreSystemsEngine::GetInstance().GetResourceLoadingService().GetOustandingLoadingJobCount();
-        
-        activeScene->SetLoaded(outstandingLoadingJobCount == 0);
-        
-        if (!currentSceneLoadedStatus && mTotalLoadingJobCount != 0 && outstandingLoadingJobCount == 0)
+        auto activeScene = sceneManager.FindScene(mActiveSceneStack.top().mActiveSceneName);
+        if (activeScene->GetName() == LOADING_SCENE_NAME && outstandingLoadingJobCount == 0)
         {
             CoreSystemsEngine::GetInstance().GetResourceLoadingService().SetAsyncLoading(false);
-            SetLoadingProgress(100);
-            mTotalLoadingJobCount = 0;
-            auto loadingScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(LOADING_SCENE_NAME);
-            for (auto sceneObject: loadingScene->GetSceneObjects())
+            
+            for (auto sceneObject: activeScene->GetSceneObjects())
             {
                 CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, 0.0f, LOADING_SCENE_FADE_IN_OUT_DURATION_SECS), [=]()
                 {
                     CoreSystemsEngine::GetInstance().GetSceneManager().RemoveScene(LOADING_SCENE_NAME);
                 });
             }
+            
+            mActiveSceneStack.pop();
+            sceneManager.FindScene(mActiveSceneStack.top().mActiveSceneName)->SetLoaded(true);
+            return;
         }
         
         if (activeScene->IsLoaded())
         {
             mActiveSceneStack.top().mActiveSceneLogicManager->VUpdate(dtMillis, activeScene);
-        }
-        else
-        {
-            SetLoadingProgress(static_cast<int>((mTotalLoadingJobCount - outstandingLoadingJobCount)/static_cast<float>(mTotalLoadingJobCount) * 100.0f));
         }
     }
     
@@ -154,7 +145,7 @@ void GameSceneTransitionManager::ChangeToScene
         CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(overlaySceneObject, maxTransitionDarkeningAlpha, targetTransitionDurationSecs, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), [=]()
         {
             mActiveSceneStack.push({nextActiveSceneLogicManager, newSceneNameCopy});
-            InitializeActiveSceneLogicManager();
+            InitializeActiveSceneLogicManager(false);
         }, SCENE_TRANSITION_ANIMATION_NAME);
     }
     // Without darkening transition
@@ -162,13 +153,20 @@ void GameSceneTransitionManager::ChangeToScene
     {
         if (useLoadingScene)
         {
-            CreateLoadingScene();
+            ChangeToScene(LOADING_SCENE_NAME, false, false);
+            
             CoreSystemsEngine::GetInstance().GetResourceLoadingService().SetAsyncLoading(true);
+            auto frontEntry = mActiveSceneStack.top();
+            mActiveSceneStack.pop();
+            mActiveSceneStack.push({nextActiveSceneLogicManager, sceneName});
+            InitializeActiveSceneLogicManager(useLoadingScene);
+            mActiveSceneStack.push(frontEntry);
         }
-        
-        mActiveSceneStack.push({nextActiveSceneLogicManager, sceneName});
-        InitializeActiveSceneLogicManager();
-        mTotalLoadingJobCount = CoreSystemsEngine::GetInstance().GetResourceLoadingService().GetOustandingLoadingJobCount();
+        else
+        {
+            mActiveSceneStack.push({nextActiveSceneLogicManager, sceneName});
+            InitializeActiveSceneLogicManager(useLoadingScene);
+        }
     }
 }
 
@@ -201,7 +199,7 @@ void GameSceneTransitionManager::PopModalScene
 
 ///------------------------------------------------------------------------------------------------
 
-void GameSceneTransitionManager::InitializeActiveSceneLogicManager()
+void GameSceneTransitionManager::InitializeActiveSceneLogicManager(const bool useLoadingScene)
 {
     auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
     
@@ -219,6 +217,11 @@ void GameSceneTransitionManager::InitializeActiveSceneLogicManager()
         mActiveSceneStack.top().mActiveSceneLogicManager->VInitScene(scene);
         events::EventSystem::GetInstance().DispatchEvent<events::WindowResizeEvent>();
         sceneLogicManagerEntry->mSceneInitStatusMap[activeSceneName] = true;
+        
+        if (!useLoadingScene)
+        {
+            scene->SetLoaded(true);
+        }
     }
 }
 
@@ -234,30 +237,6 @@ void GameSceneTransitionManager::DestroyActiveSceneLogicManager()
     });
     assert(sceneLogicManagerEntry != mRegisteredSceneLogicManagers.end());
     sceneLogicManagerEntry->mSceneInitStatusMap[activeSceneName] = false;
-}
-
-///------------------------------------------------------------------------------------------------
-
-void GameSceneTransitionManager::SetLoadingProgress(const int progressPercent)
-{
-    auto loadingScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(LOADING_SCENE_NAME);
-    auto loadingProgressSceneObject = loadingScene->FindSceneObject(LOADING_PROGRESS_TEXT_SCENE_OBJECT_NAME);
-    std::get<scene::TextSceneObjectData>(loadingProgressSceneObject->mSceneObjectTypeData).mText = "Loading Progress: " + std::to_string(progressPercent) + "%";
-}
-
-///------------------------------------------------------------------------------------------------
-
-void GameSceneTransitionManager::CreateLoadingScene()
-{
-    auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
-    auto loadingScene = sceneManager.CreateScene(LOADING_SCENE_NAME);
-    
-    sceneManager.LoadPredefinedObjectsFromDescriptorForScene(loadingScene);
-    SetLoadingProgress(0);
-    
-    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::PulseAnimation>(loadingScene->FindSceneObject(LOADING_PROGRESS_TEXT_SCENE_OBJECT_NAME), LOADING_PROGRESS_TEXT_PULSE_SCALE_FACTOR, LOADING_PROGRESS_TEXT_INTER_PULSE_DURATION_SECS, animation_flags::ANIMATE_CONTINUOUSLY), [](){});
-    
-    loadingScene->SetLoaded(true);
 }
 
 ///------------------------------------------------------------------------------------------------

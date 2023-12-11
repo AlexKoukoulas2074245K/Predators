@@ -10,7 +10,7 @@
 
 ///------------------------------------------------------------------------------------------------
 
-#include <game/ISceneLogicManager.h>
+#include <game/scenelogicmanagers/ISceneLogicManager.h>
 #include <game/events/EventSystem.h>
 #include <game/ProgressionDataRepository.h>
 #include <game/SwipeableContainer.h>

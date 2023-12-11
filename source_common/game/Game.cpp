@@ -26,12 +26,13 @@
 #include <game/Cards.h>
 #include <game/CardUtils.h>
 #include <game/events/EventSystem.h>
-#include <game/BattleSceneLogicManager.h>
 #include <game/GameSceneTransitionManager.h>
 #include <game/ProgressionDataRepository.h>
 #include <game/gameactions/BaseGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/GameActionFactory.h>
+#include <game/scenelogicmanagers/BattleSceneLogicManager.h>
+#include <game/scenelogicmanagers/LoadingSceneLogicManager.h>
 #include <game/utils/PersistenceUtils.h>
 
 ///------------------------------------------------------------------------------------------------
@@ -73,6 +74,7 @@ void Game::Init()
     
     mGameSceneTransitionManager = std::make_unique<GameSceneTransitionManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<BattleSceneLogicManager>();
+    mGameSceneTransitionManager->RegisterSceneLogicManager<LoadingSceneLogicManager>();
     
     ProgressionDataRepository::GetInstance().SetNextBattleControlType(BattleControlType::AI_TOP_ONLY);
     

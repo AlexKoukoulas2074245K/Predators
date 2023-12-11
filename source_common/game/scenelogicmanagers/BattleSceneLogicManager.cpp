@@ -14,10 +14,10 @@
 #include <game/GameReplayEngine.h>
 #include <game/GameRuleEngine.h>
 #include <game/GameSerializer.h>
-#include <game/BattleSceneLogicManager.h>
 #include <game/gameactions/PlayCardGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/PlayerActionGenerationEngine.h>
+#include <game/scenelogicmanagers/BattleSceneLogicManager.h>
 #include <game/utils/PersistenceUtils.h>
 #include <engine/CoreSystemsEngine.h>
 #include <engine/input/IInputStateManager.h>
@@ -190,6 +190,8 @@ void BattleSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
         InitHistoryScene(scene);
     }
 }
+
+///------------------------------------------------------------------------------------------------
 
 void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scene)
 {

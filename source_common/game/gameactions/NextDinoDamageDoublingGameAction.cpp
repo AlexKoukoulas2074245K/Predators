@@ -11,7 +11,7 @@
 #include <game/gameactions/CardBuffedDebuffedAnimationGameAction.h>
 #include <game/gameactions/NextDinoDamageDoublingGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
-#include <game/BattleSceneLogicManager.h>
+#include <game/scenelogicmanagers/BattleSceneLogicManager.h>
 #include <engine/rendering/AnimationManager.h>
 #include <engine/rendering/ParticleManager.h>
 #include <engine/scene/SceneManager.h>

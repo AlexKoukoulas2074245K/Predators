@@ -17,8 +17,8 @@
 #include <game/events/EventSystem.h>
 #include <game/GameConstants.h>
 #include <game/GameRuleEngine.h>
-#include <game/BattleSceneLogicManager.h>
 #include <game/gameactions/DrawCardGameAction.h>
+#include <game/scenelogicmanagers/BattleSceneLogicManager.h>
 
 ///------------------------------------------------------------------------------------------------
 

@@ -11,7 +11,7 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <engine/utils/StringUtils.h>
-#include <game/ISceneLogicManager.h>
+#include <game/scenelogicmanagers/ISceneLogicManager.h>
 #include <stack>
 #include <unordered_map>
 #include <vector>
@@ -58,10 +58,8 @@ public:
     );
     
 private:
-    void InitializeActiveSceneLogicManager();
+    void InitializeActiveSceneLogicManager(const bool useLoadingScene);
     void DestroyActiveSceneLogicManager();
-    void SetLoadingProgress(const int progressPercent);
-    void CreateLoadingScene();
     
 private:
     struct SceneLogicManagerEntry
@@ -79,7 +77,6 @@ private:
     };
     
     std::stack<ActiveSceneEntry> mActiveSceneStack;
-    size_t mTotalLoadingJobCount;
 };
 
 ///------------------------------------------------------------------------------------------------
