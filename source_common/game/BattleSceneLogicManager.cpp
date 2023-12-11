@@ -41,7 +41,7 @@ static const strutils::StringId CARD_HISTORY_CONTAINER_NAME = strutils::StringId
 static const strutils::StringId HISTORY_TROLLEY_SCENE_OBJECT_NAME = strutils::StringId("HISTORY_TROLLEY");
 static const strutils::StringId CARD_LOCATION_INDICATOR_SCENE_OBJECT_NAME = strutils::StringId("CARD_LOCATION_INDICATOR");
 static const strutils::StringId CARD_HISTORY_CAPSULE_SCENE_OBJECT_NAME = strutils::StringId("card_history_capsule");
-static const strutils::StringId CARD_TOOLTIP_SCENE_OBJECT_NAME = strutils::StringId("CARD_TOOLTIP");
+static const strutils::StringId CARD_TOOLTIP_SCENE_OBJECT_NAME = strutils::StringId("card_tooltip");
 static const strutils::StringId HISTORY_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("HISTORY_ICON");
 static const strutils::StringId HISTORY_OVERLAY_SCENE_OBJECT_NAME = strutils::StringId("HISTORY_OVERLAY");
 static const strutils::StringId BATTLE_SCENE_SPEED_DILATION_ANIMATION_NAME = strutils::StringId("SCENE_SPEED_DILATION_ANIMATION");
@@ -54,10 +54,10 @@ static const strutils::StringId CARD_BUFFED_DEBUFFED_ANIMATION_GAME_ACTION_NAME 
 static const strutils::StringId CARD_EFFECT_GAME_ACTION_NAME = strutils::StringId("CardEffectGameAction");
 static const strutils::StringId CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES [game_constants::CARD_TOOLTIP_TEXT_ROWS_COUNT] =
 {
-    strutils::StringId("CARD_TOOLTIP_TEXT_0"),
-    strutils::StringId("CARD_TOOLTIP_TEXT_1"),
-    strutils::StringId("CARD_TOOLTIP_TEXT_2"),
-    strutils::StringId("CARD_TOOLTIP_TEXT_3")
+    strutils::StringId("card_tooltip_text_0"),
+    strutils::StringId("card_tooltip_text_1"),
+    strutils::StringId("card_tooltip_text_2"),
+    strutils::StringId("card_tooltip_text_3")
 };
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
 {
@@ -132,7 +132,6 @@ static const float CARD_LOCATION_EFFECT_MIN_TARGET_ALPHA = 0.25f;
 static const float CARD_LOCATION_EFFECT_MAX_TARGET_ALPHA = 1.0f;
 static const float CARD_LOCATION_EFFECT_ALPHA_SPEED = 0.003f;
 static const float CARD_TOOLTIP_TEXT_FONT_SIZE = 0.00016f;
-static const float CARD_TOOLTIP_HISTORY_TEXT_FONT_SIZE = 0.00032f;
 static const float CARD_TOOLTIP_MAX_REVEAL_THRESHOLD = 2.0f;
 static const float CARD_TOOLTIP_REVEAL_RGB_EXPONENT = 1.127f;
 static const float CARD_TOOLTIP_REVEAL_SPEED = 1.0f/200.0f;
@@ -447,27 +446,6 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
     ));
     
     auto historyScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(HISTORY_SCENE);
-    
-    // Card Tooltips
-    tooltipSceneObject = historyScene->CreateSceneObject(CARD_TOOLTIP_SCENE_OBJECT_NAME);
-    tooltipSceneObject->mScale = CARD_TOOLTIP_HISTORY_SCALE;
-    tooltipSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CARD_TOOLTIP_TEXTURE_FILE_NAME);
-    tooltipSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CARD_TOOLTIP_SHADER_FILE_NAME);
-    tooltipSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
-    tooltipSceneObject->mShaderFloatUniformValues[CARD_TOOLTIP_REVEAL_THRESHOLD_UNIFORM_NAME] = 0.0f;
-    tooltipSceneObject->mShaderFloatUniformValues[CARD_TOOLTIP_REVEAL_RGB_EXPONENT_UNIFORM_NAME] = CARD_TOOLTIP_REVEAL_RGB_EXPONENT;
-    tooltipSceneObject->mInvisible = true;
-    
-    for (auto i = 0; i < game_constants::CARD_TOOLTIP_TEXT_ROWS_COUNT; ++i)
-    {
-        auto tooltipTextSceneObject = historyScene->CreateSceneObject(CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES[i]);
-        scene::TextSceneObjectData tooltipTextData;
-        tooltipTextData.mFontName = game_constants::DEFAULT_FONT_BLACK_NAME;
-        tooltipTextSceneObject->mSceneObjectTypeData = std::move(tooltipTextData);
-        tooltipTextSceneObject->mScale = glm::vec3(CARD_TOOLTIP_HISTORY_TEXT_FONT_SIZE);
-        tooltipTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
-        tooltipTextSceneObject->mInvisible = true;
-    }
 
     mCardHistoryContainer = std::make_unique<SwipeableContainer<CardHistoryEntry>>
     (
@@ -574,6 +552,7 @@ void BattleSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scen
         {
             if (sToolTipIndex != cardHistoryContainerUpdateResult.mInteractedElementId)
             {
+                sToolTipIndex = cardHistoryContainerUpdateResult.mInteractedElementId;
                 auto interactedElementEntry = mCardHistoryContainer->GetItems()[cardHistoryContainerUpdateResult.mInteractedElementId];
                 if (!interactedElementEntry.mIsTurnCounter)
                 {
@@ -583,7 +562,6 @@ void BattleSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scen
                     
                     if (cardData->get().IsSpell())
                     {
-                        sToolTipIndex = cardHistoryContainerUpdateResult.mInteractedElementId;
                         sToolTipPointeePosX = interactedElementEntry.mSceneObjects.front()->mPosition.x;
                         
                         CreateCardTooltip(interactedElementEntry.mSceneObjects.front()->mPosition, cardData->get().mCardEffectTooltip, interactedElementEntry.mSceneObjects.front()->mPosition.x < 0.0f ? 0 : 10, activeScene);

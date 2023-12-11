@@ -86,6 +86,11 @@ void SceneManager::LoadPredefinedObjectsFromDescriptorForScene(std::shared_ptr<S
             sceneObject->mTextureResourceId = resourceService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + sceneObjectJson["texture"].get<std::string>());
         }
         
+        if (sceneObjectJson.count("shader"))
+        {
+            sceneObject->mShaderResourceId = resourceService.LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + sceneObjectJson["shader"].get<std::string>());
+        }
+        
         if (sceneObjectJson.count("position"))
         {
             sceneObject->mPosition = glm::vec3
@@ -109,6 +114,19 @@ void SceneManager::LoadPredefinedObjectsFromDescriptorForScene(std::shared_ptr<S
         if (sceneObjectJson.count("alpha"))
         {
             sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = sceneObjectJson["alpha"].get<float>();
+        }
+        
+        if (sceneObjectJson.count("invisible"))
+        {
+            sceneObject->mInvisible = sceneObjectJson["invisible"].get<bool>();
+        }
+        
+        if (sceneObjectJson.count("uniform_floats"))
+        {
+            for (const auto& uniformFloatJson: sceneObjectJson["uniform_floats"])
+            {
+                sceneObject->mShaderFloatUniformValues[strutils::StringId(uniformFloatJson["name"].get<std::string>())] = uniformFloatJson["value"].get<float>();
+            }
         }
         
         scene::TextSceneObjectData textData;

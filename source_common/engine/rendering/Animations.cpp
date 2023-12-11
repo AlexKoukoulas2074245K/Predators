@@ -216,6 +216,11 @@ AnimationUpdateResult PulseAnimation::VUpdate(const float dtMillis)
     {
         mSceneObjectTarget->mScale = math::Lerp(mTargetScale, mInitScale, math::TweenValue(mSecsPulseAccum/mSecsPulseDuration, mTweeningFunc, mTweeningMode));
     }
+    
+    if (animationUpdateResult == AnimationUpdateResult::FINISHED)
+    {
+        mSceneObjectTarget->mScale = mInitScale;
+    }
     return animationUpdateResult;
 }
 

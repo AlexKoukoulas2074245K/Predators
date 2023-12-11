@@ -27,7 +27,7 @@ inline const int MIN_ITEMS_TO_ANIMATE = 0;
 inline const float CARD_VELOCITY_DAMPING = 0.85f;
 inline const float OVERSWIPE_DAMPING = 100.0f;
 inline const float SWIPE_DELTA_DIRECTION_CHANGE_NOISE_THRESHOLD = 0.00001f;
-inline const float RUBBER_BANDING_ANIMATION_DURATION = 0.3f;
+inline const float RUBBER_BANDING_ANIMATION_DURATION = 0.1f;
 
 ///------------------------------------------------------------------------------------------------
 
