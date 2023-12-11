@@ -137,7 +137,7 @@ public:
                     (
                         (mContainerBounds.bottomLeft.x + mContainerBounds.topRight.x)/2.0f + itemIndex * mEntryScale.x/2.0f,
                         (mContainerBounds.bottomLeft.y + mContainerBounds.topRight.y)/2.0f,
-                        mContainerItemsZ + j * 0.01f
+                        mContainerItemsZ + (j + 1) * 0.01f
                     ) + itemOffsetsFromFirst[j];
                 } break;
                 
@@ -147,7 +147,7 @@ public:
                     (
                         (mContainerBounds.bottomLeft.x + mContainerBounds.topRight.x)/2.0f,
                         (mContainerBounds.bottomLeft.y + mContainerBounds.topRight.y)/2.0f + itemIndex * mEntryScale.y/2.0f,
-                        mContainerItemsZ + j * 0.01f
+                        mContainerItemsZ + (j + 1) * 0.01f
                     ) + itemOffsetsFromFirst[j];
                 }
             }
