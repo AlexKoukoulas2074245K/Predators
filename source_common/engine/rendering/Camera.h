@@ -52,16 +52,6 @@ public:
     void SetPosition(const glm::vec3& position);
     
 private:
-    static const glm::vec3 DEFAULT_CAMERA_POSITION;
-    static const glm::vec3 DEFAULT_CAMERA_FRONT_VECTOR;
-    static const glm::vec3 DEFAULT_CAMERA_UP_VECTOR;
-    static const float DEVICE_INVARIABLE_ASPECT;
-    static const float DEFAULT_CAMERA_ZNEAR;
-    static const float DEFAULT_CAMERA_ZFAR;
-    static const float DEFAULT_CAMERA_ZOOM_FACTOR;
-    static const float SHAKE_MIN_RADIUS;
-    
-private:
     struct ShakeData
     {
         glm::vec3 mPreShakePosition;

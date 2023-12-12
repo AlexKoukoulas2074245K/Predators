@@ -211,8 +211,6 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
     
     CardDataRepository::GetInstance().LoadCardData(true);
     
-    auto& systemsEngine = CoreSystemsEngine::GetInstance();
-    
     RegisterForEvents();
     mPreviousProspectiveBoardCardsPushState = ProspectiveBoardCardsPushState::NONE;
     mSecsCardHighlighted = 0.0f;
@@ -273,12 +271,6 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
         
         mActionEngine->AddGameAction(strutils::StringId("NextPlayerGameAction"));
     }
-    
-    auto boardSceneObject = scene->CreateSceneObject(strutils::StringId("Board"));
-    boardSceneObject->mPosition.x = -0.007f;
-    boardSceneObject->mPosition.y = 0.011f;
-    boardSceneObject->mTextureResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "board.png");
-    boardSceneObject->mRotation.z = math::PI/2.0f;
     
     // Card Location Indicator
     auto cardLocationIndicatorSo = scene->CreateSceneObject(CARD_LOCATION_INDICATOR_SCENE_OBJECT_NAME);

@@ -111,6 +111,16 @@ void SceneManager::LoadPredefinedObjectsFromDescriptorForScene(std::shared_ptr<S
             );
         }
         
+        if (sceneObjectJson.count("rotation"))
+        {
+            sceneObject->mRotation = glm::vec3
+            (
+                sceneObjectJson["rotation"]["x"].get<float>(),
+                sceneObjectJson["rotation"]["y"].get<float>(),
+                sceneObjectJson["rotation"]["z"].get<float>()
+            );
+        }
+        
         if (sceneObjectJson.count("alpha"))
         {
             sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = sceneObjectJson["alpha"].get<float>();

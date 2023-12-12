@@ -16,23 +16,21 @@ namespace rendering
 
 ///------------------------------------------------------------------------------------------------
 
-const glm::vec3 Camera::DEFAULT_CAMERA_POSITION     = {0.0f, -0.0087f, -5.0f};
-const glm::vec3 Camera::DEFAULT_CAMERA_FRONT_VECTOR = {0.0f, 0.0f, -1.0f};
-const glm::vec3 Camera::DEFAULT_CAMERA_UP_VECTOR    = {0.0f, 1.0f, 0.0f};
+static const glm::vec3 DEFAULT_CAMERA_POSITION     = {0.0f, -0.0087f, -5.0f};
+static const glm::vec3 DEFAULT_CAMERA_FRONT_VECTOR = {0.0f, 0.0f, -1.0f};
+static const glm::vec3 DEFAULT_CAMERA_UP_VECTOR    = {0.0f, 1.0f, 0.0f};
 
-const float Camera::DEVICE_INVARIABLE_ASPECT = 0.46f;
-
-const float Camera::DEFAULT_CAMERA_ZNEAR       = -50.0f;
-const float Camera::DEFAULT_CAMERA_ZFAR        = 50.0f;
-const float Camera::DEFAULT_CAMERA_ZOOM_FACTOR = 60.0f;
-
-const float Camera::DEFAULT_SHAKE_STRENGTH_RADIUS = 0.05f;
-const float Camera::SHAKE_MIN_RADIUS = 0.00001f;
+static const float DEFAULT_CAMERA_LENSE_HEIGHT = 30.0f;
+static const float DEVICE_INVARIABLE_ASPECT = 0.46f;
+static const float DEFAULT_CAMERA_ZNEAR       = -50.0f;
+static const float DEFAULT_CAMERA_ZFAR        = 50.0f;
+static const float DEFAULT_CAMERA_ZOOM_FACTOR = 60.0f;
+static const float SHAKE_MIN_RADIUS = 0.00001f;
 
 ///------------------------------------------------------------------------------------------------
 
 Camera::Camera()
-: Camera(30.0f)
+: Camera(DEFAULT_CAMERA_LENSE_HEIGHT)
 {
     
 }

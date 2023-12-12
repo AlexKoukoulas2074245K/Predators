@@ -33,6 +33,7 @@
 #include <game/gameactions/GameActionFactory.h>
 #include <game/scenelogicmanagers/BattleSceneLogicManager.h>
 #include <game/scenelogicmanagers/LoadingSceneLogicManager.h>
+#include <game/scenelogicmanagers/PermanentBattleSceneLogicManager.h>
 #include <game/utils/PersistenceUtils.h>
 
 ///------------------------------------------------------------------------------------------------
@@ -75,6 +76,7 @@ void Game::Init()
     mGameSceneTransitionManager = std::make_unique<GameSceneTransitionManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<BattleSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<LoadingSceneLogicManager>();
+    mGameSceneTransitionManager->RegisterSceneLogicManager<PermanentBattleSceneLogicManager>();
     
     ProgressionDataRepository::GetInstance().SetNextBattleControlType(BattleControlType::AI_TOP_ONLY);
     
@@ -134,6 +136,7 @@ void Game::Init()
 //        fontRowSceneObject->mMeshResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_MESHES_ROOT + "quad.obj");
 //    }
     
+    mGameSceneTransitionManager->ChangeToScene(game_constants::PERMANENT_BOARD_SCENE, false, false);
     mGameSceneTransitionManager->ChangeToScene(game_constants::IN_GAME_BATTLE_SCENE, false, true);
 }
 
