@@ -99,7 +99,6 @@ static const std::string HISTORY_ENTRY_SPELL_MASK_TEXTURE_FILE_NAME = "history_e
 static const std::string HISTORY_ENTRY_TURN_COUNTER_MASK_TEXTURE_FILE_NAME = "history_entry_turn_counter_mask.png";
 static const std::string TURN_COUNTER_HISTORY_ENTRY_TEXTURE_FILE_NAME = "history_turn_counter.png";
 
-static const glm::vec3 BOARD_SIDE_EFFECT_SCALE = {0.372f, 0.346f, 1.0f};
 static const glm::vec3 BOARD_SIDE_EFFECT_TOP_POSITION = { 0.0f, 0.044f, 1.0f};
 static const glm::vec3 BOARD_SIDE_EFFECT_BOT_POSITION = { 0.0f, -0.044f, 1.0f};
 static const glm::vec3 CARD_TOOLTIP_SCALE = {0.137f, 0.137f, 1/10.0f};
@@ -131,16 +130,11 @@ static const float CARD_LOCATION_EFFECT_MAX_TARGET_ALPHA = 1.0f;
 static const float CARD_LOCATION_EFFECT_ALPHA_SPEED = 0.003f;
 static const float CARD_TOOLTIP_TEXT_FONT_SIZE = 0.00016f;
 static const float CARD_TOOLTIP_MAX_REVEAL_THRESHOLD = 2.0f;
-static const float CARD_TOOLTIP_REVEAL_RGB_EXPONENT = 1.127f;
 static const float CARD_TOOLTIP_REVEAL_SPEED = 1.0f/200.0f;
 static const float CARD_TOOLTIP_TEXT_REVEAL_SPEED = 1.0f/500.0f;
 static const float CARD_TOOLTIP_FLIPPED_X_OFFSET = -0.17f;
 static const float CARD_TOOLTIP_TEXT_FLIPPED_X_OFFSET = -0.007f;
 static const float CARD_TOOLTIP_CREATION_DELAY_SECS = 0.5f;
-static const float BOARD_SIDE_EFFECT_VALUE_LEFT_X = -0.075f;
-static const float BOARD_SIDE_EFFECT_VALUE_RIGHT_X = 0.045f;
-static const float BOARD_SIDE_EFFECT_VALUE_Z_OFFSET = 0.01f;
-static const float BOARD_SIDE_EFFECT_VALUE_SCALE = 0.0003f;
 static const float INDIVIDUAL_CARD_BOARD_EFFECT_BASE_Z = 1.1f;
 static const float INDIVIDUAL_CARD_BOARD_EFFECT_Z_INCREMENT = 0.01f;
 static const float BOARD_EFFECT_MAX_ALPHA = 0.25f;
@@ -285,125 +279,32 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
     mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(game_constants::POISON_STACK_TOP_POSITION, POISON_STACK_TEXTURE_FILE_NAME, POISON_STACK_TOP_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[0].mPlayerPoisonStack, true, *scene)));
     mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(game_constants::POISON_STACK_BOT_POSITION, POISON_STACK_TEXTURE_FILE_NAME, POISON_STACK_BOT_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[1].mPlayerPoisonStack, true, *scene)));
     
-    // Board Side Effect Top
-    auto boardSideEffectTopSceneObject = scene->CreateSceneObject(game_constants::BOARD_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME);
-    boardSideEffectTopSceneObject->mScale = BOARD_SIDE_EFFECT_SCALE;
-    boardSideEffectTopSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + BOARD_SIDE_EFFECT_REDUCTION_TEXTURE_FILE_NAME);
-    boardSideEffectTopSceneObject->mEffectTextureResourceIds[0] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + BOARD_SIDE_EFFECT_MASK_TEXTURE_FILE_NAME);
-    boardSideEffectTopSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + BOARD_SIDE_STAT_EFFECT_SHADER_FILE_NAME);
-    boardSideEffectTopSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
-    boardSideEffectTopSceneObject->mPosition = BOARD_SIDE_EFFECT_TOP_POSITION;
-    boardSideEffectTopSceneObject->mInvisible = true;
-    
-    // Board Side Effect Bot
-    auto boardSideEffectBotSceneObject = scene->CreateSceneObject(game_constants::BOARD_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME);
-    boardSideEffectBotSceneObject->mScale = BOARD_SIDE_EFFECT_SCALE;
-    boardSideEffectBotSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + BOARD_SIDE_EFFECT_REDUCTION_TEXTURE_FILE_NAME);
-    boardSideEffectBotSceneObject->mEffectTextureResourceIds[0] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + BOARD_SIDE_EFFECT_MASK_TEXTURE_FILE_NAME);
-    boardSideEffectBotSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + BOARD_SIDE_STAT_EFFECT_SHADER_FILE_NAME);
-    boardSideEffectBotSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
-    boardSideEffectBotSceneObject->mPosition = BOARD_SIDE_EFFECT_BOT_POSITION;
-    boardSideEffectBotSceneObject->mInvisible = true;
-    
-    for (int i = 0; i < game_constants::BOARD_SIDE_EFFECT_VALUE_SO_COUNT; ++i)
-    {
-        {
-            auto boardSideEffectTopValueSceneObject = scene->CreateSceneObject(strutils::StringId(game_constants::BOARD_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME_PRE_FIX + std::to_string(i)));
-            
-            scene::TextSceneObjectData effectValueTextData;
-            effectValueTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
-            effectValueTextData.mText = std::to_string(0);
-            
-            boardSideEffectTopValueSceneObject->mSceneObjectTypeData = std::move(effectValueTextData);
-            boardSideEffectTopValueSceneObject->mScale = glm::vec3(BOARD_SIDE_EFFECT_VALUE_SCALE);
-            boardSideEffectTopValueSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
-            boardSideEffectTopValueSceneObject->mPosition = boardSideEffectTopSceneObject->mPosition;
-            boardSideEffectTopValueSceneObject->mPosition.x = i == 0 ? BOARD_SIDE_EFFECT_VALUE_LEFT_X : BOARD_SIDE_EFFECT_VALUE_RIGHT_X;
-            boardSideEffectTopValueSceneObject->mPosition.z += BOARD_SIDE_EFFECT_VALUE_Z_OFFSET;
-            boardSideEffectTopValueSceneObject->mInvisible = true;
-        }
-        
-        {
-            auto boardSideEffectBotValueSceneObject = scene->CreateSceneObject(strutils::StringId(game_constants::BOARD_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME_PRE_FIX + std::to_string(i)));
-            
-            scene::TextSceneObjectData effectValueTextData;
-            effectValueTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
-            effectValueTextData.mText = std::to_string(0);
-            
-            boardSideEffectBotValueSceneObject->mSceneObjectTypeData = std::move(effectValueTextData);
-            boardSideEffectBotValueSceneObject->mScale = glm::vec3(BOARD_SIDE_EFFECT_VALUE_SCALE);
-            boardSideEffectBotValueSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
-            boardSideEffectBotValueSceneObject->mPosition = boardSideEffectBotSceneObject->mPosition;
-            boardSideEffectBotValueSceneObject->mPosition.x = i == 0 ? BOARD_SIDE_EFFECT_VALUE_LEFT_X : BOARD_SIDE_EFFECT_VALUE_RIGHT_X;
-            boardSideEffectBotValueSceneObject->mPosition.z += BOARD_SIDE_EFFECT_VALUE_Z_OFFSET;
-            boardSideEffectBotValueSceneObject->mInvisible = true;
-        }
-    }
-    
-    auto individualCardBoardEffectCreation = [=]
+    auto cardBoardEffectAnimation = [=]
     (
         const strutils::StringId& topSceneObjectName,
-        const strutils::StringId& botSceneObjectName,
-        const std::string& textureFilename
+        const strutils::StringId& botSceneObjectName
     )
     {
-        auto effectTopSceneObject = scene->CreateSceneObject(topSceneObjectName);
-        effectTopSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + textureFilename);
-        effectTopSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
-        effectTopSceneObject->mEffectTextureResourceIds[0] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + INDIVIDUAL_CARD_BOARD_EFFECT_MASK_TEXTURE_FILE_NAME);
-        effectTopSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + BOARD_SIDE_STAT_EFFECT_SHADER_FILE_NAME);
-        effectTopSceneObject->mPosition = BOARD_SIDE_EFFECT_TOP_POSITION;
-        effectTopSceneObject->mScale = game_constants::INDIVIDUAL_CARD_BOARD_EFFECT_SCALE;
-        effectTopSceneObject->mInvisible = true;
-        CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::PulseAnimation>(effectTopSceneObject, game_constants::INDIVIDUAL_CARD_BOARD_EFFECT_SCALE_UP_FACTOR, game_constants::INDIVIDUAL_CARD_BOARD_EFFECT_PULSE_ANIMATION_PULSE_DURATION_SECS, animation_flags::ANIMATE_CONTINUOUSLY), [](){});
-        
-        auto effectBotSceneObject = scene->CreateSceneObject(botSceneObjectName);
-        effectBotSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + textureFilename);
-        effectBotSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
-        effectBotSceneObject->mEffectTextureResourceIds[0] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + INDIVIDUAL_CARD_BOARD_EFFECT_MASK_TEXTURE_FILE_NAME);
-        effectBotSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + BOARD_SIDE_STAT_EFFECT_SHADER_FILE_NAME);
-        effectBotSceneObject->mPosition = BOARD_SIDE_EFFECT_BOT_POSITION;
-        effectBotSceneObject->mScale = game_constants::INDIVIDUAL_CARD_BOARD_EFFECT_SCALE;
-        effectBotSceneObject->mInvisible = true;
-        CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::PulseAnimation>(effectBotSceneObject, game_constants::INDIVIDUAL_CARD_BOARD_EFFECT_SCALE_UP_FACTOR, game_constants::INDIVIDUAL_CARD_BOARD_EFFECT_PULSE_ANIMATION_PULSE_DURATION_SECS, animation_flags::ANIMATE_CONTINUOUSLY), [](){});
+        CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::PulseAnimation>(scene->FindSceneObject(topSceneObjectName), game_constants::INDIVIDUAL_CARD_BOARD_EFFECT_SCALE_UP_FACTOR, game_constants::INDIVIDUAL_CARD_BOARD_EFFECT_PULSE_ANIMATION_PULSE_DURATION_SECS, animation_flags::ANIMATE_CONTINUOUSLY), [](){});
+   
+        CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::PulseAnimation>(scene->FindSceneObject(botSceneObjectName), game_constants::INDIVIDUAL_CARD_BOARD_EFFECT_SCALE_UP_FACTOR, game_constants::INDIVIDUAL_CARD_BOARD_EFFECT_PULSE_ANIMATION_PULSE_DURATION_SECS, animation_flags::ANIMATE_CONTINUOUSLY), [](){});
     };
     
     // Kill Side Effects
-    individualCardBoardEffectCreation(game_constants::KILL_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME, game_constants::KILL_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME, KILL_SIDE_EFFECT_TEXTURE_FILE_NAME);
+    cardBoardEffectAnimation(game_constants::KILL_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME, game_constants::KILL_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME);
     
     // Insect Duplication Effects
-    individualCardBoardEffectCreation(game_constants::INSECT_DUPLICATION_EFFECT_TOP_SCENE_OBJECT_NAME, game_constants::INSECT_DUPLICATION_EFFECT_BOT_SCENE_OBJECT_NAME, INSECT_DUPLICATION_EFFECT_TEXTURE_FILE_NAME);
+    cardBoardEffectAnimation(game_constants::INSECT_DUPLICATION_EFFECT_TOP_SCENE_OBJECT_NAME, game_constants::INSECT_DUPLICATION_EFFECT_BOT_SCENE_OBJECT_NAME);
     
     // Double Dino Damage Effects
-    individualCardBoardEffectCreation(game_constants::NEXT_DINO_DAMAGE_DOUBLING_EFFECT_TOP_SCENE_OBJECT_NAME, game_constants::NEXT_DINO_DAMAGE_DOUBLING_EFFECT_BOT_SCENE_OBJECT_NAME, NEXT_DINO_DAMAGE_DOUBLING_EFFECT_TEXTURE_FILE_NAME);
+    cardBoardEffectAnimation(game_constants::NEXT_DINO_DAMAGE_DOUBLING_EFFECT_TOP_SCENE_OBJECT_NAME, game_constants::NEXT_DINO_DAMAGE_DOUBLING_EFFECT_BOT_SCENE_OBJECT_NAME);
     
     // Double Poison Attacks Effects
-    individualCardBoardEffectCreation(game_constants::DOUBLE_POISON_ATTACKS_EFFECT_TOP_SCENE_OBJECT_NAME, game_constants::DOUBLE_POISON_ATTACKS_EFFECT_BOT_SCENE_OBJECT_NAME, DOUBLE_POISON_ATTACKS_EFFECT_TEXTURE_FILE_NAME);
+    cardBoardEffectAnimation(game_constants::DOUBLE_POISON_ATTACKS_EFFECT_TOP_SCENE_OBJECT_NAME, game_constants::DOUBLE_POISON_ATTACKS_EFFECT_BOT_SCENE_OBJECT_NAME);
     
     // Permanent Continual Weight Reduction Effects
-    individualCardBoardEffectCreation(game_constants::PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_TOP_SCENE_OBJECT_NAME, game_constants::PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_BOT_SCENE_OBJECT_NAME, PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_TEXTURE_FILE_NAME);
+    cardBoardEffectAnimation(game_constants::PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_TOP_SCENE_OBJECT_NAME, game_constants::PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_BOT_SCENE_OBJECT_NAME);
 
-    // Card Tooltips
-    auto tooltipSceneObject = scene->CreateSceneObject(CARD_TOOLTIP_SCENE_OBJECT_NAME);
-    tooltipSceneObject->mScale = CARD_TOOLTIP_SCALE;
-    tooltipSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CARD_TOOLTIP_TEXTURE_FILE_NAME);
-    tooltipSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CARD_TOOLTIP_SHADER_FILE_NAME);
-    tooltipSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
-    tooltipSceneObject->mShaderFloatUniformValues[CARD_TOOLTIP_REVEAL_THRESHOLD_UNIFORM_NAME] = 0.0f;
-    tooltipSceneObject->mShaderFloatUniformValues[CARD_TOOLTIP_REVEAL_RGB_EXPONENT_UNIFORM_NAME] = CARD_TOOLTIP_REVEAL_RGB_EXPONENT;
-    tooltipSceneObject->mInvisible = true;
-    
-    for (auto i = 0; i < game_constants::CARD_TOOLTIP_TEXT_ROWS_COUNT; ++i)
-    {
-        auto tooltipTextSceneObject = scene->CreateSceneObject(CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES[i]);
-        scene::TextSceneObjectData tooltipTextData;
-        tooltipTextData.mFontName = game_constants::DEFAULT_FONT_BLACK_NAME;
-        tooltipTextSceneObject->mSceneObjectTypeData = std::move(tooltipTextData);
-        tooltipTextSceneObject->mScale = glm::vec3(CARD_TOOLTIP_TEXT_FONT_SIZE);
-        tooltipTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
-        tooltipTextSceneObject->mInvisible = true;
-    }
-    
     mBattleSceneAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
     (
         HISTORY_BUTTON_POSITION,

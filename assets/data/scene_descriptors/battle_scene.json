@@ -41,6 +41,203 @@
                 { "name": "perlin_resolution", "value": 312.0 },
                 { "name": "perlin_clarity", "value":  5.23 }
             ]
+        },
+        {
+            "name": "board_side_effect_top",
+            "texture": "board_side_reduction.png",
+            "effect_textures": [ "board_side_mask.png" ],
+            "shader": "board_side_stat_effect.vs",
+            "scale": { "x": 0.372, "y": 0.346, "z": 1.0 },
+            "position": { "x": 0.0, "y": 0.044, "z": 1.0 },
+            "alpha": 0.0,
+            "invisible": true
+        },
+        {
+            "name": "board_side_effect_bot",
+            "texture": "board_side_reduction.png",
+            "effect_textures": [ "board_side_mask.png" ],
+            "shader": "board_side_stat_effect.vs",
+            "scale": { "x": 0.372, "y": 0.346, "z": 1.0 },
+            "position": { "x": 0.0, "y": -0.044, "z": 1.0 },
+            "alpha": 0.0,
+            "invisible": true
+        },
+        {
+            "name": "board_side_effect_top_value_0",
+            "font": "font",
+            "text": "0",
+            "scale": { "x": 0.0003, "y": 0.0003, "z": 0.0003 },
+            "position": { "x": -0.075, "y": 0.044, "z": 1.01 },
+            "alpha": 0.0,
+            "invisible": true
+        },
+        {
+            "name": "board_side_effect_top_value_1",
+            "font": "font",
+            "text": "0",
+            "scale": { "x": 0.0003, "y": 0.0003, "z": 0.0003 },
+            "position": { "x": 0.045, "y": 0.044, "z": 1.01 },
+            "alpha": 0.0,
+            "invisible": true
+        },
+        {
+            "name": "board_side_effect_bot_value_0",
+            "font": "font",
+            "text": "0",
+            "scale": { "x": 0.0003, "y": 0.0003, "z": 0.0003 },
+            "position": { "x": -0.075, "y": -0.044, "z": 1.01 },
+            "alpha": 0.0,
+            "invisible": true
+        },
+        {
+            "name": "board_side_effect_bot_value_1",
+            "font": "font",
+            "text": "0",
+            "scale": { "x": 0.0003, "y": 0.0003, "z": 0.0003 },
+            "position": { "x": 0.045, "y": -0.044, "z": 1.01 },
+            "alpha": 0.0,
+            "invisible": true
+        },
+        {
+            "name": "card_tooltip",
+            "texture": "tooltip.png",
+            "shader": "diagonal_reveal.vs",
+            "scale": { "x": 0.137, "y": 0.137, "z": 1.0 },
+            "alpha": 1.0,
+            "invisible": true,
+            "uniform_floats":
+            [
+                { "name": "reveal_threshold", "value": 0.0 },
+                { "name": "reveal_rgb_exponent", "value": 1.127 }
+            ]
+        },
+        {
+            "name": "card_tooltip_text_0",
+            "font": "font_black",
+            "scale": { "x": 0.00016, "y": 0.00016, "z": 0.00016 },
+            "alpha": 0.0,
+            "invisible": true
+        },
+        {
+            "name": "card_tooltip_text_1",
+            "font": "font_black",
+            "scale": { "x": 0.00016, "y": 0.00016, "z": 0.00016 },
+            "alpha": 0.0,
+            "invisible": true
+        },
+        {
+            "name": "card_tooltip_text_2",
+            "font": "font_black",
+            "scale": { "x": 0.00016, "y": 0.00016, "z": 0.00016 },
+            "alpha": 0.0,
+            "invisible": true
+        },
+        {
+            "name": "card_tooltip_text_3",
+            "font": "font_black",
+            "scale": { "x": 0.00016, "y": 0.00016, "z": 0.00016 },
+            "alpha": 0.0,
+            "invisible": true
+        },
+        {
+            "name": "kill_side_effect_top",
+            "texture": "trap.png",
+            "effect_textures": [ "trap_mask.png" ],
+            "shader": "board_side_stat_effect.vs",
+            "scale": { "x": 0.05, "y": 0.05, "z": 0.05 },
+            "position": { "x": 0.0, "y": 0.044, "z": 1.0 },
+            "alpha": 0.0,
+            "invisible": true
+        },
+        {
+            "name": "kill_side_effect_bot",
+            "texture": "trap.png",
+            "effect_textures": [ "trap_mask.png" ],
+            "shader": "board_side_stat_effect.vs",
+            "scale": { "x": 0.05, "y": 0.05, "z": 0.05 },
+            "position": { "x": 0.0, "y": -0.044, "z": 1.0 },
+            "alpha": 0.0,
+            "invisible": true
+        },
+        {
+            "name": "insect_duplication_effect_top",
+            "texture": "insect_duplication.png",
+            "effect_textures": [ "trap_mask.png" ],
+            "shader": "board_side_stat_effect.vs",
+            "scale": { "x": 0.05, "y": 0.05, "z": 0.05 },
+            "position": { "x": 0.0, "y": 0.044, "z": 1.0 },
+            "alpha": 0.0,
+            "invisible": true
+        },
+        {
+            "name": "insect_duplication_effect_bot",
+            "texture": "insect_duplication.png",
+            "effect_textures": [ "trap_mask.png" ],
+            "shader": "board_side_stat_effect.vs",
+            "scale": { "x": 0.05, "y": 0.05, "z": 0.05 },
+            "position": { "x": 0.0, "y": -0.044, "z": 1.0 },
+            "alpha": 0.0,
+            "invisible": true
+        },
+        {
+            "name": "next_dino_damage_doubling_effect_top",
+            "texture": "mighty_roar.png",
+            "effect_textures": [ "trap_mask.png" ],
+            "shader": "board_side_stat_effect.vs",
+            "scale": { "x": 0.05, "y": 0.05, "z": 0.05 },
+            "position": { "x": 0.0, "y": 0.044, "z": 1.0 },
+            "alpha": 0.0,
+            "invisible": true
+        },
+        {
+            "name": "next_dino_damage_doubling_effect_bot",
+            "texture": "mighty_roar.png",
+            "effect_textures": [ "trap_mask.png" ],
+            "shader": "board_side_stat_effect.vs",
+            "scale": { "x": 0.05, "y": 0.05, "z": 0.05 },
+            "position": { "x": 0.0, "y": -0.044, "z": 1.0 },
+            "alpha": 0.0,
+            "invisible": true
+        },
+        {
+            "name": "double_poison_attacks_effect_top",
+            "texture": "poison_smoke.png",
+            "effect_textures": [ "trap_mask.png" ],
+            "shader": "board_side_stat_effect.vs",
+            "scale": { "x": 0.05, "y": 0.05, "z": 0.05 },
+            "position": { "x": 0.0, "y": 0.044, "z": 1.0 },
+            "alpha": 0.0,
+            "invisible": true
+        },
+        {
+            "name": "double_poison_attacks_effect_bot",
+            "texture": "poison_smoke.png",
+            "effect_textures": [ "trap_mask.png" ],
+            "shader": "board_side_stat_effect.vs",
+            "scale": { "x": 0.05, "y": 0.05, "z": 0.05 },
+            "position": { "x": 0.0, "y": -0.044, "z": 1.0 },
+            "alpha": 0.0,
+            "invisible": true
+        },
+        {
+            "name": "permanent_continual_weight_reduction_effect_top",
+            "texture": "impending_doom.png",
+            "effect_textures": [ "trap_mask.png" ],
+            "shader": "board_side_stat_effect.vs",
+            "scale": { "x": 0.05, "y": 0.05, "z": 0.05 },
+            "position": { "x": 0.0, "y": 0.044, "z": 1.0 },
+            "alpha": 0.0,
+            "invisible": true
+        },
+        {
+            "name": "permanent_continual_weight_reduction_effect_bot",
+            "texture": "impending_doom.png",
+            "effect_textures": [ "trap_mask.png" ],
+            "shader": "board_side_stat_effect.vs",
+            "scale": { "x": 0.05, "y": 0.05, "z": 0.05 },
+            "position": { "x": 0.0, "y": -0.044, "z": 1.0 },
+            "alpha": 0.0,
+            "invisible": true
         }
     ]
 }

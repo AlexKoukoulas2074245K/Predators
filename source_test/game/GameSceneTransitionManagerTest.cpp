@@ -25,6 +25,7 @@ TEST(SceneManagerOperationTests, TestCorrectLogicSceneManagerGetsUpdated)
             return applicableScenes;
         };
         
+        void VInitSceneCamera(std::shared_ptr<scene::Scene>) override {};
         void VInitScene(std::shared_ptr<scene::Scene>) override {};
         void VUpdate(const float, std::shared_ptr<scene::Scene>) override { sUpdateCounter++; };
         void VDestroyScene(std::shared_ptr<scene::Scene>) override {}
@@ -51,6 +52,7 @@ TEST(SceneManagerOperationTests, TestAssertTriggeredOnMultipleLogicSceneManagers
             return applicableScenes;
         };
         
+        void VInitSceneCamera(std::shared_ptr<scene::Scene>) override {};
         void VInitScene(std::shared_ptr<scene::Scene>) override {};
         void VUpdate(const float, std::shared_ptr<scene::Scene>) override {};
         void VDestroyScene(std::shared_ptr<scene::Scene>) override {}
@@ -65,6 +67,7 @@ TEST(SceneManagerOperationTests, TestAssertTriggeredOnMultipleLogicSceneManagers
             return applicableScenes;
         };
         
+        void VInitSceneCamera(std::shared_ptr<scene::Scene>) override {};
         void VInitScene(std::shared_ptr<scene::Scene>) override {};
         void VUpdate(const float, std::shared_ptr<scene::Scene>) override {};
         void VDestroyScene(std::shared_ptr<scene::Scene>) override {}
@@ -94,6 +97,7 @@ TEST(SceneManagerOperationTests, TestCorrectSceneLogicManagerInitsUpdatesAndDest
             return applicableScenes;
         };
         
+        void VInitSceneCamera(std::shared_ptr<scene::Scene>) override {};
         void VInitScene(std::shared_ptr<scene::Scene>) override { initCounterA++; };
         void VUpdate(const float, std::shared_ptr<scene::Scene>) override { updateCounterA++; };
         void VDestroyScene(std::shared_ptr<scene::Scene>) override { destructionCounterA++; }
@@ -111,6 +115,7 @@ TEST(SceneManagerOperationTests, TestCorrectSceneLogicManagerInitsUpdatesAndDest
             return applicableScenes;
         };
         
+        void VInitSceneCamera(std::shared_ptr<scene::Scene>) override {};
         void VInitScene(std::shared_ptr<scene::Scene>) override { initCounterB++; };
         void VUpdate(const float, std::shared_ptr<scene::Scene>) override { updateCounterB++; };
         void VDestroyScene(std::shared_ptr<scene::Scene>) override { destructionCounterB++; }
