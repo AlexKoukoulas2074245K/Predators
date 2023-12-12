@@ -10,6 +10,9 @@
 #include <engine/rendering/AnimationManager.h>
 #include <engine/scene/SceneManager.h>
 #include <game/scenelogicmanagers/PermanentBoardSceneLogicManager.h>
+#if defined(MOBILE_FLOW)
+#include <platform_specific/IOSUtils.h>
+#endif
 
 ///------------------------------------------------------------------------------------------------
 

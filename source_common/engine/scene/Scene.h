@@ -14,6 +14,7 @@
 #include <engine/scene/SceneObject.h>
 #include <engine/utils/StringUtils.h>
 #include <memory>
+#include <unordered_set>
 #include <vector>
 
 ///------------------------------------------------------------------------------------------------
@@ -46,7 +47,7 @@ public:
     void RecalculatePositionOfEdgeSnappingSceneObjects();
     void RemoveSceneObject(const strutils::StringId& sceneObjectName);
     void RemoveAllSceneObjectsWithName(const strutils::StringId& sceneObjectName);
-    void RemoveAllSceneObjectsButTheOnesNamed(const strutils::StringId& sceneObjectName);
+    void RemoveAllSceneObjectsButTheOnesNamed(const std::unordered_set<strutils::StringId, strutils::StringIdHasher>& sceneObjectNames);
     void RemoveAllParticleEffects();
     
     [[nodiscard]] std::size_t GetSceneObjectCount() const;

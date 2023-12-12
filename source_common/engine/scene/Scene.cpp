@@ -161,11 +161,11 @@ void Scene::RemoveAllSceneObjectsWithName(const strutils::StringId& sceneObjectN
 
 ///------------------------------------------------------------------------------------------------
 
-void Scene::RemoveAllSceneObjectsButTheOnesNamed(const strutils::StringId& sceneObjectName)
+void Scene::RemoveAllSceneObjectsButTheOnesNamed(const std::unordered_set<strutils::StringId, strutils::StringIdHasher>& sceneObjectNames)
 {
     for (auto iter = mSceneObjects.begin(); iter != mSceneObjects.end();)
     {
-        if ((*iter)->mName != sceneObjectName)
+        if (sceneObjectNames.count((*iter)->mName) == 0)
         {
             iter = mSceneObjects.erase(iter);
         }

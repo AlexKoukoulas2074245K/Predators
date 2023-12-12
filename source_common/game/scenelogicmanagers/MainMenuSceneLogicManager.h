@@ -30,7 +30,21 @@ public:
     void VDestroyScene(std::shared_ptr<scene::Scene> scene) override;
     
 private:
+    enum class SubSceneType
+    {
+        NONE,
+        MAIN,
+        PRACTICE_BATTLE
+    };
+    
+private:
+    void InitSubScene(const SubSceneType subSceneType, std::shared_ptr<scene::Scene> scene);
+    void TransitionToSubScene(const SubSceneType subSceneType, std::shared_ptr<scene::Scene> scene);
+    
+private:
     std::vector<std::unique_ptr<AnimatedButton>> mAnimatedButtons;
+    SubSceneType mActiveSubScene;
+    bool mTransitioningToSubScene;
 };
 
 ///------------------------------------------------------------------------------------------------
