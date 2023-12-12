@@ -33,7 +33,7 @@
 #include <game/gameactions/GameActionFactory.h>
 #include <game/scenelogicmanagers/BattleSceneLogicManager.h>
 #include <game/scenelogicmanagers/LoadingSceneLogicManager.h>
-#include <game/scenelogicmanagers/PermanentBattleSceneLogicManager.h>
+#include <game/scenelogicmanagers/PermanentBoardSceneLogicManager.h>
 #include <game/utils/PersistenceUtils.h>
 
 ///------------------------------------------------------------------------------------------------
@@ -76,7 +76,7 @@ void Game::Init()
     mGameSceneTransitionManager = std::make_unique<GameSceneTransitionManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<BattleSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<LoadingSceneLogicManager>();
-    mGameSceneTransitionManager->RegisterSceneLogicManager<PermanentBattleSceneLogicManager>();
+    mGameSceneTransitionManager->RegisterSceneLogicManager<PermanentBoardSceneLogicManager>();
     
     ProgressionDataRepository::GetInstance().SetNextBattleControlType(BattleControlType::AI_TOP_ONLY);
     

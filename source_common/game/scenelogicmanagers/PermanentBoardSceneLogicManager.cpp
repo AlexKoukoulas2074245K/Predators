@@ -1,5 +1,5 @@
 ///------------------------------------------------------------------------------------------------
-///  PermanentBattleSceneLogicManager.cpp
+///  PermanentBoardSceneLogicManager.cpp
 ///  Predators                                                                                            
 ///                                                                                                
 ///  Created by Alex Koukoulas on 12/12/2023
@@ -9,7 +9,7 @@
 #include <engine/utils/PlatformMacros.h>
 #include <engine/rendering/AnimationManager.h>
 #include <engine/scene/SceneManager.h>
-#include <game/scenelogicmanagers/PermanentBattleSceneLogicManager.h>
+#include <game/scenelogicmanagers/PermanentBoardSceneLogicManager.h>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -21,39 +21,43 @@ static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
 
 ///------------------------------------------------------------------------------------------------
 
-const std::vector<strutils::StringId>& PermanentBattleSceneLogicManager::VGetApplicableSceneNames() const
+const std::vector<strutils::StringId>& PermanentBoardSceneLogicManager::VGetApplicableSceneNames() const
 {
     return APPLICABLE_SCENE_NAMES;
 }
 
 ///------------------------------------------------------------------------------------------------
 
-void PermanentBattleSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
+void PermanentBoardSceneLogicManager::VInitSceneCamera(rendering::Camera& camera)
 {
 #if defined(MOBILE_FLOW)
     if (ios_utils::IsIPad())
     {
-        scene->GetCamera().SetZoomFactor(120.0f);
+        camera.SetZoomFactor(120.0f);
     }
     else
     {
-        scene->GetCamera().SetZoomFactor(130.0f);
+        camera.SetZoomFactor(130.0f);
     }
     
 #else
-    scene->GetCamera().SetZoomFactor(120.0f);
+    camera.SetZoomFactor(120.0f);
 #endif
 }
 
-///------------------------------------------------------------------------------------------------
-
-void PermanentBattleSceneLogicManager::VUpdate(const float, std::shared_ptr<scene::Scene>)
+void PermanentBoardSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene>)
 {
 }
 
 ///------------------------------------------------------------------------------------------------
 
-void PermanentBattleSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene>)
+void PermanentBoardSceneLogicManager::VUpdate(const float, std::shared_ptr<scene::Scene>)
+{
+}
+
+///------------------------------------------------------------------------------------------------
+
+void PermanentBoardSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene>)
 {
 }
 

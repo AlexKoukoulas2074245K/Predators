@@ -193,22 +193,27 @@ void BattleSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 
 ///------------------------------------------------------------------------------------------------
 
-void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scene)
+void BattleSceneLogicManager::VInitSceneCamera(rendering::Camera& camera)
 {
 #if defined(MOBILE_FLOW)
     if (ios_utils::IsIPad())
     {
-        scene->GetCamera().SetZoomFactor(120.0f);
+        camera.SetZoomFactor(120.0f);
     }
     else
     {
-        scene->GetCamera().SetZoomFactor(130.0f);
+        camera.SetZoomFactor(130.0f);
     }
     
 #else
-    scene->GetCamera().SetZoomFactor(120.0f);
+    camera.SetZoomFactor(120.0f);
 #endif
-    
+}
+
+///------------------------------------------------------------------------------------------------
+
+void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scene)
+{
     CardDataRepository::GetInstance().LoadCardData(true);
     
     RegisterForEvents();

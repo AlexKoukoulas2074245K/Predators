@@ -33,6 +33,12 @@ const std::vector<strutils::StringId>& LoadingSceneLogicManager::VGetApplicableS
 
 ///------------------------------------------------------------------------------------------------
 
+void LoadingSceneLogicManager::VInitSceneCamera(rendering::Camera&)
+{
+}
+
+///------------------------------------------------------------------------------------------------
+
 void LoadingSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 {
     mTotalLoadingJobCount = -1;

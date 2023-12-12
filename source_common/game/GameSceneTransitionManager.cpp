@@ -213,6 +213,7 @@ void GameSceneTransitionManager::InitializeActiveSceneLogicManager(const bool us
     if (!sceneLogicManagerEntry->mSceneInitStatusMap.at(activeSceneName))
     {
         auto scene = sceneManager.FindScene(activeSceneName);
+        mActiveSceneStack.top().mActiveSceneLogicManager->VInitSceneCamera(scene->GetCamera());
         sceneManager.LoadPredefinedObjectsFromDescriptorForScene(scene);
         mActiveSceneStack.top().mActiveSceneLogicManager->VInitScene(scene);
         events::EventSystem::GetInstance().DispatchEvent<events::WindowResizeEvent>();
