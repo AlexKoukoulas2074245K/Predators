@@ -33,8 +33,13 @@
 #include <game/gameactions/GameActionFactory.h>
 #include <game/scenelogicmanagers/BattleSceneLogicManager.h>
 #include <game/scenelogicmanagers/LoadingSceneLogicManager.h>
+#include <game/scenelogicmanagers/MainMenuSceneLogicManager.h>
 #include <game/scenelogicmanagers/PermanentBoardSceneLogicManager.h>
 #include <game/utils/PersistenceUtils.h>
+
+///------------------------------------------------------------------------------------------------
+
+static const strutils::StringId MAIN_MENU_SCENE = strutils::StringId("main_menu_scene");
 
 ///------------------------------------------------------------------------------------------------
 
@@ -65,7 +70,7 @@ void Game::Init()
     auto& eventSystem = events::EventSystem::GetInstance();
     mSceneChangeEventListener = eventSystem.RegisterForEvent<events::SceneChangeEvent>([=](const events::SceneChangeEvent& event)
     {
-        mGameSceneTransitionManager->ChangeToScene(event.mNewSceneName, event.mIsModal, event.mUseLoadingScene, event.mTargetDurationSecs, event.mMaxTransitionDarkeningAlpha);
+        mGameSceneTransitionManager->ChangeToScene(event.mNewSceneName, event.mDestroyScene, event.mIsModal, event.mUseLoadingScene, event.mTargetDurationSecs, event.mMaxTransitionDarkeningAlpha);
     });
     
     mPopModalSceneEventListener = eventSystem.RegisterForEvent<events::PopSceneModalEvent>([=](const events::PopSceneModalEvent& event)
@@ -77,67 +82,12 @@ void Game::Init()
     mGameSceneTransitionManager->RegisterSceneLogicManager<BattleSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<LoadingSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<PermanentBoardSceneLogicManager>();
+    mGameSceneTransitionManager->RegisterSceneLogicManager<MainMenuSceneLogicManager>();
     
-    ProgressionDataRepository::GetInstance().SetNextBattleControlType(BattleControlType::AI_TOP_ONLY);
+    ProgressionDataRepository::GetInstance().SetNextBattleControlType(BattleControlType::AI_TOP_BOT);
     
-//    auto flameSceneObject = dummyScene->CreateSceneObject(strutils::StringId("Fire"));
-//    flameSceneObject->mTextureResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "fire.png");
-//    flameSceneObject->mShaderResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + "card_dissolve.vs");
-//    flameSceneObject->mPosition.z = 3.0f;
-//    flameSceneObject->mScale = glm::vec3(0.1f, 0.1f, 0.1f);
-//    flameSceneObject->mShaderFloatUniformValues[strutils::StringId("time_speed")] = 1.0f;
-//    flameSceneObject->mShaderFloatUniformValues[strutils::StringId("color_factor_r")] = 1.0f;
-//    flameSceneObject->mShaderFloatUniformValues[strutils::StringId("color_factor_g")] = 1.0f;
-//    flameSceneObject->mShaderFloatUniformValues[strutils::StringId("color_factor_b")] = 1.0f;
-//    flameSceneObject->mShaderFloatUniformValues[strutils::StringId("perturbation_factor")] = 1.0f;
-//    flameSceneObject->mShaderFloatUniformValues[strutils::StringId("noise_0_factor")] = 1.0f;
-//    flameSceneObject->mShaderFloatUniformValues[strutils::StringId("noise_1_factor")] = 1.0f;
-//    flameSceneObject->mShaderFloatUniformValues[strutils::StringId("noise_2_factor")] = 1.0f;
-//    flameSceneObject->mShaderFloatUniformValues[strutils::StringId("noise_3_factor")] = 1.0f;
-//    flameSceneObject->mShaderFloatUniformValues[strutils::StringId("noise_4_factor")] = 1.0f;
-//    flameSceneObject->mShaderFloatUniformValues[strutils::StringId("noise_5_factor")] = 1.0f;
- //   flameSceneObject->mInvisible = true;
-
-//
-//    auto uiScene = systemsEngine.GetSceneManager().CreateScene(strutils::StringId("UI"));
-//    std::string texts[6] =
-//    {
-//        "Fuzzy Speed",
-//        "-----------------------------------------------",
-//        "ZaBcDeFgHiJkLmNoPqRsTuVwXy",
-//        "-----------------------------------------------",
-//        "1234567890!@£$%^&*()-=_+{}",
-//        "-----------------------------------------------",
-//    };
-//
-//    float yCursors[6] =
-//    {
-//        0.1f,
-//        0.088f,
-//        0.0f,
-//        -0.01f,
-//        -0.1f,
-//        -0.11f
-//    };
-//
-//    for (int i = 0; i < 6; ++i)
-//    {
-//        auto fontRowSceneObject = uiScene->CreateSceneObject();
-//
-//        scene::TextSceneObjectData textData;
-//        textData.mFontName = strutils::StringId("font");
-//        textData.mText = texts[i];
-//
-//        fontRowSceneObject->mSceneObjectTypeData = std::move(textData);
-//
-//        fontRowSceneObject->mPosition = glm::vec3(-0.4f, yCursors[i], 0.1f);
-//        fontRowSceneObject->mScale = glm::vec3(0.00058f);
-//        fontRowSceneObject->mShaderResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + "basic.vs");
-//        fontRowSceneObject->mMeshResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_MESHES_ROOT + "quad.obj");
-//    }
-    
-    mGameSceneTransitionManager->ChangeToScene(game_constants::PERMANENT_BOARD_SCENE, false, false);
-    mGameSceneTransitionManager->ChangeToScene(game_constants::IN_GAME_BATTLE_SCENE, false, true);
+    mGameSceneTransitionManager->ChangeToScene(game_constants::PERMANENT_BOARD_SCENE, false, false, false);
+    mGameSceneTransitionManager->ChangeToScene(MAIN_MENU_SCENE, false, false, true);
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -285,6 +235,35 @@ void Game::CreateDebugWidgets()
     // Create game configs
     static bool printGameActionTransitions = false;
     
+    ImGui::Begin("Scene Transitions", nullptr, GLOBAL_IMGUI_WINDOW_FLAGS);
+    ImGui::SeparatorText("Active Scene Stack");
+    auto activeSceneStack = mGameSceneTransitionManager->GetActiveSceneStack();
+    while (!activeSceneStack.empty())
+    {
+        const auto& topEntry = activeSceneStack.top();
+        ImGui::Text("%s: %s", typeid(*topEntry.mActiveSceneLogicManager).name(), topEntry.mActiveSceneName.GetString().c_str());
+        activeSceneStack.pop();
+    }
+    
+    ImGui::SeparatorText("Scene Logic Managers");
+    const auto& registeredSceneManagers = mGameSceneTransitionManager->GetRegisteredSceneLogicManagers();
+    for (const auto& sceneManagerEntry: registeredSceneManagers)
+    {
+        auto* sceneLogicManager = sceneManagerEntry.mSceneLogicManager.get();
+        std::stringstream initStatusStr;
+        for (const auto& initStatusEntry: sceneManagerEntry.mSceneInitStatusMap)
+        {
+            if (!initStatusStr.str().empty())
+            {
+                initStatusStr << ", ";
+            }
+            initStatusStr << initStatusEntry.first.GetString() << ":" << (initStatusEntry.second ? "true" : "false");
+        }
+        ImGui::Text("%s: [%s]", typeid(*sceneLogicManager).name(), initStatusStr.str().c_str());
+    }
+    ImGui::End();
+    
+    // Battle specific ImGui windows
     auto* activeSceneLogicManager = mGameSceneTransitionManager->GetActiveSceneLogicManager();
     if (!dynamic_cast<BattleSceneLogicManager*>(activeSceneLogicManager))
     {

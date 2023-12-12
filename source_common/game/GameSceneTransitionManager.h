@@ -20,6 +20,7 @@
 
 class GameSceneTransitionManager final
 {
+    friend class Game;
 public:
     GameSceneTransitionManager();
     
@@ -46,6 +47,7 @@ public:
     void ChangeToScene
     (
         const strutils::StringId& sceneName,
+        const bool destroyExistingScene,
         const bool isModal,
         const bool useLoadingScene,
         const float targetTransitionDurationSecs = 0.0f,
@@ -58,17 +60,11 @@ public:
     );
     
 private:
-    void InitializeActiveSceneLogicManager(const bool useLoadingScene);
-    void DestroyActiveSceneLogicManager();
-    
-private:
     struct SceneLogicManagerEntry
     {
         std::unique_ptr<ISceneLogicManager> mSceneLogicManager = nullptr;
         std::unordered_map<strutils::StringId, bool, strutils::StringIdHasher> mSceneInitStatusMap;
     };
-    
-    std::vector<SceneLogicManagerEntry> mRegisteredSceneLogicManagers;
     
     struct ActiveSceneEntry
     {
@@ -76,6 +72,15 @@ private:
         strutils::StringId mActiveSceneName;
     };
     
+private:
+    const std::vector<SceneLogicManagerEntry>& GetRegisteredSceneLogicManagers() const;
+    const std::stack<ActiveSceneEntry> GetActiveSceneStack() const;
+    
+    void InitializeActiveSceneLogicManager(const bool useLoadingScene);
+    void DestroyActiveSceneLogicManager();
+    
+private:
+    std::vector<SceneLogicManagerEntry> mRegisteredSceneLogicManagers;
     std::stack<ActiveSceneEntry> mActiveSceneStack;
 };
 

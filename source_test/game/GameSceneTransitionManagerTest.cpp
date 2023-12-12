@@ -33,7 +33,7 @@ TEST(SceneManagerOperationTests, TestCorrectLogicSceneManagerGetsUpdated)
     
     GameSceneTransitionManager gstm;
     gstm.RegisterSceneLogicManager<DummySceneLogicManager>();
-    gstm.ChangeToScene(SCENE_NAME, false, false);
+    gstm.ChangeToScene(SCENE_NAME, false, false, false);
     gstm.Update(0.0f);
     
     EXPECT_EQ(sUpdateCounter, 1);
@@ -125,7 +125,7 @@ TEST(SceneManagerOperationTests, TestCorrectSceneLogicManagerInitsUpdatesAndDest
     gstm.RegisterSceneLogicManager<DummySceneLogicManagerA>();
     gstm.RegisterSceneLogicManager<DummySceneLogicManagerB>();
     
-    gstm.ChangeToScene(SCENE_NAME, false, false);
+    gstm.ChangeToScene(SCENE_NAME, false, false, false);
     EXPECT_EQ(initCounterA, 1);
     EXPECT_EQ(updateCounterA, 0);
     EXPECT_EQ(destructionCounterA, 0);
@@ -141,7 +141,7 @@ TEST(SceneManagerOperationTests, TestCorrectSceneLogicManagerInitsUpdatesAndDest
     EXPECT_EQ(updateCounterB, 0);
     EXPECT_EQ(destructionCounterB, 0);
     
-    gstm.ChangeToScene(MODAL_SCENE_NAME, true, false);
+    gstm.ChangeToScene(MODAL_SCENE_NAME, false, true, false);
     EXPECT_EQ(initCounterA, 1);
     EXPECT_EQ(updateCounterA, 1);
     EXPECT_EQ(destructionCounterA, 0);

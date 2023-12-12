@@ -19,7 +19,7 @@ out vec4 frag_color;
 
 void main()
 {
-    float final_uv_x = uv_frag.x;
+    float final_uv_x = uv_frag.x * 0.999f;
     float final_uv_y = 1.0 - uv_frag.y;
     frag_color = texture(tex, vec2(final_uv_x, final_uv_y));
 

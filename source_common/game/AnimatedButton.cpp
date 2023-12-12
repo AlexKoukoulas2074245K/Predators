@@ -34,6 +34,8 @@ AnimatedButton::AnimatedButton
     , mAnimating(false)
 {
     mSceneObject = scene.CreateSceneObject(buttonName);
+    
+    mSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
     mSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + textureFilename);
     mSceneObject->mPosition = position;
     mSceneObject->mScale = scale;
@@ -42,9 +44,32 @@ AnimatedButton::AnimatedButton
 
 ///------------------------------------------------------------------------------------------------
 
-AnimatedButton::~AnimatedButton()
+AnimatedButton::AnimatedButton
+(
+    const glm::vec3& position,
+    const glm::vec3& scale,
+    const strutils::StringId& fontName,
+    const std::string& text,
+    const strutils::StringId& buttonName,
+    std::function<void()> onPressCallback,
+    scene::Scene& scene,
+    scene::SnapToEdgeBehavior snapToEdgeBehavior /* = scene::SnapToEdgeBehavior::NONE */
+)
+    : mScene(scene)
+    , mOnPressCallback(onPressCallback)
+    , mAnimating(false)
 {
-    mScene.RemoveSceneObject(mSceneObject->mName);
+    mSceneObject = scene.CreateSceneObject(buttonName);
+    
+    scene::TextSceneObjectData textData;
+    textData.mFontName = fontName;
+    textData.mText = text;
+    
+    mSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
+    mSceneObject->mSceneObjectTypeData = std::move(textData);
+    mSceneObject->mPosition = position;
+    mSceneObject->mScale = scale;
+    mSceneObject->mSnapToEdgeBehavior = snapToEdgeBehavior;
 }
 
 ///------------------------------------------------------------------------------------------------

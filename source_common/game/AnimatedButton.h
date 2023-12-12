@@ -36,7 +36,17 @@ public:
         scene::Scene& scene,
         scene::SnapToEdgeBehavior snapToEdgeBehavior = scene::SnapToEdgeBehavior::NONE
     );
-    ~AnimatedButton();
+    AnimatedButton
+    (
+        const glm::vec3& position,
+        const glm::vec3& scale,
+        const strutils::StringId& fontName,
+        const std::string& text,
+        const strutils::StringId& buttonName,
+        std::function<void()> onPressCallback,
+        scene::Scene& scene,
+        scene::SnapToEdgeBehavior snapToEdgeBehavior = scene::SnapToEdgeBehavior::NONE
+    );
     
     void Update(const float dtMillis);
     std::shared_ptr<scene::SceneObject> GetSceneObject();

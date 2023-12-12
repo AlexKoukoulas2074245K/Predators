@@ -232,8 +232,8 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
     mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerHealth = game_constants::TOP_PLAYER_DEFAULT_HEALTH;
     mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth = game_constants::BOT_PLAYER_DEFAULT_HEALTH;
     
-    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("dinosaurs"));
-    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));
+    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));
+    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("insects"));
     
     mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mGoldenCardIds = {14,16,21,23}; //CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));
     mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mGoldenCardIds = {19,4,8,9}; //CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));;
@@ -1747,7 +1747,7 @@ void BattleSceneLogicManager::OnHistoryButtonPressed()
     
     battleScene->RemoveAllParticleEffects();
     battleScene->GetCamera().StopShake();
-    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(HISTORY_SCENE, true, false, OVERLAY_SCENE_SPEED_ANIMATION_TARGET_DURATION, HISTORY_MODAL_MAX_ALPHA);
+    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(HISTORY_SCENE, false, true, false, OVERLAY_SCENE_SPEED_ANIMATION_TARGET_DURATION, HISTORY_MODAL_MAX_ALPHA);
 }
 
 ///------------------------------------------------------------------------------------------------

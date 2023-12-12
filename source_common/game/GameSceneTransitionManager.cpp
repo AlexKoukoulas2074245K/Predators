@@ -61,9 +61,17 @@ void GameSceneTransitionManager::Update(const float dtMillis)
                 });
             }
             
+            DestroyActiveSceneLogicManager();
             mActiveSceneStack.pop();
             sceneManager.FindScene(mActiveSceneStack.top().mActiveSceneName)->SetLoaded(true);
             return;
+        }
+        else if (activeScene->GetName() == LOADING_SCENE_NAME && outstandingLoadingJobCount != 0)
+        {
+            for (auto sceneObject: activeScene->GetSceneObjects())
+            {
+                sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] += dtMillis * 0.002f;
+            }
         }
         
         if (activeScene->IsLoaded())
@@ -96,6 +104,7 @@ void GameSceneTransitionManager::Update(const float dtMillis)
 void GameSceneTransitionManager::ChangeToScene
 (
     const strutils::StringId& sceneName,
+    const bool destroyExistingScene,
     const bool isModal,
     const bool useLoadingScene,
     const float targetTransitionDurationSecs /* = 0.0f */,
@@ -104,11 +113,30 @@ void GameSceneTransitionManager::ChangeToScene
 {
     assert(!useLoadingScene || targetTransitionDurationSecs <= 0.0f);
     assert(!useLoadingScene || !isModal);
+    assert(!isModal || !destroyExistingScene);
     
-    // Destroy logic manager only when transitioning to a completely new scene
+    auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
+    
     if (!isModal && !mActiveSceneStack.empty())
     {
+        // Destroy logic manager only when transitioning to a completely new scene
         DestroyActiveSceneLogicManager();
+        
+        // If we additionally want to completely wipe the previous scene, we first fade it's elements out
+        if (destroyExistingScene)
+        {
+            auto sceneToDestroy = sceneManager.FindScene(mActiveSceneStack.top().mActiveSceneName);
+            for (auto sceneObject: sceneToDestroy->GetSceneObjects())
+            {
+                CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, 0.0f, LOADING_SCENE_FADE_IN_OUT_DURATION_SECS), [=]()
+                {
+                    CoreSystemsEngine::GetInstance().GetSceneManager().RemoveScene(sceneToDestroy->GetName());
+                });
+            }
+        }
+        
+        // Erase from active scene stack
+        mActiveSceneStack.pop();
     }
     
     // Select the applicable logic manager for the given scene name
@@ -124,10 +152,10 @@ void GameSceneTransitionManager::ChangeToScene
     }
     
     // Create scene from scratch if non-existent
-    auto newScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(sceneName);
+    auto newScene = sceneManager.FindScene(sceneName);
     if (!newScene)
     {
-        newScene = CoreSystemsEngine::GetInstance().GetSceneManager().CreateScene(sceneName);
+        newScene = sceneManager.CreateScene(sceneName);
     }
     
     // With darkening transition
@@ -153,13 +181,24 @@ void GameSceneTransitionManager::ChangeToScene
     {
         if (useLoadingScene)
         {
-            ChangeToScene(LOADING_SCENE_NAME, false, false);
+            // We first do a (recursive) call to the ChangeToScene to load the loading scene
+            ChangeToScene(LOADING_SCENE_NAME, false, false, false);
             
+            // Enable async resource loading
             CoreSystemsEngine::GetInstance().GetResourceLoadingService().SetAsyncLoading(true);
+            
+            // Save the top entry on the stack (at this point it will be the loading scene entry).
             auto frontEntry = mActiveSceneStack.top();
+            
+            // Pop and push the next active scene logic managers that will be active
             mActiveSceneStack.pop();
             mActiveSceneStack.push({nextActiveSceneLogicManager, sceneName});
+            
+            // .. and initialize it (will load everything asynchronously at this point.
             InitializeActiveSceneLogicManager(useLoadingScene);
+            
+            // Finally push the loading scene entry on top to be updateable whilst the
+            // rest of the resources are loading in the background.
             mActiveSceneStack.push(frontEntry);
         }
         else
@@ -199,6 +238,20 @@ void GameSceneTransitionManager::PopModalScene
 
 ///------------------------------------------------------------------------------------------------
 
+const std::vector<GameSceneTransitionManager::SceneLogicManagerEntry>& GameSceneTransitionManager::GetRegisteredSceneLogicManagers() const
+{
+    return mRegisteredSceneLogicManagers;
+}
+
+///------------------------------------------------------------------------------------------------
+
+const std::stack<GameSceneTransitionManager::ActiveSceneEntry> GameSceneTransitionManager::GetActiveSceneStack() const
+{
+    return mActiveSceneStack;
+}
+
+///------------------------------------------------------------------------------------------------
+
 void GameSceneTransitionManager::InitializeActiveSceneLogicManager(const bool useLoadingScene)
 {
     auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
@@ -231,13 +284,17 @@ void GameSceneTransitionManager::InitializeActiveSceneLogicManager(const bool us
 void GameSceneTransitionManager::DestroyActiveSceneLogicManager()
 {
     auto activeSceneName = mActiveSceneStack.top().mActiveSceneName;
-    mActiveSceneStack.top().mActiveSceneLogicManager->VDestroyScene(CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(activeSceneName));
     auto sceneLogicManagerEntry = std::find_if(mRegisteredSceneLogicManagers.begin(), mRegisteredSceneLogicManagers.end(), [=](const SceneLogicManagerEntry& entry)
     {
         return entry.mSceneLogicManager.get() == mActiveSceneStack.top().mActiveSceneLogicManager;
     });
     assert(sceneLogicManagerEntry != mRegisteredSceneLogicManagers.end());
-    sceneLogicManagerEntry->mSceneInitStatusMap[activeSceneName] = false;
+    
+    if (sceneLogicManagerEntry->mSceneInitStatusMap[activeSceneName])
+    {
+        mActiveSceneStack.top().mActiveSceneLogicManager->VDestroyScene(CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(activeSceneName));
+        sceneLogicManagerEntry->mSceneInitStatusMap[activeSceneName] = false;
+    }
 }
 
 ///------------------------------------------------------------------------------------------------

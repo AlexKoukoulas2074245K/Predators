@@ -6,10 +6,11 @@
     "scene_objects":
     [
         {
-            "name": "board",
-            "texture": "board.png",
-            "position": { "x": -0.007, "y": 0.011, "z": 0.0 },
-            "rotation": { "x": 0.0, "y": 0.0, "z": 1.570796 },
+            "name": "predators_title",
+            "font": "font",
+            "text": "Predators",
+            "scale": { "x": 0.001, "y": 0.001, "z": 0.001 },
+            "position": { "x": -0.151, "y": 0.151, "z": 0.001 },
             "alpha": 1.0
         }
     ]
