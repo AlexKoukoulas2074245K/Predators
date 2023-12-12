@@ -16,7 +16,7 @@
 
 ///------------------------------------------------------------------------------------------------
 
-static const strutils::StringId SCENE_TRANSITION_ANIMATION_NAME = strutils::StringId("SCENE_TRANSITION_ANIMATION");
+static const strutils::StringId SCENE_TRANSITION_ANIMATION_NAME = strutils::StringId("scene_transition_animation");
 static const strutils::StringId LOADING_SCENE_NAME = strutils::StringId("loading_scene");
 
 static const std::string OVERLAY_TEXTURE_FILE_NAME = "overlay.png";
@@ -213,7 +213,7 @@ void GameSceneTransitionManager::InitializeActiveSceneLogicManager(const bool us
     if (!sceneLogicManagerEntry->mSceneInitStatusMap.at(activeSceneName))
     {
         auto scene = sceneManager.FindScene(activeSceneName);
-        mActiveSceneStack.top().mActiveSceneLogicManager->VInitSceneCamera(scene->GetCamera());
+        mActiveSceneStack.top().mActiveSceneLogicManager->VInitSceneCamera(scene);
         sceneManager.LoadPredefinedObjectsFromDescriptorForScene(scene);
         mActiveSceneStack.top().mActiveSceneLogicManager->VInitScene(scene);
         events::EventSystem::GetInstance().DispatchEvent<events::WindowResizeEvent>();

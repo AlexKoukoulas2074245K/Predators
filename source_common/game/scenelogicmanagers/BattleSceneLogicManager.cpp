@@ -37,14 +37,14 @@
 ///------------------------------------------------------------------------------------------------
 
 static const strutils::StringId HISTORY_SCENE = strutils::StringId("battle_history_scene");
-static const strutils::StringId CARD_HISTORY_CONTAINER_NAME = strutils::StringId("CARD_HISTORY_CONTAINER");
-static const strutils::StringId HISTORY_TROLLEY_SCENE_OBJECT_NAME = strutils::StringId("HISTORY_TROLLEY");
-static const strutils::StringId CARD_LOCATION_INDICATOR_SCENE_OBJECT_NAME = strutils::StringId("CARD_LOCATION_INDICATOR");
+static const strutils::StringId CARD_HISTORY_CONTAINER_NAME = strutils::StringId("card_history_container");
+static const strutils::StringId HISTORY_TROLLEY_SCENE_OBJECT_NAME = strutils::StringId("history_trolley");
+static const strutils::StringId CARD_LOCATION_INDICATOR_SCENE_OBJECT_NAME = strutils::StringId("card_location_indicator");
 static const strutils::StringId CARD_HISTORY_CAPSULE_SCENE_OBJECT_NAME = strutils::StringId("card_history_capsule");
 static const strutils::StringId CARD_TOOLTIP_SCENE_OBJECT_NAME = strutils::StringId("card_tooltip");
-static const strutils::StringId HISTORY_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("HISTORY_ICON");
-static const strutils::StringId HISTORY_OVERLAY_SCENE_OBJECT_NAME = strutils::StringId("HISTORY_OVERLAY");
-static const strutils::StringId BATTLE_SCENE_SPEED_DILATION_ANIMATION_NAME = strutils::StringId("SCENE_SPEED_DILATION_ANIMATION");
+static const strutils::StringId HISTORY_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("history_icon");
+static const strutils::StringId HISTORY_OVERLAY_SCENE_OBJECT_NAME = strutils::StringId("history_overlay");
+static const strutils::StringId BATTLE_SCENE_SPEED_DILATION_ANIMATION_NAME = strutils::StringId("scene_speed_dilation_animation");
 static const strutils::StringId CARD_TOOLTIP_REVEAL_THRESHOLD_UNIFORM_NAME = strutils::StringId("reveal_threshold");
 static const strutils::StringId CARD_TOOLTIP_REVEAL_RGB_EXPONENT_UNIFORM_NAME = strutils::StringId("reveal_rgb_exponent");
 static const strutils::StringId IDLE_GAME_ACTION_NAME = strutils::StringId("IdleGameAction");
@@ -65,7 +65,7 @@ static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
     HISTORY_SCENE
 };
 
-static const std::string MAKE_SPACE_REVERT_TO_POSITION_ANIMATION_NAME_PREFIX = "MAKE_SPACE_REVERT_";
+static const std::string MAKE_SPACE_REVERT_TO_POSITION_ANIMATION_NAME_PREFIX = "make_space_revert_";
 static const std::string BATTLE_ICON_TEXTURE_FILE_NAME = "battle_icon.png";
 static const std::string TURN_POINTER_TEXTURE_FILE_NAME = "turn_pointer.png";
 static const std::string HEALTH_CRYSTAL_TEXTURE_FILE_NAME = "health_crystal.png";
@@ -84,13 +84,13 @@ static const std::string CARD_TOOLTIP_TEXTURE_FILE_NAME = "tooltip.png";
 static const std::string CARD_TOOLTIP_SHADER_FILE_NAME = "diagonal_reveal.vs";
 static const std::string HISTORY_ICON_TEXTURE_FILE_NAME = "history_button_icon.png";
 static const std::string HISTORY_OVERLAY_TEXTURE_FILE_NAME = "overlay.png";
-static const std::string CARD_HIGHLIGHTER_SCENE_OBJECT_NAME_PREFIX = "HIGHLIGHTER_CARD_";
-static const std::string HEALTH_CRYSTAL_TOP_SCENE_OBJECT_NAME_PREFIX = "HEALTH_CRYSTAL_TOP_";
-static const std::string HEALTH_CRYSTAL_BOT_SCENE_OBJECT_NAME_PREFIX = "HEALTH_CRYSTAL_BOT_";
-static const std::string WEIGHT_CRYSTAL_TOP_SCENE_OBJECT_NAME_PREFIX = "WEIGHT_CRYSTAL_TOP_";
-static const std::string WEIGHT_CRYSTAL_BOT_SCENE_OBJECT_NAME_PREFIX = "WEIGHT_CRYSTAL_BOT_";
-static const std::string POISON_STACK_TOP_SCENE_OBJECT_NAME_PREFIX = "POISON_STACK_TOP_";
-static const std::string POISON_STACK_BOT_SCENE_OBJECT_NAME_PREFIX = "POISON_STACK_BOT_";
+static const std::string CARD_HIGHLIGHTER_SCENE_OBJECT_NAME_PREFIX = "highlighter_card_";
+static const std::string HEALTH_CRYSTAL_TOP_SCENE_OBJECT_NAME_PREFIX = "health_crystal_top_";
+static const std::string HEALTH_CRYSTAL_BOT_SCENE_OBJECT_NAME_PREFIX = "health_crystal_bot_";
+static const std::string WEIGHT_CRYSTAL_TOP_SCENE_OBJECT_NAME_PREFIX = "weight_crystal_top_";
+static const std::string WEIGHT_CRYSTAL_BOT_SCENE_OBJECT_NAME_PREFIX = "weight_crystal_bot_";
+static const std::string POISON_STACK_TOP_SCENE_OBJECT_NAME_PREFIX = "poison_stack_top_";
+static const std::string POISON_STACK_BOT_SCENE_OBJECT_NAME_PREFIX = "poison_stack_bot_";
 static const std::string CARD_HISTORY_ENTRY_SHADER_FILE_NAME = "card_history_entry.vs";
 static const std::string TURN_COUNTER_HISTORY_ENTRY_SHADER_FILE_NAME = "turn_counter_history_entry.vs";
 static const std::string TURN_COUNTER_STRING_HISTORY_ENTRY_SHADER_FILE_NAME = "turn_counter_string_history_entry.vs";
@@ -99,8 +99,6 @@ static const std::string HISTORY_ENTRY_SPELL_MASK_TEXTURE_FILE_NAME = "history_e
 static const std::string HISTORY_ENTRY_TURN_COUNTER_MASK_TEXTURE_FILE_NAME = "history_entry_turn_counter_mask.png";
 static const std::string TURN_COUNTER_HISTORY_ENTRY_TEXTURE_FILE_NAME = "history_turn_counter.png";
 
-static const glm::vec3 TURN_POINTER_POSITION = {0.2f, 0.0f, 0.1f};
-static const glm::vec3 TURN_POINTER_SCALE = {0.08f, 0.08f, 0.08f};
 static const glm::vec3 BOARD_SIDE_EFFECT_SCALE = {0.372f, 0.346f, 1.0f};
 static const glm::vec3 BOARD_SIDE_EFFECT_TOP_POSITION = { 0.0f, 0.044f, 1.0f};
 static const glm::vec3 BOARD_SIDE_EFFECT_BOT_POSITION = { 0.0f, -0.044f, 1.0f};
@@ -193,21 +191,23 @@ void BattleSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 
 ///------------------------------------------------------------------------------------------------
 
-void BattleSceneLogicManager::VInitSceneCamera(rendering::Camera& camera)
+void BattleSceneLogicManager::VInitSceneCamera(std::shared_ptr<scene::Scene> scene)
 {
+    if (scene->GetName() != HISTORY_SCENE)
+    {
 #if defined(MOBILE_FLOW)
-    if (ios_utils::IsIPad())
-    {
-        camera.SetZoomFactor(120.0f);
-    }
-    else
-    {
-        camera.SetZoomFactor(130.0f);
-    }
-    
+        if (ios_utils::IsIPad())
+        {
+            scene->GetCamera().SetZoomFactor(120.0f);
+        }
+        else
+        {
+            scene->GetCamera().SetZoomFactor(130.0f);
+        }
 #else
-    camera.SetZoomFactor(120.0f);
+        scene->GetCamera().SetZoomFactor(120.0f);
 #endif
+    }
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -276,36 +276,6 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
         
         mActionEngine->AddGameAction(strutils::StringId("NextPlayerGameAction"));
     }
-    
-    // Card Location Indicator
-    auto cardLocationIndicatorSo = scene->CreateSceneObject(CARD_LOCATION_INDICATOR_SCENE_OBJECT_NAME);
-    cardLocationIndicatorSo->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + game_constants::CARD_LOCATION_MASK_TEXTURE_NAME);
-    cardLocationIndicatorSo->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + game_constants::BOARD_CARD_LOCATION_SHADER_NAME);
-    cardLocationIndicatorSo->mShaderFloatUniformValues[game_constants::PERLIN_TIME_SPEED_UNIFORM_NAME] = game_constants::CARD_LOCATION_EFFECT_TIME_SPEED;
-    cardLocationIndicatorSo->mShaderFloatUniformValues[game_constants::PERLIN_RESOLUTION_UNIFORM_NAME] = game_constants::CARD_LOCATION_EFFECT_PERLIN_RESOLUTION;
-    cardLocationIndicatorSo->mScale = glm::vec3(game_constants::IN_GAME_CARD_BASE_SCALE * game_constants::IN_GAME_PLAYED_CARD_SCALE_FACTOR);
-    cardLocationIndicatorSo->mPosition.z = game_constants::CARD_LOCATION_EFFECT_Z;
-    cardLocationIndicatorSo->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
-    cardLocationIndicatorSo->mInvisible = true;
-    
-    // Turn pointer
-    auto turnPointerSo = scene->CreateSceneObject(game_constants::TURN_POINTER_SCENE_OBJECT_NAME);
-    turnPointerSo->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + TURN_POINTER_TEXTURE_FILE_NAME);
-    turnPointerSo->mPosition = TURN_POINTER_POSITION;
-    turnPointerSo->mScale = TURN_POINTER_SCALE;
-    turnPointerSo->mSnapToEdgeBehavior = scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE;
-    
-    // Turn pointer highlighter
-    auto tunPointerHighlighterSo = scene->CreateSceneObject(game_constants::TURN_POINTER_HIGHLIGHTER_SCENE_OBJECT_NAME);
-    tunPointerHighlighterSo->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + game_constants::ACTION_HIGHLIGHTER_SHADER_NAME);
-    tunPointerHighlighterSo->mShaderFloatUniformValues[game_constants::PERLIN_TIME_SPEED_UNIFORM_NAME] = game_constants::ACTION_HIGLIGHTER_PERLIN_TIME_SPEED;
-    tunPointerHighlighterSo->mShaderFloatUniformValues[game_constants::PERLIN_RESOLUTION_UNIFORM_NAME] = game_constants::ACTION_HIGLIGHTER_PERLIN_RESOLUTION;
-    tunPointerHighlighterSo->mShaderFloatUniformValues[game_constants::PERLIN_CLARITY_UNIFORM_NAME] = game_constants::ACTION_HIGLIGHTER_PERLIN_CLARITY;
-    tunPointerHighlighterSo->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
-    tunPointerHighlighterSo->mPosition = turnPointerSo->mPosition;
-    tunPointerHighlighterSo->mPosition.z += game_constants::ACTION_HIGLIGHTER_Z_OFFSET;
-    tunPointerHighlighterSo->mScale = game_constants::TURN_POINTER_HIGHLIGHTER_SCALE;
-    tunPointerHighlighterSo->mSnapToEdgeBehavior = scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE;
     
     // Stat Containers
     mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(game_constants::HEALTH_CRYSTAL_TOP_POSITION, HEALTH_CRYSTAL_TEXTURE_FILE_NAME, HEALTH_CRYSTAL_TOP_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[0].mPlayerHealth, false, *scene)));

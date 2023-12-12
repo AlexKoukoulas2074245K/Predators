@@ -1,0 +1,16 @@
+{
+    "children_scenes":
+    [
+    ],
+    
+    "scene_objects":
+    [
+        {
+            "name": "board",
+            "texture": "board.png",
+            "position": { "x": -0.007, "y": 0.011, "z": 0.0 },
+            "rotation": { "x": 0.0, "y": 0.0, "z": 1.570796 },
+            "alpha": 1.0
+        }
+    ]
+}

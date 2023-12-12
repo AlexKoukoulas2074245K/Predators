@@ -20,6 +20,14 @@ namespace scene
 ///------------------------------------------------------------------------------------------------
 
 static const std::string SCENE_DESCRIPTORS_PATH = "scene_descriptors/";
+static const std::unordered_map<std::string, scene::SnapToEdgeBehavior> STRING_TO_SNAP_TO_EDGE_BEHAVIOR_MAP =
+{
+    { "none", scene::SnapToEdgeBehavior::NONE },
+    { "snap_to_left_edge", scene::SnapToEdgeBehavior::SNAP_TO_LEFT_EDGE },
+    { "snap_to_right_edge", scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE },
+    { "snap_to_top_edge", scene::SnapToEdgeBehavior::SNAP_TO_TOP_EDGE },
+    { "snap_to_bot_edge", scene::SnapToEdgeBehavior::SNAP_TO_BOT_EDGE }
+};
 
 ///------------------------------------------------------------------------------------------------
 
@@ -129,6 +137,11 @@ void SceneManager::LoadPredefinedObjectsFromDescriptorForScene(std::shared_ptr<S
         if (sceneObjectJson.count("invisible"))
         {
             sceneObject->mInvisible = sceneObjectJson["invisible"].get<bool>();
+        }
+        
+        if (sceneObjectJson.count("snap_to_edge"))
+        {
+            sceneObject->mSnapToEdgeBehavior = STRING_TO_SNAP_TO_EDGE_BEHAVIOR_MAP.at(sceneObjectJson["snap_to_edge"].get<std::string>());
         }
         
         if (sceneObjectJson.count("uniform_floats"))

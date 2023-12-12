@@ -28,20 +28,20 @@ const std::vector<strutils::StringId>& PermanentBoardSceneLogicManager::VGetAppl
 
 ///------------------------------------------------------------------------------------------------
 
-void PermanentBoardSceneLogicManager::VInitSceneCamera(rendering::Camera& camera)
+void PermanentBoardSceneLogicManager::VInitSceneCamera(std::shared_ptr<scene::Scene> scene)
 {
 #if defined(MOBILE_FLOW)
     if (ios_utils::IsIPad())
     {
-        camera.SetZoomFactor(120.0f);
+        scene->GetCamera().SetZoomFactor(120.0f);
     }
     else
     {
-        camera.SetZoomFactor(130.0f);
+        scene->GetCamera().SetZoomFactor(130.0f);
     }
     
 #else
-    camera.SetZoomFactor(120.0f);
+    scene->GetCamera().SetZoomFactor(120.0f);
 #endif
 }
 

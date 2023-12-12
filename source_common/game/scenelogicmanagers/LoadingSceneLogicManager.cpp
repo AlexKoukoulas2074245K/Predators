@@ -33,7 +33,7 @@ const std::vector<strutils::StringId>& LoadingSceneLogicManager::VGetApplicableS
 
 ///------------------------------------------------------------------------------------------------
 
-void LoadingSceneLogicManager::VInitSceneCamera(rendering::Camera&)
+void LoadingSceneLogicManager::VInitSceneCamera(std::shared_ptr<scene::Scene>)
 {
 }
 

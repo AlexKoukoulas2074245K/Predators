@@ -39,7 +39,7 @@ static const std::vector<float> PARTICLE_UVS =
 };
 
 static int sParticleEmitterCount = 0;
-static std::string PARTICLE_EMITTER_NAME_PREFIX = "PARTICLE_EMITTER_";
+static std::string PARTICLE_EMITTER_NAME_PREFIX = "particle_emitter_";
 static std::string PARTICLE_SHADER_FILE_NAME = "generic_particle.vs";
 
 ///------------------------------------------------------------------------------------------------

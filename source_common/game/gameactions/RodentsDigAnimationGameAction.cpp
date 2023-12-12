@@ -22,7 +22,7 @@
 const std::string RodentsDigAnimationGameAction::CARD_INDEX_PARAM = "cardIndex";
 const std::string RodentsDigAnimationGameAction::PLAYER_INDEX_PARAM = "playerIndex";
 
-static const strutils::StringId SHOVEL_SCENE_OBEJECT_NAME = strutils::StringId("DIG_SHOVEL");
+static const strutils::StringId SHOVEL_SCENE_OBEJECT_NAME = strutils::StringId("dig_shovel");
 static const strutils::StringId DIRT_PARTICLE_NAME = strutils::StringId("dirt");
 
 static const std::string SHOVEL_TEXTURE_FILE_NAME = "shovel.png";

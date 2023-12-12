@@ -19,7 +19,7 @@
 
 ///------------------------------------------------------------------------------------------------
 
-static const strutils::StringId PARTICLE_SCENE_OBJECT_NAME = strutils::StringId("CARD_PLAYED_PARTICLE_EFFECT");
+static const strutils::StringId PARTICLE_SCENE_OBJECT_NAME = strutils::StringId("card_played_particle_effect");
 
 ///------------------------------------------------------------------------------------------------
 

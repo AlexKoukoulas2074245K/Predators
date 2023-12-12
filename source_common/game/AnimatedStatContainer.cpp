@@ -14,8 +14,8 @@
 
 ///------------------------------------------------------------------------------------------------
 
-static const std::string BASE_SCENE_OBJECT_NAME_POSTFIX = "BASE";
-static const std::string VALUE_SCENE_OBJECT_NAME_POSTFIX = "VALUE";
+static const std::string BASE_SCENE_OBJECT_NAME_POSTFIX = "base";
+static const std::string VALUE_SCENE_OBJECT_NAME_POSTFIX = "value";
 
 static const glm::vec3 STAT_CRYSTAL_SCALE = {0.05f, 0.05f, 1.0f};
 static const glm::vec3 STAT_CRYSTAL_VALUE_SCALE = {0.00013f, 0.00013f, 1.0f};

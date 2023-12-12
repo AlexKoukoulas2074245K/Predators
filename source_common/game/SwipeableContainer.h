@@ -22,7 +22,7 @@
 
 ///------------------------------------------------------------------------------------------------
 
-inline const strutils::StringId RUBBER_BANDING_ANIMATION_NAME = strutils::StringId("RUBBER_BANDING_ANIMATION");
+inline const strutils::StringId RUBBER_BANDING_ANIMATION_NAME = strutils::StringId("rubber_banding_animation");
 inline const int MIN_ITEMS_TO_ANIMATE = 0;
 inline const float CARD_VELOCITY_DAMPING = 0.85f;
 inline const float OVERSWIPE_DAMPING = 100.0f;

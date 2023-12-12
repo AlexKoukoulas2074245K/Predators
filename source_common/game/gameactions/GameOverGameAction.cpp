@@ -18,7 +18,7 @@
 
 ///------------------------------------------------------------------------------------------------
 
-const strutils::StringId VICTORIOUS_TEXT_SCENE_OBJECT_NAME = strutils::StringId("VICTORIOUS_PLAYER_TEXT");
+const strutils::StringId VICTORIOUS_TEXT_SCENE_OBJECT_NAME = strutils::StringId("victorious_player_text");
 const std::string GameOverGameAction::VICTORIOUS_PLAYER_INDEX_PARAM = "victoriousPlayerIndex";
 
 ///------------------------------------------------------------------------------------------------

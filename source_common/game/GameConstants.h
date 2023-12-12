@@ -28,31 +28,31 @@ namespace game_constants
     inline const std::string GOLDEN_SPELL_CARD_FLAKES_MASK_TEXTURE_FILE_NAME = "golden_spell_card_flakes_mask.png";
 
     // SO Name Prefixes/Postfixes
-    inline const std::string TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX = "TOP_PLAYER_HELD_CARD_";
-    inline const std::string BOT_PLAYER_HELD_CARD_SO_NAME_PREFIX = "BOT_PLAYER_HELD_CARD_";
-    inline const std::string TOP_PLAYER_BOARD_CARD_SO_NAME_PREFIX = "TOP_PLAYER_BOARD_CARD_";
-    inline const std::string BOT_PLAYER_BOARD_CARD_SO_NAME_PREFIX = "BOT_PLAYER_BOARD_CARD_";
-    inline const std::string CARD_FREE_MOVING_ANIMATION_NAME_PRE_FIX = "FREE_MOVING_CARD_";
-    inline const std::string BOARD_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME_PRE_FIX = "BOARD_SIDE_EFFECT_TOP_VALUE_";
-    inline const std::string BOARD_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME_PRE_FIX = "BOARD_SIDE_EFFECT_BOT_VALUE_";
-    inline const std::string CARD_BASE_SO_NAME_POST_FIX = "_CARD";
+    inline const std::string TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX = "top_player_held_card_";
+    inline const std::string BOT_PLAYER_HELD_CARD_SO_NAME_PREFIX = "bot_player_held_card_";
+    inline const std::string TOP_PLAYER_BOARD_CARD_SO_NAME_PREFIX = "top_player_board_card_";
+    inline const std::string BOT_PLAYER_BOARD_CARD_SO_NAME_PREFIX = "bot_player_board_card_";
+    inline const std::string CARD_FREE_MOVING_ANIMATION_NAME_PRE_FIX = "free_moving_card_";
+    inline const std::string BOARD_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME_PRE_FIX = "board_side_effect_top_value_";
+    inline const std::string BOARD_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME_PRE_FIX = "board_side_effect_bot_value_";
+    inline const std::string CARD_BASE_SO_NAME_POST_FIX = "_card";
 
     // SO Names
-    inline const strutils::StringId TURN_POINTER_SCENE_OBJECT_NAME = strutils::StringId("TURN_POINTER");
-    inline const strutils::StringId TURN_POINTER_HIGHLIGHTER_SCENE_OBJECT_NAME = strutils::StringId("TURN_POINTER_HIGHLIGHTER");
-    inline const strutils::StringId BOARD_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME = strutils::StringId("BOARD_SIDE_EFFECT_TOP");
-    inline const strutils::StringId BOARD_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("BOARD_SIDE_EFFECT_BOT");
-    inline const strutils::StringId KILL_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME = strutils::StringId("KILL_SIDE_EFFECT_TOP");
-    inline const strutils::StringId KILL_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("KILL_SIDE_EFFECT_BOT");
-    inline const strutils::StringId INSECT_DUPLICATION_EFFECT_TOP_SCENE_OBJECT_NAME = strutils::StringId("INSECT_DUPLICATION_EFFECT_TOP");
-    inline const strutils::StringId INSECT_DUPLICATION_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("INSECT_DUPLICATION_EFFECT_BOT");
-    inline const strutils::StringId NEXT_DINO_DAMAGE_DOUBLING_EFFECT_TOP_SCENE_OBJECT_NAME = strutils::StringId("NEXT_DINO_DAMAGE_DOUBLING_EFFECT_TOP");
-    inline const strutils::StringId NEXT_DINO_DAMAGE_DOUBLING_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("NEXT_DINO_DAMAGE_DOUBLING_EFFECT_BOT");
-    inline const strutils::StringId DOUBLE_POISON_ATTACKS_EFFECT_TOP_SCENE_OBJECT_NAME = strutils::StringId("DOUBLE_POISON_ATTACKS_EFFECT_TOP");
-    inline const strutils::StringId DOUBLE_POISON_ATTACKS_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("DOUBLE_POISON_ATTACKS_EFFECT_BOT");
-    inline const strutils::StringId PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_TOP_SCENE_OBJECT_NAME = strutils::StringId("PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_TOP");
-    inline const strutils::StringId PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_BOT");
-    inline const strutils::StringId OVERLAY_SCENE_OBJECT_NAME = strutils::StringId("OVERLAY");
+    inline const strutils::StringId TURN_POINTER_SCENE_OBJECT_NAME = strutils::StringId("turn_pointer");
+    inline const strutils::StringId TURN_POINTER_HIGHLIGHTER_SCENE_OBJECT_NAME = strutils::StringId("turn_pointer_highlighter");
+    inline const strutils::StringId BOARD_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME = strutils::StringId("board_side_effect_top");
+    inline const strutils::StringId BOARD_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("board_side_effect_bot");
+    inline const strutils::StringId KILL_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME = strutils::StringId("kill_side_effect_top");
+    inline const strutils::StringId KILL_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("kill_side_effect_bot");
+    inline const strutils::StringId INSECT_DUPLICATION_EFFECT_TOP_SCENE_OBJECT_NAME = strutils::StringId("insect_duplication_effect_top");
+    inline const strutils::StringId INSECT_DUPLICATION_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("insect_duplication_effect_bot");
+    inline const strutils::StringId NEXT_DINO_DAMAGE_DOUBLING_EFFECT_TOP_SCENE_OBJECT_NAME = strutils::StringId("next_dino_damage_doubling_effect_top");
+    inline const strutils::StringId NEXT_DINO_DAMAGE_DOUBLING_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("next_dino_damage_doubling_effect_bot");
+    inline const strutils::StringId DOUBLE_POISON_ATTACKS_EFFECT_TOP_SCENE_OBJECT_NAME = strutils::StringId("double_poison_attacks_effect_top");
+    inline const strutils::StringId DOUBLE_POISON_ATTACKS_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("double_poison_attacks_effect_bot");
+    inline const strutils::StringId PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_TOP_SCENE_OBJECT_NAME = strutils::StringId("permanent_continual_weight_reduction_effect_top");
+    inline const strutils::StringId PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("permanent_continual_weight_reduction_effect_bot");
+    inline const strutils::StringId OVERLAY_SCENE_OBJECT_NAME = strutils::StringId("overlay");
 
     // Fonts
     inline const strutils::StringId DEFAULT_FONT_NAME = strutils::StringId("font");
