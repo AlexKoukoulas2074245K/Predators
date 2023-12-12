@@ -24,7 +24,7 @@
 #include <thread>
 
 //#define UNZIP_FLOW
-bool ARTIFICIAL_LOADING_DELAY = 0;
+bool ARTIFICIAL_ASYNC_LOADING_DELAY = 0;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -108,7 +108,7 @@ public:
                 auto job = mJobs.dequeue();
                 auto resource = job.mLoader->VCreateAndLoadResource(job.mResourcePath);
                 
-                if (ARTIFICIAL_LOADING_DELAY)
+                if (ARTIFICIAL_ASYNC_LOADING_DELAY)
                 {
                     std::this_thread::sleep_for(50ms);
                 }

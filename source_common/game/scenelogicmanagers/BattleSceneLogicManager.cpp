@@ -141,7 +141,6 @@ static const float BOARD_EFFECT_MAX_ALPHA = 0.25f;
 static const float TURN_POINTER_INTERACTOR_SCALE_FACTOR = 0.5f;
 static const float TURN_POINTER_INTERACTION_PULSE_DURATION = 0.1f;
 static const float OVERLAY_SCENE_SPEED_ANIMATION_TARGET_DURATION = 0.5f;
-static const float HISTORY_MODAL_MAX_ALPHA = 0.75f;
 static const float CARD_HISTORY_CONTAINER_Z = 24.0f;
 static const float HISTORY_SCENE_FADE_IN_OUT_DURATION_SECS = 0.5f;
 static const float HISTORY_SCENE_FADE_IN_OUT_ITEM_OFFSETS = 0.4f;
@@ -415,7 +414,7 @@ void BattleSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scen
         {
             if (CoreSystemsEngine::GetInstance().GetInputStateManager().VButtonTapped(input::Button::MAIN_BUTTON))
             {
-                events::EventSystem::GetInstance().DispatchEvent<events::PopSceneModalEvent>(OVERLAY_SCENE_SPEED_ANIMATION_TARGET_DURATION);
+                events::EventSystem::GetInstance().DispatchEvent<events::PopSceneModalEvent>();
             }
         }
         else if (cardHistoryContainerUpdateResult.mInteractionType == InteractionType::INTERACTED_WITH_ELEMENTS)
@@ -1747,7 +1746,7 @@ void BattleSceneLogicManager::OnHistoryButtonPressed()
     
     battleScene->RemoveAllParticleEffects();
     battleScene->GetCamera().StopShake();
-    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(HISTORY_SCENE, false, true, false, OVERLAY_SCENE_SPEED_ANIMATION_TARGET_DURATION, HISTORY_MODAL_MAX_ALPHA);
+    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(HISTORY_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
 }
 
 ///------------------------------------------------------------------------------------------------

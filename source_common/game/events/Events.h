@@ -12,6 +12,7 @@
 
 #include <game/CardEffectComponents.h>
 #include <game/Cards.h>
+#include <game/GameSceneTransitionTypes.h>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -266,39 +267,27 @@ public:
 class SceneChangeEvent final
 {
 public:
-    SceneChangeEvent(const strutils::StringId& newSceneName, const bool destroyScene, const bool isModal, const bool useLoadingScene, const float targetDurationSecs = 0.0f, const float maxTransitionDarkeningAlpha = 0.0f)
+    SceneChangeEvent
+    (
+        const strutils::StringId& newSceneName,
+        const SceneChangeType sceneChangeType,
+        const PreviousSceneDestructionType previousSceneDestructionType
+     )
         : mNewSceneName(newSceneName)
-        , mDestroyScene(destroyScene)
-        , mIsModal(isModal)
-        , mUseLoadingScene(useLoadingScene)
-        , mTargetDurationSecs(targetDurationSecs)
-        , mMaxTransitionDarkeningAlpha(maxTransitionDarkeningAlpha)
+        , mSceneChangeType(sceneChangeType)
+        , mPreviousSceneDestructionType(previousSceneDestructionType)
     {
-        
     }
     
     const strutils::StringId mNewSceneName;
-    const bool mDestroyScene;
-    const bool mIsModal;
-    const bool mUseLoadingScene;
-    const float mTargetDurationSecs;
-    const float mMaxTransitionDarkeningAlpha;
+    const SceneChangeType mSceneChangeType;
+    const PreviousSceneDestructionType mPreviousSceneDestructionType;
 };
 
 ///------------------------------------------------------------------------------------------------
 
 class PopSceneModalEvent final
 {
-public:
-    PopSceneModalEvent(const float targetDurationSecs = 0.0f, const float maxTransitionDarkeningAlpha = 0.0f)
-        : mTargetDurationSecs(targetDurationSecs)
-        , mMaxTransitionDarkeningAlpha(maxTransitionDarkeningAlpha)
-    {
-        
-    }
-
-    const float mTargetDurationSecs;
-    const float mMaxTransitionDarkeningAlpha;
 };
 
 ///------------------------------------------------------------------------------------------------

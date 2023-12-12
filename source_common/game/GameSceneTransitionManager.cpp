@@ -16,14 +16,16 @@
 
 ///------------------------------------------------------------------------------------------------
 
-static const strutils::StringId SCENE_TRANSITION_ANIMATION_NAME = strutils::StringId("scene_transition_animation");
+static const strutils::StringId OVERLAY_DARKENING_ANIMATION_NAME = strutils::StringId("overlay_darkening_animation");
 static const strutils::StringId LOADING_SCENE_NAME = strutils::StringId("loading_scene");
 
 static const std::string OVERLAY_TEXTURE_FILE_NAME = "overlay.png";
 
 static const float LOADING_SCENE_FADE_IN_OUT_DURATION_SECS = 0.5f;
+static const float OVERLAY_ANIMATION_TARGET_DURATION_SECS = 0.5f;
 static const float OVERLAY_SCALE = 10.0f;
 static const float OVERLAY_Z = 23.0f;
+static const float MODAL_MAX_ALPHA = 0.75f;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -45,40 +47,43 @@ void GameSceneTransitionManager::Update(const float dtMillis)
     assert(!mActiveSceneStack.empty());
     auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
     
-    if (!CoreSystemsEngine::GetInstance().GetAnimationManager().IsAnimationPlaying(SCENE_TRANSITION_ANIMATION_NAME))
+    if (CoreSystemsEngine::GetInstance().GetAnimationManager().IsAnimationPlaying(OVERLAY_DARKENING_ANIMATION_NAME))
     {
-        auto outstandingLoadingJobCount = CoreSystemsEngine::GetInstance().GetResourceLoadingService().GetOustandingLoadingJobCount();
-        auto activeScene = sceneManager.FindScene(mActiveSceneStack.top().mActiveSceneName);
-        if (activeScene->GetName() == LOADING_SCENE_NAME && outstandingLoadingJobCount == 0)
+        return;
+    }
+    
+    auto outstandingLoadingJobCount = CoreSystemsEngine::GetInstance().GetResourceLoadingService().GetOustandingLoadingJobCount();
+    auto activeScene = sceneManager.FindScene(mActiveSceneStack.top().mActiveSceneName);
+    if (activeScene->GetName() == LOADING_SCENE_NAME && outstandingLoadingJobCount == 0)
+    {
+        CoreSystemsEngine::GetInstance().GetResourceLoadingService().SetAsyncLoading(false);
+        
+        for (auto sceneObject: activeScene->GetSceneObjects())
         {
-            CoreSystemsEngine::GetInstance().GetResourceLoadingService().SetAsyncLoading(false);
-            
-            for (auto sceneObject: activeScene->GetSceneObjects())
+            CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, 0.0f, LOADING_SCENE_FADE_IN_OUT_DURATION_SECS), [=]()
             {
-                CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, 0.0f, LOADING_SCENE_FADE_IN_OUT_DURATION_SECS), [=]()
-                {
-                    CoreSystemsEngine::GetInstance().GetSceneManager().RemoveScene(LOADING_SCENE_NAME);
-                });
-            }
-            
-            DestroyActiveSceneLogicManager();
-            mActiveSceneStack.pop();
-            sceneManager.FindScene(mActiveSceneStack.top().mActiveSceneName)->SetLoaded(true);
-            return;
-        }
-        else if (activeScene->GetName() == LOADING_SCENE_NAME && outstandingLoadingJobCount != 0)
-        {
-            for (auto sceneObject: activeScene->GetSceneObjects())
-            {
-                sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] += dtMillis * 0.002f;
-            }
+                CoreSystemsEngine::GetInstance().GetSceneManager().RemoveScene(LOADING_SCENE_NAME);
+            });
         }
         
-        if (activeScene->IsLoaded())
+        DestroyActiveSceneLogicManager();
+        mActiveSceneStack.pop();
+        sceneManager.FindScene(mActiveSceneStack.top().mActiveSceneName)->SetLoaded(true);
+        return;
+    }
+    else if (activeScene->GetName() == LOADING_SCENE_NAME && outstandingLoadingJobCount != 0)
+    {
+        for (auto sceneObject: activeScene->GetSceneObjects())
         {
-            mActiveSceneStack.top().mActiveSceneLogicManager->VUpdate(dtMillis, activeScene);
+            sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] += dtMillis * 0.002f;
         }
     }
+    
+    if (activeScene->IsLoaded())
+    {
+        mActiveSceneStack.top().mActiveSceneLogicManager->VUpdate(dtMillis, activeScene);
+    }
+    
     
 #if (!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)
 //    for (auto scene: CoreSystemsEngine::GetInstance().GetSceneManager().GetScenes())
@@ -104,26 +109,21 @@ void GameSceneTransitionManager::Update(const float dtMillis)
 void GameSceneTransitionManager::ChangeToScene
 (
     const strutils::StringId& sceneName,
-    const bool destroyExistingScene,
-    const bool isModal,
-    const bool useLoadingScene,
-    const float targetTransitionDurationSecs /* = 0.0f */,
-    const float maxTransitionDarkeningAlpha /* = 0.0f */
+    const SceneChangeType sceneChangeType,
+    const PreviousSceneDestructionType previousSceneDestructionType
 )
 {
-    assert(!useLoadingScene || targetTransitionDurationSecs <= 0.0f);
-    assert(!useLoadingScene || !isModal);
-    assert(!isModal || !destroyExistingScene);
+    assert(sceneChangeType != SceneChangeType::MODAL_SCENE || previousSceneDestructionType != PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
     
     auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
     
-    if (!isModal && !mActiveSceneStack.empty())
+    if (sceneChangeType != SceneChangeType::MODAL_SCENE && !mActiveSceneStack.empty())
     {
         // Destroy logic manager only when transitioning to a completely new scene
         DestroyActiveSceneLogicManager();
         
         // If we additionally want to completely wipe the previous scene, we first fade it's elements out
-        if (destroyExistingScene)
+        if (previousSceneDestructionType == PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE)
         {
             auto sceneToDestroy = sceneManager.FindScene(mActiveSceneStack.top().mActiveSceneName);
             for (auto sceneObject: sceneToDestroy->GetSceneObjects())
@@ -159,7 +159,7 @@ void GameSceneTransitionManager::ChangeToScene
     }
     
     // With darkening transition
-    if (targetTransitionDurationSecs > 0.0f)
+    if (sceneChangeType == SceneChangeType::MODAL_SCENE)
     {
         // Create and setup overlay object for transition
         auto overlaySceneObject = newScene->CreateSceneObject(game_constants::OVERLAY_SCENE_OBJECT_NAME);
@@ -170,19 +170,19 @@ void GameSceneTransitionManager::ChangeToScene
         
         // Start darkening transition animation
         auto newSceneNameCopy = sceneName;
-        CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(overlaySceneObject, maxTransitionDarkeningAlpha, targetTransitionDurationSecs, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), [=]()
+        CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(overlaySceneObject, MODAL_MAX_ALPHA, OVERLAY_ANIMATION_TARGET_DURATION_SECS, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), [=]()
         {
             mActiveSceneStack.push({nextActiveSceneLogicManager, newSceneNameCopy});
-            InitializeActiveSceneLogicManager(false);
-        }, SCENE_TRANSITION_ANIMATION_NAME);
+            InitializeActiveSceneLogicManager(sceneChangeType);
+        }, OVERLAY_DARKENING_ANIMATION_NAME);
     }
     // Without darkening transition
     else
     {
-        if (useLoadingScene)
+        if (sceneChangeType == SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING)
         {
             // We first do a (recursive) call to the ChangeToScene to load the loading scene
-            ChangeToScene(LOADING_SCENE_NAME, false, false, false);
+            ChangeToScene(LOADING_SCENE_NAME, SceneChangeType::CONCRETE_SCENE_SYNC_LOADING, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
             
             // Enable async resource loading
             CoreSystemsEngine::GetInstance().GetResourceLoadingService().SetAsyncLoading(true);
@@ -195,7 +195,7 @@ void GameSceneTransitionManager::ChangeToScene
             mActiveSceneStack.push({nextActiveSceneLogicManager, sceneName});
             
             // .. and initialize it (will load everything asynchronously at this point.
-            InitializeActiveSceneLogicManager(useLoadingScene);
+            InitializeActiveSceneLogicManager(sceneChangeType);
             
             // Finally push the loading scene entry on top to be updateable whilst the
             // rest of the resources are loading in the background.
@@ -204,18 +204,14 @@ void GameSceneTransitionManager::ChangeToScene
         else
         {
             mActiveSceneStack.push({nextActiveSceneLogicManager, sceneName});
-            InitializeActiveSceneLogicManager(useLoadingScene);
+            InitializeActiveSceneLogicManager(sceneChangeType);
         }
     }
 }
 
 ///------------------------------------------------------------------------------------------------
 
-void GameSceneTransitionManager::PopModalScene
-(
-    const float targetTransitionDurationSecs /* = 0.0f */,
-    const float maxTransitionDarkeningAlpha /* = 0.0f */
-)
+void GameSceneTransitionManager::PopModalScene()
 {
     assert(!mActiveSceneStack.empty());
     
@@ -226,14 +222,11 @@ void GameSceneTransitionManager::PopModalScene
     DestroyActiveSceneLogicManager();
     mActiveSceneStack.pop();
     
-    if (targetTransitionDurationSecs > 0.0f)
+    // If darkening transition is requested, destroy the overlay object at the end
+    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(overlaySceneObject, 0.0f, OVERLAY_ANIMATION_TARGET_DURATION_SECS, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), [=]()
     {
-        // If darkening transition is requested, destroy the overlay object at the end
-        CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(overlaySceneObject, maxTransitionDarkeningAlpha, targetTransitionDurationSecs, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), [=]()
-        {
-            activeScene->RemoveSceneObject(game_constants::OVERLAY_SCENE_OBJECT_NAME);
-        });
-    }
+        activeScene->RemoveSceneObject(game_constants::OVERLAY_SCENE_OBJECT_NAME);
+    });
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -252,7 +245,7 @@ const std::stack<GameSceneTransitionManager::ActiveSceneEntry> GameSceneTransiti
 
 ///------------------------------------------------------------------------------------------------
 
-void GameSceneTransitionManager::InitializeActiveSceneLogicManager(const bool useLoadingScene)
+void GameSceneTransitionManager::InitializeActiveSceneLogicManager(const SceneChangeType sceneChangeType)
 {
     auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
     
@@ -272,7 +265,7 @@ void GameSceneTransitionManager::InitializeActiveSceneLogicManager(const bool us
         events::EventSystem::GetInstance().DispatchEvent<events::WindowResizeEvent>();
         sceneLogicManagerEntry->mSceneInitStatusMap[activeSceneName] = true;
         
-        if (!useLoadingScene)
+        if (sceneChangeType != SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING)
         {
             scene->SetLoaded(true);
         }

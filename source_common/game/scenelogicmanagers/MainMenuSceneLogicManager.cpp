@@ -57,7 +57,7 @@ void MainMenuSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
         game_constants::DEFAULT_FONT_NAME,
         "Battle",
         strutils::StringId("battle_button_name"),
-        [](){ events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::IN_GAME_BATTLE_SCENE, true, false, true); },
+        [](){ events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::IN_GAME_BATTLE_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE); },
         *scene
     ));
     

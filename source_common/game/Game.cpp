@@ -70,12 +70,12 @@ void Game::Init()
     auto& eventSystem = events::EventSystem::GetInstance();
     mSceneChangeEventListener = eventSystem.RegisterForEvent<events::SceneChangeEvent>([=](const events::SceneChangeEvent& event)
     {
-        mGameSceneTransitionManager->ChangeToScene(event.mNewSceneName, event.mDestroyScene, event.mIsModal, event.mUseLoadingScene, event.mTargetDurationSecs, event.mMaxTransitionDarkeningAlpha);
+        mGameSceneTransitionManager->ChangeToScene(event.mNewSceneName, event.mSceneChangeType, event.mPreviousSceneDestructionType);
     });
     
-    mPopModalSceneEventListener = eventSystem.RegisterForEvent<events::PopSceneModalEvent>([=](const events::PopSceneModalEvent& event)
+    mPopModalSceneEventListener = eventSystem.RegisterForEvent<events::PopSceneModalEvent>([=](const events::PopSceneModalEvent&)
     {
-        mGameSceneTransitionManager->PopModalScene(event.mTargetDurationSecs, event.mMaxTransitionDarkeningAlpha);
+        mGameSceneTransitionManager->PopModalScene();
     });
     
     mGameSceneTransitionManager = std::make_unique<GameSceneTransitionManager>();
@@ -86,8 +86,8 @@ void Game::Init()
     
     ProgressionDataRepository::GetInstance().SetNextBattleControlType(BattleControlType::AI_TOP_BOT);
     
-    mGameSceneTransitionManager->ChangeToScene(game_constants::PERMANENT_BOARD_SCENE, false, false, false);
-    mGameSceneTransitionManager->ChangeToScene(MAIN_MENU_SCENE, false, false, true);
+    mGameSceneTransitionManager->ChangeToScene(game_constants::PERMANENT_BOARD_SCENE, SceneChangeType::CONCRETE_SCENE_SYNC_LOADING, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+    mGameSceneTransitionManager->ChangeToScene(MAIN_MENU_SCENE, SceneChangeType::CONCRETE_SCENE_SYNC_LOADING, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
 }
 
 ///------------------------------------------------------------------------------------------------

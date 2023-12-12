@@ -11,6 +11,7 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <engine/utils/StringUtils.h>
+#include <game/GameSceneTransitionTypes.h>
 #include <game/scenelogicmanagers/ISceneLogicManager.h>
 #include <stack>
 #include <unordered_map>
@@ -47,17 +48,10 @@ public:
     void ChangeToScene
     (
         const strutils::StringId& sceneName,
-        const bool destroyExistingScene,
-        const bool isModal,
-        const bool useLoadingScene,
-        const float targetTransitionDurationSecs = 0.0f,
-        const float maxTransitionDarkeningAlpha = 0.0f
+        const SceneChangeType sceneChangeType,
+        const PreviousSceneDestructionType previousSceneDestructionType
     );
-    void PopModalScene
-    (
-         const float targetTransitionDurationSecs = 0.0f,
-         const float maxTransitionDarkeningAlpha = 0.0f
-    );
+    void PopModalScene();
     
 private:
     struct SceneLogicManagerEntry
@@ -76,7 +70,7 @@ private:
     const std::vector<SceneLogicManagerEntry>& GetRegisteredSceneLogicManagers() const;
     const std::stack<ActiveSceneEntry> GetActiveSceneStack() const;
     
-    void InitializeActiveSceneLogicManager(const bool useLoadingScene);
+    void InitializeActiveSceneLogicManager(const SceneChangeType sceneChangeType);
     void DestroyActiveSceneLogicManager();
     
 private:
