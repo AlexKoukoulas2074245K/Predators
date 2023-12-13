@@ -26,10 +26,12 @@ static const float OVERLAY_ANIMATION_TARGET_DURATION_SECS = 0.5f;
 static const float OVERLAY_SCALE = 10.0f;
 static const float OVERLAY_Z = 23.0f;
 static const float MODAL_MAX_ALPHA = 0.75f;
+static const float LOADING_SCENE_FADE_IN_SPEED = 0.002f;
 
 ///------------------------------------------------------------------------------------------------
 
 GameSceneTransitionManager::GameSceneTransitionManager()
+    : mFirstTimeLoadingScreenMaxAlpha(true)
 {
 }
 
@@ -73,9 +75,23 @@ void GameSceneTransitionManager::Update(const float dtMillis)
     }
     else if (activeScene->GetName() == LOADING_SCENE_NAME && outstandingLoadingJobCount != 0)
     {
-        for (auto sceneObject: activeScene->GetSceneObjects())
+        if (mFirstTimeLoadingScreenMaxAlpha)
         {
-            sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] += dtMillis * 0.002f;
+            for (auto sceneObject: activeScene->GetSceneObjects())
+            {
+                sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
+            }
+            mFirstTimeLoadingScreenMaxAlpha = false;
+        }
+        else
+        {
+            for (auto sceneObject: activeScene->GetSceneObjects())
+            {
+                if (sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] < 1.0f)
+                {
+                    sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] += dtMillis * LOADING_SCENE_FADE_IN_SPEED;
+                }
+            }
         }
     }
     

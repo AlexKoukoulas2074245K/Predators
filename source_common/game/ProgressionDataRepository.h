@@ -10,6 +10,10 @@
 
 ///------------------------------------------------------------------------------------------------
 
+#include <vector>
+
+///------------------------------------------------------------------------------------------------
+
 enum class BattleControlType
 {
     REPLAY,
@@ -33,11 +37,19 @@ public:
     BattleControlType GetNextBattleControlType() const;
     void SetNextBattleControlType(const BattleControlType nextBattleControlType);
     
+    const std::vector<int>& GetNextTopPlayerDeck() const;
+    void SetNextTopPlayerDeck(const std::vector<int>& deck);
+    
+    const std::vector<int>& GetNextBotPlayerDeck() const;
+    void SetNextBotPlayerDeck(const std::vector<int>& deck);
+    
 private:
     ProgressionDataRepository() = default;
     
 private:
     BattleControlType mNextBattleControlType;
+    std::vector<int> mNextTopPlayerDeck;
+    std::vector<int> mNextBotPlayerDeck;
 };
 
 ///------------------------------------------------------------------------------------------------

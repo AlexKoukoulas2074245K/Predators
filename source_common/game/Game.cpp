@@ -87,7 +87,7 @@ void Game::Init()
     ProgressionDataRepository::GetInstance().SetNextBattleControlType(BattleControlType::AI_TOP_BOT);
     
     mGameSceneTransitionManager->ChangeToScene(game_constants::PERMANENT_BOARD_SCENE, SceneChangeType::CONCRETE_SCENE_SYNC_LOADING, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
-    mGameSceneTransitionManager->ChangeToScene(MAIN_MENU_SCENE, SceneChangeType::CONCRETE_SCENE_SYNC_LOADING, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+    mGameSceneTransitionManager->ChangeToScene(MAIN_MENU_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
 }
 
 ///------------------------------------------------------------------------------------------------

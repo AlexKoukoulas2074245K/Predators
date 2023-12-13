@@ -76,6 +76,7 @@ private:
 private:
     std::vector<SceneLogicManagerEntry> mRegisteredSceneLogicManagers;
     std::stack<ActiveSceneEntry> mActiveSceneStack;
+    bool mFirstTimeLoadingScreenMaxAlpha;
 };
 
 ///------------------------------------------------------------------------------------------------

@@ -23,7 +23,7 @@
 ///------------------------------------------------------------------------------------------------
 
 inline const strutils::StringId RUBBER_BANDING_ANIMATION_NAME = strutils::StringId("rubber_banding_animation");
-inline const int MIN_ITEMS_TO_ANIMATE = 0;
+inline const size_t DEFAULT_MIN_ITEMS_TO_ANIMATE = 0U;
 inline const float CARD_VELOCITY_DAMPING = 0.85f;
 inline const float OVERSWIPE_DAMPING = 100.0f;
 inline const float SWIPE_DELTA_DIRECTION_CHANGE_NOISE_THRESHOLD = 0.00001f;
@@ -67,7 +67,8 @@ public:
         const glm::vec2& containerCutoffValues,
         const strutils::StringId& containerName,
         const float containerItemsZ,
-        scene::Scene& scene
+        scene::Scene& scene,
+        const size_t minItemsToAnimate = DEFAULT_MIN_ITEMS_TO_ANIMATE
      )
         : mValidSwipeDirection(validSwipeDirection)
         , mEntryScale(entryScale)
@@ -76,7 +77,10 @@ public:
         , mContainerName(containerName)
         , mContainerItemsZ(containerItemsZ)
         , mScene(scene)
+        , mMinItemsToAnimate(minItemsToAnimate)
     {
+        ResetSwipeData();
+        mBlockedUpdate = false;
     }
     
     void AddItem(ContainerEntryT&& item, bool atTheBack)
@@ -135,7 +139,7 @@ public:
                 {
                     item.mSceneObjects[j]->mPosition = glm::vec3
                     (
-                        (mContainerBounds.bottomLeft.x + mContainerBounds.topRight.x)/2.0f + itemIndex * mEntryScale.x/2.0f,
+                        mContainerBounds.bottomLeft.x + (itemIndex + 1) * mEntryScale.x/2,
                         (mContainerBounds.bottomLeft.y + mContainerBounds.topRight.y)/2.0f,
                         mContainerItemsZ + (j + 1) * 0.01f
                     ) + itemOffsetsFromFirst[j];
@@ -209,7 +213,7 @@ public:
                 ResetSwipeData();
             }
         }
-        else if (!mBlockedUpdate && inputStateManager.VButtonPressed(input::Button::MAIN_BUTTON) && mItems.size() > MIN_ITEMS_TO_ANIMATE)
+        else if (!mBlockedUpdate && inputStateManager.VButtonPressed(input::Button::MAIN_BUTTON) && mItems.size() >= mMinItemsToAnimate)
         {
             if (mHasStartedSwipe && !animationManager.IsAnimationPlaying(RUBBER_BANDING_ANIMATION_NAME) && firstSceneObject != nullptr && lastSceneObject != nullptr)
             {
@@ -251,7 +255,7 @@ public:
                 mSwipeCurrentPos = glm::vec3(currentTouchPos.x, currentTouchPos.y, 0.0f);
             }
         }
-        else if (!mBlockedUpdate && !inputStateManager.VButtonPressed(input::Button::MAIN_BUTTON) && mItems.size() > MIN_ITEMS_TO_ANIMATE && firstSceneObject != nullptr && lastSceneObject != nullptr)
+        else if (!mBlockedUpdate && !inputStateManager.VButtonPressed(input::Button::MAIN_BUTTON) && mItems.size() >= mMinItemsToAnimate && firstSceneObject != nullptr && lastSceneObject != nullptr)
         {
             if (firstSceneObject->mPosition.x > mContainerCutoffValues.t)
             {
@@ -360,6 +364,7 @@ private:
     const strutils::StringId mContainerName;
     const float mContainerItemsZ;
     scene::Scene& mScene;
+    const size_t mMinItemsToAnimate;
     std::vector<ContainerEntryT> mItems;
     glm::vec3 mSwipeStartPos;
     glm::vec3 mSwipeCurrentPos;

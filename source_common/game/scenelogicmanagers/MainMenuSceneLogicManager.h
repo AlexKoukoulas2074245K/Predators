@@ -11,6 +11,7 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <game/scenelogicmanagers/ISceneLogicManager.h>
+#include <game/SwipeableContainer.h>
 #include <memory>
 
 ///------------------------------------------------------------------------------------------------
@@ -37,12 +38,22 @@ private:
         PRACTICE_BATTLE
     };
     
+    struct CardFamilyEntry
+    {
+        std::vector<std::shared_ptr<scene::SceneObject>> mSceneObjects;
+        strutils::StringId mCardFamilyName;
+    };
+    
 private:
     void InitSubScene(const SubSceneType subSceneType, std::shared_ptr<scene::Scene> scene);
     void TransitionToSubScene(const SubSceneType subSceneType, std::shared_ptr<scene::Scene> scene);
+    void BattleModeSelected(const strutils::StringId& buttonName);
+    void DeckSelected(const int selectedDeckIndex, const bool forTopPlayer);
     
 private:
     std::vector<std::unique_ptr<AnimatedButton>> mAnimatedButtons;
+    std::unique_ptr<SwipeableContainer<CardFamilyEntry>> mCardFamilyContainerTop;
+    std::unique_ptr<SwipeableContainer<CardFamilyEntry>> mCardFamilyContainerBot;
     SubSceneType mActiveSubScene;
     bool mTransitioningToSubScene;
 };

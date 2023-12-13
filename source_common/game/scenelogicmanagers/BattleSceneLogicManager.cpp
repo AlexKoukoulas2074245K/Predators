@@ -207,8 +207,6 @@ void BattleSceneLogicManager::VInitSceneCamera(std::shared_ptr<scene::Scene> sce
 
 void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scene)
 {
-    CardDataRepository::GetInstance().LoadCardData(true);
-    
     RegisterForEvents();
     mPreviousProspectiveBoardCardsPushState = ProspectiveBoardCardsPushState::NONE;
     mSecsCardHighlighted = 0.0f;
@@ -231,11 +229,8 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
     mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerHealth = game_constants::TOP_PLAYER_DEFAULT_HEALTH;
     mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth = game_constants::BOT_PLAYER_DEFAULT_HEALTH;
     
-    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));
-    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("insects"));
-    
-    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mGoldenCardIds = {14,16,21,23}; //CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));
-    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mGoldenCardIds = {19,4,8,9}; //CardDataRepository::GetInstance().GetCardIdsByFamily(strutils::StringId("rodents"));;
+    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = ProgressionDataRepository::GetInstance().GetNextTopPlayerDeck();
+    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = ProgressionDataRepository::GetInstance().GetNextBotPlayerDeck();
     
     mActiveIndividualCardBoardEffectSceneObjects.emplace_back();
     mActiveIndividualCardBoardEffectSceneObjects.emplace_back();

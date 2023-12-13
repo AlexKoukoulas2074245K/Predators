@@ -9,8 +9,8 @@
             "name": "predators_title",
             "font": "font",
             "text": "Predators",
-            "scale": { "x": 0.001, "y": 0.001, "z": 0.001 },
-            "position": { "x": -0.151, "y": 0.151, "z": 0.1 },
+            "scale": { "x": 0.0008, "y": 0.0008, "z": 0.0008 },
+            "position": { "x": -0.151, "y": 0.177, "z": 0.1 },
             "alpha": 1.0
         }
     ]
