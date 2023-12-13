@@ -222,15 +222,16 @@ public:
                 auto currentTouchPos = inputStateManager.VGetPointingPosInWorldSpace(mScene.GetCamera().GetViewMatrix(), mScene.GetCamera().GetProjMatrix());
                 float targetDx = (currentTouchPos.x - mSwipeCurrentPos.x);
                 
+                float overswipeDampingFactor = 0.0f;
                 if (firstSceneObject->mPosition.x + targetDx > mContainerCutoffValues.t)
                 {
-                    float overswipeDampingFactor = (firstSceneObject->mPosition.x + targetDx - mContainerCutoffValues.t) * OVERSWIPE_DAMPING;
-                    targetDx = math::Abs(overswipeDampingFactor) <= 0.0f ? 0.0f : targetDx/overswipeDampingFactor;
+                    overswipeDampingFactor = (firstSceneObject->mPosition.x + targetDx - mContainerCutoffValues.t) * OVERSWIPE_DAMPING;
+                    targetDx = math::Abs(overswipeDampingFactor) <= 1.0f ? 0.0f : targetDx/overswipeDampingFactor;
                 }
                 else if (lastSceneObject->mPosition.x + targetDx < mContainerCutoffValues.s)
                 {
-                    float overswipeDampingFactor = -(lastSceneObject->mPosition.x + targetDx -mContainerCutoffValues.s) * OVERSWIPE_DAMPING;
-                    targetDx = math::Abs(overswipeDampingFactor) <= 0.0f ? 0.0f : targetDx/overswipeDampingFactor;
+                    overswipeDampingFactor = -(lastSceneObject->mPosition.x + targetDx -mContainerCutoffValues.s) * OVERSWIPE_DAMPING;
+                    targetDx = math::Abs(overswipeDampingFactor) <= 1.0f ? 0.0f : targetDx/overswipeDampingFactor;
                 }
                 
                 for (auto& item: mItems)
