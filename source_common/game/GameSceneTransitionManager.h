@@ -52,6 +52,7 @@ public:
         const PreviousSceneDestructionType previousSceneDestructionType
     );
     void PopModalScene();
+    void DisableTransitionAnimations();
     
 private:
     struct SceneLogicManagerEntry
@@ -77,6 +78,7 @@ private:
     std::vector<SceneLogicManagerEntry> mRegisteredSceneLogicManagers;
     std::stack<ActiveSceneEntry> mActiveSceneStack;
     bool mFirstTimeLoadingScreenMaxAlpha;
+    bool mTransitionAnimationsDisabled;
 };
 
 ///------------------------------------------------------------------------------------------------

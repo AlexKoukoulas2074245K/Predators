@@ -33,8 +33,9 @@ TEST(SceneManagerOperationTests, TestCorrectLogicSceneManagerGetsUpdated)
     
     GameSceneTransitionManager gstm;
     gstm.RegisterSceneLogicManager<DummySceneLogicManager>();
-    gstm.ChangeToScene(SCENE_NAME, false, false, false);
+    gstm.ChangeToScene(SCENE_NAME, SceneChangeType::CONCRETE_SCENE_SYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
     gstm.Update(0.0f);
+    gstm.DisableTransitionAnimations();
     
     EXPECT_EQ(sUpdateCounter, 1);
 }
@@ -76,8 +77,9 @@ TEST(SceneManagerOperationTests, TestAssertTriggeredOnMultipleLogicSceneManagers
     GameSceneTransitionManager gstm;
     gstm.RegisterSceneLogicManager<DummySceneLogicManagerA>();
     gstm.RegisterSceneLogicManager<DummySceneLogicManagerB>();
+    gstm.DisableTransitionAnimations();
     
-    EXPECT_DEBUG_DEATH(gstm.ChangeToScene(SCENE_NAME, false, false, false), "");
+    EXPECT_DEBUG_DEATH(gstm.ChangeToScene(SCENE_NAME, SceneChangeType::CONCRETE_SCENE_SYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE), "");
 }
 
 TEST(SceneManagerOperationTests, TestCorrectSceneLogicManagerInitsUpdatesAndDestructionsOnPushedAndPoppedModal)
@@ -124,8 +126,9 @@ TEST(SceneManagerOperationTests, TestCorrectSceneLogicManagerInitsUpdatesAndDest
     GameSceneTransitionManager gstm;
     gstm.RegisterSceneLogicManager<DummySceneLogicManagerA>();
     gstm.RegisterSceneLogicManager<DummySceneLogicManagerB>();
+    gstm.DisableTransitionAnimations();
     
-    gstm.ChangeToScene(SCENE_NAME, false, false, false);
+    gstm.ChangeToScene(SCENE_NAME, SceneChangeType::CONCRETE_SCENE_SYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
     EXPECT_EQ(initCounterA, 1);
     EXPECT_EQ(updateCounterA, 0);
     EXPECT_EQ(destructionCounterA, 0);
@@ -141,7 +144,7 @@ TEST(SceneManagerOperationTests, TestCorrectSceneLogicManagerInitsUpdatesAndDest
     EXPECT_EQ(updateCounterB, 0);
     EXPECT_EQ(destructionCounterB, 0);
     
-    gstm.ChangeToScene(MODAL_SCENE_NAME, false, true, false);
+    gstm.ChangeToScene(MODAL_SCENE_NAME, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
     EXPECT_EQ(initCounterA, 1);
     EXPECT_EQ(updateCounterA, 1);
     EXPECT_EQ(destructionCounterA, 0);
