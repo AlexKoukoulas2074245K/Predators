@@ -141,7 +141,7 @@ public:
                     (
                         mContainerBounds.bottomLeft.x + (itemIndex + 1) * mEntryScale.x/2,
                         (mContainerBounds.bottomLeft.y + mContainerBounds.topRight.y)/2.0f,
-                        mContainerItemsZ + (j + 1) * 0.01f
+                        mContainerItemsZ + (j + 1) * 0.1f
                     ) + itemOffsetsFromFirst[j];
                 } break;
                 
@@ -151,7 +151,7 @@ public:
                     (
                         (mContainerBounds.bottomLeft.x + mContainerBounds.topRight.x)/2.0f,
                         (mContainerBounds.bottomLeft.y + mContainerBounds.topRight.y)/2.0f + itemIndex * mEntryScale.y/2.0f,
-                        mContainerItemsZ + (j + 1) * 0.01f
+                        mContainerItemsZ + (j + 1) * 0.1f
                     ) + itemOffsetsFromFirst[j];
                 }
             }
