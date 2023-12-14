@@ -33,12 +33,12 @@ static const strutils::StringId QUIT_CONFIRMATION_TEXT_TOP_NAME = strutils::Stri
 static const strutils::StringId QUIT_CONFIRMATION_TEXT_BOT_NAME = strutils::StringId("quit_confirmation_text_bot");
 
 static const glm::vec3 BUTTON_SCALE = {0.0005f, 0.0005f, 0.0005f};
-static const glm::vec3 CONTINUE_BUTTON_POSITION = {-0.091f, 0.02f, 24.1f};
-static const glm::vec3 QUIT_BUTTON_POSITION = {-0.041f, -0.083f, 24.1f};
-static const glm::vec3 QUIT_CONFIRMATION_BUTTON_POSITION = {-0.132f, -0.083f, 24.1f};
-static const glm::vec3 QUIT_CANCELLATION_BUTTON_POSITION = {0.036f, -0.083f, 24.1f};
-static const glm::vec3 QUIT_CONFIRMATION_TEXT_TOP_POSITION = {-0.205f, 0.07f, 24.1f};
-static const glm::vec3 QUIT_CONFIRMATION_TEXT_BOT_POSITION = {-0.245f, 0.019f, 24.1f};
+static const glm::vec3 CONTINUE_BUTTON_POSITION = {-0.091f, 0.02f, 23.1f};
+static const glm::vec3 QUIT_BUTTON_POSITION = {-0.041f, -0.083f, 23.1f};
+static const glm::vec3 QUIT_CONFIRMATION_BUTTON_POSITION = {-0.132f, -0.083f, 23.1f};
+static const glm::vec3 QUIT_CANCELLATION_BUTTON_POSITION = {0.036f, -0.083f, 23.1f};
+static const glm::vec3 QUIT_CONFIRMATION_TEXT_TOP_POSITION = {-0.205f, 0.07f, 23.1f};
+static const glm::vec3 QUIT_CONFIRMATION_TEXT_BOT_POSITION = {-0.245f, 0.019f, 23.1f};
 
 static const float SUBSCENE_ITEM_FADE_IN_OUT_DURATION_SECS = 0.5f;
 
@@ -192,8 +192,7 @@ void BattleSettingsSceneLogicManager::InitSubScene(const SubSceneType subSceneTy
                 QUIT_CONFIRMATION_BUTTON_NAME,
                 [=]()
                 {
-//                    events::EventSystem::GetInstance().DispatchEvent<events::PopSceneModalEvent>();
-//                    mTransitioningToSubScene = true;
+                    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::MAIN_MENU_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
                 },
                 *scene
             ));
@@ -218,12 +217,18 @@ void BattleSettingsSceneLogicManager::InitSubScene(const SubSceneType subSceneTy
     
     for (auto sceneObject: scene->GetSceneObjects())
     {
-        if (STATIC_SCENE_ELEMENTS.count(sceneObject->mName))
+        if (sceneObject->mName == game_constants::OVERLAY_SCENE_OBJECT_NAME)
         {
             continue;
         }
         
-        sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+        sceneObject->mInvisible = false;
+        
+        if (!STATIC_SCENE_ELEMENTS.count(sceneObject->mName))
+        {
+            sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+        }
+        
         CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, 1.0f, SUBSCENE_ITEM_FADE_IN_OUT_DURATION_SECS), [=]()
         {
             mTransitioningToSubScene = false;

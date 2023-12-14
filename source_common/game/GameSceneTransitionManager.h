@@ -64,7 +64,8 @@ private:
     struct ActiveSceneEntry
     {
         ISceneLogicManager* mActiveSceneLogicManager = nullptr;
-        strutils::StringId mActiveSceneName;
+        strutils::StringId mActiveSceneName = strutils::StringId();
+        bool isModal = false;
     };
     
 private:
@@ -77,6 +78,7 @@ private:
 private:
     std::vector<SceneLogicManagerEntry> mRegisteredSceneLogicManagers;
     std::stack<ActiveSceneEntry> mActiveSceneStack;
+    float mLoadingScreenMinDelaySecs;
     bool mFirstTimeLoadingScreenMaxAlpha;
     bool mTransitionAnimationsDisabled;
 };

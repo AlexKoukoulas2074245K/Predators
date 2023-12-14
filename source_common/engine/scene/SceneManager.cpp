@@ -194,7 +194,7 @@ void SceneManager::SortSceneObjects(std::shared_ptr<Scene> scene)
 void SceneManager::RemoveScene(const strutils::StringId& sceneName)
 {
     auto findIter = std::find_if(mScenes.begin(), mScenes.end(), [&](const std::shared_ptr<Scene>& scene)
-                                 {
+    {
         return scene->GetName() == sceneName;
     });
     if (findIter != mScenes.end())

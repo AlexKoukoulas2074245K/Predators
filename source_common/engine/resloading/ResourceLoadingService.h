@@ -15,6 +15,7 @@
 #include <memory>
 #include <string>        
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 ///------------------------------------------------------------------------------------------------
@@ -148,6 +149,9 @@ public:
     /// @param[in] resourceId the id of the resource to unload.    
     void UnloadResource(const ResourceId resourceId);
     
+    /// Unloads all currently loaded dynamically created texture resources (i.e. via render to texture)
+    void UnloadAllDynamicallyCreatedTextures();
+    
     /// Unloads and then reloads all resources marked as RELOAD_EVERY_SECOND.
     void ReloadMarkedResourcesFromDisk();
     
@@ -202,6 +206,7 @@ private:
     std::unordered_map<strutils::StringId, IResourceLoader*, strutils::StringIdHasher> mResourceExtensionsToLoadersMap;
     std::unordered_map<ResourceId, std::string, ResourceIdHasher> mResourceIdMapToAutoReload;
     std::unordered_map<ResourceId, std::string, ResourceIdHasher> mResourceIdToPaths;
+    std::unordered_set<ResourceId, ResourceIdHasher> mDynamicallyCreatedTextureResourceIds;
     std::vector<std::unique_ptr<IResourceLoader>> mResourceLoaders;
     std::unique_ptr<AsyncLoaderWorker> mAsyncLoaderWorker;
     int mOutstandingLoadingJobCount = 0;

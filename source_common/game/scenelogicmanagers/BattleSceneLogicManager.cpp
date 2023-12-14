@@ -211,6 +211,7 @@ void BattleSceneLogicManager::VInitSceneCamera(std::shared_ptr<scene::Scene> sce
 
 void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scene)
 {
+    CoreSystemsEngine::GetInstance().GetResourceLoadingService().UnloadAllDynamicallyCreatedTextures();
     RegisterForEvents();
     mPreviousProspectiveBoardCardsPushState = ProspectiveBoardCardsPushState::NONE;
     mSecsCardHighlighted = 0.0f;
@@ -510,6 +511,11 @@ void BattleSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene> scene)
             scene->FindSceneObject(CARD_HISTORY_CAPSULE_SCENE_OBJECT_NAME)->mInvisible = true;
         });
         DestroyCardTooltip(scene);
+    }
+    else if (scene->GetName() == game_constants::IN_GAME_BATTLE_SCENE)
+    {
+        CoreSystemsEngine::GetInstance().GetSceneManager().RemoveScene(HISTORY_SCENE);
+        events::EventSystem::GetInstance().UnregisterAllEventsForListener(this);
     }
 }
 

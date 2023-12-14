@@ -9,7 +9,7 @@
             "name": "loading_background",
             "texture": "valley.png",
             "scale": { "x": 1.2, "y": 1.2, "z": 1.2 },
-            "position": { "x": 0.0, "y": 0.0, "z": 23.0 },
+            "position": { "x": 0.0, "y": 0.0, "z": 24.01 },
             "alpha": 0.0
         },
         {

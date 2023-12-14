@@ -24,7 +24,10 @@ EventSystem& EventSystem::GetInstance()
 
 void EventSystem::UnregisterAllEventsForListener(const IListener* listener)
 {
-    mDeadListeners.emplace_back(listener);
+    for (auto& eventEntry: mEventIdToDeadListeners)
+    {
+        eventEntry.second.insert(listener);
+    }
 }
 
 ///------------------------------------------------------------------------------------------------

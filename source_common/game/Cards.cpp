@@ -152,7 +152,6 @@ void CardDataRepository::LoadCardData(bool loadCardAssets)
             cardData.mCardShaderResourceId = resourceService.LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + cardObject["shader"].get<std::string>());
         }
             
-        assert(!mCardDataMap.count(cardData.mCardId));
         mCardDataMap[cardData.mCardId] = cardData;
     }
 }

@@ -73,12 +73,35 @@ void AnimationManager::StopAllAnimationsPlayingForSceneObject(const strutils::St
 
 ///------------------------------------------------------------------------------------------------
 
+void AnimationManager::StopAllAnimations()
+{
+    if (mAnimationContainerLocked)
+    {
+        for (auto& animation: mAnimationsToAdd)
+        {
+            mAnimationNamesToRemove.push_back(animation.mAnimationName);
+        }
+        for (auto& animation: mAnimations)
+        {
+            mAnimationNamesToRemove.push_back(animation.mAnimationName);
+        }
+    }
+    else
+    {
+        mAnimationsToAdd.clear();
+        mAnimations.clear();
+    }
+}
+
+///------------------------------------------------------------------------------------------------
+
 void AnimationManager::Update(const float dtMillis)
 {
     mAnimationContainerLocked = true;
     for(auto iter = mAnimations.begin(); iter != mAnimations.end();)
     {
         auto updateTimeMillis = dtMillis * (iter->mAnimation->VGetSceneObject() && iter->mAnimation->VGetSceneObject()->mScene ? iter->mAnimation->VGetSceneObject()->mScene->GetUpdateTimeSpeedFactor() : 1.0f);
+        
         if (iter->mAnimation->VUpdate(updateTimeMillis) == AnimationUpdateResult::FINISHED)
         {
             iter->mCompletionCallback();

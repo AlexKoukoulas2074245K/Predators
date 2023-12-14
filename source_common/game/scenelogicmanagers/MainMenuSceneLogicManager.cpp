@@ -24,7 +24,6 @@ static const std::string SELECTABLE_BUTTON_SHADER_FILE_NAME = "basic_custom_colo
 static const std::string DECK_ENTRY_SHADER = "card_family_selection_swipe_entry.vs";
 static const std::string DECK_ENTRY_MASK_TEXTURE_FILE_NAME = "trap_mask.png";
 
-static const strutils::StringId MAIN_MENU_SCENE_NAME = strutils::StringId("main_menu_scene");
 static const strutils::StringId PRACTICE_BATTLE_BUTTON_NAME = strutils::StringId("practice_battle_button");
 static const strutils::StringId QUIT_BUTTON_NAME = strutils::StringId("quit_button");
 static const strutils::StringId NORMAL_BATTLE_MODE_BUTTON_NAME = strutils::StringId("normal_battle_mode_button");
@@ -66,7 +65,7 @@ static const int MIN_DECK_ENTRIES_TO_SCROLL = 4;
 
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
 {
-    MAIN_MENU_SCENE_NAME
+    game_constants::MAIN_MENU_SCENE
 };
 
 static const std::unordered_set<strutils::StringId, strutils::StringIdHasher> STATIC_SCENE_ELEMENTS =
@@ -396,7 +395,7 @@ void MainMenuSceneLogicManager::TransitionToSubScene(const SubSceneType subScene
 void MainMenuSceneLogicManager::BattleModeSelected(const strutils::StringId& buttonName)
 {
     auto& resourceLoadingService = CoreSystemsEngine::GetInstance().GetResourceLoadingService();
-    auto scene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(MAIN_MENU_SCENE_NAME);
+    auto scene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::MAIN_MENU_SCENE);
     
     scene->FindSceneObject(NORMAL_BATTLE_MODE_BUTTON_NAME)->mShaderResourceId = resourceLoadingService.LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + SELECTABLE_BUTTON_SHADER_FILE_NAME);
     scene->FindSceneObject(REPLAY_BATTLE_MODE_BUTTON_NAME)->mShaderResourceId = resourceLoadingService.LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + SELECTABLE_BUTTON_SHADER_FILE_NAME);

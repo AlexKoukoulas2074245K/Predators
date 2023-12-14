@@ -31,8 +31,10 @@ static const float LOADING_SCENE_FADE_IN_SPEED = 0.002f;
 ///------------------------------------------------------------------------------------------------
 
 GameSceneTransitionManager::GameSceneTransitionManager()
-    : mFirstTimeLoadingScreenMaxAlpha(true)
+    : mLoadingScreenMinDelaySecs(0.0f)
+    , mFirstTimeLoadingScreenMaxAlpha(true)
     , mTransitionAnimationsDisabled(false)
+    
 {
 }
 
@@ -57,7 +59,13 @@ void GameSceneTransitionManager::Update(const float dtMillis)
     
     auto outstandingLoadingJobCount = CoreSystemsEngine::GetInstance().GetResourceLoadingService().GetOustandingLoadingJobCount();
     auto activeScene = sceneManager.FindScene(mActiveSceneStack.top().mActiveSceneName);
-    if (activeScene->GetName() == LOADING_SCENE_NAME && outstandingLoadingJobCount == 0)
+    
+    if (activeScene->GetName() == LOADING_SCENE_NAME)
+    {
+        mLoadingScreenMinDelaySecs -= mLoadingScreenMinDelaySecs < 0.0f ? 0.0f : dtMillis/1000.0f;
+    }
+    
+    if (activeScene->GetName() == LOADING_SCENE_NAME && outstandingLoadingJobCount == 0 && mLoadingScreenMinDelaySecs <= 0.0f)
     {
         CoreSystemsEngine::GetInstance().GetResourceLoadingService().SetAsyncLoading(false);
         
@@ -74,7 +82,7 @@ void GameSceneTransitionManager::Update(const float dtMillis)
         sceneManager.FindScene(mActiveSceneStack.top().mActiveSceneName)->SetLoaded(true);
         return;
     }
-    else if (activeScene->GetName() == LOADING_SCENE_NAME && outstandingLoadingJobCount != 0)
+    else if (activeScene->GetName() == LOADING_SCENE_NAME && mLoadingScreenMinDelaySecs > 0.0f)
     {
         if (mFirstTimeLoadingScreenMaxAlpha)
         {
@@ -84,14 +92,12 @@ void GameSceneTransitionManager::Update(const float dtMillis)
             }
             mFirstTimeLoadingScreenMaxAlpha = false;
         }
-        else
+        
+        for (auto sceneObject: activeScene->GetSceneObjects())
         {
-            for (auto sceneObject: activeScene->GetSceneObjects())
+            if (sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] < 1.0f)
             {
-                if (sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] < 1.0f)
-                {
-                    sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] += dtMillis * LOADING_SCENE_FADE_IN_SPEED;
-                }
+                sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] += dtMillis * LOADING_SCENE_FADE_IN_SPEED;
             }
         }
     }
@@ -132,35 +138,55 @@ void GameSceneTransitionManager::ChangeToScene
 {
     assert(sceneChangeType != SceneChangeType::MODAL_SCENE || previousSceneDestructionType != PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
     
+    auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
     auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
     
     if (sceneChangeType != SceneChangeType::MODAL_SCENE && !mActiveSceneStack.empty())
     {
-        // Destroy logic manager only when transitioning to a completely new scene
-        DestroyActiveSceneLogicManager();
-        
-        // If we additionally want to completely wipe the previous scene, we first fade it's elements out
-        if (previousSceneDestructionType == PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE)
+        // The first non modal scene + all of it's modals (if any) need to be popped
+        animationManager.StopAllAnimations();
+        bool poppedFirstNonModalSceneEntry = false;
+        while ((!mActiveSceneStack.empty() && mActiveSceneStack.top().isModal) || !poppedFirstNonModalSceneEntry)
         {
-            if (mTransitionAnimationsDisabled)
+            if (!mActiveSceneStack.top().isModal)
             {
-                CoreSystemsEngine::GetInstance().GetSceneManager().RemoveScene(mActiveSceneStack.top().mActiveSceneName);
+                poppedFirstNonModalSceneEntry = true;
             }
-            else
+            
+            // Destroy logic manager only when transitioning to a completely new scene
+            DestroyActiveSceneLogicManager();
+            
+            // If we additionally want to completely wipe the previous scene, we first fade it's elements out
+            if (previousSceneDestructionType == PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE)
             {
-                auto sceneToDestroy = sceneManager.FindScene(mActiveSceneStack.top().mActiveSceneName);
-                for (auto sceneObject: sceneToDestroy->GetSceneObjects())
+                if (mTransitionAnimationsDisabled)
                 {
-                    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, 0.0f, LOADING_SCENE_FADE_IN_OUT_DURATION_SECS), [=]()
+                    CoreSystemsEngine::GetInstance().GetSceneManager().RemoveScene(mActiveSceneStack.top().mActiveSceneName);
+                }
+                else
+                {
+                    auto sceneToDestroy = sceneManager.FindScene(mActiveSceneStack.top().mActiveSceneName);
+                    for (auto sceneObject: sceneToDestroy->GetSceneObjects())
                     {
-                        CoreSystemsEngine::GetInstance().GetSceneManager().RemoveScene(sceneToDestroy->GetName());
-                    });
+                        if (sceneObject)
+                        {
+                            if (!sceneObject->mShaderFloatUniformValues.count(game_constants::CUSTOM_ALPHA_UNIFORM_NAME))
+                            {
+                                sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
+                            }
+                            
+                            CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, 0.0f, LOADING_SCENE_FADE_IN_OUT_DURATION_SECS), [=]()
+                            {
+                                CoreSystemsEngine::GetInstance().GetSceneManager().RemoveScene(sceneToDestroy->GetName());
+                            });
+                        }
+                    }
                 }
             }
+            
+            // Erase from active scene stack
+            mActiveSceneStack.pop();
         }
-        
-        // Erase from active scene stack
-        mActiveSceneStack.pop();
     }
     
     // Select the applicable logic manager for the given scene name
@@ -182,12 +208,12 @@ void GameSceneTransitionManager::ChangeToScene
         newScene = sceneManager.CreateScene(sceneName);
     }
     
-    // With darkening transition
+    // Modal scene
     if (sceneChangeType == SceneChangeType::MODAL_SCENE)
     {
         if (mTransitionAnimationsDisabled)
         {
-            mActiveSceneStack.push({nextActiveSceneLogicManager, sceneName});
+            mActiveSceneStack.push({nextActiveSceneLogicManager, sceneName, true});
             InitializeActiveSceneLogicManager(sceneChangeType);
         }
         else
@@ -204,12 +230,12 @@ void GameSceneTransitionManager::ChangeToScene
             auto newSceneNameCopy = sceneName;
             CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(overlaySceneObject, MODAL_MAX_ALPHA, OVERLAY_ANIMATION_TARGET_DURATION_SECS, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), [=]()
             {
-                mActiveSceneStack.push({nextActiveSceneLogicManager, newSceneNameCopy});
+                mActiveSceneStack.push({nextActiveSceneLogicManager, newSceneNameCopy, true});
                 InitializeActiveSceneLogicManager(sceneChangeType);
             }, OVERLAY_DARKENING_ANIMATION_NAME);
         }
     }
-    // Without darkening transition
+    // Non modal scene
     else
     {
         if (sceneChangeType == SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING)
@@ -225,7 +251,7 @@ void GameSceneTransitionManager::ChangeToScene
             
             // Pop and push the next active scene logic managers that will be active
             mActiveSceneStack.pop();
-            mActiveSceneStack.push({nextActiveSceneLogicManager, sceneName});
+            mActiveSceneStack.push({nextActiveSceneLogicManager, sceneName, false});
             
             // .. and initialize it (will load everything asynchronously at this point.
             InitializeActiveSceneLogicManager(sceneChangeType);
@@ -233,10 +259,13 @@ void GameSceneTransitionManager::ChangeToScene
             // Finally push the loading scene entry on top to be updateable whilst the
             // rest of the resources are loading in the background.
             mActiveSceneStack.push(frontEntry);
+            
+            // Add a minimum delay before we kill the loading scene
+            mLoadingScreenMinDelaySecs = LOADING_SCENE_FADE_IN_OUT_DURATION_SECS * 2;
         }
         else
         {
-            mActiveSceneStack.push({nextActiveSceneLogicManager, sceneName});
+            mActiveSceneStack.push({nextActiveSceneLogicManager, sceneName, false});
             InitializeActiveSceneLogicManager(sceneChangeType);
         }
     }
@@ -254,6 +283,9 @@ void GameSceneTransitionManager::PopModalScene()
     // Destroy active scene and pop from stack
     DestroyActiveSceneLogicManager();
     mActiveSceneStack.pop();
+    
+    assert(!mActiveSceneStack.empty());
+    mActiveSceneStack.top().mActiveSceneLogicManager->mIsActive = true;
     
     if (mTransitionAnimationsDisabled)
     {

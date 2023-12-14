@@ -259,6 +259,7 @@ ResourceId ResourceLoadingService::AddDynamicallyCreatedTextureResourceId(const 
     {
         mResourceIdToPaths[resourceId] = resourceName;
         mResourceMap[resourceId] = std::unique_ptr<TextureResource>(new TextureResource(width, height, 0, 0, textureId));
+        mDynamicallyCreatedTextureResourceIds.insert(resourceId);
     }
     return resourceId;
 }
@@ -297,6 +298,17 @@ void ResourceLoadingService::UnloadResource(const ResourceId resourceId)
 {
     logging::Log(logging::LogType::INFO, "Unloading asset: %s", std::to_string(resourceId).c_str());
     mResourceMap.erase(resourceId);
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ResourceLoadingService::UnloadAllDynamicallyCreatedTextures()
+{
+    for (const auto& dynamicallyCreatedResourceId: mDynamicallyCreatedTextureResourceIds)
+    {
+        UnloadResource(dynamicallyCreatedResourceId);
+    }
+    mDynamicallyCreatedTextureResourceIds.clear();
 }
 
 ///------------------------------------------------------------------------------------------------
