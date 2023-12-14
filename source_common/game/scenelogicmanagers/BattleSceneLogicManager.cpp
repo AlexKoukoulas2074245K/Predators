@@ -30,9 +30,6 @@
 #include <engine/scene/SceneObjectUtils.h>
 #include <engine/utils/Logging.h>
 #include <engine/utils/PlatformMacros.h>
-#if defined(MOBILE_FLOW)
-#include <platform_specific/IOSUtils.h>
-#endif
 
 ///------------------------------------------------------------------------------------------------
 
@@ -49,6 +46,7 @@ static const strutils::StringId HISTORY_OVERLAY_SCENE_OBJECT_NAME = strutils::St
 static const strutils::StringId CARD_TOOLTIP_REVEAL_THRESHOLD_UNIFORM_NAME = strutils::StringId("reveal_threshold");
 static const strutils::StringId CARD_TOOLTIP_REVEAL_RGB_EXPONENT_UNIFORM_NAME = strutils::StringId("reveal_rgb_exponent");
 static const strutils::StringId IDLE_GAME_ACTION_NAME = strutils::StringId("IdleGameAction");
+static const strutils::StringId BATTLE_INITIAL_ANIMATION_GAME_ACTION_NAME = strutils::StringId("BattleInitialAnimationGameAction");
 static const strutils::StringId PLAY_CARD_ACTION_NAME = strutils::StringId("PlayCardGameAction");
 static const strutils::StringId NEXT_PLAYER_ACTION_NAME = strutils::StringId("NextPlayerGameAction");
 static const strutils::StringId CARD_BUFFED_DEBUFFED_ANIMATION_GAME_ACTION_NAME = strutils::StringId("CardBuffedDebuffedAnimationGameAction");
@@ -192,18 +190,7 @@ void BattleSceneLogicManager::VInitSceneCamera(std::shared_ptr<scene::Scene> sce
 {
     if (scene->GetName() != HISTORY_SCENE)
     {
-#if defined(MOBILE_FLOW)
-        if (ios_utils::IsIPad())
-        {
-            scene->GetCamera().SetZoomFactor(120.0f);
-        }
-        else
-        {
-            scene->GetCamera().SetZoomFactor(130.0f);
-        }
-#else
-        scene->GetCamera().SetZoomFactor(120.0f);
-#endif
+        scene->GetCamera().SetZoomFactor(game_constants::GAME_BOARD_BASED_SCENE_ZOOM_FACTOR);
     }
 }
 
@@ -258,6 +245,7 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
         mActionEngine = std::make_unique<GameActionEngine>(GameActionEngine::EngineOperationMode::ANIMATED, seed, mBoardState.get(), this, mRuleEngine.get(), mGameSerializer.get());
         mPlayerActionGenerationEngine = std::make_unique<PlayerActionGenerationEngine>(mRuleEngine.get(), mActionEngine.get(), PlayerActionGenerationEngine::ActionGenerationType::OPTIMISED);
         
+        mActionEngine->AddGameAction(BATTLE_INITIAL_ANIMATION_GAME_ACTION_NAME);
         replayEngine.ReplayActions(mActionEngine.get());
     }
     else
@@ -267,7 +255,8 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
         mActionEngine = std::make_unique<GameActionEngine>(GameActionEngine::EngineOperationMode::ANIMATED, seed, mBoardState.get(), this, mRuleEngine.get(), mGameSerializer.get());
         mPlayerActionGenerationEngine = std::make_unique<PlayerActionGenerationEngine>(mRuleEngine.get(), mActionEngine.get(), PlayerActionGenerationEngine::ActionGenerationType::OPTIMISED);
         
-        mActionEngine->AddGameAction(strutils::StringId("NextPlayerGameAction"));
+        mActionEngine->AddGameAction(BATTLE_INITIAL_ANIMATION_GAME_ACTION_NAME);
+        mActionEngine->AddGameAction(NEXT_PLAYER_ACTION_NAME);
     }
     
     // Stat Containers

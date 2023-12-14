@@ -161,6 +161,10 @@ namespace game_constants
     inline const glm::vec3 WEIGHT_CRYSTAL_BOT_POSITION = {0.118f, -0.05f, 0.1f};
     inline const glm::vec3 POISON_STACK_TOP_POSITION = {-0.118f, 0.025f, 0.1f};
     inline const glm::vec3 POISON_STACK_BOT_POSITION = {-0.118f, -0.076f, 0.1f};
+    inline const glm::vec3 GAME_BOARD_INIT_POSITION = {-0.013f, 0.011f, 0.0f };
+    inline const glm::vec3 GAME_BOARD_INIT_ROTATION = {0.0f, 0.0f, 3.14f };
+
+    inline float GAME_BOARD_BASED_SCENE_ZOOM_FACTOR = 120.0f;
 }
 
 ///------------------------------------------------------------------------------------------------

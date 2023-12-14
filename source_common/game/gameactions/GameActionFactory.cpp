@@ -5,6 +5,7 @@
 ///  Created by Alex Koukoulas on 29/09/2023                                                       
 ///------------------------------------------------------------------------------------------------
 
+#include <game/gameactions/BattleInitialAnimationGameAction.h>
 #include <game/gameactions/CardAttackGameAction.h>
 #include <game/gameactions/CardEffectGameAction.h>
 #include <game/gameactions/CardDestructionGameAction.h>
@@ -43,6 +44,7 @@ void GameActionFactory::RegisterGameActions()
     REGISTERED_ACTION_NAMES.clear();
     
     REGISTER_ACTION(IdleGameAction);
+    REGISTER_ACTION(BattleInitialAnimationGameAction);
     REGISTER_ACTION(CardAttackGameAction);
     REGISTER_ACTION(CardEffectGameAction);
     REGISTER_ACTION(DrawCardGameAction);
@@ -78,6 +80,7 @@ const std::vector<strutils::StringId>& GameActionFactory::GetRegisteredActions()
 std::unique_ptr<BaseGameAction> GameActionFactory::CreateGameAction(const strutils::StringId& actionName)
 {
     ACTION_CASE(IdleGameAction);
+    ACTION_CASE(BattleInitialAnimationGameAction);
     ACTION_CASE(CardAttackGameAction);
     ACTION_CASE(CardEffectGameAction);
     ACTION_CASE(CardDestructionGameAction);

@@ -56,6 +56,7 @@ private:
     std::unique_ptr<SwipeableContainer<CardFamilyEntry>> mCardFamilyContainerBot;
     SubSceneType mActiveSubScene;
     bool mTransitioningToSubScene;
+    bool mNeedToSetBoardPositionAndZoomFactor;
 };
 
 ///------------------------------------------------------------------------------------------------

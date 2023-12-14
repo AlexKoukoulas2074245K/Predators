@@ -9,7 +9,6 @@
 #include <engine/utils/PlatformMacros.h>
 #include <engine/rendering/AnimationManager.h>
 #include <engine/utils/Logging.h>
-#include <engine/utils/PlatformMacros.h>
 #include <engine/scene/SceneManager.h>
 #include <game/AnimatedButton.h>
 #include <game/Cards.h>
@@ -24,6 +23,8 @@ static const std::string SELECTABLE_BUTTON_SHADER_FILE_NAME = "basic_custom_colo
 static const std::string DECK_ENTRY_SHADER = "card_family_selection_swipe_entry.vs";
 static const std::string DECK_ENTRY_MASK_TEXTURE_FILE_NAME = "trap_mask.png";
 
+static const strutils::StringId PERMANENT_BOARD_SCENE = strutils::StringId("permanent_board_scene");
+static const strutils::StringId BOARD_SCENE_OBJECT_NAME = strutils::StringId("board");
 static const strutils::StringId PRACTICE_BATTLE_BUTTON_NAME = strutils::StringId("practice_battle_button");
 static const strutils::StringId QUIT_BUTTON_NAME = strutils::StringId("quit_button");
 static const strutils::StringId NORMAL_BATTLE_MODE_BUTTON_NAME = strutils::StringId("normal_battle_mode_button");
@@ -57,6 +58,7 @@ static const float SUBSCENE_ITEM_FADE_IN_OUT_DURATION_SECS = 0.5f;
 static const float DECK_SWIPEABLE_ENTRY_SCALE = 0.075f;
 static const float DECK_ENTRY_ALPHA = 0.5f;
 static const float DECK_ENTRY_Z = 0.1f;
+static const float INITIAL_CAMERA_ZOOM_FACTOR_OFFSET = 54.065f;
 
 static const math::Rectangle DECK_SELECTION_CONTAINER_TOP_BOUNDS = {{-0.005f, 0.03f}, {0.24f, 0.1f}};
 static const math::Rectangle DECK_SELECTION_CONTAINER_BOT_BOUNDS = {{-0.005f, -0.05f}, {0.24f, 0.02f}};
@@ -87,10 +89,6 @@ static const std::unordered_map<strutils::StringId, std::string, strutils::Strin
     { game_constants::DINOSAURS_FAMILY_NAME, "mighty_roar.png" }
 };
 
-inline const strutils::StringId INSECTS_FAMILY_NAME = strutils::StringId("insects");
-inline const strutils::StringId RODENTS_FAMILY_NAME = strutils::StringId("rodents");
-inline const strutils::StringId DINOSAURS_FAMILY_NAME = strutils::StringId("dinosaurs");
-
 ///------------------------------------------------------------------------------------------------
 
 const std::vector<strutils::StringId>& MainMenuSceneLogicManager::VGetApplicableSceneNames() const
@@ -119,6 +117,7 @@ void MainMenuSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     CardDataRepository::GetInstance().LoadCardData(true);
     mActiveSubScene = SubSceneType::NONE;
     mTransitioningToSubScene = false;
+    mNeedToSetBoardPositionAndZoomFactor = true;
     InitSubScene(SubSceneType::MAIN, scene);
 }
 
@@ -129,6 +128,19 @@ void MainMenuSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
     if (mTransitioningToSubScene)
     {
         return;
+    }
+    
+    if (mNeedToSetBoardPositionAndZoomFactor)
+    {
+        auto permanentBoardScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(PERMANENT_BOARD_SCENE);
+        auto boardSceneObject = permanentBoardScene->FindSceneObject(BOARD_SCENE_OBJECT_NAME);
+        
+        boardSceneObject->mPosition = game_constants::GAME_BOARD_INIT_POSITION;
+        boardSceneObject->mRotation = game_constants::GAME_BOARD_INIT_ROTATION;
+        
+        permanentBoardScene->GetCamera().SetZoomFactor(game_constants::GAME_BOARD_BASED_SCENE_ZOOM_FACTOR + INITIAL_CAMERA_ZOOM_FACTOR_OFFSET);
+        
+        mNeedToSetBoardPositionAndZoomFactor = false;
     }
     
     // Animated buttons

@@ -37,6 +37,9 @@
 #include <game/scenelogicmanagers/MainMenuSceneLogicManager.h>
 #include <game/scenelogicmanagers/PermanentBoardSceneLogicManager.h>
 #include <game/utils/PersistenceUtils.h>
+#if defined(MOBILE_FLOW)
+#include <platform_specific/IOSUtils.h>
+#endif
 
 ///------------------------------------------------------------------------------------------------
 
@@ -86,7 +89,18 @@ void Game::Init()
     mGameSceneTransitionManager->RegisterSceneLogicManager<PermanentBoardSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<MainMenuSceneLogicManager>();
     
-    ProgressionDataRepository::GetInstance().SetNextBattleControlType(BattleControlType::AI_TOP_BOT);
+#if defined(MOBILE_FLOW)
+    if (ios_utils::IsIPad())
+    {
+        game_constants::GAME_BOARD_BASED_SCENE_ZOOM_FACTOR = 120.0f;
+    }
+    else
+    {
+        game_constants::GAME_BOARD_BASED_SCENE_ZOOM_FACTOR = 130.0f;
+    }
+#else
+    game_constants::GAME_BOARD_BASED_SCENE_ZOOM_FACTOR = 120.0f;
+#endif
     
     mGameSceneTransitionManager->ChangeToScene(game_constants::PERMANENT_BOARD_SCENE, SceneChangeType::CONCRETE_SCENE_SYNC_LOADING, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
     mGameSceneTransitionManager->ChangeToScene(MAIN_MENU_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
