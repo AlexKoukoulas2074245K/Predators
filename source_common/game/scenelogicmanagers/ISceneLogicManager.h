@@ -17,6 +17,7 @@
 
 class ISceneLogicManager
 {
+    friend class GameSceneTransitionManager;
 public:
     virtual ~ISceneLogicManager() = default;
     
@@ -25,6 +26,9 @@ public:
     virtual void VInitScene(std::shared_ptr<scene::Scene> scene) = 0;
     virtual void VUpdate(const float dtMillis, std::shared_ptr<scene::Scene> activeScene) = 0;
     virtual void VDestroyScene(std::shared_ptr<scene::Scene> scene) = 0;
+    
+protected:
+    bool mIsActive = false;
 };
 
 ///------------------------------------------------------------------------------------------------

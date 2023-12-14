@@ -200,6 +200,7 @@ void GameSceneTransitionManager::ChangeToScene
             overlaySceneObject->mPosition.z = OVERLAY_Z;
             
             // Start darkening transition animation
+            newScene->SetLoaded(true);
             auto newSceneNameCopy = sceneName;
             CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(overlaySceneObject, MODAL_MAX_ALPHA, OVERLAY_ANIMATION_TARGET_DURATION_SECS, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), [=]()
             {
@@ -294,22 +295,28 @@ const std::stack<GameSceneTransitionManager::ActiveSceneEntry> GameSceneTransiti
 void GameSceneTransitionManager::InitializeActiveSceneLogicManager(const SceneChangeType sceneChangeType)
 {
     auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
-    
-    auto sceneLogicManagerEntry = std::find_if(mRegisteredSceneLogicManagers.begin(), mRegisteredSceneLogicManagers.end(), [=](const SceneLogicManagerEntry& entry)
+
+    SceneLogicManagerEntry* applicableSceneLogicManagerEntry = nullptr;
+    for (auto& logicManagerEntry: mRegisteredSceneLogicManagers)
     {
-        return entry.mSceneLogicManager.get() == mActiveSceneStack.top().mActiveSceneLogicManager;
-    });
+        logicManagerEntry.mSceneLogicManager->mIsActive = false;
+        if (logicManagerEntry.mSceneLogicManager.get() == mActiveSceneStack.top().mActiveSceneLogicManager)
+        {
+            logicManagerEntry.mSceneLogicManager->mIsActive = true;
+            applicableSceneLogicManagerEntry = &logicManagerEntry;
+        }
+    }
     
     auto activeSceneName = mActiveSceneStack.top().mActiveSceneName;
-    assert(sceneLogicManagerEntry != mRegisteredSceneLogicManagers.end());
-    if (!sceneLogicManagerEntry->mSceneInitStatusMap.at(activeSceneName))
+    assert(applicableSceneLogicManagerEntry);
+    if (!applicableSceneLogicManagerEntry->mSceneInitStatusMap.at(activeSceneName))
     {
         auto scene = sceneManager.FindScene(activeSceneName);
         mActiveSceneStack.top().mActiveSceneLogicManager->VInitSceneCamera(scene);
         sceneManager.LoadPredefinedObjectsFromDescriptorForScene(scene);
         mActiveSceneStack.top().mActiveSceneLogicManager->VInitScene(scene);
         events::EventSystem::GetInstance().DispatchEvent<events::WindowResizeEvent>();
-        sceneLogicManagerEntry->mSceneInitStatusMap[activeSceneName] = true;
+        applicableSceneLogicManagerEntry->mSceneInitStatusMap[activeSceneName] = true;
         
         if (sceneChangeType != SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING)
         {
