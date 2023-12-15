@@ -235,27 +235,30 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
     
     mRuleEngine = std::make_unique<GameRuleEngine>(mBoardState.get());
 
+    auto seed = math::RandomInt();
+    std::unique_ptr<GameReplayEngine> replayEngine = nullptr;
     
     if (mCurrentBattleControlType == BattleControlType::REPLAY)
     {
-        GameReplayEngine replayEngine(persistence_utils::GetProgressDirectoryPath() + "game");
-        auto seed = replayEngine.GetGameFileSeed();
+        replayEngine = std::make_unique<GameReplayEngine>(persistence_utils::GetProgressDirectoryPath() + "game");
+        seed = replayEngine->GetGameFileSeed();
         
-        mGameSerializer = std::make_unique<GameSerializer>(seed);
-        mActionEngine = std::make_unique<GameActionEngine>(GameActionEngine::EngineOperationMode::ANIMATED, seed, mBoardState.get(), this, mRuleEngine.get(), mGameSerializer.get());
-        mPlayerActionGenerationEngine = std::make_unique<PlayerActionGenerationEngine>(mRuleEngine.get(), mActionEngine.get(), PlayerActionGenerationEngine::ActionGenerationType::OPTIMISED);
-        
-        mActionEngine->AddGameAction(BATTLE_INITIAL_ANIMATION_GAME_ACTION_NAME);
-        replayEngine.ReplayActions(mActionEngine.get());
+        mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = replayEngine->GetTopPlayerDeck();
+        mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = replayEngine->GetBotPlayerDeck();
+    }
+    
+    mGameSerializer = std::make_unique<GameSerializer>(seed, mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards, mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards);
+    mActionEngine = std::make_unique<GameActionEngine>(GameActionEngine::EngineOperationMode::ANIMATED, seed, mBoardState.get(), this, mRuleEngine.get(), mGameSerializer.get());
+    mPlayerActionGenerationEngine = std::make_unique<PlayerActionGenerationEngine>(mRuleEngine.get(), mActionEngine.get(), PlayerActionGenerationEngine::ActionGenerationType::OPTIMISED);
+    
+    mActionEngine->AddGameAction(BATTLE_INITIAL_ANIMATION_GAME_ACTION_NAME);
+    
+    if (mCurrentBattleControlType == BattleControlType::REPLAY)
+    {
+        replayEngine->ReplayActions(mActionEngine.get());
     }
     else
     {
-        auto seed = math::RandomInt();
-        mGameSerializer = std::make_unique<GameSerializer>(seed);
-        mActionEngine = std::make_unique<GameActionEngine>(GameActionEngine::EngineOperationMode::ANIMATED, seed, mBoardState.get(), this, mRuleEngine.get(), mGameSerializer.get());
-        mPlayerActionGenerationEngine = std::make_unique<PlayerActionGenerationEngine>(mRuleEngine.get(), mActionEngine.get(), PlayerActionGenerationEngine::ActionGenerationType::OPTIMISED);
-        
-        mActionEngine->AddGameAction(BATTLE_INITIAL_ANIMATION_GAME_ACTION_NAME);
         mActionEngine->AddGameAction(NEXT_PLAYER_ACTION_NAME);
     }
     

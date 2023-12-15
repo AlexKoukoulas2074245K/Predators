@@ -13,6 +13,7 @@
 #include <game/scenelogicmanagers/ISceneLogicManager.h>
 #include <game/SwipeableContainer.h>
 #include <memory>
+#include <unordered_set>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -54,6 +55,7 @@ private:
     std::vector<std::unique_ptr<AnimatedButton>> mAnimatedButtons;
     std::unique_ptr<SwipeableContainer<CardFamilyEntry>> mCardFamilyContainerTop;
     std::unique_ptr<SwipeableContainer<CardFamilyEntry>> mCardFamilyContainerBot;
+    std::vector<std::shared_ptr<scene::SceneObject>> mDeckSelectionSceneObjects;
     SubSceneType mActiveSubScene;
     bool mTransitioningToSubScene;
     bool mNeedToSetBoardPositionAndZoomFactor;

@@ -43,16 +43,16 @@ static const glm::vec2 DECK_ENTRY_CUTOFF_VALUES = {-0.01f, 0.25f};
 static const glm::vec2 DECK_CONTAINER_CUTOFF_VALUES = {0.05f, 0.15f};
 static const glm::vec3 BUTTON_SCALE = {0.0005f, 0.0005f, 0.0005f};
 static const glm::vec3 PRACTICE_BATTLE_BUTTON_POSITION = {-0.139f, 0.02f, 0.1f};
-static const glm::vec3 NORMAL_BATTLE_MODE_BUTTON_POSITION = {-0.264f, -0.076f, 0.1f};
-static const glm::vec3 AI_DEMO_BATTLE_MODE_BUTTON_POSITION = {-0.07f, -0.076f, 0.1f};
-static const glm::vec3 REPLAY_BATTLE_MODE_BUTTON_POSITION = {0.147f, -0.076f, 0.1f};
-static const glm::vec3 START_BATTLE_BUTTON_POSITION = {-0.147f, -0.147f, 0.1f};
-static const glm::vec3 BACK_BUTTON_POSITION = {0.164f, -0.147f, 0.1f};
+static const glm::vec3 NORMAL_BATTLE_MODE_BUTTON_POSITION = {-0.264f, 0.086f, 0.1f};
+static const glm::vec3 AI_DEMO_BATTLE_MODE_BUTTON_POSITION = {-0.07f, 0.086f, 0.1f};
+static const glm::vec3 REPLAY_BATTLE_MODE_BUTTON_POSITION = {0.147f, 0.086f, 0.1f};
+static const glm::vec3 START_BATTLE_BUTTON_POSITION = {-0.198f, -0.173f, 0.1f};
+static const glm::vec3 BACK_BUTTON_POSITION = {0.082f, -0.173f, 0.1f};
 static const glm::vec3 QUIT_BUTTON_POSITION = {-0.025f, -0.083f, 0.1f};
 static const glm::vec3 DESELECTED_BUTTON_COLOR = { 1.0f, 1.0f, 1.0f};
 static const glm::vec3 SELECTED_BUTTON_COLOR = {0.0f, 0.66f, 0.66f};
-static const glm::vec3 TOP_DECK_TEXT_POSITION = {-0.254f, 0.082f, 0.1f};
-static const glm::vec3 BOT_DECK_TEXT_POSITION = {-0.250f, -0.008f, 0.1f};
+static const glm::vec3 TOP_DECK_TEXT_POSITION = {-0.254f, 0.01f, 0.1f};
+static const glm::vec3 BOT_DECK_TEXT_POSITION = {-0.250f, -0.068f, 0.1f};
 
 static const float SUBSCENE_ITEM_FADE_IN_OUT_DURATION_SECS = 0.5f;
 static const float DECK_SWIPEABLE_ENTRY_SCALE = 0.075f;
@@ -60,8 +60,8 @@ static const float DECK_ENTRY_ALPHA = 0.5f;
 static const float DECK_ENTRY_Z = 0.1f;
 static const float INITIAL_CAMERA_ZOOM_FACTOR_OFFSET = 54.065f;
 
-static const math::Rectangle DECK_SELECTION_CONTAINER_TOP_BOUNDS = {{-0.005f, 0.03f}, {0.24f, 0.1f}};
-static const math::Rectangle DECK_SELECTION_CONTAINER_BOT_BOUNDS = {{-0.005f, -0.05f}, {0.24f, 0.02f}};
+static const math::Rectangle DECK_SELECTION_CONTAINER_TOP_BOUNDS = {{-0.005f, -0.03f}, {0.24f, 0.04f}};
+static const math::Rectangle DECK_SELECTION_CONTAINER_BOT_BOUNDS = {{-0.005f, -0.11f}, {0.24f, -0.04f}};
 
 static const int MIN_DECK_ENTRIES_TO_SCROLL = 4;
 
@@ -152,7 +152,7 @@ void MainMenuSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
     if (mCardFamilyContainerTop)
     {
         auto containerUpdateResult = mCardFamilyContainerTop->Update(dtMillis);
-        if (containerUpdateResult.mInteractedElementId != -1)
+        if (containerUpdateResult.mInteractedElementId != -1 &&  ProgressionDataRepository::GetInstance().GetNextBattleControlType() != BattleControlType::REPLAY)
         {
             DeckSelected(containerUpdateResult.mInteractedElementId, true);
         }
@@ -161,7 +161,7 @@ void MainMenuSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
     if (mCardFamilyContainerBot)
     {
         auto containerUpdateResult = mCardFamilyContainerBot->Update(dtMillis);
-        if (containerUpdateResult.mInteractedElementId != -1)
+        if (containerUpdateResult.mInteractedElementId != -1 &&  ProgressionDataRepository::GetInstance().GetNextBattleControlType() != BattleControlType::REPLAY)
         {
             DeckSelected(containerUpdateResult.mInteractedElementId, false);
         }
@@ -363,6 +363,21 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
             DeckSelected(0, true);
             DeckSelected(0, false);
             BattleModeSelected(NORMAL_BATTLE_MODE_BUTTON_NAME);
+            
+            mDeckSelectionSceneObjects.clear();
+            mDeckSelectionSceneObjects.push_back(topDeckTextSceneObject);
+            mDeckSelectionSceneObjects.push_back(botDeckTextSceneObject);
+            
+            for (auto& topCardFamilyEntry: mCardFamilyContainerTop->GetItems())
+            {
+                mDeckSelectionSceneObjects.push_back(topCardFamilyEntry.mSceneObjects.front());
+            }
+            
+            for (auto& botCardFamilyEntry: mCardFamilyContainerBot->GetItems())
+            {
+                mDeckSelectionSceneObjects.push_back(botCardFamilyEntry.mSceneObjects.front());
+            }
+            
         } break;
             
         default: break;
@@ -421,6 +436,12 @@ void MainMenuSceneLogicManager::BattleModeSelected(const strutils::StringId& but
     {
         scene->FindSceneObject(buttonName)->mShaderVec3UniformValues[CUSTOM_COLOR_UNIFORM_NAME] = SELECTED_BUTTON_COLOR;
         ProgressionDataRepository::GetInstance().SetNextBattleControlType(BATTLE_MODE_BUTTON_NAMES_TO_BATTLE_CONTROL_TYPE.at(buttonName));
+        
+        auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+        for (auto& deckSelectionSceneObject: mDeckSelectionSceneObjects)
+        {
+            animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(deckSelectionSceneObject, buttonName == REPLAY_BATTLE_MODE_BUTTON_NAME ? 0.0f : 1.0f, SUBSCENE_ITEM_FADE_IN_OUT_DURATION_SECS), [](){});
+        }
     }
 }
 

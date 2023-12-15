@@ -21,10 +21,15 @@ public:
     GameReplayEngine(const std::string& filenameNoExtension);
     
     int GetGameFileSeed() const;
+    const std::vector<int>& GetTopPlayerDeck() const;
+    const std::vector<int>& GetBotPlayerDeck() const;
+    
     void ReplayActions(GameActionEngine* gameActionEngine);
     
 private:
     int mGameFileSeed;
+    std::vector<int> mTopPlayerDeck;
+    std::vector<int> mBotPlayerDeck;
 };
 
 ///------------------------------------------------------------------------------------------------
