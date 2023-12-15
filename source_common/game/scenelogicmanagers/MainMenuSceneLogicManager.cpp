@@ -59,6 +59,9 @@ static const float DECK_SWIPEABLE_ENTRY_SCALE = 0.075f;
 static const float DECK_ENTRY_ALPHA = 0.5f;
 static const float DECK_ENTRY_Z = 0.1f;
 static const float INITIAL_CAMERA_ZOOM_FACTOR_OFFSET = 54.065f;
+static const float DECK_SELECTED_MAX_SCALE_FACTOR = 1.15f;
+static const float DECK_SELECTED_MIN_SCALE_FACTOR = 0.65f;
+static const float DECK_SELECTION_ANIMATION_DURATION_SECS = 0.4f;
 
 static const math::Rectangle DECK_SELECTION_CONTAINER_TOP_BOUNDS = {{-0.005f, -0.03f}, {0.24f, 0.04f}};
 static const math::Rectangle DECK_SELECTION_CONTAINER_BOT_BOUNDS = {{-0.005f, -0.11f}, {0.24f, -0.04f}};
@@ -455,8 +458,8 @@ void MainMenuSceneLogicManager::DeckSelected(const int selectedDeckIndex, const 
     for (auto i = 0; i < static_cast<int>(respectiveDeckContainer->GetItems().size()); ++i)
     {
         auto& sceneObject = respectiveDeckContainer->GetItems()[i].mSceneObjects.front();
-        auto targetScale = glm::vec3(DECK_SWIPEABLE_ENTRY_SCALE * (selectedDeckIndex == i ? 1.15f : 0.65f));
-        animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(sceneObject, sceneObject->mPosition, targetScale, 0.4f, animation_flags::IGNORE_X_COMPONENT, 0.0f, math::ElasticFunction, math::TweeningMode::EASE_IN), [=](){});
+        auto targetScale = glm::vec3(DECK_SWIPEABLE_ENTRY_SCALE * (selectedDeckIndex == i ? DECK_SELECTED_MAX_SCALE_FACTOR : DECK_SELECTED_MIN_SCALE_FACTOR));
+        animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(sceneObject, sceneObject->mPosition, targetScale, DECK_SELECTION_ANIMATION_DURATION_SECS, animation_flags::IGNORE_X_COMPONENT, 0.0f, math::ElasticFunction, math::TweeningMode::EASE_IN), [=](){});
     }
     
     if (forTopPlayer)
