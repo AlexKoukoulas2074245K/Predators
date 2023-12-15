@@ -36,7 +36,7 @@ private:
     {
         NONE,
         MAIN,
-        PRACTICE_BATTLE
+        QUICK_BATTLE
     };
     
     struct CardFamilyEntry
