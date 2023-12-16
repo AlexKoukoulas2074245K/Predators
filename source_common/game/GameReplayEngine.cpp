@@ -35,11 +35,6 @@ bool ValidateChecksum(T& contentsContainer)
         contentsContainer.pop_back();
     }
     
-    // Newline on debug builds
-#if !defined(NDEBUG) && !defined(TEST_BINARY_FLOW)
-    checkSumString.pop_back();
-#endif
-    
     contentsContainer.pop_back();
     
     if (contentsContainer.empty())
@@ -48,7 +43,8 @@ bool ValidateChecksum(T& contentsContainer)
     }
     
 #if !defined(NDEBUG) && !defined(TEST_BINARY_FLOW)
-    if (checkSumString == std::to_string(strutils::StringId(nlohmann::json::parse(contentsContainer).dump(4)).GetStringId()))
+    auto fileCheckSumString = std::to_string(strutils::StringId(nlohmann::json::parse(contentsContainer).dump(4)).GetStringId());
+    if (checkSumString == fileCheckSumString)
     {
         return true;
     }
