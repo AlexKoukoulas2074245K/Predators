@@ -261,7 +261,7 @@ void GameSceneTransitionManager::ChangeToScene
             mActiveSceneStack.push(frontEntry);
             
             // Add a minimum delay before we kill the loading scene
-            mLoadingScreenMinDelaySecs = LOADING_SCENE_FADE_IN_OUT_DURATION_SECS;
+            mLoadingScreenMinDelaySecs = LOADING_SCENE_FADE_IN_OUT_DURATION_SECS * 2;
         }
         else
         {
