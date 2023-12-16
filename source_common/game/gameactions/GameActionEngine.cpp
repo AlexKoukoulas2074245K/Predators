@@ -7,7 +7,7 @@
 
 #include <engine/utils/Logging.h>
 #include <engine/utils/MathUtils.h>
-#include <game/GameSerializer.h>
+#include <game/events/EventSystem.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/GameActionFactory.h>
 #include <game/gameactions/BaseGameAction.h>
@@ -18,13 +18,12 @@ static const strutils::StringId IDLE_GAME_ACTION_NAME = strutils::StringId("Idle
 
 ///------------------------------------------------------------------------------------------------
 
-GameActionEngine::GameActionEngine(const EngineOperationMode operationMode, const int gameSeed, BoardState* boardState, BattleSceneLogicManager* battleSceneLogicManager, GameRuleEngine* gameRuleEngine, GameSerializer* gameSerializer)
+GameActionEngine::GameActionEngine(const EngineOperationMode operationMode, const int gameSeed, BoardState* boardState, BattleSceneLogicManager* battleSceneLogicManager, GameRuleEngine* gameRuleEngine)
     : mOperationMode(operationMode)
     , mGameSeed(gameSeed)
     , mBoardState(boardState)
     , mBattleSceneLogicManager(battleSceneLogicManager)
     , mGameRuleEngine(gameRuleEngine)
-    , mGameSerializer(gameSerializer)
     , mActiveActionHasSetState(false)
     , mLoggingActionTransitions(false)
 {
@@ -141,9 +140,9 @@ void GameActionEngine::CreateAndPushGameAction(const strutils::StringId& actionN
     action->SetExtraActionParams(extraActionParams);
     mGameActions.push(std::move(action));
     
-    if (mGameSerializer && mGameActions.back()->VShouldBeSerialized())
+    if (mGameActions.back()->VShouldBeSerialized())
     {
-        mGameSerializer->OnGameAction(actionName, extraActionParams);
+        events::EventSystem::GetInstance().DispatchEvent<events::SerializableGameActionEvent>(actionName, extraActionParams);
     }
     
     LogActionTransition("Pushed and logged action " + actionName.GetString());

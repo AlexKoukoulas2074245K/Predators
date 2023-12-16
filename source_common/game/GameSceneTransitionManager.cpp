@@ -255,7 +255,7 @@ void GameSceneTransitionManager::ChangeToScene
             
             // .. and initialize it (will load everything asynchronously at this point.
             InitializeActiveSceneLogicManager(sceneChangeType);
-            
+             
             // Finally push the loading scene entry on top to be updateable whilst the
             // rest of the resources are loading in the background.
             mActiveSceneStack.push(frontEntry);

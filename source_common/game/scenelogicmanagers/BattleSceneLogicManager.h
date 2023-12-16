@@ -28,7 +28,7 @@ class AnimatedStatContainer;
 class BoardState;
 class GameActionEngine;
 class GameRuleEngine;
-class GameSerializer;
+class BaseDataFileSerializer;
 class PlayerActionGenerationEngine;
 
 ///------------------------------------------------------------------------------------------------
@@ -107,7 +107,7 @@ private:
     std::unique_ptr<BoardState> mBoardState;
     std::unique_ptr<GameActionEngine> mActionEngine;
     std::unique_ptr<GameRuleEngine> mRuleEngine;
-    std::unique_ptr<GameSerializer> mGameSerializer;
+    std::unique_ptr<BaseDataFileSerializer> mBattleSerializer;
     std::unique_ptr<PlayerActionGenerationEngine> mPlayerActionGenerationEngine;
     std::unique_ptr<SwipeableContainer<CardHistoryEntry>> mCardHistoryContainer;
     std::shared_ptr<scene::Scene> mActiveScene;

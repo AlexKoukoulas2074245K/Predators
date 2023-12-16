@@ -13,7 +13,7 @@
 #include <game/GameConstants.h>
 #include <game/GameReplayEngine.h>
 #include <game/GameRuleEngine.h>
-#include <game/GameSerializer.h>
+#include <game/BattleSerializer.h>
 #include <game/gameactions/PlayCardGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/PlayerActionGenerationEngine.h>
@@ -253,8 +253,8 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
         mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = replayEngine->GetBotPlayerDeck();
     }
     
-    mGameSerializer = std::make_unique<GameSerializer>(seed, mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards, mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards);
-    mActionEngine = std::make_unique<GameActionEngine>(GameActionEngine::EngineOperationMode::ANIMATED, seed, mBoardState.get(), this, mRuleEngine.get(), mGameSerializer.get());
+    mBattleSerializer = std::make_unique<BattleSerializer>(seed, mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards, mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards);
+    mActionEngine = std::make_unique<GameActionEngine>(GameActionEngine::EngineOperationMode::ANIMATED, seed, mBoardState.get(), this, mRuleEngine.get());
     mPlayerActionGenerationEngine = std::make_unique<PlayerActionGenerationEngine>(mRuleEngine.get(), mActionEngine.get(), PlayerActionGenerationEngine::ActionGenerationType::OPTIMISED);
     
     mActionEngine->AddGameAction(BATTLE_INITIAL_ANIMATION_GAME_ACTION_NAME);
@@ -1197,7 +1197,7 @@ void BattleSceneLogicManager::OnApplicationMovedToBackground(const events::Appli
         OnSettingsButtonPressed();
     }
     
-    mGameSerializer->FlushStateToFile();
+    mBattleSerializer->FlushStateToFile();
 }
 
 ///------------------------------------------------------------------------------------------------

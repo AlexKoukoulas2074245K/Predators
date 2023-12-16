@@ -171,6 +171,21 @@ public:
 
 ///------------------------------------------------------------------------------------------------
 
+class SerializableGameActionEvent final
+{
+public:
+    SerializableGameActionEvent(const strutils::StringId& actionName, const std::unordered_map<std::string, std::string>& extraActionParams)
+        : mActionName(actionName)
+        , mExtraActionParams(extraActionParams)
+    {
+    }
+    
+    const strutils::StringId mActionName;
+    const std::unordered_map<std::string, std::string> mExtraActionParams;
+};
+
+///------------------------------------------------------------------------------------------------
+
 class NewBoardCardCreatedEvent final
 {
 public:

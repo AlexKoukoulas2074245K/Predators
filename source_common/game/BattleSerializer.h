@@ -1,31 +1,31 @@
 ///------------------------------------------------------------------------------------------------
-///  GameSerializer.h                                                                                          
+///  BattleSerializer.h
 ///  Predators                                                                                            
 ///                                                                                                
 ///  Created by Alex Koukoulas on 27/10/2023                                                       
 ///------------------------------------------------------------------------------------------------
 
-#ifndef GameSerializer_h
-#define GameSerializer_h
+#ifndef BattleSerializer_h
+#define BattleSerializer_h
 
 ///------------------------------------------------------------------------------------------------
 
+#include <game/BaseDataFileSerializer.h>
+#include <game/events/EventSystem.h>
 #include <engine/utils/StringUtils.h>
-#include <unordered_map>
 #include <vector>
 
 ///------------------------------------------------------------------------------------------------
 
-using ExtraActionParams = std::unordered_map<std::string, std::string>;
-class GameSerializer final
+class BattleSerializer final: public BaseDataFileSerializer, public events::IListener
 {
 public:
-    GameSerializer(const int gameSeed, const std::vector<int>& topPlayerDeck, const std::vector<int>& botPlayerDeck);
-    
-    void FlushStateToFile();
-    void OnGameAction(const strutils::StringId& gameActionName, const ExtraActionParams& extraActionParams);
+    BattleSerializer(const int gameSeed, const std::vector<int>& topPlayerDeck, const std::vector<int>& botPlayerDeck);
+
+private:
+    void OnSerializableGameActionEvent(const events::SerializableGameActionEvent& event);
 };
 
 ///------------------------------------------------------------------------------------------------
 
-#endif /* GameSerializer_h */
+#endif /* BattleSerializer_h */
