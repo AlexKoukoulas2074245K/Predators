@@ -99,6 +99,8 @@ namespace game_constants
     inline constexpr int CARD_TOOLTIP_TEXT_ROWS_COUNT = 4;
     inline constexpr int TOP_PLAYER_DEFAULT_HEALTH = 33;
     inline constexpr int BOT_PLAYER_DEFAULT_HEALTH = 35;
+    inline constexpr int TOP_PLAYER_DEFAULT_WEIGHT = 3;
+    inline constexpr int BOT_PLAYER_DEFAULT_WEIGHT = 3;
 
     inline const float CARD_COMPONENT_Z_OFFSET = 0.1f;
     inline const float CARD_BOUNDING_RECT_X_MULTIPLIER = 0.5f;

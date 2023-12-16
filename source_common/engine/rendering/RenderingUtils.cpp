@@ -42,9 +42,9 @@ void CollateSceneObjectsIntoOne(const std::string& dynamicTextureResourceName, c
         GLuint frameBuffer, textureId;
         GL_CALL(glGenFramebuffers(1, &frameBuffer));
         GL_CALL(glGenTextures(1, &textureId));
-
+        
         GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer));
-
+        
         GL_CALL(glBindTexture(GL_TEXTURE_2D, textureId));
         GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
         GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
@@ -52,13 +52,13 @@ void CollateSceneObjectsIntoOne(const std::string& dynamicTextureResourceName, c
         GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
         GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, NEW_TEXTURE_SIZE/2/currentAspectToDefaultAspect, NEW_TEXTURE_SIZE, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL));
         GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureId, 0));
-
+        
         GLuint depthbuffer;
         GL_CALL(glGenRenderbuffers(1, &depthbuffer));
         GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, depthbuffer));
         GL_CALL(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, NEW_TEXTURE_SIZE/2/currentAspectToDefaultAspect, NEW_TEXTURE_SIZE));
         GL_CALL(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthbuffer));
-
+        
         assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
         
         for (auto& sceneObject: sceneObjects)
@@ -70,11 +70,11 @@ void CollateSceneObjectsIntoOne(const std::string& dynamicTextureResourceName, c
         
         dynamicTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().AddDynamicallyCreatedTextureResourceId
         (
-            dynamicTextureResourceName,
-            textureId,
-            NEW_TEXTURE_SIZE,
-            NEW_TEXTURE_SIZE
-        );
+         dynamicTextureResourceName,
+         textureId,
+         NEW_TEXTURE_SIZE,
+         NEW_TEXTURE_SIZE
+         );
         
         GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, oldFrameBuffer));
         GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, oldRenderBuffer));
@@ -96,6 +96,26 @@ void CollateSceneObjectsIntoOne(const std::string& dynamicTextureResourceName, c
     }
     
     sceneObjects.front()->mTextureResourceId = dynamicTextureResourceId;
+}
+
+///------------------------------------------------------------------------------------------------
+
+int GetDisplayRefreshRate()
+{
+    SDL_DisplayMode mode;
+    int displayIndex = SDL_GetWindowDisplayIndex(&CoreSystemsEngine::GetInstance().GetContextWindow());
+    
+    // If we can't find the refresh rate, we'll return this:
+    constexpr int DEFAULT_REFRESH_RATE = 60;
+    if (SDL_GetDesktopDisplayMode(displayIndex, &mode) != 0)
+    {
+        return DEFAULT_REFRESH_RATE;
+    }
+    if (mode.refresh_rate == 0)
+    {
+        return DEFAULT_REFRESH_RATE;
+    }
+    return mode.refresh_rate;
 }
 
 ///------------------------------------------------------------------------------------------------

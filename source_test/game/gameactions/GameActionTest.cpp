@@ -592,6 +592,12 @@ void GameActionTests::SimulateBattle(strutils::StringId topDeckFamilyName /*= st
         mBoardState->GetPlayerStates()[0].mPlayerHealth = game_constants::TOP_PLAYER_DEFAULT_HEALTH;
         mBoardState->GetPlayerStates()[1].mPlayerHealth = game_constants::TOP_PLAYER_DEFAULT_HEALTH;
         
+        mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = game_constants::TOP_PLAYER_DEFAULT_WEIGHT;
+        mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = game_constants::TOP_PLAYER_DEFAULT_WEIGHT;
+        
+        mBoardState->GetPlayerStates()[1].mPlayerTotalWeightAmmo = game_constants::BOT_PLAYER_DEFAULT_WEIGHT;
+        mBoardState->GetPlayerStates()[1].mPlayerCurrentWeightAmmo = game_constants::BOT_PLAYER_DEFAULT_WEIGHT;
+        
         if (mFamilyBattles)
         {
             mBoardState->GetPlayerStates()[0].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(topDeckFamilyName);

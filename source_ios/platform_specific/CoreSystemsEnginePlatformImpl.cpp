@@ -10,6 +10,7 @@
 #include <engine/rendering/Fonts.h>
 #include <engine/rendering/OpenGL.h>
 #include <engine/rendering/ParticleManager.h>
+#include <engine/rendering/RenderingUtils.h>
 #include <engine/resloading/ResourceLoadingService.h>
 #include <engine/scene/SceneManager.h>
 #include <engine/scene/Scene.h>
@@ -27,7 +28,7 @@ static constexpr int DEFAULT_WINDOW_WIDTH  = 1688;
 static constexpr int DEFAULT_WINDOW_HEIGHT = 780;
 static constexpr int MIN_WINDOW_WIDTH      = 844;
 static constexpr int MIN_WINDOW_HEIGHT     = 390;
-static const float TARGET_FPS_MILLIS       = 1000.0f / 60.0f;
+static constexpr int TARGET_GAME_LOGIC_FPS = 60;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -136,6 +137,9 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
     
     bool shouldQuit = false;
     
+    const int refreshRate = rendering::GetDisplayRefreshRate();
+    const float targetFpsMillis = 1000.0f / refreshRate;
+    
     while(!shouldQuit)
     {
         bool windowSizeChanged = false;
@@ -170,7 +174,7 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
         
         mSystems->mResourceLoadingService.Update();
         
-        float gameLogicMillis = math::Max(16.0f, math::Min(32.0f, dtMillis));
+        float gameLogicMillis = math::Max(16.0f, math::Min(32.0f, dtMillis)) * (TARGET_GAME_LOGIC_FPS/static_cast<float>(refreshRate));
         if (secsAccumulator > 1.0f)
         {
             logging::Log(logging::LogType::INFO, "FPS: %d", framesAccumulator);
@@ -208,9 +212,9 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
         mSystems->mRenderer.VEndRenderPass();
         
         auto frameEndMillisDiff = static_cast<float>(SDL_GetTicks()) - currentMillisSinceInit;
-        if (frameEndMillisDiff < TARGET_FPS_MILLIS)
+        if (frameEndMillisDiff < targetFpsMillis)
         {
-            SDL_Delay(TARGET_FPS_MILLIS - frameEndMillisDiff);
+            SDL_Delay(targetFpsMillis - frameEndMillisDiff);
         }
     }
 }
