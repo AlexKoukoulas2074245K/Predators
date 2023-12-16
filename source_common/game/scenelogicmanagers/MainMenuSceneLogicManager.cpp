@@ -25,6 +25,7 @@ static const std::string DECK_ENTRY_MASK_TEXTURE_FILE_NAME = "trap_mask.png";
 
 static const strutils::StringId PERMANENT_BOARD_SCENE = strutils::StringId("permanent_board_scene");
 static const strutils::StringId BOARD_SCENE_OBJECT_NAME = strutils::StringId("board");
+static const strutils::StringId STORY_MODE_BUTTON_NAME = strutils::StringId("story_mode_button");
 static const strutils::StringId QUICK_BATTLE_BUTTON_NAME = strutils::StringId("quick_battle_button");
 static const strutils::StringId QUIT_BUTTON_NAME = strutils::StringId("quit_button");
 static const strutils::StringId NORMAL_BATTLE_MODE_BUTTON_NAME = strutils::StringId("normal_battle_mode_button");
@@ -42,13 +43,14 @@ static const strutils::StringId BOT_DECK_CONTAINER_SCENE_OBJECT_NAME = strutils:
 static const glm::vec2 DECK_ENTRY_CUTOFF_VALUES = {-0.01f, 0.25f};
 static const glm::vec2 DECK_CONTAINER_CUTOFF_VALUES = {0.05f, 0.15f};
 static const glm::vec3 BUTTON_SCALE = {0.0005f, 0.0005f, 0.0005f};
-static const glm::vec3 QUICK_BATTLE_BUTTON_POSITION = {-0.109f, 0.02f, 0.1f};
+static const glm::vec3 STORY_MODE_BUTTON_POSITION = {-0.109f, 0.09f, 0.1f};
+static const glm::vec3 QUICK_BATTLE_BUTTON_POSITION = {-0.109f, -0.003f, 0.1f};
+static const glm::vec3 QUIT_BUTTON_POSITION = {-0.033f, -0.093f, 0.1f};
 static const glm::vec3 NORMAL_BATTLE_MODE_BUTTON_POSITION = {-0.254f, 0.086f, 0.1f};
 static const glm::vec3 AI_DEMO_BATTLE_MODE_BUTTON_POSITION = {-0.07f, 0.086f, 0.1f};
 static const glm::vec3 REPLAY_BATTLE_MODE_BUTTON_POSITION = {0.136f, 0.086f, 0.1f};
 static const glm::vec3 START_BATTLE_BUTTON_POSITION = {-0.198f, -0.173f, 0.1f};
 static const glm::vec3 BACK_BUTTON_POSITION = {0.082f, -0.173f, 0.1f};
-static const glm::vec3 QUIT_BUTTON_POSITION = {-0.022f, -0.083f, 0.1f};
 static const glm::vec3 DESELECTED_BUTTON_COLOR = { 1.0f, 1.0f, 1.0f};
 static const glm::vec3 SELECTED_BUTTON_COLOR = {0.0f, 0.66f, 0.66f};
 static const glm::vec3 TOP_DECK_TEXT_POSITION = {-0.254f, 0.01f, 0.1f};
@@ -197,6 +199,17 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
     {
         case SubSceneType::MAIN:
         {
+            mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
+            (
+                STORY_MODE_BUTTON_POSITION,
+                BUTTON_SCALE,
+                game_constants::DEFAULT_FONT_NAME,
+                "Story Mode",
+                STORY_MODE_BUTTON_NAME,
+                [=](){},
+                *scene
+            ));
+            
             mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
             (
                 QUICK_BATTLE_BUTTON_POSITION,
