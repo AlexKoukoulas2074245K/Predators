@@ -33,11 +33,9 @@ static std::hash<std::string> hashFunction;
 /// Compute a unique hash for a given string.
 /// @param[in] s the input string.
 /// @returns the hashed input string.
-inline std::size_t GetStringHash(const std::string& s)
+inline uint32_t GetStringHash(const std::string& s)
 {
-    auto result = hashFunction(s);
-    assert(result > 2);
-    return result;
+    return static_cast<uint32_t>(hashFunction(s));
 }
 
 ///-----------------------------------------------------------------------------------------------
@@ -233,12 +231,12 @@ public:
     {
     }
     
-    operator size_t () { return mStringId; }
+    operator uint32_t () { return mStringId; }
     bool operator < (const StringId& rhs) { return mStringId < rhs.GetStringId(); }
     
     bool isEmpty() const { return mStringId == 0; }
     const std::string& GetString() const { return mString; }
-    size_t GetStringId() const { return mStringId; }
+    uint32_t GetStringId() const { return mStringId; }
     
     void fromAddress(const void* address)
     {
@@ -250,7 +248,7 @@ public:
     
 private:
     std::string mString;
-    size_t      mStringId;
+    uint32_t    mStringId;
 };
 
 ///-----------------------------------------------------------------------------------------------
@@ -272,7 +270,7 @@ inline bool operator != (const StringId& lhs, const StringId& rhs) { return lhs.
 /// Custom StringId hasher to be used in stl containers
 struct StringIdHasher
 {
-    std::size_t operator()(const StringId& key) const
+    std::uint32_t operator()(const StringId& key) const
     {
         return key.GetStringId();
     }
