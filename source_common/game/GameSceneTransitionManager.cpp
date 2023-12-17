@@ -22,6 +22,7 @@ static const strutils::StringId LOADING_SCENE_NAME = strutils::StringId("loading
 static const std::string OVERLAY_TEXTURE_FILE_NAME = "overlay.png";
 
 static const float LOADING_SCENE_FADE_IN_OUT_DURATION_SECS = 0.5f;
+static const float MIN_LOADING_SCENE_SURFACING_SECS = 0.6f;
 static const float OVERLAY_ANIMATION_TARGET_DURATION_SECS = 0.5f;
 static const float OVERLAY_SCALE = 10.0f;
 static const float OVERLAY_Z = 23.0f;
@@ -261,7 +262,7 @@ void GameSceneTransitionManager::ChangeToScene
             mActiveSceneStack.push(frontEntry);
             
             // Add a minimum delay before we kill the loading scene
-            mLoadingScreenMinDelaySecs = LOADING_SCENE_FADE_IN_OUT_DURATION_SECS * 2;
+            mLoadingScreenMinDelaySecs = MIN_LOADING_SCENE_SURFACING_SECS;
         }
         else
         {
