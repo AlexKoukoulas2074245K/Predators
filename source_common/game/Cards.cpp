@@ -9,6 +9,7 @@
 #include <engine/resloading/ResourceLoadingService.h>
 #include <engine/resloading/DataFileResource.h>
 #include <engine/resloading/TextureResource.h>
+#include <engine/utils/BaseDataFileDeserializer.h>
 #include <engine/utils/OSMessageBox.h>
 #include <game/Cards.h>
 #include <game/GameConstants.h>
@@ -102,9 +103,14 @@ void CardDataRepository::ClearCardData()
 
 void CardDataRepository::LoadCardData(bool loadCardAssets)
 {
-    auto cardsDefinitionJsonResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_DATA_ROOT + "card_data.json");
     auto& resourceService = CoreSystemsEngine::GetInstance().GetResourceLoadingService();
-    auto cardDataJson =  nlohmann::json::parse(CoreSystemsEngine::GetInstance().GetResourceLoadingService().GetResource<resources::DataFileResource>(cardsDefinitionJsonResourceId).GetContents());
+    
+#if !defined(NDEBUG)
+    auto cardsDefinitionJsonResourceId = resourceService.LoadResource(resources::ResourceLoadingService::RES_DATA_ROOT + "card_data.json");
+    const auto cardDataJson =  nlohmann::json::parse(resourceService.GetResource<resources::DataFileResource>(cardsDefinitionJsonResourceId).GetContents());
+#else
+    const auto cardDataJson = serial::BaseDataFileDeserializer("card_data", serial::DataFileType::ASSET_FILE_TYPE).GetState();
+#endif
     
     for (const auto& cardFamily: cardDataJson["card_families"])
     {

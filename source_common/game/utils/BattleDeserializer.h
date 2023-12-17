@@ -1,24 +1,25 @@
 ///------------------------------------------------------------------------------------------------
-///  GameReplayEngine.h                                                                                          
+///  BattleDeserializer.h
 ///  Predators                                                                                            
 ///                                                                                                
 ///  Created by Alex Koukoulas on 27/10/2023                                                       
 ///------------------------------------------------------------------------------------------------
 
-#ifndef GameReplayEngine_h
-#define GameReplayEngine_h
+#ifndef BattleDeserializer_h
+#define BattleDeserializer_h
 
 ///------------------------------------------------------------------------------------------------
 
 #include <engine/utils/StringUtils.h>
+#include <engine/utils/BaseDataFileDeserializer.h>
 
 ///------------------------------------------------------------------------------------------------
 
 class GameActionEngine;
-class GameReplayEngine final
+class BattleDeserializer final: public serial::BaseDataFileDeserializer
 {
 public:
-    GameReplayEngine(const std::string& filenameNoExtension);
+    BattleDeserializer();
     
     int GetGameFileSeed() const;
     const std::vector<int>& GetTopPlayerDeck() const;
@@ -34,4 +35,4 @@ private:
 
 ///------------------------------------------------------------------------------------------------
 
-#endif /* GameReplayEngine_h */
+#endif /* BattleDeserializer_h */

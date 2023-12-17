@@ -36,7 +36,7 @@
 #include <game/scenelogicmanagers/LoadingSceneLogicManager.h>
 #include <game/scenelogicmanagers/MainMenuSceneLogicManager.h>
 #include <game/scenelogicmanagers/PermanentBoardSceneLogicManager.h>
-#include <game/utils/PersistenceUtils.h>
+#include <engine/utils/PersistenceUtils.h>
 #if defined(MOBILE_FLOW)
 #include <platform_specific/IOSUtils.h>
 #endif

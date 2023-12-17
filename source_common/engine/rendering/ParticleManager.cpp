@@ -10,6 +10,7 @@
 #include <engine/resloading/DataFileResource.h>
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
+#include <engine/utils/BaseDataFileDeserializer.h>
 #include <engine/utils/OSMessageBox.h>
 #include <nlohmann/json.hpp>
 #include <numeric>
@@ -214,8 +215,12 @@ void ParticleManager::LoadParticleData(const resources::ResourceReloadMode resou
   
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
     
+#if !defined(NDEBUG)
     auto particlesDefinitionJsonResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_DATA_ROOT + "particle_data.json", resourceReloadMode);
-    auto particlesJson =  nlohmann::json::parse(systemsEngine.GetResourceLoadingService().GetResource<resources::DataFileResource>(particlesDefinitionJsonResourceId).GetContents());
+    const auto particlesJson =  nlohmann::json::parse(systemsEngine.GetResourceLoadingService().GetResource<resources::DataFileResource>(particlesDefinitionJsonResourceId).GetContents());
+#else
+    const auto particlesJson = serial::BaseDataFileDeserializer("particle_data", serial::DataFileType::ASSET_FILE_TYPE).GetState();
+#endif
     
     for (const auto& particleObject: particlesJson["particle_data"])
     {

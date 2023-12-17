@@ -17,11 +17,7 @@ namespace persistence_utils
 
 ///------------------------------------------------------------------------------------------------
 
-static const char* PROGRESS_SAVE_FILE_NAME = "progress_save.json";
-
-///------------------------------------------------------------------------------------------------
-
-std::string GetProgressDirectoryPath()
+std::string GetPersistentDataDirectoryPath()
 {
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
     auto appDataLocation = getenv("APPDATA");
@@ -33,32 +29,6 @@ std::string GetProgressDirectoryPath()
         return std::string(getenv("HOME")) + "/Documents/";
     #endif
 #endif
-}
-
-///------------------------------------------------------------------------------------------------
-
-std::string GetProgressSaveFilePath()
-{
-    return GetProgressDirectoryPath() + PROGRESS_SAVE_FILE_NAME;
-}
-
-///------------------------------------------------------------------------------------------------
-
-bool ProgressSaveFileExists()
-{
-    return std::ifstream(GetProgressSaveFilePath()).good();
-}
-
-///------------------------------------------------------------------------------------------------
-
-void LoadFromProgressSaveFile()
-{
-}
-
-///------------------------------------------------------------------------------------------------
-
-void GenerateNewProgressSaveFile()
-{
 }
 
 ///------------------------------------------------------------------------------------------------

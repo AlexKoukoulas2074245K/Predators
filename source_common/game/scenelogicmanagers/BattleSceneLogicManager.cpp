@@ -11,14 +11,14 @@
 #include <game/CardUtils.h>
 #include <game/events/EventSystem.h>
 #include <game/GameConstants.h>
-#include <game/GameReplayEngine.h>
+#include <game/utils/BattleDeserializer.h>
 #include <game/GameRuleEngine.h>
-#include <game/BattleSerializer.h>
+#include <game/utils/BattleSerializer.h>
 #include <game/gameactions/PlayCardGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/PlayerActionGenerationEngine.h>
 #include <game/scenelogicmanagers/BattleSceneLogicManager.h>
-#include <game/utils/PersistenceUtils.h>
+#include <engine/utils/PersistenceUtils.h>
 #include <engine/CoreSystemsEngine.h>
 #include <engine/input/IInputStateManager.h>
 #include <engine/rendering/AnimationManager.h>
@@ -242,11 +242,11 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
     mRuleEngine = std::make_unique<GameRuleEngine>(mBoardState.get());
 
     auto seed = math::RandomInt();
-    std::unique_ptr<GameReplayEngine> replayEngine = nullptr;
+    std::unique_ptr<BattleDeserializer> replayEngine = nullptr;
     
     if (mCurrentBattleControlType == BattleControlType::REPLAY)
     {
-        replayEngine = std::make_unique<GameReplayEngine>(persistence_utils::GetProgressDirectoryPath() + "game");
+        replayEngine = std::make_unique<BattleDeserializer>();
         seed = replayEngine->GetGameFileSeed();
         
         mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = replayEngine->GetTopPlayerDeck();

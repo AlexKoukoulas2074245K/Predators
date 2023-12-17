@@ -60,7 +60,7 @@ protected:
     {
         mBoardState = std::make_unique<BoardState>();
         mGameRuleEngine = std::make_unique<GameRuleEngine>(mBoardState.get());
-        mActionEngine = std::make_unique<GameActionEngine>(GameActionEngine::EngineOperationMode::HEADLESS, math::RandomInt(), mBoardState.get(), nullptr, useRuleEngine ? mGameRuleEngine.get() : nullptr, nullptr);
+        mActionEngine = std::make_unique<GameActionEngine>(GameActionEngine::EngineOperationMode::HEADLESS, math::RandomInt(), mBoardState.get(), nullptr, useRuleEngine ? mGameRuleEngine.get() : nullptr);
         
         mPlayerActionGenerationEngine = std::make_unique<PlayerActionGenerationEngine>(mGameRuleEngine.get(), mActionEngine.get(), actionGenerationType);
         mBoardState->GetPlayerStates().emplace_back();

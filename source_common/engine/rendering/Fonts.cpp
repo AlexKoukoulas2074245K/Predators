@@ -10,6 +10,7 @@
 #include <engine/resloading/ResourceLoadingService.h>
 #include <engine/resloading/DataFileResource.h>
 #include <engine/resloading/TextureResource.h>
+#include <engine/utils/BaseDataFileDeserializer.h>
 #include <engine/utils/Logging.h>
 #include <engine/utils/OSMessageBox.h>
 #include <nlohmann/json.hpp>
@@ -60,8 +61,12 @@ void FontRepository::LoadFont(const std::string& fontName, const resources::Reso
         fontDefinitionName = fontDefinitionName.substr(0, fontDefinitionName.find(FONT_PLACEHOLDER_STRING));
     }
     
+#if !defined(NDEBUG)
     auto fontDefinitionJsonResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_DATA_ROOT + fontDefinitionName + ".json", resourceReloadMode);
-    auto fontJson =  nlohmann::json::parse(CoreSystemsEngine::GetInstance().GetResourceLoadingService().GetResource<resources::DataFileResource>(fontDefinitionJsonResourceId).GetContents());
+    const auto fontJson =  nlohmann::json::parse(CoreSystemsEngine::GetInstance().GetResourceLoadingService().GetResource<resources::DataFileResource>(fontDefinitionJsonResourceId).GetContents());
+#else
+    const auto fontJson = serial::BaseDataFileDeserializer(fontDefinitionName, serial::DataFileType::ASSET_FILE_TYPE).GetState();
+#endif
     
     Font font;
     font.mFontName = strutils::StringId(fontName);

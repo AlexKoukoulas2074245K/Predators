@@ -6,16 +6,13 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <engine/utils/Logging.h>
-#include <engine/utils/PlatformMacros.h>
-#include <game/utils/PersistenceUtils.h>
-#include <filesystem>
 #include <fstream>
-#include <game/BattleSerializer.h>
+#include <game/utils/BattleSerializer.h>
 
 ///------------------------------------------------------------------------------------------------
 
 BattleSerializer::BattleSerializer(const int gameSeed, const std::vector<int>& topPlayerDeck, const std::vector<int>& botPlayerDeck)
-    : BaseDataFileSerializer("game")
+    : serial::BaseDataFileSerializer("last_battle", serial::DataFileType::PERSISTENCE_FILE_TYPE)
 {
     mState["seed"] = gameSeed;
     mState["top_deck"] = topPlayerDeck;

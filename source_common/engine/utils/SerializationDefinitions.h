@@ -1,31 +1,30 @@
 ///------------------------------------------------------------------------------------------------
-///  BattleSerializer.h
+///  SerializationDefinitions.h
 ///  Predators                                                                                            
 ///                                                                                                
-///  Created by Alex Koukoulas on 27/10/2023                                                       
+///  Created by Alex Koukoulas on 17/12/2023
 ///------------------------------------------------------------------------------------------------
 
-#ifndef BattleSerializer_h
-#define BattleSerializer_h
-
-///------------------------------------------------------------------------------------------------
-
-#include <game/BaseDataFileSerializer.h>
-#include <game/events/EventSystem.h>
-#include <engine/utils/StringUtils.h>
-#include <vector>
+#ifndef SerializationDefinitions_h
+#define SerializationDefinitions_h
 
 ///------------------------------------------------------------------------------------------------
 
-class BattleSerializer final: public BaseDataFileSerializer, public events::IListener
+namespace serial
 {
-public:
-    BattleSerializer(const int gameSeed, const std::vector<int>& topPlayerDeck, const std::vector<int>& botPlayerDeck);
 
-private:
-    void OnSerializableGameActionEvent(const events::SerializableGameActionEvent& event);
+///------------------------------------------------------------------------------------------------
+
+enum class DataFileType
+{
+    ASSET_FILE_TYPE,
+    PERSISTENCE_FILE_TYPE
 };
 
 ///------------------------------------------------------------------------------------------------
 
-#endif /* BattleSerializer_h */
+}
+
+///------------------------------------------------------------------------------------------------
+
+#endif /* SerializationDefinitions_h */

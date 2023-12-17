@@ -9,6 +9,7 @@
 #include <engine/resloading/ResourceLoadingService.h>
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneManager.h>
+#include <engine/utils/BaseDataFileDeserializer.h>
 #include <fstream>
 #include <nlohmann/json.hpp>
 
@@ -66,10 +67,15 @@ void SceneManager::LoadPredefinedObjectsFromDescriptorForScene(std::shared_ptr<S
     {
         return;
     }
-        
-    auto sceneDescriptorJsonResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(sceneDescriptorPath);
+    
     auto& resourceService = CoreSystemsEngine::GetInstance().GetResourceLoadingService();
-    auto sceneDescriptorJson =  nlohmann::json::parse(resourceService.GetResource<resources::DataFileResource>(sceneDescriptorJsonResourceId).GetContents());
+    
+#if !defined(NDEBUG)
+    auto sceneDescriptorJsonResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(sceneDescriptorPath);
+    const auto sceneDescriptorJson =  nlohmann::json::parse(resourceService.GetResource<resources::DataFileResource>(sceneDescriptorJsonResourceId).GetContents());
+#else
+    const auto sceneDescriptorJson = serial::BaseDataFileDeserializer(SCENE_DESCRIPTORS_PATH + scene->GetName().GetString(), serial::DataFileType::ASSET_FILE_TYPE).GetState();
+#endif
     
     for (const auto& childSceneJson: sceneDescriptorJson["children_scenes"])
     {
