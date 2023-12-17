@@ -35,7 +35,12 @@ static std::hash<std::string> hashFunction;
 /// @returns the hashed input string.
 inline uint32_t GetStringHash(const std::string& s)
 {
-    return static_cast<uint32_t>(hashFunction(s));
+    uint32_t result = 0;
+    for (auto c: s)
+    {
+        result = 31 * result + c;
+    }
+    return result;
 }
 
 ///-----------------------------------------------------------------------------------------------
