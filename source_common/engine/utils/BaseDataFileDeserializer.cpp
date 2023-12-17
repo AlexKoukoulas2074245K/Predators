@@ -51,7 +51,7 @@ bool ValidateChecksum(T& contentsContainer)
         return true;
     }
 #else
-    if (checkSumString == std::to_string(strutils::StringId(nlohmann::json::from_bson(contentsContainer).dump(4)).GetStringId()))
+    if (checkSumString == std::to_string(strutils::StringId(nlohmann::json::from_ubjson(contentsContainer).dump(4)).GetStringId()))
     {
         return true;
     }
@@ -104,7 +104,7 @@ BaseDataFileDeserializer::BaseDataFileDeserializer(const std::string& fileNameWi
         
         if (contents.size() > 1)
         {
-            mState = nlohmann::json::from_bson(contents);
+            mState = nlohmann::json::from_ubjson(contents);
 #endif
         }
     }

@@ -73,7 +73,7 @@ void BaseDataFileSerializer::FlushStateToFile()
         }
         else
         {
-            const auto binVec = nlohmann::json::to_bson(mState);
+            const auto binVec = nlohmann::json::to_ubjson(mState);
             mFile.write(reinterpret_cast<const char*>(&binVec[0]), binVec.size() * sizeof(std::uint8_t));
             mFile.write(reinterpret_cast<const char*>(&checksumString[0]), checksumString.size() * sizeof(char));
         }
