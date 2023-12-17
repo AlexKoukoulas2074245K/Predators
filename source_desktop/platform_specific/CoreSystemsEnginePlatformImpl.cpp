@@ -184,11 +184,12 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
     const auto& dataFiles = fileutils::GetAllFilenamesInDirectory(resources::ResourceLoadingService::RES_DATA_ROOT);
     for (const auto& fileName: dataFiles)
     {
-        if (fileutils::GetFileExtension(fileName) == "json")
+        const auto extension = fileutils::GetFileExtension(fileName);
+        if (extension == "json")
         {
             writeJsonToBinary(fileutils::GetFileNameWithoutExtension(fileName));
         }
-        else
+        else if (extension != "bin")
         {
             for (const auto& sceneDescriptorName: fileutils::GetAllFilenamesInDirectory(resources::ResourceLoadingService::RES_DATA_ROOT + fileName))
             {
