@@ -56,6 +56,10 @@ static void CreateEngineDebugWidgets();
 
 ///------------------------------------------------------------------------------------------------
 
+static void PreprocessDataFiles(const std::string& dataFolder);
+
+///------------------------------------------------------------------------------------------------
+
 struct CoreSystemsEngine::SystemsImpl
 {
     rendering::AnimationManager mAnimationManager;
@@ -171,34 +175,7 @@ void CoreSystemsEngine::Initialize()
 
 void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::function<void(const float)> clientUpdateFunction, std::function<void()> clientApplicationMovingToBackgroundFunction, std::function<void()> clientApplicationWindowResizeFunction, std::function<void()> clientCreateDebugWidgetsFunction)
 {
-    // Write all json files to bin json
-#if (!defined(NDEBUG))
-    auto writeJsonToBinary = [](const std::string& dataAssetFilePath)
-    {
-        auto jsonState = serial::BaseDataFileDeserializer(dataAssetFilePath, serial::DataFileType::ASSET_FILE_TYPE, true).GetState();
-        serial::BaseDataFileSerializer serializer(dataAssetFilePath, serial::DataFileType::ASSET_FILE_TYPE, true);
-        serializer.GetState() = jsonState;
-        serializer.FlushStateToFile();
-    };
-    
-    const auto& dataFiles = fileutils::GetAllFilenamesInDirectory(resources::ResourceLoadingService::RES_DATA_ROOT);
-    for (const auto& fileName: dataFiles)
-    {
-        const auto extension = fileutils::GetFileExtension(fileName);
-        if (extension == "json")
-        {
-            writeJsonToBinary(fileutils::GetFileNameWithoutExtension(fileName));
-        }
-        else if (extension != "bin")
-        {
-            for (const auto& sceneDescriptorName: fileutils::GetAllFilenamesInDirectory(resources::ResourceLoadingService::RES_DATA_ROOT + fileName))
-            {
-                writeJsonToBinary("scene_descriptors/" + fileutils::GetFileNameWithoutExtension(sceneDescriptorName));
-            }
-        }
-    }
-#endif
-    
+    PreprocessDataFiles("");
     mSystems->mParticleManager.LoadParticleData();
     clientInitFunction();
     
@@ -448,5 +425,36 @@ void CreateEngineDebugWidgets()
     ImGui::End();
 #endif
 }
+
+///------------------------------------------------------------------------------------------------
+
+#if !defined(NDEBUG)
+void PreprocessDataFiles(const std::string& dataFolder)
+{
+    auto writeJsonToBinary = [=](const std::string& dataAssetFileName)
+    {
+        auto jsonState = serial::BaseDataFileDeserializer(dataFolder + dataAssetFileName, serial::DataFileType::ASSET_FILE_TYPE, true).GetState();
+        serial::BaseDataFileSerializer serializer(dataFolder + dataAssetFileName, serial::DataFileType::ASSET_FILE_TYPE, true);
+        serializer.GetState() = jsonState;
+        serializer.FlushStateToFile();
+    };
+    
+    const auto& fileNames = fileutils::GetAllFilenamesInDirectory(resources::ResourceLoadingService::RES_DATA_ROOT + dataFolder);
+    for (const auto& fileName: fileNames)
+    {
+        const auto extension = fileutils::GetFileExtension(fileName);
+        if (extension == "json")
+        {
+            writeJsonToBinary(fileutils::GetFileNameWithoutExtension(fileName));
+        }
+        else if (extension != "bin")
+        {
+            PreprocessDataFiles(fileName + "/");
+        }
+    }
+}
+#else
+void PreprocessDataFiles(const std::string&){}
+#endif
 
 ///------------------------------------------------------------------------------------------------
