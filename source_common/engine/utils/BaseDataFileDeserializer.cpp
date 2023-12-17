@@ -45,8 +45,7 @@ bool ValidateChecksum(T& contentsContainer)
     }
     
 #if !defined(NDEBUG)
-    auto fileCheckSumString = std::to_string(strutils::StringId(nlohmann::json::parse(contentsContainer).dump(4)).GetStringId());
-    if (checkSumString == fileCheckSumString)
+    if (checkSumString == std::to_string(strutils::StringId(nlohmann::json::parse(contentsContainer).dump(4)).GetStringId()))
     {
         return true;
     }
