@@ -16,6 +16,7 @@
 
 static const float INTERACTION_ANIMATION_DURATION = 0.1f;
 static const float INTERACTION_ANIMATION_SCALE_FACTOR = 0.5f;
+static const float SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 28.5f;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -40,6 +41,7 @@ AnimatedButton::AnimatedButton
     mSceneObject->mPosition = position;
     mSceneObject->mScale = scale;
     mSceneObject->mSnapToEdgeBehavior = snapToEdgeBehavior;
+    mSceneObject->mSnapToEdgeScaleOffsetFactor = mSceneObject->mScale.x * SNAP_TO_EDGE_OFFSET_SCALE_FACTOR;
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -70,6 +72,7 @@ AnimatedButton::AnimatedButton
     mSceneObject->mPosition = position;
     mSceneObject->mScale = scale;
     mSceneObject->mSnapToEdgeBehavior = snapToEdgeBehavior;
+    mSceneObject->mSnapToEdgeScaleOffsetFactor = mSceneObject->mScale.x;
 }
 
 ///------------------------------------------------------------------------------------------------

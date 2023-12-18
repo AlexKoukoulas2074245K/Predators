@@ -1,5 +1,5 @@
 ///------------------------------------------------------------------------------------------------
-///  BattleSettingsSceneLogicManager.cpp
+///  SettingsSceneLogicManager.cpp
 ///  Predators                                                                                            
 ///                                                                                                
 ///  Created by Alex Koukoulas on 14/12/2023
@@ -14,7 +14,7 @@
 #include <game/AnimatedButton.h>
 #include <game/Cards.h>
 #include <game/events/EventSystem.h>
-#include <game/scenelogicmanagers/BattleSettingsSceneLogicManager.h>
+#include <game/scenelogicmanagers/SettingsSceneLogicManager.h>
 #include <SDL_events.h>
 
 ///------------------------------------------------------------------------------------------------
@@ -23,7 +23,7 @@ static const std::string SELECTABLE_BUTTON_SHADER_FILE_NAME = "basic_custom_colo
 static const std::string DECK_ENTRY_SHADER = "card_family_selection_swipe_entry.vs";
 static const std::string DECK_ENTRY_MASK_TEXTURE_FILE_NAME = "trap_mask.png";
 
-static const strutils::StringId BATTLE_SETTINGS_SCENE_NAME = strutils::StringId("battle_settings_scene");
+static const strutils::StringId SETTINGS_SCENE_NAME = strutils::StringId("settings_scene");
 static const strutils::StringId CONTINUE_BUTTON_NAME = strutils::StringId("continue_button");
 static const strutils::StringId QUIT_BUTTON_NAME = strutils::StringId("quit_button");
 static const strutils::StringId PAUSED_TEXT_SCENE_OBJECT_NAME = strutils::StringId("paused_text");
@@ -38,14 +38,14 @@ static const glm::vec3 QUIT_BUTTON_POSITION = {-0.041f, -0.083f, 23.1f};
 static const glm::vec3 QUIT_CONFIRMATION_BUTTON_POSITION = {-0.132f, -0.083f, 23.1f};
 static const glm::vec3 QUIT_CANCELLATION_BUTTON_POSITION = {0.036f, -0.083f, 23.1f};
 static const glm::vec3 QUIT_CONFIRMATION_TEXT_TOP_POSITION = {-0.205f, 0.07f, 23.1f};
-static const glm::vec3 QUIT_CONFIRMATION_TEXT_BOT_POSITION = {-0.245f, 0.019f, 23.1f};
+static const glm::vec3 QUIT_CONFIRMATION_TEXT_BOT_POSITION = {-0.3f, 0.019f, 23.1f};
 
 static const float SUBSCENE_ITEM_FADE_IN_OUT_DURATION_SECS = 0.5f;
 
 
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
 {
-    BATTLE_SETTINGS_SCENE_NAME
+    SETTINGS_SCENE_NAME
 };
 
 static const std::unordered_set<strutils::StringId, strutils::StringIdHasher> STATIC_SCENE_ELEMENTS =
@@ -56,28 +56,28 @@ static const std::unordered_set<strutils::StringId, strutils::StringIdHasher> ST
 
 ///------------------------------------------------------------------------------------------------
 
-const std::vector<strutils::StringId>& BattleSettingsSceneLogicManager::VGetApplicableSceneNames() const
+const std::vector<strutils::StringId>& SettingsSceneLogicManager::VGetApplicableSceneNames() const
 {
     return APPLICABLE_SCENE_NAMES;
 }
 
 ///------------------------------------------------------------------------------------------------
 
-BattleSettingsSceneLogicManager::BattleSettingsSceneLogicManager(){}
+SettingsSceneLogicManager::SettingsSceneLogicManager(){}
 
 ///------------------------------------------------------------------------------------------------
 
-BattleSettingsSceneLogicManager::~BattleSettingsSceneLogicManager(){}
+SettingsSceneLogicManager::~SettingsSceneLogicManager(){}
 
 ///------------------------------------------------------------------------------------------------
 
-void BattleSettingsSceneLogicManager::VInitSceneCamera(std::shared_ptr<scene::Scene>)
+void SettingsSceneLogicManager::VInitSceneCamera(std::shared_ptr<scene::Scene>)
 {
 }
 
 ///------------------------------------------------------------------------------------------------
 
-void BattleSettingsSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
+void SettingsSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 {
     mActiveSubScene = SubSceneType::NONE;
     mTransitioningToSubScene = false;
@@ -86,7 +86,7 @@ void BattleSettingsSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> s
 
 ///------------------------------------------------------------------------------------------------
 
-void BattleSettingsSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene::Scene>)
+void SettingsSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene::Scene>)
 {
     if (mTransitioningToSubScene)
     {
@@ -102,7 +102,7 @@ void BattleSettingsSceneLogicManager::VUpdate(const float dtMillis, std::shared_
 
 ///------------------------------------------------------------------------------------------------
 
-void BattleSettingsSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene> scene)
+void SettingsSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene> scene)
 {
     for (auto sceneObject: scene->GetSceneObjects())
     {
@@ -112,14 +112,20 @@ void BattleSettingsSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene
         });
     }
     
+    auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
-    animationManager.StopAnimation(game_constants::BATTLE_SCENE_SPEED_DILATION_ANIMATION_NAME);
-    animationManager.StartAnimation(std::make_unique<rendering::TweenValueAnimation>(CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE)->GetUpdateTimeSpeedFactor(), 1.0f, game_constants::BATTLE_SCENE_SPEED_DILATION_ANIMATION_DURATION_SECS), [](){}, game_constants::BATTLE_SCENE_SPEED_DILATION_ANIMATION_NAME);
+    auto battleScene = sceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    
+    if (battleScene)
+    {
+        animationManager.StopAnimation(game_constants::BATTLE_SCENE_SPEED_DILATION_ANIMATION_NAME);
+        animationManager.StartAnimation(std::make_unique<rendering::TweenValueAnimation>(battleScene->GetUpdateTimeSpeedFactor(), 1.0f, game_constants::BATTLE_SCENE_SPEED_DILATION_ANIMATION_DURATION_SECS), [](){}, game_constants::BATTLE_SCENE_SPEED_DILATION_ANIMATION_NAME);
+    }
 }
 
 ///------------------------------------------------------------------------------------------------
 
-void BattleSettingsSceneLogicManager::InitSubScene(const SubSceneType subSceneType, std::shared_ptr<scene::Scene> scene)
+void SettingsSceneLogicManager::InitSubScene(const SubSceneType subSceneType, std::shared_ptr<scene::Scene> scene)
 {
     if (mActiveSubScene == subSceneType)
     {
@@ -177,7 +183,7 @@ void BattleSettingsSceneLogicManager::InitSubScene(const SubSceneType subSceneTy
             
             scene::TextSceneObjectData textDataQuitBot;
             textDataQuitBot.mFontName = game_constants::DEFAULT_FONT_NAME;
-            textDataQuitBot.mText = "This battle's progress will be lost.";
+            textDataQuitBot.mText = "Any active battle progress will be lost.";
             auto textQuitBotSceneObject = scene->CreateSceneObject(QUIT_CONFIRMATION_TEXT_BOT_NAME);
             textQuitBotSceneObject->mSceneObjectTypeData = std::move(textDataQuitBot);
             textQuitBotSceneObject->mPosition = QUIT_CONFIRMATION_TEXT_BOT_POSITION;
@@ -238,7 +244,7 @@ void BattleSettingsSceneLogicManager::InitSubScene(const SubSceneType subSceneTy
 
 ///------------------------------------------------------------------------------------------------
 
-void BattleSettingsSceneLogicManager::TransitionToSubScene(const SubSceneType subSceneType, std::shared_ptr<scene::Scene> scene)
+void SettingsSceneLogicManager::TransitionToSubScene(const SubSceneType subSceneType, std::shared_ptr<scene::Scene> scene)
 {
     mTransitioningToSubScene = true;
     for (auto sceneObject: scene->GetSceneObjects())

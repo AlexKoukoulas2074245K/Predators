@@ -51,7 +51,7 @@ std::shared_ptr<SceneObject> Scene::FindSceneObject(const strutils::StringId& sc
 
 void Scene::RecalculatePositionOfEdgeSnappingSceneObjects()
 {
-    static const float positionIncrements = 0.01f;
+    static const float positionIncrements = 0.0001f;
     const auto& frustum = mCamera.CalculateFrustum();
     
     for (auto& sceneObject: mSceneObjects)
@@ -99,6 +99,7 @@ void Scene::RecalculatePositionOfEdgeSnappingSceneObjects()
                 {
                     sceneObject->mPosition.x -= positionIncrements;
                 }
+                sceneObject->mPosition.x += sceneObject->mScale.x * sceneObject->mSnapToEdgeScaleOffsetFactor;
             } break;
                 
             case SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE:
@@ -107,6 +108,7 @@ void Scene::RecalculatePositionOfEdgeSnappingSceneObjects()
                 {
                     sceneObject->mPosition.x += positionIncrements;
                 }
+                sceneObject->mPosition.x -= sceneObject->mScale.x * sceneObject->mSnapToEdgeScaleOffsetFactor;
             } break;
                 
             case SnapToEdgeBehavior::SNAP_TO_TOP_EDGE:
@@ -115,6 +117,7 @@ void Scene::RecalculatePositionOfEdgeSnappingSceneObjects()
                 {
                     sceneObject->mPosition.y += positionIncrements;
                 }
+                sceneObject->mPosition.y -= sceneObject->mScale.y * sceneObject->mSnapToEdgeScaleOffsetFactor;
             } break;
                 
             case SnapToEdgeBehavior::SNAP_TO_BOT_EDGE:
@@ -123,6 +126,7 @@ void Scene::RecalculatePositionOfEdgeSnappingSceneObjects()
                 {
                     sceneObject->mPosition.y -= positionIncrements;
                 }
+                sceneObject->mPosition.y += sceneObject->mScale.y * sceneObject->mSnapToEdgeScaleOffsetFactor;
             } break;
                 
             default: break;

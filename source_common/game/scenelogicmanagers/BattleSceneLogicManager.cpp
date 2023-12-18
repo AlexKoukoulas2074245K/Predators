@@ -34,7 +34,7 @@
 ///------------------------------------------------------------------------------------------------
 
 static const strutils::StringId HISTORY_SCENE = strutils::StringId("battle_history_scene");
-static const strutils::StringId BATTLE_SETTINGS_SCENE = strutils::StringId("battle_settings_scene");
+static const strutils::StringId SETTINGS_SCENE = strutils::StringId("settings_scene");
 static const strutils::StringId CARD_HISTORY_CONTAINER_NAME = strutils::StringId("card_history_container");
 static const strutils::StringId HISTORY_TROLLEY_SCENE_OBJECT_NAME = strutils::StringId("history_trolley");
 static const strutils::StringId CARD_LOCATION_INDICATOR_SCENE_OBJECT_NAME = strutils::StringId("card_location_indicator");
@@ -105,9 +105,9 @@ static const glm::vec3 CARD_TOOLTIP_SCALE = {0.137f, 0.137f, 1/10.0f};
 static const glm::vec3 CARD_TOOLTIP_HISTORY_SCALE = {0.274f, 0.274f, 1/10.0f};
 static const glm::vec3 CARD_TOOLTIP_OFFSET = {0.084f, 0.08f, 0.1f};
 static const glm::vec3 CARD_TOOLTIP_HISTORY_OFFSET = {0.06f, 0.033f, 0.2f};
-static const glm::vec3 HISTORY_BUTTON_POSITION = {-0.157f, 0.081f, 0.1f};
+static const glm::vec3 HISTORY_BUTTON_POSITION = {0.145f, -0.064f, 0.1f};
 static const glm::vec3 HISTORY_BUTTON_SCALE = {0.03f, 0.03f, 0.03f};
-static const glm::vec3 SETTINGS_BUTTON_POSITION = {0.145f, 0.081f, 0.1f};
+static const glm::vec3 SETTINGS_BUTTON_POSITION = {0.145f, 0.061f, 0.1f};
 static const glm::vec3 SETTINGS_BUTTON_SCALE = {0.03f, 0.03f, 0.03f};
 static const glm::vec3 CARD_HISTORY_ENTRY_SCALE = {0.3f, -0.3f, 0.3f};
 static const glm::vec3 CARD_HISTORY_TURN_COUNTER_ENTRY_SCALE = {0.266f, -0.3f, 0.3f};
@@ -310,7 +310,8 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
         HISTORY_ICON_TEXTURE_FILE_NAME,
         HISTORY_BUTTON_SCENE_OBJECT_NAME,
         [=](){ OnHistoryButtonPressed(); },
-        *scene
+        *scene,
+        scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE
     ));
     mBattleSceneAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
     (
@@ -319,7 +320,8 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
         SETTINGS_ICON_TEXTURE_FILE_NAME,
         SETTINGS_BUTTON_SCENE_OBJECT_NAME,
         [=](){ OnSettingsButtonPressed(); },
-        *scene
+        *scene,
+        scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE
     ));
     
     auto historyScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(HISTORY_SCENE);
@@ -1777,7 +1779,7 @@ void BattleSceneLogicManager::OnSettingsButtonPressed()
     
     battleScene->RemoveAllParticleEffects();
     battleScene->GetCamera().StopShake();
-    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(BATTLE_SETTINGS_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(SETTINGS_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
 }
 
 ///------------------------------------------------------------------------------------------------

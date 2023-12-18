@@ -1,12 +1,12 @@
 ///------------------------------------------------------------------------------------------------
-///  BattleSettingsSceneLogicManager.h
+///  SettingsSceneLogicManager.h
 ///  Predators                                                                                            
 ///                                                                                                
 ///  Created by Alex Koukoulas on 14/12/2023
 ///------------------------------------------------------------------------------------------------
 
-#ifndef BattleSettingsSceneLogicManager_h
-#define BattleSettingsSceneLogicManager_h
+#ifndef SettingsSceneLogicManager_h
+#define SettingsSceneLogicManager_h
 
 ///------------------------------------------------------------------------------------------------
 
@@ -16,11 +16,11 @@
 ///------------------------------------------------------------------------------------------------
 
 class AnimatedButton;
-class BattleSettingsSceneLogicManager final: public ISceneLogicManager
+class SettingsSceneLogicManager final: public ISceneLogicManager
 {
 public:
-    BattleSettingsSceneLogicManager();
-    ~BattleSettingsSceneLogicManager();
+    SettingsSceneLogicManager();
+    ~SettingsSceneLogicManager();
     
     const std::vector<strutils::StringId>& VGetApplicableSceneNames() const override;
     
