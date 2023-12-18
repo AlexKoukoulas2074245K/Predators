@@ -43,6 +43,9 @@ public:
     const std::vector<int>& GetNextBotPlayerDeck() const;
     void SetNextBotPlayerDeck(const std::vector<int>& deck);
     
+    int GetCurrencyCoins() const;
+    void SetCurrencyCoins(const int currencyCoins);
+    
 private:
     ProgressionDataRepository() = default;
     
@@ -50,6 +53,7 @@ private:
     BattleControlType mNextBattleControlType;
     std::vector<int> mNextTopPlayerDeck;
     std::vector<int> mNextBotPlayerDeck;
+    int mCurrencyCoins = 0;
 };
 
 ///------------------------------------------------------------------------------------------------

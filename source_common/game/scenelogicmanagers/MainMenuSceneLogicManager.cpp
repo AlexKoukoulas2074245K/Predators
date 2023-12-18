@@ -33,7 +33,6 @@ static const strutils::StringId REPLAY_BATTLE_MODE_BUTTON_NAME = strutils::Strin
 static const strutils::StringId START_BATTLE_BUTTON_NAME = strutils::StringId("start_battle_button");
 static const strutils::StringId BACK_BUTTON_NAME = strutils::StringId("back_button");
 static const strutils::StringId TITLE_SCENE_OBJECT_NAME = strutils::StringId("predators_title");
-static const strutils::StringId CUSTOM_COLOR_UNIFORM_NAME = strutils::StringId("custom_color");
 static const strutils::StringId TOP_DECK_TEXT_SCENE_OBJECT_NAME = strutils::StringId("top_deck_text");
 static const strutils::StringId BOT_DECK_TEXT_SCENE_OBJECT_NAME = strutils::StringId("bot_deck_text");
 static const strutils::StringId TOP_DECK_CONTAINER_SCENE_OBJECT_NAME = strutils::StringId("top_deck_container");
@@ -441,13 +440,13 @@ void MainMenuSceneLogicManager::BattleModeSelected(const strutils::StringId& but
     scene->FindSceneObject(REPLAY_BATTLE_MODE_BUTTON_NAME)->mShaderResourceId = resourceLoadingService.LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + SELECTABLE_BUTTON_SHADER_FILE_NAME);
     scene->FindSceneObject(AI_DEMO_BATTLE_MODE_BUTTON_NAME)->mShaderResourceId = resourceLoadingService.LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + SELECTABLE_BUTTON_SHADER_FILE_NAME);
     
-    scene->FindSceneObject(NORMAL_BATTLE_MODE_BUTTON_NAME)->mShaderVec3UniformValues[CUSTOM_COLOR_UNIFORM_NAME] = DESELECTED_BUTTON_COLOR;
-    scene->FindSceneObject(REPLAY_BATTLE_MODE_BUTTON_NAME)->mShaderVec3UniformValues[CUSTOM_COLOR_UNIFORM_NAME] = DESELECTED_BUTTON_COLOR;
-    scene->FindSceneObject(AI_DEMO_BATTLE_MODE_BUTTON_NAME)->mShaderVec3UniformValues[CUSTOM_COLOR_UNIFORM_NAME] = DESELECTED_BUTTON_COLOR;
+    scene->FindSceneObject(NORMAL_BATTLE_MODE_BUTTON_NAME)->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = DESELECTED_BUTTON_COLOR;
+    scene->FindSceneObject(REPLAY_BATTLE_MODE_BUTTON_NAME)->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = DESELECTED_BUTTON_COLOR;
+    scene->FindSceneObject(AI_DEMO_BATTLE_MODE_BUTTON_NAME)->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = DESELECTED_BUTTON_COLOR;
     
     if (!buttonName.isEmpty())
     {
-        scene->FindSceneObject(buttonName)->mShaderVec3UniformValues[CUSTOM_COLOR_UNIFORM_NAME] = SELECTED_BUTTON_COLOR;
+        scene->FindSceneObject(buttonName)->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = SELECTED_BUTTON_COLOR;
         ProgressionDataRepository::GetInstance().SetNextBattleControlType(BATTLE_MODE_BUTTON_NAMES_TO_BATTLE_CONTROL_TYPE.at(buttonName));
         
         auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();

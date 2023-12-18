@@ -146,6 +146,7 @@ static const float OVERLAY_SCENE_SPEED_ANIMATION_TARGET_DURATION = 0.5f;
 static const float CARD_HISTORY_CONTAINER_Z = 24.0f;
 static const float HISTORY_SCENE_FADE_IN_OUT_DURATION_SECS = 0.5f;
 static const float HISTORY_SCENE_FADE_IN_OUT_ITEM_OFFSETS = 0.4f;
+static const float BUTTONS_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 28.5f;
 
 #if defined(MOBILE_FLOW)
 static const float MOBILE_DISTANCE_FROM_CARD_LOCATION_INDICATOR = 0.003f;
@@ -311,7 +312,8 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
         HISTORY_BUTTON_SCENE_OBJECT_NAME,
         [=](){ OnHistoryButtonPressed(); },
         *scene,
-        scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE
+        scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE,
+        BUTTONS_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR
     ));
     mBattleSceneAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
     (
@@ -321,7 +323,8 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
         SETTINGS_BUTTON_SCENE_OBJECT_NAME,
         [=](){ OnSettingsButtonPressed(); },
         *scene,
-        scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE
+        scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE,
+        BUTTONS_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR
     ));
     
     auto historyScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(HISTORY_SCENE);

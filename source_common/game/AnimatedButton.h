@@ -34,7 +34,8 @@ public:
         const strutils::StringId& buttonName,
         std::function<void()> onPressCallback,
         scene::Scene& scene,
-        scene::SnapToEdgeBehavior snapToEdgeBehavior = scene::SnapToEdgeBehavior::NONE
+        scene::SnapToEdgeBehavior snapToEdgeBehavior = scene::SnapToEdgeBehavior::NONE,
+        const float snapToEdgeScaleOffsetFactor = 1.0f
     );
     AnimatedButton
     (
@@ -45,7 +46,8 @@ public:
         const strutils::StringId& buttonName,
         std::function<void()> onPressCallback,
         scene::Scene& scene,
-        scene::SnapToEdgeBehavior snapToEdgeBehavior = scene::SnapToEdgeBehavior::NONE
+        scene::SnapToEdgeBehavior snapToEdgeBehavior = scene::SnapToEdgeBehavior::NONE,
+        const float snapToEdgeScaleOffsetFactor = 1.0f
     );
     
     void Update(const float dtMillis);

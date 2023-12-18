@@ -32,6 +32,7 @@ public:
     
 private:
     void RegisterForEvents();
+    void SetCoinValueText();
     void OnPopSceneModal(const events::PopSceneModalEvent& event);
     void OnWindowResize(const events::WindowResizeEvent& event);
     void ResetSwipeData();

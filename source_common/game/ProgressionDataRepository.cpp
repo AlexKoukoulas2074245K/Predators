@@ -58,3 +58,17 @@ void ProgressionDataRepository::SetNextBotPlayerDeck(const std::vector<int>& dec
 }
 
 ///------------------------------------------------------------------------------------------------
+
+int ProgressionDataRepository::GetCurrencyCoins() const
+{
+    return mCurrencyCoins;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ProgressionDataRepository::SetCurrencyCoins(const int currencyCoins)
+{
+    mCurrencyCoins = currencyCoins;
+}
+
+///------------------------------------------------------------------------------------------------

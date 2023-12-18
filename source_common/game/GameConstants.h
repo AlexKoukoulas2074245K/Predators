@@ -76,6 +76,7 @@ namespace game_constants
     inline const strutils::StringId DORMANT_CARD_VALUE_UNIFORM_NAME = strutils::StringId("dormant_value");
     inline const strutils::StringId CUTOFF_MIN_X_UNIFORM_NAME = strutils::StringId("cutoff_min_x");
     inline const strutils::StringId CUTOFF_MAX_X_UNIFORM_NAME = strutils::StringId("cutoff_max_x");
+    inline const strutils::StringId CUSTOM_COLOR_UNIFORM_NAME = strutils::StringId("custom_color");
 
     // Card Family Names
     inline const strutils::StringId INSECTS_FAMILY_NAME = strutils::StringId("insects");
