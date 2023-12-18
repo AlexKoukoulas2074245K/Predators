@@ -95,6 +95,11 @@ void SceneManager::LoadPredefinedObjectsFromDescriptorForScene(std::shared_ptr<S
         assert (!scene->FindSceneObject(sceneObjectName));
         auto sceneObject = scene->CreateSceneObject(strutils::StringId(sceneObjectName));
         
+        if (sceneObjectJson.count("is_background"))
+        {
+            sceneObject->mIsBackground = sceneObjectJson["is_background"].get<bool>();
+        }
+        
         if (sceneObjectJson.count("texture"))
         {
             sceneObject->mTextureResourceId = resourceService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + sceneObjectJson["texture"].get<std::string>());

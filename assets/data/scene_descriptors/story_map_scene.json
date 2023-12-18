@@ -1,0 +1,17 @@
+{
+    "children_scenes":
+    [
+    ],
+    
+    "scene_objects":
+    [
+        {
+            "name": "background",
+            "texture": "story_landscape.png",
+            "is_background": true,
+            "scale": { "x": 3.0, "y": 3.0, "z": 3.0 },
+            "position": { "x": 0.0, "y": 0.0, "z": 0.0 },
+            "alpha": 1.0
+        }
+    ]
+}

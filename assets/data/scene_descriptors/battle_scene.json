@@ -7,6 +7,15 @@
     "scene_objects":
     [
         {
+            "name": "board",
+            "texture": "board.png",
+            "is_background": true,
+            "position": { "x": -0.039, "y": 0.011, "z": 0.0 },
+            "rotation": { "x": 0.0, "y": 0.0, "z": 3.14 },
+            "scale": { "x": 1.0, "y": 1.0, "z": 1.0 },
+            "alpha": 1.0
+        },
+        {
             "name": "card_location_indicator",
             "texture": "card_location_mask.png",
             "shader": "card_board_location_perlin_noise.vs",

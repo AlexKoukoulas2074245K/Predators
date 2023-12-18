@@ -150,10 +150,14 @@ void CoreSystemsEngine::Initialize()
     GL_CALL(glEnable(GL_DEPTH_TEST));
     GL_CALL(glDepthFunc(GL_LESS));
 
-    logging::Log(logging::LogType::INFO, "Vendor     : %s", GL_NO_CHECK_CALL(glGetString(GL_VENDOR)));
-    logging::Log(logging::LogType::INFO, "Renderer   : %s", GL_NO_CHECK_CALL(glGetString(GL_RENDERER)));
-    logging::Log(logging::LogType::INFO, "Version    : %s", GL_NO_CHECK_CALL(glGetString(GL_VERSION)));
-    logging::Log(logging::LogType::INFO, "Version    : %s", GL_NO_CHECK_CALL(glGetString(GL_SHADING_LANGUAGE_VERSION)));
+    int maxTextureSize;
+    GL_CALL(glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTextureSize));
+    
+    logging::Log(logging::LogType::INFO, "Vendor       : %s", GL_NO_CHECK_CALL(glGetString(GL_VENDOR)));
+    logging::Log(logging::LogType::INFO, "Renderer     : %s", GL_NO_CHECK_CALL(glGetString(GL_RENDERER)));
+    logging::Log(logging::LogType::INFO, "Version      : %s", GL_NO_CHECK_CALL(glGetString(GL_VERSION)));
+    logging::Log(logging::LogType::INFO, "Version      : %s", GL_NO_CHECK_CALL(glGetString(GL_SHADING_LANGUAGE_VERSION)));
+    logging::Log(logging::LogType::INFO, "Max Tex Size : %d", maxTextureSize);
 
 #if (!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)
     // Setup Dear ImGui context

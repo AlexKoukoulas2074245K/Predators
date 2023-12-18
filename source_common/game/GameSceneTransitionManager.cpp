@@ -169,7 +169,7 @@ void GameSceneTransitionManager::ChangeToScene
                     auto sceneToDestroy = sceneManager.FindScene(mActiveSceneStack.top().mActiveSceneName);
                     for (auto sceneObject: sceneToDestroy->GetSceneObjects())
                     {
-                        if (sceneObject)
+                        if (sceneObject && !sceneObject->mIsBackground)
                         {
                             if (!sceneObject->mShaderFloatUniformValues.count(game_constants::CUSTOM_ALPHA_UNIFORM_NAME))
                             {

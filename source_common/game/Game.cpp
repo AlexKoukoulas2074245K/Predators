@@ -35,7 +35,7 @@
 #include <game/scenelogicmanagers/BattleSettingsSceneLogicManager.h>
 #include <game/scenelogicmanagers/LoadingSceneLogicManager.h>
 #include <game/scenelogicmanagers/MainMenuSceneLogicManager.h>
-#include <game/scenelogicmanagers/PermanentBoardSceneLogicManager.h>
+#include <game/scenelogicmanagers/StoryMapSceneLogicManager.h>
 #include <engine/utils/PersistenceUtils.h>
 #if defined(MOBILE_FLOW)
 #include <platform_specific/IOSUtils.h>
@@ -86,8 +86,8 @@ void Game::Init()
     mGameSceneTransitionManager->RegisterSceneLogicManager<BattleSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<BattleSettingsSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<LoadingSceneLogicManager>();
-    mGameSceneTransitionManager->RegisterSceneLogicManager<PermanentBoardSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<MainMenuSceneLogicManager>();
+    mGameSceneTransitionManager->RegisterSceneLogicManager<StoryMapSceneLogicManager>();
     
 #if defined(MOBILE_FLOW)
     if (ios_utils::IsIPad())
@@ -102,7 +102,6 @@ void Game::Init()
     game_constants::GAME_BOARD_BASED_SCENE_ZOOM_FACTOR = 120.0f;
 #endif
     
-    mGameSceneTransitionManager->ChangeToScene(game_constants::PERMANENT_BOARD_SCENE, SceneChangeType::CONCRETE_SCENE_SYNC_LOADING, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
     mGameSceneTransitionManager->ChangeToScene(MAIN_MENU_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
 }
 

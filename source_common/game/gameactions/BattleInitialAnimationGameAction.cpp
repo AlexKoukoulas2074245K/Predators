@@ -18,7 +18,6 @@
 
 ///------------------------------------------------------------------------------------------------
 
-static const strutils::StringId PERMANENT_BOARD_SCENE = strutils::StringId("permanent_board_scene");
 static const strutils::StringId BOARD_SCENE_OBJECT_NAME = strutils::StringId("board");
 
 static const glm::vec3 BOARD_TARGET_POSITION = {-0.013f, 0.003f, 0.0f };
@@ -37,13 +36,11 @@ void BattleInitialAnimationGameAction::VSetNewGameState()
 
 void BattleInitialAnimationGameAction::VInitAnimation()
 {
-    auto permanentBoardScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(PERMANENT_BOARD_SCENE);
-    auto boardSceneObject = permanentBoardScene->FindSceneObject(BOARD_SCENE_OBJECT_NAME);
+    auto battleScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto boardSceneObject = battleScene->FindSceneObject(BOARD_SCENE_OBJECT_NAME);
     
     boardSceneObject->mPosition = game_constants::GAME_BOARD_INIT_POSITION;
     boardSceneObject->mRotation = game_constants::GAME_BOARD_INIT_ROTATION;
-    
-    permanentBoardScene->GetCamera().SetZoomFactor(game_constants::GAME_BOARD_BASED_SCENE_ZOOM_FACTOR);
     
     // Animate board to target position
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
@@ -60,11 +57,15 @@ void BattleInitialAnimationGameAction::VInitAnimation()
     mPendingAnimations++;
     
     // Fade in board scene objects with a delay matching the duration of the board animation
-    auto battleScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
     for (auto& sceneObject: battleScene->GetSceneObjects())
     {
         // Only fade in normally visible elements
         if (sceneObject->mInvisible || (sceneObject->mShaderFloatUniformValues.count(game_constants::CUSTOM_ALPHA_UNIFORM_NAME) && sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] <= 0.0f))
+        {
+            continue;
+        }
+        
+        if (sceneObject->mName == BOARD_SCENE_OBJECT_NAME)
         {
             continue;
         }

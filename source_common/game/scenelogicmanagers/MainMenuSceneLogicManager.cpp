@@ -23,7 +23,6 @@ static const std::string SELECTABLE_BUTTON_SHADER_FILE_NAME = "basic_custom_colo
 static const std::string DECK_ENTRY_SHADER = "card_family_selection_swipe_entry.vs";
 static const std::string DECK_ENTRY_MASK_TEXTURE_FILE_NAME = "trap_mask.png";
 
-static const strutils::StringId PERMANENT_BOARD_SCENE = strutils::StringId("permanent_board_scene");
 static const strutils::StringId BOARD_SCENE_OBJECT_NAME = strutils::StringId("board");
 static const strutils::StringId STORY_MODE_BUTTON_NAME = strutils::StringId("story_mode_button");
 static const strutils::StringId QUICK_BATTLE_BUTTON_NAME = strutils::StringId("quick_battle_button");
@@ -60,7 +59,7 @@ static const float SUBSCENE_ITEM_FADE_IN_OUT_DURATION_SECS = 0.5f;
 static const float DECK_SWIPEABLE_ENTRY_SCALE = 0.075f;
 static const float DECK_ENTRY_ALPHA = 0.5f;
 static const float DECK_ENTRY_Z = 0.1f;
-static const float INITIAL_CAMERA_ZOOM_FACTOR_OFFSET = 54.065f;
+//static const float INITIAL_CAMERA_ZOOM_FACTOR_OFFSET = 54.065f;
 static const float DECK_SELECTED_MAX_SCALE_FACTOR = 1.15f;
 static const float DECK_SELECTED_MIN_SCALE_FACTOR = 0.65f;
 static const float DECK_SELECTION_ANIMATION_DURATION_SECS = 0.4f;
@@ -77,7 +76,8 @@ static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
 
 static const std::unordered_set<strutils::StringId, strutils::StringIdHasher> STATIC_SCENE_ELEMENTS =
 {
-    TITLE_SCENE_OBJECT_NAME
+    TITLE_SCENE_OBJECT_NAME,
+    BOARD_SCENE_OBJECT_NAME
 };
 
 static const std::unordered_map<strutils::StringId, BattleControlType, strutils::StringIdHasher> BATTLE_MODE_BUTTON_NAMES_TO_BATTLE_CONTROL_TYPE =
@@ -128,7 +128,7 @@ void MainMenuSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 
 ///------------------------------------------------------------------------------------------------
 
-void MainMenuSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene::Scene>)
+void MainMenuSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene::Scene> scene)
 {
     if (mTransitioningToSubScene)
     {
@@ -137,13 +137,10 @@ void MainMenuSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
     
     if (mNeedToSetBoardPositionAndZoomFactor)
     {
-        auto permanentBoardScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(PERMANENT_BOARD_SCENE);
-        auto boardSceneObject = permanentBoardScene->FindSceneObject(BOARD_SCENE_OBJECT_NAME);
+        auto boardSceneObject = scene->FindSceneObject(BOARD_SCENE_OBJECT_NAME);
         
         boardSceneObject->mPosition = game_constants::GAME_BOARD_INIT_POSITION;
         boardSceneObject->mRotation = game_constants::GAME_BOARD_INIT_ROTATION;
-        
-        permanentBoardScene->GetCamera().SetZoomFactor(game_constants::GAME_BOARD_BASED_SCENE_ZOOM_FACTOR + INITIAL_CAMERA_ZOOM_FACTOR_OFFSET);
         
         mNeedToSetBoardPositionAndZoomFactor = false;
     }
@@ -157,7 +154,7 @@ void MainMenuSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
     if (mCardFamilyContainerTop)
     {
         auto containerUpdateResult = mCardFamilyContainerTop->Update(dtMillis);
-        if (containerUpdateResult.mInteractedElementId != -1 &&  ProgressionDataRepository::GetInstance().GetNextBattleControlType() != BattleControlType::REPLAY)
+        if (containerUpdateResult.mInteractedElementId != -1 && ProgressionDataRepository::GetInstance().GetNextBattleControlType() != BattleControlType::REPLAY)
         {
             DeckSelected(containerUpdateResult.mInteractedElementId, true);
         }
@@ -166,7 +163,7 @@ void MainMenuSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
     if (mCardFamilyContainerBot)
     {
         auto containerUpdateResult = mCardFamilyContainerBot->Update(dtMillis);
-        if (containerUpdateResult.mInteractedElementId != -1 &&  ProgressionDataRepository::GetInstance().GetNextBattleControlType() != BattleControlType::REPLAY)
+        if (containerUpdateResult.mInteractedElementId != -1 && ProgressionDataRepository::GetInstance().GetNextBattleControlType() != BattleControlType::REPLAY)
         {
             DeckSelected(containerUpdateResult.mInteractedElementId, false);
         }
@@ -206,7 +203,7 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                 game_constants::DEFAULT_FONT_NAME,
                 "Story Mode",
                 STORY_MODE_BUTTON_NAME,
-                [=](){},
+                [=](){ events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_MAP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE); },
                 *scene
             ));
             
