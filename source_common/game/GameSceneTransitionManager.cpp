@@ -27,7 +27,6 @@ static const float OVERLAY_ANIMATION_TARGET_DURATION_SECS = 0.5f;
 static const float OVERLAY_SCALE = 10.0f;
 static const float OVERLAY_Z = 23.0f;
 static const float MODAL_MAX_ALPHA = 0.75f;
-static const float LOADING_SCENE_FADE_IN_SPEED = 0.002f;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -85,21 +84,9 @@ void GameSceneTransitionManager::Update(const float dtMillis)
     }
     else if (activeScene->GetName() == LOADING_SCENE_NAME && mLoadingScreenMinDelaySecs > 0.0f)
     {
-        if (mFirstTimeLoadingScreenMaxAlpha)
-        {
-            for (auto sceneObject: activeScene->GetSceneObjects())
-            {
-                sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
-            }
-            mFirstTimeLoadingScreenMaxAlpha = false;
-        }
-        
         for (auto sceneObject: activeScene->GetSceneObjects())
         {
-            if (sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] < 1.0f)
-            {
-                sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] += dtMillis * LOADING_SCENE_FADE_IN_SPEED;
-            }
+            sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
         }
     }
     
@@ -160,29 +147,7 @@ void GameSceneTransitionManager::ChangeToScene
             // If we additionally want to completely wipe the previous scene, we first fade it's elements out
             if (previousSceneDestructionType == PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE)
             {
-                if (mTransitionAnimationsDisabled)
-                {
-                    CoreSystemsEngine::GetInstance().GetSceneManager().RemoveScene(mActiveSceneStack.top().mActiveSceneName);
-                }
-                else
-                {
-                    auto sceneToDestroy = sceneManager.FindScene(mActiveSceneStack.top().mActiveSceneName);
-                    for (auto sceneObject: sceneToDestroy->GetSceneObjects())
-                    {
-                        if (sceneObject && !sceneObject->mIsBackground)
-                        {
-                            if (!sceneObject->mShaderFloatUniformValues.count(game_constants::CUSTOM_ALPHA_UNIFORM_NAME))
-                            {
-                                sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
-                            }
-                            
-                            CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, 0.0f, LOADING_SCENE_FADE_IN_OUT_DURATION_SECS), [=]()
-                            {
-                                CoreSystemsEngine::GetInstance().GetSceneManager().RemoveScene(sceneToDestroy->GetName());
-                            });
-                        }
-                    }
-                }
+                CoreSystemsEngine::GetInstance().GetSceneManager().RemoveScene(mActiveSceneStack.top().mActiveSceneName);
             }
             
             // Erase from active scene stack

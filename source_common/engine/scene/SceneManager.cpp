@@ -6,7 +6,6 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <engine/resloading/DataFileResource.h>
-#include <engine/resloading/ResourceLoadingService.h>
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneManager.h>
 #include <engine/utils/BaseDataFileDeserializer.h>
@@ -43,7 +42,7 @@ std::shared_ptr<Scene> SceneManager::CreateScene(const strutils::StringId sceneN
 std::shared_ptr<Scene> SceneManager::FindScene(const strutils::StringId& sceneName) const
 {
     auto findIter = std::find_if(mScenes.begin(), mScenes.end(), [&](const std::shared_ptr<Scene>& scene)
-    {
+                                 {
         return scene->GetName() == sceneName;
     });
     
@@ -123,30 +122,30 @@ void SceneManager::LoadPredefinedObjectsFromDescriptorForScene(std::shared_ptr<S
         {
             sceneObject->mPosition = glm::vec3
             (
-                sceneObjectJson["position"]["x"].get<float>(),
-                sceneObjectJson["position"]["y"].get<float>(),
-                sceneObjectJson["position"]["z"].get<float>()
-            );
+             sceneObjectJson["position"]["x"].get<float>(),
+             sceneObjectJson["position"]["y"].get<float>(),
+             sceneObjectJson["position"]["z"].get<float>()
+             );
         }
         
         if (sceneObjectJson.count("scale"))
         {
             sceneObject->mScale = glm::vec3
             (
-                sceneObjectJson["scale"]["x"].get<float>(),
-                sceneObjectJson["scale"]["y"].get<float>(),
-                sceneObjectJson["scale"]["z"].get<float>()
-            );
+             sceneObjectJson["scale"]["x"].get<float>(),
+             sceneObjectJson["scale"]["y"].get<float>(),
+             sceneObjectJson["scale"]["z"].get<float>()
+             );
         }
         
         if (sceneObjectJson.count("rotation"))
         {
             sceneObject->mRotation = glm::vec3
             (
-                sceneObjectJson["rotation"]["x"].get<float>(),
-                sceneObjectJson["rotation"]["y"].get<float>(),
-                sceneObjectJson["rotation"]["z"].get<float>()
-            );
+             sceneObjectJson["rotation"]["x"].get<float>(),
+             sceneObjectJson["rotation"]["y"].get<float>(),
+             sceneObjectJson["rotation"]["z"].get<float>()
+             );
         }
         
         if (sceneObjectJson.count("alpha"))
@@ -195,7 +194,7 @@ void SceneManager::SortSceneObjects(std::shared_ptr<Scene> scene)
 {
     auto& sceneObjects = scene->GetSceneObjects();
     std::sort(sceneObjects.begin(), sceneObjects.end(), [&](const std::shared_ptr<scene::SceneObject>& lhs, const std::shared_ptr<scene::SceneObject>& rhs)
-    {
+              {
         return lhs->mPosition.z < rhs->mPosition.z;
     });
 }
@@ -205,16 +204,14 @@ void SceneManager::SortSceneObjects(std::shared_ptr<Scene> scene)
 void SceneManager::RemoveScene(const strutils::StringId& sceneName)
 {
     auto findIter = std::find_if(mScenes.begin(), mScenes.end(), [&](const std::shared_ptr<Scene>& scene)
-    {
+                                 {
         return scene->GetName() == sceneName;
     });
     if (findIter != mScenes.end())
     {
-        for (auto& sceneObject: (*findIter)->GetSceneObjects())
-        {
-            sceneObject->mScene = nullptr;
-        }
+        CollectTextureResourceIdCandidates(*findIter);
         mScenes.erase(findIter);
+        UnloadUnusedTextures();
     }
 }
 
@@ -228,4 +225,63 @@ const std::vector<std::shared_ptr<Scene>>& SceneManager::GetScenes() const { ret
 
 ///------------------------------------------------------------------------------------------------
 
+void SceneManager::CollectTextureResourceIdCandidates(std::shared_ptr<Scene> sceneToRemove)
+{
+    mTextureResourceCandidatesToRemove.clear();
+    for (auto& sceneObject: sceneToRemove->GetSceneObjects())
+    {
+        mTextureResourceCandidatesToRemove.insert(sceneObject->mTextureResourceId);
+        for (auto i = 0U; i < EFFECT_TEXTURES_COUNT; ++i)
+        {
+            mTextureResourceCandidatesToRemove.insert(sceneObject->mEffectTextureResourceIds[i]);
+        }
+        sceneObject->mScene = nullptr;
+    }
 }
+
+///------------------------------------------------------------------------------------------------
+
+void SceneManager::UnloadUnusedTextures()
+{
+    auto& resourceService = CoreSystemsEngine::GetInstance().GetResourceLoadingService();
+    for (auto resourceId: mTextureResourceCandidatesToRemove)
+    {
+        bool found = false;
+        for (auto& scene: mScenes)
+        {
+            for (auto& sceneObject: scene->GetSceneObjects())
+            {
+                if (sceneObject->mTextureResourceId == resourceId)
+                {
+                    found = true;
+                    break;
+                }
+                
+                for (auto i = 0U; i < EFFECT_TEXTURES_COUNT; ++i)
+                {
+                    if (sceneObject->mEffectTextureResourceIds[i] == resourceId)
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+            }
+            
+            if (found)
+            {
+                break;
+            }
+        }
+        
+        if (!found)
+        {
+            resourceService.UnloadResource(resourceId);
+        }
+    }
+}
+
+///------------------------------------------------------------------------------------------------
+
+}
+
+///------------------------------------------------------------------------------------------------

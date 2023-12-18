@@ -11,7 +11,9 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <engine/utils/StringUtils.h>
+#include <engine/resloading/ResourceLoadingService.h>
 #include <memory>
+#include <unordered_set>
 #include <vector>
 
 ///------------------------------------------------------------------------------------------------
@@ -36,7 +38,12 @@ public:
     [[nodiscard]] const std::vector<std::shared_ptr<Scene>>& GetScenes() const;
     
 private:
+    void CollectTextureResourceIdCandidates(std::shared_ptr<Scene> sceneToRemove);
+    void UnloadUnusedTextures();
+    
+private:
     std::vector<std::shared_ptr<Scene>> mScenes;
+    std::unordered_set<resources::ResourceId> mTextureResourceCandidatesToRemove;
 };
 
 ///------------------------------------------------------------------------------------------------
