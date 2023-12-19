@@ -13,6 +13,7 @@
 #include <engine/resloading/ResourceLoadingService.h>
 #include <engine/utils/MathUtils.h>
 #include <engine/utils/StringUtils.h>
+#include <functional>
 #include <game/GameConstants.h>
 #include <unordered_map>
 #include <variant>
@@ -77,6 +78,8 @@ struct ParticleEmitterObjectData
     float mParticleGenerationCurrentDelaySecs;
     float mParticleEnlargementSpeed;
     float mParticleRotationSpeed;
+    
+    std::function<void(float, ParticleEmitterObjectData&)> mCustomUpdateFunction;
 };
 
 ///------------------------------------------------------------------------------------------------

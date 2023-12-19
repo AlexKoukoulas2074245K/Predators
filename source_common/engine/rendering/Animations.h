@@ -164,6 +164,24 @@ private:
 
 ///------------------------------------------------------------------------------------------------
 
+class BouncePositionAnimation final: public BaseAnimation
+{
+public:
+    BouncePositionAnimation(std::shared_ptr<scene::SceneObject> sceneObjectTarget, const glm::vec3& positionOffsetSpeed, const float secsBounceDuration, const uint8_t animationFlags = animation_flags::NONE, const float secsDelay = 0.0f, const std::function<float(const float)> tweeningFunc = math::LinearFunction, const math::TweeningMode tweeningMode = math::TweeningMode::EASE_IN);
+    AnimationUpdateResult VUpdate(const float dtMillis) override;
+    std::shared_ptr<scene::SceneObject> VGetSceneObject() override;
+    
+private:
+    std::shared_ptr<scene::SceneObject> mSceneObjectTarget;
+    const float mSecsBounceDuration;
+    const glm::vec3 mInitPosition;
+    const glm::vec3 mPositionOffsetSpeed;
+    float mSecsBounceAccum;
+    bool mMovingUp;
+};
+
+///------------------------------------------------------------------------------------------------
+
 class BezierCurveAnimation final: public BaseAnimation
 {
 public:

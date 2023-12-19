@@ -58,7 +58,7 @@ void LoadingSceneLogicManager::VUpdate(const float, std::shared_ptr<scene::Scene
     
     auto outstandingLoadingJobCount = CoreSystemsEngine::GetInstance().GetResourceLoadingService().GetOustandingLoadingJobCount();
     
-    SetLoadingProgress(mTotalLoadingJobCount == 0 ? 100 : static_cast<int>((mTotalLoadingJobCount - outstandingLoadingJobCount)/static_cast<float>(mTotalLoadingJobCount) * 100.0f));
+    SetLoadingProgress(mTotalLoadingJobCount == 0 ? 100 : static_cast<int>((math::Max(mTotalLoadingJobCount, outstandingLoadingJobCount) - outstandingLoadingJobCount)/static_cast<float>(mTotalLoadingJobCount) * 100.0f));
 }
 
 ///------------------------------------------------------------------------------------------------

@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		0130DF70B5A9001580F0D9B7 /* NextDinoDamageDoublingGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB16493B917105168F0125F5 /* NextDinoDamageDoublingGameAction.cpp */; };
 		02D6D4D6DA10CEEC7AD73D5A /* TrapTriggeredAnimationGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5185CB2E38BF19BD1C54BAF6 /* TrapTriggeredAnimationGameAction.cpp */; };
+		0773FE9923BAFBE6C8F9D8AF /* StoryNodeMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8250F455FC6264D18627A56D /* StoryNodeMap.cpp */; };
 		081A9A06DFDB6D2DCCCAE343 /* AnimationManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EBF846548488DC5997004413 /* AnimationManager.cpp */; };
 		081F81F15F59AB40DA7EA3CC /* BattleInitialAnimationGameAction.h in Sources */ = {isa = PBXBuildFile; fileRef = 7A0A589953BD1C5BD1C6CA6D /* BattleInitialAnimationGameAction.h */; };
 		08AE236E40150C6D07B7AF70 /* BaseDataFileSerializer.h in Sources */ = {isa = PBXBuildFile; fileRef = 3F2663D4D8A6185959494E12 /* BaseDataFileSerializer.h */; };
@@ -129,6 +130,7 @@
 		CB369EDB3723CEDB16D2A2FE /* BaseDataFileSerializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 289376069695D28346FCC23A /* BaseDataFileSerializer.cpp */; };
 		CB531F303F3C1CE853301CBB /* CardEffectGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEDDB72469D33C82815CCED2 /* CardEffectGameAction.cpp */; };
 		D2E26E81223DD805B0E519C0 /* CardUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F62DA25CEC2725420792B4BA /* CardUtils.cpp */; };
+		DC4E6437DC2781E100E1C538 /* StoryNodeMap.h in Sources */ = {isa = PBXBuildFile; fileRef = A17C830118DB6B6188549321 /* StoryNodeMap.h */; };
 		DD1336F32DE09C22CF5258DE /* PlayerActionGenerationEngine.h in Sources */ = {isa = PBXBuildFile; fileRef = C2440AC9D2351884CB46159D /* PlayerActionGenerationEngine.h */; };
 		DE26E81E6B8122C68E6B0525 /* GameRuleEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B3D605C469F5491AEE121CBB /* GameRuleEngine.cpp */; };
 		DE60B65371427753F78EFC38 /* BaseDataFileDeserializer.h in Sources */ = {isa = PBXBuildFile; fileRef = CA46016D2047CEE613C0ED43 /* BaseDataFileDeserializer.h */; };
@@ -322,6 +324,7 @@
 		7E1FF37E2BCC1C04EABA7D6E /* PersistenceUtils.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = PersistenceUtils.h; path = PersistenceUtils.h; sourceTree = "<group>"; };
 		809A245389B128D782E60C07 /* ImageSurfaceLoader.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ImageSurfaceLoader.h; path = ImageSurfaceLoader.h; sourceTree = "<group>"; };
 		816F6367FA4E53FD374A5FAB /* DemonNameGenerator.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = DemonNameGenerator.h; path = DemonNameGenerator.h; sourceTree = "<group>"; };
+		8250F455FC6264D18627A56D /* StoryNodeMap.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = StoryNodeMap.cpp; path = StoryNodeMap.cpp; sourceTree = "<group>"; };
 		857303E925CD89F2799E2777 /* CardUtils.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = CardUtils.h; sourceTree = "<group>"; };
 		8738772A2C41188E4DEA7FE1 /* InsectDuplicationGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = InsectDuplicationGameAction.h; path = InsectDuplicationGameAction.h; sourceTree = "<group>"; };
 		880718DEC1DCC187AAD01069 /* BattleSerializer.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = BattleSerializer.h; path = BattleSerializer.h; sourceTree = "<group>"; };
@@ -411,6 +414,7 @@
 		965C368E9DEEED51FA4114BC /* ProgressionDataRepository.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ProgressionDataRepository.h; path = ProgressionDataRepository.h; sourceTree = "<group>"; };
 		989D5D93E995723F377B2323 /* ThreadSafeQueue.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ThreadSafeQueue.h; path = ThreadSafeQueue.h; sourceTree = "<group>"; };
 		9F590974FFD4AB7AC83044F3 /* CardEffectComponents.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = CardEffectComponents.h; sourceTree = "<group>"; };
+		A17C830118DB6B6188549321 /* StoryNodeMap.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = StoryNodeMap.h; path = StoryNodeMap.h; sourceTree = "<group>"; };
 		A3FCED8F928A60D20E451BCD /* PostNextPlayerGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = PostNextPlayerGameAction.h; sourceTree = "<group>"; };
 		AB16493B917105168F0125F5 /* NextDinoDamageDoublingGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = NextDinoDamageDoublingGameAction.cpp; path = NextDinoDamageDoublingGameAction.cpp; sourceTree = "<group>"; };
 		ACB1819C4991701AB7CC0E57 /* SettingsSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = SettingsSceneLogicManager.cpp; path = SettingsSceneLogicManager.cpp; sourceTree = "<group>"; };
@@ -548,6 +552,8 @@
 				965C368E9DEEED51FA4114BC /* ProgressionDataRepository.h */,
 				B67E5917591877170D419D49 /* scenelogicmanagers */,
 				4357F046310E6B78FF6F4C3D /* GameSceneTransitionTypes.h */,
+				8250F455FC6264D18627A56D /* StoryNodeMap.cpp */,
+				A17C830118DB6B6188549321 /* StoryNodeMap.h */,
 			);
 			path = game;
 			sourceTree = "<group>";
@@ -1226,6 +1232,8 @@
 				9C60D38F311EEF6609872D90 /* StoryMapSceneLogicManager.h in Sources */,
 				501213E2A69B305C643A8E93 /* SettingsSceneLogicManager.cpp in Sources */,
 				52B39F69DE1A0FEBF83C1D36 /* SettingsSceneLogicManager.h in Sources */,
+				0773FE9923BAFBE6C8F9D8AF /* StoryNodeMap.cpp in Sources */,
+				DC4E6437DC2781E100E1C538 /* StoryNodeMap.h in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

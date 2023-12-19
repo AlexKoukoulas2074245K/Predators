@@ -231,6 +231,53 @@ std::shared_ptr<scene::SceneObject> PulseAnimation::VGetSceneObject()
 
 ///------------------------------------------------------------------------------------------------
 
+BouncePositionAnimation::BouncePositionAnimation(std::shared_ptr<scene::SceneObject> sceneObjectTarget, const glm::vec3& positionOffsetSpeed, const float secsBounceDuration, const uint8_t animationFlags /* = animation_flags::NONE */, const float secsDelay /* = 0.0f */, const std::function<float(const float)> /* = math::LinearFunction */, const math::TweeningMode /* = math::TweeningMode::EASE_IN */)
+    : BaseAnimation(animationFlags, (animationFlags & animation_flags::ANIMATE_CONTINUOUSLY) != 0 ? -1.0f : secsBounceDuration * 2.0f, secsDelay)
+    , mSceneObjectTarget(sceneObjectTarget)
+    , mSecsBounceDuration(secsBounceDuration)
+    , mInitPosition(sceneObjectTarget->mPosition)
+    , mPositionOffsetSpeed(positionOffsetSpeed)
+    , mSecsBounceAccum(secsDelay)
+    , mMovingUp(true)
+{
+    assert(!IS_FLAG_SET(animation_flags::IGNORE_X_COMPONENT));
+    assert(!IS_FLAG_SET(animation_flags::IGNORE_Y_COMPONENT));
+    assert(!IS_FLAG_SET(animation_flags::IGNORE_Z_COMPONENT));
+}
+
+AnimationUpdateResult BouncePositionAnimation::VUpdate(const float dtMillis)
+{
+    mSecsBounceAccum += dtMillis/1000.0f;
+    if (mSecsBounceAccum >= mSecsBounceDuration)
+    {
+        mSecsBounceAccum -= mSecsBounceDuration;
+        mMovingUp = !mMovingUp;
+    }
+    
+    auto animationUpdateResult = BaseAnimation::VUpdate(dtMillis);
+    if (mMovingUp)
+    {
+        mSceneObjectTarget->mPosition += mPositionOffsetSpeed * dtMillis;
+    }
+    else
+    {
+        mSceneObjectTarget->mPosition -= mPositionOffsetSpeed * dtMillis;
+    }
+    
+    if (animationUpdateResult == AnimationUpdateResult::FINISHED)
+    {
+        mSceneObjectTarget->mPosition = mInitPosition;
+    }
+    return animationUpdateResult;
+}
+
+std::shared_ptr<scene::SceneObject> BouncePositionAnimation::VGetSceneObject()
+{
+    return mSceneObjectTarget;
+}
+
+///------------------------------------------------------------------------------------------------
+
 BezierCurveAnimation::BezierCurveAnimation(std::shared_ptr<scene::SceneObject> sceneObjectTarget, const math::BezierCurve& curve, const float secsDuration, const uint8_t animationFlags /* = animation_flags::NONE */, const float secsDelay /* = 0.0f */)
     : BaseAnimation(animationFlags, secsDuration, secsDelay)
     , mSceneObjectTarget(sceneObjectTarget)

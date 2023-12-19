@@ -194,8 +194,8 @@ void ResourceLoadingService::Update()
         }
         
         mResourceIdToPaths[finishedJob.mTargetResourceId] = finishedJob.mResourcePath;
+        mOutandingAsyncResourceIdsCurrentlyLoading.erase(finishedJob.mTargetResourceId);
         mOutstandingLoadingJobCount--;
-        logging::Log(logging::LogType::INFO, "Finished loading asset: %s in %s", finishedJob.mResourcePath.c_str(), std::to_string(finishedJob.mTargetResourceId).c_str());
     }
 }
 
@@ -206,6 +206,7 @@ void ResourceLoadingService::SetAsyncLoading(const bool asyncLoading)
     mAsyncLoading = asyncLoading;
     if (asyncLoading)
     {
+        mOutandingAsyncResourceIdsCurrentlyLoading.clear();
         mOutstandingLoadingJobCount = 0;
     }
 }
@@ -365,6 +366,13 @@ int ResourceLoadingService::GetOustandingLoadingJobCount() const
 
 ///------------------------------------------------------------------------------------------------
 
+void ResourceLoadingService::AddArtificialLoadingJobCount(const int artificialLoadingJobCount)
+{
+    mOutstandingLoadingJobCount += artificialLoadingJobCount;
+}
+
+///------------------------------------------------------------------------------------------------
+
 void ResourceLoadingService::LoadResourceInternal(const std::string& resourcePath, const ResourceId resourceId)
 {
     // Get resource extension
@@ -377,12 +385,13 @@ void ResourceLoadingService::LoadResourceInternal(const std::string& resourcePat
     {
         auto* selectedLoader = mResourceExtensionsToLoadersMap.at(strutils::StringId(fileutils::GetFileExtension(resourcePath)));
         
-        if (mAsyncLoading && selectedLoader->VCanLoadAsync())
+        if (mAsyncLoading && selectedLoader->VCanLoadAsync() && !mOutandingAsyncResourceIdsCurrentlyLoading.count(resourceId))
         {
             mAsyncLoaderWorker->mJobs.enqueue(LoadingJob(selectedLoader, RES_ROOT + resourcePath, resourceId));
             mOutstandingLoadingJobCount++;
+            mOutandingAsyncResourceIdsCurrentlyLoading.insert(resourceId);
         }
-        else
+        else if (!mOutandingAsyncResourceIdsCurrentlyLoading.count(resourceId))
         {
             auto loadedResource = selectedLoader->VCreateAndLoadResource(RES_ROOT + resourcePath);
             mResourceMap[resourceId] = std::move(loadedResource);

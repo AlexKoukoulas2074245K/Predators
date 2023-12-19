@@ -188,6 +188,11 @@ public:
     /// Gets the number of  loading jobs to be completed
     int GetOustandingLoadingJobCount() const;
     
+    /// Adds/Removes artificial loading jobs that will contribute to the outstanding loading job counts.
+    ///
+    /// @param[in] artificialLoadingJobCount count of artificial loading jobs to add (can be negative).
+    void AddArtificialLoadingJobCount(const int artificialLoadingJobCount);
+    
 private:
     ResourceLoadingService();
     
@@ -207,9 +212,10 @@ private:
     std::unordered_map<ResourceId, std::string, ResourceIdHasher> mResourceIdMapToAutoReload;
     std::unordered_map<ResourceId, std::string, ResourceIdHasher> mResourceIdToPaths;
     std::unordered_set<ResourceId, ResourceIdHasher> mDynamicallyCreatedTextureResourceIds;
+    std::unordered_set<ResourceId> mOutandingAsyncResourceIdsCurrentlyLoading;
     std::vector<std::unique_ptr<IResourceLoader>> mResourceLoaders;
     std::unique_ptr<AsyncLoaderWorker> mAsyncLoaderWorker;
-    int mOutstandingLoadingJobCount = 0;
+    std::atomic<int> mOutstandingLoadingJobCount = 0;
     bool mInitialized = false;
     bool mAsyncLoading = false;
 };

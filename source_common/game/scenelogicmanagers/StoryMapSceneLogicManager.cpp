@@ -16,6 +16,8 @@
 #include <game/GameConstants.h>
 #include <game/ProgressionDataRepository.h>
 #include <game/scenelogicmanagers/StoryMapSceneLogicManager.h>
+#include <game/StoryNodeMap.h>
+#include <thread>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -32,11 +34,11 @@ static const std::string COIN_STACK_TEXTURE_FILE_NAME = "coin_stack.png";
 static const glm::vec2 MAP_SWIPE_X_BOUNDS = {-0.5f, 0.5f};
 static const glm::vec2 MAP_SWIPE_Y_BOUNDS = {-0.5f, 0.5f};
 
-static const glm::vec3 SETTINGS_BUTTON_POSITION = {0.145f, 0.181f, 0.1f};
+static const glm::vec3 SETTINGS_BUTTON_POSITION = {0.145f, 0.181f, 10.0f};
 static const glm::vec3 SETTINGS_BUTTON_SCALE = {0.06f, 0.06f, 0.06f};
-static const glm::vec3 COIN_STACK_POSITION = {0.145f, 0.101f, 0.1f};
+static const glm::vec3 COIN_STACK_POSITION = {0.145f, 0.101f, 10.0f};
 static const glm::vec3 COIN_STACK_SCALE = {0.08f, 0.08f, 0.08f};
-static const glm::vec3 COIN_VALUE_TEXT_POSITION = {0.155f, 0.105f, 0.1f};
+static const glm::vec3 COIN_VALUE_TEXT_POSITION = {0.155f, 0.105f, 10.0f};
 static const glm::vec3 COIN_VALUE_TEXT_SCALE = {0.0004f, 0.0004f, 0.0004f};
 static const glm::vec3 COIN_VALUE_TEXT_COLOR = {0.80f, 0.71f, 0.11f};
 
@@ -53,8 +55,11 @@ static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
 static const std::vector<strutils::StringId> GUI_SCENE_OBJECT_NAMES =
 {
     COIN_STACK_SCENE_OBJECT_NAME,
+    COIN_VALUE_TEXT_SCENE_OBJECT_NAME,
     SETTINGS_BUTTON_SCENE_OBJECT_NAME
 };
+
+extern int mapGenerationAttempts;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -81,6 +86,13 @@ void StoryMapSceneLogicManager::VInitSceneCamera(std::shared_ptr<scene::Scene>)
 
 void StoryMapSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 {
+    std::thread mapGenerationThread = std::thread([=]
+    {
+        mStoryNodeMap = std::make_unique<StoryNodeMap>(scene, math::RandomInt(), glm::ivec2(10, 5), MapCoord(0, 2), true);
+        mStoryNodeMap->GenerateMapNodes();
+    });
+    mapGenerationThread.detach();
+    
     RegisterForEvents();
     mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
     (
@@ -120,6 +132,12 @@ void StoryMapSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 
 void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene::Scene> scene)
 {
+    if (!mStoryNodeMap->HasCreatedSceneObjects())
+    {
+        logging::Log(logging::LogType::INFO, "Finished Map Generation after %d attempts", mapGenerationAttempts);
+        mStoryNodeMap->CreateMapSceneObjects();
+    }
+    
     const auto& inputStateManager = CoreSystemsEngine::GetInstance().GetInputStateManager();
     
     auto worldTouchPos = inputStateManager.VGetPointingPosInWorldSpace(scene->GetCamera().GetViewMatrix(), scene->GetCamera().GetProjMatrix());
@@ -160,7 +178,6 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
             float targetDy = (worldTouchPos.y - mSwipeCurrentPos.y);
             
             auto backgroundSceneObject = scene->FindSceneObject(BACKGROUND_SCENE_OBJECT_NAME);
-            
             auto nextPosition = backgroundSceneObject->mPosition;
             
             nextPosition.x += targetDx;
@@ -168,8 +185,27 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
             
             nextPosition.y += targetDy;
             nextPosition.y = math::Max(MAP_SWIPE_Y_BOUNDS.s, math::Min(MAP_SWIPE_Y_BOUNDS.t, nextPosition.y));
+            
+            auto finalDelta = nextPosition - backgroundSceneObject->mPosition;
+            
+            for (auto& sceneObject: scene->GetSceneObjects())
+            {
+                if (std::find(GUI_SCENE_OBJECT_NAMES.cbegin(), GUI_SCENE_OBJECT_NAMES.cend(), sceneObject->mName) != GUI_SCENE_OBJECT_NAMES.cend())
+                {
+                    continue;
+                }
                 
-            backgroundSceneObject->mPosition = nextPosition;
+                sceneObject->mPosition += finalDelta;
+                
+                if (std::holds_alternative<scene::ParticleEmitterObjectData>(sceneObject->mSceneObjectTypeData))
+                {
+                    auto& particleEmitterData = std::get<scene::ParticleEmitterObjectData>(sceneObject->mSceneObjectTypeData);
+                    for (auto i = 0U; i < particleEmitterData.mParticleCount; ++i)
+                    {
+                        particleEmitterData.mParticlePositions[i] += finalDelta;
+                    }
+                }
+            }
             
             mSwipeCurrentPos = glm::vec3(worldTouchPos.x, worldTouchPos.y, 0.0f);
         }
@@ -192,6 +228,7 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
 void StoryMapSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene>)
 {
     events::EventSystem::GetInstance().UnregisterAllEventsForListener(this);
+    mStoryNodeMap->DestroyParticleEmitters();
 }
 
 ///------------------------------------------------------------------------------------------------

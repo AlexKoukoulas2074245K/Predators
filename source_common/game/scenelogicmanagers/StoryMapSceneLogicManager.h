@@ -17,6 +17,7 @@
 ///------------------------------------------------------------------------------------------------
 
 class AnimatedButton;
+class StoryNodeMap;
 class StoryMapSceneLogicManager final: public ISceneLogicManager, public events::IListener
 {
 public:
@@ -40,7 +41,7 @@ private:
     
 private:
     std::vector<std::unique_ptr<AnimatedButton>> mAnimatedButtons;
-    
+    std::unique_ptr<StoryNodeMap> mStoryNodeMap;
     glm::vec3 mSwipeStartPos;
     glm::vec3 mSwipeCurrentPos;
     bool mHasStartedSwipe;

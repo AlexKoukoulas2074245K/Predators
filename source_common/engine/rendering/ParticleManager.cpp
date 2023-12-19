@@ -58,6 +58,13 @@ void ParticleManager::UpdateSceneParticles(const float dtMillis, scene::Scene& s
         if (std::holds_alternative<scene::ParticleEmitterObjectData>(sceneObject->mSceneObjectTypeData))
         {
             auto& particleEmitterData = std::get<scene::ParticleEmitterObjectData>(sceneObject->mSceneObjectTypeData);
+            
+            if (IS_FLAG_SET(particle_flags::CUSTOM_UPDATE))
+            {
+                particleEmitterData.mCustomUpdateFunction(dtMillis, particleEmitterData);
+                continue;
+            }
+            
             particleEmitterData.mParticleGenerationCurrentDelaySecs -= dtMillis/1000.0f;
             if (particleEmitterData.mParticleGenerationCurrentDelaySecs <= 0.0f)
             {
@@ -133,7 +140,8 @@ std::shared_ptr<scene::SceneObject> ParticleManager::CreateParticleEmitterAtPosi
     const strutils::StringId particleEmitterName,
     const glm::vec3& pos,
     scene::Scene& scene,
-    const strutils::StringId particleEmitterSceneObjectName /* = strutils::StringId() */
+    const strutils::StringId particleEmitterSceneObjectName /* = strutils::StringId() */,
+    std::function<void(float, scene::ParticleEmitterObjectData&)> customUpdateFunction /* = nullptr */
 )
 {
     if (!mParticleNamesToData.count(particleEmitterName))
@@ -149,13 +157,19 @@ std::shared_ptr<scene::SceneObject> ParticleManager::CreateParticleEmitterAtPosi
     particleSystemSo->mTextureResourceId = particleEmitterData.mTextureResourceId;
     particleSystemSo->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + PARTICLE_SHADER_FILE_NAME);
     
-    assert(IS_FLAG_SET(particle_flags::PREFILLED) || IS_FLAG_SET(particle_flags::CONTINUOUS_PARTICLE_GENERATION));
+    assert(IS_FLAG_SET(particle_flags::PREFILLED) || IS_FLAG_SET(particle_flags::CONTINUOUS_PARTICLE_GENERATION) || IS_FLAG_SET(particle_flags::CUSTOM_UPDATE));
     
     particleEmitterData.mParticleLifetimeSecs.resize(particleEmitterData.mParticleCount);
     particleEmitterData.mParticleVelocities.resize(particleEmitterData.mParticleCount);
     particleEmitterData.mParticleSizes.resize(particleEmitterData.mParticleCount);
     particleEmitterData.mParticleAngles.resize(particleEmitterData.mParticleCount);
     particleEmitterData.mParticlePositions.resize(particleEmitterData.mParticleCount);
+    
+    if (IS_FLAG_SET(particle_flags::CUSTOM_UPDATE))
+    {
+        assert(customUpdateFunction);
+        particleEmitterData.mCustomUpdateFunction = customUpdateFunction;
+    }
     
     if (IS_FLAG_SET(particle_flags::ROTATE_OVER_TIME) || IS_FLAG_SET(particle_flags::INITIALLY_ROTATED))
     {
@@ -209,6 +223,28 @@ std::shared_ptr<scene::SceneObject> ParticleManager::CreateParticleEmitterAtPosi
 
 ///------------------------------------------------------------------------------------------------
 
+int ParticleManager::SpawnParticleAtFirstAvailableSlot(scene::SceneObject& particleEmitterSceneObject)
+{
+    if (std::holds_alternative<scene::ParticleEmitterObjectData>(particleEmitterSceneObject.mSceneObjectTypeData))
+    {
+        const auto& particleEmitterData = std::get<scene::ParticleEmitterObjectData>(particleEmitterSceneObject.mSceneObjectTypeData);
+        
+        auto particleCount = particleEmitterData.mParticlePositions.size();
+        
+        for (size_t i = 0; i < particleCount; ++i)
+        {
+            if (particleEmitterData.mParticleLifetimeSecs[i] <= 0.0f)
+            {
+                SpawnParticleAtIndex(i, particleEmitterSceneObject);
+                return static_cast<int>(i);
+            }
+        }
+    }
+    return -1;
+}
+
+///------------------------------------------------------------------------------------------------
+
 void ParticleManager::LoadParticleData(const resources::ResourceReloadMode resourceReloadMode /* = resources::ResourceReloadMode::DONT_RELOAD */)
 {
     mResourceReloadMode = resourceReloadMode;
@@ -235,6 +271,7 @@ void ParticleManager::LoadParticleData(const resources::ResourceReloadMode resou
         particleEmitterData.mParticleFlags |= particleObject["enlarge_over_time"].get<bool>() ? particle_flags::ENLARGE_OVER_TIME : particle_flags::NONE;
         particleEmitterData.mParticleFlags |= particleObject["rotate_over_time"].get<bool>() ? particle_flags::ROTATE_OVER_TIME : particle_flags::NONE;
         particleEmitterData.mParticleFlags |= particleObject["initially_rotated"].get<bool>() ? particle_flags::INITIALLY_ROTATED : particle_flags::NONE;
+        particleEmitterData.mParticleFlags |= particleObject["custom_update"].get<bool>() ? particle_flags::CUSTOM_UPDATE : particle_flags::NONE;
         
         particleEmitterData.mParticleLifetimeRangeSecs.x = particleObject["lifetime_range"]["min"].get<float>();
         particleEmitterData.mParticleLifetimeRangeSecs.y = particleObject["lifetime_range"]["max"].get<float>();
@@ -387,29 +424,6 @@ void ParticleManager::SpawnParticleAtIndex(const size_t index, scene::SceneObjec
     {
         SpawnParticleAtIndex(index, particleEmitterSceneObject.mPosition, std::get<scene::ParticleEmitterObjectData>(particleEmitterSceneObject.mSceneObjectTypeData));
     }
-}
-
-///------------------------------------------------------------------------------------------------
-
-void ParticleManager::SpawnParticlesAtFirstAvailableSlot(const size_t particlesToSpawnCount, scene::SceneObject& particleEmitterSceneObject)
-{
-    if (std::holds_alternative<scene::ParticleEmitterObjectData>(particleEmitterSceneObject.mSceneObjectTypeData))
-    {
-        const auto& particleEmitterData = std::get<scene::ParticleEmitterObjectData>(particleEmitterSceneObject.mSceneObjectTypeData);
-        
-        auto particlesToSpawn = particlesToSpawnCount;
-        auto particleCount = particleEmitterData.mParticlePositions.size();
-        
-        for (size_t i = 0; i < particleCount && particlesToSpawn > 0; ++i)
-        {
-            if (particleEmitterData.mParticleLifetimeSecs[i] <= 0.0f)
-            {
-                SpawnParticleAtIndex(i, particleEmitterSceneObject);
-                particlesToSpawn--;
-            }
-        }
-    }
-    
 }
 
 ///------------------------------------------------------------------------------------------------

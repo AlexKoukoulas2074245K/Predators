@@ -37,6 +37,7 @@ namespace particle_flags
     static constexpr uint8_t ENLARGE_OVER_TIME              = 0x4;
     static constexpr uint8_t ROTATE_OVER_TIME               = 0x8;
     static constexpr uint8_t INITIALLY_ROTATED              = 0x10;
+    static constexpr uint8_t CUSTOM_UPDATE                  = 0x20;
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -53,7 +54,9 @@ class ParticleManager final
 public:
     void UpdateSceneParticles(const float dtMilis, scene::Scene& scene);
 
-    std::shared_ptr<scene::SceneObject> CreateParticleEmitterAtPosition(const strutils::StringId particleEmitterName, const glm::vec3& pos, scene::Scene& scene, const strutils::StringId particleEmitterSceneObjectName = strutils::StringId());
+    std::shared_ptr<scene::SceneObject> CreateParticleEmitterAtPosition(const strutils::StringId particleEmitterName, const glm::vec3& pos, scene::Scene& scene, const strutils::StringId particleEmitterSceneObjectName = strutils::StringId(), std::function<void(float, scene::ParticleEmitterObjectData&)> customUpdateFunction = nullptr);
+    int SpawnParticleAtFirstAvailableSlot(scene::SceneObject& particleEmitterSceneObject);
+    
     void RemoveParticleEmitterFlag(const uint8_t flag, const strutils::StringId particleEmitterSceneObjectName, scene::Scene& scene);
     
     void LoadParticleData(const resources::ResourceReloadMode resourceReloadMode = resources::ResourceReloadMode::DONT_RELOAD);
@@ -64,7 +67,6 @@ private:
     void SortParticles(scene::ParticleEmitterObjectData& particleEmitterData) const;
     void SpawnParticleAtIndex(const size_t index, const glm::vec3& sceneObjectPosition, scene::ParticleEmitterObjectData& particleEmitterObjectData);
     void SpawnParticleAtIndex(const size_t index, scene::SceneObject& particleEmitterSceneObject);
-    void SpawnParticlesAtFirstAvailableSlot(const size_t particlesToSpawnCount, scene::SceneObject& particleEmitterSceneObject);
     
 private:
     std::vector<std::shared_ptr<scene::SceneObject>> mParticleEmittersToDelete;
