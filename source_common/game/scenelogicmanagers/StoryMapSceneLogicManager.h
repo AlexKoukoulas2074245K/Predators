@@ -12,6 +12,7 @@
 
 #include <game/events/EventSystem.h>
 #include <game/scenelogicmanagers/ISceneLogicManager.h>
+#include <engine/rendering/Camera.h>
 #include <memory>
 
 ///------------------------------------------------------------------------------------------------
@@ -38,16 +39,16 @@ private:
     void OnWindowResize(const events::WindowResizeEvent& event);
     void ResetSwipeData();
     void OnSettingsButtonPressed();
+    void MoveMapBy(const glm::vec3& delta);
+    void MoveGUIBy(const glm::vec3& delta);
     
 private:
     std::vector<std::unique_ptr<AnimatedButton>> mAnimatedButtons;
     std::unique_ptr<StoryNodeMap> mStoryNodeMap;
-    glm::vec3 mSwipeStartPos;
+    std::shared_ptr<scene::Scene> mScene;
+    rendering::Camera mSwipeCamera;
     glm::vec3 mSwipeCurrentPos;
     bool mHasStartedSwipe;
-    float mSwipeDurationMillis = 0.0f;
-    float mSwipeVelocityDelta = 0.0f;
-    float mSwipeDelta = 0.0f;
 };
 
 ///------------------------------------------------------------------------------------------------

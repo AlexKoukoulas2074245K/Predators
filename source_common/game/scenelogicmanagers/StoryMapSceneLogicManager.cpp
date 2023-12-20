@@ -126,6 +126,10 @@ void StoryMapSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     coinValueTextSceneObject->mScale = COIN_VALUE_TEXT_SCALE;
     coinValueTextSceneObject->mSnapToEdgeBehavior = scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE;
     coinValueTextSceneObject->mSnapToEdgeScaleOffsetFactor = COIN_VALUE_TEXT_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR;
+    
+    mSwipeCamera = scene->GetCamera();
+    mScene = scene;
+    ResetSwipeData();
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -139,8 +143,8 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
     }
     
     const auto& inputStateManager = CoreSystemsEngine::GetInstance().GetInputStateManager();
-    
-    auto worldTouchPos = inputStateManager.VGetPointingPosInWorldSpace(scene->GetCamera().GetViewMatrix(), scene->GetCamera().GetProjMatrix());
+    auto touchPos = inputStateManager.VGetPointingPosInWorldSpace(mSwipeCamera.GetViewMatrix(), mSwipeCamera.GetProjMatrix());
+    auto worldTouchPos = glm::vec3(touchPos.x, touchPos.y, 0.0f);
     
     if (inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON))
     {
@@ -149,65 +153,42 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
         {
             auto sceneObject = scene->FindSceneObject(guiSceneObjectName);
             auto sceneObjectRect = scene_object_utils::GetSceneObjectBoundingRect(*sceneObject);
-            if (math::IsPointInsideRectangle(sceneObjectRect.bottomLeft, sceneObjectRect.topRight, worldTouchPos))
+            if (math::IsPointInsideRectangle(sceneObjectRect.bottomLeft, sceneObjectRect.topRight, touchPos))
             {
                 tappedGuiSceneObject = true;
                 break;
             }
         }
+            
+        bool tappedNodeObject = false;
+        for (const auto& nodeMapData: mStoryNodeMap->GetMapData())
+        {
+            auto sceneObject = scene->FindSceneObject(strutils::StringId(nodeMapData.first.ToString()));
+            auto sceneObjectRect = scene_object_utils::GetSceneObjectBoundingRect(*sceneObject);
+            if (math::IsPointInsideRectangle(sceneObjectRect.bottomLeft, sceneObjectRect.topRight, touchPos))
+            {
+                logging::Log(logging::LogType::INFO, "From %.6f, %.6f, To %.6f, %.6f", scene->FindSceneObject(BACKGROUND_SCENE_OBJECT_NAME)->mPosition.x, scene->FindSceneObject(BACKGROUND_SCENE_OBJECT_NAME)->mPosition.y, sceneObject->mPosition.x, sceneObject->mPosition.y);
+                tappedNodeObject = true;
+                break;
+            }
+        }
         
-        if (tappedGuiSceneObject)
+        if (tappedGuiSceneObject || tappedNodeObject)
         {
             ResetSwipeData();
         }
         else
         {
+            mSwipeCurrentPos = worldTouchPos;
             mHasStartedSwipe = true;
-            mSwipeStartPos = glm::vec3(worldTouchPos.x, worldTouchPos.y, 0.0f);
-            mSwipeCurrentPos = mSwipeStartPos;
-            mSwipeDurationMillis = 0.0f;
         }
     }
     else if (inputStateManager.VButtonPressed(input::Button::MAIN_BUTTON))
     {
         if (mHasStartedSwipe)
         {
-            mSwipeDurationMillis += dtMillis;
-            
-            float targetDx = (worldTouchPos.x - mSwipeCurrentPos.x);
-            float targetDy = (worldTouchPos.y - mSwipeCurrentPos.y);
-            
-            auto backgroundSceneObject = scene->FindSceneObject(BACKGROUND_SCENE_OBJECT_NAME);
-            auto nextPosition = backgroundSceneObject->mPosition;
-            
-            nextPosition.x += targetDx;
-            nextPosition.x = math::Max(MAP_SWIPE_X_BOUNDS.s, math::Min(MAP_SWIPE_X_BOUNDS.t, nextPosition.x));
-            
-            nextPosition.y += targetDy;
-            nextPosition.y = math::Max(MAP_SWIPE_Y_BOUNDS.s, math::Min(MAP_SWIPE_Y_BOUNDS.t, nextPosition.y));
-            
-            auto finalDelta = nextPosition - backgroundSceneObject->mPosition;
-            
-            for (auto& sceneObject: scene->GetSceneObjects())
-            {
-                if (std::find(GUI_SCENE_OBJECT_NAMES.cbegin(), GUI_SCENE_OBJECT_NAMES.cend(), sceneObject->mName) != GUI_SCENE_OBJECT_NAMES.cend())
-                {
-                    continue;
-                }
-                
-                sceneObject->mPosition += finalDelta;
-                
-                if (std::holds_alternative<scene::ParticleEmitterObjectData>(sceneObject->mSceneObjectTypeData))
-                {
-                    auto& particleEmitterData = std::get<scene::ParticleEmitterObjectData>(sceneObject->mSceneObjectTypeData);
-                    for (auto i = 0U; i < particleEmitterData.mParticleCount; ++i)
-                    {
-                        particleEmitterData.mParticlePositions[i] += finalDelta;
-                    }
-                }
-            }
-            
-            mSwipeCurrentPos = glm::vec3(worldTouchPos.x, worldTouchPos.y, 0.0f);
+            MoveMapBy(mSwipeCurrentPos - worldTouchPos);
+            mSwipeCurrentPos = worldTouchPos;
         }
     }
     else if (!inputStateManager.VButtonPressed(input::Button::MAIN_BUTTON))
@@ -279,10 +260,8 @@ void StoryMapSceneLogicManager::OnWindowResize(const events::WindowResizeEvent&)
 
 void StoryMapSceneLogicManager::ResetSwipeData()
 {
+    mSwipeCamera.SetPosition(mScene->GetCamera().GetPosition());
     mHasStartedSwipe = false;
-    mSwipeDurationMillis = 0.0f;
-    mSwipeVelocityDelta = 0.0f;
-    mSwipeDelta = 0.0f;
 }
     
 ///------------------------------------------------------------------------------------------------
@@ -293,3 +272,32 @@ void StoryMapSceneLogicManager::OnSettingsButtonPressed()
 }
 
 ///------------------------------------------------------------------------------------------------
+
+void StoryMapSceneLogicManager::MoveMapBy(const glm::vec3& delta)
+{
+    const auto cameraInitialPosition = mScene->GetCamera().GetPosition();
+    auto cameraTargetPosition = cameraInitialPosition;
+    
+    cameraTargetPosition.x += delta.x;
+    cameraTargetPosition.x = math::Max(MAP_SWIPE_X_BOUNDS.s, math::Min(MAP_SWIPE_X_BOUNDS.t, cameraTargetPosition.x));
+    
+    cameraTargetPosition.y += delta.y;
+    cameraTargetPosition.y = math::Max(MAP_SWIPE_Y_BOUNDS.s, math::Min(MAP_SWIPE_Y_BOUNDS.t, cameraTargetPosition.y));
+
+    mScene->GetCamera().SetPosition(cameraTargetPosition);
+    
+    MoveGUIBy(cameraTargetPosition - cameraInitialPosition);
+}
+
+///------------------------------------------------------------------------------------------------
+
+void StoryMapSceneLogicManager::MoveGUIBy(const glm::vec3& delta)
+{
+    for (auto& sceneObject: mScene->GetSceneObjects())
+    {
+        if (std::find(GUI_SCENE_OBJECT_NAMES.cbegin(), GUI_SCENE_OBJECT_NAMES.cend(), sceneObject->mName) != GUI_SCENE_OBJECT_NAMES.cend())
+        {
+            sceneObject->mPosition += delta;
+        }
+    }
+}

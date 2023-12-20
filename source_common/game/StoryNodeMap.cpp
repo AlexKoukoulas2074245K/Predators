@@ -88,8 +88,8 @@ static const glm::vec3 PORTRAIT_SECONDARY_TEXT_POSITION_OFFSET = {-0.009f, -0.05
 static const float NODES_CLOSE_ENOUGH_THRESHOLD = 0.025f;
 static const float NODES_CLOSE_ENOUGH_TO_EDGE_NODES_THRESHOLD = 0.075f;
 #else
-static const float NODES_CLOSE_ENOUGH_THRESHOLD = 0.025f;
-static const float NODES_CLOSE_ENOUGH_TO_EDGE_NODES_THRESHOLD = 0.075f;
+static const float NODES_CLOSE_ENOUGH_THRESHOLD = 0.0125f;
+static const float NODES_CLOSE_ENOUGH_TO_EDGE_NODES_THRESHOLD = 0.0375f;
 #endif
 static const float NODE_GENERATION_POSITION_NOISE = 0.1f;
 static const float NODE_POSITION_Z = 0.1f;
@@ -115,7 +115,7 @@ static const int MAX_MAP_GENERATION_ATTEMPTS = 300000;
 static const glm::vec2 VERTICAL_MAP_EDGE = {-0.65f, 0.65f};
 #else
 static const int MAX_MAP_GENERATION_ATTEMPTS = 100000;
-static const glm::vec2 VERTICAL_MAP_EDGE = {-0.70f, 0.70f};
+static const glm::vec2 VERTICAL_MAP_EDGE = {-0.75f, 0.75f};
 #endif
 
 int mapGenerationAttempts = 0;
@@ -287,6 +287,7 @@ void StoryNodeMap::CreateMapSceneObjects()
         nodeSceneObject->mShaderResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + STORY_MAP_NODE_SHADER_FILE_NAME);
         nodeSceneObject->mShaderBoolUniformValues[IS_NODE_ACTIVE_UNIFORM_NAME] = mapNodeEntry.first == mCurrentMapCoord;
         nodeSceneObject->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + MAP_NODE_TYPES_TO_PORTRAIT_TEXTURES.at(mapNodeEntry.second.mNodeType));
+        nodeSceneObject->mBoundingRectMultiplier.x = game_constants::CARD_BOUNDING_RECT_X_MULTIPLIER;
         nodeSceneObject->mScale = glm::vec3(NODE_SCALE);
         
         auto nodePortraitSceneObject = mScene->CreateSceneObject(strutils::StringId(mapNodeEntry.first.ToString() + "_portrait"));
