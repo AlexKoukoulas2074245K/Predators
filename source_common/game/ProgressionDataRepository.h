@@ -10,6 +10,7 @@
 
 ///------------------------------------------------------------------------------------------------
 
+#include <engine/utils/MathUtils.h>
 #include <vector>
 
 ///------------------------------------------------------------------------------------------------
@@ -46,6 +47,9 @@ public:
     int GetCurrencyCoins() const;
     void SetCurrencyCoins(const int currencyCoins);
     
+    const glm::ivec2& GetCurrentStoryMapNodeCoord() const;
+    void SetCurrentStoryMapNodeCoord(const glm::ivec2& currentStoryMapNodeCoord);
+    
 private:
     ProgressionDataRepository() = default;
     
@@ -53,6 +57,7 @@ private:
     BattleControlType mNextBattleControlType;
     std::vector<int> mNextTopPlayerDeck;
     std::vector<int> mNextBotPlayerDeck;
+    glm::ivec2 mCurrentStoryMapNodeCoord = {0, 2};
     int mCurrencyCoins = 0;
 };
 

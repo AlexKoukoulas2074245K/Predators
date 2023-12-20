@@ -50,6 +50,11 @@ inline bool operator == (const MapCoord& lhs, const MapCoord& rhs)
     return lhs.mCol == rhs.mCol && lhs.mRow == rhs.mRow;
 }
 
+inline bool operator != (const MapCoord& lhs, const MapCoord& rhs)
+{
+    return !(lhs == rhs);
+}
+
 struct MapCoordHasher
 {
     std::size_t operator()(const MapCoord& key) const

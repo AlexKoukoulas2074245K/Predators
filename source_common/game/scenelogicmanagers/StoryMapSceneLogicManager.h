@@ -39,15 +39,23 @@ private:
     void OnWindowResize(const events::WindowResizeEvent& event);
     void ResetSwipeData();
     void OnSettingsButtonPressed();
-    void MoveMapBy(const glm::vec3& delta);
+    void MoveWorldBy(const glm::vec3& delta);
     void MoveGUIBy(const glm::vec3& delta);
     
 private:
+    enum class MapUpdateState
+    {
+        NAVIGATING,
+        MOVING_TO_NODE
+    };
+    
     std::vector<std::unique_ptr<AnimatedButton>> mAnimatedButtons;
     std::unique_ptr<StoryNodeMap> mStoryNodeMap;
     std::shared_ptr<scene::Scene> mScene;
     rendering::Camera mSwipeCamera;
     glm::vec3 mSwipeCurrentPos;
+    glm::vec3 mCameraTargetPos;
+    MapUpdateState mMapUpdateState;
     bool mHasStartedSwipe;
 };
 

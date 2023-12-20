@@ -31,6 +31,7 @@ static const std::string COIN_VALUE_TEXT_SHADER_FILE_NAME = "basic_custom_color.
 static const std::string SETTINGS_ICON_TEXTURE_FILE_NAME = "settings_button_icon.png";
 static const std::string COIN_STACK_TEXTURE_FILE_NAME = "coin_stack.png";
 
+static const glm::ivec2 STORY_NODE_MAP_DIMENSIONS = {10, 5};
 static const glm::vec2 MAP_SWIPE_X_BOUNDS = {-0.5f, 0.5f};
 static const glm::vec2 MAP_SWIPE_Y_BOUNDS = {-0.5f, 0.5f};
 
@@ -42,10 +43,12 @@ static const glm::vec3 COIN_VALUE_TEXT_POSITION = {0.155f, 0.105f, 10.0f};
 static const glm::vec3 COIN_VALUE_TEXT_SCALE = {0.0004f, 0.0004f, 0.0004f};
 static const glm::vec3 COIN_VALUE_TEXT_COLOR = {0.80f, 0.71f, 0.11f};
 
-
 static const float SETTINGS_BUTTON_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 31.5f;
 static const float COIN_STACK_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 1.3f;
 static const float COIN_VALUE_TEXT_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 260.0f;
+static const float DISTANCE_TO_TARGET_NODE_THRESHOLD = 0.1f;
+static const float CAMERA_NOT_MOVED_THRESHOLD = 0.0001f;
+static const float CAMERA_MOVING_TO_NODE_SPEED = 0.0005f;
 
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
 {
@@ -88,7 +91,8 @@ void StoryMapSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 {
     std::thread mapGenerationThread = std::thread([=]
     {
-        mStoryNodeMap = std::make_unique<StoryNodeMap>(scene, math::RandomInt(), glm::ivec2(10, 5), MapCoord(0, 2), true);
+        const auto& currentMapCoord = ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeCoord();
+        mStoryNodeMap = std::make_unique<StoryNodeMap>(scene, math::RandomInt(), STORY_NODE_MAP_DIMENSIONS, MapCoord(currentMapCoord.x, currentMapCoord.y), true);
         mStoryNodeMap->GenerateMapNodes();
     });
     mapGenerationThread.detach();
@@ -129,7 +133,9 @@ void StoryMapSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     
     mSwipeCamera = scene->GetCamera();
     mScene = scene;
+    
     ResetSwipeData();
+    mMapUpdateState = MapUpdateState::NAVIGATING;
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -142,66 +148,97 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
         mStoryNodeMap->CreateMapSceneObjects();
     }
     
-    const auto& inputStateManager = CoreSystemsEngine::GetInstance().GetInputStateManager();
-    auto touchPos = inputStateManager.VGetPointingPosInWorldSpace(mSwipeCamera.GetViewMatrix(), mSwipeCamera.GetProjMatrix());
-    auto worldTouchPos = glm::vec3(touchPos.x, touchPos.y, 0.0f);
-    
-    if (inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON))
-    {
-        bool tappedGuiSceneObject = false;
-        for (const auto& guiSceneObjectName: GUI_SCENE_OBJECT_NAMES)
-        {
-            auto sceneObject = scene->FindSceneObject(guiSceneObjectName);
-            auto sceneObjectRect = scene_object_utils::GetSceneObjectBoundingRect(*sceneObject);
-            if (math::IsPointInsideRectangle(sceneObjectRect.bottomLeft, sceneObjectRect.topRight, touchPos))
-            {
-                tappedGuiSceneObject = true;
-                break;
-            }
-        }
-            
-        bool tappedNodeObject = false;
-        for (const auto& nodeMapData: mStoryNodeMap->GetMapData())
-        {
-            auto sceneObject = scene->FindSceneObject(strutils::StringId(nodeMapData.first.ToString()));
-            auto sceneObjectRect = scene_object_utils::GetSceneObjectBoundingRect(*sceneObject);
-            if (math::IsPointInsideRectangle(sceneObjectRect.bottomLeft, sceneObjectRect.topRight, touchPos))
-            {
-                logging::Log(logging::LogType::INFO, "From %.6f, %.6f, To %.6f, %.6f", scene->FindSceneObject(BACKGROUND_SCENE_OBJECT_NAME)->mPosition.x, scene->FindSceneObject(BACKGROUND_SCENE_OBJECT_NAME)->mPosition.y, sceneObject->mPosition.x, sceneObject->mPosition.y);
-                tappedNodeObject = true;
-                break;
-            }
-        }
-        
-        if (tappedGuiSceneObject || tappedNodeObject)
-        {
-            ResetSwipeData();
-        }
-        else
-        {
-            mSwipeCurrentPos = worldTouchPos;
-            mHasStartedSwipe = true;
-        }
-    }
-    else if (inputStateManager.VButtonPressed(input::Button::MAIN_BUTTON))
-    {
-        if (mHasStartedSwipe)
-        {
-            MoveMapBy(mSwipeCurrentPos - worldTouchPos);
-            mSwipeCurrentPos = worldTouchPos;
-        }
-    }
-    else if (!inputStateManager.VButtonPressed(input::Button::MAIN_BUTTON))
-    {
-        ResetSwipeData();
-    }
-    
-    for (auto& animatedButton: mAnimatedButtons)
-    {
-        animatedButton->Update(dtMillis);
-    }
-    
     SetCoinValueText();
+    
+    switch (mMapUpdateState)
+    {
+        case MapUpdateState::NAVIGATING:
+        {
+            const auto& currentCoord = MapCoord(ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeCoord().x, ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeCoord().y);
+            const auto& currentMapNode = mStoryNodeMap->GetMapData().at(currentCoord);
+                
+            const auto& inputStateManager = CoreSystemsEngine::GetInstance().GetInputStateManager();
+            auto touchPos = inputStateManager.VGetPointingPosInWorldSpace(mSwipeCamera.GetViewMatrix(), mSwipeCamera.GetProjMatrix());
+            auto worldTouchPos = glm::vec3(touchPos.x, touchPos.y, 0.0f);
+            
+            if (inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON))
+            {
+                bool tappedGuiSceneObject = false;
+                for (const auto& guiSceneObjectName: GUI_SCENE_OBJECT_NAMES)
+                {
+                    auto sceneObject = scene->FindSceneObject(guiSceneObjectName);
+                    auto sceneObjectRect = scene_object_utils::GetSceneObjectBoundingRect(*sceneObject);
+                    if (math::IsPointInsideRectangle(sceneObjectRect.bottomLeft, sceneObjectRect.topRight, touchPos))
+                    {
+                        tappedGuiSceneObject = true;
+                        break;
+                    }
+                }
+                    
+                bool tappedNodeObject = false;
+                for (const auto& nodeMapData: mStoryNodeMap->GetMapData())
+                {
+                    // Will only navigate to active nodes
+                    if (nodeMapData.first != currentCoord && !currentMapNode.mNodeLinks.count(nodeMapData.first))
+                    {
+                        continue;
+                    }
+                    
+                    auto sceneObject = scene->FindSceneObject(strutils::StringId(nodeMapData.first.ToString()));
+                    auto sceneObjectRect = scene_object_utils::GetSceneObjectBoundingRect(*sceneObject);
+                    if (math::IsPointInsideRectangle(sceneObjectRect.bottomLeft, sceneObjectRect.topRight, touchPos))
+                    {
+                        mMapUpdateState = MapUpdateState::MOVING_TO_NODE;
+                        mCameraTargetPos = sceneObject->mPosition;
+                        mCameraTargetPos.z = mScene->GetCamera().GetPosition().z;
+                        tappedNodeObject = true;
+                        break;
+                    }
+                }
+                
+                if (tappedGuiSceneObject || tappedNodeObject)
+                {
+                    ResetSwipeData();
+                }
+                else
+                {
+                    mSwipeCurrentPos = worldTouchPos;
+                    mHasStartedSwipe = true;
+                }
+            }
+            else if (inputStateManager.VButtonPressed(input::Button::MAIN_BUTTON))
+            {
+                if (mHasStartedSwipe)
+                {
+                    MoveWorldBy(mSwipeCurrentPos - worldTouchPos);
+                    mSwipeCurrentPos = worldTouchPos;
+                }
+            }
+            else if (!inputStateManager.VButtonPressed(input::Button::MAIN_BUTTON))
+            {
+                ResetSwipeData();
+            }
+            
+            for (auto& animatedButton: mAnimatedButtons)
+            {
+                animatedButton->Update(dtMillis);
+            }
+        } break;
+            
+        case MapUpdateState::MOVING_TO_NODE:
+        {
+            auto initPosition = mScene->GetCamera().GetPosition();
+            auto normalizedDirectionToTarget = glm::normalize(mCameraTargetPos - initPosition);
+            
+            MoveWorldBy(normalizedDirectionToTarget * dtMillis * CAMERA_MOVING_TO_NODE_SPEED);
+            
+            if (glm::distance(mCameraTargetPos, mScene->GetCamera().GetPosition()) < DISTANCE_TO_TARGET_NODE_THRESHOLD ||
+                glm::distance(initPosition, mScene->GetCamera().GetPosition()) < CAMERA_NOT_MOVED_THRESHOLD)
+            {
+                mMapUpdateState = MapUpdateState::NAVIGATING;
+            }
+        } break;
+    }
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -273,7 +310,7 @@ void StoryMapSceneLogicManager::OnSettingsButtonPressed()
 
 ///------------------------------------------------------------------------------------------------
 
-void StoryMapSceneLogicManager::MoveMapBy(const glm::vec3& delta)
+void StoryMapSceneLogicManager::MoveWorldBy(const glm::vec3& delta)
 {
     const auto cameraInitialPosition = mScene->GetCamera().GetPosition();
     auto cameraTargetPosition = cameraInitialPosition;

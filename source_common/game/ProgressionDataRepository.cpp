@@ -72,3 +72,17 @@ void ProgressionDataRepository::SetCurrencyCoins(const int currencyCoins)
 }
 
 ///------------------------------------------------------------------------------------------------
+
+const glm::ivec2& ProgressionDataRepository::GetCurrentStoryMapNodeCoord() const
+{
+    return mCurrentStoryMapNodeCoord;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ProgressionDataRepository::SetCurrentStoryMapNodeCoord(const glm::ivec2& currentStoryMapNodeCoord)
+{
+    mCurrentStoryMapNodeCoord = currentStoryMapNodeCoord;
+}
+
+///------------------------------------------------------------------------------------------------
