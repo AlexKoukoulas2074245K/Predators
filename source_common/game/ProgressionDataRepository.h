@@ -50,6 +50,9 @@ public:
     const glm::ivec2& GetCurrentStoryMapNodeCoord() const;
     void SetCurrentStoryMapNodeCoord(const glm::ivec2& currentStoryMapNodeCoord);
     
+    const glm::vec3& GetSelectedStoryMapNodePosition() const;
+    void SetSelectedStoryMapNodePosition(const glm::vec3& selectedStoryMapNodePosition);
+    
 private:
     ProgressionDataRepository() = default;
     
@@ -57,6 +60,7 @@ private:
     BattleControlType mNextBattleControlType;
     std::vector<int> mNextTopPlayerDeck;
     std::vector<int> mNextBotPlayerDeck;
+    glm::vec3 mSelectedStoryMapNodePosition = {};
     glm::ivec2 mCurrentStoryMapNodeCoord = {0, 2};
     int mCurrencyCoins = 0;
 };

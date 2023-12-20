@@ -179,6 +179,9 @@ void GameSceneTransitionManager::ChangeToScene
     {
         if (mTransitionAnimationsDisabled)
         {
+            assert(!mActiveSceneStack.empty());
+            nextActiveSceneLogicManager->mPreviousScene = mActiveSceneStack.top().mActiveSceneName;
+            
             mActiveSceneStack.push({nextActiveSceneLogicManager, sceneName, true});
             InitializeActiveSceneLogicManager(sceneChangeType);
         }
@@ -196,6 +199,9 @@ void GameSceneTransitionManager::ChangeToScene
             auto newSceneNameCopy = sceneName;
             CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(overlaySceneObject, MODAL_MAX_ALPHA, OVERLAY_ANIMATION_TARGET_DURATION_SECS, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), [=]()
             {
+                assert(!mActiveSceneStack.empty());
+                nextActiveSceneLogicManager->mPreviousScene = mActiveSceneStack.top().mActiveSceneName;
+                
                 mActiveSceneStack.push({nextActiveSceneLogicManager, newSceneNameCopy, true});
                 InitializeActiveSceneLogicManager(sceneChangeType);
             }, OVERLAY_DARKENING_ANIMATION_NAME);

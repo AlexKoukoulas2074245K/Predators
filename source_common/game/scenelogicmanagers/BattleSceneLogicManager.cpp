@@ -507,8 +507,8 @@ void BattleSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene> scene)
             }
         }
         
-        animationManager.StopAnimation(game_constants::BATTLE_SCENE_SPEED_DILATION_ANIMATION_NAME);
-        animationManager.StartAnimation(std::make_unique<rendering::TweenValueAnimation>(CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE)->GetUpdateTimeSpeedFactor(), 1.0f, OVERLAY_SCENE_SPEED_ANIMATION_TARGET_DURATION), [](){}, game_constants::BATTLE_SCENE_SPEED_DILATION_ANIMATION_NAME);
+        animationManager.StopAnimation(game_constants::SCENE_SPEED_DILATION_ANIMATION_NAME);
+        animationManager.StartAnimation(std::make_unique<rendering::TweenValueAnimation>(CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE)->GetUpdateTimeSpeedFactor(), 1.0f, OVERLAY_SCENE_SPEED_ANIMATION_TARGET_DURATION), [](){}, game_constants::SCENE_SPEED_DILATION_ANIMATION_NAME);
         
         animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(scene->FindSceneObject(CARD_HISTORY_CAPSULE_SCENE_OBJECT_NAME), 0.0f, HISTORY_SCENE_FADE_IN_OUT_DURATION_SECS), [=]()
         {
@@ -1765,7 +1765,7 @@ void BattleSceneLogicManager::OnHistoryButtonPressed()
 {
     auto battleScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
     
-    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(battleScene->GetUpdateTimeSpeedFactor(), 0.0f, game_constants::BATTLE_SCENE_SPEED_DILATION_ANIMATION_DURATION_SECS), [](){}, game_constants::BATTLE_SCENE_SPEED_DILATION_ANIMATION_NAME);
+    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(battleScene->GetUpdateTimeSpeedFactor(), 0.0f, game_constants::SCENE_SPEED_DILATION_ANIMATION_DURATION_SECS), [](){}, game_constants::SCENE_SPEED_DILATION_ANIMATION_NAME);
     
     battleScene->RemoveAllParticleEffects();
     battleScene->GetCamera().StopShake();
@@ -1778,7 +1778,7 @@ void BattleSceneLogicManager::OnSettingsButtonPressed()
 {
     auto battleScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
     
-    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(battleScene->GetUpdateTimeSpeedFactor(), 0.0f, game_constants::BATTLE_SCENE_SPEED_DILATION_ANIMATION_DURATION_SECS), [](){}, game_constants::BATTLE_SCENE_SPEED_DILATION_ANIMATION_NAME);
+    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(battleScene->GetUpdateTimeSpeedFactor(), 0.0f, game_constants::SCENE_SPEED_DILATION_ANIMATION_DURATION_SECS), [](){}, game_constants::SCENE_SPEED_DILATION_ANIMATION_NAME);
     
     battleScene->RemoveAllParticleEffects();
     battleScene->GetCamera().StopShake();

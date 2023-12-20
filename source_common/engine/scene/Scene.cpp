@@ -40,11 +40,27 @@ std::shared_ptr<SceneObject> Scene::CreateSceneObject(const strutils::StringId s
 std::shared_ptr<SceneObject> Scene::FindSceneObject(const strutils::StringId& sceneObjectName)
 {
     auto findIter = std::find_if(mSceneObjects.begin(), mSceneObjects.end(), [&](const std::shared_ptr<SceneObject>& sceneObject)
-                                 {
+    {
         return sceneObject->mName == sceneObjectName;
     });
     
     return findIter != mSceneObjects.end() ? *findIter : nullptr;
+}
+
+///------------------------------------------------------------------------------------------------
+
+std::vector<std::shared_ptr<SceneObject>> Scene::FindSceneObjectsWhoseNameStartsWith(const std::string& sceneObjectNamePrefix)
+{
+    std::vector<std::shared_ptr<SceneObject>> result;
+    for (auto& sceneObject: mSceneObjects)
+    {
+        if (strutils::StringStartsWith(sceneObject->mName.GetString(), sceneObjectNamePrefix))
+        {
+            result.emplace_back(sceneObject);
+        }
+    }
+    
+    return result;
 }
 
 ///------------------------------------------------------------------------------------------------

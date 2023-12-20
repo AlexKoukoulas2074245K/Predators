@@ -16,17 +16,18 @@
 #include <game/GameConstants.h>
 #include <game/ProgressionDataRepository.h>
 #include <game/scenelogicmanagers/StoryMapSceneLogicManager.h>
-#include <game/StoryNodeMap.h>
 #include <thread>
 
 ///------------------------------------------------------------------------------------------------
 
+static const strutils::StringId VISIT_MAP_NODE_SCENE = strutils::StringId("visit_map_node_scene");
 static const strutils::StringId SETTINGS_SCENE = strutils::StringId("settings_scene");
 static const strutils::StringId SETTINGS_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("settings_button");
 static const strutils::StringId COIN_STACK_SCENE_OBJECT_NAME = strutils::StringId("coin_stack");
 static const strutils::StringId COIN_VALUE_TEXT_SCENE_OBJECT_NAME = strutils::StringId("coin_value_text");
 static const strutils::StringId BACKGROUND_SCENE_OBJECT_NAME = strutils::StringId("background");
 
+static const std::string OVERLAY_TEXTURE_FILE_NAME = "overlay.png";
 static const std::string COIN_VALUE_TEXT_SHADER_FILE_NAME = "basic_custom_color.vs";
 static const std::string SETTINGS_ICON_TEXTURE_FILE_NAME = "settings_button_icon.png";
 static const std::string COIN_STACK_TEXTURE_FILE_NAME = "coin_stack.png";
@@ -49,6 +50,7 @@ static const float COIN_VALUE_TEXT_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 260.0f;
 static const float DISTANCE_TO_TARGET_NODE_THRESHOLD = 0.1f;
 static const float CAMERA_NOT_MOVED_THRESHOLD = 0.0001f;
 static const float CAMERA_MOVING_TO_NODE_SPEED = 0.0005f;
+static const float SELECTED_NODE_Z_OFFSET = 23.3f;
 
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
 {
@@ -154,6 +156,21 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
     {
         case MapUpdateState::NAVIGATING:
         {
+            // Once cancelling a node visit
+            if (mSelectedMapCoord)
+            {
+                // We need to reset the node components' z, but only after the overlay has fully gone away
+                auto visitMapNodeScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(VISIT_MAP_NODE_SCENE);
+                if (!visitMapNodeScene->FindSceneObject(game_constants::OVERLAY_SCENE_OBJECT_NAME))
+                {
+                    for (auto mapNodeComponentSceneObject: scene->FindSceneObjectsWhoseNameStartsWith(mSelectedMapCoord->ToString()))
+                    {
+                        mapNodeComponentSceneObject->mPosition.z -= SELECTED_NODE_Z_OFFSET;
+                    }
+                    mSelectedMapCoord = nullptr;
+                }
+            }
+            
             const auto& currentCoord = MapCoord(ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeCoord().x, ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeCoord().y);
             const auto& currentMapNode = mStoryNodeMap->GetMapData().at(currentCoord);
                 
@@ -178,19 +195,29 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
                 bool tappedNodeObject = false;
                 for (const auto& nodeMapData: mStoryNodeMap->GetMapData())
                 {
-                    // Will only navigate to active nodes
-                    if (nodeMapData.first != currentCoord && !currentMapNode.mNodeLinks.count(nodeMapData.first))
-                    {
-                        continue;
-                    }
+                    
                     
                     auto sceneObject = scene->FindSceneObject(strutils::StringId(nodeMapData.first.ToString()));
                     auto sceneObjectRect = scene_object_utils::GetSceneObjectBoundingRect(*sceneObject);
                     if (math::IsPointInsideRectangle(sceneObjectRect.bottomLeft, sceneObjectRect.topRight, touchPos))
                     {
+                        // Will only navigate to active nodes
+                        if (nodeMapData.first != currentCoord && !currentMapNode.mNodeLinks.count(nodeMapData.first))
+                        {
+                            continue;
+                        }
+                        
+                        // Setup data for moving to target node
+                        ProgressionDataRepository::GetInstance().SetSelectedStoryMapNodePosition(sceneObject->mPosition);
                         mMapUpdateState = MapUpdateState::MOVING_TO_NODE;
                         mCameraTargetPos = sceneObject->mPosition;
                         mCameraTargetPos.z = mScene->GetCamera().GetPosition().z;
+                        mSelectedMapCoord = std::make_unique<MapCoord>(nodeMapData.first);
+                        for (auto mapNodeComponentSceneObject: scene->FindSceneObjectsWhoseNameStartsWith(mSelectedMapCoord->ToString()))
+                        {
+                            mapNodeComponentSceneObject->mPosition.z += SELECTED_NODE_Z_OFFSET;
+                        }
+                        
                         tappedNodeObject = true;
                         break;
                     }
@@ -232,9 +259,14 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
             
             MoveWorldBy(normalizedDirectionToTarget * dtMillis * CAMERA_MOVING_TO_NODE_SPEED);
             
-            if (glm::distance(mCameraTargetPos, mScene->GetCamera().GetPosition()) < DISTANCE_TO_TARGET_NODE_THRESHOLD ||
+            auto currentDistanceToNode = glm::distance(mCameraTargetPos, mScene->GetCamera().GetPosition());
+            
+            if (currentDistanceToNode < DISTANCE_TO_TARGET_NODE_THRESHOLD ||
                 glm::distance(initPosition, mScene->GetCamera().GetPosition()) < CAMERA_NOT_MOVED_THRESHOLD)
             {
+                CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(mScene->GetUpdateTimeSpeedFactor(), 0.0f, game_constants::SCENE_SPEED_DILATION_ANIMATION_DURATION_SECS), [](){}, game_constants::SCENE_SPEED_DILATION_ANIMATION_NAME);
+                events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(VISIT_MAP_NODE_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+                
                 mMapUpdateState = MapUpdateState::NAVIGATING;
             }
         } break;
@@ -305,6 +337,7 @@ void StoryMapSceneLogicManager::ResetSwipeData()
 
 void StoryMapSceneLogicManager::OnSettingsButtonPressed()
 {
+    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(mScene->GetUpdateTimeSpeedFactor(), 0.0f, game_constants::SCENE_SPEED_DILATION_ANIMATION_DURATION_SECS), [](){}, game_constants::SCENE_SPEED_DILATION_ANIMATION_NAME);
     events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(SETTINGS_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
 }
 

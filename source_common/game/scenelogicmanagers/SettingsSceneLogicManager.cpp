@@ -114,13 +114,10 @@ void SettingsSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene> scen
     
     auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
-    auto battleScene = sceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto previousScene = sceneManager.FindScene(mPreviousScene);
     
-    if (battleScene)
-    {
-        animationManager.StopAnimation(game_constants::BATTLE_SCENE_SPEED_DILATION_ANIMATION_NAME);
-        animationManager.StartAnimation(std::make_unique<rendering::TweenValueAnimation>(battleScene->GetUpdateTimeSpeedFactor(), 1.0f, game_constants::BATTLE_SCENE_SPEED_DILATION_ANIMATION_DURATION_SECS), [](){}, game_constants::BATTLE_SCENE_SPEED_DILATION_ANIMATION_NAME);
-    }
+    animationManager.StopAnimation(game_constants::SCENE_SPEED_DILATION_ANIMATION_NAME);
+    animationManager.StartAnimation(std::make_unique<rendering::TweenValueAnimation>(previousScene->GetUpdateTimeSpeedFactor(), 1.0f, game_constants::SCENE_SPEED_DILATION_ANIMATION_DURATION_SECS), [](){}, game_constants::SCENE_SPEED_DILATION_ANIMATION_NAME);
 }
 
 ///------------------------------------------------------------------------------------------------

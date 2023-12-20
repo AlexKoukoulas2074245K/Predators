@@ -29,6 +29,7 @@ public:
     
 protected:
     bool mIsActive = false;
+    strutils::StringId mPreviousScene = strutils::StringId();
 };
 
 ///------------------------------------------------------------------------------------------------
