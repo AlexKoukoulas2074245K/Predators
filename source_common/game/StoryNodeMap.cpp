@@ -8,12 +8,14 @@
 #include <game/GameConstants.h>
 #include <game/ProgressionDataRepository.h>
 #include <game/StoryNodeMap.h>
+#include <game/utils/DemonNameGenerator.h>
 #include <engine/CoreSystemsEngine.h>
 #include <engine/resloading/ResourceLoadingService.h>
 #include <engine/rendering/AnimationManager.h>
 #include <engine/rendering/ParticleManager.h>
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
+#include <engine/scene/SceneObjectUtils.h>
 #include <unordered_set>
 #include <unordered_map>
 
@@ -29,13 +31,58 @@ static const std::unordered_map<StoryNodeMap::NodeType, std::string> MAP_NODE_TY
     { StoryNodeMap::NodeType::STARTING_LOCATION, "teepee.png" },
 };
 
+static const std::vector<std::string> EASY_FIGHT_TEXTURES =
+{
+    "story_cards/baby_demon.png",
+    "story_cards/small_imp.png",
+    "story_cards/youngster_imp_puppy.png",
+    "story_cards/red_youngster_imp_puppy.png"
+};
+
+static const std::vector<std::string> MEDIUM_FIGHT_TEXTURES =
+{
+    "story_cards/young_adult_blue_demon.png",
+    "story_cards/red_young_adult_demon.png"
+};
+
+static const std::vector<std::string> HARD_FIGHT_TEXTURES =
+{
+    "story_cards/elite_demon_0.png",
+    "story_cards/elite_demon_1.png",
+    "story_cards/elite_demon_2.png",
+    "story_cards/elite_demon_3.png",
+    "story_cards/elite_demon_4.png",
+    "story_cards/elite_demon_5.png",
+    "story_cards/elite_demon_6.png"
+};
+
+static const std::vector<std::string> BOSS_FIGHT_TEXTURES =
+{
+    "story_cards/demon_boss_0.png",
+    "story_cards/demon_boss_1.png",
+    "story_cards/demon_boss_2.png",
+    "story_cards/demon_boss_3.png",
+    "story_cards/demon_boss_4.png",
+    "story_cards/demon_boss_5.png",
+    "story_cards/demon_boss_6.png",
+    "story_cards/demon_boss_7.png"
+};
+
 static const strutils::StringId ANIMATED_NODE_PATH_PARTICLE_EMITTER_NAME = strutils::StringId("node_path_animated");
 static const strutils::StringId STATIC_NODE_PATH_PARTICLE_EMITTER_NAME = strutils::StringId("node_path_static");
+static const strutils::StringId IS_NODE_ACTIVE_UNIFORM_NAME = strutils::StringId("is_active");
 
+static const std::string STORY_MAP_NODE_SHADER_FILE_NAME = "story_map_node.vs";
+static const std::string SHOP_TEXTURE_FILE_NAME = "story_cards/shop.png";
+static const std::string EVENT_TEXTURE_FILE_NAME = "story_cards/event.png";
 static const std::string NODE_PATH_TEXTURE_FILE_NAME = "trap_mask.png";
 
 static const glm::vec3 FIRST_NODE_POSITION = { -0.8f, -0.63f, 0.1f };
 static const glm::vec3 LAST_NODE_POSITION = { 0.46f, 0.53f, 0.1f };
+static const glm::vec3 NODE_PORTRAIT_POSITION_OFFSET = {0.00f, 0.01f, 0.08f};
+static const glm::vec3 PORTRAIT_TEXT_SCALE = {0.00017f, 0.00017f, 0.00017f};
+static const glm::vec3 PORTRAIT_PRIMARY_TEXT_POSITION_OFFSET = {0.005f, -0.03f, 0.1f};
+static const glm::vec3 PORTRAIT_SECONDARY_TEXT_POSITION_OFFSET = {-0.009f, -0.05f, 0.1f};
 
 #if defined(NDEBUG)
 static const float NODES_CLOSE_ENOUGH_THRESHOLD = 0.025f;
@@ -47,7 +94,8 @@ static const float NODES_CLOSE_ENOUGH_TO_EDGE_NODES_THRESHOLD = 0.075f;
 static const float NODE_GENERATION_POSITION_NOISE = 0.1f;
 static const float NODE_POSITION_Z = 0.1f;
 static const float NODE_PATH_POSITION_Z = 0.01f;
-static const float NODE_SCALE = 0.15f;
+static const float NODE_SCALE = 0.18f;
+static const float NODE_PORTRAIT_SCALE = 0.072f;
 static const float NODE_PATH_SCALE = 0.015f;
 static const float MAX_NODE_PATH_SCALE = 0.04f;
 static const float MIN_NODE_PATH_SCALE = 0.025f;
@@ -56,6 +104,8 @@ static const float NODE_PATH_Z_SEPARATOR = 0.0001f;
 static const float NODE_PATH_SCALE_SPEED = 0.00003f;
 static const float INACTIVE_NODE_PATH_LIFETIME_SECS = 0.85f;
 static const float SELECTABLE_NODE_BOUNCE_SPEED_Y = 0.000005f;
+static const float PORTRAIT_BOUNCE_NOISE_FACTOR = 0.2f;
+static const float INACTIVE_NODE_TEXT_ALPHA = 0.5f;
 
 static const int MAP_PATH_SEGMENTS_FACTOR = 30;
 static const int MAP_GENERATION_PASSES = 5;
@@ -203,65 +253,148 @@ void StoryNodeMap::CreateMapSceneObjects()
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
     auto& resService = CoreSystemsEngine::GetInstance().GetResourceLoadingService();
     
+    // Generate all encounter names and sort them by name length
+    std::vector<std::string> generatedDemonNames;
+    for (auto& mapNodeEntry: mMapData)
+    {
+        if (mapNodeEntry.second.mNodeType == NodeType::NORMAL_ENCOUNTER || mapNodeEntry.second.mNodeType == NodeType::ELITE_ENCOUNTER || mapNodeEntry.second.mNodeType == NodeType::BOSS_ENCOUNTER)
+        {
+            generatedDemonNames.emplace_back(GenerateControlledRandomDemonName());
+        }
+    }
+    std::sort(generatedDemonNames.begin(), generatedDemonNames.end(), [](const std::string& lhs, const std::string& rhs)
+    {
+        return lhs.size() < rhs.size();
+    });
+    
     // All node meshes
     for (const auto& mapNodeEntry: mMapData)
     {
         auto nodeSceneObject = mScene->CreateSceneObject(strutils::StringId(mapNodeEntry.first.ToString()));
         nodeSceneObject->mPosition = mapNodeEntry.second.mPosition;
+        nodeSceneObject->mShaderResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + STORY_MAP_NODE_SHADER_FILE_NAME);
+        nodeSceneObject->mShaderBoolUniformValues[IS_NODE_ACTIVE_UNIFORM_NAME] = mapNodeEntry.first == mCurrentMapCoord;
         nodeSceneObject->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + MAP_NODE_TYPES_TO_PORTRAIT_TEXTURES.at(mapNodeEntry.second.mNodeType));
         nodeSceneObject->mScale = glm::vec3(NODE_SCALE);
         
-        auto nodeTextSceneObject = mScene->CreateSceneObject(strutils::StringId(mapNodeEntry.first.ToString() + "_text"));
-        scene::TextSceneObjectData textData;
-        textData.mFontName = game_constants::DEFAULT_FONT_NAME;
+        auto nodePortraitSceneObject = mScene->CreateSceneObject(strutils::StringId(mapNodeEntry.first.ToString() + "_portrait"));
+        nodePortraitSceneObject->mShaderResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + STORY_MAP_NODE_SHADER_FILE_NAME);
+        nodePortraitSceneObject->mShaderBoolUniformValues[IS_NODE_ACTIVE_UNIFORM_NAME] = mapNodeEntry.first == mCurrentMapCoord;
+        nodePortraitSceneObject->mPosition = mapNodeEntry.second.mPosition;
+        nodePortraitSceneObject->mScale = glm::vec3(NODE_PORTRAIT_SCALE);
+        nodePortraitSceneObject->mPosition += NODE_PORTRAIT_POSITION_OFFSET;
+        
+        // Starting location does not have a portrait texture
+        if (mapNodeEntry.second.mNodeType == NodeType::STARTING_LOCATION)
+        {
+            nodePortraitSceneObject->mInvisible = true;
+        }
+        
+        std::vector<std::shared_ptr<scene::SceneObject>> textSceneObjects;
+        textSceneObjects.emplace_back(mScene->CreateSceneObject(strutils::StringId(mapNodeEntry.first.ToString() + "_text")));
+        textSceneObjects.emplace_back(mScene->CreateSceneObject(strutils::StringId(mapNodeEntry.first.ToString() + "_text_secondary")));
+        
+        textSceneObjects[0]->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = INACTIVE_NODE_TEXT_ALPHA;
+        textSceneObjects[1]->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = INACTIVE_NODE_TEXT_ALPHA;
+        
+        scene::TextSceneObjectData primaryTextData;
+        scene::TextSceneObjectData secondaryTextData;
+        
+        primaryTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
+        secondaryTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
         
         switch (mapNodeEntry.second.mNodeType)
         {
             case NodeType::STARTING_LOCATION:
             {
-                textData.mText = "Teepee";
             } break;
                 
             case NodeType::ELITE_ENCOUNTER:
             {
-                textData.mText = "Elite";
+                primaryTextData.mText = generatedDemonNames.front();
+                generatedDemonNames.erase(generatedDemonNames.begin());
+                
+                if (mapNodeEntry.first.mCol < mMapDimensions.x/2)
+                {
+                    nodePortraitSceneObject->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + MEDIUM_FIGHT_TEXTURES.at(math::ControlledRandomInt(0, static_cast<int>(MEDIUM_FIGHT_TEXTURES.size()) - 1)));
+                }
+                else
+                {
+                    nodePortraitSceneObject->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + HARD_FIGHT_TEXTURES.at(math::ControlledRandomInt(0, static_cast<int>(HARD_FIGHT_TEXTURES.size()) - 1)));
+                }
+                
+                secondaryTextData.mText = "Elite";
             } break;
                 
             case NodeType::NORMAL_ENCOUNTER:
             {
-                textData.mText = "Normal";
+                primaryTextData.mText = generatedDemonNames.front();
+                generatedDemonNames.erase(generatedDemonNames.begin());
+                
+                if (mapNodeEntry.first.mCol < mMapDimensions.x/2)
+                {
+                    nodePortraitSceneObject->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + EASY_FIGHT_TEXTURES.at(math::ControlledRandomInt(0, static_cast<int>(EASY_FIGHT_TEXTURES.size()) - 1)));
+                }
+                else
+                {
+                    nodePortraitSceneObject->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + MEDIUM_FIGHT_TEXTURES.at(math::ControlledRandomInt(0, static_cast<int>(MEDIUM_FIGHT_TEXTURES.size()) - 1)));
+                }
             } break;
             
             case NodeType::EVENT:
             {
-                textData.mText = "Event";
+                primaryTextData.mText = "Event";
+                nodePortraitSceneObject->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + EVENT_TEXTURE_FILE_NAME);
             } break;
                 
             case NodeType::SHOP:
             {
-                textData.mText = "Shop";
+                primaryTextData.mText = "DemoBob's";
+                secondaryTextData.mText = "Shop";
+                nodePortraitSceneObject->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + SHOP_TEXTURE_FILE_NAME);
             } break;
                 
             case NodeType::BOSS_ENCOUNTER:
             {
-                textData.mText = "Boss";
+                primaryTextData.mText = generatedDemonNames.front();
+                generatedDemonNames.erase(generatedDemonNames.begin());
+                nodePortraitSceneObject->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + BOSS_FIGHT_TEXTURES.at(math::ControlledRandomInt(0, static_cast<int>(BOSS_FIGHT_TEXTURES.size()) - 1)));
             } break;
                 
             default: break;
         }
         
-        nodeTextSceneObject->mSceneObjectTypeData = std::move(textData);
-        nodeTextSceneObject->mScale = {0.0002f, 0.0002f, 0.0002f};
-        nodeTextSceneObject->mPosition = mapNodeEntry.second.mPosition;
-        nodeTextSceneObject->mPosition.x -= 0.02f;
-        nodeTextSceneObject->mPosition.z += 0.1f;
+        textSceneObjects[0]->mScale = PORTRAIT_TEXT_SCALE;
+        textSceneObjects[0]->mPosition = mapNodeEntry.second.mPosition;
+        textSceneObjects[0]->mSceneObjectTypeData = std::move(primaryTextData);
+        
+        auto boundingRect = scene_object_utils::GetSceneObjectBoundingRect(*textSceneObjects[0]);
+        auto boundingRectWidth = boundingRect.topRight.x - boundingRect.bottomLeft.x;
+        
+        textSceneObjects[0]->mPosition += PORTRAIT_PRIMARY_TEXT_POSITION_OFFSET;
+        textSceneObjects[0]->mPosition.x -= boundingRectWidth/2;
+        
+        textSceneObjects[1]->mScale = PORTRAIT_TEXT_SCALE;
+        textSceneObjects[1]->mSceneObjectTypeData = std::move(secondaryTextData);
+        textSceneObjects[1]->mPosition = mapNodeEntry.second.mPosition;
+        textSceneObjects[1]->mPosition += PORTRAIT_SECONDARY_TEXT_POSITION_OFFSET;
         
         // Add also pulsing animation if node is active
         if (mMapData.at(mCurrentMapCoord).mNodeLinks.count(mapNodeEntry.first))
         {
+            nodeSceneObject->mShaderBoolUniformValues[IS_NODE_ACTIVE_UNIFORM_NAME] = true;
+            nodePortraitSceneObject->mShaderBoolUniformValues[IS_NODE_ACTIVE_UNIFORM_NAME] = true;
+            
             auto randomDelaySecsOffset = math::RandomFloat(0.0f, 1.0f);
-            animationManager.StartAnimation(std::make_unique<rendering::BouncePositionAnimation>(nodeTextSceneObject, glm::vec3(0.0f, SELECTABLE_NODE_BOUNCE_SPEED_Y, 0.0f), 1.0f, animation_flags::ANIMATE_CONTINUOUSLY, randomDelaySecsOffset), [](){});
-            animationManager.StartAnimation(std::make_unique<rendering::BouncePositionAnimation>(nodeSceneObject, glm::vec3(0.0f, SELECTABLE_NODE_BOUNCE_SPEED_Y, 0.0f), 1.0f, animation_flags::ANIMATE_CONTINUOUSLY, randomDelaySecsOffset), [](){});
+            auto randomBounceYSpeed = math::RandomFloat(SELECTABLE_NODE_BOUNCE_SPEED_Y - SELECTABLE_NODE_BOUNCE_SPEED_Y * PORTRAIT_BOUNCE_NOISE_FACTOR, SELECTABLE_NODE_BOUNCE_SPEED_Y + SELECTABLE_NODE_BOUNCE_SPEED_Y * PORTRAIT_BOUNCE_NOISE_FACTOR);
+            animationManager.StartAnimation(std::make_unique<rendering::BouncePositionAnimation>(nodeSceneObject, glm::vec3(0.0f, randomBounceYSpeed, 0.0f), 1.0f, animation_flags::ANIMATE_CONTINUOUSLY, randomDelaySecsOffset), [](){});
+            animationManager.StartAnimation(std::make_unique<rendering::BouncePositionAnimation>(nodePortraitSceneObject, glm::vec3(0.0f, randomBounceYSpeed, 0.0f), 1.0f, animation_flags::ANIMATE_CONTINUOUSLY, randomDelaySecsOffset), [](){});
+            
+            for (auto textSceneObject: textSceneObjects)
+            {
+                textSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
+                animationManager.StartAnimation(std::make_unique<rendering::BouncePositionAnimation>(textSceneObject, glm::vec3(0.0f, randomBounceYSpeed, 0.0f), 1.0f, animation_flags::ANIMATE_CONTINUOUSLY, randomDelaySecsOffset), [](){});
+            }
         }
     }
     
@@ -419,12 +552,9 @@ StoryNodeMap::NodeType StoryNodeMap::SelectNodeTypeForCoord(const MapCoord& mapC
         // Only last node can have a boss encounter
         availableNodeTypes.erase(NodeType::BOSS_ENCOUNTER);
         
-        // Second node can not have a shop
-        if (mapCoord.mCol == 1)
-        {
-            availableNodeTypes.erase(NodeType::SHOP);
-        }
-         
+        // Shop only at penultimate node and via event
+        availableNodeTypes.erase(NodeType::SHOP);
+        
         // Remove any node types from the immediate previous links except if they are
         // normal encounters or events
         for (const auto& mapEntry: mMapData)
