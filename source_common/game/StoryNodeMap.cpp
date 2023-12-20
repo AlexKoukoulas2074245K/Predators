@@ -109,7 +109,14 @@ static const float INACTIVE_NODE_TEXT_ALPHA = 0.5f;
 
 static const int MAP_PATH_SEGMENTS_FACTOR = 30;
 static const int MAP_GENERATION_PASSES = 5;
+
+#if defined(NDEBUG)
+static const int MAX_MAP_GENERATION_ATTEMPTS = 300000;
+static const glm::vec2 VERTICAL_MAP_EDGE = {-0.65f, 0.65f};
+#else
 static const int MAX_MAP_GENERATION_ATTEMPTS = 100000;
+static const glm::vec2 VERTICAL_MAP_EDGE = {-0.70f, 0.70f};
+#endif
 
 int mapGenerationAttempts = 0;
 
@@ -225,6 +232,11 @@ bool StoryNodeMap::FoundCloseEnoughNodes() const
         }
         
         if (math::Distance2(mMapData.at(MapCoord(mMapDimensions.x - 1, 2)).mPosition, mapNodeEntry.second.mPosition) < NODES_CLOSE_ENOUGH_TO_EDGE_NODES_THRESHOLD)
+        {
+            return true;
+        }
+        
+        if (mapNodeEntry.second.mPosition.y < VERTICAL_MAP_EDGE.s || mapNodeEntry.second.mPosition.y > VERTICAL_MAP_EDGE.t)
         {
             return true;
         }
