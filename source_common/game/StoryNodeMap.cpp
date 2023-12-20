@@ -16,6 +16,7 @@
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
 #include <engine/scene/SceneObjectUtils.h>
+#include <engine/utils/PlatformMacros.h>
 #include <unordered_set>
 #include <unordered_map>
 
@@ -84,13 +85,6 @@ static const glm::vec3 PORTRAIT_TEXT_SCALE = {0.00017f, 0.00017f, 0.00017f};
 static const glm::vec3 PORTRAIT_PRIMARY_TEXT_POSITION_OFFSET = {0.005f, -0.03f, 0.1f};
 static const glm::vec3 PORTRAIT_SECONDARY_TEXT_POSITION_OFFSET = {-0.009f, -0.05f, 0.1f};
 
-#if defined(NDEBUG)
-static const float NODES_CLOSE_ENOUGH_THRESHOLD = 0.025f;
-static const float NODES_CLOSE_ENOUGH_TO_EDGE_NODES_THRESHOLD = 0.075f;
-#else
-static const float NODES_CLOSE_ENOUGH_THRESHOLD = 0.0125f;
-static const float NODES_CLOSE_ENOUGH_TO_EDGE_NODES_THRESHOLD = 0.0375f;
-#endif
 static const float NODE_GENERATION_POSITION_NOISE = 0.1f;
 static const float NODE_POSITION_Z = 0.1f;
 static const float NODE_PATH_POSITION_Z = 0.01f;
@@ -110,10 +104,14 @@ static const float INACTIVE_NODE_TEXT_ALPHA = 0.5f;
 static const int MAP_PATH_SEGMENTS_FACTOR = 30;
 static const int MAP_GENERATION_PASSES = 5;
 
-#if defined(NDEBUG)
+#if defined(NDEBUG) || defined(MOBILE_FLOW)
+static const float NODES_CLOSE_ENOUGH_THRESHOLD = 0.025f;
+static const float NODES_CLOSE_ENOUGH_TO_EDGE_NODES_THRESHOLD = 0.075f;
 static const int MAX_MAP_GENERATION_ATTEMPTS = 300000;
 static const glm::vec2 VERTICAL_MAP_EDGE = {-0.65f, 0.65f};
 #else
+static const float NODES_CLOSE_ENOUGH_THRESHOLD = 0.0125f;
+static const float NODES_CLOSE_ENOUGH_TO_EDGE_NODES_THRESHOLD = 0.0375f;
 static const int MAX_MAP_GENERATION_ATTEMPTS = 100000;
 static const glm::vec2 VERTICAL_MAP_EDGE = {-0.75f, 0.75f};
 #endif
