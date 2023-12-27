@@ -51,6 +51,7 @@ static const float DISTANCE_TO_TARGET_NODE_THRESHOLD = 0.1f;
 static const float CAMERA_NOT_MOVED_THRESHOLD = 0.0001f;
 static const float CAMERA_MOVING_TO_NODE_SPEED = 0.0005f;
 static const float SELECTED_NODE_Z_OFFSET = 23.3f;
+static const float FRESH_MAP_ANIMATION_TARGET_Y_OFFSET = -0.185f;
 
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
 {
@@ -91,9 +92,10 @@ void StoryMapSceneLogicManager::VInitSceneCamera(std::shared_ptr<scene::Scene>)
 
 void StoryMapSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 {
+    const auto& currentMapCoord = ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeCoord();
+    
     std::thread mapGenerationThread = std::thread([=]
     {
-        const auto& currentMapCoord = ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeCoord();
         mStoryNodeMap = std::make_unique<StoryNodeMap>(scene, STORY_NODE_MAP_DIMENSIONS, MapCoord(currentMapCoord.x, currentMapCoord.y), true);
         mStoryNodeMap->GenerateMapNodes();
     });
@@ -137,6 +139,7 @@ void StoryMapSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     mScene = scene;
     
     ResetSwipeData();
+    
     mMapUpdateState = MapUpdateState::NAVIGATING;
 }
 
@@ -144,10 +147,27 @@ void StoryMapSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 
 void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene::Scene> scene)
 {
+    const auto& currentMapCoord = ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeCoord();
+    
     if (!mStoryNodeMap->HasCreatedSceneObjects())
     {
         logging::Log(logging::LogType::INFO, "Finished Map Generation after %d attempts", mapGenerationAttempts);
         mStoryNodeMap->CreateMapSceneObjects();
+        
+        if (currentMapCoord.x == 0 && currentMapCoord.y == 2)
+        {
+            mMapUpdateState = MapUpdateState::FRESH_MAP_ANIMATION;
+            SetMapPositionTo(mStoryNodeMap->GetMapData().at(MapCoord(game_constants::STORY_MAP_BOSS_COORD.x, game_constants::STORY_MAP_BOSS_COORD.y)).mPosition);
+            
+            mFreshMapCameraAnimationInitPosition = mScene->GetCamera().GetPosition();
+            mCameraTargetPos = mStoryNodeMap->GetMapData().at(MapCoord(game_constants::STORY_MAP_INIT_COORD.x, game_constants::STORY_MAP_INIT_COORD.y)).mPosition;
+            mCameraTargetPos.y += FRESH_MAP_ANIMATION_TARGET_Y_OFFSET;
+            mCameraTargetPos.z = mScene->GetCamera().GetPosition().z;
+        }
+        else
+        {
+            SetMapPositionTo(mStoryNodeMap->GetMapData().at(MapCoord(currentMapCoord.x, currentMapCoord.y)).mPosition);
+        }
     }
     
     SetCoinValueText();
@@ -235,7 +255,7 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
             {
                 if (mHasStartedSwipe)
                 {
-                    MoveWorldBy(mSwipeCurrentPos - worldTouchPos);
+                    MoveMapBy(mSwipeCurrentPos - worldTouchPos);
                     mSwipeCurrentPos = worldTouchPos;
                 }
             }
@@ -262,7 +282,7 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
             
             targetVelocity *= onlyMovingInOneDirection ? 2 * CAMERA_MOVING_TO_NODE_SPEED : CAMERA_MOVING_TO_NODE_SPEED;
             
-            MoveWorldBy(targetVelocity);
+            MoveMapBy(targetVelocity);
             
             mPreviousDirectionToTargetNode = directionToTarget;
             auto currentDistanceToNode = glm::distance(mCameraTargetPos, mScene->GetCamera().GetPosition());
@@ -273,6 +293,30 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
                 CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(mScene->GetUpdateTimeSpeedFactor(), 0.0f, game_constants::SCENE_SPEED_DILATION_ANIMATION_DURATION_SECS), [](){}, game_constants::SCENE_SPEED_DILATION_ANIMATION_NAME);
                 events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(VISIT_MAP_NODE_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
                 
+                mMapUpdateState = MapUpdateState::NAVIGATING;
+            }
+        } break;
+            
+        case MapUpdateState::FRESH_MAP_ANIMATION:
+        {
+            auto initPosition = mScene->GetCamera().GetPosition();
+            auto directionToTarget = mCameraTargetPos - initPosition;
+            
+            bool onlyMovingInOneDirection = (math::Abs(directionToTarget.x - mPreviousDirectionToTargetNode.x) <= CAMERA_NOT_MOVED_THRESHOLD || math::Abs(directionToTarget.y - mPreviousDirectionToTargetNode.y) <= CAMERA_NOT_MOVED_THRESHOLD);
+            
+            auto normalizedDirectionToTarget = glm::normalize(directionToTarget);
+            auto targetVelocity = normalizedDirectionToTarget * dtMillis;
+            
+            targetVelocity *= onlyMovingInOneDirection ? 2 * CAMERA_MOVING_TO_NODE_SPEED : CAMERA_MOVING_TO_NODE_SPEED * (math::Max(0.1f, glm::length(initPosition - mFreshMapCameraAnimationInitPosition)/glm::length(mCameraTargetPos - mFreshMapCameraAnimationInitPosition)));
+            
+            MoveMapBy(targetVelocity);
+            
+            mPreviousDirectionToTargetNode = directionToTarget;
+            auto currentDistanceToNode = glm::distance(mCameraTargetPos, mScene->GetCamera().GetPosition());
+            
+            if (currentDistanceToNode < DISTANCE_TO_TARGET_NODE_THRESHOLD ||
+                glm::distance(initPosition, mScene->GetCamera().GetPosition()) < CAMERA_NOT_MOVED_THRESHOLD)
+            {
                 mMapUpdateState = MapUpdateState::NAVIGATING;
             }
         } break;
@@ -349,7 +393,14 @@ void StoryMapSceneLogicManager::OnSettingsButtonPressed()
 
 ///------------------------------------------------------------------------------------------------
 
-void StoryMapSceneLogicManager::MoveWorldBy(const glm::vec3& delta)
+void StoryMapSceneLogicManager::SetMapPositionTo(const glm::vec3& position)
+{
+    MoveMapBy(position - mScene->GetCamera().GetPosition());
+}
+
+///------------------------------------------------------------------------------------------------
+
+void StoryMapSceneLogicManager::MoveMapBy(const glm::vec3& delta)
 {
     const auto cameraInitialPosition = mScene->GetCamera().GetPosition();
     auto cameraTargetPosition = cameraInitialPosition;

@@ -10,6 +10,7 @@
 
 ///------------------------------------------------------------------------------------------------
 
+#include <game/GameConstants.h>
 #include <game/StoryNodeMap.h>
 #include <engine/utils/MathUtils.h>
 #include <vector>
@@ -68,7 +69,7 @@ private:
     std::vector<int> mNextTopPlayerDeck;
     std::vector<int> mNextBotPlayerDeck;
     glm::vec3 mSelectedStoryMapNodePosition = {};
-    glm::ivec2 mCurrentStoryMapNodeCoord = {0, 2};
+    glm::ivec2 mCurrentStoryMapNodeCoord = game_constants::STORY_MAP_INIT_COORD;
     const StoryNodeMap::NodeData* mSelectedStoryMapNodeData = nullptr;
     int mCurrencyCoins = 0;
     int mStoryMapGenerationSeed = 0;
