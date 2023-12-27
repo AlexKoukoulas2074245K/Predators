@@ -14,6 +14,7 @@
 #include <game/SwipeableContainer.h>
 #include <memory>
 #include <unordered_set>
+#include <stack>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -36,6 +37,8 @@ private:
     {
         NONE,
         MAIN,
+        STORY_MODE,
+        NEW_STORY_CONFIRMATION,
         QUICK_BATTLE
     };
     
@@ -50,6 +53,7 @@ private:
     void TransitionToSubScene(const SubSceneType subSceneType, std::shared_ptr<scene::Scene> scene);
     void BattleModeSelected(const strutils::StringId& buttonName);
     void DeckSelected(const int selectedDeckIndex, const bool forTopPlayer);
+    void GoToPreviousSubScene(std::shared_ptr<scene::Scene> mainScene);
     
 private:
     std::vector<std::unique_ptr<AnimatedButton>> mAnimatedButtons;
@@ -57,8 +61,10 @@ private:
     std::unique_ptr<SwipeableContainer<CardFamilyEntry>> mCardFamilyContainerBot;
     std::vector<std::shared_ptr<scene::SceneObject>> mDeckSelectionSceneObjects;
     SubSceneType mActiveSubScene;
+    std::stack<SubSceneType> mPreviousSubSceneStack;
     bool mTransitioningToSubScene;
     bool mNeedToSetBoardPositionAndZoomFactor;
+    bool mShouldPushToPreviousSceneStack;
 };
 
 ///------------------------------------------------------------------------------------------------

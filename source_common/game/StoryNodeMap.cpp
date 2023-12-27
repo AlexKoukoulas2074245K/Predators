@@ -120,11 +120,10 @@ int mapGenerationAttempts = 0;
 
 ///------------------------------------------------------------------------------------------------
 
-StoryNodeMap::StoryNodeMap(std::shared_ptr<scene::Scene> scene, const int mapGenerationSeed, const glm::ivec2& mapDimensions, const MapCoord& currentMapCoord, const bool singleEntryPoint)
+StoryNodeMap::StoryNodeMap(std::shared_ptr<scene::Scene> scene, const glm::ivec2& mapDimensions, const MapCoord& currentMapCoord, const bool singleEntryPoint)
     : mScene(scene)
     , mMapDimensions(mapDimensions)
     , mCurrentMapCoord(currentMapCoord)
-    , mMapGenerationSeed(mapGenerationSeed)
     , mHasSingleEntryPoint(singleEntryPoint)
     , mMapGenerationAttemptsRemaining(MAX_MAP_GENERATION_ATTEMPTS)
     , mHasCreatedSceneObjects(false)
@@ -135,17 +134,7 @@ StoryNodeMap::StoryNodeMap(std::shared_ptr<scene::Scene> scene, const int mapGen
 
 void StoryNodeMap::GenerateMapNodes()
 {
-    CoreSystemsEngine::GetInstance().GetResourceLoadingService().AddArtificialLoadingJobCount(mMapGenerationAttemptsRemaining);
-    math::SetControlSeed(mMapGenerationSeed);
     GenerateMapData();
-    CoreSystemsEngine::GetInstance().GetResourceLoadingService().AddArtificialLoadingJobCount(-mMapGenerationAttemptsRemaining);
-}
-
-///------------------------------------------------------------------------------------------------
-
-int StoryNodeMap::GetCurrentGenerationSeed() const
-{
-    return mMapGenerationSeed;
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -173,6 +162,22 @@ const glm::ivec2& StoryNodeMap::GetMapDimensions() const
 
 void StoryNodeMap::GenerateMapData()
 {
+    auto currentGenerationSeed = ProgressionDataRepository::GetInstance().GetStoryMapGenerationSeed();
+    if (currentGenerationSeed == 0)
+    {
+        // New map will be generated
+        auto newGenerationSeed = math::RandomInt();
+        math::SetControlSeed(newGenerationSeed);
+    }
+    else
+    {
+        // Same map as before will be generated here.
+        math::SetControlSeed(currentGenerationSeed);
+        mMapGenerationAttemptsRemaining = 1;
+    }
+    
+    CoreSystemsEngine::GetInstance().GetResourceLoadingService().AddArtificialLoadingJobCount(mMapGenerationAttemptsRemaining);
+    
     do
     {
         mMapGenerationAttemptsRemaining--;
@@ -180,6 +185,8 @@ void StoryNodeMap::GenerateMapData()
         
         mapGenerationAttempts++;
         mMapData.clear();
+        
+        ProgressionDataRepository::GetInstance().SetStoryMapGenerationSeed(math::GetControlSeed());
         
         for (int i = 0; i < MAP_GENERATION_PASSES; ++i)
         {
@@ -203,6 +210,8 @@ void StoryNodeMap::GenerateMapData()
             }
         }
     } while (FoundCloseEnoughNodes() && mMapGenerationAttemptsRemaining > 0);
+    
+    CoreSystemsEngine::GetInstance().GetResourceLoadingService().AddArtificialLoadingJobCount(-mMapGenerationAttemptsRemaining);
 }
 
 ///------------------------------------------------------------------------------------------------

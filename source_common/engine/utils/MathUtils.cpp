@@ -20,6 +20,13 @@ static int internalRand();
 
 ///-----------------------------------------------------------------------------------------------
 
+int GetControlSeed()
+{
+    return controlledRandomSeed;
+}
+
+
+///-----------------------------------------------------------------------------------------------
 void SetControlSeed(const int seed)
 {
     controlledRandomSeed = seed;

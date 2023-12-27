@@ -25,6 +25,8 @@ static const std::string DECK_ENTRY_MASK_TEXTURE_FILE_NAME = "trap_mask.png";
 
 static const strutils::StringId BOARD_SCENE_OBJECT_NAME = strutils::StringId("board");
 static const strutils::StringId STORY_MODE_BUTTON_NAME = strutils::StringId("story_mode_button");
+static const strutils::StringId CONTINUE_STORY_BUTTON_NAME = strutils::StringId("continue_story_button");
+static const strutils::StringId NEW_STORY_BUTTON_NAME = strutils::StringId("new_story_button");
 static const strutils::StringId QUICK_BATTLE_BUTTON_NAME = strutils::StringId("quick_battle_button");
 static const strutils::StringId QUIT_BUTTON_NAME = strutils::StringId("quit_button");
 static const strutils::StringId NORMAL_BATTLE_MODE_BUTTON_NAME = strutils::StringId("normal_battle_mode_button");
@@ -37,11 +39,19 @@ static const strutils::StringId TOP_DECK_TEXT_SCENE_OBJECT_NAME = strutils::Stri
 static const strutils::StringId BOT_DECK_TEXT_SCENE_OBJECT_NAME = strutils::StringId("bot_deck_text");
 static const strutils::StringId TOP_DECK_CONTAINER_SCENE_OBJECT_NAME = strutils::StringId("top_deck_container");
 static const strutils::StringId BOT_DECK_CONTAINER_SCENE_OBJECT_NAME = strutils::StringId("bot_deck_container");
+static const strutils::StringId NEW_STORY_CONFIRMATION_BUTTON_NAME = strutils::StringId("new_story_confirmation");
+static const strutils::StringId NEW_STORY_CANCELLATION_BUTTON_NAME = strutils::StringId("new_story_cancellation");
+static const strutils::StringId NEW_STORY_CONFIRMATION_TEXT_TOP_NAME = strutils::StringId("new_story_confirmation_text_top");
+static const strutils::StringId NEW_STORY_CONFIRMATION_TEXT_MIDDLE_NAME = strutils::StringId("new_story_confirmation_text_middle");
+static const strutils::StringId NEW_STORY_CONFIRMATION_TEXT_BOT_NAME = strutils::StringId("new_story_confirmation_text_bot");
 
 static const glm::vec2 DECK_ENTRY_CUTOFF_VALUES = {-0.01f, 0.25f};
 static const glm::vec2 DECK_CONTAINER_CUTOFF_VALUES = {0.05f, 0.15f};
 static const glm::vec3 BUTTON_SCALE = {0.0005f, 0.0005f, 0.0005f};
 static const glm::vec3 STORY_MODE_BUTTON_POSITION = {-0.109f, 0.09f, 0.1f};
+static const glm::vec3 CONTINUE_STORY_BUTTON_POSITION = {-0.142f, 0.09f, 0.1f};
+static const glm::vec3 NO_PROGRESS_NEW_STORY_BUTTON_POSITION = {-0.091f, 0.09f, 0.1f};
+static const glm::vec3 NEW_STORY_BUTTON_POSITION = {-0.091f, 0.00f, 0.1f};
 static const glm::vec3 QUICK_BATTLE_BUTTON_POSITION = {-0.109f, -0.003f, 0.1f};
 static const glm::vec3 QUIT_BUTTON_POSITION = {-0.033f, -0.093f, 0.1f};
 static const glm::vec3 NORMAL_BATTLE_MODE_BUTTON_POSITION = {-0.254f, 0.086f, 0.1f};
@@ -53,6 +63,11 @@ static const glm::vec3 DESELECTED_BUTTON_COLOR = { 1.0f, 1.0f, 1.0f};
 static const glm::vec3 SELECTED_BUTTON_COLOR = {0.0f, 0.66f, 0.66f};
 static const glm::vec3 TOP_DECK_TEXT_POSITION = {-0.254f, 0.01f, 0.1f};
 static const glm::vec3 BOT_DECK_TEXT_POSITION = {-0.250f, -0.068f, 0.1f};
+static const glm::vec3 NEW_STORY_CONFIRMATION_BUTTON_POSITION = {-0.132f, -0.103f, 23.1f};
+static const glm::vec3 NEW_STORY_CANCELLATION_BUTTON_POSITION = {0.036f, -0.103f, 23.1f};
+static const glm::vec3 NEW_STORY_CONFIRMATION_TEXT_TOP_POSITION = {-0.267f, 0.09f, 23.1f};
+static const glm::vec3 NEW_STORY_CONFIRMATION_TEXT_MIDDLE_POSITION = {-0.282f, 0.039f, 23.1f};
+static const glm::vec3 NEW_STORY_CONFIRMATION_TEXT_BOT_POSITION = {-0.205f, -0.012f, 23.1f};
 
 static const float SUBSCENE_ITEM_FADE_IN_OUT_DURATION_SECS = 0.5f;
 static const float DECK_SWIPEABLE_ENTRY_SCALE = 0.075f;
@@ -119,9 +134,11 @@ void MainMenuSceneLogicManager::VInitSceneCamera(std::shared_ptr<scene::Scene>)
 void MainMenuSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 {
     CardDataRepository::GetInstance().LoadCardData(true);
+    mPreviousSubSceneStack = std::stack<SubSceneType>();
     mActiveSubScene = SubSceneType::NONE;
     mTransitioningToSubScene = false;
     mNeedToSetBoardPositionAndZoomFactor = true;
+    mShouldPushToPreviousSceneStack = true;
     InitSubScene(SubSceneType::MAIN, scene);
 }
 
@@ -184,6 +201,15 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
         return;
     }
     
+    if (!mShouldPushToPreviousSceneStack)
+    {
+        mShouldPushToPreviousSceneStack = true;
+    }
+    else
+    {
+        mPreviousSubSceneStack.push(mActiveSubScene);
+    }
+    
     mActiveSubScene = subSceneType;
     
     scene->RemoveAllSceneObjectsButTheOnesNamed(STATIC_SCENE_ELEMENTS);
@@ -202,7 +228,7 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                 game_constants::DEFAULT_FONT_NAME,
                 "Story Mode",
                 STORY_MODE_BUTTON_NAME,
-                [=](){ events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_MAP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE); },
+                [=](){ TransitionToSubScene(SubSceneType::STORY_MODE, scene); },
                 *scene
             ));
             
@@ -238,7 +264,113 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
             ));
         #endif
         } break;
+           
+        case SubSceneType::STORY_MODE:
+        {
+            bool progressExists = ProgressionDataRepository::GetInstance().GetStoryMapGenerationSeed() != 0;
+            if (progressExists)
+            {
+                mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
+                (
+                    CONTINUE_STORY_BUTTON_POSITION,
+                    BUTTON_SCALE,
+                    game_constants::DEFAULT_FONT_NAME,
+                    "Continue Story",
+                    CONTINUE_STORY_BUTTON_NAME,
+                    [=](){ events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_MAP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE); },
+                    *scene
+                ));
+                
+                mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
+                (
+                    NEW_STORY_BUTTON_POSITION,
+                    BUTTON_SCALE,
+                    game_constants::DEFAULT_FONT_NAME,
+                    "New Story",
+                    NEW_STORY_BUTTON_NAME,
+                    [=](){ TransitionToSubScene(SubSceneType::NEW_STORY_CONFIRMATION, scene); },
+                    *scene
+                ));
+            }
+            else
+            {
+                mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
+                (
+                    NO_PROGRESS_NEW_STORY_BUTTON_POSITION,
+                    BUTTON_SCALE,
+                    game_constants::DEFAULT_FONT_NAME,
+                    "New Story",
+                    NEW_STORY_BUTTON_NAME,
+                    [=](){ events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_MAP_SCENE,     SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE); },
+                    *scene
+                ));
+            }
             
+            mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
+            (
+                BACK_BUTTON_POSITION,
+                BUTTON_SCALE,
+                game_constants::DEFAULT_FONT_NAME,
+                "Back",
+                BACK_BUTTON_NAME,
+                [=](){ GoToPreviousSubScene(scene); },
+                *scene
+            ));
+        } break;
+            
+        case SubSceneType::NEW_STORY_CONFIRMATION:
+        {
+            scene::TextSceneObjectData textDataNewStoryTop;
+            textDataNewStoryTop.mFontName = game_constants::DEFAULT_FONT_NAME;
+            textDataNewStoryTop.mText = "Are you sure you want to start";
+            auto textNewStoryTopSceneObject = scene->CreateSceneObject(NEW_STORY_CONFIRMATION_TEXT_TOP_NAME);
+            textNewStoryTopSceneObject->mSceneObjectTypeData = std::move(textDataNewStoryTop);
+            textNewStoryTopSceneObject->mPosition = NEW_STORY_CONFIRMATION_TEXT_TOP_POSITION;
+            textNewStoryTopSceneObject->mScale = BUTTON_SCALE;
+            
+            scene::TextSceneObjectData textDataNewStoryMid;
+            textDataNewStoryMid.mFontName = game_constants::DEFAULT_FONT_NAME;
+            textDataNewStoryMid.mText = "a new story? Your active story";
+            auto textNewStoryMidSceneObject = scene->CreateSceneObject(NEW_STORY_CONFIRMATION_TEXT_MIDDLE_NAME);
+            textNewStoryMidSceneObject->mSceneObjectTypeData = std::move(textDataNewStoryMid);
+            textNewStoryMidSceneObject->mPosition = NEW_STORY_CONFIRMATION_TEXT_MIDDLE_POSITION;
+            textNewStoryMidSceneObject->mScale = BUTTON_SCALE;
+            
+            scene::TextSceneObjectData textDataNewStoryBot;
+            textDataNewStoryBot.mFontName = game_constants::DEFAULT_FONT_NAME;
+            textDataNewStoryBot.mText = " progress will be lost.";
+            auto textNewStoryBotSceneObject = scene->CreateSceneObject(NEW_STORY_CONFIRMATION_TEXT_BOT_NAME);
+            textNewStoryBotSceneObject->mSceneObjectTypeData = std::move(textDataNewStoryBot);
+            textNewStoryBotSceneObject->mPosition = NEW_STORY_CONFIRMATION_TEXT_BOT_POSITION;
+            textNewStoryBotSceneObject->mScale = BUTTON_SCALE;
+            
+            mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
+            (
+                NEW_STORY_CONFIRMATION_BUTTON_POSITION,
+                BUTTON_SCALE,
+                game_constants::DEFAULT_FONT_NAME,
+                "Yes",
+                NEW_STORY_CONFIRMATION_BUTTON_NAME,
+                [=]()
+                {
+                    ProgressionDataRepository::GetInstance().SetStoryMapGenerationSeed(0);
+                    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_MAP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
+                },
+                *scene
+            ));
+            
+            mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
+            (
+                NEW_STORY_CANCELLATION_BUTTON_POSITION,
+                BUTTON_SCALE,
+                game_constants::DEFAULT_FONT_NAME,
+                "Cancel",
+                NEW_STORY_CANCELLATION_BUTTON_NAME,
+                [=]() { GoToPreviousSubScene(scene); },
+                *scene
+            ));
+        } break;
+        
         case SubSceneType::QUICK_BATTLE:
         {
             scene::TextSceneObjectData textDataTop;
@@ -357,7 +489,7 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                 game_constants::DEFAULT_FONT_NAME,
                 "Back",
                 BACK_BUTTON_NAME,
-                [=](){ TransitionToSubScene(SubSceneType::MAIN, scene); },
+                [=](){ GoToPreviousSubScene(scene); },
                 *scene
             ));
             
@@ -479,6 +611,16 @@ void MainMenuSceneLogicManager::DeckSelected(const int selectedDeckIndex, const 
     {
         ProgressionDataRepository::GetInstance().SetNextBotPlayerDeck(CardDataRepository::GetInstance().GetCardIdsByFamily(respectiveDeckContainer->GetItems()[selectedDeckIndex].mCardFamilyName));
     }
+}
+
+///------------------------------------------------------------------------------------------------
+
+void MainMenuSceneLogicManager::GoToPreviousSubScene(std::shared_ptr<scene::Scene> mainScene)
+{
+    auto previousSubScene = mPreviousSubSceneStack.top();
+    mPreviousSubSceneStack.pop();
+    mShouldPushToPreviousSceneStack = false;
+    TransitionToSubScene(previousSubScene, mainScene);
 }
 
 ///------------------------------------------------------------------------------------------------

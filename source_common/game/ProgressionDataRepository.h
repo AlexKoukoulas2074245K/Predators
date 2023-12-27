@@ -47,6 +47,9 @@ public:
     int GetCurrencyCoins() const;
     void SetCurrencyCoins(const int currencyCoins);
     
+    int GetStoryMapGenerationSeed() const;
+    void SetStoryMapGenerationSeed(const int storyMapGenerationSeed);
+    
     const glm::ivec2& GetCurrentStoryMapNodeCoord() const;
     void SetCurrentStoryMapNodeCoord(const glm::ivec2& currentStoryMapNodeCoord);
     
@@ -63,6 +66,7 @@ private:
     glm::vec3 mSelectedStoryMapNodePosition = {};
     glm::ivec2 mCurrentStoryMapNodeCoord = {0, 2};
     int mCurrencyCoins = 0;
+    int mStoryMapGenerationSeed = 0;
 };
 
 ///------------------------------------------------------------------------------------------------

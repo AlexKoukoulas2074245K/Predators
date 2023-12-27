@@ -351,6 +351,11 @@ inline float TweenValue(const float val, const std::function<float(const float)>
 }
 
 ///-----------------------------------------------------------------------------------------------
+/// Gets the custom  seed for a controlled sequence of generated random numbers.
+/// @returns the control seed that the random generation sequence will continue with/
+int GetControlSeed();
+
+///-----------------------------------------------------------------------------------------------
 /// Sets a custom seed for a controlled sequence of generated random numbers.
 /// @param[in] seed the seed to start the sequence with
 void SetControlSeed(const int seed);

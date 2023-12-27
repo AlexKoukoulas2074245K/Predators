@@ -94,7 +94,7 @@ void StoryMapSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     std::thread mapGenerationThread = std::thread([=]
     {
         const auto& currentMapCoord = ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeCoord();
-        mStoryNodeMap = std::make_unique<StoryNodeMap>(scene, math::RandomInt(), STORY_NODE_MAP_DIMENSIONS, MapCoord(currentMapCoord.x, currentMapCoord.y), true);
+        mStoryNodeMap = std::make_unique<StoryNodeMap>(scene, STORY_NODE_MAP_DIMENSIONS, MapCoord(currentMapCoord.x, currentMapCoord.y), true);
         mStoryNodeMap->GenerateMapNodes();
     });
     mapGenerationThread.detach();

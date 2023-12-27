@@ -73,6 +73,20 @@ void ProgressionDataRepository::SetCurrencyCoins(const int currencyCoins)
 
 ///------------------------------------------------------------------------------------------------
 
+int ProgressionDataRepository::GetStoryMapGenerationSeed() const
+{
+    return mStoryMapGenerationSeed;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ProgressionDataRepository::SetStoryMapGenerationSeed(const int storyMapGenerationSeed)
+{
+    mStoryMapGenerationSeed = storyMapGenerationSeed;
+}
+
+///------------------------------------------------------------------------------------------------
+
 const glm::ivec2& ProgressionDataRepository::GetCurrentStoryMapNodeCoord() const
 {
     return mCurrentStoryMapNodeCoord;

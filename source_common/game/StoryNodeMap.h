@@ -88,12 +88,11 @@ public:
     };
     
 public:
-    StoryNodeMap(std::shared_ptr<scene::Scene> scene, const int mapGenerationSeed, const glm::ivec2& mapDimensions, const MapCoord& currentMapCoord, const bool singleEntryPoint);
+    StoryNodeMap(std::shared_ptr<scene::Scene> scene, const glm::ivec2& mapDimensions, const MapCoord& currentMapCoord, const bool singleEntryPoint);
     
     void GenerateMapNodes();
     void CreateMapSceneObjects();
     void DestroyParticleEmitters();
-    int GetCurrentGenerationSeed() const;
     bool HasCreatedSceneObjects() const;
     const std::map<MapCoord, StoryNodeMap::NodeData>& GetMapData() const;
     const glm::ivec2& GetMapDimensions() const;
@@ -110,7 +109,6 @@ private:
     std::shared_ptr<scene::Scene> mScene;
     const glm::ivec2 mMapDimensions;
     const MapCoord mCurrentMapCoord;
-    const int mMapGenerationSeed;
     const bool mHasSingleEntryPoint;
     int mMapGenerationAttemptsRemaining;
     bool mHasCreatedSceneObjects;
