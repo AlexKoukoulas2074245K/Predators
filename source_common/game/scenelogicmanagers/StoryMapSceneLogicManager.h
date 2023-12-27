@@ -42,6 +42,7 @@ private:
     void OnSettingsButtonPressed();
     void MoveWorldBy(const glm::vec3& delta);
     void MoveGUIBy(const glm::vec3& delta);
+    void ResetSelectedMapNode();
     
 private:
     enum class MapUpdateState

@@ -36,11 +36,11 @@ static const glm::ivec2 STORY_NODE_MAP_DIMENSIONS = {10, 5};
 static const glm::vec2 MAP_SWIPE_X_BOUNDS = {-0.5f, 0.5f};
 static const glm::vec2 MAP_SWIPE_Y_BOUNDS = {-0.5f, 0.5f};
 
-static const glm::vec3 SETTINGS_BUTTON_POSITION = {0.145f, 0.181f, 10.0f};
+static const glm::vec3 SETTINGS_BUTTON_POSITION = {0.145f, 0.181f, 24.0f};
 static const glm::vec3 SETTINGS_BUTTON_SCALE = {0.06f, 0.06f, 0.06f};
-static const glm::vec3 COIN_STACK_POSITION = {0.145f, 0.101f, 10.0f};
+static const glm::vec3 COIN_STACK_POSITION = {0.145f, 0.101f, 24.0f};
 static const glm::vec3 COIN_STACK_SCALE = {0.08f, 0.08f, 0.08f};
-static const glm::vec3 COIN_VALUE_TEXT_POSITION = {0.155f, 0.105f, 10.0f};
+static const glm::vec3 COIN_VALUE_TEXT_POSITION = {0.155f, 0.105f, 24.0f};
 static const glm::vec3 COIN_VALUE_TEXT_SCALE = {0.0004f, 0.0004f, 0.0004f};
 static const glm::vec3 COIN_VALUE_TEXT_COLOR = {0.80f, 0.71f, 0.11f};
 
@@ -163,11 +163,7 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
                 auto visitMapNodeScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(VISIT_MAP_NODE_SCENE);
                 if (!visitMapNodeScene->FindSceneObject(game_constants::OVERLAY_SCENE_OBJECT_NAME))
                 {
-                    for (auto mapNodeComponentSceneObject: scene->FindSceneObjectsWhoseNameStartsWith(mSelectedMapCoord->ToString()))
-                    {
-                        mapNodeComponentSceneObject->mPosition.z -= SELECTED_NODE_Z_OFFSET;
-                    }
-                    mSelectedMapCoord = nullptr;
+                    ResetSelectedMapNode();
                 }
             }
             
@@ -195,8 +191,6 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
                 bool tappedNodeObject = false;
                 for (const auto& nodeMapData: mStoryNodeMap->GetMapData())
                 {
-                    
-                    
                     auto sceneObject = scene->FindSceneObject(strutils::StringId(nodeMapData.first.ToString()));
                     auto sceneObjectRect = scene_object_utils::GetSceneObjectBoundingRect(*sceneObject);
                     if (math::IsPointInsideRectangle(sceneObjectRect.bottomLeft, sceneObjectRect.topRight, touchPos))
@@ -208,6 +202,7 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
                         }
                         
                         // Setup data for moving to target node
+                        ResetSelectedMapNode();
                         ProgressionDataRepository::GetInstance().SetSelectedStoryMapNodePosition(sceneObject->mPosition);
                         mMapUpdateState = MapUpdateState::MOVING_TO_NODE;
                         mCameraTargetPos = sceneObject->mPosition;
@@ -371,3 +366,19 @@ void StoryMapSceneLogicManager::MoveGUIBy(const glm::vec3& delta)
         }
     }
 }
+
+///------------------------------------------------------------------------------------------------
+
+void StoryMapSceneLogicManager::ResetSelectedMapNode()
+{
+    if (mSelectedMapCoord)
+    {
+        for (auto mapNodeComponentSceneObject: mScene->FindSceneObjectsWhoseNameStartsWith(mSelectedMapCoord->ToString()))
+        {
+            mapNodeComponentSceneObject->mPosition.z -= SELECTED_NODE_Z_OFFSET;
+        }
+        mSelectedMapCoord = nullptr;
+    }
+}
+
+///------------------------------------------------------------------------------------------------
