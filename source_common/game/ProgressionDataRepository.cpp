@@ -101,6 +101,20 @@ void ProgressionDataRepository::SetCurrentStoryMapNodeCoord(const glm::ivec2& cu
 
 ///------------------------------------------------------------------------------------------------
 
+const StoryNodeMap::NodeData* ProgressionDataRepository::GetSelectedStoryMapNodeData() const
+{
+    return mSelectedStoryMapNodeData;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ProgressionDataRepository::SetSelectedStoryMapNodeData(const StoryNodeMap::NodeData* selectedStoryMapNodeData)
+{
+    mSelectedStoryMapNodeData = selectedStoryMapNodeData;
+}
+
+///------------------------------------------------------------------------------------------------
+
 const glm::vec3& ProgressionDataRepository::GetSelectedStoryMapNodePosition() const
 {
     return mSelectedStoryMapNodePosition;

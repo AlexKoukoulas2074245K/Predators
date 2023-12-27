@@ -201,9 +201,12 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
                             continue;
                         }
                         
-                        // Setup data for moving to target node
                         ResetSelectedMapNode();
+                        
+                        // Setup data for moving to target node
                         ProgressionDataRepository::GetInstance().SetSelectedStoryMapNodePosition(sceneObject->mPosition);
+                        ProgressionDataRepository::GetInstance().SetSelectedStoryMapNodeData(&nodeMapData.second);
+                        
                         mMapUpdateState = MapUpdateState::MOVING_TO_NODE;
                         mCameraTargetPos = sceneObject->mPosition;
                         mCameraTargetPos.z = mScene->GetCamera().GetPosition().z;

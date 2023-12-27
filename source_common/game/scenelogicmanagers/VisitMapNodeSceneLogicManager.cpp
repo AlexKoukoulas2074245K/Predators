@@ -8,6 +8,7 @@
 #include <engine/CoreSystemsEngine.h>
 #include <engine/utils/PlatformMacros.h>
 #include <engine/rendering/AnimationManager.h>
+#include <engine/resloading/ResourceLoadingService.h>
 #include <engine/utils/Logging.h>
 #include <engine/utils/PlatformMacros.h>
 #include <engine/scene/SceneManager.h>
@@ -20,11 +21,21 @@
 
 ///------------------------------------------------------------------------------------------------
 
+static const std::string CUSTOM_COLOR_SHADER_FILE_NAME = "basic_custom_color.vs";
+
 static const strutils::StringId VISIT_MAP_NODE_SCENE_NAME = strutils::StringId("visit_map_node_scene");
+static const strutils::StringId NODE_DESCRIPTION_TEXT_SCENE_OBJECT_NAME = strutils::StringId("node_description_text");
 static const strutils::StringId VISIT_BUTTON_NAME = strutils::StringId("visit_button");
 static const strutils::StringId BACK_BUTTON_NAME = strutils::StringId("back_button");
 
 static const glm::vec3 BUTTON_SCALE = {0.0005f, 0.0005f, 0.0005f};
+static const glm::vec3 WHITE_NODE_DESC_COLOR = {0.96f, 0.96f, 0.96f};
+static const glm::vec3 RED_NODE_DESC_COLOR = {0.86f, 0.1f, 0.1f};
+static const glm::vec3 PURPLE_NODE_DESC_COLOR = {0.66f, 0.35f, 1.0f};
+static const glm::vec3 ORANGE_NODE_DESC_COLOR = {0.96f, 0.47f, 0.25f};
+
+static const glm::vec2 NODE_DESC_MIN_MAX_X_OFFSETS = {-0.1f, -0.23f};
+static const glm::vec2 NODE_DESC_MIN_MAX_Y_OFFSETS = {0.14f, -0.11f};
 
 static const float VISIT_BUTTON_HOR_DISTANCE_FROM_NODE = 0.1f;
 static const float VISIT_BUTTON_Y_OFFSET_FROM_NODE = 0.05f;
@@ -74,6 +85,7 @@ void VisitMapNodeSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> sce
     mTransitioning = false;
     
     scene->RemoveAllSceneObjectsButTheOnesNamed(STATIC_SCENE_ELEMENTS);
+    
     mAnimatedButtons.clear();
     
     auto& targetNodePosition = ProgressionDataRepository::GetInstance().GetSelectedStoryMapNodePosition();
@@ -115,6 +127,59 @@ void VisitMapNodeSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> sce
         },
         *scene
     ));
+    
+    auto nodeDescriptionSceneObject = scene->CreateSceneObject(NODE_DESCRIPTION_TEXT_SCENE_OBJECT_NAME);
+    nodeDescriptionSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CUSTOM_COLOR_SHADER_FILE_NAME);
+    
+    scene::TextSceneObjectData textDataNodeDescription;
+    textDataNodeDescription.mFontName = game_constants::DEFAULT_FONT_NAME;
+    
+    switch(ProgressionDataRepository::GetInstance().GetSelectedStoryMapNodeData()->mNodeType)
+    {
+        case StoryNodeMap::NodeType::NORMAL_ENCOUNTER:
+        {
+            nodeDescriptionSceneObject->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = WHITE_NODE_DESC_COLOR;
+            textDataNodeDescription.mText = "Normal Encounter";
+        } break;
+        
+        case StoryNodeMap::NodeType::ELITE_ENCOUNTER:
+        {
+            textDataNodeDescription.mText = "Elite Encounter";
+            nodeDescriptionSceneObject->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = ORANGE_NODE_DESC_COLOR;
+        } break;
+        
+        case StoryNodeMap::NodeType::EVENT:
+        {
+            textDataNodeDescription.mText = "Random Event";
+            nodeDescriptionSceneObject->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = PURPLE_NODE_DESC_COLOR;
+        } break;
+        
+        case StoryNodeMap::NodeType::BOSS_ENCOUNTER:
+        {
+            textDataNodeDescription.mText = "Boss Encounter";
+            nodeDescriptionSceneObject->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = RED_NODE_DESC_COLOR;
+        } break;
+        
+        case StoryNodeMap::NodeType::SHOP:
+        {
+            textDataNodeDescription.mText = "Merchant Encounter";
+            nodeDescriptionSceneObject->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = PURPLE_NODE_DESC_COLOR;
+        } break;
+        
+        case StoryNodeMap::NodeType::STARTING_LOCATION:
+        {
+            textDataNodeDescription.mText = "Your Tent!";
+            nodeDescriptionSceneObject->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = WHITE_NODE_DESC_COLOR;
+        }break;
+        default: break;
+    }
+    
+    nodeDescriptionSceneObject->mSceneObjectTypeData = std::move(textDataNodeDescription);
+    nodeDescriptionSceneObject->mPosition = targetNodePosition;
+    nodeDescriptionSceneObject->mPosition.x += (targetNodePosition.x < previousSceneCameraPosition.x ? NODE_DESC_MIN_MAX_X_OFFSETS.s : NODE_DESC_MIN_MAX_X_OFFSETS.t);
+    nodeDescriptionSceneObject->mPosition.y += (targetNodePosition.y < previousSceneCameraPosition.y ? NODE_DESC_MIN_MAX_Y_OFFSETS.s : NODE_DESC_MIN_MAX_Y_OFFSETS.t);
+    nodeDescriptionSceneObject->mPosition.z = BUTTON_Z;
+    nodeDescriptionSceneObject->mScale = BUTTON_SCALE;
     
     for (auto sceneObject: scene->GetSceneObjects())
     {
