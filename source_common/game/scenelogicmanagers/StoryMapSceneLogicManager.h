@@ -19,6 +19,7 @@
 ///------------------------------------------------------------------------------------------------
 
 class AnimatedButton;
+class AnimatedStatContainer;
 class StoryMap;
 class StoryMapSceneLogicManager final: public ISceneLogicManager, public events::IListener
 {
@@ -56,6 +57,7 @@ private:
     std::vector<std::unique_ptr<AnimatedButton>> mAnimatedButtons;
     std::unique_ptr<StoryMap> mStoryMap;
     std::unique_ptr<MapCoord> mSelectedMapCoord;
+    std::unique_ptr<AnimatedStatContainer> mHealthStatContainer;
     std::shared_ptr<scene::Scene> mScene;
     rendering::Camera mSwipeCamera;
     glm::vec3 mSwipeCurrentPos;

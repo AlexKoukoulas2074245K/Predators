@@ -12,13 +12,9 @@
 
 #include <engine/utils/MathUtils.h>
 #include <engine/utils/StringUtils.h>
+#include <engine/scene/Scene.h>
 #include <memory>
 #include <vector>
-
-///------------------------------------------------------------------------------------------------
-
-namespace scene { class Scene; }
-namespace scene { struct SceneObject; }
 
 ///------------------------------------------------------------------------------------------------
 
@@ -39,7 +35,9 @@ public:
         const std::string& crystalName,
         const int& valueToTrack,
         const bool startHidden,
-        scene::Scene& scene
+        scene::Scene& scene,
+        scene::SnapToEdgeBehavior snapToEdgeBehavior = scene::SnapToEdgeBehavior::NONE,
+        const float customScaleFactor = 1.0f
     );
     ~AnimatedStatContainer();
     
@@ -49,6 +47,7 @@ public:
     
 private:
     const int& mValueToTrack;
+    const float mScaleFactor;
     int mDisplayedValue;
     float mValueChangeDelaySecs;
     scene::Scene& mScene;

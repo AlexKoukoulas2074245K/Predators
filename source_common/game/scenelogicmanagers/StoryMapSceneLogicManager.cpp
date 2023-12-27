@@ -12,6 +12,7 @@
 #include <engine/scene/SceneObjectUtils.h>
 #include <engine/utils/Logging.h>
 #include <game/AnimatedButton.h>
+#include <game/AnimatedStatContainer.h>
 #include <game/events/EventSystem.h>
 #include <game/GameConstants.h>
 #include <game/ProgressionDataRepository.h>
@@ -31,6 +32,8 @@ static const std::string OVERLAY_TEXTURE_FILE_NAME = "overlay.png";
 static const std::string COIN_VALUE_TEXT_SHADER_FILE_NAME = "basic_custom_color.vs";
 static const std::string SETTINGS_ICON_TEXTURE_FILE_NAME = "settings_button_icon.png";
 static const std::string COIN_STACK_TEXTURE_FILE_NAME = "coin_stack.png";
+static const std::string HEALTH_CRYSTAL_TEXTURE_FILE_NAME = "health_crystal.png";
+static const std::string HEALTH_CRYSTAL_SCENE_OBJECT_NAME_PREFIX = "health_crystal_";
 
 static const glm::ivec2 STORY_NODE_MAP_DIMENSIONS = {10, 5};
 static const glm::vec2 MAP_SWIPE_X_BOUNDS = {-0.5f, 0.5f};
@@ -43,10 +46,13 @@ static const glm::vec3 COIN_STACK_SCALE = {0.08f, 0.08f, 0.08f};
 static const glm::vec3 COIN_VALUE_TEXT_POSITION = {0.155f, 0.105f, 24.0f};
 static const glm::vec3 COIN_VALUE_TEXT_SCALE = {0.0004f, 0.0004f, 0.0004f};
 static const glm::vec3 COIN_VALUE_TEXT_COLOR = {0.80f, 0.71f, 0.11f};
+static const glm::vec3 HEALTH_CRYSTAL_POSITION = {0.145f, 0.02f, 24.0f};
 
 static const float SETTINGS_BUTTON_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 31.5f;
 static const float COIN_STACK_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 1.3f;
 static const float COIN_VALUE_TEXT_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 260.0f;
+static const float HEALTH_CRYSTAL_BASE_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 0.95f;
+static const float HEALTH_CRYSTAL_VALUE_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 260.0f;
 static const float DISTANCE_TO_TARGET_NODE_THRESHOLD = 0.1f;
 static const float CAMERA_NOT_MOVED_THRESHOLD = 0.0001f;
 static const float CAMERA_MOVING_TO_NODE_SPEED = 0.0005f;
@@ -62,7 +68,9 @@ static const std::vector<strutils::StringId> GUI_SCENE_OBJECT_NAMES =
 {
     COIN_STACK_SCENE_OBJECT_NAME,
     COIN_VALUE_TEXT_SCENE_OBJECT_NAME,
-    SETTINGS_BUTTON_SCENE_OBJECT_NAME
+    SETTINGS_BUTTON_SCENE_OBJECT_NAME,
+    strutils::StringId(HEALTH_CRYSTAL_SCENE_OBJECT_NAME_PREFIX + "base"),
+    strutils::StringId(HEALTH_CRYSTAL_SCENE_OBJECT_NAME_PREFIX + "value")
 };
 
 extern int mapGenerationAttempts;
@@ -135,6 +143,11 @@ void StoryMapSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     coinValueTextSceneObject->mSnapToEdgeBehavior = scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE;
     coinValueTextSceneObject->mSnapToEdgeScaleOffsetFactor = COIN_VALUE_TEXT_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR;
     
+    mHealthStatContainer = std::make_unique<AnimatedStatContainer>(HEALTH_CRYSTAL_POSITION, HEALTH_CRYSTAL_TEXTURE_FILE_NAME, HEALTH_CRYSTAL_SCENE_OBJECT_NAME_PREFIX, ProgressionDataRepository::GetInstance().GetStoryCurrentHealth(), false, *scene, scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE, 2.0f);
+    
+    mHealthStatContainer->GetSceneObjects()[0]->mSnapToEdgeScaleOffsetFactor = HEALTH_CRYSTAL_BASE_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR;
+    mHealthStatContainer->GetSceneObjects()[1]->mSnapToEdgeScaleOffsetFactor = HEALTH_CRYSTAL_VALUE_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR;
+    
     mSwipeCamera = scene->GetCamera();
     mScene = scene;
     
@@ -154,8 +167,9 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
         logging::Log(logging::LogType::INFO, "Finished Map Generation after %d attempts", mapGenerationAttempts);
         mStoryMap->CreateMapSceneObjects();
         
-        if (currentMapCoord.x == 0 && currentMapCoord.y == 2)
+        if (currentMapCoord.x == game_constants::STORY_MAP_INIT_COORD.x && currentMapCoord.y == game_constants::STORY_MAP_INIT_COORD.y)
         {
+            ProgressionDataRepository::GetInstance().SetStoryCurrentHealth(30);
             mMapUpdateState = MapUpdateState::FRESH_MAP_ANIMATION;
             SetMapPositionTo(mStoryMap->GetMapData().at(MapCoord(game_constants::STORY_MAP_BOSS_COORD.x, game_constants::STORY_MAP_BOSS_COORD.y)).mPosition);
             
@@ -170,6 +184,7 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
         }
     }
     
+    mHealthStatContainer->Update(dtMillis);
     SetCoinValueText();
     
     switch (mMapUpdateState)

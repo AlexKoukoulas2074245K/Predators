@@ -46,10 +46,13 @@ public:
     const std::vector<int>& GetNextBotPlayerDeck() const;
     void SetNextBotPlayerDeck(const std::vector<int>& deck);
     
-    int GetCurrencyCoins() const;
+    const int& GetCurrencyCoins() const;
     void SetCurrencyCoins(const int currencyCoins);
     
-    int GetStoryMapGenerationSeed() const;
+    const int& GetStoryCurrentHealth() const;
+    void SetStoryCurrentHealth(const int storryCurrentHealth);
+    
+    const int& GetStoryMapGenerationSeed() const;
     void SetStoryMapGenerationSeed(const int storyMapGenerationSeed);
     
     const glm::ivec2& GetCurrentStoryMapNodeCoord() const;
@@ -71,6 +74,7 @@ private:
     glm::vec3 mSelectedStoryMapNodePosition = {};
     glm::ivec2 mCurrentStoryMapNodeCoord = game_constants::STORY_MAP_INIT_COORD;
     const StoryMap::NodeData* mSelectedStoryMapNodeData = nullptr;
+    int mStoryCurrentHealth = 0;
     int mCurrencyCoins = 0;
     int mStoryMapGenerationSeed = 0;
 };

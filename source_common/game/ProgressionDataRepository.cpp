@@ -59,7 +59,7 @@ void ProgressionDataRepository::SetNextBotPlayerDeck(const std::vector<int>& dec
 
 ///------------------------------------------------------------------------------------------------
 
-int ProgressionDataRepository::GetCurrencyCoins() const
+const int& ProgressionDataRepository::GetCurrencyCoins() const
 {
     return mCurrencyCoins;
 }
@@ -73,7 +73,21 @@ void ProgressionDataRepository::SetCurrencyCoins(const int currencyCoins)
 
 ///------------------------------------------------------------------------------------------------
 
-int ProgressionDataRepository::GetStoryMapGenerationSeed() const
+const int& ProgressionDataRepository::GetStoryCurrentHealth() const
+{
+    return mStoryCurrentHealth;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ProgressionDataRepository::SetStoryCurrentHealth(const int storyCurrentHealth)
+{
+    mStoryCurrentHealth = storyCurrentHealth;
+}
+
+///------------------------------------------------------------------------------------------------
+
+const int& ProgressionDataRepository::GetStoryMapGenerationSeed() const
 {
     return mStoryMapGenerationSeed;
 }

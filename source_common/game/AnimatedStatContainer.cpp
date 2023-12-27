@@ -19,7 +19,7 @@ static const std::string VALUE_SCENE_OBJECT_NAME_POSTFIX = "value";
 
 static const glm::vec3 STAT_CRYSTAL_SCALE = {0.05f, 0.05f, 1.0f};
 static const glm::vec3 STAT_CRYSTAL_VALUE_SCALE = {0.00013f, 0.00013f, 1.0f};
-static const glm::vec3 STAT_CRYSTAL_VALUE_POSITION_OFFSET = {0.004, 0.002, 0.1f};
+static const glm::vec3 STAT_CRYSTAL_VALUE_POSITION_OFFSET = {0.004, 0.002, 0.001f};
 static const float MAX_VALUE_CHANGE_DELAY_SECS = 0.2f;
 
 ///------------------------------------------------------------------------------------------------
@@ -31,9 +31,12 @@ AnimatedStatContainer::AnimatedStatContainer
     const std::string& crystalName,
     const int& valueToTrack,
     const bool startHidden,
-    scene::Scene& scene
+    scene::Scene& scene,
+    scene::SnapToEdgeBehavior snapToEdgeBehavior /* = scene::SnapToEdgeBehavior::NONE */,
+    const float customScaleFactor /* = 1.0f */
 )
     : mValueToTrack(valueToTrack)
+    , mScaleFactor(customScaleFactor)
     , mDisplayedValue(valueToTrack)
     , mValueChangeDelaySecs(0.0f)
     , mScene(scene)
@@ -42,18 +45,20 @@ AnimatedStatContainer::AnimatedStatContainer
     auto crystalBaseSceneObject = scene.CreateSceneObject(strutils::StringId(crystalName + BASE_SCENE_OBJECT_NAME_POSTFIX));
     crystalBaseSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + textureFilename);
     crystalBaseSceneObject->mPosition = position;
-    crystalBaseSceneObject->mScale = STAT_CRYSTAL_SCALE;
+    crystalBaseSceneObject->mScale = STAT_CRYSTAL_SCALE * mScaleFactor;
     crystalBaseSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = startHidden ? 0.0f : 1.0f;
     crystalBaseSceneObject->mInvisible = startHidden;
+    crystalBaseSceneObject->mSnapToEdgeBehavior = snapToEdgeBehavior;
     
     auto crystalValueSceneObject = scene.CreateSceneObject(strutils::StringId(crystalName + VALUE_SCENE_OBJECT_NAME_POSTFIX));
     scene::TextSceneObjectData crystalValueTextData;
     crystalValueTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
     crystalValueSceneObject->mSceneObjectTypeData = std::move(crystalValueTextData);
-    crystalValueSceneObject->mScale = STAT_CRYSTAL_VALUE_SCALE;
+    crystalValueSceneObject->mScale = STAT_CRYSTAL_VALUE_SCALE * mScaleFactor; 
     crystalValueSceneObject->mPosition = crystalBaseSceneObject->mPosition + STAT_CRYSTAL_VALUE_POSITION_OFFSET;
     crystalValueSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = startHidden ? 0.0f : 1.0f;
     crystalValueSceneObject->mInvisible = startHidden;
+    crystalValueSceneObject->mSnapToEdgeBehavior = snapToEdgeBehavior;
     
     mSceneObjects.push_back(crystalBaseSceneObject);
     mSceneObjects.push_back(crystalValueSceneObject);
@@ -81,6 +86,8 @@ AnimatedStatContainerUpdateResult AnimatedStatContainer::Update(const float dtMi
     auto baseCrystalSo = mSceneObjects.front();
     auto valueCrystalSo = mSceneObjects.back();
     
+    //valueCrystalSo->mPosition = baseCrystalSo->mPosition + STAT_CRYSTAL_VALUE_POSITION_OFFSET;
+    
     if (mDisplayedValue != mValueToTrack)
     {
         mValueChangeDelaySecs -= dtMillis/1000.0f;
@@ -94,24 +101,24 @@ AnimatedStatContainerUpdateResult AnimatedStatContainer::Update(const float dtMi
             mFinishedAnimating = false;
             auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
             auto originalValueScale = valueCrystalSo->mScale;
-            animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(valueCrystalSo, valueCrystalSo->mPosition, originalValueScale * 1.5f, MAX_VALUE_CHANGE_DELAY_SECS/3, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+            animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(valueCrystalSo, valueCrystalSo->mPosition, originalValueScale * 1.5f, MAX_VALUE_CHANGE_DELAY_SECS/3, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT | animation_flags::IGNORE_Z_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
             {
                 auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
-                animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(mSceneObjects.back(), mSceneObjects.back()->mPosition, originalValueScale, MAX_VALUE_CHANGE_DELAY_SECS/3, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+                animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(mSceneObjects.back(), mSceneObjects.back()->mPosition, originalValueScale, MAX_VALUE_CHANGE_DELAY_SECS/3, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT | animation_flags::IGNORE_Z_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
                 {
                     mFinishedAnimating = true;
-                    mSceneObjects.back()->mScale = STAT_CRYSTAL_VALUE_SCALE;
+                    mSceneObjects.back()->mScale = STAT_CRYSTAL_VALUE_SCALE * mScaleFactor;
                 });
             });
             
             auto originalGemScale = baseCrystalSo->mScale;
-            animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(baseCrystalSo, baseCrystalSo->mPosition, originalGemScale * 1.5f, MAX_VALUE_CHANGE_DELAY_SECS/3, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+            animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(baseCrystalSo, baseCrystalSo->mPosition, originalGemScale * 1.5f, MAX_VALUE_CHANGE_DELAY_SECS/3, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT | animation_flags::IGNORE_Z_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
             {
                 auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
-                animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(mSceneObjects.front(), mSceneObjects.front()->mPosition, originalGemScale, MAX_VALUE_CHANGE_DELAY_SECS/3, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+                animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(mSceneObjects.front(), mSceneObjects.front()->mPosition, originalGemScale, MAX_VALUE_CHANGE_DELAY_SECS/3, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT | animation_flags::IGNORE_Z_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
                 {
                     mFinishedAnimating = true;
-                    mSceneObjects.front()->mScale = STAT_CRYSTAL_SCALE;
+                    mSceneObjects.front()->mScale = STAT_CRYSTAL_SCALE * mScaleFactor;
                 });
             });
         }
