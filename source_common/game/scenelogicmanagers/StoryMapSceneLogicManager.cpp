@@ -251,8 +251,11 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
         {
             auto initPosition = mScene->GetCamera().GetPosition();
             auto normalizedDirectionToTarget = glm::normalize(mCameraTargetPos - initPosition);
+            auto targetVelocity = normalizedDirectionToTarget * dtMillis;
             
-            MoveWorldBy(normalizedDirectionToTarget * dtMillis * CAMERA_MOVING_TO_NODE_SPEED);
+            targetVelocity *= (math::Abs(normalizedDirectionToTarget.x) < CAMERA_NOT_MOVED_THRESHOLD || math::Abs(normalizedDirectionToTarget.y) < CAMERA_NOT_MOVED_THRESHOLD) ? 2 * CAMERA_MOVING_TO_NODE_SPEED : CAMERA_MOVING_TO_NODE_SPEED;
+            
+            MoveWorldBy(targetVelocity);
             
             auto currentDistanceToNode = glm::distance(mCameraTargetPos, mScene->GetCamera().GetPosition());
             
