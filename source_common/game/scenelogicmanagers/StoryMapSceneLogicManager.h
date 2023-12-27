@@ -12,14 +12,14 @@
 
 #include <game/events/EventSystem.h>
 #include <game/scenelogicmanagers/ISceneLogicManager.h>
-#include <game/StoryNodeMap.h>
+#include <game/StoryMap.h>
 #include <engine/rendering/Camera.h>
 #include <memory>
 
 ///------------------------------------------------------------------------------------------------
 
 class AnimatedButton;
-class StoryNodeMap;
+class StoryMap;
 class StoryMapSceneLogicManager final: public ISceneLogicManager, public events::IListener
 {
 public:
@@ -54,7 +54,7 @@ private:
     };
     
     std::vector<std::unique_ptr<AnimatedButton>> mAnimatedButtons;
-    std::unique_ptr<StoryNodeMap> mStoryNodeMap;
+    std::unique_ptr<StoryMap> mStoryMap;
     std::unique_ptr<MapCoord> mSelectedMapCoord;
     std::shared_ptr<scene::Scene> mScene;
     rendering::Camera mSwipeCamera;

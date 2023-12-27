@@ -1,5 +1,5 @@
 ///------------------------------------------------------------------------------------------------
-///  StoryNodeMap.cpp                                                                                        
+///  StoryMap.cpp                                                                                        
 ///  Predators                                                                                            
 ///                                                                                                
 ///  Created by Alex Koukoulas on 19/12/2023                                                       
@@ -7,7 +7,7 @@
 
 #include <game/GameConstants.h>
 #include <game/ProgressionDataRepository.h>
-#include <game/StoryNodeMap.h>
+#include <game/StoryMap.h>
 #include <game/utils/DemonNameGenerator.h>
 #include <engine/CoreSystemsEngine.h>
 #include <engine/resloading/ResourceLoadingService.h>
@@ -22,14 +22,14 @@
 
 ///------------------------------------------------------------------------------------------------
 
-static const std::unordered_map<StoryNodeMap::NodeType, std::string> MAP_NODE_TYPES_TO_PORTRAIT_TEXTURES =
+static const std::unordered_map<StoryMap::NodeType, std::string> MAP_NODE_TYPES_TO_PORTRAIT_TEXTURES =
 {
-    { StoryNodeMap::NodeType::NORMAL_ENCOUNTER, "map_node_normal.png" },
-    { StoryNodeMap::NodeType::ELITE_ENCOUNTER, "map_node_elite.png" },
-    { StoryNodeMap::NodeType::BOSS_ENCOUNTER, "map_node_boss.png" },
-    { StoryNodeMap::NodeType::EVENT, "map_node_misc.png" },
-    { StoryNodeMap::NodeType::SHOP, "map_node_misc.png" },
-    { StoryNodeMap::NodeType::STARTING_LOCATION, "teepee.png" },
+    { StoryMap::NodeType::NORMAL_ENCOUNTER, "map_node_normal.png" },
+    { StoryMap::NodeType::ELITE_ENCOUNTER, "map_node_elite.png" },
+    { StoryMap::NodeType::BOSS_ENCOUNTER, "map_node_boss.png" },
+    { StoryMap::NodeType::EVENT, "map_node_misc.png" },
+    { StoryMap::NodeType::SHOP, "map_node_misc.png" },
+    { StoryMap::NodeType::STARTING_LOCATION, "teepee.png" },
 };
 
 static const std::vector<std::string> EASY_FIGHT_TEXTURES =
@@ -120,11 +120,10 @@ int mapGenerationAttempts = 0;
 
 ///------------------------------------------------------------------------------------------------
 
-StoryNodeMap::StoryNodeMap(std::shared_ptr<scene::Scene> scene, const glm::ivec2& mapDimensions, const MapCoord& currentMapCoord, const bool singleEntryPoint)
+StoryMap::StoryMap(std::shared_ptr<scene::Scene> scene, const glm::ivec2& mapDimensions, const MapCoord& currentMapCoord)
     : mScene(scene)
     , mMapDimensions(mapDimensions)
     , mCurrentMapCoord(currentMapCoord)
-    , mHasSingleEntryPoint(singleEntryPoint)
     , mMapGenerationAttemptsRemaining(MAX_MAP_GENERATION_ATTEMPTS)
     , mHasCreatedSceneObjects(false)
 {
@@ -132,35 +131,35 @@ StoryNodeMap::StoryNodeMap(std::shared_ptr<scene::Scene> scene, const glm::ivec2
 
 ///------------------------------------------------------------------------------------------------
 
-void StoryNodeMap::GenerateMapNodes()
+void StoryMap::GenerateMapNodes()
 {
     GenerateMapData();
 }
 
 ///------------------------------------------------------------------------------------------------
 
-bool StoryNodeMap::HasCreatedSceneObjects() const
+bool StoryMap::HasCreatedSceneObjects() const
 {
     return mHasCreatedSceneObjects;
 }
 
 ///------------------------------------------------------------------------------------------------
 
-const std::map<MapCoord, StoryNodeMap::NodeData>& StoryNodeMap::GetMapData() const
+const std::map<MapCoord, StoryMap::NodeData>& StoryMap::GetMapData() const
 {
     return mMapData;
 }
 
 ///------------------------------------------------------------------------------------------------
 
-const glm::ivec2& StoryNodeMap::GetMapDimensions() const
+const glm::ivec2& StoryMap::GetMapDimensions() const
 {
     return mMapDimensions;
 }
 
 ///------------------------------------------------------------------------------------------------
 
-void StoryNodeMap::GenerateMapData()
+void StoryMap::GenerateMapData()
 {
     auto currentGenerationSeed = ProgressionDataRepository::GetInstance().GetStoryMapGenerationSeed();
     if (currentGenerationSeed == 0)
@@ -190,7 +189,7 @@ void StoryNodeMap::GenerateMapData()
         
         for (int i = 0; i < MAP_GENERATION_PASSES; ++i)
         {
-            auto currentCoordinate = mHasSingleEntryPoint ? MapCoord(0, mMapDimensions.y/2) : MapCoord(0, math::ControlledRandomInt(0, mMapDimensions.y - 1));
+            auto currentCoordinate = MapCoord(0, mMapDimensions.y/2);
             mMapData[currentCoordinate].mPosition = GenerateNodePositionForCoord(currentCoordinate);
             mMapData[currentCoordinate].mNodeType = SelectNodeTypeForCoord(currentCoordinate);
             
@@ -216,7 +215,7 @@ void StoryNodeMap::GenerateMapData()
 
 ///------------------------------------------------------------------------------------------------
 
-void StoryNodeMap::DestroyParticleEmitters()
+void StoryMap::DestroyParticleEmitters()
 {
     mScene->RemoveSceneObject(STATIC_NODE_PATH_PARTICLE_EMITTER_NAME);
     mScene->RemoveSceneObject(ANIMATED_NODE_PATH_PARTICLE_EMITTER_NAME);
@@ -224,7 +223,7 @@ void StoryNodeMap::DestroyParticleEmitters()
 
 ///------------------------------------------------------------------------------------------------
 
-bool StoryNodeMap::FoundCloseEnoughNodes() const
+bool StoryMap::FoundCloseEnoughNodes() const
 {
     for (auto& mapNodeEntry: mMapData)
     {
@@ -267,7 +266,7 @@ bool StoryNodeMap::FoundCloseEnoughNodes() const
 
 ///------------------------------------------------------------------------------------------------
 
-void StoryNodeMap::CreateMapSceneObjects()
+void StoryMap::CreateMapSceneObjects()
 {
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
     auto& resService = CoreSystemsEngine::GetInstance().GetResourceLoadingService();
@@ -484,7 +483,7 @@ void StoryNodeMap::CreateMapSceneObjects()
 
 ///------------------------------------------------------------------------------------------------
 
-bool StoryNodeMap::DetectedCrossedEdge(const MapCoord& currentCoord, const MapCoord& targetTestCoord) const
+bool StoryMap::DetectedCrossedEdge(const MapCoord& currentCoord, const MapCoord& targetTestCoord) const
 {
     bool currentCoordHasTopNeighbor = currentCoord.mRow > 0;
     bool currentCoordHasBotNeighbor = currentCoord.mRow < mMapDimensions.y - 1;
@@ -507,7 +506,7 @@ bool StoryNodeMap::DetectedCrossedEdge(const MapCoord& currentCoord, const MapCo
 
 ///------------------------------------------------------------------------------------------------
 
-glm::vec3 StoryNodeMap::GenerateNodePositionForCoord(const MapCoord& mapCoord) const
+glm::vec3 StoryMap::GenerateNodePositionForCoord(const MapCoord& mapCoord) const
 {
     if (mapCoord.mCol == 0)
     {
@@ -541,10 +540,10 @@ glm::vec3 StoryNodeMap::GenerateNodePositionForCoord(const MapCoord& mapCoord) c
 
 ///------------------------------------------------------------------------------------------------
 
-StoryNodeMap::NodeType StoryNodeMap::SelectNodeTypeForCoord(const MapCoord& mapCoord) const
+StoryMap::NodeType StoryMap::SelectNodeTypeForCoord(const MapCoord& mapCoord) const
 {
     // Forced single entry point and starting coord case
-    if (mHasSingleEntryPoint && mapCoord == MapCoord(0, mMapDimensions.y/2))
+    if (mapCoord == MapCoord(0, mMapDimensions.y/2))
     {
         return NodeType::STARTING_LOCATION;
     }
@@ -600,7 +599,7 @@ StoryNodeMap::NodeType StoryNodeMap::SelectNodeTypeForCoord(const MapCoord& mapC
 
 ///------------------------------------------------------------------------------------------------
 
-MapCoord StoryNodeMap::RandomlySelectNextMapCoord(const MapCoord& mapCoord) const
+MapCoord StoryMap::RandomlySelectNextMapCoord(const MapCoord& mapCoord) const
 {
     auto randRow = math::Max(math::Min(mMapDimensions.y - 1, mapCoord.mRow + math::ControlledRandomInt(-1, 1)), 0);
     return mapCoord.mCol == mMapDimensions.x - 2 ? MapCoord(mMapDimensions.x - 1, mMapDimensions.y/2) : MapCoord(mapCoord.mCol + 1, randRow);

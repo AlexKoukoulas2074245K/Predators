@@ -96,8 +96,8 @@ void StoryMapSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     
     std::thread mapGenerationThread = std::thread([=]
     {
-        mStoryNodeMap = std::make_unique<StoryNodeMap>(scene, STORY_NODE_MAP_DIMENSIONS, MapCoord(currentMapCoord.x, currentMapCoord.y), true);
-        mStoryNodeMap->GenerateMapNodes();
+        mStoryMap = std::make_unique<StoryMap>(scene, STORY_NODE_MAP_DIMENSIONS, MapCoord(currentMapCoord.x, currentMapCoord.y));
+        mStoryMap->GenerateMapNodes();
     });
     mapGenerationThread.detach();
     
@@ -149,24 +149,24 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
 {
     const auto& currentMapCoord = ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeCoord();
     
-    if (!mStoryNodeMap->HasCreatedSceneObjects())
+    if (!mStoryMap->HasCreatedSceneObjects())
     {
         logging::Log(logging::LogType::INFO, "Finished Map Generation after %d attempts", mapGenerationAttempts);
-        mStoryNodeMap->CreateMapSceneObjects();
+        mStoryMap->CreateMapSceneObjects();
         
         if (currentMapCoord.x == 0 && currentMapCoord.y == 2)
         {
             mMapUpdateState = MapUpdateState::FRESH_MAP_ANIMATION;
-            SetMapPositionTo(mStoryNodeMap->GetMapData().at(MapCoord(game_constants::STORY_MAP_BOSS_COORD.x, game_constants::STORY_MAP_BOSS_COORD.y)).mPosition);
+            SetMapPositionTo(mStoryMap->GetMapData().at(MapCoord(game_constants::STORY_MAP_BOSS_COORD.x, game_constants::STORY_MAP_BOSS_COORD.y)).mPosition);
             
             mFreshMapCameraAnimationInitPosition = mScene->GetCamera().GetPosition();
-            mCameraTargetPos = mStoryNodeMap->GetMapData().at(MapCoord(game_constants::STORY_MAP_INIT_COORD.x, game_constants::STORY_MAP_INIT_COORD.y)).mPosition;
+            mCameraTargetPos = mStoryMap->GetMapData().at(MapCoord(game_constants::STORY_MAP_INIT_COORD.x, game_constants::STORY_MAP_INIT_COORD.y)).mPosition;
             mCameraTargetPos.y += FRESH_MAP_ANIMATION_TARGET_Y_OFFSET;
             mCameraTargetPos.z = mScene->GetCamera().GetPosition().z;
         }
         else
         {
-            SetMapPositionTo(mStoryNodeMap->GetMapData().at(MapCoord(currentMapCoord.x, currentMapCoord.y)).mPosition);
+            SetMapPositionTo(mStoryMap->GetMapData().at(MapCoord(currentMapCoord.x, currentMapCoord.y)).mPosition);
         }
     }
     
@@ -188,7 +188,7 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
             }
             
             const auto& currentCoord = MapCoord(ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeCoord().x, ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeCoord().y);
-            const auto& currentMapNode = mStoryNodeMap->GetMapData().at(currentCoord);
+            const auto& currentMapNode = mStoryMap->GetMapData().at(currentCoord);
                 
             const auto& inputStateManager = CoreSystemsEngine::GetInstance().GetInputStateManager();
             auto touchPos = inputStateManager.VGetPointingPosInWorldSpace(mSwipeCamera.GetViewMatrix(), mSwipeCamera.GetProjMatrix());
@@ -209,7 +209,7 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
                 }
                     
                 bool tappedNodeObject = false;
-                for (const auto& nodeMapData: mStoryNodeMap->GetMapData())
+                for (const auto& nodeMapData: mStoryMap->GetMapData())
                 {
                     auto sceneObject = scene->FindSceneObject(strutils::StringId(nodeMapData.first.ToString()));
                     auto sceneObjectRect = scene_object_utils::GetSceneObjectBoundingRect(*sceneObject);
@@ -328,7 +328,7 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
 void StoryMapSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene>)
 {
     events::EventSystem::GetInstance().UnregisterAllEventsForListener(this);
-    mStoryNodeMap->DestroyParticleEmitters();
+    mStoryMap->DestroyParticleEmitters();
 }
 
 ///------------------------------------------------------------------------------------------------

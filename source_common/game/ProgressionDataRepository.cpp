@@ -101,14 +101,14 @@ void ProgressionDataRepository::SetCurrentStoryMapNodeCoord(const glm::ivec2& cu
 
 ///------------------------------------------------------------------------------------------------
 
-const StoryNodeMap::NodeData* ProgressionDataRepository::GetSelectedStoryMapNodeData() const
+const StoryMap::NodeData* ProgressionDataRepository::GetSelectedStoryMapNodeData() const
 {
     return mSelectedStoryMapNodeData;
 }
 
 ///------------------------------------------------------------------------------------------------
 
-void ProgressionDataRepository::SetSelectedStoryMapNodeData(const StoryNodeMap::NodeData* selectedStoryMapNodeData)
+void ProgressionDataRepository::SetSelectedStoryMapNodeData(const StoryMap::NodeData* selectedStoryMapNodeData)
 {
     mSelectedStoryMapNodeData = selectedStoryMapNodeData;
 }

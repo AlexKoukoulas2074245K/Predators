@@ -1,12 +1,12 @@
 ///------------------------------------------------------------------------------------------------
-///  StoryNodeMap.h                                                                                          
+///  StoryMap.h
 ///  Predators                                                                                            
 ///                                                                                                
 ///  Created by Alex Koukoulas on 19/12/2023                                                       
 ///------------------------------------------------------------------------------------------------
 
-#ifndef StoryNodeMap_h
-#define StoryNodeMap_h
+#ifndef StoryMap_h
+#define StoryMap_h
 
 ///------------------------------------------------------------------------------------------------
 
@@ -66,7 +66,7 @@ struct MapCoordHasher
 ///------------------------------------------------------------------------------------------------
 
 namespace scene { class Scene; }
-class StoryNodeMap final
+class StoryMap final
 {
 public:
     enum class NodeType
@@ -88,13 +88,13 @@ public:
     };
     
 public:
-    StoryNodeMap(std::shared_ptr<scene::Scene> scene, const glm::ivec2& mapDimensions, const MapCoord& currentMapCoord, const bool singleEntryPoint);
+    StoryMap(std::shared_ptr<scene::Scene> scene, const glm::ivec2& mapDimensions, const MapCoord& currentMapCoord);
     
     void GenerateMapNodes();
     void CreateMapSceneObjects();
     void DestroyParticleEmitters();
     bool HasCreatedSceneObjects() const;
-    const std::map<MapCoord, StoryNodeMap::NodeData>& GetMapData() const;
+    const std::map<MapCoord, StoryMap::NodeData>& GetMapData() const;
     const glm::ivec2& GetMapDimensions() const;
     
 private:
@@ -109,7 +109,6 @@ private:
     std::shared_ptr<scene::Scene> mScene;
     const glm::ivec2 mMapDimensions;
     const MapCoord mCurrentMapCoord;
-    const bool mHasSingleEntryPoint;
     int mMapGenerationAttemptsRemaining;
     bool mHasCreatedSceneObjects;
     std::map<MapCoord, NodeData> mMapData;
@@ -117,5 +116,5 @@ private:
 
 ///------------------------------------------------------------------------------------------------
 
-#endif /* StoryNodeMap_h */
+#endif /* StoryMap_h */
 

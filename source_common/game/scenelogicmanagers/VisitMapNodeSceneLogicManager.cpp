@@ -136,37 +136,37 @@ void VisitMapNodeSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> sce
     
     switch(ProgressionDataRepository::GetInstance().GetSelectedStoryMapNodeData()->mNodeType)
     {
-        case StoryNodeMap::NodeType::NORMAL_ENCOUNTER:
+        case StoryMap::NodeType::NORMAL_ENCOUNTER:
         {
             nodeDescriptionSceneObject->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = WHITE_NODE_DESC_COLOR;
             textDataNodeDescription.mText = "Normal Encounter";
         } break;
         
-        case StoryNodeMap::NodeType::ELITE_ENCOUNTER:
+        case StoryMap::NodeType::ELITE_ENCOUNTER:
         {
             textDataNodeDescription.mText = "Elite Encounter";
             nodeDescriptionSceneObject->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = ORANGE_NODE_DESC_COLOR;
         } break;
         
-        case StoryNodeMap::NodeType::EVENT:
+        case StoryMap::NodeType::EVENT:
         {
             textDataNodeDescription.mText = "Random Event";
             nodeDescriptionSceneObject->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = PURPLE_NODE_DESC_COLOR;
         } break;
         
-        case StoryNodeMap::NodeType::BOSS_ENCOUNTER:
+        case StoryMap::NodeType::BOSS_ENCOUNTER:
         {
             textDataNodeDescription.mText = "Boss Encounter";
             nodeDescriptionSceneObject->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = RED_NODE_DESC_COLOR;
         } break;
         
-        case StoryNodeMap::NodeType::SHOP:
+        case StoryMap::NodeType::SHOP:
         {
             textDataNodeDescription.mText = "Merchant Encounter";
             nodeDescriptionSceneObject->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = PURPLE_NODE_DESC_COLOR;
         } break;
         
-        case StoryNodeMap::NodeType::STARTING_LOCATION:
+        case StoryMap::NodeType::STARTING_LOCATION:
         {
             textDataNodeDescription.mText = "Your Tent!";
             nodeDescriptionSceneObject->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = WHITE_NODE_DESC_COLOR;
