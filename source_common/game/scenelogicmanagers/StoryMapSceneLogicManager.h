@@ -58,6 +58,7 @@ private:
     rendering::Camera mSwipeCamera;
     glm::vec3 mSwipeCurrentPos;
     glm::vec3 mCameraTargetPos;
+    glm::vec3 mPreviousDirectionToTargetNode;
     MapUpdateState mMapUpdateState;
     bool mHasStartedSwipe;
 };

@@ -250,13 +250,18 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
         case MapUpdateState::MOVING_TO_NODE:
         {
             auto initPosition = mScene->GetCamera().GetPosition();
-            auto normalizedDirectionToTarget = glm::normalize(mCameraTargetPos - initPosition);
+            auto directionToTarget = mCameraTargetPos - initPosition;
+            
+            bool onlyMovingInOneDirection = (math::Abs(directionToTarget.x - mPreviousDirectionToTargetNode.x) <= CAMERA_NOT_MOVED_THRESHOLD || math::Abs(directionToTarget.y - mPreviousDirectionToTargetNode.y) <= CAMERA_NOT_MOVED_THRESHOLD);
+            
+            auto normalizedDirectionToTarget = glm::normalize(directionToTarget);
             auto targetVelocity = normalizedDirectionToTarget * dtMillis;
             
-            targetVelocity *= (math::Abs(normalizedDirectionToTarget.x) < CAMERA_NOT_MOVED_THRESHOLD || math::Abs(normalizedDirectionToTarget.y) < CAMERA_NOT_MOVED_THRESHOLD) ? 2 * CAMERA_MOVING_TO_NODE_SPEED : CAMERA_MOVING_TO_NODE_SPEED;
+            targetVelocity *= onlyMovingInOneDirection ? 2 * CAMERA_MOVING_TO_NODE_SPEED : CAMERA_MOVING_TO_NODE_SPEED;
             
             MoveWorldBy(targetVelocity);
             
+            mPreviousDirectionToTargetNode = directionToTarget;
             auto currentDistanceToNode = glm::distance(mCameraTargetPos, mScene->GetCamera().GetPosition());
             
             if (currentDistanceToNode < DISTANCE_TO_TARGET_NODE_THRESHOLD ||
