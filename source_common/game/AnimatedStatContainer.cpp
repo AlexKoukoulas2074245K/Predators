@@ -146,3 +146,10 @@ std::vector<std::shared_ptr<scene::SceneObject>>& AnimatedStatContainer::GetScen
 }
 
 ///------------------------------------------------------------------------------------------------
+
+void AnimatedStatContainer::ForceSetDisplayedValue(const int displayedValue)
+{
+    mDisplayedValue = displayedValue;
+}
+
+///------------------------------------------------------------------------------------------------

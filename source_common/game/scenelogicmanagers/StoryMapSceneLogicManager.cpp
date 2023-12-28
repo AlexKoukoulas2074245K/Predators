@@ -11,6 +11,7 @@
 #include <engine/scene/SceneManager.h>
 #include <engine/scene/SceneObjectUtils.h>
 #include <engine/utils/Logging.h>
+#include <engine/utils/PlatformMacros.h>
 #include <game/AnimatedButton.h>
 #include <game/AnimatedStatContainer.h>
 #include <game/events/EventSystem.h>
@@ -58,6 +59,12 @@ static const float CAMERA_NOT_MOVED_THRESHOLD = 0.0001f;
 static const float CAMERA_MOVING_TO_NODE_SPEED = 0.0005f;
 static const float SELECTED_NODE_Z_OFFSET = 23.3f;
 static const float FRESH_MAP_ANIMATION_TARGET_Y_OFFSET = -0.185f;
+
+#if defined(NDEBUG) || defined(MOBILE_FLOW)
+static const float FRESH_MAP_ANIMATION_SPEED = 0.1f;
+#else
+static const float FRESH_MAP_ANIMATION_SPEED = 3.0f;
+#endif
 
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
 {
@@ -170,6 +177,8 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
         if (currentMapCoord.x == game_constants::STORY_MAP_INIT_COORD.x && currentMapCoord.y == game_constants::STORY_MAP_INIT_COORD.y)
         {
             ProgressionDataRepository::GetInstance().SetStoryCurrentHealth(30);
+            mHealthStatContainer->ForceSetDisplayedValue(ProgressionDataRepository::GetInstance().GetStoryCurrentHealth());
+            
             mMapUpdateState = MapUpdateState::FRESH_MAP_ANIMATION;
             SetMapPositionTo(mStoryMap->GetMapData().at(MapCoord(game_constants::STORY_MAP_BOSS_COORD.x, game_constants::STORY_MAP_BOSS_COORD.y)).mPosition);
             
@@ -322,7 +331,7 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
             auto normalizedDirectionToTarget = glm::normalize(directionToTarget);
             auto targetVelocity = normalizedDirectionToTarget * dtMillis;
             
-            targetVelocity *= onlyMovingInOneDirection ? 2 * CAMERA_MOVING_TO_NODE_SPEED : CAMERA_MOVING_TO_NODE_SPEED * (math::Max(0.1f, glm::length(initPosition - mFreshMapCameraAnimationInitPosition)/glm::length(mCameraTargetPos - mFreshMapCameraAnimationInitPosition)));
+            targetVelocity *= onlyMovingInOneDirection ? 2 * CAMERA_MOVING_TO_NODE_SPEED : CAMERA_MOVING_TO_NODE_SPEED * (math::Max(FRESH_MAP_ANIMATION_SPEED, glm::length(initPosition - mFreshMapCameraAnimationInitPosition)/glm::length(mCameraTargetPos - mFreshMapCameraAnimationInitPosition)));
             
             MoveMapBy(targetVelocity);
             
@@ -388,6 +397,9 @@ void StoryMapSceneLogicManager::OnPopSceneModal(const events::PopSceneModalEvent
 void StoryMapSceneLogicManager::OnWindowResize(const events::WindowResizeEvent&)
 {
     CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::STORY_MAP_SCENE)->RecalculatePositionOfEdgeSnappingSceneObjects();
+    
+    // Realign health stat container
+    mHealthStatContainer->Update(0.0f);
 }
 
 ///------------------------------------------------------------------------------------------------

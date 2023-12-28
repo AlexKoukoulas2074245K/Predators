@@ -579,7 +579,7 @@ StoryMap::NodeType StoryMap::SelectNodeTypeForCoord(const MapCoord& mapCoord) co
         for (const auto& mapEntry: mMapData)
         {
             
-            if (mapEntry.second.mNodeLinks.count(mapCoord))
+            if (mapEntry.second.mNodeLinks.count(mapCoord) && availableNodeTypes.size() > 2)
             {
                 availableNodeTypes.erase(mapEntry.second.mNodeType);
             }
