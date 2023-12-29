@@ -84,7 +84,9 @@ public:
     {
         NodeType mNodeType;
         glm::vec3 mPosition;
+        glm::ivec2 mCoords;
         std::unordered_set<MapCoord, MapCoordHasher> mNodeLinks;
+        int mNodeRandomSeed;
     };
     
 public:

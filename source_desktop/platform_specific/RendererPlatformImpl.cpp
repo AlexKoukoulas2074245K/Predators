@@ -499,6 +499,24 @@ void RendererPlatformImpl::CreateIMGuiWidgets()
                 ImGui::Text("Mesh: %s", resService.GetResourcePath(sceneObject->mMeshResourceId).c_str());
                 ImGui::Text("Shader: %s", resService.GetResourcePath(sceneObject->mShaderResourceId).c_str());
                 ImGui::Text("Texture: %s", resService.GetResourcePath(sceneObject->mTextureResourceId).c_str());
+                
+                std::string snapToEdgeBehaviourString;
+                switch (sceneObject->mSnapToEdgeBehavior)
+                {
+                    case scene::SnapToEdgeBehavior::NONE: snapToEdgeBehaviourString = "NONE"; break;
+                    case scene::SnapToEdgeBehavior::SNAP_TO_LEFT_EDGE: snapToEdgeBehaviourString = "SNAP_TO_LEFT_EDGE"; break;
+                    case scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE: snapToEdgeBehaviourString = "SNAP_TO_RIGHT_EDGE"; break;
+                    case scene::SnapToEdgeBehavior::SNAP_TO_TOP_EDGE: snapToEdgeBehaviourString = "SNAP_TO_TOP_EDGE"; break;
+                    case scene::SnapToEdgeBehavior::SNAP_TO_BOT_EDGE: snapToEdgeBehaviourString = "SNAP_TO_BOT_EDGE"; break;
+                }
+                
+                ImGui::Text("SnapToEdge: %s", snapToEdgeBehaviourString.c_str());
+                
+                if (ImGui::SliderFloat("SnapToEdge factor", &sceneObject->mSnapToEdgeScaleOffsetFactor, -3.0f, 3.0f))
+                {
+                    sceneRef.get().RecalculatePositionOfEdgeSnappingSceneObject(sceneObject, sceneRef.get().GetCamera().CalculateFrustum());
+                }
+                
                 ImGui::SliderFloat("x", &sceneObject->mPosition.x, -0.5f, 0.5f);
                 ImGui::SliderFloat("y", &sceneObject->mPosition.y, -0.5f, 0.5f);
                 ImGui::SliderFloat("z", &sceneObject->mPosition.z, -0.5f, 0.5f);

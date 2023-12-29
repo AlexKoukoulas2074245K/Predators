@@ -39,7 +39,6 @@ AnimatedStatContainer::AnimatedStatContainer
     , mScaleFactor(customScaleFactor)
     , mDisplayedValue(valueToTrack)
     , mValueChangeDelaySecs(0.0f)
-    , mScene(scene)
     , mFinishedAnimating(false)
 {
     auto crystalBaseSceneObject = scene.CreateSceneObject(strutils::StringId(crystalName + BASE_SCENE_OBJECT_NAME_POSTFIX));
@@ -71,10 +70,6 @@ AnimatedStatContainer::AnimatedStatContainer
 
 AnimatedStatContainer::~AnimatedStatContainer()
 {
-    for (auto sceneObject: mSceneObjects)
-    {
-        mScene.RemoveSceneObject(sceneObject->mName);
-    }
 }
 
 ///------------------------------------------------------------------------------------------------

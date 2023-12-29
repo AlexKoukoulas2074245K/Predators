@@ -20,6 +20,7 @@
 
 class AnimatedButton;
 class AnimatedStatContainer;
+class GuiObjectManager;
 class StoryMap;
 class StoryMapSceneLogicManager final: public ISceneLogicManager, public events::IListener
 {
@@ -36,11 +37,9 @@ public:
     
 private:
     void RegisterForEvents();
-    void SetCoinValueText();
     void OnPopSceneModal(const events::PopSceneModalEvent& event);
     void OnWindowResize(const events::WindowResizeEvent& event);
     void ResetSwipeData();
-    void OnSettingsButtonPressed();
     void SetMapPositionTo(const glm::vec3& position);
     void MoveMapBy(const glm::vec3& delta);
     void MoveGUIBy(const glm::vec3& delta);
@@ -54,11 +53,10 @@ private:
         FRESH_MAP_ANIMATION
     };
     
-    std::vector<std::unique_ptr<AnimatedButton>> mAnimatedButtons;
     std::unique_ptr<StoryMap> mStoryMap;
     std::unique_ptr<MapCoord> mSelectedMapCoord;
-    std::unique_ptr<AnimatedStatContainer> mHealthStatContainer;
     std::shared_ptr<scene::Scene> mScene;
+    std::unique_ptr<GuiObjectManager> mGuiManager;
     rendering::Camera mSwipeCamera;
     glm::vec3 mSwipeCurrentPos;
     glm::vec3 mCameraTargetPos;

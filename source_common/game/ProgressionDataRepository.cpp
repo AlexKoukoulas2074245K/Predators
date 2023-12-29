@@ -31,6 +31,34 @@ void ProgressionDataRepository::SetNextBattleControlType(const BattleControlType
 
 ///------------------------------------------------------------------------------------------------
 
+StoryMapSceneType ProgressionDataRepository::GetCurrentStoryMapSceneType() const
+{
+    return mCurrentStoryMapSceneType;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ProgressionDataRepository::SetCurrentStoryMapSceneType(const StoryMapSceneType currentStoryMapSceneType)
+{
+    mCurrentStoryMapSceneType = currentStoryMapSceneType;
+}
+
+///------------------------------------------------------------------------------------------------
+
+const int& ProgressionDataRepository::GetCurrentEventScreenIndex() const
+{
+    return mCurrentEventScreenIndex;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ProgressionDataRepository::SetCurrentEventScreenIndex(const int currentEventScreenIndex)
+{
+    mCurrentEventScreenIndex = currentEventScreenIndex;
+}
+
+///------------------------------------------------------------------------------------------------
+
 const std::vector<int>& ProgressionDataRepository::GetNextTopPlayerDeck() const
 {
     return mNextTopPlayerDeck;
@@ -97,6 +125,20 @@ const int& ProgressionDataRepository::GetStoryMapGenerationSeed() const
 void ProgressionDataRepository::SetStoryMapGenerationSeed(const int storyMapGenerationSeed)
 {
     mStoryMapGenerationSeed = storyMapGenerationSeed;
+}
+
+///------------------------------------------------------------------------------------------------
+
+const int& ProgressionDataRepository::GetCurrentStoryMapNodeSeed() const
+{
+    return mCurrentStoryMapNodeSeed;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ProgressionDataRepository::SetCurrentStoryMapNodeSeed(const int currentStoryMapNodeSeed)
+{
+    mCurrentStoryMapNodeSeed = currentStoryMapNodeSeed;
 }
 
 ///------------------------------------------------------------------------------------------------

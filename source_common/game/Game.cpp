@@ -32,9 +32,10 @@
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/GameActionFactory.h>
 #include <game/scenelogicmanagers/BattleSceneLogicManager.h>
-#include <game/scenelogicmanagers/SettingsSceneLogicManager.h>
+#include <game/scenelogicmanagers/EventSceneLogicManager.h>
 #include <game/scenelogicmanagers/LoadingSceneLogicManager.h>
 #include <game/scenelogicmanagers/MainMenuSceneLogicManager.h>
+#include <game/scenelogicmanagers/SettingsSceneLogicManager.h>
 #include <game/scenelogicmanagers/StoryMapSceneLogicManager.h>
 #include <game/scenelogicmanagers/VisitMapNodeSceneLogicManager.h>
 #include <engine/utils/PersistenceUtils.h>
@@ -85,6 +86,7 @@ void Game::Init()
     
     mGameSceneTransitionManager = std::make_unique<GameSceneTransitionManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<BattleSceneLogicManager>();
+    mGameSceneTransitionManager->RegisterSceneLogicManager<EventSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<SettingsSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<LoadingSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<MainMenuSceneLogicManager>();

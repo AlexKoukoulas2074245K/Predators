@@ -51,7 +51,6 @@ private:
     const float mScaleFactor;
     int mDisplayedValue;
     float mValueChangeDelaySecs;
-    scene::Scene& mScene;
     std::vector<std::shared_ptr<scene::SceneObject>> mSceneObjects;
     bool mFinishedAnimating;
 };

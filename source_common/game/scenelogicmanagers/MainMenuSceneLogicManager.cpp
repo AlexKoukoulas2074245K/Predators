@@ -108,6 +108,12 @@ static const std::unordered_map<strutils::StringId, std::string, strutils::Strin
     { game_constants::DINOSAURS_FAMILY_NAME, "mighty_roar.png" }
 };
 
+static const std::unordered_map<StoryMapSceneType, strutils::StringId> STORY_MAP_SCENE_TYPE_TO_SCENE_NAME =
+{
+    { StoryMapSceneType::STORY_MAP, game_constants::STORY_MAP_SCENE },
+    { StoryMapSceneType::EVENT, game_constants::EVENT_SCENE }
+};
+
 ///------------------------------------------------------------------------------------------------
 
 const std::vector<strutils::StringId>& MainMenuSceneLogicManager::VGetApplicableSceneNames() const
@@ -277,7 +283,7 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                     game_constants::DEFAULT_FONT_NAME,
                     "Continue Story",
                     CONTINUE_STORY_BUTTON_NAME,
-                    [=](){ events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_MAP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE); },
+                    [=](){ events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(STORY_MAP_SCENE_TYPE_TO_SCENE_NAME.at(ProgressionDataRepository::GetInstance().GetCurrentStoryMapSceneType()), SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE); },
                     *scene
                 ));
                 

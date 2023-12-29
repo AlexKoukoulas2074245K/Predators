@@ -91,23 +91,38 @@ void VisitMapNodeSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> sce
     auto& targetNodePosition = ProgressionDataRepository::GetInstance().GetSelectedStoryMapNodePosition();
     auto& previousSceneCameraPosition = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(mPreviousScene)->GetCamera().GetPosition();
     
-    auto visitButtonPosition = targetNodePosition;
-    visitButtonPosition.x += (targetNodePosition.x < previousSceneCameraPosition.x ? VISIT_BUTTON_HOR_DISTANCE_FROM_NODE : -1.5f * VISIT_BUTTON_HOR_DISTANCE_FROM_NODE);
-    visitButtonPosition.y += VISIT_BUTTON_Y_OFFSET_FROM_NODE;
-    visitButtonPosition.z = BUTTON_Z;
-    mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
-    (
-        visitButtonPosition,
-        BUTTON_SCALE,
-        game_constants::DEFAULT_FONT_NAME,
-        "Visit",
-        VISIT_BUTTON_NAME,
-        [=]()
-        {
-            mTransitioning = true;
-        },
-        *scene
-    ));
+    // Don't visit Tent node
+    if (ProgressionDataRepository::GetInstance().GetSelectedStoryMapNodeData()->mCoords != ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeCoord())
+    {
+        auto visitButtonPosition = targetNodePosition;
+        visitButtonPosition.x += (targetNodePosition.x < previousSceneCameraPosition.x ? VISIT_BUTTON_HOR_DISTANCE_FROM_NODE : -1.5f * VISIT_BUTTON_HOR_DISTANCE_FROM_NODE);
+        visitButtonPosition.y += VISIT_BUTTON_Y_OFFSET_FROM_NODE;
+        visitButtonPosition.z = BUTTON_Z;
+        mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
+        (
+            visitButtonPosition,
+            BUTTON_SCALE,
+            game_constants::DEFAULT_FONT_NAME,
+            "Visit",
+            VISIT_BUTTON_NAME,
+            [=]()
+            {
+                mTransitioning = true;
+                auto* selectedNodeData = ProgressionDataRepository::GetInstance().GetSelectedStoryMapNodeData();
+                
+                assert(selectedNodeData);
+                assert(selectedNodeData->mNodeRandomSeed != 0);
+                
+                ProgressionDataRepository::GetInstance().SetCurrentStoryMapNodeSeed(selectedNodeData->mNodeRandomSeed);
+                ProgressionDataRepository::GetInstance().SetCurrentStoryMapNodeCoord(selectedNodeData->mCoords);
+                ProgressionDataRepository::GetInstance().SetCurrentEventScreenIndex(0);
+                
+                events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::EVENT_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
+            },
+            *scene
+        ));
+    }
+    
     
     auto backButtonPosition = targetNodePosition;
     backButtonPosition.x += (targetNodePosition.x < previousSceneCameraPosition.x ? BACK_BUTTON_HOR_DISTANCE_FROM_NODE : -1.5f * BACK_BUTTON_HOR_DISTANCE_FROM_NODE);
@@ -134,7 +149,8 @@ void VisitMapNodeSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> sce
     scene::TextSceneObjectData textDataNodeDescription;
     textDataNodeDescription.mFontName = game_constants::DEFAULT_FONT_NAME;
     
-    switch(ProgressionDataRepository::GetInstance().GetSelectedStoryMapNodeData()->mNodeType)
+    const auto effectiveNodeType = ProgressionDataRepository::GetInstance().GetSelectedStoryMapNodeData()->mCoords == ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeCoord() ? StoryMap::NodeType::STARTING_LOCATION : ProgressionDataRepository::GetInstance().GetSelectedStoryMapNodeData()->mNodeType;
+    switch(effectiveNodeType)
     {
         case StoryMap::NodeType::NORMAL_ENCOUNTER:
         {

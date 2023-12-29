@@ -161,6 +161,7 @@ const glm::ivec2& StoryMap::GetMapDimensions() const
 
 void StoryMap::GenerateMapData()
 {
+    mapGenerationAttempts = 0;
     auto currentGenerationSeed = ProgressionDataRepository::GetInstance().GetStoryMapGenerationSeed();
     if (currentGenerationSeed == 0)
     {
@@ -192,6 +193,8 @@ void StoryMap::GenerateMapData()
             auto currentCoordinate = MapCoord(0, mMapDimensions.y/2);
             mMapData[currentCoordinate].mPosition = GenerateNodePositionForCoord(currentCoordinate);
             mMapData[currentCoordinate].mNodeType = SelectNodeTypeForCoord(currentCoordinate);
+            mMapData[currentCoordinate].mNodeRandomSeed = math::ControlledRandomInt();
+            mMapData[currentCoordinate].mCoords = { currentCoordinate.mCol, currentCoordinate.mRow };
             
             for (int col = 1; col < mMapDimensions.x; ++col)
             {
@@ -206,6 +209,8 @@ void StoryMap::GenerateMapData()
                 currentCoordinate = targetCoord;
                 mMapData[currentCoordinate].mPosition = GenerateNodePositionForCoord(currentCoordinate);
                 mMapData[currentCoordinate].mNodeType = SelectNodeTypeForCoord(currentCoordinate);
+                mMapData[currentCoordinate].mNodeRandomSeed = math::ControlledRandomInt();
+                mMapData[currentCoordinate].mCoords = { currentCoordinate.mCol, currentCoordinate.mRow };
             }
         }
     } while (FoundCloseEnoughNodes() && mMapGenerationAttemptsRemaining > 0);
@@ -288,11 +293,17 @@ void StoryMap::CreateMapSceneObjects()
     // All node meshes
     for (const auto& mapNodeEntry: mMapData)
     {
+        auto effectiveNodeType = mapNodeEntry.second.mNodeType;
+        if (mapNodeEntry.first == mCurrentMapCoord)
+        {
+            effectiveNodeType = NodeType::STARTING_LOCATION;
+        }
+        
         auto nodeSceneObject = mScene->CreateSceneObject(strutils::StringId(mapNodeEntry.first.ToString()));
         nodeSceneObject->mPosition = mapNodeEntry.second.mPosition;
         nodeSceneObject->mShaderResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + STORY_MAP_NODE_SHADER_FILE_NAME);
         nodeSceneObject->mShaderBoolUniformValues[IS_NODE_ACTIVE_UNIFORM_NAME] = mapNodeEntry.first == mCurrentMapCoord;
-        nodeSceneObject->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + MAP_NODE_TYPES_TO_PORTRAIT_TEXTURES.at(mapNodeEntry.second.mNodeType));
+        nodeSceneObject->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + MAP_NODE_TYPES_TO_PORTRAIT_TEXTURES.at(effectiveNodeType));
         nodeSceneObject->mBoundingRectMultiplier.x = game_constants::CARD_BOUNDING_RECT_X_MULTIPLIER;
         nodeSceneObject->mScale = glm::vec3(NODE_SCALE);
         
@@ -304,7 +315,7 @@ void StoryMap::CreateMapSceneObjects()
         nodePortraitSceneObject->mPosition += NODE_PORTRAIT_POSITION_OFFSET;
         
         // Starting location does not have a portrait texture
-        if (mapNodeEntry.second.mNodeType == NodeType::STARTING_LOCATION)
+        if (effectiveNodeType == NodeType::STARTING_LOCATION)
         {
             nodePortraitSceneObject->mInvisible = true;
         }
@@ -322,7 +333,7 @@ void StoryMap::CreateMapSceneObjects()
         primaryTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
         secondaryTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
         
-        switch (mapNodeEntry.second.mNodeType)
+        switch (effectiveNodeType)
         {
             case NodeType::STARTING_LOCATION:
             {
@@ -415,6 +426,17 @@ void StoryMap::CreateMapSceneObjects()
                 animationManager.StartAnimation(std::make_unique<rendering::BouncePositionAnimation>(textSceneObject, glm::vec3(0.0f, randomBounceYSpeed, 0.0f), 1.0f, animation_flags::ANIMATE_CONTINUOUSLY, randomDelaySecsOffset), [](){});
             }
         }
+        
+        // Make all previous nodes invisible
+        if (mapNodeEntry.first.mCol < mCurrentMapCoord.mCol)
+        {
+            nodeSceneObject->mInvisible = true;
+            nodePortraitSceneObject->mInvisible = true;
+            for (auto textSceneObject: textSceneObjects)
+            {
+                textSceneObject->mInvisible = true;
+            }
+        }
     }
     
     auto& particleManager = CoreSystemsEngine::GetInstance().GetParticleManager();
@@ -451,6 +473,10 @@ void StoryMap::CreateMapSceneObjects()
     
     for (const auto& mapNodeEntry: mMapData)
     {
+        if (mapNodeEntry.first.mCol < mCurrentMapCoord.mCol)
+        {
+            continue;
+        }
         for (const auto& linkedCoord: mapNodeEntry.second.mNodeLinks)
         {
             bool isPartOfEligiblePath = mapNodeEntry.first == mCurrentMapCoord;

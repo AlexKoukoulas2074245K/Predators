@@ -26,6 +26,14 @@ enum class BattleControlType
 
 ///------------------------------------------------------------------------------------------------
 
+enum class StoryMapSceneType
+{
+    STORY_MAP,
+    EVENT
+};
+
+///------------------------------------------------------------------------------------------------
+
 class ProgressionDataRepository final
 {
 public:
@@ -39,6 +47,9 @@ public:
     
     BattleControlType GetNextBattleControlType() const;
     void SetNextBattleControlType(const BattleControlType nextBattleControlType);
+    
+    StoryMapSceneType GetCurrentStoryMapSceneType() const;
+    void SetCurrentStoryMapSceneType(const StoryMapSceneType currentStoryMapSceneType);
     
     const std::vector<int>& GetNextTopPlayerDeck() const;
     void SetNextTopPlayerDeck(const std::vector<int>& deck);
@@ -55,6 +66,12 @@ public:
     const int& GetStoryMapGenerationSeed() const;
     void SetStoryMapGenerationSeed(const int storyMapGenerationSeed);
     
+    const int& GetCurrentStoryMapNodeSeed() const;
+    void SetCurrentStoryMapNodeSeed(const int currentStoryMapNodeSeed);
+    
+    const int& GetCurrentEventScreenIndex() const;
+    void SetCurrentEventScreenIndex(const int currentEventScreenIndex);
+    
     const glm::ivec2& GetCurrentStoryMapNodeCoord() const;
     void SetCurrentStoryMapNodeCoord(const glm::ivec2& currentStoryMapNodeCoord);
     
@@ -69,6 +86,7 @@ private:
     
 private:
     BattleControlType mNextBattleControlType;
+    StoryMapSceneType mCurrentStoryMapSceneType;
     std::vector<int> mNextTopPlayerDeck;
     std::vector<int> mNextBotPlayerDeck;
     glm::vec3 mSelectedStoryMapNodePosition = {};
@@ -77,6 +95,8 @@ private:
     int mStoryCurrentHealth = 0;
     int mCurrencyCoins = 0;
     int mStoryMapGenerationSeed = 0;
+    int mCurrentStoryMapNodeSeed = 0;
+    int mCurrentEventScreenIndex = 0;
 };
 
 ///------------------------------------------------------------------------------------------------

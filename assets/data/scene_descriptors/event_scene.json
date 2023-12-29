@@ -1,0 +1,25 @@
+{
+    "children_scenes":
+    [
+    ],
+    
+    "scene_objects":
+    [
+        {
+            "name": "background_overlay",
+            "texture": "overlay.png",
+            "scale": { "x": 10.0, "y": 10.0, "z": 0.5 },
+            "position": { "x": 0.0, "y": 0.0, "z": 0.0 },
+            "alpha": 1.0,
+            "invisible": false
+        },
+        {
+            "name": "background",
+            "texture": "story_cards/event.png",
+            "scale": { "x": 0.5, "y": 0.5, "z": 0.5 },
+            "position": { "x": 0.23, "y": 0.0, "z": 0.1 },
+            "alpha": 0.4,
+            "invisible": false
+        }
+    ]
+}
