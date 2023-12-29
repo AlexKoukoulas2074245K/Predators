@@ -104,9 +104,9 @@ void CardAttackGameAction::VSetNewGameState()
         { CardHistoryEntryAdditionGameAction::IS_TURN_COUNTER_PARAM, "false"}
     });
     
-    if (activePlayerState.mPlayerHealth <= 0.0f)
+    if (activePlayerState.mPlayerHealth <= 0)
     {
-        activePlayerState.mPlayerHealth = 0.0f;
+        activePlayerState.mPlayerHealth = 0;
         mGameActionEngine->AddGameAction(GAME_OVER_GAME_ACTION_NAME,
         {
             { GameOverGameAction::VICTORIOUS_PLAYER_INDEX_PARAM, std::to_string(attackingPayerIndex)}
@@ -206,8 +206,8 @@ void CardAttackGameAction::VInitAnimation()
                         *CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE)
                      );
                     
-                    auto cameraShakeDuration = ATTACKING_CARD_CAMERA_SHAKE_DURATION * (1.0f + 0.05f * std::powf(mPendingDamage, 2));
-                    auto cameraShakeStrength = ATTACKING_CARD_CAMERA_SHAKE_STRENGTH * (1.0f + 0.05f * std::powf(mPendingDamage, 2));
+                    auto cameraShakeDuration = ATTACKING_CARD_CAMERA_SHAKE_DURATION * (1.0f + 0.05f * std::powf(static_cast<float>(mPendingDamage), 2.0f));
+                    auto cameraShakeStrength = ATTACKING_CARD_CAMERA_SHAKE_STRENGTH * (1.0f + 0.05f * std::powf(static_cast<float>(mPendingDamage), 2.0f));
                     CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE)->GetCamera().Shake(cameraShakeDuration, cameraShakeStrength);
                     
                     animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObject, mOriginalCardPosition, mOriginalCardScale, ATTACKING_CARD_LONG_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [&]()

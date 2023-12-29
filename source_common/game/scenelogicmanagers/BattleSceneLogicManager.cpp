@@ -1795,7 +1795,7 @@ glm::vec3 BattleSceneLogicManager::CalculateBoardEffectPosition(const size_t eff
     auto targetX = cardStartX + effectIndex * game_constants::IN_GAME_CARD_ON_BOARD_WIDTH + game_constants::IN_GAME_CARD_ON_BOARD_WIDTH/2;
     if (effectsCount > game_constants::IN_GAME_CARD_PUSH_THRESHOLD)
     {
-        float pushX = (effectsCount - game_constants::IN_GAME_CARD_PUSH_THRESHOLD) * game_constants::IN_GAME_CARD_PUSH_VALUE * (math::Abs(effectIndex - effectsCount/2));
+        float pushX = (effectsCount - game_constants::IN_GAME_CARD_PUSH_THRESHOLD) * game_constants::IN_GAME_CARD_PUSH_VALUE * (math::Abs(static_cast<int>(effectIndex - effectsCount/2)));
         bool oddCardCount = effectsCount % 2 != 0;
         if ((oddCardCount && effectIndex != effectsCount/2) || !oddCardCount)
         {

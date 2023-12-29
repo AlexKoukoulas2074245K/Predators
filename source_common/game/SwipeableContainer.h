@@ -100,11 +100,11 @@ public:
             mItems.insert(mItems.begin(), item);
             for (int i = 0; i < static_cast<int>(mItems.size()); ++i)
             {
-                auto& item = mItems[i];
+                auto& currentItem = mItems[i];
                 
-                for (auto j = 0U; j < item.mSceneObjects.size(); ++j)
+                for (auto j = 0U; j < currentItem.mSceneObjects.size(); ++j)
                 {
-                    auto& sceneObject = item.mSceneObjects[j];
+                    auto& sceneObject = currentItem.mSceneObjects[j];
                     sceneObject->mName = strutils::StringId(mContainerName.GetString() + "_" + std::to_string(i) + "_" + std::to_string(j));
                 }
             }
