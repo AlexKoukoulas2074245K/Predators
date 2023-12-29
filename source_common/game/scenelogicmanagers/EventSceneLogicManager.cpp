@@ -29,11 +29,14 @@ static const strutils::StringId EVENT_BUTTON_SCENE_OBJECT_NAME = strutils::Strin
 static const glm::vec3 BUTTON_SCALE = {0.0005f, 0.0005f, 0.0005f};
 static const glm::vec3 EVENT_DESCRIPTION_TEXT_SCALE = {0.0004f, 0.0004f, 0.0004f};
 static const glm::vec3 EVENT_PORTRAIT_SCALE = {0.4f, 0.4f, 0.4f};
-static const glm::vec3 EVENT_PORTRAIT_POSITION = {-0.1f, 0.0f, 1.0f};
+static const glm::vec3 EVENT_PORTRAIT_POSITION = {-0.1f, 0.0f, 0.8f};
 
 static const float EVENT_SCREEN_FADE_IN_OUT_DURATION_SECS = 0.5f;
 static const float EVENT_SCREEN_ITEM_Z = 1.0f;
+static const float EVENT_PORTRAIT_ALPHA = 0.75f;
 static const float EVENT_PORTRAIT_SNAP_TO_EDGE_SCALE_OFFSET_FACTOR = 0.09f;
+static const float EVENT_DESCRIPTION_TEXT_SNAP_TO_EDGE_SCALE_OFFSET_FACTOR = 1500.0f;
+static const float EVENT_BUTTON_SNAP_TO_EDGE_OFFSET_FACTOR = 1100.0f;
 
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
 {
@@ -247,6 +250,8 @@ void EventSceneLogicManager::CreateEventScreen(const int screenIndex)
         descriptionRowSceneObject->mSceneObjectTypeData = std::move(textData);
         descriptionRowSceneObject->mPosition = { -0.06f, 0.15f - descriptionRowIndex * 0.05, EVENT_SCREEN_ITEM_Z };
         descriptionRowSceneObject->mScale = EVENT_DESCRIPTION_TEXT_SCALE;
+        descriptionRowSceneObject->mSnapToEdgeBehavior = scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE;
+        descriptionRowSceneObject->mSnapToEdgeScaleOffsetFactor = EVENT_DESCRIPTION_TEXT_SNAP_TO_EDGE_SCALE_OFFSET_FACTOR;
         descriptionRowIndex++;
     }
     
@@ -265,7 +270,9 @@ void EventSceneLogicManager::CreateEventScreen(const int screenIndex)
             {
                 TransitionToEventScreen(screenButton.mNextScreenIndex);
             },
-            *mScene
+            *mScene,
+            scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE,
+            EVENT_BUTTON_SNAP_TO_EDGE_OFFSET_FACTOR/BUTTON_SCALE.x
         ));
         screenButtonIndex++;
     }
@@ -289,7 +296,7 @@ void EventSceneLogicManager::CreateEventScreen(const int screenIndex)
         if (applicableSceneObject)
         {
             sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
-            CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, 1.0f, EVENT_SCREEN_FADE_IN_OUT_DURATION_SECS), [=]()
+            CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, sceneObject->mName == EVENT_PORTRAIT_SCENE_OBJECT_NAME ? EVENT_PORTRAIT_ALPHA : 1.0f, EVENT_SCREEN_FADE_IN_OUT_DURATION_SECS), [=]()
             {
                 mTransitioning = false;
             });

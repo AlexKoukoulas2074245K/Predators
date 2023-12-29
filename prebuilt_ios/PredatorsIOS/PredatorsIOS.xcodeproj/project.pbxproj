@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		0130DF70B5A9001580F0D9B7 /* NextDinoDamageDoublingGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB16493B917105168F0125F5 /* NextDinoDamageDoublingGameAction.cpp */; };
 		02D6D4D6DA10CEEC7AD73D5A /* TrapTriggeredAnimationGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5185CB2E38BF19BD1C54BAF6 /* TrapTriggeredAnimationGameAction.cpp */; };
-		0773FE9923BAFBE6C8F9D8AF /* StoryNodeMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8250F455FC6264D18627A56D /* StoryNodeMap.cpp */; };
 		081A9A06DFDB6D2DCCCAE343 /* AnimationManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EBF846548488DC5997004413 /* AnimationManager.cpp */; };
 		081F81F15F59AB40DA7EA3CC /* BattleInitialAnimationGameAction.h in Sources */ = {isa = PBXBuildFile; fileRef = 7A0A589953BD1C5BD1C6CA6D /* BattleInitialAnimationGameAction.h */; };
 		08AE236E40150C6D07B7AF70 /* BaseDataFileSerializer.h in Sources */ = {isa = PBXBuildFile; fileRef = 3F2663D4D8A6185959494E12 /* BaseDataFileSerializer.h */; };
@@ -17,8 +16,10 @@
 		0BBF6683EF819A4D125B98A0 /* ThreadSafeQueue.h in Sources */ = {isa = PBXBuildFile; fileRef = 989D5D93E995723F377B2323 /* ThreadSafeQueue.h */; };
 		107445B069A441B257F6C907 /* AnimatedStatContainer.h in Sources */ = {isa = PBXBuildFile; fileRef = 5FE6AF12B4C779A42A758E5B /* AnimatedStatContainer.h */; };
 		137745BADA6CE85032BFE1DC /* BattleSceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 344CBBF97D2153B6F31D21E5 /* BattleSceneLogicManager.cpp */; };
+		13D26C3FC1A08B776E3A59C1 /* EventSceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FAFAD2C13EAEAAFA959795DD /* EventSceneLogicManager.cpp */; };
 		13DD705AD4AF85B73F76F0CC /* CardUtils.h in Sources */ = {isa = PBXBuildFile; fileRef = 857303E925CD89F2799E2777 /* CardUtils.h */; };
 		14F1A3E7EF955B824DC495C5 /* TrapTriggeredAnimationGameAction.h in Sources */ = {isa = PBXBuildFile; fileRef = 3AFDF18B5E2C82DD4F486F53 /* TrapTriggeredAnimationGameAction.h */; };
+		1CBD657CEDAB24FD012A52A8 /* StoryMap.h in Sources */ = {isa = PBXBuildFile; fileRef = 18CDC4CDBECFB5581A49E860 /* StoryMap.h */; };
 		1CEFAFDB48F0FC557B871055 /* GameSceneTransitionTypes.h in Sources */ = {isa = PBXBuildFile; fileRef = 4357F046310E6B78FF6F4C3D /* GameSceneTransitionTypes.h */; };
 		1EB158AD6807266C96047A69 /* SerializationDefinitions.h in Sources */ = {isa = PBXBuildFile; fileRef = FCD986CB07334B2433EB426D /* SerializationDefinitions.h */; };
 		2265FDCE80DCF1DE5F975BE6 /* MainMenuSceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = E67EDB3334F60D1E57A5E6BD /* MainMenuSceneLogicManager.h */; };
@@ -32,6 +33,7 @@
 		3BF66DE631A90A5B18DAA6D7 /* ImageSurfaceLoader.h in Sources */ = {isa = PBXBuildFile; fileRef = 809A245389B128D782E60C07 /* ImageSurfaceLoader.h */; };
 		3D7719CC812F54B85FE8CF15 /* LoadingSceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = D06AB41BD48F4EA034DFC9A4 /* LoadingSceneLogicManager.h */; };
 		4067D0A9431E2A682BA2B3C4 /* CardEffectComponents.h in Sources */ = {isa = PBXBuildFile; fileRef = 9F590974FFD4AB7AC83044F3 /* CardEffectComponents.h */; };
+		4146EE0555B4B1018CBBAC8C /* GuiObjectManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54D1E9FC16CD3C543B9BED8D /* GuiObjectManager.cpp */; };
 		442707635CD08BA49AE21B95 /* ProgressionDataRepository.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DB72B67D2CFD6314BEF828CB /* ProgressionDataRepository.cpp */; };
 		46F6BCE0E0E5C698199D1767 /* BaseDataFileDeserializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F0FFCD7AE0C78521E3B1DFF2 /* BaseDataFileDeserializer.cpp */; };
 		47FD92C7924B28A1A0161AB3 /* CardEffectGameAction.h in Sources */ = {isa = PBXBuildFile; fileRef = 684882AB57582AA7C028DE3F /* CardEffectGameAction.h */; };
@@ -48,6 +50,7 @@
 		5D419704660E8D39EF808018 /* AnimatedButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41E9B2A6F18FC1E4E07DE13E /* AnimatedButton.cpp */; };
 		5F70A6903C6F6704B8D0F3A9 /* SwipeableContainer.h in Sources */ = {isa = PBXBuildFile; fileRef = DC7E5EF8DD1626BCF3AB1038 /* SwipeableContainer.h */; };
 		60B9E1F13C4A6D7D1A4551BA /* VisitMapNodeSceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C16A1AADA07DA3267641EB14 /* VisitMapNodeSceneLogicManager.cpp */; };
+		620CE6FC960A429B2E79C18B /* GuiObjectManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 032B5FAFE7405B08708BA231 /* GuiObjectManager.h */; };
 		6226A3C1D265DA598FB5A4C9 /* GameSceneTransitionManager.h in Sources */ = {isa = PBXBuildFile; fileRef = BCCBF20231475F822A781120 /* GameSceneTransitionManager.h */; };
 		6267CB6842C6E0239B3ADE27 /* BattleInitialAnimationGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C7F79F2355FC461357258545 /* BattleInitialAnimationGameAction.cpp */; };
 		63ACAC4B14C52F77FD898EB9 /* SceneManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 2D9F44C3DC0B2CD50A891B5D /* SceneManager.h */; };
@@ -116,6 +119,7 @@
 		A2D77982E2E1A21D9C1F22E3 /* EventSystem.h in Sources */ = {isa = PBXBuildFile; fileRef = E3A1C56ACA5ABB18A5A59BA3 /* EventSystem.h */; };
 		A546A01450E839443B41CA7C /* PlayerActionGenerationEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 412405F5A340366C4088FC72 /* PlayerActionGenerationEngine.cpp */; };
 		A5F10F3C1D3F001C41459CD3 /* LoadingSceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 24BA1BD8ECC86643BA169882 /* LoadingSceneLogicManager.cpp */; };
+		AB4D92AEF36D889BBA756B80 /* StoryMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CA6B8C60FB7312D6FF7625B9 /* StoryMap.cpp */; };
 		AB54A5905F3A5259C0730F07 /* CardDestructionGameAction.h in Sources */ = {isa = PBXBuildFile; fileRef = 93AE986D787BD40CD2934725 /* CardDestructionGameAction.h */; };
 		AD7BB55992EC6177BB3DE6B1 /* RenderingUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 484A6A1B1B0D7ADC1BEEF99A /* RenderingUtils.cpp */; };
 		AE07C58021F06E44D072CA36 /* AnimatedButton.h in Sources */ = {isa = PBXBuildFile; fileRef = 6125D1CA10A2294EDC0D2DE5 /* AnimatedButton.h */; };
@@ -132,7 +136,6 @@
 		CB369EDB3723CEDB16D2A2FE /* BaseDataFileSerializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 289376069695D28346FCC23A /* BaseDataFileSerializer.cpp */; };
 		CB531F303F3C1CE853301CBB /* CardEffectGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEDDB72469D33C82815CCED2 /* CardEffectGameAction.cpp */; };
 		D2E26E81223DD805B0E519C0 /* CardUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F62DA25CEC2725420792B4BA /* CardUtils.cpp */; };
-		DC4E6437DC2781E100E1C538 /* StoryNodeMap.h in Sources */ = {isa = PBXBuildFile; fileRef = A17C830118DB6B6188549321 /* StoryNodeMap.h */; };
 		DD1336F32DE09C22CF5258DE /* PlayerActionGenerationEngine.h in Sources */ = {isa = PBXBuildFile; fileRef = C2440AC9D2351884CB46159D /* PlayerActionGenerationEngine.h */; };
 		DE26E81E6B8122C68E6B0525 /* GameRuleEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B3D605C469F5491AEE121CBB /* GameRuleEngine.cpp */; };
 		DE60B65371427753F78EFC38 /* BaseDataFileDeserializer.h in Sources */ = {isa = PBXBuildFile; fileRef = CA46016D2047CEE613C0ED43 /* BaseDataFileDeserializer.h */; };
@@ -140,6 +143,7 @@
 		E5D592440AA9DF7D9C7BBDE5 /* IOSUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = EEA5D60503CEF24015859459 /* IOSUtils.mm */; };
 		E7764760DE60263102BC16BD /* Cards.h in Sources */ = {isa = PBXBuildFile; fileRef = 7213B89F1A8AC4B38238ECEB /* Cards.h */; };
 		E822BAEB6AFB1F91FA785FA4 /* ParticleManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 07E6A4152BAC640B7D892FEF /* ParticleManager.h */; };
+		EA274B4B2C79679D22E66FFE /* EventSceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = F72AEDE4A21BC185F5CFF4B1 /* EventSceneLogicManager.h */; };
 		EBEFA620C8D9661F146184A5 /* BattleSerializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3EF46F1C3E89ECBC526B9A73 /* BattleSerializer.cpp */; };
 		EEA262762C6AAD524ED6F91E /* InsectDuplicationGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F8E2E92C3F1233C55CD9F31A /* InsectDuplicationGameAction.cpp */; };
 		F1B3F6883A3BBD86BA4E4BFD /* CardHistoryEntryAdditionGameAction.h in Sources */ = {isa = PBXBuildFile; fileRef = F24C3EF902991ED1C9E6C625 /* CardHistoryEntryAdditionGameAction.h */; };
@@ -282,9 +286,11 @@
 
 /* Begin PBXFileReference section */
 		01DE8026E42F962701EBA308 /* PoisonStackApplicationGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = PoisonStackApplicationGameAction.h; path = PoisonStackApplicationGameAction.h; sourceTree = "<group>"; };
+		032B5FAFE7405B08708BA231 /* GuiObjectManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = GuiObjectManager.h; path = GuiObjectManager.h; sourceTree = "<group>"; };
 		045573D2F22AEA547A319CC2 /* Reachability.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Reachability.h; path = Reachability.h; sourceTree = "<group>"; };
 		0680A5C87337FE49848C07E7 /* CardPlayedParticleEffectGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = CardPlayedParticleEffectGameAction.cpp; path = CardPlayedParticleEffectGameAction.cpp; sourceTree = "<group>"; };
 		07E6A4152BAC640B7D892FEF /* ParticleManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ParticleManager.h; path = ParticleManager.h; sourceTree = "<group>"; };
+		18CDC4CDBECFB5581A49E860 /* StoryMap.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = StoryMap.h; path = StoryMap.h; sourceTree = "<group>"; };
 		1E96D31AF14CC5E8FE6B4CCD /* StoryMapSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = StoryMapSceneLogicManager.h; path = StoryMapSceneLogicManager.h; sourceTree = "<group>"; };
 		24271245E497E363CEB6240E /* GameSceneTransitionManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = GameSceneTransitionManager.cpp; path = GameSceneTransitionManager.cpp; sourceTree = "<group>"; };
 		24BA1BD8ECC86643BA169882 /* LoadingSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = LoadingSceneLogicManager.cpp; path = LoadingSceneLogicManager.cpp; sourceTree = "<group>"; };
@@ -309,6 +315,7 @@
 		5185CB2E38BF19BD1C54BAF6 /* TrapTriggeredAnimationGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = TrapTriggeredAnimationGameAction.cpp; sourceTree = "<group>"; };
 		549C84D3FE6BA93E39F0B406 /* EventSystem.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = EventSystem.cpp; sourceTree = "<group>"; };
 		54C612621F04B8DC9F79A7F7 /* BattleSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = BattleSceneLogicManager.h; path = BattleSceneLogicManager.h; sourceTree = "<group>"; };
+		54D1E9FC16CD3C543B9BED8D /* GuiObjectManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = GuiObjectManager.cpp; path = GuiObjectManager.cpp; sourceTree = "<group>"; };
 		5811D5357FB7EAA7C007CCBD /* RodentsDigAnimationGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = RodentsDigAnimationGameAction.cpp; path = RodentsDigAnimationGameAction.cpp; sourceTree = "<group>"; };
 		59DF82D26A3BD281A3C982D8 /* ImageSurfaceLoader.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = ImageSurfaceLoader.cpp; path = ImageSurfaceLoader.cpp; sourceTree = "<group>"; };
 		5FE6AF12B4C779A42A758E5B /* AnimatedStatContainer.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = AnimatedStatContainer.h; path = AnimatedStatContainer.h; sourceTree = "<group>"; };
@@ -327,7 +334,6 @@
 		7F4EFE5B9AD0922EEA5D2092 /* VisitMapNodeSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = VisitMapNodeSceneLogicManager.h; path = VisitMapNodeSceneLogicManager.h; sourceTree = "<group>"; };
 		809A245389B128D782E60C07 /* ImageSurfaceLoader.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ImageSurfaceLoader.h; path = ImageSurfaceLoader.h; sourceTree = "<group>"; };
 		816F6367FA4E53FD374A5FAB /* DemonNameGenerator.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = DemonNameGenerator.h; path = DemonNameGenerator.h; sourceTree = "<group>"; };
-		8250F455FC6264D18627A56D /* StoryNodeMap.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = StoryNodeMap.cpp; path = StoryNodeMap.cpp; sourceTree = "<group>"; };
 		857303E925CD89F2799E2777 /* CardUtils.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = CardUtils.h; sourceTree = "<group>"; };
 		8738772A2C41188E4DEA7FE1 /* InsectDuplicationGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = InsectDuplicationGameAction.h; path = InsectDuplicationGameAction.h; sourceTree = "<group>"; };
 		880718DEC1DCC187AAD01069 /* BattleSerializer.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = BattleSerializer.h; path = BattleSerializer.h; sourceTree = "<group>"; };
@@ -417,7 +423,6 @@
 		965C368E9DEEED51FA4114BC /* ProgressionDataRepository.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ProgressionDataRepository.h; path = ProgressionDataRepository.h; sourceTree = "<group>"; };
 		989D5D93E995723F377B2323 /* ThreadSafeQueue.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ThreadSafeQueue.h; path = ThreadSafeQueue.h; sourceTree = "<group>"; };
 		9F590974FFD4AB7AC83044F3 /* CardEffectComponents.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = CardEffectComponents.h; sourceTree = "<group>"; };
-		A17C830118DB6B6188549321 /* StoryNodeMap.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = StoryNodeMap.h; path = StoryNodeMap.h; sourceTree = "<group>"; };
 		A3FCED8F928A60D20E451BCD /* PostNextPlayerGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = PostNextPlayerGameAction.h; sourceTree = "<group>"; };
 		AB16493B917105168F0125F5 /* NextDinoDamageDoublingGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = NextDinoDamageDoublingGameAction.cpp; path = NextDinoDamageDoublingGameAction.cpp; sourceTree = "<group>"; };
 		ACB1819C4991701AB7CC0E57 /* SettingsSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = SettingsSceneLogicManager.cpp; path = SettingsSceneLogicManager.cpp; sourceTree = "<group>"; };
@@ -437,6 +442,7 @@
 		C6B01E95D9ABF46EECA93F96 /* Animations.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = Animations.cpp; sourceTree = "<group>"; };
 		C7F79F2355FC461357258545 /* BattleInitialAnimationGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = BattleInitialAnimationGameAction.cpp; path = BattleInitialAnimationGameAction.cpp; sourceTree = "<group>"; };
 		CA46016D2047CEE613C0ED43 /* BaseDataFileDeserializer.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = BaseDataFileDeserializer.h; path = BaseDataFileDeserializer.h; sourceTree = "<group>"; };
+		CA6B8C60FB7312D6FF7625B9 /* StoryMap.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = StoryMap.cpp; path = StoryMap.cpp; sourceTree = "<group>"; };
 		CAE194BF12E13CCEF653120C /* PersistenceUtils.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = PersistenceUtils.cpp; path = PersistenceUtils.cpp; sourceTree = "<group>"; };
 		CD189C394560D3EE41F57243 /* PostNextPlayerGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = PostNextPlayerGameAction.cpp; sourceTree = "<group>"; };
 		CD346EFDC613D39305CC6BD2 /* CardDestructionGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = CardDestructionGameAction.cpp; sourceTree = "<group>"; };
@@ -458,8 +464,10 @@
 		F0FFCD7AE0C78521E3B1DFF2 /* BaseDataFileDeserializer.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = BaseDataFileDeserializer.cpp; path = BaseDataFileDeserializer.cpp; sourceTree = "<group>"; };
 		F24C3EF902991ED1C9E6C625 /* CardHistoryEntryAdditionGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = CardHistoryEntryAdditionGameAction.h; path = CardHistoryEntryAdditionGameAction.h; sourceTree = "<group>"; };
 		F62DA25CEC2725420792B4BA /* CardUtils.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = CardUtils.cpp; sourceTree = "<group>"; };
+		F72AEDE4A21BC185F5CFF4B1 /* EventSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = EventSceneLogicManager.h; path = EventSceneLogicManager.h; sourceTree = "<group>"; };
 		F8E2E92C3F1233C55CD9F31A /* InsectDuplicationGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = InsectDuplicationGameAction.cpp; path = InsectDuplicationGameAction.cpp; sourceTree = "<group>"; };
 		FA2C2292DA5BBCC5E166153C /* CardBuffedDebuffedAnimationGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = CardBuffedDebuffedAnimationGameAction.h; path = CardBuffedDebuffedAnimationGameAction.h; sourceTree = "<group>"; };
+		FAFAD2C13EAEAAFA959795DD /* EventSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = EventSceneLogicManager.cpp; path = EventSceneLogicManager.cpp; sourceTree = "<group>"; };
 		FC7FB6D156D6379E6C2D6D23 /* CardBuffedDebuffedAnimationGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = CardBuffedDebuffedAnimationGameAction.cpp; path = CardBuffedDebuffedAnimationGameAction.cpp; sourceTree = "<group>"; };
 		FCD986CB07334B2433EB426D /* SerializationDefinitions.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = SerializationDefinitions.h; path = SerializationDefinitions.h; sourceTree = "<group>"; };
 		FE89FD7A1DD2DA6F03FD3B3C /* GoldenCardPlayedEffectGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = GoldenCardPlayedEffectGameAction.h; path = GoldenCardPlayedEffectGameAction.h; sourceTree = "<group>"; };
@@ -556,8 +564,10 @@
 				965C368E9DEEED51FA4114BC /* ProgressionDataRepository.h */,
 				B67E5917591877170D419D49 /* scenelogicmanagers */,
 				4357F046310E6B78FF6F4C3D /* GameSceneTransitionTypes.h */,
-				8250F455FC6264D18627A56D /* StoryNodeMap.cpp */,
-				A17C830118DB6B6188549321 /* StoryNodeMap.h */,
+				CA6B8C60FB7312D6FF7625B9 /* StoryMap.cpp */,
+				54D1E9FC16CD3C543B9BED8D /* GuiObjectManager.cpp */,
+				18CDC4CDBECFB5581A49E860 /* StoryMap.h */,
+				032B5FAFE7405B08708BA231 /* GuiObjectManager.h */,
 			);
 			path = game;
 			sourceTree = "<group>";
@@ -844,6 +854,8 @@
 				448562865EFF7559B85054EF /* SettingsSceneLogicManager.h */,
 				C16A1AADA07DA3267641EB14 /* VisitMapNodeSceneLogicManager.cpp */,
 				7F4EFE5B9AD0922EEA5D2092 /* VisitMapNodeSceneLogicManager.h */,
+				FAFAD2C13EAEAAFA959795DD /* EventSceneLogicManager.cpp */,
+				F72AEDE4A21BC185F5CFF4B1 /* EventSceneLogicManager.h */,
 			);
 			name = scenelogicmanagers;
 			path = scenelogicmanagers;
@@ -1238,10 +1250,14 @@
 				9C60D38F311EEF6609872D90 /* StoryMapSceneLogicManager.h in Sources */,
 				501213E2A69B305C643A8E93 /* SettingsSceneLogicManager.cpp in Sources */,
 				52B39F69DE1A0FEBF83C1D36 /* SettingsSceneLogicManager.h in Sources */,
-				0773FE9923BAFBE6C8F9D8AF /* StoryNodeMap.cpp in Sources */,
-				DC4E6437DC2781E100E1C538 /* StoryNodeMap.h in Sources */,
 				60B9E1F13C4A6D7D1A4551BA /* VisitMapNodeSceneLogicManager.cpp in Sources */,
 				8C30E26AB232F7060181908C /* VisitMapNodeSceneLogicManager.h in Sources */,
+				13D26C3FC1A08B776E3A59C1 /* EventSceneLogicManager.cpp in Sources */,
+				AB4D92AEF36D889BBA756B80 /* StoryMap.cpp in Sources */,
+				4146EE0555B4B1018CBBAC8C /* GuiObjectManager.cpp in Sources */,
+				1CBD657CEDAB24FD012A52A8 /* StoryMap.h in Sources */,
+				EA274B4B2C79679D22E66FFE /* EventSceneLogicManager.h in Sources */,
+				620CE6FC960A429B2E79C18B /* GuiObjectManager.h in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
