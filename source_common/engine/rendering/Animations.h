@@ -185,12 +185,13 @@ private:
 class BezierCurveAnimation final: public BaseAnimation
 {
 public:
+    BezierCurveAnimation(glm::vec3& sceneObjectPosition, const math::BezierCurve& curve, const float secsDuration, const uint8_t animationFlags = animation_flags::NONE, const float secsDelay = 0.0f);
     BezierCurveAnimation(std::shared_ptr<scene::SceneObject> sceneObjectTarget, const math::BezierCurve& curve, const float secsDuration, const uint8_t animationFlags = animation_flags::NONE, const float secsDelay = 0.0f);
     AnimationUpdateResult VUpdate(const float dtMillis) override;
     std::shared_ptr<scene::SceneObject> VGetSceneObject() override;
     
 private:
-    std::shared_ptr<scene::SceneObject> mSceneObjectTarget;
+    glm::vec3& mSceneObjectPosition;
     math::BezierCurve mCurve;
     
 };

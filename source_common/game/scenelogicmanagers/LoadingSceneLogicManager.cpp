@@ -15,6 +15,7 @@
 static const strutils::StringId LOADING_SCENE_NAME = strutils::StringId("loading_scene");
 static const strutils::StringId LOADING_SCENE_BACKGROUND_SCENE_OBJECT_NAME = strutils::StringId("loading_background");
 static const strutils::StringId LOADING_PROGRESS_TEXT_SCENE_OBJECT_NAME = strutils::StringId("loading_text");
+static const strutils::StringId LOADING_TEXT_PULSE_ANIMATION_NAME = strutils::StringId("loading_text_pulse");
 
 static const float LOADING_PROGRESS_TEXT_PULSE_SCALE_FACTOR = 1.05f;
 static const float LOADING_PROGRESS_TEXT_INTER_PULSE_DURATION_SECS = 1.0f;
@@ -44,7 +45,7 @@ void LoadingSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     mTotalLoadingJobCount = -1;
     SetLoadingProgress(0);
     
-    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::PulseAnimation>(scene->FindSceneObject(LOADING_PROGRESS_TEXT_SCENE_OBJECT_NAME), LOADING_PROGRESS_TEXT_PULSE_SCALE_FACTOR, LOADING_PROGRESS_TEXT_INTER_PULSE_DURATION_SECS, animation_flags::ANIMATE_CONTINUOUSLY), [](){});
+    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::PulseAnimation>(scene->FindSceneObject(LOADING_PROGRESS_TEXT_SCENE_OBJECT_NAME), LOADING_PROGRESS_TEXT_PULSE_SCALE_FACTOR, LOADING_PROGRESS_TEXT_INTER_PULSE_DURATION_SECS, animation_flags::ANIMATE_CONTINUOUSLY), [](){}, LOADING_TEXT_PULSE_ANIMATION_NAME);
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -66,6 +67,7 @@ void LoadingSceneLogicManager::VUpdate(const float, std::shared_ptr<scene::Scene
 void LoadingSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene>)
 {
     SetLoadingProgress(100);
+    CoreSystemsEngine::GetInstance().GetAnimationManager().StopAnimation(LOADING_TEXT_PULSE_ANIMATION_NAME);
 }
 
 ///------------------------------------------------------------------------------------------------

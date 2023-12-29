@@ -131,8 +131,8 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
         
         if (currentMapCoord.x == game_constants::STORY_MAP_INIT_COORD.x && currentMapCoord.y == game_constants::STORY_MAP_INIT_COORD.y)
         {
-            ProgressionDataRepository::GetInstance().SetStoryCurrentHealth(30);
-            mGuiManager->ForceSetStoryHealthValue(ProgressionDataRepository::GetInstance().GetStoryCurrentHealth());
+            ProgressionDataRepository::GetInstance().StoryCurrentHealth() = ValueWithDelayedDisplay<int>(30, 30);
+            mGuiManager->ForceSetStoryHealthValue(ProgressionDataRepository::GetInstance().StoryCurrentHealth().GetValue());
             
             mMapUpdateState = MapUpdateState::FRESH_MAP_ANIMATION;
             SetMapPositionTo(mStoryMap->GetMapData().at(MapCoord(game_constants::STORY_MAP_BOSS_COORD.x, game_constants::STORY_MAP_BOSS_COORD.y)).mPosition);

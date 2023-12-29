@@ -278,33 +278,38 @@ std::shared_ptr<scene::SceneObject> BouncePositionAnimation::VGetSceneObject()
 
 ///------------------------------------------------------------------------------------------------
 
-BezierCurveAnimation::BezierCurveAnimation(std::shared_ptr<scene::SceneObject> sceneObjectTarget, const math::BezierCurve& curve, const float secsDuration, const uint8_t animationFlags /* = animation_flags::NONE */, const float secsDelay /* = 0.0f */)
+BezierCurveAnimation::BezierCurveAnimation(glm::vec3& sceneObjectPosition, const math::BezierCurve& curve, const float secsDuration, const uint8_t animationFlags /* = animation_flags::NONE */, const float secsDelay /* = 0.0f */)
     : BaseAnimation(animationFlags, secsDuration, secsDelay)
-    , mSceneObjectTarget(sceneObjectTarget)
+    , mSceneObjectPosition(sceneObjectPosition)
     , mCurve(curve)
 {
     assert(!IS_FLAG_SET(animation_flags::ANIMATE_CONTINUOUSLY));
+}
+
+BezierCurveAnimation::BezierCurveAnimation(std::shared_ptr<scene::SceneObject> sceneObjectTarget, const math::BezierCurve& curve, const float secsDuration, const uint8_t animationFlags /* = animation_flags::NONE */, const float secsDelay /* = 0.0f */)
+    : BezierCurveAnimation(sceneObjectTarget->mPosition, curve, secsDuration, animationFlags, secsDelay)
+{
 }
 
 AnimationUpdateResult BezierCurveAnimation::VUpdate(const float dtMillis)
 {
     auto animationUpdateResult = BaseAnimation::VUpdate(dtMillis);
     
-    float x = mSceneObjectTarget->mPosition.x;
-    float z = mSceneObjectTarget->mPosition.z;
-    float y = mSceneObjectTarget->mPosition.y;
+    float x = mSceneObjectPosition.x;
+    float z = mSceneObjectPosition.z;
+    float y = mSceneObjectPosition.y;
     
-    mSceneObjectTarget->mPosition = mCurve.ComputePointForT(mAnimationT);
-    mSceneObjectTarget->mPosition.z = IS_FLAG_SET(animation_flags::IGNORE_Z_COMPONENT) ? z : mSceneObjectTarget->mPosition.z;
-    mSceneObjectTarget->mPosition.x = IS_FLAG_SET(animation_flags::IGNORE_X_COMPONENT) ? x : mSceneObjectTarget->mPosition.x;
-    mSceneObjectTarget->mPosition.y = IS_FLAG_SET(animation_flags::IGNORE_Y_COMPONENT) ? y : mSceneObjectTarget->mPosition.y;
+    mSceneObjectPosition = mCurve.ComputePointForT(mAnimationT);
+    mSceneObjectPosition.z = IS_FLAG_SET(animation_flags::IGNORE_Z_COMPONENT) ? z : mSceneObjectPosition.z;
+    mSceneObjectPosition.x = IS_FLAG_SET(animation_flags::IGNORE_X_COMPONENT) ? x : mSceneObjectPosition.x;
+    mSceneObjectPosition.y = IS_FLAG_SET(animation_flags::IGNORE_Y_COMPONENT) ? y : mSceneObjectPosition.y;
     
     return animationUpdateResult;
 }
 
 std::shared_ptr<scene::SceneObject> BezierCurveAnimation::VGetSceneObject()
 {
-    return mSceneObjectTarget;
+    return nullptr;
 }
 
 ///------------------------------------------------------------------------------------------------

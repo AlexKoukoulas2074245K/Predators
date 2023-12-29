@@ -12,6 +12,7 @@
 
 #include <game/GameConstants.h>
 #include <game/StoryMap.h>
+#include <game/utils/ValueWithDelayedDisplay.h>
 #include <engine/utils/MathUtils.h>
 #include <vector>
 
@@ -45,6 +46,10 @@ public:
     const ProgressionDataRepository& operator = (const ProgressionDataRepository&) = delete;
     ProgressionDataRepository& operator = (ProgressionDataRepository&&) = delete;
     
+    ValueWithDelayedDisplay<int>& CurrencyCoins();
+    
+    ValueWithDelayedDisplay<int>& StoryCurrentHealth();
+    
     BattleControlType GetNextBattleControlType() const;
     void SetNextBattleControlType(const BattleControlType nextBattleControlType);
     
@@ -57,11 +62,6 @@ public:
     const std::vector<int>& GetNextBotPlayerDeck() const;
     void SetNextBotPlayerDeck(const std::vector<int>& deck);
     
-    const int& GetCurrencyCoins() const;
-    void SetCurrencyCoins(const int currencyCoins);
-    
-    const int& GetStoryCurrentHealth() const;
-    void SetStoryCurrentHealth(const int storryCurrentHealth);
     
     const int& GetStoryMapGenerationSeed() const;
     void SetStoryMapGenerationSeed(const int storyMapGenerationSeed);
@@ -92,8 +92,8 @@ private:
     glm::vec3 mSelectedStoryMapNodePosition = {};
     glm::ivec2 mCurrentStoryMapNodeCoord = game_constants::STORY_MAP_INIT_COORD;
     const StoryMap::NodeData* mSelectedStoryMapNodeData = nullptr;
-    int mStoryCurrentHealth = 0;
-    int mCurrencyCoins = 0;
+    ValueWithDelayedDisplay<int> mStoryCurrentHealth = 0;
+    ValueWithDelayedDisplay<int> mCurrencyCoins = 0;
     int mStoryMapGenerationSeed = 0;
     int mCurrentStoryMapNodeSeed = 0;
     int mCurrentEventScreenIndex = 0;

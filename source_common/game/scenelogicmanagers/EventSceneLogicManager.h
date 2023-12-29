@@ -13,6 +13,7 @@
 #include <game/events/EventSystem.h>
 #include <game/scenelogicmanagers/ISceneLogicManager.h>
 #include <memory>
+#include <functional>
 #include <vector>
 
 ///------------------------------------------------------------------------------------------------
@@ -43,14 +44,16 @@ private:
     class StoryRandomEventButtonData
     {
     public:
-        StoryRandomEventButtonData(const std::string& buttonText, const int nextScreenIndex)
+        StoryRandomEventButtonData(const std::string& buttonText, const int nextScreenIndex, const std::function<void()> onClickCallback = nullptr)
             : mButtonText(buttonText)
             , mNextScreenIndex(nextScreenIndex)
+            , mOnClickCallback(onClickCallback)
         {
         }
         
         const std::string mButtonText;
         const int mNextScreenIndex;
+        const std::function<void()> mOnClickCallback;
     };
     
     class StoryRandomEventScreenData

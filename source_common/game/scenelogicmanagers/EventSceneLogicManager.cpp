@@ -6,8 +6,8 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <engine/CoreSystemsEngine.h>
-#include <engine/utils/PlatformMacros.h>
 #include <engine/rendering/AnimationManager.h>
+#include <engine/rendering/ParticleManager.h>
 #include <engine/resloading/ResourceLoadingService.h>
 #include <engine/utils/Logging.h>
 #include <engine/utils/PlatformMacros.h>
@@ -25,6 +25,7 @@ static const strutils::StringId VISIT_BUTTON_NAME = strutils::StringId("visit_bu
 static const strutils::StringId EVENT_PORTRAIT_SCENE_OBJECT_NAME = strutils::StringId("event_portrait");
 static const strutils::StringId EVENT_DESCRIPTION_SCENE_OBJECT_NAME = strutils::StringId("event_description");
 static const strutils::StringId EVENT_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("event_button");
+static const strutils::StringId PARTICLE_EMITTER_SCENE_OBJECT_NAME = strutils::StringId("particle_emitter");
 
 static const glm::vec3 BUTTON_SCALE = {0.0005f, 0.0005f, 0.0005f};
 static const glm::vec3 EVENT_DESCRIPTION_TEXT_SCALE = {0.0004f, 0.0004f, 0.0004f};
@@ -95,12 +96,12 @@ void EventSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 
 void EventSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene::Scene>)
 {
+    mGuiManager->Update(dtMillis);
+    
     if (mTransitioning)
     {
         return;
     }
-    
-    mGuiManager->Update(dtMillis);
     
     for (auto& animatedButton: mCurrentEventButtons)
     {
@@ -113,6 +114,7 @@ void EventSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene
 void EventSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene>)
 {
     events::EventSystem::GetInstance().UnregisterAllEventsForListener(this);
+    mScene->RemoveSceneObject(PARTICLE_EMITTER_SCENE_OBJECT_NAME);
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -141,16 +143,65 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
     math::SetControlSeed(currentNodeSeed);
     
     mRegisteredStoryEvents.clear();
+    
+    ///------------------------------------------------------------------------------------------------
+    /// Gold cart event
+    auto goldToGain = math::ControlledRandomInt(30, 100) + 20 * ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeCoord().x;
     mRegisteredStoryEvents.emplace_back
     (
         StoryRandomEventData
         ({
             StoryRandomEventScreenData("events/gold_cart.png", {"You found a Gold cart!", "It probably contains a ", "reasonable amount of gold"},
             {
-                StoryRandomEventButtonData("Collect the Gold", 1),
-                StoryRandomEventButtonData("Ignore Cart", 2),
+                StoryRandomEventButtonData("Collect the Gold", 1, [=]()
+                {
+                    // Permanent gold change internally
+                    auto& progressionCoins = ProgressionDataRepository::GetInstance().CurrencyCoins();
+                    progressionCoins.SetValue(progressionCoins.GetValue() + goldToGain);
+                    
+                    auto& particleManager = CoreSystemsEngine::GetInstance().GetParticleManager();
+                    
+                    auto animatedNodePathParticleEmitterSceneObject = particleManager.CreateParticleEmitterAtPosition(strutils::StringId("coin_gain"), glm::vec3(), *mScene, PARTICLE_EMITTER_SCENE_OBJECT_NAME, [=](float dtMillis, scene::ParticleEmitterObjectData& particleEmitterData)
+                    {
+                        static const glm::vec3 COIN_INIT_POSITION_OFFSET = { 0.0f, 0.0f, 0.7f };
+                        static const glm::vec3 COIN_TARGET_POSITION_OFFSET = { -0.02f, -0.01f, -22.5f };
+                        static const glm::vec3 COIN_MID_POSITION_MIN = { 0.1f, -0.2f, 1.5f };
+                        static const glm::vec3 COIN_MID_POSITION_MAX = { 0.3f, 0.2f, 1.5f };
+                        static const float COIN_RESPAWN_TICK_SECS = 0.025f;
+                        
+                        auto& particleManager = CoreSystemsEngine::GetInstance().GetParticleManager();
+                        auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+                        
+                        auto targetCoinPosition = mScene->FindSceneObject(game_constants::GUI_COIN_STACK_SCENE_OBJECT_NAME)->mPosition + COIN_TARGET_POSITION_OFFSET;
+            
+                        auto& particleEmitterSceneObject = *mScene->FindSceneObject(PARTICLE_EMITTER_SCENE_OBJECT_NAME);
+                        
+                        static float timeAccum = 0.0f;
+                        timeAccum += dtMillis/1000.0f;
+                        
+                        if (timeAccum > COIN_RESPAWN_TICK_SECS && static_cast<int>(particleEmitterData.mTotalParticlesSpawned) < goldToGain)
+                        {
+                            timeAccum = 0.0f;
+                            int particleIndex = particleManager.SpawnParticleAtFirstAvailableSlot(particleEmitterSceneObject);
+                            
+                            particleEmitterData.mParticlePositions[particleIndex] = mScene->FindSceneObject(EVENT_PORTRAIT_SCENE_OBJECT_NAME)->mPosition + COIN_INIT_POSITION_OFFSET;
+                            
+                            math::BezierCurve curve(std::vector<glm::vec3>{particleEmitterData.mParticlePositions[particleIndex], glm::vec3(math::RandomFloat(COIN_MID_POSITION_MIN.x, COIN_MID_POSITION_MAX.x), math::RandomFloat(COIN_MID_POSITION_MIN.y, COIN_MID_POSITION_MAX.y), math::RandomFloat(COIN_MID_POSITION_MIN.z, COIN_MID_POSITION_MAX.z)), targetCoinPosition});
+                            
+                            animationManager.StartAnimation(std::make_unique<rendering::BezierCurveAnimation>(particleEmitterData.mParticlePositions[particleIndex], curve, game_constants::IN_GAME_DRAW_CARD_ANIMATION_DURATION_SECS), [=]()
+                            {
+                                std::get<scene::ParticleEmitterObjectData>(mScene->FindSceneObject(PARTICLE_EMITTER_SCENE_OBJECT_NAME)->mSceneObjectTypeData).mParticleLifetimeSecs[particleIndex] = 0.0f;
+                                
+                                // Animation only gold change
+                                auto& coins = ProgressionDataRepository::GetInstance().CurrencyCoins();
+                                coins.SetDisplayedValue(coins.GetDisplayedValue() + 1);
+                            });
+                        }
+                    });
+                }),
+                StoryRandomEventButtonData("Ignore Cart", 2)
             }),
-            StoryRandomEventScreenData("events/gold_cart.png", {"You collected " + std::to_string(math::ControlledRandomInt(50, 100)) + " gold!"},
+            StoryRandomEventScreenData("events/gold_cart.png", {"You collected " + std::to_string(goldToGain) + " gold!"},
             {
                 StoryRandomEventButtonData("Ok", 3)
             }),
@@ -268,6 +319,10 @@ void EventSceneLogicManager::CreateEventScreen(const int screenIndex)
             strutils::StringId(EVENT_BUTTON_SCENE_OBJECT_NAME),
             [=]()
             {
+                if (screenButton.mOnClickCallback)
+                {
+                    screenButton.mOnClickCallback();
+                }
                 TransitionToEventScreen(screenButton.mNextScreenIndex);
             },
             *mScene,

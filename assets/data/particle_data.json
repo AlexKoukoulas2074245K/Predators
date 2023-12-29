@@ -132,6 +132,21 @@
             "position_x_range": {"min": 0.0000, "max": 0.0000},
             "position_y_range": {"min": 0.0000, "max": 0.0000},
             "particle_size_range": {"min": 0.025, "max": 0.025}
+        },
+        {
+            "name": "coin_gain",
+            "texture": "coin.png",
+            "particle_count": 512,
+            "prefilled": false,
+            "continuous_generation": false,
+            "enlarge_over_time": false,
+            "rotate_over_time": false,
+            "initially_rotated": false,
+            "custom_update": true,
+            "lifetime_range": {"min": 1.0, "max": 1.0},
+            "position_x_range": {"min": -0.000, "max": 0.000},
+            "position_y_range": {"min": -0.000, "max": 0.000},
+            "particle_size_range": {"min": 0.03, "max": 0.03}
         }
     ]
 }

@@ -17,6 +17,20 @@ ProgressionDataRepository& ProgressionDataRepository::GetInstance()
 
 ///------------------------------------------------------------------------------------------------
 
+ValueWithDelayedDisplay<int>& ProgressionDataRepository::CurrencyCoins()
+{
+    return mCurrencyCoins;
+}
+
+///------------------------------------------------------------------------------------------------
+
+ValueWithDelayedDisplay<int>& ProgressionDataRepository::StoryCurrentHealth()
+{
+    return mStoryCurrentHealth;
+}
+
+///------------------------------------------------------------------------------------------------
+
 BattleControlType ProgressionDataRepository::GetNextBattleControlType() const
 {
     return mNextBattleControlType;
@@ -83,34 +97,6 @@ const std::vector<int>& ProgressionDataRepository::GetNextBotPlayerDeck() const
 void ProgressionDataRepository::SetNextBotPlayerDeck(const std::vector<int>& deck)
 {
     mNextBotPlayerDeck = deck;
-}
-
-///------------------------------------------------------------------------------------------------
-
-const int& ProgressionDataRepository::GetCurrencyCoins() const
-{
-    return mCurrencyCoins;
-}
-
-///------------------------------------------------------------------------------------------------
-
-void ProgressionDataRepository::SetCurrencyCoins(const int currencyCoins)
-{
-    mCurrencyCoins = currencyCoins;
-}
-
-///------------------------------------------------------------------------------------------------
-
-const int& ProgressionDataRepository::GetStoryCurrentHealth() const
-{
-    return mStoryCurrentHealth;
-}
-
-///------------------------------------------------------------------------------------------------
-
-void ProgressionDataRepository::SetStoryCurrentHealth(const int storyCurrentHealth)
-{
-    mStoryCurrentHealth = storyCurrentHealth;
 }
 
 ///------------------------------------------------------------------------------------------------

@@ -54,6 +54,9 @@ namespace game_constants
     inline const strutils::StringId PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("permanent_continual_weight_reduction_effect_bot");
     inline const strutils::StringId OVERLAY_SCENE_OBJECT_NAME = strutils::StringId("overlay");
     inline const strutils::StringId SCENE_SPEED_DILATION_ANIMATION_NAME = strutils::StringId("scene_speed_dilation_animation");
+    inline const strutils::StringId GUI_SETTINGS_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("settings_button");
+    inline const strutils::StringId GUI_COIN_STACK_SCENE_OBJECT_NAME = strutils::StringId("coin_stack");
+    inline const strutils::StringId GUI_COIN_VALUE_TEXT_SCENE_OBJECT_NAME = strutils::StringId("coin_value_text");
 
     // Fonts
     inline const strutils::StringId DEFAULT_FONT_NAME = strutils::StringId("font");
@@ -77,7 +80,7 @@ namespace game_constants
     inline const strutils::StringId CUTOFF_MIN_X_UNIFORM_NAME = strutils::StringId("cutoff_min_x");
     inline const strutils::StringId CUTOFF_MAX_X_UNIFORM_NAME = strutils::StringId("cutoff_max_x");
     inline const strutils::StringId CUSTOM_COLOR_UNIFORM_NAME = strutils::StringId("custom_color");
-
+    
     // Card Family Names
     inline const strutils::StringId INSECTS_FAMILY_NAME = strutils::StringId("insects");
     inline const strutils::StringId RODENTS_FAMILY_NAME = strutils::StringId("rodents");

@@ -19,9 +19,6 @@
 ///------------------------------------------------------------------------------------------------
 
 static const strutils::StringId SETTINGS_SCENE = strutils::StringId("settings_scene");
-static const strutils::StringId SETTINGS_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("settings_button");
-static const strutils::StringId COIN_STACK_SCENE_OBJECT_NAME = strutils::StringId("coin_stack");
-static const strutils::StringId COIN_VALUE_TEXT_SCENE_OBJECT_NAME = strutils::StringId("coin_value_text");
 
 static const std::string OVERLAY_TEXTURE_FILE_NAME = "overlay.png";
 static const std::string COIN_VALUE_TEXT_SHADER_FILE_NAME = "basic_custom_color.vs";
@@ -51,19 +48,24 @@ static const float HEALTH_CRYSTAL_CONTAINER_CUSTOM_SCALE_FACTOR = 2.0f;
 GuiObjectManager::GuiObjectManager(std::shared_ptr<scene::Scene> scene)
     : mScene(scene)
 {
+    // Sync any desynced values with delayed displays.
+    // Might not be the best place to do this.
+    ProgressionDataRepository::GetInstance().CurrencyCoins().SetDisplayedValue(ProgressionDataRepository::GetInstance().CurrencyCoins().GetValue());
+    ProgressionDataRepository::GetInstance().StoryCurrentHealth().SetDisplayedValue(ProgressionDataRepository::GetInstance().StoryCurrentHealth().GetValue());
+    
     mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
     (
         SETTINGS_BUTTON_POSITION,
         SETTINGS_BUTTON_SCALE,
         SETTINGS_ICON_TEXTURE_FILE_NAME,
-        SETTINGS_BUTTON_SCENE_OBJECT_NAME,
+        game_constants::GUI_SETTINGS_BUTTON_SCENE_OBJECT_NAME,
         [=](){ OnSettingsButtonPressed(); },
         *scene,
         scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE,
         SETTINGS_BUTTON_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR
     ));
     
-    auto coinStackSceneObject = scene->CreateSceneObject(COIN_STACK_SCENE_OBJECT_NAME);
+    auto coinStackSceneObject = scene->CreateSceneObject(game_constants::GUI_COIN_STACK_SCENE_OBJECT_NAME);
     coinStackSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
     coinStackSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + COIN_STACK_TEXTURE_FILE_NAME);
     coinStackSceneObject->mPosition = COIN_STACK_POSITION;
@@ -73,8 +75,8 @@ GuiObjectManager::GuiObjectManager(std::shared_ptr<scene::Scene> scene)
     
     scene::TextSceneObjectData coinValueText;
     coinValueText.mFontName = game_constants::DEFAULT_FONT_NAME;
-    coinValueText.mText = std::to_string(ProgressionDataRepository::GetInstance().GetCurrencyCoins());
-    auto coinValueTextSceneObject = scene->CreateSceneObject(COIN_VALUE_TEXT_SCENE_OBJECT_NAME);
+    coinValueText.mText = std::to_string(ProgressionDataRepository::GetInstance().CurrencyCoins().GetValue());
+    auto coinValueTextSceneObject = scene->CreateSceneObject(game_constants::GUI_COIN_VALUE_TEXT_SCENE_OBJECT_NAME);
     coinValueTextSceneObject->mSceneObjectTypeData = std::move(coinValueText);
     coinValueTextSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + COIN_VALUE_TEXT_SHADER_FILE_NAME);
     coinValueTextSceneObject->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = COIN_VALUE_TEXT_COLOR;
@@ -84,7 +86,8 @@ GuiObjectManager::GuiObjectManager(std::shared_ptr<scene::Scene> scene)
     coinValueTextSceneObject->mSnapToEdgeBehavior = scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE;
     coinValueTextSceneObject->mSnapToEdgeScaleOffsetFactor = COIN_VALUE_TEXT_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR;
     
-    mHealthStatContainer = std::make_unique<AnimatedStatContainer>(HEALTH_CRYSTAL_POSITION, HEALTH_CRYSTAL_TEXTURE_FILE_NAME, HEALTH_CRYSTAL_SCENE_OBJECT_NAME_PREFIX, ProgressionDataRepository::GetInstance().GetStoryCurrentHealth(), false, *scene, scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE, HEALTH_CRYSTAL_CONTAINER_CUSTOM_SCALE_FACTOR);
+    mHealthStatContainer = std::make_unique<AnimatedStatContainer>(HEALTH_CRYSTAL_POSITION, HEALTH_CRYSTAL_TEXTURE_FILE_NAME, HEALTH_CRYSTAL_SCENE_OBJECT_NAME_PREFIX, ProgressionDataRepository::GetInstance().StoryCurrentHealth().GetDisplayedValue(), false, *scene, scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE, HEALTH_CRYSTAL_CONTAINER_CUSTOM_SCALE_FACTOR);
+    mHealthStatContainer->ForceSetDisplayedValue(ProgressionDataRepository::GetInstance().StoryCurrentHealth().GetValue());
     
     mHealthStatContainer->GetSceneObjects()[0]->mSnapToEdgeScaleOffsetFactor = HEALTH_CRYSTAL_BASE_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR;
     mHealthStatContainer->GetSceneObjects()[1]->mSnapToEdgeScaleOffsetFactor = HEALTH_CRYSTAL_VALUE_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR;
@@ -115,19 +118,19 @@ void GuiObjectManager::Update(const float dtMillis)
 
 void GuiObjectManager::SetCoinValueText()
 {
-    auto coinValue = ProgressionDataRepository::GetInstance().GetCurrencyCoins();
+    auto coinValue = ProgressionDataRepository::GetInstance().CurrencyCoins().GetDisplayedValue();
     
     if (coinValue < 1000)
     {
-        std::get<scene::TextSceneObjectData>(mScene->FindSceneObject(COIN_VALUE_TEXT_SCENE_OBJECT_NAME)->mSceneObjectTypeData).mText = std::to_string(coinValue);
+        std::get<scene::TextSceneObjectData>(mScene->FindSceneObject(game_constants::GUI_COIN_VALUE_TEXT_SCENE_OBJECT_NAME)->mSceneObjectTypeData).mText = std::to_string(coinValue);
     }
     else if (coinValue < 1000000)
     {
-        std::get<scene::TextSceneObjectData>(mScene->FindSceneObject(COIN_VALUE_TEXT_SCENE_OBJECT_NAME)->mSceneObjectTypeData).mText = std::to_string(coinValue/1000) + "." + std::to_string((coinValue % 1000)/100) + "k";
+        std::get<scene::TextSceneObjectData>(mScene->FindSceneObject(game_constants::GUI_COIN_VALUE_TEXT_SCENE_OBJECT_NAME)->mSceneObjectTypeData).mText = std::to_string(coinValue/1000) + "." + std::to_string((coinValue % 1000)/100) + "k";
     }
     else
     {
-        std::get<scene::TextSceneObjectData>(mScene->FindSceneObject(COIN_VALUE_TEXT_SCENE_OBJECT_NAME)->mSceneObjectTypeData).mText = std::to_string(coinValue/1000000) + "." + std::to_string((coinValue % 1000000)/100000) + "m";
+        std::get<scene::TextSceneObjectData>(mScene->FindSceneObject(game_constants::GUI_COIN_VALUE_TEXT_SCENE_OBJECT_NAME)->mSceneObjectTypeData).mText = std::to_string(coinValue/1000000) + "." + std::to_string((coinValue % 1000000)/100000) + "m";
     }
 }
 

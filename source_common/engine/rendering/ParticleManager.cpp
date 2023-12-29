@@ -159,6 +159,7 @@ std::shared_ptr<scene::SceneObject> ParticleManager::CreateParticleEmitterAtPosi
     
     assert(IS_FLAG_SET(particle_flags::PREFILLED) || IS_FLAG_SET(particle_flags::CONTINUOUS_PARTICLE_GENERATION) || IS_FLAG_SET(particle_flags::CUSTOM_UPDATE));
     
+    particleEmitterData.mTotalParticlesSpawned = 0;
     particleEmitterData.mParticleLifetimeSecs.resize(particleEmitterData.mParticleCount);
     particleEmitterData.mParticleVelocities.resize(particleEmitterData.mParticleCount);
     particleEmitterData.mParticleSizes.resize(particleEmitterData.mParticleCount);
@@ -414,6 +415,7 @@ void ParticleManager::SpawnParticleAtIndex(const size_t index, const glm::vec3& 
     particleEmitterData.mParticleSizes[index] = size;
     particleEmitterData.mParticleAngles[index] = angle;
     
+    particleEmitterData.mTotalParticlesSpawned++;
 }
 
 ///------------------------------------------------------------------------------------------------
