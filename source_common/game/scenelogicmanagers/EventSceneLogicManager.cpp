@@ -201,7 +201,7 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
                 }),
                 StoryRandomEventButtonData("Ignore Cart", 2)
             }),
-            StoryRandomEventScreenData("events/gold_cart.png", {"", "", "You collected " + std::to_string(goldToGain) + " gold!"},
+            StoryRandomEventScreenData("events/gold_cart.png", {"", "You collected " + std::to_string(goldToGain) + " gold!"},
             {
                 StoryRandomEventButtonData("Ok", 3)
             }),
@@ -224,7 +224,7 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
         ({
             StoryRandomEventScreenData("events/lava_trap.png", {"You approach a steep cliff", "overlooking a river of lava.", "You can either try jumping,", "risking a fall, or go back", "stepping on the hot ground."},
             {
-                StoryRandomEventButtonData("Jump  (33% -" + std::to_string(randomHpLoss) + "*)", failedJump ? 1 : 2, [=]()
+                StoryRandomEventButtonData("Risk the Jump  (33% -" + std::to_string(randomHpLoss) + "*)", failedJump ? 1 : 2, [=]()
                 {
                     if (failedJump)
                     {
@@ -259,8 +259,8 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
         })
     );
     
-    //mCurrentEventIndex = 1;
-    mCurrentEventIndex = math::ControlledRandomInt(0, static_cast<int>(mRegisteredStoryEvents.size()) - 1);
+    mCurrentEventIndex = 0;
+    //mCurrentEventIndex = math::ControlledRandomInt(0, static_cast<int>(mRegisteredStoryEvents.size()) - 1);
 }
 
 ///------------------------------------------------------------------------------------------------

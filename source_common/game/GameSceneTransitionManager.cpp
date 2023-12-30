@@ -26,7 +26,7 @@ static const float MIN_LOADING_SCENE_SURFACING_SECS = 0.6f;
 static const float OVERLAY_ANIMATION_TARGET_DURATION_SECS = 0.5f;
 static const float OVERLAY_SCALE = 10.0f;
 static const float OVERLAY_Z = 23.0f;
-static const float MODAL_MAX_ALPHA = 0.85f;
+static const float MODAL_MAX_ALPHA = 0.9f;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -133,14 +133,8 @@ void GameSceneTransitionManager::ChangeToScene
     {
         // The first non modal scene + all of it's modals (if any) need to be popped
         animationManager.StopAllAnimations();
-        bool poppedFirstNonModalSceneEntry = false;
-        while ((!mActiveSceneStack.empty() && mActiveSceneStack.top().isModal) || !poppedFirstNonModalSceneEntry)
+        while (!mActiveSceneStack.empty())
         {
-            if (!mActiveSceneStack.top().isModal)
-            {
-                poppedFirstNonModalSceneEntry = true;
-            }
-            
             // Destroy logic manager only when transitioning to a completely new scene
             DestroyActiveSceneLogicManager();
             
@@ -152,6 +146,12 @@ void GameSceneTransitionManager::ChangeToScene
             
             // Erase from active scene stack
             mActiveSceneStack.pop();
+        }
+        
+        // Destroy any other residual scenes
+        while (!sceneManager.GetScenes().empty())
+        {
+            sceneManager.RemoveScene(sceneManager.GetScenes().back()->GetName());
         }
     }
     
