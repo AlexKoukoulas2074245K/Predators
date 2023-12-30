@@ -37,18 +37,18 @@ static const std::string COIN_STACK_TEXTURE_FILE_NAME = "coin_stack.png";
 static const std::string HEALTH_CRYSTAL_TEXTURE_FILE_NAME = "health_crystal.png";
 static const std::string HEALTH_CRYSTAL_SCENE_OBJECT_NAME_PREFIX = "health_crystal_";
 
-static const glm::ivec2 STORY_NODE_MAP_DIMENSIONS = {10, 5};
-static const glm::vec2 MAP_SWIPE_X_BOUNDS = {-0.5f, 0.5f};
-static const glm::vec2 MAP_SWIPE_Y_BOUNDS = {-0.5f, 0.5f};
+static const glm::ivec2 STORY_NODE_MAP_DIMENSIONS = {9, 5};
+static const glm::vec2 MAP_SWIPE_X_BOUNDS = {-0.78f, 0.78f};
+static const glm::vec2 MAP_SWIPE_Y_BOUNDS = {-0.78f, 0.78f};
 
 static const float DISTANCE_TO_TARGET_NODE_THRESHOLD = 0.1f;
 static const float CAMERA_NOT_MOVED_THRESHOLD = 0.0001f;
 static const float CAMERA_MOVING_TO_NODE_SPEED = 0.0005f;
 static const float SELECTED_NODE_Z_OFFSET = 23.3f;
-static const float FRESH_MAP_ANIMATION_TARGET_Y_OFFSET = -0.185f;
+static const float FRESH_MAP_ANIMATION_TARGET_Y_OFFSET = -0.19f;
 
 #if defined(NDEBUG) || defined(MOBILE_FLOW)
-static const float FRESH_MAP_ANIMATION_SPEED = 0.1f;
+static const float FRESH_MAP_ANIMATION_SPEED = 0.2f;
 #else
 static const float FRESH_MAP_ANIMATION_SPEED = 3.0f;
 #endif

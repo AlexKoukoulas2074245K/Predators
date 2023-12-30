@@ -78,8 +78,8 @@ static const std::string SHOP_TEXTURE_FILE_NAME = "story_cards/shop.png";
 static const std::string EVENT_TEXTURE_FILE_NAME = "story_cards/event.png";
 static const std::string NODE_PATH_TEXTURE_FILE_NAME = "trap_mask.png";
 
-static const glm::vec3 FIRST_NODE_POSITION = { -0.8f, -0.63f, 0.1f };
-static const glm::vec3 LAST_NODE_POSITION = { 0.46f, 0.53f, 0.1f };
+static const glm::vec3 FIRST_NODE_POSITION = { -1.0f, -0.83f, 0.1f };
+static const glm::vec3 LAST_NODE_POSITION = { 0.6f, 0.73f, 0.1f };
 static const glm::vec3 NODE_PORTRAIT_POSITION_OFFSET = {0.00f, 0.01f, 0.08f};
 static const glm::vec3 PORTRAIT_TEXT_SCALE = {0.00017f, 0.00017f, 0.00017f};
 static const glm::vec3 PORTRAIT_PRIMARY_TEXT_POSITION_OFFSET = {0.005f, -0.03f, 0.1f};
@@ -105,15 +105,15 @@ static const int MAP_PATH_SEGMENTS_FACTOR = 30;
 static const int MAP_GENERATION_PASSES = 5;
 
 #if defined(NDEBUG) || defined(MOBILE_FLOW)
-static const float NODES_CLOSE_ENOUGH_THRESHOLD = 0.025f;
+static const float NODES_CLOSE_ENOUGH_THRESHOLD = 0.050f;
 static const float NODES_CLOSE_ENOUGH_TO_EDGE_NODES_THRESHOLD = 0.075f;
 static const int MAX_MAP_GENERATION_ATTEMPTS = 300000;
-static const glm::vec2 VERTICAL_MAP_EDGE = {-0.65f, 0.65f};
+static const glm::vec2 VERTICAL_MAP_EDGE = {-0.95f, 0.95f};
 #else
-static const float NODES_CLOSE_ENOUGH_THRESHOLD = 0.0125f;
-static const float NODES_CLOSE_ENOUGH_TO_EDGE_NODES_THRESHOLD = 0.0375f;
-static const int MAX_MAP_GENERATION_ATTEMPTS = 100000;
-static const glm::vec2 VERTICAL_MAP_EDGE = {-0.75f, 0.75f};
+static const float NODES_CLOSE_ENOUGH_THRESHOLD = 0.050f;
+static const float NODES_CLOSE_ENOUGH_TO_EDGE_NODES_THRESHOLD = 0.075f;
+static const int MAX_MAP_GENERATION_ATTEMPTS = 50000;
+static const glm::vec2 VERTICAL_MAP_EDGE = {-0.95f, 0.95f};
 #endif
 
 int mapGenerationAttempts = 0;
@@ -428,7 +428,7 @@ void StoryMap::CreateMapSceneObjects()
         }
         
         // Make all previous nodes invisible
-        if (mapNodeEntry.first.mCol < mCurrentMapCoord.mCol)
+        if (mapNodeEntry.first.mCol <= mCurrentMapCoord.mCol && mapNodeEntry.first != mCurrentMapCoord) 
         {
             nodeSceneObject->mInvisible = true;
             nodePortraitSceneObject->mInvisible = true;
@@ -547,7 +547,7 @@ glm::vec3 StoryMap::GenerateNodePositionForCoord(const MapCoord& mapCoord) const
         auto lastToFirstDirection = LAST_NODE_POSITION - FIRST_NODE_POSITION;
         lastToFirstDirection.z = 0.0f;
         
-        auto t = 0.05f + mapCoord.mCol/static_cast<float>(mMapDimensions.x);
+        auto t = 0.03f + mapCoord.mCol/static_cast<float>(mMapDimensions.x);
         
         auto lineOriginPosition = FIRST_NODE_POSITION + t * lastToFirstDirection;
         

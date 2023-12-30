@@ -106,7 +106,7 @@ void Game::Init()
     game_constants::GAME_BOARD_BASED_SCENE_ZOOM_FACTOR = 120.0f;
 #endif
     
-    mGameSceneTransitionManager->ChangeToScene(MAIN_MENU_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+    mGameSceneTransitionManager->ChangeToScene(game_constants::STORY_MAP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
 }
 
 ///------------------------------------------------------------------------------------------------
