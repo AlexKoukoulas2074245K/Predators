@@ -26,7 +26,7 @@ static const float MIN_LOADING_SCENE_SURFACING_SECS = 0.6f;
 static const float OVERLAY_ANIMATION_TARGET_DURATION_SECS = 0.5f;
 static const float OVERLAY_SCALE = 10.0f;
 static const float OVERLAY_Z = 23.0f;
-static const float MODAL_MAX_ALPHA = 0.9f;
+static const float MODAL_MAX_ALPHA = 0.95f;
 
 ///------------------------------------------------------------------------------------------------
 

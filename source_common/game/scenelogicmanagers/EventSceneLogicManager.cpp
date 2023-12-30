@@ -27,7 +27,7 @@ static const strutils::StringId EVENT_DESCRIPTION_SCENE_OBJECT_NAME = strutils::
 static const strutils::StringId EVENT_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("event_button");
 static const strutils::StringId PARTICLE_EMITTER_SCENE_OBJECT_NAME = strutils::StringId("particle_emitter");
 
-static const glm::vec3 BUTTON_SCALE = {0.0005f, 0.0005f, 0.0005f};
+static const glm::vec3 BUTTON_SCALE = {0.0004f, 0.0004f, 0.0004f};
 static const glm::vec3 EVENT_DESCRIPTION_TEXT_SCALE = {0.0004f, 0.0004f, 0.0004f};
 static const glm::vec3 EVENT_PORTRAIT_SCALE = {0.4f, 0.4f, 0.4f};
 static const glm::vec3 EVENT_PORTRAIT_POSITION = {-0.1f, 0.0f, 0.8f};
@@ -37,7 +37,7 @@ static const float EVENT_SCREEN_ITEM_Z = 1.0f;
 static const float EVENT_PORTRAIT_ALPHA = 0.75f;
 static const float EVENT_PORTRAIT_SNAP_TO_EDGE_SCALE_OFFSET_FACTOR = 0.09f;
 static const float EVENT_DESCRIPTION_TEXT_SNAP_TO_EDGE_SCALE_OFFSET_FACTOR = 1500.0f;
-static const float EVENT_BUTTON_SNAP_TO_EDGE_OFFSET_FACTOR = 1100.0f;
+static const float EVENT_BUTTON_SNAP_TO_EDGE_OFFSET_FACTOR = 1500.0f;
 
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
 {
@@ -222,7 +222,7 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
     (
         StoryRandomEventData
         ({
-            StoryRandomEventScreenData("events/lava_trap.png", {"You approach a steep cliff", "overlooking a river of lava.", "You can either try jumping,", "risking a fall, or go back", "stepping on the hot ground."},
+            StoryRandomEventScreenData("events/lava_trap.png", {"You approach a steep cliff", "overlooking a river of lava.", "You can either try jumping,", "risking a fall, or circle around", "stepping on the hot ground."},
             {
                 StoryRandomEventButtonData("Risk the Jump  (33% -" + std::to_string(randomHpLoss) + "*)", failedJump ? 1 : 2, [=]()
                 {
@@ -259,8 +259,7 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
         })
     );
     
-    mCurrentEventIndex = 0;
-    //mCurrentEventIndex = math::ControlledRandomInt(0, static_cast<int>(mRegisteredStoryEvents.size()) - 1);
+    mCurrentEventIndex = math::ControlledRandomInt(0, static_cast<int>(mRegisteredStoryEvents.size()) - 1);
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -347,7 +346,7 @@ void EventSceneLogicManager::CreateEventScreen(const int screenIndex)
         auto descriptionRowSceneObject = mScene->CreateSceneObject(EVENT_DESCRIPTION_SCENE_OBJECT_NAME);
         descriptionRowSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
         descriptionRowSceneObject->mSceneObjectTypeData = std::move(textData);
-        descriptionRowSceneObject->mPosition = { -0.06f, 0.20f - descriptionRowIndex * 0.05, EVENT_SCREEN_ITEM_Z };
+        descriptionRowSceneObject->mPosition = { -0.06f, 0.20f - descriptionRowIndex * 0.045, EVENT_SCREEN_ITEM_Z };
         descriptionRowSceneObject->mScale = EVENT_DESCRIPTION_TEXT_SCALE;
         descriptionRowSceneObject->mSnapToEdgeBehavior = scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE;
         descriptionRowSceneObject->mSnapToEdgeScaleOffsetFactor = EVENT_DESCRIPTION_TEXT_SNAP_TO_EDGE_SCALE_OFFSET_FACTOR;
