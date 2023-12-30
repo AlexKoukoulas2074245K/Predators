@@ -44,7 +44,7 @@ static const float BACK_BUTTON_HOR_DISTANCE_FROM_NODE = 0.1f;
 static const float BACK_BUTTON_Y_OFFSET_FROM_NODE = -0.03f;
 static const float BUTTON_Z = 24.0f;
 
-static const float FADE_IN_OUT_DURATION_SECS = 0.5f;
+static const float FADE_IN_OUT_DURATION_SECS = 0.25f;
 
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
 {

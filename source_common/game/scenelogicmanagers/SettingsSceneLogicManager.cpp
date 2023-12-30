@@ -40,7 +40,7 @@ static const glm::vec3 QUIT_CANCELLATION_BUTTON_POSITION = {0.036f, -0.083f, 23.
 static const glm::vec3 QUIT_CONFIRMATION_TEXT_TOP_POSITION = {-0.225f, 0.07f, 23.1f};
 static const glm::vec3 QUIT_CONFIRMATION_TEXT_BOT_POSITION = {-0.32f, 0.019f, 23.1f};
 
-static const float SUBSCENE_ITEM_FADE_IN_OUT_DURATION_SECS = 0.5f;
+static const float SUBSCENE_ITEM_FADE_IN_OUT_DURATION_SECS = 0.25f;
 
 
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =

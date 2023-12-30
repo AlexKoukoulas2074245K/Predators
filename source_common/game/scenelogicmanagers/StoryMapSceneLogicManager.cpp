@@ -249,19 +249,28 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
             auto initPosition = mScene->GetCamera().GetPosition();
             auto directionToTarget = mCameraTargetPos - initPosition;
             
-            bool onlyMovingInOneDirection = (math::Abs(directionToTarget.x - mPreviousDirectionToTargetNode.x) <= CAMERA_NOT_MOVED_THRESHOLD || math::Abs(directionToTarget.y - mPreviousDirectionToTargetNode.y) <= CAMERA_NOT_MOVED_THRESHOLD);
+            bool alreadyArrivedAtTarget =
+                math::Abs(directionToTarget.x) < CAMERA_NOT_MOVED_THRESHOLD &&
+                math::Abs(directionToTarget.y) < CAMERA_NOT_MOVED_THRESHOLD &&
+                math::Abs(directionToTarget.z) < CAMERA_NOT_MOVED_THRESHOLD;
+            auto currentDistanceToNode = 0.0f;
             
-            auto normalizedDirectionToTarget = glm::normalize(directionToTarget);
-            auto targetVelocity = normalizedDirectionToTarget * dtMillis;
+            if (!alreadyArrivedAtTarget)
+            {
+                bool onlyMovingInOneDirection = (math::Abs(directionToTarget.x - mPreviousDirectionToTargetNode.x) <= CAMERA_NOT_MOVED_THRESHOLD || math::Abs(directionToTarget.y - mPreviousDirectionToTargetNode.y) <= CAMERA_NOT_MOVED_THRESHOLD);
+                
+                auto normalizedDirectionToTarget = glm::normalize(directionToTarget);
+                auto targetVelocity = normalizedDirectionToTarget * dtMillis;
+                
+                targetVelocity *= onlyMovingInOneDirection ? 2 * CAMERA_MOVING_TO_NODE_SPEED : CAMERA_MOVING_TO_NODE_SPEED;
+                
+                MoveMapBy(targetVelocity);
+                
+                mPreviousDirectionToTargetNode = directionToTarget;
+                currentDistanceToNode = glm::distance(mCameraTargetPos, mScene->GetCamera().GetPosition());
+            }
             
-            targetVelocity *= onlyMovingInOneDirection ? 2 * CAMERA_MOVING_TO_NODE_SPEED : CAMERA_MOVING_TO_NODE_SPEED;
-            
-            MoveMapBy(targetVelocity);
-            
-            mPreviousDirectionToTargetNode = directionToTarget;
-            auto currentDistanceToNode = glm::distance(mCameraTargetPos, mScene->GetCamera().GetPosition());
-            
-            if (currentDistanceToNode < DISTANCE_TO_TARGET_NODE_THRESHOLD ||
+            if (alreadyArrivedAtTarget || currentDistanceToNode < DISTANCE_TO_TARGET_NODE_THRESHOLD ||
                 glm::distance(initPosition, mScene->GetCamera().GetPosition()) < CAMERA_NOT_MOVED_THRESHOLD)
             {
                 CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(mScene->GetUpdateTimeSpeedFactor(), 0.0f, game_constants::SCENE_SPEED_DILATION_ANIMATION_DURATION_SECS), [](){}, game_constants::SCENE_SPEED_DILATION_ANIMATION_NAME);
