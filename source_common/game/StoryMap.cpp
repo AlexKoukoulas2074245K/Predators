@@ -473,7 +473,7 @@ void StoryMap::CreateMapSceneObjects()
     
     for (const auto& mapNodeEntry: mMapData)
     {
-        if (mapNodeEntry.first.mCol < mCurrentMapCoord.mCol)
+        if (mapNodeEntry.first.mCol <= mCurrentMapCoord.mCol && mapNodeEntry.first != mCurrentMapCoord)
         {
             continue;
         }
