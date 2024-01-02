@@ -1,4 +1,8 @@
+#if GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
 precision mediump float;
+#endif
 
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec2 uv;
