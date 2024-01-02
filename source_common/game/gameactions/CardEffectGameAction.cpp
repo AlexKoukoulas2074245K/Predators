@@ -95,7 +95,7 @@ void CardEffectGameAction::VInitAnimation()
     (
         CARD_SPELL_EFFECT_PARTICLE_NAME,
         glm::vec3(cardSoWrapper->mSceneObject->mPosition.x, cardSoWrapper->mSceneObject->mPosition.y, CARD_EFFECT_PARTICLE_EMITTER_Z_OFFSET), // pos
-        *CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE), // scene
+        *CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE), // scene
         CARD_EFFECT_PARTICLE_EMITTER_NAME
     );
     
@@ -121,7 +121,7 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
         case ActionState::EFFECT_CARD_ANIMATION:
         {
             const auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
-            const auto& scene = sceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+            const auto& scene = sceneManager.FindScene(game_constants::BATTLE_SCENE);
             
             const auto& boardCards = mBoardState->GetActivePlayerState().mPlayerBoardCards;
             const auto& deadBoardCardIndices = mBoardState->GetActivePlayerState().mBoardCardIndicesToDestroy;
@@ -136,7 +136,7 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
             if (effectCardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] >= MAX_CARD_DISSOLVE_VALUE/2)
             {
                 // Fade particle emitter on spell
-                CoreSystemsEngine::GetInstance().GetParticleManager().RemoveParticleEmitterFlag(particle_flags::CONTINUOUS_PARTICLE_GENERATION, CARD_EFFECT_PARTICLE_EMITTER_NAME, *CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE));
+                CoreSystemsEngine::GetInstance().GetParticleManager().RemoveParticleEmitterFlag(particle_flags::CONTINUOUS_PARTICLE_GENERATION, CARD_EFFECT_PARTICLE_EMITTER_NAME, *CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE));
             }
             
             if (effectCardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] >= MAX_CARD_DISSOLVE_VALUE)
@@ -160,7 +160,7 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
                     (
                         CARD_SPELL_EFFECT_PARTICLE_NAME,
                         glm::vec3(targetPosition.x, targetPosition.y, CARD_EFFECT_PARTICLE_EMITTER_Z_OFFSET), // pos
-                        *CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE), // scene
+                        *CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE), // scene
                         strutils::StringId(BUFFED_CARD_PARTICLE_EMITTER_NAME_PREFIX + std::to_string(i))
                     );
                 }
@@ -346,9 +346,25 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
             auto cardData = CardDataRepository::GetInstance().GetCardData(boardCards[i]);
             assert(cardData);
             
-            if (mAffectingFamilyOnly && cardData->get().mCardFamily != effectCardFamily)
+            if (mAffectingFamilyOnly)
             {
-                continue;
+                if (effectCardFamily == game_constants::DEMONS_GENERIC_FAMILY_NAME)
+                {
+                    if
+                    (
+                        cardData->get().mCardFamily != game_constants::DEMONS_NORMAL_FAMILY_NAME &&
+                        cardData->get().mCardFamily != game_constants::DEMONS_MEDIUM_FAMILY_NAME &&
+                        cardData->get().mCardFamily != game_constants::DEMONS_HARD_FAMILY_NAME &&
+                        cardData->get().mCardFamily != game_constants::DEMONS_BOSS_FAMILY_NAME
+                    )
+                    {
+                        continue;
+                    }
+                }
+                else if (cardData->get().mCardFamily != effectCardFamily)
+                {
+                    continue;
+                }
             }
             
             if (!cardData->get().IsSpell())
@@ -366,9 +382,26 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
             auto cardData = CardDataRepository::GetInstance().GetCardData(heldCards[i]);
             assert(cardData);
             
-            if (mAffectingFamilyOnly && cardData->get().mCardFamily != effectCardFamily)
+            if (mAffectingFamilyOnly)
             {
-                continue;
+                if (effectCardFamily == game_constants::DEMONS_GENERIC_FAMILY_NAME)
+                {
+                    if
+                    (
+                        cardData->get().mCardFamily != game_constants::DEMONS_GENERIC_FAMILY_NAME &&
+                        cardData->get().mCardFamily != game_constants::DEMONS_NORMAL_FAMILY_NAME &&
+                        cardData->get().mCardFamily != game_constants::DEMONS_MEDIUM_FAMILY_NAME &&
+                        cardData->get().mCardFamily != game_constants::DEMONS_HARD_FAMILY_NAME &&
+                        cardData->get().mCardFamily != game_constants::DEMONS_BOSS_FAMILY_NAME
+                    )
+                    {
+                        continue;
+                    }
+                }
+                else if (cardData->get().mCardFamily != effectCardFamily)
+                {
+                    continue;
+                }
             }
             
             if (!cardData->get().IsSpell())

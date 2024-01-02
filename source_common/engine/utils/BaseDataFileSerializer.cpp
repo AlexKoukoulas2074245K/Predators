@@ -20,7 +20,8 @@ namespace serial
 ///------------------------------------------------------------------------------------------------
 
 BaseDataFileSerializer::BaseDataFileSerializer(const std::string& fileNameWithoutExtension, const DataFileType& dataFileType, const bool forceWriteBinary /* = false */)
-: mWriteBinary(forceWriteBinary)
+    : mDataFileType(dataFileType)
+    , mWriteBinary(forceWriteBinary)
 {
 #if defined(NDEBUG)
     mWriteBinary = true;
@@ -29,39 +30,15 @@ BaseDataFileSerializer::BaseDataFileSerializer(const std::string& fileNameWithou
     std::string dataFileExtension = mWriteBinary ? ".bin" : ".json";
     
     mFilename = fileNameWithoutExtension + dataFileExtension;
-    
-    if (dataFileType == DataFileType::PERSISTENCE_FILE_TYPE)
-    {
-#if defined(DESKTOP_FLOW)
-        std::filesystem::create_directory(persistence_utils::GetPersistentDataDirectoryPath());
-#endif
-        
-        if (mWriteBinary)
-        {
-            mFile.open(persistence_utils::GetPersistentDataDirectoryPath() + mFilename, std::ios::binary);
-        }
-        else
-        {
-            mFile.open(persistence_utils::GetPersistentDataDirectoryPath() + mFilename);
-        }
-    }
-    else if (dataFileType == DataFileType::ASSET_FILE_TYPE)
-    {
-        if (mWriteBinary)
-        {
-            mFile.open(resources::ResourceLoadingService::RES_DATA_ROOT + mFilename, std::ios::binary);
-        }
-        else
-        {
-            mFile.open(resources::ResourceLoadingService::RES_DATA_ROOT + mFilename);
-        }
-    }
+    OpenDataFile();
 }
 
 ///------------------------------------------------------------------------------------------------
 
 void BaseDataFileSerializer::FlushStateToFile()
 {
+    OpenDataFile();
+    
     if (mFile.is_open())
     {
         auto checksumString = "&" + std::to_string(strutils::StringId(mState.dump(4)).GetStringId());
@@ -87,6 +64,41 @@ void BaseDataFileSerializer::FlushStateToFile()
 nlohmann::json& BaseDataFileSerializer::GetState()
 {
     return mState;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void BaseDataFileSerializer::OpenDataFile()
+{
+    if (!mFile.is_open())
+    {
+        if (mDataFileType == DataFileType::PERSISTENCE_FILE_TYPE)
+        {
+    #if defined(DESKTOP_FLOW)
+            std::filesystem::create_directory(persistence_utils::GetPersistentDataDirectoryPath());
+    #endif
+            
+            if (mWriteBinary)
+            {
+                mFile.open(persistence_utils::GetPersistentDataDirectoryPath() + mFilename, std::ios::binary);
+            }
+            else
+            {
+                mFile.open(persistence_utils::GetPersistentDataDirectoryPath() + mFilename);
+            }
+        }
+        else if (mDataFileType == DataFileType::ASSET_FILE_TYPE)
+        {
+            if (mWriteBinary)
+            {
+                mFile.open(resources::ResourceLoadingService::RES_DATA_ROOT + mFilename, std::ios::binary);
+            }
+            else
+            {
+                mFile.open(resources::ResourceLoadingService::RES_DATA_ROOT + mFilename);
+            }
+        }
+    }
 }
 
 ///------------------------------------------------------------------------------------------------

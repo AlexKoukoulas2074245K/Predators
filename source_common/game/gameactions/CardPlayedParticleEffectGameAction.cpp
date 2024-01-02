@@ -32,7 +32,7 @@ void CardPlayedParticleEffectGameAction::VSetNewGameState()
 void CardPlayedParticleEffectGameAction::VInitAnimation()
 {
     const auto& lastPlayedCardSoWrapper = mBattleSceneLogicManager->GetBoardCardSoWrappers()[mBoardState->GetActivePlayerIndex()].back();
-    auto scene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto scene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE);
     
     assert(!lastPlayedCardSoWrapper->mCardData->mParticleEffect.isEmpty());
     
@@ -43,7 +43,7 @@ void CardPlayedParticleEffectGameAction::VInitAnimation()
 
 ActionAnimationUpdateResult CardPlayedParticleEffectGameAction::VUpdateAnimation(const float)
 {
-    auto scene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto scene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE);
     if (scene->FindSceneObject(PARTICLE_SCENE_OBJECT_NAME))
     {
         return ActionAnimationUpdateResult::ONGOING;

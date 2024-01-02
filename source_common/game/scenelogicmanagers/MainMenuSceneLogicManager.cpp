@@ -307,7 +307,7 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                     game_constants::DEFAULT_FONT_NAME,
                     "New Story",
                     NEW_STORY_BUTTON_NAME,
-                    [=](){ events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_MAP_SCENE,     SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE); },
+                    [=](){ InitializeNewStoryData(); },
                     *scene
                 ));
             }
@@ -357,11 +357,7 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                 game_constants::DEFAULT_FONT_NAME,
                 "Yes",
                 NEW_STORY_CONFIRMATION_BUTTON_NAME,
-                [=]()
-                {
-                    ProgressionDataRepository::GetInstance().SetStoryMapGenerationSeed(0);
-                    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_MAP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
-                },
+                [=](){ InitializeNewStoryData(); },
                 *scene
             ));
             
@@ -506,7 +502,7 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                 game_constants::DEFAULT_FONT_NAME,
                 "Start Battle",
                 START_BATTLE_BUTTON_NAME,
-                [=](){ events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::IN_GAME_BATTLE_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE); },
+                [=](){ events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::BATTLE_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE); },
                 *scene
             ));
             
@@ -627,6 +623,15 @@ void MainMenuSceneLogicManager::GoToPreviousSubScene(std::shared_ptr<scene::Scen
     mPreviousSubSceneStack.pop();
     mShouldPushToPreviousSceneStack = false;
     TransitionToSubScene(previousSubScene, mainScene);
+}
+
+///------------------------------------------------------------------------------------------------
+
+void MainMenuSceneLogicManager::InitializeNewStoryData()
+{
+    ProgressionDataRepository::GetInstance().SetNextBotPlayerDeck(CardDataRepository::GetInstance().GetCardIdsByFamily(game_constants::RODENTS_FAMILY_NAME));
+    ProgressionDataRepository::GetInstance().SetStoryMapGenerationSeed(0);
+    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_MAP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
 }
 
 ///------------------------------------------------------------------------------------------------

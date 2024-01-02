@@ -37,7 +37,6 @@ static const std::string COIN_STACK_TEXTURE_FILE_NAME = "coin_stack.png";
 static const std::string HEALTH_CRYSTAL_TEXTURE_FILE_NAME = "health_crystal.png";
 static const std::string HEALTH_CRYSTAL_SCENE_OBJECT_NAME_PREFIX = "health_crystal_";
 
-static const glm::ivec2 STORY_NODE_MAP_DIMENSIONS = {9, 5};
 static const glm::vec2 MAP_SWIPE_X_BOUNDS = {-0.78f, 0.78f};
 static const glm::vec2 MAP_SWIPE_Y_BOUNDS = {-0.78f, 0.78f};
 
@@ -98,7 +97,7 @@ void StoryMapSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     
     std::thread mapGenerationThread = std::thread([=]
     {
-        mStoryMap = std::make_unique<StoryMap>(scene, STORY_NODE_MAP_DIMENSIONS, MapCoord(currentMapCoord.x, currentMapCoord.y));
+        mStoryMap = std::make_unique<StoryMap>(scene, game_constants::STORY_NODE_MAP_DIMENSIONS, MapCoord(currentMapCoord.x, currentMapCoord.y));
         mStoryMap->GenerateMapNodes();
     });
     mapGenerationThread.detach();

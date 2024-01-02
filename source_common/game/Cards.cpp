@@ -117,11 +117,14 @@ void CardDataRepository::LoadCardData(bool loadCardAssets)
         mCardFamilies.insert(strutils::StringId(cardFamily.get<std::string>()));
     }
     
+    std::unordered_set<int> cardIdsSeenThisLoad;
     for (const auto& cardObject: cardDataJson["card_data"])
     {
         CardData cardData = {};
         cardData.mCardId = cardObject["id"].get<int>();
         cardData.mCardWeight = cardObject["weight"].get<int>();
+        
+        assert(cardIdsSeenThisLoad.count(cardData.mCardId) == 0);
         
         // Normal card
         if (cardObject.count("damage"))
@@ -145,7 +148,7 @@ void CardDataRepository::LoadCardData(bool loadCardAssets)
         
         // Make sure card has a registered card family
         cardData.mCardFamily = strutils::StringId(cardObject["family"].get<std::string>());
-        if (!mCardFamilies.count(cardData.mCardFamily))
+        if (cardData.mCardFamily != game_constants::DEMONS_GENERIC_FAMILY_NAME && !mCardFamilies.count(cardData.mCardFamily))
         {
             ospopups::ShowMessageBox(ospopups::MessageBoxType::ERROR, ("Cannot find family \"" + cardData.mCardFamily.GetString() + "\" for card with id=" + std::to_string(cardData.mCardId)).c_str());
         }
@@ -157,7 +160,8 @@ void CardDataRepository::LoadCardData(bool loadCardAssets)
             cardData.mCardTextureResourceId = resourceService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + cardObject["texture"].get<std::string>());
             cardData.mCardShaderResourceId = resourceService.LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + cardObject["shader"].get<std::string>());
         }
-            
+        
+        cardIdsSeenThisLoad.insert(cardData.mCardId);
         mCardDataMap[cardData.mCardId] = cardData;
     }
 }

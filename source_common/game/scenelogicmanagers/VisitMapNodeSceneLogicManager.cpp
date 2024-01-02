@@ -108,16 +108,7 @@ void VisitMapNodeSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> sce
             [=]()
             {
                 mTransitioning = true;
-                auto* selectedNodeData = ProgressionDataRepository::GetInstance().GetSelectedStoryMapNodeData();
-                
-                assert(selectedNodeData);
-                assert(selectedNodeData->mNodeRandomSeed != 0);
-                
-                ProgressionDataRepository::GetInstance().SetCurrentStoryMapNodeSeed(selectedNodeData->mNodeRandomSeed);
-                ProgressionDataRepository::GetInstance().SetCurrentStoryMapNodeCoord(selectedNodeData->mCoords);
-                ProgressionDataRepository::GetInstance().SetCurrentEventScreenIndex(0);
-                
-                events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::EVENT_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
+                InitializeNodeVisitData();
             },
             *scene
         ));
@@ -251,6 +242,61 @@ void VisitMapNodeSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene> 
     
     animationManager.StopAnimation(game_constants::SCENE_SPEED_DILATION_ANIMATION_NAME);
     animationManager.StartAnimation(std::make_unique<rendering::TweenValueAnimation>(previousScene->GetUpdateTimeSpeedFactor(), 1.0f, game_constants::SCENE_SPEED_DILATION_ANIMATION_DURATION_SECS), [](){}, game_constants::SCENE_SPEED_DILATION_ANIMATION_NAME);
+}
+
+///------------------------------------------------------------------------------------------------
+
+void VisitMapNodeSceneLogicManager::InitializeNodeVisitData()
+{
+    auto* selectedNodeData = ProgressionDataRepository::GetInstance().GetSelectedStoryMapNodeData();
+    
+    assert(selectedNodeData);
+    assert(selectedNodeData->mNodeRandomSeed != 0);
+    
+    ProgressionDataRepository::GetInstance().SetCurrentStoryMapNodeSeed(selectedNodeData->mNodeRandomSeed);
+    ProgressionDataRepository::GetInstance().SetCurrentStoryMapNodeCoord(selectedNodeData->mCoords);
+    
+    std::vector<int> opponentDeckBuilder;
+    
+    switch (selectedNodeData->mNodeType)
+    {
+        case StoryMap::NodeType::EVENT:
+        {
+            ProgressionDataRepository::GetInstance().SetCurrentEventScreenIndex(0);
+            events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::EVENT_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
+        } break;
+        
+        case StoryMap::NodeType::BOSS_ENCOUNTER:
+        {
+            auto eliteCards = CardDataRepository::GetInstance().GetCardIdsByFamily(game_constants::DEMONS_HARD_FAMILY_NAME);
+            opponentDeckBuilder.insert(opponentDeckBuilder.end(), eliteCards.begin(), eliteCards.end());
+        } // Intentional fallthrough
+        case StoryMap::NodeType::ELITE_ENCOUNTER:
+        {
+            if (selectedNodeData->mCoords.x >= game_constants::STORY_NODE_MAP_DIMENSIONS.x/2)
+            {
+                auto mediumCards = CardDataRepository::GetInstance().GetCardIdsByFamily(game_constants::DEMONS_MEDIUM_FAMILY_NAME);
+                opponentDeckBuilder.insert(opponentDeckBuilder.end(), mediumCards.begin(), mediumCards.end());
+            }
+        } // Intentional fallthrough
+        case StoryMap::NodeType::NORMAL_ENCOUNTER:
+        {
+            auto normalCards = CardDataRepository::GetInstance().GetCardIdsByFamily(game_constants::DEMONS_NORMAL_FAMILY_NAME);
+            opponentDeckBuilder.insert(opponentDeckBuilder.end(), normalCards.begin(), normalCards.end());
+             
+            auto genericDemonCards = CardDataRepository::GetInstance().GetCardIdsByFamily(game_constants::DEMONS_GENERIC_FAMILY_NAME);
+            opponentDeckBuilder.insert(opponentDeckBuilder.end(), genericDemonCards.begin(), genericDemonCards.end());
+            
+            ProgressionDataRepository::GetInstance().SetNextTopPlayerDeck(opponentDeckBuilder);
+            ProgressionDataRepository::GetInstance().SetNextBattleControlType(BattleControlType::AI_TOP_ONLY);
+            events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::BATTLE_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
+        } break;
+            
+        default:
+        {
+            assert(false);
+        } break;
+    }
 }
 
 ///------------------------------------------------------------------------------------------------

@@ -85,9 +85,14 @@ namespace game_constants
     inline const strutils::StringId INSECTS_FAMILY_NAME = strutils::StringId("insects");
     inline const strutils::StringId RODENTS_FAMILY_NAME = strutils::StringId("rodents");
     inline const strutils::StringId DINOSAURS_FAMILY_NAME = strutils::StringId("dinosaurs");
+    inline const strutils::StringId DEMONS_GENERIC_FAMILY_NAME = strutils::StringId("demons");
+    inline const strutils::StringId DEMONS_NORMAL_FAMILY_NAME = strutils::StringId("demons_normal");
+    inline const strutils::StringId DEMONS_MEDIUM_FAMILY_NAME = strutils::StringId("demons_medium");
+    inline const strutils::StringId DEMONS_HARD_FAMILY_NAME = strutils::StringId("demons_hard");
+    inline const strutils::StringId DEMONS_BOSS_FAMILY_NAME = strutils::StringId("demons_boss");
 
     // Scenes
-    inline const strutils::StringId IN_GAME_BATTLE_SCENE = strutils::StringId("battle_scene");
+    inline const strutils::StringId BATTLE_SCENE = strutils::StringId("battle_scene");
     inline const strutils::StringId MAIN_MENU_SCENE = strutils::StringId("main_menu_scene");
     inline const strutils::StringId STORY_MAP_SCENE = strutils::StringId("story_map_scene");
     inline const strutils::StringId EVENT_SCENE = strutils::StringId("event_scene");
@@ -173,6 +178,7 @@ namespace game_constants
 
     inline const glm::ivec2 STORY_MAP_INIT_COORD = {0, 2};
     inline const glm::ivec2 STORY_MAP_BOSS_COORD = {8, 2};
+    inline const glm::ivec2 STORY_NODE_MAP_DIMENSIONS = {9, 5};
 
     inline float GAME_BOARD_BASED_SCENE_ZOOM_FACTOR = 120.0f;
 }

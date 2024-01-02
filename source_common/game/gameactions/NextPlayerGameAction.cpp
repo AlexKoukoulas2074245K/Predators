@@ -113,7 +113,7 @@ void NextPlayerGameAction::VInitAnimation()
     
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
     auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
-    auto scene = sceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto scene = sceneManager.FindScene(game_constants::BATTLE_SCENE);
     auto turnPointerSo = scene->FindSceneObject(game_constants::TURN_POINTER_SCENE_OBJECT_NAME);
     bool localPlayerActive = mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX;
     
@@ -122,7 +122,7 @@ void NextPlayerGameAction::VInitAnimation()
         mPendingAnimations--;
         auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
         auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
-        auto scene = sceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+        auto scene = sceneManager.FindScene(game_constants::BATTLE_SCENE);
         
         auto turnPointerHighlighterSo = scene->FindSceneObject(game_constants::TURN_POINTER_HIGHLIGHTER_SCENE_OBJECT_NAME);
         animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(turnPointerHighlighterSo, 0.0f, game_constants::TURN_POINTER_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), [](){});

@@ -3,7 +3,12 @@
     [
         "rodents",
         "insects",
-        "dinosaurs"
+        "dinosaurs",
+        "demons",
+        "demons_normal",
+        "demons_medium",
+        "demons_hard",
+        "demons_boss"
     ],
     
     "card_data":
@@ -288,6 +293,61 @@
             "effect": "PERMANENT_CONTINUAL_WEIGHT_REDUCTION WEIGHT FAMILY HELD",
             "tooltip": "Further reduce$the Weight by 1 for$ALL Dinosaurs$ every turn",
             "texture": "impending_doom.png",
+            "shader": "basic.vs"
+        },
+        {
+            "id": 30,
+            "damage": 1,
+            "weight": 3,
+            "family": "demons_normal",
+            "name": "Youngster Demon",
+            "texture": "story_cards/baby_demon.png",
+            "shader": "basic.vs"
+        },
+        {
+            "id": 31,
+            "damage": 2,
+            "weight": 4,
+            "family": "demons_normal",
+            "name": "Clown Imp",
+            "texture": "story_cards/small_imp.png",
+            "shader": "basic.vs"
+        },
+        {
+            "id": 32,
+            "damage": 3,
+            "weight": 4,
+            "family": "demons_medium",
+            "name": "Scarlet Demon",
+            "texture": "story_cards/red_young_adult_demon.png",
+            "shader": "basic.vs"
+        },
+        {
+            "id": 33,
+            "damage": 4,
+            "weight": 5,
+            "family": "demons_medium",
+            "name": "Sapphire Claws",
+            "texture": "story_cards/young_adult_blue_demon.png",
+            "shader": "basic.vs"
+        },
+        {
+            "id": 34,
+            "damage": 6,
+            "weight": 6,
+            "family": "demons_hard",
+            "name": "Ghost Assassin",
+            "texture": "story_cards/elite_demon_0.png",
+            "shader": "basic.vs"
+        },
+        {
+            "id": 35,
+            "weight": 3,
+            "family": "demons",
+            "name": "Dark Magic",
+            "effect": "DAMAGE +2 FAMILY BOARD HELD",
+            "tooltip": "Damage +2 for$ALL Demons on$hand & board",
+            "texture": "story_cards/demon_wizard.png",
             "shader": "basic.vs"
         }
     ]

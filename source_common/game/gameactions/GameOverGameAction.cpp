@@ -40,7 +40,7 @@ void GameOverGameAction::VSetNewGameState()
 
 void GameOverGameAction::VInitAnimation()
 {
-    auto& scene = *CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto& scene = *CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE);
     
     auto victorTextSo = scene.CreateSceneObject(VICTORIOUS_TEXT_SCENE_OBJECT_NAME);
     

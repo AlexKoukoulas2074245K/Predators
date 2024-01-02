@@ -54,6 +54,7 @@ private:
     void BattleModeSelected(const strutils::StringId& buttonName);
     void DeckSelected(const int selectedDeckIndex, const bool forTopPlayer);
     void GoToPreviousSubScene(std::shared_ptr<scene::Scene> mainScene);
+    void InitializeNewStoryData();
     
 private:
     std::vector<std::unique_ptr<AnimatedButton>> mAnimatedButtons;

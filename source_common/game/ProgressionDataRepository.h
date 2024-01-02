@@ -47,7 +47,6 @@ public:
     ProgressionDataRepository& operator = (ProgressionDataRepository&&) = delete;
     
     ValueWithDelayedDisplay<int>& CurrencyCoins();
-    
     ValueWithDelayedDisplay<int>& StoryCurrentHealth();
     
     BattleControlType GetNextBattleControlType() const;
@@ -61,7 +60,6 @@ public:
     
     const std::vector<int>& GetNextBotPlayerDeck() const;
     void SetNextBotPlayerDeck(const std::vector<int>& deck);
-    
     
     const int& GetStoryMapGenerationSeed() const;
     void SetStoryMapGenerationSeed(const int storyMapGenerationSeed);

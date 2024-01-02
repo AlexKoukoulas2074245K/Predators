@@ -215,7 +215,7 @@ void PlayCardGameAction::AnimatedCardToBoard(std::shared_ptr<CardSoWrapper> last
     
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
     auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
-    auto scene = sceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto scene = sceneManager.FindScene(game_constants::BATTLE_SCENE);
     
     // For remote plays, the front face card also needs to be created
     if (mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX)
@@ -233,7 +233,7 @@ void PlayCardGameAction::AnimatedCardToBoard(std::shared_ptr<CardSoWrapper> last
             true,
             (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.size()) > boardCardIndex ? mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.at(boardCardIndex) : CardStatOverrides()), // held card stat overrides have moved to board card stat overrides from the setstate above
             mBoardState->GetActivePlayerState().mBoardModifiers.mGlobalCardStatModifiers,
-            *sceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE)
+            *sceneManager.FindScene(game_constants::BATTLE_SCENE)
         );
         events::EventSystem::GetInstance().DispatchEvent<events::HeldCardSwapEvent>(lastPlayedCardSoWrapper, lastPlayedCardIndex, true);
     }
@@ -256,7 +256,7 @@ void PlayCardGameAction::AnimatedCardToBoard(std::shared_ptr<CardSoWrapper> last
     animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(lastPlayedCardSoWrapper->mSceneObject, targetPosition, lastPlayedCardSoWrapper->mSceneObject->mScale * game_constants::IN_GAME_PLAYED_CARD_SCALE_FACTOR, IN_GAME_PLAYED_CARD_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
     {
         mPendingAnimations--;
-        CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE)->GetCamera().Shake(CARD_CAMERA_SHAKE_DURATION, CARD_CAMERA_SHAKE_STRENGTH);
+        CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE)->GetCamera().Shake(CARD_CAMERA_SHAKE_DURATION, CARD_CAMERA_SHAKE_STRENGTH);
         
         events::EventSystem::GetInstance().DispatchEvent<events::WeightChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
         
@@ -264,7 +264,7 @@ void PlayCardGameAction::AnimatedCardToBoard(std::shared_ptr<CardSoWrapper> last
         (
             CARD_PLAY_PARTICLE_NAME,
             glm::vec3(targetPosition.x, targetPosition.y, CARD_PLAY_PARTICLE_EMITTER_Z),
-            *CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE)
+            *CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE)
         );
         
         lastPlayedCardSoWrapper->mSceneObject->mShaderBoolUniformValues[game_constants::IS_HELD_CARD_UNIFORM_NAME] = false;

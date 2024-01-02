@@ -30,6 +30,9 @@ public:
     void VDestroyScene(std::shared_ptr<scene::Scene> scene) override;
 
 private:
+    void InitializeNodeVisitData();
+    
+private:
     std::vector<std::unique_ptr<AnimatedButton>> mAnimatedButtons;
     bool mTransitioning;
 };

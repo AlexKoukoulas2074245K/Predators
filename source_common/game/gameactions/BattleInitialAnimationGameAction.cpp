@@ -36,7 +36,7 @@ void BattleInitialAnimationGameAction::VSetNewGameState()
 
 void BattleInitialAnimationGameAction::VInitAnimation()
 {
-    auto battleScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto battleScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE);
     auto boardSceneObject = battleScene->FindSceneObject(BOARD_SCENE_OBJECT_NAME);
     
     boardSceneObject->mPosition = game_constants::GAME_BOARD_INIT_POSITION;

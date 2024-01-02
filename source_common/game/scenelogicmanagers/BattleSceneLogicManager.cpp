@@ -60,7 +60,7 @@ static const strutils::StringId CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES [game_const
 };
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
 {
-    game_constants::IN_GAME_BATTLE_SCENE,
+    game_constants::BATTLE_SCENE,
     HISTORY_SCENE
 };
 
@@ -175,7 +175,7 @@ void BattleSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 {
     mCurrentBattleControlType = ProgressionDataRepository::GetInstance().GetNextBattleControlType();
     
-    if (scene->GetName() == game_constants::IN_GAME_BATTLE_SCENE)
+    if (scene->GetName() == game_constants::BATTLE_SCENE)
     {
         InitBattleScene(scene);
     }
@@ -382,7 +382,7 @@ void BattleSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scen
     time += dtMillis * 0.001f;
     mActiveScene = activeScene;
     
-    if (activeScene->GetName() == game_constants::IN_GAME_BATTLE_SCENE)
+    if (activeScene->GetName() == game_constants::BATTLE_SCENE)
     {
         if (mActionEngine->GetActiveGameActionName() == IDLE_GAME_ACTION_NAME)
         {
@@ -508,7 +508,7 @@ void BattleSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene> scene)
         }
         
         animationManager.StopAnimation(game_constants::SCENE_SPEED_DILATION_ANIMATION_NAME);
-        animationManager.StartAnimation(std::make_unique<rendering::TweenValueAnimation>(CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE)->GetUpdateTimeSpeedFactor(), 1.0f, OVERLAY_SCENE_SPEED_ANIMATION_TARGET_DURATION), [](){}, game_constants::SCENE_SPEED_DILATION_ANIMATION_NAME);
+        animationManager.StartAnimation(std::make_unique<rendering::TweenValueAnimation>(CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE)->GetUpdateTimeSpeedFactor(), 1.0f, OVERLAY_SCENE_SPEED_ANIMATION_TARGET_DURATION), [](){}, game_constants::SCENE_SPEED_DILATION_ANIMATION_NAME);
         
         animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(scene->FindSceneObject(CARD_HISTORY_CAPSULE_SCENE_OBJECT_NAME), 0.0f, HISTORY_SCENE_FADE_IN_OUT_DURATION_SECS), [=]()
         {
@@ -516,7 +516,7 @@ void BattleSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene> scene)
         });
         DestroyCardTooltip(scene);
     }
-    else if (scene->GetName() == game_constants::IN_GAME_BATTLE_SCENE)
+    else if (scene->GetName() == game_constants::BATTLE_SCENE)
     {
         CoreSystemsEngine::GetInstance().GetSceneManager().RemoveScene(HISTORY_SCENE);
         events::EventSystem::GetInstance().UnregisterAllEventsForListener(this);
@@ -559,7 +559,7 @@ void BattleSceneLogicManager::HandleTouchInput(const float dtMillis)
     const auto& inputStateManager = CoreSystemsEngine::GetInstance().GetInputStateManager();
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
     
-    auto battleScene = sceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto battleScene = sceneManager.FindScene(game_constants::BATTLE_SCENE);
     auto worldTouchPos = inputStateManager.VGetPointingPosInWorldSpace(battleScene->GetCamera().GetViewMatrix(), battleScene->GetCamera().GetProjMatrix());
     
     auto& localPlayerCards = mPlayerHeldCardSceneObjectWrappers[game_constants::LOCAL_PLAYER_INDEX];
@@ -786,7 +786,7 @@ void BattleSceneLogicManager::UpdateMiscSceneObjects(const float dtMillis)
     time += dtMillis * 0.001f;
     
     const auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
-    auto battleScene = sceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto battleScene = sceneManager.FindScene(game_constants::BATTLE_SCENE);
     
     // Card Interactive Elements
     auto& localPlayerHeldCards = mPlayerHeldCardSceneObjectWrappers[game_constants::LOCAL_PLAYER_INDEX];
@@ -994,7 +994,7 @@ void BattleSceneLogicManager::UpdateMiscSceneObjects(const float dtMillis)
 void BattleSceneLogicManager::OnFreeMovingCardRelease(std::shared_ptr<CardSoWrapper> cardSoWrapper)
 {
     const auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
-    auto battleScene = sceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto battleScene = sceneManager.FindScene(game_constants::BATTLE_SCENE);
     
     auto& localPlayerCards = mPlayerHeldCardSceneObjectWrappers[game_constants::LOCAL_PLAYER_INDEX];
     auto cardIndex = std::find_if(localPlayerCards.begin(), localPlayerCards.end(), [=](const std::shared_ptr<CardSoWrapper>& otherCard)
@@ -1047,7 +1047,7 @@ void BattleSceneLogicManager::OnFreeMovingCardRelease(std::shared_ptr<CardSoWrap
 void BattleSceneLogicManager::CreateCardHighlighter()
 {
     const auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
-    auto battleScene = sceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto battleScene = sceneManager.FindScene(game_constants::BATTLE_SCENE);
     
     auto& localPlayerCards = mPlayerHeldCardSceneObjectWrappers[game_constants::LOCAL_PLAYER_INDEX];
     for (size_t i = 0U; i < localPlayerCards.size(); ++i)
@@ -1147,7 +1147,7 @@ void BattleSceneLogicManager::DestroyCardHighlighterAtIndex(const int index)
     mSecsCardHighlighted = 0.0f;
     
     const auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
-    auto battleScene = sceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto battleScene = sceneManager.FindScene(game_constants::BATTLE_SCENE);
     
     auto cardHighlighterName = strutils::StringId(CARD_HIGHLIGHTER_SCENE_OBJECT_NAME_PREFIX + std::to_string(index));
     battleScene->RemoveSceneObject(cardHighlighterName);
@@ -1211,7 +1211,7 @@ void BattleSceneLogicManager::OnApplicationMovedToBackground(const events::Appli
 void BattleSceneLogicManager::OnWindowResize(const events::WindowResizeEvent&)
 {
     const auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
-    auto battleScene = sceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto battleScene = sceneManager.FindScene(game_constants::BATTLE_SCENE);
     
     // Correct position of held cards
     for (auto j = 0U; j < mPlayerHeldCardSceneObjectWrappers.size(); ++j)
@@ -1248,7 +1248,7 @@ void BattleSceneLogicManager::OnLocalPlayerTurnStarted(const events::LocalPlayer
 void BattleSceneLogicManager::OnEndOfTurnCardDestruction(const events::EndOfTurnCardDestructionEvent& event)
 {
     const auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
-    auto battleScene = sceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto battleScene = sceneManager.FindScene(game_constants::BATTLE_SCENE);
     
     auto& cardSoWrappers = event.mIsBoardCard ?
         mPlayerBoardCardSceneObjectWrappers[(event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)]:
@@ -1282,7 +1282,7 @@ void BattleSceneLogicManager::OnEndOfTurnCardDestruction(const events::EndOfTurn
 void BattleSceneLogicManager::OnImmediateCardDestructionWithReposition(const events::ImmediateCardDestructionWithRepositionEvent& event)
 {
     const auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
-    auto battleScene = sceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto battleScene = sceneManager.FindScene(game_constants::BATTLE_SCENE);
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
     
     const auto& cards = event.mIsBoardCard ?
@@ -1329,7 +1329,7 @@ void BattleSceneLogicManager::OnCardCreation(const events::CardCreationEvent& ev
 void BattleSceneLogicManager::OnCardBuffedDebuffed(const events::CardBuffedDebuffedEvent& event)
 {
     auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
-    auto battleScene = sceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto battleScene = sceneManager.FindScene(game_constants::BATTLE_SCENE);
     
     if (event.mBoardCard)
     {
@@ -1418,7 +1418,7 @@ void BattleSceneLogicManager::OnNewBoardCardCreated(const events::NewBoardCardCr
 void BattleSceneLogicManager::OnLastCardPlayedFinalized(const events::LastCardPlayedFinalizedEvent& event)
 {
     const auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
-    auto battleScene = sceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto battleScene = sceneManager.FindScene(game_constants::BATTLE_SCENE);
     battleScene->RemoveSceneObject(strutils::StringId(CARD_HIGHLIGHTER_SCENE_OBJECT_NAME_PREFIX + std::to_string(event.mCardIndex)));
     
     auto& playerHeldCardSoWrappers = mPlayerHeldCardSceneObjectWrappers[mBoardState->GetActivePlayerIndex()];
@@ -1485,7 +1485,7 @@ void BattleSceneLogicManager::OnBoardSideCardEffectTriggered(const events::Board
     auto& animationManager = systemsEngine.GetAnimationManager();
     const auto& sceneManager = systemsEngine.GetSceneManager();
     
-    auto battleScene = sceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto battleScene = sceneManager.FindScene(game_constants::BATTLE_SCENE);
     
     std::shared_ptr<scene::SceneObject> sideEffectSceneObject = nullptr;
     if (event.mEffectBoardModifierMask == effects::board_modifier_masks::BOARD_SIDE_DEBUFF)
@@ -1568,7 +1568,7 @@ void BattleSceneLogicManager::OnBoardSideCardEffectEnded(const events::BoardSide
     auto& animationManager = systemsEngine.GetAnimationManager();
     const auto& sceneManager = systemsEngine.GetSceneManager();
     
-    auto battleScene = sceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto battleScene = sceneManager.FindScene(game_constants::BATTLE_SCENE);
     
     std::shared_ptr<scene::SceneObject> sideEffectSceneObject = nullptr;
     if (event.mEffectBoardModifierMask == effects::board_modifier_masks::BOARD_SIDE_DEBUFF)
@@ -1643,7 +1643,7 @@ void BattleSceneLogicManager::OnBoardSideCardEffectEnded(const events::BoardSide
 void BattleSceneLogicManager::OnForceSendCardBackToPosition(const events::ForceSendCardBackToPositionEvent& event)
 {
     const auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
-    auto battleScene = sceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto battleScene = sceneManager.FindScene(game_constants::BATTLE_SCENE);
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
     
     const auto& cards = event.mBoardCard ?
@@ -1763,7 +1763,7 @@ void BattleSceneLogicManager::OnCardHistoryEntryAddition(const events::CardHisto
 
 void BattleSceneLogicManager::OnHistoryButtonPressed()
 {
-    auto battleScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto battleScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE);
     
     CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(battleScene->GetUpdateTimeSpeedFactor(), 0.0f, game_constants::SCENE_SPEED_DILATION_ANIMATION_DURATION_SECS), [](){}, game_constants::SCENE_SPEED_DILATION_ANIMATION_NAME);
     
@@ -1776,7 +1776,7 @@ void BattleSceneLogicManager::OnHistoryButtonPressed()
 
 void BattleSceneLogicManager::OnSettingsButtonPressed()
 {
-    auto battleScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto battleScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE);
     
     CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(battleScene->GetUpdateTimeSpeedFactor(), 0.0f, game_constants::SCENE_SPEED_DILATION_ANIMATION_DURATION_SECS), [](){}, game_constants::SCENE_SPEED_DILATION_ANIMATION_NAME);
     

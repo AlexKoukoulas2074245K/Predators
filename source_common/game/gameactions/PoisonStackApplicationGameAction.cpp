@@ -76,7 +76,7 @@ void PoisonStackApplicationGameAction::VInitAnimation()
     (
         POISON_GAS_PARTICLE_NAME,
         targetPosition,
-        *CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE)
+        *CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE)
     );
 }
 

@@ -114,13 +114,13 @@ void Game::Init()
 void Game::Update(const float dtMillis)
 {
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
-    auto scene = systemsEngine.GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto scene = systemsEngine.GetSceneManager().FindScene(game_constants::BATTLE_SCENE);
     
 //    if (systemsEngine.GetInputStateManager().VButtonTapped(input::Button::MAIN_BUTTON))
 //    {
 //        auto touchPos = systemsEngine.GetInputStateManager().VGetPointingPosInWorldSpace(scene->GetCamera().GetViewMatrix(), scene->GetCamera().GetProjMatrix());
 //        //auto& systemsEngine = CoreSystemsEngine::GetInstance();
-//        //auto scene = systemsEngine.GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+//        //auto scene = systemsEngine.GetSceneManager().FindScene(game_constants::BATTLE_SCENE);
 //
 //        //auto targetPosition = game_constants::HEALTH_CRYSTAL_TOP_POSITION;
 //
@@ -128,7 +128,7 @@ void Game::Update(const float dtMillis)
 //        (
 //            strutils::StringId("dirt"),
 //            glm::vec3(touchPos.x, touchPos.y, 0.1f),
-//            *systemsEngine.GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE) // scene
+//            *systemsEngine.GetSceneManager().FindScene(game_constants::BATTLE_SCENE) // scene
 //        );
 //    }
 //

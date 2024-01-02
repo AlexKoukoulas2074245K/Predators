@@ -79,7 +79,7 @@ void TrapTriggeredAnimationGameAction::VInitAnimation()
 {
     auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
-    auto scene = sceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto scene = sceneManager.FindScene(game_constants::BATTLE_SCENE);
     const auto lastPlayedBoardCardIndex = mBoardState->GetActivePlayerState().mPlayerBoardCards.size() - 1;
     auto lastPlayedCardSoWrapper = mBattleSceneLogicManager->GetBoardCardSoWrappers()[mBoardState->GetActivePlayerIndex()].at(lastPlayedBoardCardIndex);
     
@@ -116,7 +116,7 @@ ActionAnimationUpdateResult TrapTriggeredAnimationGameAction::VUpdateAnimation(c
 {
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
     auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
-    auto scene = sceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto scene = sceneManager.FindScene(game_constants::BATTLE_SCENE);
     
     switch (mAnimationState)
     {

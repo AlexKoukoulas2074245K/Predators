@@ -46,7 +46,7 @@ void InsectDuplicationGameAction::VInitAnimation()
 {
     mFinished = false;
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
-    auto scene = systemsEngine.GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto scene = systemsEngine.GetSceneManager().FindScene(game_constants::BATTLE_SCENE);
     auto lastPlayedCardSoWrapper = mBattleSceneLogicManager->GetBoardCardSoWrappers().at(mBoardState->GetActivePlayerIndex()).back();
     auto lastPlayedCardIndex = mBoardState->GetActivePlayerState().mPlayerBoardCards.size() - 2;
     auto sourcePosition = lastPlayedCardSoWrapper->mSceneObject->mPosition;

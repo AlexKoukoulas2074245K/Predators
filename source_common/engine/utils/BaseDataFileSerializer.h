@@ -36,6 +36,10 @@ protected:
     nlohmann::json mState;
     
 private:
+    void OpenDataFile();
+    
+private:
+    const DataFileType mDataFileType;
     std::string mFilename;
     std::ofstream mFile;
     bool mWriteBinary;

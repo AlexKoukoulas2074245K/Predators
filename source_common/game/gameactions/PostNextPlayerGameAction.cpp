@@ -92,7 +92,7 @@ void PostNextPlayerGameAction::VInitAnimation()
 {
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
     auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
-    auto scene = sceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto scene = sceneManager.FindScene(game_constants::BATTLE_SCENE);
     
     // Any surviving board cards for player whose turn has ended need to be repositioned at this point
     for (auto i = 0U; i < mBoardState->GetInactivePlayerState().mPlayerBoardCards.size(); ++i)
@@ -121,7 +121,7 @@ void PostNextPlayerGameAction::VInitAnimation()
         
         auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
         auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
-        auto scene = sceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+        auto scene = sceneManager.FindScene(game_constants::BATTLE_SCENE);
         bool localPlayerActive = mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX;
         if (localPlayerActive)
         {

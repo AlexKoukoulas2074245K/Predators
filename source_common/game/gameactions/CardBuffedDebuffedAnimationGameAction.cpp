@@ -76,7 +76,7 @@ void CardBuffedDebuffedAnimationGameAction::VInitAnimation()
     {
         if (!particleEmitterNameToRemove.isEmpty())
         {
-            CoreSystemsEngine::GetInstance().GetParticleManager().RemoveParticleEmitterFlag(particle_flags::CONTINUOUS_PARTICLE_GENERATION, particleEmitterNameToRemove, *CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE));
+            CoreSystemsEngine::GetInstance().GetParticleManager().RemoveParticleEmitterFlag(particle_flags::CONTINUOUS_PARTICLE_GENERATION, particleEmitterNameToRemove, *CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE));
         }
         
         events::EventSystem::GetInstance().DispatchEvent<events::CardBuffedDebuffedEvent>(static_cast<int>(cardIndex), isBoardCard, playerIndex == game_constants::REMOTE_PLAYER_INDEX);

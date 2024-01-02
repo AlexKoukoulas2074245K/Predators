@@ -61,7 +61,7 @@ void RodentsDigAnimationGameAction::VInitAnimation()
     mSecsAccum = 0.0f;
     
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
-    auto scene = systemsEngine.GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto scene = systemsEngine.GetSceneManager().FindScene(game_constants::BATTLE_SCENE);
     
     auto cardIndex = std::stoi(mExtraActionParams.at(CARD_INDEX_PARAM));
     auto playerIndex = std::stoi(mExtraActionParams.at(PLAYER_INDEX_PARAM));
@@ -87,7 +87,7 @@ ActionAnimationUpdateResult RodentsDigAnimationGameAction::VUpdateAnimation(cons
     mSecsAccum += dtMillis/1000.0f;
     
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
-    auto scene = systemsEngine.GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto scene = systemsEngine.GetSceneManager().FindScene(game_constants::BATTLE_SCENE);
     
     auto cardIndex = std::stoi(mExtraActionParams.at(CARD_INDEX_PARAM));
     auto playerIndex = std::stoi(mExtraActionParams.at(PLAYER_INDEX_PARAM));
@@ -117,7 +117,7 @@ const std::vector<std::string>& RodentsDigAnimationGameAction::VGetRequiredExtra
 void RodentsDigAnimationGameAction::CreateAnimations()
 {
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
-    auto scene = systemsEngine.GetSceneManager().FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto scene = systemsEngine.GetSceneManager().FindScene(game_constants::BATTLE_SCENE);
     
     auto shovelSceneObject = scene->FindSceneObject(SHOVEL_SCENE_OBEJECT_NAME);
     

@@ -40,7 +40,7 @@ void DrawCardGameAction::VInitAnimation()
     auto& animationManager = systemsEngine.GetAnimationManager();
     auto& sceneManager = systemsEngine.GetSceneManager();
     
-    auto scene = sceneManager.FindScene(game_constants::IN_GAME_BATTLE_SCENE);
+    auto scene = sceneManager.FindScene(game_constants::BATTLE_SCENE);
     
     const int cardCount = static_cast<int>(mBoardState->GetActivePlayerState().mPlayerHeldCards.size());
     bool remotePlayerActive = mBoardState->GetActivePlayerIndex() == 0;
