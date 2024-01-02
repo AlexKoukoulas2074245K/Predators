@@ -170,3 +170,17 @@ void ProgressionDataRepository::SetSelectedStoryMapNodePosition(const glm::vec3&
 }
 
 ///------------------------------------------------------------------------------------------------
+
+const std::string& ProgressionDataRepository::GetNextStoryOpponentTexturePath() const
+{
+    return mNextStoryOpponentTexturePath;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ProgressionDataRepository::SetNextStoryOpponentTexturePath(const std::string& nextStoryOpponentTexturePath)
+{
+    mNextStoryOpponentTexturePath = nextStoryOpponentTexturePath;
+}
+
+///------------------------------------------------------------------------------------------------

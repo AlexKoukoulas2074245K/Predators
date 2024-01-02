@@ -79,6 +79,9 @@ public:
     const glm::vec3& GetSelectedStoryMapNodePosition() const;
     void SetSelectedStoryMapNodePosition(const glm::vec3& selectedStoryMapNodePosition);
     
+    const std::string& GetNextStoryOpponentTexturePath() const;
+    void SetNextStoryOpponentTexturePath(const std::string& nextStoryOpponentTexturePath);
+    
 private:
     ProgressionDataRepository() = default;
     
@@ -87,6 +90,7 @@ private:
     StoryMapSceneType mCurrentStoryMapSceneType;
     std::vector<int> mNextTopPlayerDeck;
     std::vector<int> mNextBotPlayerDeck;
+    std::string mNextStoryOpponentTexturePath;
     glm::vec3 mSelectedStoryMapNodePosition = {};
     glm::ivec2 mCurrentStoryMapNodeCoord = game_constants::STORY_MAP_INIT_COORD;
     const StoryMap::NodeData* mSelectedStoryMapNodeData = nullptr;

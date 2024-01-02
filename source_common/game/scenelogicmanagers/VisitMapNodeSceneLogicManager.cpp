@@ -287,8 +287,15 @@ void VisitMapNodeSceneLogicManager::InitializeNodeVisitData()
             auto genericDemonCards = CardDataRepository::GetInstance().GetCardIdsByFamily(game_constants::DEMONS_GENERIC_FAMILY_NAME);
             opponentDeckBuilder.insert(opponentDeckBuilder.end(), genericDemonCards.begin(), genericDemonCards.end());
             
+            // Populate opponent deck and battle control type
             ProgressionDataRepository::GetInstance().SetNextTopPlayerDeck(opponentDeckBuilder);
             ProgressionDataRepository::GetInstance().SetNextBattleControlType(BattleControlType::AI_TOP_ONLY);
+            
+            // Populate opponent hero card texture
+            auto storyMapScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::STORY_MAP_SCENE);
+            auto nodePortraitSceneObject = storyMapScene->FindSceneObject(strutils::StringId(MapCoord(selectedNodeData->mCoords.x, selectedNodeData->mCoords.y).ToString() + "_portrait"));
+            ProgressionDataRepository::GetInstance().SetNextStoryOpponentTexturePath(CoreSystemsEngine::GetInstance().GetResourceLoadingService().GetResourcePath(nodePortraitSceneObject->mTextureResourceId));
+            
             events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::BATTLE_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
         } break;
             
