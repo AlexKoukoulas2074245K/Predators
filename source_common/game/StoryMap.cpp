@@ -77,6 +77,9 @@ static const std::string STORY_MAP_NODE_SHADER_FILE_NAME = "story_map_node.vs";
 static const std::string SHOP_TEXTURE_FILE_NAME = "story_cards/shop.png";
 static const std::string EVENT_TEXTURE_FILE_NAME = "story_cards/event.png";
 static const std::string NODE_PATH_TEXTURE_FILE_NAME = "trap_mask.png";
+static const std::string ENCOUNTER_STAT_HEALTH_ICON_TEXTURE_FILE_NAME = "health_icon.png";
+static const std::string ENCOUNTER_STAT_DAMAGE_ICON_TEXTURE_FILE_NAME = "health_crystal.png";
+static const std::string ENCOUNTER_STAT_WEIGHT_ICON_TEXTURE_FILE_NAME = "weight_crystal.png";
 
 static const glm::vec3 FIRST_NODE_POSITION = { -1.0f, -0.83f, 0.1f };
 static const glm::vec3 LAST_NODE_POSITION = { 0.6f, 0.73f, 0.1f };
@@ -84,6 +87,12 @@ static const glm::vec3 NODE_PORTRAIT_POSITION_OFFSET = {0.00f, 0.01f, 0.08f};
 static const glm::vec3 PORTRAIT_TEXT_SCALE = {0.00017f, 0.00017f, 0.00017f};
 static const glm::vec3 PORTRAIT_PRIMARY_TEXT_POSITION_OFFSET = {0.005f, -0.03f, 0.1f};
 static const glm::vec3 PORTRAIT_SECONDARY_TEXT_POSITION_OFFSET = {-0.009f, -0.05f, 0.1f};
+static const glm::vec3 ENCOUNTER_STAT_TEXT_SCALE = {0.00022f, 0.00022, 0.00022f};
+static const glm::vec3 ENCOUNTER_STAT_TEXT_POSITION_OFFSET = {0.004f, 0.003f, 0.05f};
+static const glm::vec3 ENCOUNTER_STAT_ICON_SCALE = {0.072f, 0.072f, 0.072f};
+static const glm::vec3 ENCOUNTER_STAT_HEALTH_ICON_POSITION_OFFSET = {0.00f, 0.07f, 0.12f};
+static const glm::vec3 ENCOUNTER_STAT_DAMAGE_ICON_POSITION_OFFSET = {-0.04f, 0.05f, 0.12f};
+static const glm::vec3 ENCOUNTER_STAT_WEIGHT_ICON_POSITION_OFFSET = {0.04f, 0.05f, 0.12f};
 
 static const float NODE_GENERATION_POSITION_NOISE = 0.1f;
 static const float NODE_POSITION_Z = 0.1f;
@@ -448,12 +457,12 @@ void StoryMap::CreateMapSceneObjects()
             
             // Health Icon
             nodeHealthIconSceneObject = mScene->CreateSceneObject(strutils::StringId(mapNodeEntry.first.ToString() + "_health_icon"));
-            nodeHealthIconSceneObject->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "health_icon.png");
+            nodeHealthIconSceneObject->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + ENCOUNTER_STAT_HEALTH_ICON_TEXTURE_FILE_NAME);
             nodeHealthIconSceneObject->mShaderResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + STORY_MAP_NODE_SHADER_FILE_NAME);
             nodeHealthIconSceneObject->mShaderBoolUniformValues[IS_NODE_ACTIVE_UNIFORM_NAME] = mapNodeEntry.first == mCurrentMapCoord;
             nodeHealthIconSceneObject->mPosition = mapNodeEntry.second.mPosition;
-            nodeHealthIconSceneObject->mScale = glm::vec3(0.072f);
-            nodeHealthIconSceneObject->mPosition += glm::vec3(0.00f, 0.07f, 0.12f);
+            nodeHealthIconSceneObject->mScale = ENCOUNTER_STAT_ICON_SCALE;
+            nodeHealthIconSceneObject->mPosition += ENCOUNTER_STAT_HEALTH_ICON_POSITION_OFFSET;
             
             // Health Text
             scene::TextSceneObjectData healthIconTextData;
@@ -463,20 +472,20 @@ void StoryMap::CreateMapSceneObjects()
             nodeHealthTextSceneObject = mScene->CreateSceneObject(strutils::StringId(mapNodeEntry.first.ToString() + "_health_text"));
             nodeHealthTextSceneObject->mSceneObjectTypeData = std::move(healthIconTextData);
             nodeHealthTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = INACTIVE_NODE_TEXT_ALPHA;
-            nodeHealthTextSceneObject->mScale = {0.00022f, 0.00022, 0.00022f};
-            nodeHealthTextSceneObject->mPosition = nodeHealthIconSceneObject->mPosition + glm::vec3(0.004f, 0.003f, 0.05f);
+            nodeHealthTextSceneObject->mScale = ENCOUNTER_STAT_TEXT_SCALE;
+            nodeHealthTextSceneObject->mPosition = nodeHealthIconSceneObject->mPosition + ENCOUNTER_STAT_TEXT_POSITION_OFFSET;
             
             auto boundingRect = scene_object_utils::GetSceneObjectBoundingRect(*nodeHealthTextSceneObject);
             nodeHealthTextSceneObject->mPosition.x -= (boundingRect.topRight.x - boundingRect.bottomLeft.x)/2.0f;
             
             // Damage Icon
             nodeDamageIconSceneObject = mScene->CreateSceneObject(strutils::StringId(mapNodeEntry.first.ToString() + "_damage_icon"));
-            nodeDamageIconSceneObject->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "health_crystal.png");
+            nodeDamageIconSceneObject->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + ENCOUNTER_STAT_DAMAGE_ICON_TEXTURE_FILE_NAME);
             nodeDamageIconSceneObject->mShaderResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + STORY_MAP_NODE_SHADER_FILE_NAME);
             nodeDamageIconSceneObject->mShaderBoolUniformValues[IS_NODE_ACTIVE_UNIFORM_NAME] = mapNodeEntry.first == mCurrentMapCoord;
             nodeDamageIconSceneObject->mPosition = mapNodeEntry.second.mPosition;
-            nodeDamageIconSceneObject->mScale = glm::vec3(0.072f);
-            nodeDamageIconSceneObject->mPosition += glm::vec3(-0.04f, 0.05f, 0.12f);
+            nodeDamageIconSceneObject->mScale = ENCOUNTER_STAT_ICON_SCALE;
+            nodeDamageIconSceneObject->mPosition += ENCOUNTER_STAT_DAMAGE_ICON_POSITION_OFFSET;
             
             // Damage Text
             scene::TextSceneObjectData damageIconTextData;
@@ -486,20 +495,20 @@ void StoryMap::CreateMapSceneObjects()
             nodeDamageTextSceneObject = mScene->CreateSceneObject(strutils::StringId(mapNodeEntry.first.ToString() + "_damage_text"));
             nodeDamageTextSceneObject->mSceneObjectTypeData = std::move(damageIconTextData);
             nodeDamageTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = INACTIVE_NODE_TEXT_ALPHA;
-            nodeDamageTextSceneObject->mScale = {0.00022f, 0.00022, 0.00022f};
-            nodeDamageTextSceneObject->mPosition = nodeDamageIconSceneObject->mPosition + glm::vec3(0.004f, 0.003f, 0.05f);
+            nodeDamageTextSceneObject->mScale = ENCOUNTER_STAT_TEXT_SCALE;
+            nodeDamageTextSceneObject->mPosition = nodeDamageIconSceneObject->mPosition + ENCOUNTER_STAT_TEXT_POSITION_OFFSET;
             
             boundingRect = scene_object_utils::GetSceneObjectBoundingRect(*nodeDamageTextSceneObject);
             nodeDamageTextSceneObject->mPosition.x -= (boundingRect.topRight.x - boundingRect.bottomLeft.x)/2.0f;
             
             // Weight Icon
             nodeWeightIconSceneObject = mScene->CreateSceneObject(strutils::StringId(mapNodeEntry.first.ToString() + "_weight_icon"));
-            nodeWeightIconSceneObject->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "weight_crystal.png");
+            nodeWeightIconSceneObject->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + ENCOUNTER_STAT_WEIGHT_ICON_TEXTURE_FILE_NAME);
             nodeWeightIconSceneObject->mShaderResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + STORY_MAP_NODE_SHADER_FILE_NAME);
             nodeWeightIconSceneObject->mShaderBoolUniformValues[IS_NODE_ACTIVE_UNIFORM_NAME] = mapNodeEntry.first == mCurrentMapCoord;
             nodeWeightIconSceneObject->mPosition = mapNodeEntry.second.mPosition;
-            nodeWeightIconSceneObject->mScale = glm::vec3(0.072f);
-            nodeWeightIconSceneObject->mPosition += glm::vec3(0.04f, 0.05f, 0.12f);
+            nodeWeightIconSceneObject->mScale = ENCOUNTER_STAT_ICON_SCALE;
+            nodeWeightIconSceneObject->mPosition += ENCOUNTER_STAT_WEIGHT_ICON_POSITION_OFFSET;
             
             // Weight Text
             scene::TextSceneObjectData weightIconTextData;
@@ -509,8 +518,8 @@ void StoryMap::CreateMapSceneObjects()
             nodeWeightTextSceneObject = mScene->CreateSceneObject(strutils::StringId(mapNodeEntry.first.ToString() + "_weight_text"));
             nodeWeightTextSceneObject->mSceneObjectTypeData = std::move(weightIconTextData);
             nodeWeightTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = INACTIVE_NODE_TEXT_ALPHA;
-            nodeWeightTextSceneObject->mScale = {0.00022f, 0.00022, 0.00022f};
-            nodeWeightTextSceneObject->mPosition = nodeWeightIconSceneObject->mPosition + glm::vec3(0.004f, 0.003f, 0.05f);
+            nodeWeightTextSceneObject->mScale = ENCOUNTER_STAT_TEXT_SCALE;
+            nodeWeightTextSceneObject->mPosition = nodeWeightIconSceneObject->mPosition + ENCOUNTER_STAT_TEXT_POSITION_OFFSET;
             
             boundingRect = scene_object_utils::GetSceneObjectBoundingRect(*nodeWeightTextSceneObject);
             nodeWeightTextSceneObject->mPosition.x -= (boundingRect.topRight.x - boundingRect.bottomLeft.x)/2.0f;
@@ -740,11 +749,15 @@ StoryMap::NodeType StoryMap::SelectNodeTypeForCoord(const MapCoord& mapCoord) co
         // Shop only at penultimate node and via event
         availableNodeTypes.erase(NodeType::SHOP);
         
-        // Remove any node types from the immediate previous links except if they are
-        // normal encounters or events
+        if (mapCoord.mCol == 1)
+        {
+            // Elite fights can't be at first availables nodes to move to
+            availableNodeTypes.erase(NodeType::ELITE_ENCOUNTER);
+        }
+        
+        // Remove any node types from the immediate previous links.
         for (const auto& mapEntry: mMapData)
         {
-            
             if (mapEntry.second.mNodeLinks.count(mapCoord) && availableNodeTypes.size() > 2)
             {
                 availableNodeTypes.erase(mapEntry.second.mNodeType);

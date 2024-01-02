@@ -40,7 +40,7 @@ static const std::string HEALTH_CRYSTAL_SCENE_OBJECT_NAME_PREFIX = "health_cryst
 static const glm::vec2 MAP_SWIPE_X_BOUNDS = {-0.78f, 0.78f};
 static const glm::vec2 MAP_SWIPE_Y_BOUNDS = {-0.78f, 0.78f};
 
-static const float DISTANCE_TO_TARGET_NODE_THRESHOLD = 0.1f;
+static const float DISTANCE_TO_TARGET_NODE_THRESHOLD = 0.01f;
 static const float CAMERA_NOT_MOVED_THRESHOLD = 0.0001f;
 static const float CAMERA_MOVING_TO_NODE_SPEED = 0.0005f;
 static const float SELECTED_NODE_Z_OFFSET = 23.3f;
@@ -140,6 +140,10 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
             mFreshMapCameraAnimationInitPosition = mScene->GetCamera().GetPosition();
             mCameraTargetPos = mStoryMap->GetMapData().at(MapCoord(game_constants::STORY_MAP_INIT_COORD.x, game_constants::STORY_MAP_INIT_COORD.y)).mPosition;
             mCameraTargetPos.y += FRESH_MAP_ANIMATION_TARGET_Y_OFFSET;
+            
+            mCameraTargetPos.x = math::Max(MAP_SWIPE_X_BOUNDS.s, math::Min(MAP_SWIPE_X_BOUNDS.t, mCameraTargetPos.x));
+            mCameraTargetPos.y = math::Max(MAP_SWIPE_Y_BOUNDS.s, math::Min(MAP_SWIPE_Y_BOUNDS.t, mCameraTargetPos.y));
+            
             mCameraTargetPos.z = mScene->GetCamera().GetPosition().z;
         }
         // Subsequent map enters. Set position to average between current map coord and active nodes
@@ -216,6 +220,8 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
                         
                         mMapUpdateState = MapUpdateState::MOVING_TO_NODE;
                         mCameraTargetPos = sceneObject->mPosition;
+                        mCameraTargetPos.x = math::Max(MAP_SWIPE_X_BOUNDS.s, math::Min(MAP_SWIPE_X_BOUNDS.t, mCameraTargetPos.x));
+                        mCameraTargetPos.y = math::Max(MAP_SWIPE_Y_BOUNDS.s, math::Min(MAP_SWIPE_Y_BOUNDS.t, mCameraTargetPos.y));
                         mCameraTargetPos.z = mScene->GetCamera().GetPosition().z;
                         mSelectedMapCoord = std::make_unique<MapCoord>(nodeMapData.first);
                         for (auto mapNodeComponentSceneObject: scene->FindSceneObjectsWhoseNameStartsWith(mSelectedMapCoord->ToString()))
@@ -261,9 +267,10 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
             auto directionToTarget = mCameraTargetPos - initPosition;
             
             bool alreadyArrivedAtTarget =
-                math::Abs(directionToTarget.x) < CAMERA_NOT_MOVED_THRESHOLD &&
-                math::Abs(directionToTarget.y) < CAMERA_NOT_MOVED_THRESHOLD &&
-                math::Abs(directionToTarget.z) < CAMERA_NOT_MOVED_THRESHOLD;
+                math::Abs(directionToTarget.x) < DISTANCE_TO_TARGET_NODE_THRESHOLD &&
+                math::Abs(directionToTarget.y) < DISTANCE_TO_TARGET_NODE_THRESHOLD &&
+                math::Abs(directionToTarget.z) < DISTANCE_TO_TARGET_NODE_THRESHOLD;
+            
             auto currentDistanceToNode = 0.0f;
             
             if (!alreadyArrivedAtTarget)
