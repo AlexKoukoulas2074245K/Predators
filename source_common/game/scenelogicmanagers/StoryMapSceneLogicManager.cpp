@@ -129,6 +129,7 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
         logging::Log(logging::LogType::INFO, "Finished Map Generation after %d attempts", mapGenerationAttempts);
         mStoryMap->CreateMapSceneObjects();
         
+        // First time entering map initialisation
         if (currentMapCoord.x == game_constants::STORY_MAP_INIT_COORD.x && currentMapCoord.y == game_constants::STORY_MAP_INIT_COORD.y)
         {
             ProgressionDataRepository::GetInstance().StoryCurrentHealth() = ValueWithDelayedDisplay<int>(30, 30);
@@ -142,9 +143,20 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
             mCameraTargetPos.y += FRESH_MAP_ANIMATION_TARGET_Y_OFFSET;
             mCameraTargetPos.z = mScene->GetCamera().GetPosition().z;
         }
+        // Subsequent map enters. Set position to average between current map coord and active nodes
         else
         {
-            SetMapPositionTo(mStoryMap->GetMapData().at(MapCoord(currentMapCoord.x, currentMapCoord.y)).mPosition);
+            auto& mapNodeData = mStoryMap->GetMapData().at(MapCoord(currentMapCoord.x, currentMapCoord.y));
+            glm::vec3 positionAccum = mapNodeData.mPosition;
+            int positionInfluenceCount = 1;
+            
+            for (const auto& link: mapNodeData.mNodeLinks)
+            {
+                positionAccum += mStoryMap->GetMapData().at(MapCoord(link.mCol, link.mRow)).mPosition;
+                positionInfluenceCount++;
+            }
+            
+            SetMapPositionTo(positionAccum/static_cast<float>(positionInfluenceCount));
         }
     }
     
@@ -269,6 +281,7 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
                 mPreviousDirectionToTargetNode = directionToTarget;
                 currentDistanceToNode = glm::distance(mCameraTargetPos, mScene->GetCamera().GetPosition());
             }
+
             
             if (alreadyArrivedAtTarget || currentDistanceToNode < DISTANCE_TO_TARGET_NODE_THRESHOLD ||
                 glm::distance(initPosition, mScene->GetCamera().GetPosition()) < CAMERA_NOT_MOVED_THRESHOLD)

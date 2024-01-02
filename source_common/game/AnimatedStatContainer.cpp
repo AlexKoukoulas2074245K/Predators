@@ -19,7 +19,7 @@ static const std::string VALUE_SCENE_OBJECT_NAME_POSTFIX = "value";
 
 static const glm::vec3 STAT_CRYSTAL_SCALE = {0.05f, 0.05f, 1.0f};
 static const glm::vec3 STAT_CRYSTAL_VALUE_SCALE = {0.00013f, 0.00013f, 1.0f};
-static const glm::vec3 STAT_CRYSTAL_VALUE_POSITION_OFFSET = {0.004, 0.002, 0.01f};
+static const glm::vec3 STAT_CRYSTAL_VALUE_POSITION_OFFSET = {0.004, 0.002, 0.02f};
 static const float MAX_VALUE_CHANGE_DELAY_SECS = 0.2f;
 
 ///------------------------------------------------------------------------------------------------
