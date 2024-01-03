@@ -230,6 +230,12 @@ void SceneManager::CollectTextureResourceIdCandidates(std::shared_ptr<Scene> sce
     mTextureResourceCandidatesToRemove.clear();
     for (auto& sceneObject: sceneToRemove->GetSceneObjects())
     {
+        // Particle textures should not be unloaded
+        if (std::holds_alternative<scene::ParticleEmitterObjectData>(sceneObject->mSceneObjectTypeData))
+        {
+            continue;
+        }
+        
         mTextureResourceCandidatesToRemove.insert(sceneObject->mTextureResourceId);
         for (auto i = 0U; i < EFFECT_TEXTURES_COUNT; ++i)
         {

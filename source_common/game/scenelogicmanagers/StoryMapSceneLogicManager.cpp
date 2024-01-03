@@ -286,8 +286,9 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
                 
                 mPreviousDirectionToTargetNode = directionToTarget;
                 currentDistanceToNode = glm::distance(mCameraTargetPos, mScene->GetCamera().GetPosition());
+                
+                alreadyArrivedAtTarget = currentDistanceToNode <= glm::length(targetVelocity);
             }
-
             
             if (alreadyArrivedAtTarget || currentDistanceToNode < DISTANCE_TO_TARGET_NODE_THRESHOLD ||
                 glm::distance(initPosition, mScene->GetCamera().GetPosition()) < CAMERA_NOT_MOVED_THRESHOLD)

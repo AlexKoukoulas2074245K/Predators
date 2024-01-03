@@ -93,6 +93,23 @@ const std::unordered_set<strutils::StringId, strutils::StringIdHasher>& CardData
 
 ///------------------------------------------------------------------------------------------------
 
+void CardDataRepository::CleanDeckFromTempIds(std::vector<int>& deck)
+{
+    for (auto iter = deck.begin(); iter != deck.end();)
+    {
+        if (!mCardDataMap.count(*iter))
+        {
+            iter = deck.erase(iter);
+        }
+        else
+        {
+            iter++;
+        }
+    }
+}
+
+///------------------------------------------------------------------------------------------------
+
 void CardDataRepository::ClearCardData()
 {
     mCardFamilies.clear();

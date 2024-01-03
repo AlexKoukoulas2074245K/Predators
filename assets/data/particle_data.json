@@ -50,6 +50,22 @@
             "particle_enlargement_speed": 0.00001
         },
         {
+            "name": "hero_card_destruction",
+            "texture": "smoke.png",
+            "particle_count": 5,
+            "prefilled": true,
+            "continuous_generation": false,
+            "enlarge_over_time": true,
+            "rotate_over_time": false,
+            "initially_rotated": false,
+            "custom_update": false,
+            "lifetime_range": {"min": 0.5, "max": 1.0},
+            "position_x_range": {"min": -0.03, "max": 0.01},
+            "position_y_range": {"min": -0.03, "max": 0.01},
+            "particle_size_range": {"min": 0.01, "max": 0.02},
+            "particle_enlargement_speed": 0.00001
+        },
+        {
             "name": "card_spell_effect",
             "texture": "sparkles.png",
             "particle_count": 100,

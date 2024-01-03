@@ -93,6 +93,7 @@ public:
     std::optional<std::reference_wrapper<const CardData>> GetCardData(const int cardId) const;
     const std::unordered_set<strutils::StringId, strutils::StringIdHasher>& GetCardFamilies() const;
     
+    void CleanDeckFromTempIds(std::vector<int>& deck);
     void ClearCardData();
     void LoadCardData(bool loadCardAssets);
     int InsertDynamicCardData(const CardData& cardData);

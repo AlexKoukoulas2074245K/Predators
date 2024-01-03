@@ -254,7 +254,7 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
     
     mRuleEngine = std::make_unique<GameRuleEngine>(mBoardState.get());
 
-    auto seed = math::RandomInt();
+    auto seed = ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeSeed();
     std::unique_ptr<BattleDeserializer> replayEngine = nullptr;
     
     if (mCurrentBattleControlType == BattleControlType::REPLAY)
@@ -267,6 +267,9 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
         mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerHealth = replayEngine->GetTopPlayerStartingHealth();
         mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth = replayEngine->GetBotPlayerStartingHealth();
     }
+    
+    CardDataRepository::GetInstance().CleanDeckFromTempIds(mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards);
+    CardDataRepository::GetInstance().CleanDeckFromTempIds(mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards);
     
     mBattleSerializer = std::make_unique<BattleSerializer>(seed, mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards, mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards, mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerHealth, mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth);
     mActionEngine = std::make_unique<GameActionEngine>(GameActionEngine::EngineOperationMode::ANIMATED, seed, mBoardState.get(), this, mRuleEngine.get());
@@ -1239,6 +1242,7 @@ void BattleSceneLogicManager::RegisterForEvents()
     eventSystem.RegisterForEvent<events::ForceSendCardBackToPositionEvent>(this, &BattleSceneLogicManager::OnForceSendCardBackToPosition);
     eventSystem.RegisterForEvent<events::PoisonStackChangeChangeAnimationTriggerEvent>(this, &BattleSceneLogicManager::OnPoisonStackChangeChangeAnimationTrigger);
     eventSystem.RegisterForEvent<events::CardHistoryEntryAdditionEvent>(this, &BattleSceneLogicManager::OnCardHistoryEntryAddition);
+    eventSystem.RegisterForEvent<events::StoryBattleFinishedEvent>(this, &BattleSceneLogicManager::OnStoryBattleFinished);
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -1818,6 +1822,14 @@ void BattleSceneLogicManager::OnCardHistoryEntryAddition(const events::CardHisto
         historyEntrySceneObject->mInvisible = true;
         mCardHistoryContainer->AddItem({{historyEntrySceneObject}, cardSoWrapper->mCardData->mCardId, event.mForRemotePlayer, event.mIsTurnCounter}, false);
     }
+}
+
+///------------------------------------------------------------------------------------------------
+
+void BattleSceneLogicManager::OnStoryBattleFinished(const events::StoryBattleFinishedEvent&)
+{
+    ProgressionDataRepository::GetInstance().StoryCurrentHealth().SetValue(mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth);
+    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_MAP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
 }
 
 ///------------------------------------------------------------------------------------------------

@@ -29,6 +29,9 @@ public:
     bool VShouldBeSerialized() const override;
     
     const std::vector<std::string>& VGetRequiredExtraParamNames() const override;
+    
+private:
+    float mExplosionDelaySecs;
 };
 
 ///------------------------------------------------------------------------------------------------

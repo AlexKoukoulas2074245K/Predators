@@ -25,6 +25,7 @@ static const strutils::StringId CARD_HISTORY_ENTRY_ADDITION_GAME_ACTION_NAME = s
 static const strutils::StringId CARD_PLAY_PARTICLE_NAME = strutils::StringId("card_play");
 static const strutils::StringId TOP_PLAYER_HEALTH_CONTAINER_BASE = strutils::StringId("health_crystal_top_base");
 static const strutils::StringId TOP_PLAYER_HEALTH_CONTAINER_VALUE = strutils::StringId("health_crystal_top_value");
+static const strutils::StringId CARD_PLAY_PARTICLE_EMITTER_NAME = strutils::StringId("card_play_emitter");
 
 static const glm::vec3 HEALTH_VALUE_TEXT_OFFSET = {0.001, 0.001, 0.02f};
 static const glm::vec3 HEALTH_BASE_OFFSET = {-0.0005f, 0.03f, 0.12f};
@@ -34,7 +35,7 @@ static const float CARD_CAMERA_SHAKE_STRENGTH = 0.005f;
 static const float CARD_PLAY_PARTICLE_EMITTER_Z = 0.01f;
 static const float IN_GAME_PLAYED_CARD_ANIMATION_DURATION = 0.5f;
 static const float HEALTH_CONTAINER_INIT_SCALE_FACTOR = 0.5f;
-static const float HEALTH_CRYSTAL_ANIMATION_DELAY_SECS = 1.0f;
+static const float HEALTH_CRYSTAL_ANIMATION_DELAY_SECS = 0.5f;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -63,7 +64,7 @@ void HeroCardEntryGameAction::VSetNewGameState()
     {
         { CardHistoryEntryAdditionGameAction::PLAYER_INDEX_PARAM, std::to_string(game_constants::REMOTE_PLAYER_INDEX) },
         { CardHistoryEntryAdditionGameAction::CARD_INDEX_PARAM, std::to_string(activePlayerState.mPlayerBoardCards.size() - 1) },
-        { CardHistoryEntryAdditionGameAction::ENTRY_TYPE_TEXTURE_FILE_NAME_PARAM, CardHistoryEntryAdditionGameAction::ENTRY_TYPE_TEXTURE_FILE_NAME_DEATH },
+        { CardHistoryEntryAdditionGameAction::ENTRY_TYPE_TEXTURE_FILE_NAME_PARAM, CardHistoryEntryAdditionGameAction::ENTRY_TYPE_TEXTURE_FILE_NAME_EFFECT },
         { CardHistoryEntryAdditionGameAction::IS_TURN_COUNTER_PARAM, "false"}
     });
 }
@@ -109,7 +110,8 @@ void HeroCardEntryGameAction::VInitAnimation()
         (
             CARD_PLAY_PARTICLE_NAME,
             glm::vec3(targetPosition.x, targetPosition.y, CARD_PLAY_PARTICLE_EMITTER_Z),
-            *CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE)
+            *CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE),
+            CARD_PLAY_PARTICLE_EMITTER_NAME
         );
         
         auto topHealthContainerBase = scene->FindSceneObject(TOP_PLAYER_HEALTH_CONTAINER_BASE);

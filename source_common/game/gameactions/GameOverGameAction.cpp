@@ -21,6 +21,22 @@
 const strutils::StringId VICTORIOUS_TEXT_SCENE_OBJECT_NAME = strutils::StringId("victorious_player_text");
 const std::string GameOverGameAction::VICTORIOUS_PLAYER_INDEX_PARAM = "victoriousPlayerIndex";
 
+static const std::string CARD_DISSOLVE_SHADER_FILE_NAME = "card_dissolve.vs";
+static const std::string DISSOLVE_TEXTURE_FILE_NAME = "dissolve.png";
+
+static const strutils::StringId DISSOLVE_THRESHOLD_UNIFORM_NAME = strutils::StringId("dissolve_threshold");
+static const strutils::StringId DISSOLVE_MAGNITUDE_UNIFORM_NAME = strutils::StringId("dissolve_magnitude");
+static const strutils::StringId CARD_ORIGIN_X_UNIFORM_NAME = strutils::StringId("card_origin_x");
+static const strutils::StringId CARD_ORIGIN_Y_UNIFORM_NAME = strutils::StringId("card_origin_y");
+static const strutils::StringId HERO_CARD_DESTRUCTION_PARTICLE_NAME = strutils::StringId("hero_card_destruction");
+
+static const float CARD_DISSOLVE_SPEED = 0.0003f;
+static const float MAX_CARD_DISSOLVE_VALUE = 1.2f;
+//static const float CARD_PLAY_PARTICLE_EMITTER_Z = 0.01f;
+static const float EXPLOSION_DELAY_SECS = 0.1f;
+
+static const glm::vec2 CARD_DISSOLVE_EFFECT_MAG_RANGE = {10.0f, 18.0f};
+
 ///------------------------------------------------------------------------------------------------
 
 static const std::vector<std::string> sRequiredExtraParamNames =
@@ -40,23 +56,68 @@ void GameOverGameAction::VSetNewGameState()
 
 void GameOverGameAction::VInitAnimation()
 {
+    auto& systemsEngine = CoreSystemsEngine::GetInstance();
     auto& scene = *CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE);
     
-    auto victorTextSo = scene.CreateSceneObject(VICTORIOUS_TEXT_SCENE_OBJECT_NAME);
-    
-    scene::TextSceneObjectData damageTextData;
-    damageTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
-    damageTextData.mText = "Player " + mExtraActionParams.at(VICTORIOUS_PLAYER_INDEX_PARAM) + " won!";
-    
-    victorTextSo->mSceneObjectTypeData = std::move(damageTextData);
-    victorTextSo->mScale = glm::vec3(game_constants::IN_GAME_CARD_PROPERTY_SCALE * 3);
-    victorTextSo->mPosition = glm::vec3(-0.1f, 0.0f, 5.0f);
+    if (!ProgressionDataRepository::GetInstance().GetNextStoryOpponentName().empty())
+    {
+        mExplosionDelaySecs = EXPLOSION_DELAY_SECS;
+        
+        auto cardSoWrapper = mBattleSceneLogicManager->GetBoardCardSoWrappers()[game_constants::REMOTE_PLAYER_INDEX][0];
+        cardSoWrapper->mSceneObject->mShaderResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CARD_DISSOLVE_SHADER_FILE_NAME);
+        cardSoWrapper->mSceneObject->mEffectTextureResourceIds[1] = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + DISSOLVE_TEXTURE_FILE_NAME);
+        cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] = 0.0f;
+        cardSoWrapper->mSceneObject->mShaderFloatUniformValues[CARD_ORIGIN_X_UNIFORM_NAME] = cardSoWrapper->mSceneObject->mPosition.x;
+        cardSoWrapper->mSceneObject->mShaderFloatUniformValues[CARD_ORIGIN_Y_UNIFORM_NAME] = cardSoWrapper->mSceneObject->mPosition.y;
+        cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_MAGNITUDE_UNIFORM_NAME] = math::RandomFloat(CARD_DISSOLVE_EFFECT_MAG_RANGE.x, CARD_DISSOLVE_EFFECT_MAG_RANGE.y);
+    }
+    else
+    {
+        auto victorTextSo = scene.CreateSceneObject(VICTORIOUS_TEXT_SCENE_OBJECT_NAME);
+        
+        scene::TextSceneObjectData damageTextData;
+        damageTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
+        damageTextData.mText = "Player " + mExtraActionParams.at(VICTORIOUS_PLAYER_INDEX_PARAM) + " won!";
+        
+        victorTextSo->mSceneObjectTypeData = std::move(damageTextData);
+        victorTextSo->mScale = glm::vec3(game_constants::IN_GAME_CARD_PROPERTY_SCALE * 3);
+        victorTextSo->mPosition = glm::vec3(-0.1f, 0.0f, 5.0f);
+    }
 }
 
 ///------------------------------------------------------------------------------------------------
 
-ActionAnimationUpdateResult GameOverGameAction::VUpdateAnimation(const float)
+ActionAnimationUpdateResult GameOverGameAction::VUpdateAnimation(const float dtMillis)
 {
+    if (!ProgressionDataRepository::GetInstance().GetNextStoryOpponentName().empty())
+    {
+        auto cardSoWrapper = mBattleSceneLogicManager->GetBoardCardSoWrappers()[game_constants::REMOTE_PLAYER_INDEX][0];
+        cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] += dtMillis * CARD_DISSOLVE_SPEED;
+        
+        mExplosionDelaySecs -= dtMillis/1000.0f;
+        if (mExplosionDelaySecs <= 0.0f)
+        {
+            mExplosionDelaySecs = EXPLOSION_DELAY_SECS;
+            
+            auto particleEmitterPosition = cardSoWrapper->mSceneObject->mPosition;
+            particleEmitterPosition.x += math::RandomFloat(-0.01f, 0.01f);
+            particleEmitterPosition.y += math::RandomFloat(-0.01f, 0.01f);
+            particleEmitterPosition.z += math::RandomFloat(0.1f, 0.3f);
+            
+            CoreSystemsEngine::GetInstance().GetParticleManager().CreateParticleEmitterAtPosition
+            (
+                HERO_CARD_DESTRUCTION_PARTICLE_NAME,
+                particleEmitterPosition,
+                *CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE)
+            );
+        }
+        
+        if (cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] >= MAX_CARD_DISSOLVE_VALUE)
+        {
+            events::EventSystem::GetInstance().DispatchEvent<events::StoryBattleFinishedEvent>();
+            return ActionAnimationUpdateResult::FINISHED;
+        }
+    }
     return ActionAnimationUpdateResult::ONGOING;
 }
 
