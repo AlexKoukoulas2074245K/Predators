@@ -36,6 +36,15 @@ namespace game_constants
     inline const std::string BOARD_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME_PRE_FIX = "board_side_effect_top_value_";
     inline const std::string BOARD_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME_PRE_FIX = "board_side_effect_bot_value_";
     inline const std::string CARD_BASE_SO_NAME_POST_FIX = "_card";
+    inline const std::string STORY_MAP_NODE_PORTRAIT_SO_NAME_POST_FIX = "_portrait";
+    inline const std::string STORY_MAP_NODE_TEXT_SO_NAME_POST_FIX = "_text";
+    inline const std::string STORY_MAP_NODE_SECONDARY_TEXT_SO_NAME_POST_FIX = "_text_secondary";
+    inline const std::string STORY_MAP_NODE_HEALTH_ICON_SO_NAME_POST_FIX = "_health_icon";
+    inline const std::string STORY_MAP_NODE_HEALTH_TEXT_SO_NAME_POST_FIX = "_health_text";
+    inline const std::string STORY_MAP_NODE_DAMAGE_ICON_SO_NAME_POST_FIX = "_damage_icon";
+    inline const std::string STORY_MAP_NODE_DAMAGE_TEXT_SO_NAME_POST_FIX = "_damage_text";
+    inline const std::string STORY_MAP_NODE_WEIGHT_ICON_SO_NAME_POST_FIX = "_weight_icon";
+    inline const std::string STORY_MAP_NODE_WEIGHT_TEXT_SO_NAME_POST_FIX = "_weight_text";
 
     // SO Names
     inline const strutils::StringId TURN_POINTER_SCENE_OBJECT_NAME = strutils::StringId("turn_pointer");
@@ -111,6 +120,8 @@ namespace game_constants
     inline constexpr int BOT_PLAYER_DEFAULT_HEALTH = 35;
     inline constexpr int TOP_PLAYER_DEFAULT_WEIGHT = 3;
     inline constexpr int BOT_PLAYER_DEFAULT_WEIGHT = 3;
+    inline constexpr int TOP_PLAYER_DEFAULT_WEIGHT_LIMIT = 10;
+    inline constexpr int BOT_PLAYER_DEFAULT_WEIGHT_LIMIT = 10;
 
     inline const float CARD_COMPONENT_Z_OFFSET = 0.1f;
     inline const float CARD_BOUNDING_RECT_X_MULTIPLIER = 0.5f;

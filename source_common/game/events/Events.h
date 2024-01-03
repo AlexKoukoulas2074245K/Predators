@@ -203,6 +203,19 @@ public:
 
 ///------------------------------------------------------------------------------------------------
 
+class HeroCardCreatedEvent final
+{
+public:
+    HeroCardCreatedEvent(const std::shared_ptr<CardSoWrapper> cardSoWrapper)
+        : mCardSoWrapper(cardSoWrapper)
+    {
+    }
+    
+    const std::shared_ptr<CardSoWrapper> mCardSoWrapper;
+};
+
+///------------------------------------------------------------------------------------------------
+
 class LastCardPlayedFinalizedEvent final
 {
 public:

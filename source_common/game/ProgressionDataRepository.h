@@ -30,7 +30,8 @@ enum class BattleControlType
 enum class StoryMapSceneType
 {
     STORY_MAP,
-    EVENT
+    EVENT,
+    BATTLE
 };
 
 ///------------------------------------------------------------------------------------------------
@@ -70,6 +71,27 @@ public:
     const int& GetCurrentEventScreenIndex() const;
     void SetCurrentEventScreenIndex(const int currentEventScreenIndex);
     
+    const int& GetNextBattleTopPlayerHealth() const;
+    void SetNextBattleTopPlayerHealth(const int nextBattleTopPlayerHealth);
+    
+    const int& GetNextBattleBotPlayerHealth() const;
+    void SetNextBattleBotPlayerHealth(const int nextBattleBotPlayerHealth);
+    
+    const int& GetNextBattleTopPlayerInitWeight() const;
+    void SetNextBattleTopPlayerInitWeight(const int nextBattleTopPlayerInitWeight);
+    
+    const int& GetNextBattleBotPlayerInitWeight() const;
+    void SetNextBattleBotPlayerInitWeight(const int nextBattleBotPlayerInitWeight);
+    
+    const int& GetNextBattleTopPlayerWeightLimit() const;
+    void SetNextBattleTopPlayerWeightLimit(const int nextBattleTopPlayerWeightLimit);
+    
+    const int& GetNextBattleBotPlayerWeightLimit() const;
+    void SetNextBattleBotPlayerWeightLimit(const int nextBattleBotPlayerWeightLimit);
+    
+    const int& GetNextStoryOpponentDamage() const;
+    void SetNextStoryOpponentDamage(const int nextStoryOpponentDamage);
+    
     const glm::ivec2& GetCurrentStoryMapNodeCoord() const;
     void SetCurrentStoryMapNodeCoord(const glm::ivec2& currentStoryMapNodeCoord);
     
@@ -82,6 +104,9 @@ public:
     const std::string& GetNextStoryOpponentTexturePath() const;
     void SetNextStoryOpponentTexturePath(const std::string& nextStoryOpponentTexturePath);
     
+    const std::string& GetNextStoryOpponentName() const;
+    void SetNextStoryOpponentName(const std::string& nextStoryOpponentName);
+    
 private:
     ProgressionDataRepository() = default;
     
@@ -91,6 +116,7 @@ private:
     std::vector<int> mNextTopPlayerDeck;
     std::vector<int> mNextBotPlayerDeck;
     std::string mNextStoryOpponentTexturePath;
+    std::string mNextStoryOpponentName;
     glm::vec3 mSelectedStoryMapNodePosition = {};
     glm::ivec2 mCurrentStoryMapNodeCoord = game_constants::STORY_MAP_INIT_COORD;
     const StoryMap::NodeData* mSelectedStoryMapNodeData = nullptr;
@@ -99,6 +125,13 @@ private:
     int mStoryMapGenerationSeed = 0;
     int mCurrentStoryMapNodeSeed = 0;
     int mCurrentEventScreenIndex = 0;
+    int mNextBattleTopPlayerHealth = 0;
+    int mNextBattleBotPlayerHealth = 0;
+    int mNextBattleTopPlayerInitWeight = 0;
+    int mNextBattleBotPlayerInitWeight = 0;
+    int mNextBattleTopPlayerWeightLimit = 0;
+    int mNextBattleBotPlayerWeightLimit = 0;
+    int mNextStoryOpponentDamage = 0;
 };
 
 ///------------------------------------------------------------------------------------------------

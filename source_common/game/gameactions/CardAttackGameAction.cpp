@@ -128,6 +128,12 @@ void CardAttackGameAction::VSetNewGameState()
             }
         }
         
+        // Hero cards do not get destroyed at the end of turn
+        if (mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX && cardIndex == 0 && mBoardState->GetInactivePlayerState().mHasHeroCard)
+        {
+            return;
+        }
+        
         mGameActionEngine->AddGameAction(CARD_DESTRUCTION_GAME_ACTION_NAME,
         {
             { CardDestructionGameAction::CARD_INDICES_PARAM, {"[" + std::to_string(cardIndex) + "]"}},

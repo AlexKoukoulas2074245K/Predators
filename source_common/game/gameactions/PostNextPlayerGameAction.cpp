@@ -12,14 +12,18 @@
 #include <engine/scene/Scene.h>
 #include <game/events/EventSystem.h>
 #include <game/GameConstants.h>
+#include <game/gameactions/CardBuffedDebuffedAnimationGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/PostNextPlayerGameAction.h>
 #include <game/scenelogicmanagers/BattleSceneLogicManager.h>
 
 ///------------------------------------------------------------------------------------------------
 
+static const strutils::StringId CARD_BUFFED_DEBUFFED_ANIMATION_GAME_ACTION_NAME = strutils::StringId("CardBuffedDebuffedAnimationGameAction");
+
 static const float TURN_POINTER_ANIMATION_DURATION_SECS = 0.66f;
 static const float DORMANT_CARDS_REEMERGE_ANIMATION_DURATION_SECS = 0.5f;
+static const float CARD_SCALE_UP_FACTOR = 1.5f;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -69,8 +73,21 @@ void PostNextPlayerGameAction::VSetNewGameState()
     }
     else
     {
+        bool clearedDebuff = !mBoardState->GetInactivePlayerState().mBoardModifiers.mGlobalCardStatModifiers.empty();
         mBoardState->GetInactivePlayerState().mBoardModifiers.mGlobalCardStatModifiers.clear();
         mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask = effects::board_modifier_masks::NONE;
+        
+        // For hero cards only
+        if (mBoardState->GetInactivePlayerState().mHasHeroCard && clearedDebuff)
+        {
+            mGameActionEngine->AddGameAction(CARD_BUFFED_DEBUFFED_ANIMATION_GAME_ACTION_NAME,
+            {
+                { CardBuffedDebuffedAnimationGameAction::CARD_INDEX_PARAM, "0"},
+                { CardBuffedDebuffedAnimationGameAction::PLAYER_INDEX_PARAM, std::to_string(game_constants::REMOTE_PLAYER_INDEX)},
+                { CardBuffedDebuffedAnimationGameAction::IS_BOARD_CARD_PARAM, "true" },
+                { CardBuffedDebuffedAnimationGameAction::SCALE_FACTOR_PARAM, std::to_string(CARD_SCALE_UP_FACTOR) }
+            });
+        }
     }
     
     mBoardState->GetInactivePlayerState().mBoardCardIndicesToDestroy.clear();
@@ -100,39 +117,55 @@ void PostNextPlayerGameAction::VInitAnimation()
         events::EventSystem::GetInstance().DispatchEvent<events::ForceSendCardBackToPositionEvent>(i, true, mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX);
     }
     
-    // .. and any surviving board cards from previous turn of the active player need to re-emerge out again
+    // .. and any surviving non-hero board cards from previous turn of the active player need to re-emerge out again
     for (auto i = 0U; i < mBoardState->GetActivePlayerState().mPlayerBoardCards.size(); ++i)
     {
         events::EventSystem::GetInstance().DispatchEvent<events::CardBuffedDebuffedEvent>(i, true, mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
         auto cardSoWrapper = mBattleSceneLogicManager->GetBoardCardSoWrappers().at(mBoardState->GetActivePlayerIndex()).at(i);
         
-        cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::DORMANT_CARD_VALUE_UNIFORM_NAME] = 1.0f;
-        animationManager.StartAnimation(std::make_unique<rendering::TweenValueAnimation>(cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::DORMANT_CARD_VALUE_UNIFORM_NAME], 0.0f, DORMANT_CARDS_REEMERGE_ANIMATION_DURATION_SECS),[=](){});
+        if (!mBoardState->GetActivePlayerState().mHasHeroCard || i > 0)
+        {
+            cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::DORMANT_CARD_VALUE_UNIFORM_NAME] = 1.0f;
+            animationManager.StartAnimation(std::make_unique<rendering::TweenValueAnimation>(cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::DORMANT_CARD_VALUE_UNIFORM_NAME], 0.0f, DORMANT_CARDS_REEMERGE_ANIMATION_DURATION_SECS),[=](){});
+        }
     }
     
-    mPendingAnimations = 1;
-    
-    auto turnPointerSo = scene->FindSceneObject(game_constants::TURN_POINTER_SCENE_OBJECT_NAME);
-    bool localPlayerActive = mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX;
-    
-    animationManager.StartAnimation(std::make_unique<rendering::TweenRotationAnimation>(turnPointerSo, glm::vec3(0.0f, 0.0f, turnPointerSo->mRotation.z + (localPlayerActive ? math::PI/2 : -math::PI/2)), TURN_POINTER_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::ElasticFunction, math::TweeningMode::EASE_IN), [=]()
+    if ((mBoardState->GetTurnCounter() != 0 && mBoardState->GetTurnCounter() != 1) || mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mHasHeroCard == false)
     {
-        mPendingAnimations--;
+        mPendingAnimations = 1;
         
-        auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
-        auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
-        auto scene = sceneManager.FindScene(game_constants::BATTLE_SCENE);
+        auto turnPointerSo = scene->FindSceneObject(game_constants::TURN_POINTER_SCENE_OBJECT_NAME);
         bool localPlayerActive = mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX;
-        if (localPlayerActive)
+        
+        animationManager.StartAnimation(std::make_unique<rendering::TweenRotationAnimation>(turnPointerSo, glm::vec3(0.0f, 0.0f, turnPointerSo->mRotation.z + (localPlayerActive ? math::PI/2 : -math::PI/2)), TURN_POINTER_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::ElasticFunction, math::TweeningMode::EASE_IN), [=]()
         {
-            auto turnPointerHighlighterSo = scene->FindSceneObject(game_constants::TURN_POINTER_HIGHLIGHTER_SCENE_OBJECT_NAME);
-            animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(turnPointerHighlighterSo, 1.0f, TURN_POINTER_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), []()
+            mPendingAnimations--;
+            
+            auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+            auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
+            auto scene = sceneManager.FindScene(game_constants::BATTLE_SCENE);
+            bool localPlayerActive = mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX;
+            if (localPlayerActive)
             {
-                events::EventSystem::GetInstance().DispatchEvent<events::LocalPlayerTurnStarted>();
-            });
-        }
-    });
+                auto turnPointerHighlighterSo = scene->FindSceneObject(game_constants::TURN_POINTER_HIGHLIGHTER_SCENE_OBJECT_NAME);
+                animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(turnPointerHighlighterSo, 1.0f, TURN_POINTER_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), []()
+                {
+                    events::EventSystem::GetInstance().DispatchEvent<events::LocalPlayerTurnStarted>();
+                });
+            }
+        });
+    }
+    else
+    {
+        mPendingAnimations = 0;
+        auto turnPointerHighlighterSo = scene->FindSceneObject(game_constants::TURN_POINTER_HIGHLIGHTER_SCENE_OBJECT_NAME);
+        animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(turnPointerHighlighterSo, 1.0f, TURN_POINTER_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), []()
+        {
+            events::EventSystem::GetInstance().DispatchEvent<events::LocalPlayerTurnStarted>();
+        });
+    }
 }
+    
 
 ///------------------------------------------------------------------------------------------------
 

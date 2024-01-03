@@ -78,6 +78,7 @@ private:
     void OnCardBuffedDebuffed(const events::CardBuffedDebuffedEvent& event);
     void OnHeldCardSwap(const events::HeldCardSwapEvent& event);
     void OnNewBoardCardCreated(const events::NewBoardCardCreatedEvent& event);
+    void OnHeroCardCreated(const events::HeroCardCreatedEvent& event);
     void OnLastCardPlayedFinalized(const events::LastCardPlayedFinalizedEvent& event);
     void OnHealthChangeAnimationTrigger(const events::HealthChangeAnimationTriggerEvent&);
     void OnWeightChangeAnimationTrigger(const events::WeightChangeAnimationTriggerEvent&);

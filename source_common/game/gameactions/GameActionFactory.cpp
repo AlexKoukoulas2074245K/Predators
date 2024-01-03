@@ -15,6 +15,7 @@
 #include <game/gameactions/GameActionFactory.h>
 #include <game/gameactions/GameOverGameAction.h>
 #include <game/gameactions/GoldenCardPlayedEffectGameAction.h>
+#include <game/gameactions/HeroCardEntryGameAction.h>
 #include <game/gameactions/IdleGameAction.h>
 #include <game/gameactions/InsectDuplicationGameAction.h>
 #include <game/gameactions/NextPlayerGameAction.h>
@@ -56,6 +57,7 @@ void GameActionFactory::RegisterGameActions()
     REGISTER_ACTION(PostNextPlayerGameAction);
     REGISTER_ACTION(TrapTriggeredAnimationGameAction);
     REGISTER_ACTION(GoldenCardPlayedEffectGameAction);
+    REGISTER_ACTION(HeroCardEntryGameAction);
     REGISTER_ACTION(PoisonStackApplicationGameAction);
     REGISTER_ACTION(RodentsDigAnimationGameAction);
     REGISTER_ACTION(InsectDuplicationGameAction);
@@ -92,6 +94,7 @@ std::unique_ptr<BaseGameAction> GameActionFactory::CreateGameAction(const struti
     ACTION_CASE(PostNextPlayerGameAction);
     ACTION_CASE(TrapTriggeredAnimationGameAction);
     ACTION_CASE(GoldenCardPlayedEffectGameAction);
+    ACTION_CASE(HeroCardEntryGameAction);
     ACTION_CASE(PoisonStackApplicationGameAction);
     ACTION_CASE(RodentsDigAnimationGameAction);
     ACTION_CASE(InsectDuplicationGameAction);

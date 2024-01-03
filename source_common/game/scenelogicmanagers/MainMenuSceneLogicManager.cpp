@@ -111,7 +111,8 @@ static const std::unordered_map<strutils::StringId, std::string, strutils::Strin
 static const std::unordered_map<StoryMapSceneType, strutils::StringId> STORY_MAP_SCENE_TYPE_TO_SCENE_NAME =
 {
     { StoryMapSceneType::STORY_MAP, game_constants::STORY_MAP_SCENE },
-    { StoryMapSceneType::EVENT, game_constants::EVENT_SCENE }
+    { StoryMapSceneType::EVENT, game_constants::EVENT_SCENE },
+    { StoryMapSceneType::BATTLE, game_constants::BATTLE_SCENE }
 };
 
 ///------------------------------------------------------------------------------------------------
@@ -582,6 +583,14 @@ void MainMenuSceneLogicManager::BattleModeSelected(const strutils::StringId& but
     {
         scene->FindSceneObject(buttonName)->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = SELECTED_BUTTON_COLOR;
         ProgressionDataRepository::GetInstance().SetNextBattleControlType(BATTLE_MODE_BUTTON_NAMES_TO_BATTLE_CONTROL_TYPE.at(buttonName));
+        ProgressionDataRepository::GetInstance().SetNextBattleTopPlayerHealth(game_constants::TOP_PLAYER_DEFAULT_HEALTH);
+        ProgressionDataRepository::GetInstance().SetNextBattleBotPlayerHealth(game_constants::BOT_PLAYER_DEFAULT_HEALTH);
+        ProgressionDataRepository::GetInstance().SetNextBattleTopPlayerInitWeight(game_constants::TOP_PLAYER_DEFAULT_WEIGHT);
+        ProgressionDataRepository::GetInstance().SetNextBattleBotPlayerInitWeight(game_constants::BOT_PLAYER_DEFAULT_WEIGHT);
+        ProgressionDataRepository::GetInstance().SetNextBattleTopPlayerWeightLimit(game_constants::TOP_PLAYER_DEFAULT_WEIGHT_LIMIT);
+        ProgressionDataRepository::GetInstance().SetNextBattleBotPlayerWeightLimit(game_constants::BOT_PLAYER_DEFAULT_WEIGHT_LIMIT);
+        ProgressionDataRepository::GetInstance().SetNextStoryOpponentTexturePath("");
+        ProgressionDataRepository::GetInstance().SetNextStoryOpponentName("");
         
         auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
         for (auto& deckSelectionSceneObject: mDeckSelectionSceneObjects)
@@ -629,7 +638,8 @@ void MainMenuSceneLogicManager::GoToPreviousSubScene(std::shared_ptr<scene::Scen
 
 void MainMenuSceneLogicManager::InitializeNewStoryData()
 {
-    ProgressionDataRepository::GetInstance().SetNextBotPlayerDeck(CardDataRepository::GetInstance().GetCardIdsByFamily(game_constants::RODENTS_FAMILY_NAME));
+    ProgressionDataRepository::GetInstance().SetNextBotPlayerDeck(CardDataRepository::GetInstance().GetCardIdsByFamily(game_constants::DINOSAURS_FAMILY_NAME));
+    ProgressionDataRepository::GetInstance().SetNextBotPlayerDeck({21});
     ProgressionDataRepository::GetInstance().SetStoryMapGenerationSeed(0);
     events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_MAP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
 }

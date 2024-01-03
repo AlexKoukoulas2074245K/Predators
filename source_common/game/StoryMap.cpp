@@ -110,7 +110,7 @@ static const float SELECTABLE_NODE_BOUNCE_SPEED_Y = 0.000005f;
 static const float PORTRAIT_BOUNCE_NOISE_FACTOR = 0.2f;
 static const float INACTIVE_NODE_TEXT_ALPHA = 0.5f;
 static const float ELITE_STAT_FACTOR = 1.5f;
-static const float BOSS_STAT_FACTOR = 2.5f;
+static const float BOSS_STAT_FACTOR = 3.0f;
 
 static const int MAP_PATH_SEGMENTS_FACTOR = 30;
 static const int MAP_GENERATION_PASSES = 5;
@@ -318,7 +318,7 @@ void StoryMap::CreateMapSceneObjects()
         nodeSceneObject->mBoundingRectMultiplier.x = game_constants::CARD_BOUNDING_RECT_X_MULTIPLIER;
         nodeSceneObject->mScale = glm::vec3(NODE_SCALE);
         
-        auto nodePortraitSceneObject = mScene->CreateSceneObject(strutils::StringId(mapNodeEntry.first.ToString() + "_portrait"));
+        auto nodePortraitSceneObject = mScene->CreateSceneObject(strutils::StringId(mapNodeEntry.first.ToString() + game_constants::STORY_MAP_NODE_PORTRAIT_SO_NAME_POST_FIX));
         nodePortraitSceneObject->mShaderResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + STORY_MAP_NODE_SHADER_FILE_NAME);
         nodePortraitSceneObject->mShaderBoolUniformValues[IS_NODE_ACTIVE_UNIFORM_NAME] = mapNodeEntry.first == mCurrentMapCoord;
         nodePortraitSceneObject->mPosition = mapNodeEntry.second.mPosition;
@@ -332,8 +332,8 @@ void StoryMap::CreateMapSceneObjects()
         }
         
         std::vector<std::shared_ptr<scene::SceneObject>> textSceneObjects;
-        textSceneObjects.emplace_back(mScene->CreateSceneObject(strutils::StringId(mapNodeEntry.first.ToString() + "_text")));
-        textSceneObjects.emplace_back(mScene->CreateSceneObject(strutils::StringId(mapNodeEntry.first.ToString() + "_text_secondary")));
+        textSceneObjects.emplace_back(mScene->CreateSceneObject(strutils::StringId(mapNodeEntry.first.ToString() + game_constants::STORY_MAP_NODE_TEXT_SO_NAME_POST_FIX)));
+        textSceneObjects.emplace_back(mScene->CreateSceneObject(strutils::StringId(mapNodeEntry.first.ToString() + game_constants::STORY_MAP_NODE_SECONDARY_TEXT_SO_NAME_POST_FIX)));
         
         textSceneObjects[0]->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = INACTIVE_NODE_TEXT_ALPHA;
         textSceneObjects[1]->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = INACTIVE_NODE_TEXT_ALPHA;
@@ -434,7 +434,7 @@ void StoryMap::CreateMapSceneObjects()
             // Stat range builders
             auto defaultHealthRange = glm::vec2(5.0f + mapNodeEntry.first.mCol, 10.0f + mapNodeEntry.first.mCol);
             auto defaultDamageRange = glm::vec2(0.0f + mapNodeEntry.first.mCol, 1.0f + mapNodeEntry.first.mCol);
-            auto defaultWeightRange = glm::vec2(0.0f + mapNodeEntry.first.mCol, 1.0f + mapNodeEntry.first.mCol);
+            auto defaultWeightRange = glm::vec2(2.0f + mapNodeEntry.first.mCol, 3.0f + mapNodeEntry.first.mCol);
             
             if (effectiveNodeType == NodeType::ELITE_ENCOUNTER)
             {
@@ -456,7 +456,7 @@ void StoryMap::CreateMapSceneObjects()
             auto nodeOpponentWeight = math::ControlledRandomFloat(defaultWeightRange.s, defaultWeightRange.t);
             
             // Health Icon
-            nodeHealthIconSceneObject = mScene->CreateSceneObject(strutils::StringId(mapNodeEntry.first.ToString() + "_health_icon"));
+            nodeHealthIconSceneObject = mScene->CreateSceneObject(strutils::StringId(mapNodeEntry.first.ToString() + game_constants::STORY_MAP_NODE_HEALTH_ICON_SO_NAME_POST_FIX));
             nodeHealthIconSceneObject->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + ENCOUNTER_STAT_HEALTH_ICON_TEXTURE_FILE_NAME);
             nodeHealthIconSceneObject->mShaderResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + STORY_MAP_NODE_SHADER_FILE_NAME);
             nodeHealthIconSceneObject->mShaderBoolUniformValues[IS_NODE_ACTIVE_UNIFORM_NAME] = mapNodeEntry.first == mCurrentMapCoord;
@@ -469,7 +469,7 @@ void StoryMap::CreateMapSceneObjects()
             healthIconTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
             healthIconTextData.mText = std::to_string(static_cast<int>(nodeOpponentHealth));
             
-            nodeHealthTextSceneObject = mScene->CreateSceneObject(strutils::StringId(mapNodeEntry.first.ToString() + "_health_text"));
+            nodeHealthTextSceneObject = mScene->CreateSceneObject(strutils::StringId(mapNodeEntry.first.ToString() + game_constants::STORY_MAP_NODE_HEALTH_TEXT_SO_NAME_POST_FIX));
             nodeHealthTextSceneObject->mSceneObjectTypeData = std::move(healthIconTextData);
             nodeHealthTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = INACTIVE_NODE_TEXT_ALPHA;
             nodeHealthTextSceneObject->mScale = ENCOUNTER_STAT_TEXT_SCALE;
@@ -479,7 +479,7 @@ void StoryMap::CreateMapSceneObjects()
             nodeHealthTextSceneObject->mPosition.x -= (boundingRect.topRight.x - boundingRect.bottomLeft.x)/2.0f;
             
             // Damage Icon
-            nodeDamageIconSceneObject = mScene->CreateSceneObject(strutils::StringId(mapNodeEntry.first.ToString() + "_damage_icon"));
+            nodeDamageIconSceneObject = mScene->CreateSceneObject(strutils::StringId(mapNodeEntry.first.ToString() + game_constants::STORY_MAP_NODE_DAMAGE_ICON_SO_NAME_POST_FIX));
             nodeDamageIconSceneObject->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + ENCOUNTER_STAT_DAMAGE_ICON_TEXTURE_FILE_NAME);
             nodeDamageIconSceneObject->mShaderResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + STORY_MAP_NODE_SHADER_FILE_NAME);
             nodeDamageIconSceneObject->mShaderBoolUniformValues[IS_NODE_ACTIVE_UNIFORM_NAME] = mapNodeEntry.first == mCurrentMapCoord;
@@ -492,7 +492,7 @@ void StoryMap::CreateMapSceneObjects()
             damageIconTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
             damageIconTextData.mText = std::to_string(static_cast<int>(nodeOpponentDamage));
             
-            nodeDamageTextSceneObject = mScene->CreateSceneObject(strutils::StringId(mapNodeEntry.first.ToString() + "_damage_text"));
+            nodeDamageTextSceneObject = mScene->CreateSceneObject(strutils::StringId(mapNodeEntry.first.ToString() + game_constants::STORY_MAP_NODE_DAMAGE_TEXT_SO_NAME_POST_FIX));
             nodeDamageTextSceneObject->mSceneObjectTypeData = std::move(damageIconTextData);
             nodeDamageTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = INACTIVE_NODE_TEXT_ALPHA;
             nodeDamageTextSceneObject->mScale = ENCOUNTER_STAT_TEXT_SCALE;
@@ -502,7 +502,7 @@ void StoryMap::CreateMapSceneObjects()
             nodeDamageTextSceneObject->mPosition.x -= (boundingRect.topRight.x - boundingRect.bottomLeft.x)/2.0f;
             
             // Weight Icon
-            nodeWeightIconSceneObject = mScene->CreateSceneObject(strutils::StringId(mapNodeEntry.first.ToString() + "_weight_icon"));
+            nodeWeightIconSceneObject = mScene->CreateSceneObject(strutils::StringId(mapNodeEntry.first.ToString() + game_constants::STORY_MAP_NODE_WEIGHT_ICON_SO_NAME_POST_FIX));
             nodeWeightIconSceneObject->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + ENCOUNTER_STAT_WEIGHT_ICON_TEXTURE_FILE_NAME);
             nodeWeightIconSceneObject->mShaderResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + STORY_MAP_NODE_SHADER_FILE_NAME);
             nodeWeightIconSceneObject->mShaderBoolUniformValues[IS_NODE_ACTIVE_UNIFORM_NAME] = mapNodeEntry.first == mCurrentMapCoord;
@@ -515,7 +515,7 @@ void StoryMap::CreateMapSceneObjects()
             weightIconTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
             weightIconTextData.mText = std::to_string(static_cast<int>(nodeOpponentWeight));
             
-            nodeWeightTextSceneObject = mScene->CreateSceneObject(strutils::StringId(mapNodeEntry.first.ToString() + "_weight_text"));
+            nodeWeightTextSceneObject = mScene->CreateSceneObject(strutils::StringId(mapNodeEntry.first.ToString() + game_constants::STORY_MAP_NODE_WEIGHT_TEXT_SO_NAME_POST_FIX));
             nodeWeightTextSceneObject->mSceneObjectTypeData = std::move(weightIconTextData);
             nodeWeightTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = INACTIVE_NODE_TEXT_ALPHA;
             nodeWeightTextSceneObject->mScale = ENCOUNTER_STAT_TEXT_SCALE;

@@ -34,6 +34,13 @@ PlayerActionGenerationEngine::PlayerActionGenerationEngine(GameRuleEngine* gameR
 void PlayerActionGenerationEngine::DecideAndPushNextActions(BoardState* currentBoardState)
 {
     BoardState boardStateCopy = *currentBoardState;
+    
+    if (boardStateCopy.GetTurnCounter() == 0 && boardStateCopy.GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mHasHeroCard)
+    {
+        mGameActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+        return;
+    }
+    
     auto& currentHeldCards = boardStateCopy.GetActivePlayerState().mPlayerHeldCards;
     auto& currentBoardCards = boardStateCopy.GetActivePlayerState().mPlayerBoardCards;
     

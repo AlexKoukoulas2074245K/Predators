@@ -51,6 +51,7 @@ static const strutils::StringId PLAY_CARD_ACTION_NAME = strutils::StringId("Play
 static const strutils::StringId NEXT_PLAYER_ACTION_NAME = strutils::StringId("NextPlayerGameAction");
 static const strutils::StringId CARD_BUFFED_DEBUFFED_ANIMATION_GAME_ACTION_NAME = strutils::StringId("CardBuffedDebuffedAnimationGameAction");
 static const strutils::StringId CARD_EFFECT_GAME_ACTION_NAME = strutils::StringId("CardEffectGameAction");
+static const strutils::StringId HERO_CARD_ENTRY_GAME_ACTION_NAME = strutils::StringId("HeroCardEntryGameAction");
 static const strutils::StringId CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES [game_constants::CARD_TOOLTIP_TEXT_ROWS_COUNT] =
 {
     strutils::StringId("card_tooltip_text_0"),
@@ -167,7 +168,9 @@ BattleSceneLogicManager::BattleSceneLogicManager(){}
 
 ///------------------------------------------------------------------------------------------------
 
-BattleSceneLogicManager::~BattleSceneLogicManager(){}
+BattleSceneLogicManager::~BattleSceneLogicManager()
+{
+}
 
 ///------------------------------------------------------------------------------------------------
 
@@ -220,14 +223,17 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
     mBoardState->GetPlayerStates().emplace_back();
     mBoardState->GetPlayerStates().emplace_back();
     
-    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerHealth = game_constants::TOP_PLAYER_DEFAULT_HEALTH;
-    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth = game_constants::BOT_PLAYER_DEFAULT_HEALTH;
+    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerHealth = ProgressionDataRepository::GetInstance().GetNextBattleTopPlayerHealth();
+    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth = ProgressionDataRepository::GetInstance().GetNextBattleBotPlayerHealth();
     
-    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerTotalWeightAmmo = game_constants::TOP_PLAYER_DEFAULT_WEIGHT;
-    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerCurrentWeightAmmo = game_constants::TOP_PLAYER_DEFAULT_WEIGHT;
+    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerTotalWeightAmmo = ProgressionDataRepository::GetInstance().GetNextBattleTopPlayerInitWeight();
+    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerTotalWeightAmmo = ProgressionDataRepository::GetInstance().GetNextBattleBotPlayerInitWeight();
     
-    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerTotalWeightAmmo = game_constants::BOT_PLAYER_DEFAULT_WEIGHT;
-    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerCurrentWeightAmmo = game_constants::BOT_PLAYER_DEFAULT_WEIGHT;
+    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerCurrentWeightAmmo = ProgressionDataRepository::GetInstance().GetNextBattleTopPlayerInitWeight();
+    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerCurrentWeightAmmo = ProgressionDataRepository::GetInstance().GetNextBattleBotPlayerInitWeight();
+    
+    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerWeightAmmoLimit = ProgressionDataRepository::GetInstance().GetNextBattleTopPlayerWeightLimit();
+    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerWeightAmmoLimit = ProgressionDataRepository::GetInstance().GetNextBattleBotPlayerWeightLimit();
     
     mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = ProgressionDataRepository::GetInstance().GetNextTopPlayerDeck();
     mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = ProgressionDataRepository::GetInstance().GetNextBotPlayerDeck();
@@ -260,6 +266,13 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
     mPlayerActionGenerationEngine = std::make_unique<PlayerActionGenerationEngine>(mRuleEngine.get(), mActionEngine.get(), PlayerActionGenerationEngine::ActionGenerationType::OPTIMISED);
     
     mActionEngine->AddGameAction(BATTLE_INITIAL_ANIMATION_GAME_ACTION_NAME);
+    
+    // Story battle, hero card action needs to be created
+    if (!ProgressionDataRepository::GetInstance().GetNextStoryOpponentName().empty())
+    {
+        ProgressionDataRepository::GetInstance().SetCurrentStoryMapSceneType(StoryMapSceneType::BATTLE);
+        mActionEngine->AddGameAction(HERO_CARD_ENTRY_GAME_ACTION_NAME);
+    }
     
     if (mCurrentBattleControlType == BattleControlType::REPLAY)
     {
@@ -518,6 +531,12 @@ void BattleSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene> scene)
     }
     else if (scene->GetName() == game_constants::BATTLE_SCENE)
     {
+        // Serialize story battle
+        if (!ProgressionDataRepository::GetInstance().GetNextStoryOpponentName().empty())
+        {
+            mBattleSerializer->FlushStateToFile();
+        }
+        
         CoreSystemsEngine::GetInstance().GetSceneManager().RemoveScene(HISTORY_SCENE);
         events::EventSystem::GetInstance().UnregisterAllEventsForListener(this);
     }
@@ -1184,6 +1203,7 @@ void BattleSceneLogicManager::RegisterForEvents()
     eventSystem.RegisterForEvent<events::CardBuffedDebuffedEvent>(this, &BattleSceneLogicManager::OnCardBuffedDebuffed);
     eventSystem.RegisterForEvent<events::HeldCardSwapEvent>(this, &BattleSceneLogicManager::OnHeldCardSwap);
     eventSystem.RegisterForEvent<events::NewBoardCardCreatedEvent>(this, &BattleSceneLogicManager::OnNewBoardCardCreated);
+    eventSystem.RegisterForEvent<events::HeroCardCreatedEvent>(this, &BattleSceneLogicManager::OnHeroCardCreated);
     eventSystem.RegisterForEvent<events::LastCardPlayedFinalizedEvent>(this, &BattleSceneLogicManager::OnLastCardPlayedFinalized);
     eventSystem.RegisterForEvent<events::HealthChangeAnimationTriggerEvent>(this, &BattleSceneLogicManager::OnHealthChangeAnimationTrigger);
     eventSystem.RegisterForEvent<events::WeightChangeAnimationTriggerEvent>(this, &BattleSceneLogicManager::OnWeightChangeAnimationTrigger);
@@ -1336,6 +1356,7 @@ void BattleSceneLogicManager::OnCardBuffedDebuffed(const events::CardBuffedDebuf
         auto& boardSceneObjectWrappers = mPlayerBoardCardSceneObjectWrappers[(event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)];
         auto& cardSceneObjectWrapper = boardSceneObjectWrappers[event.mCardIndex];
         auto previousScale = cardSceneObjectWrapper->mSceneObject->mScale;
+        auto& playerState = mBoardState->GetPlayerStates()[event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX];
         
         battleScene->RemoveSceneObject(cardSceneObjectWrapper->mSceneObject->mName);
         
@@ -1345,12 +1366,12 @@ void BattleSceneLogicManager::OnCardBuffedDebuffed(const events::CardBuffedDebuf
             cardSceneObjectWrapper->mSceneObject->mPosition,
             (event.mForRemotePlayer ? game_constants::TOP_PLAYER_BOARD_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_BOARD_CARD_SO_NAME_PREFIX) + std::to_string(event.mCardIndex),
             CardOrientation::FRONT_FACE,
-            card_utils::GetCardRarity(cardSceneObjectWrapper->mCardData->mCardId, mBoardState->GetActivePlayerIndex(), *mBoardState),
+            card_utils::GetCardRarity(cardSceneObjectWrapper->mCardData->mCardId, event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX, *mBoardState),
             true,
             event.mForRemotePlayer,
             true,
-            (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.size()) > event.mCardIndex ? mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.at(event.mCardIndex) : CardStatOverrides()),
-            mBoardState->GetActivePlayerState().mBoardModifiers.mGlobalCardStatModifiers,
+            (static_cast<int>(playerState.mPlayerBoardCardStatOverrides.size()) > event.mCardIndex ? playerState.mPlayerBoardCardStatOverrides.at(event.mCardIndex) : CardStatOverrides()),
+            playerState.mBoardModifiers.mGlobalCardStatModifiers,
             *battleScene
         );
         boardSceneObjectWrappers[event.mCardIndex]->mSceneObject->mScale = previousScale;
@@ -1360,6 +1381,7 @@ void BattleSceneLogicManager::OnCardBuffedDebuffed(const events::CardBuffedDebuf
         auto& heldSceneObjectWrappers = mPlayerHeldCardSceneObjectWrappers[(event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)];
         auto& cardSceneObjectWrapper = heldSceneObjectWrappers[event.mCardIndex];
         auto previousScale = cardSceneObjectWrapper->mSceneObject->mScale;
+        auto& playerState = mBoardState->GetPlayerStates()[event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX];
         
         battleScene->RemoveSceneObject(cardSceneObjectWrapper->mSceneObject->mName);
         
@@ -1369,12 +1391,12 @@ void BattleSceneLogicManager::OnCardBuffedDebuffed(const events::CardBuffedDebuf
             cardSceneObjectWrapper->mSceneObject->mPosition,
             (event.mForRemotePlayer ? game_constants::TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_HELD_CARD_SO_NAME_PREFIX) + std::to_string(event.mCardIndex),
             CardOrientation::FRONT_FACE,
-            card_utils::GetCardRarity(cardSceneObjectWrapper->mCardData->mCardId, mBoardState->GetActivePlayerIndex(), *mBoardState),
+            card_utils::GetCardRarity(cardSceneObjectWrapper->mCardData->mCardId, event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX, *mBoardState),
             false,
             event.mForRemotePlayer,
             mRuleEngine->CanCardBePlayed(heldSceneObjectWrappers[event.mCardIndex]->mCardData, event.mCardIndex, game_constants::LOCAL_PLAYER_INDEX),
-            (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.size()) > event.mCardIndex ? mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.at(event.mCardIndex) : CardStatOverrides()),
-            mBoardState->GetActivePlayerState().mBoardModifiers.mGlobalCardStatModifiers,
+            (static_cast<int>(playerState.mPlayerHeldCardStatOverrides.size()) > event.mCardIndex ? playerState.mPlayerHeldCardStatOverrides.at(event.mCardIndex) : CardStatOverrides()),
+            playerState.mBoardModifiers.mGlobalCardStatModifiers,
             *battleScene
         );
         heldSceneObjectWrappers[event.mCardIndex]->mSceneObject->mScale = previousScale;
@@ -1411,6 +1433,15 @@ void BattleSceneLogicManager::OnNewBoardCardCreated(const events::NewBoardCardCr
             animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(currentCardSoWrapper->mSceneObject, originalCardPosition, currentCardSoWrapper->mSceneObject->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){});
         }
     }
+}
+
+///------------------------------------------------------------------------------------------------
+
+void BattleSceneLogicManager::OnHeroCardCreated(const events::HeroCardCreatedEvent& event)
+{
+    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mHasHeroCard = true;
+    auto& playerBoardCardSoWrappers = mPlayerBoardCardSceneObjectWrappers[game_constants::REMOTE_PLAYER_INDEX];
+    playerBoardCardSoWrappers.push_back(event.mCardSoWrapper);
 }
 
 ///------------------------------------------------------------------------------------------------

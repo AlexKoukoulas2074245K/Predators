@@ -291,10 +291,27 @@ void VisitMapNodeSceneLogicManager::InitializeNodeVisitData()
             ProgressionDataRepository::GetInstance().SetNextTopPlayerDeck(opponentDeckBuilder);
             ProgressionDataRepository::GetInstance().SetNextBattleControlType(BattleControlType::AI_TOP_ONLY);
             
-            // Populate opponent hero card texture
+            // Populate opponent hero card name & texture
             auto storyMapScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::STORY_MAP_SCENE);
-            auto nodePortraitSceneObject = storyMapScene->FindSceneObject(strutils::StringId(MapCoord(selectedNodeData->mCoords.x, selectedNodeData->mCoords.y).ToString() + "_portrait"));
+            auto nodePortraitSceneObject = storyMapScene->FindSceneObject(strutils::StringId(MapCoord(selectedNodeData->mCoords.x, selectedNodeData->mCoords.y).ToString() + game_constants::STORY_MAP_NODE_PORTRAIT_SO_NAME_POST_FIX));
+            auto nodeHealthTextSceneObject = storyMapScene->FindSceneObject(strutils::StringId(MapCoord(selectedNodeData->mCoords.x, selectedNodeData->mCoords.y).ToString() + game_constants::STORY_MAP_NODE_HEALTH_TEXT_SO_NAME_POST_FIX));
+            auto nodeDamageTextSceneObject = storyMapScene->FindSceneObject(strutils::StringId(MapCoord(selectedNodeData->mCoords.x, selectedNodeData->mCoords.y).ToString() + game_constants::STORY_MAP_NODE_DAMAGE_TEXT_SO_NAME_POST_FIX));
+            auto nodeWeightTextSceneObject = storyMapScene->FindSceneObject(strutils::StringId(MapCoord(selectedNodeData->mCoords.x, selectedNodeData->mCoords.y).ToString() + game_constants::STORY_MAP_NODE_WEIGHT_TEXT_SO_NAME_POST_FIX));
+            auto nodeNameTextSceneObject = storyMapScene->FindSceneObject(strutils::StringId(MapCoord(selectedNodeData->mCoords.x, selectedNodeData->mCoords.y).ToString() + game_constants::STORY_MAP_NODE_TEXT_SO_NAME_POST_FIX));
+            
             ProgressionDataRepository::GetInstance().SetNextStoryOpponentTexturePath(CoreSystemsEngine::GetInstance().GetResourceLoadingService().GetResourcePath(nodePortraitSceneObject->mTextureResourceId));
+            ProgressionDataRepository::GetInstance().SetNextStoryOpponentName(std::get<scene::TextSceneObjectData>(nodeNameTextSceneObject->mSceneObjectTypeData).mText);
+            
+            // Populate opponent stats
+            ProgressionDataRepository::GetInstance().SetNextStoryOpponentDamage(std::stoi(std::get<scene::TextSceneObjectData>(nodeDamageTextSceneObject->mSceneObjectTypeData).mText));
+            ProgressionDataRepository::GetInstance().SetNextBattleTopPlayerHealth(std::stoi(std::get<scene::TextSceneObjectData>(nodeHealthTextSceneObject->mSceneObjectTypeData).mText));
+            ProgressionDataRepository::GetInstance().SetNextBattleTopPlayerInitWeight(std::stoi(std::get<scene::TextSceneObjectData>(nodeWeightTextSceneObject->mSceneObjectTypeData).mText) - 1);
+            ProgressionDataRepository::GetInstance().SetNextBattleTopPlayerWeightLimit(std::stoi(std::get<scene::TextSceneObjectData>(nodeWeightTextSceneObject->mSceneObjectTypeData).mText));
+            
+            // Populate local player stats
+            ProgressionDataRepository::GetInstance().SetNextBattleBotPlayerHealth(ProgressionDataRepository::GetInstance().StoryCurrentHealth().GetValue());
+            ProgressionDataRepository::GetInstance().SetNextBattleBotPlayerInitWeight(game_constants::BOT_PLAYER_DEFAULT_WEIGHT - 1);
+            ProgressionDataRepository::GetInstance().SetNextBattleBotPlayerWeightLimit(game_constants::BOT_PLAYER_DEFAULT_WEIGHT_LIMIT);
             
             events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::BATTLE_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
         } break;

@@ -42,20 +42,24 @@ void NextPlayerGameAction::VSetNewGameState()
     mBoardState->GetTurnCounter()++;
     
     auto& targetPlayerState = mBoardState->GetPlayerStates()[mBoardState->GetTurnCounter() % mBoardState->GetPlayerCount()];
-    targetPlayerState.mPlayerTotalWeightAmmo++;
+    targetPlayerState.mPlayerTotalWeightAmmo = math::Min(targetPlayerState.mPlayerWeightAmmoLimit, targetPlayerState.mPlayerTotalWeightAmmo + 1);
     targetPlayerState.mPlayerCurrentWeightAmmo = targetPlayerState.mPlayerTotalWeightAmmo;
     
     // Potentially generate card attack/destruction/poison stacks for player whose turn was just ended
     if (previousPlayerIndex != -1)
     {
-        auto& boardCards = mBoardState->GetPlayerStates()[previousPlayerIndex].mPlayerBoardCards;
-        for (size_t i = 0; i < boardCards.size(); ++i)
+        // First story opponent turn is skipped
+        if (mBoardState->GetTurnCounter() != 1 || mBoardState->GetPlayerStates()[previousPlayerIndex].mHasHeroCard == false)
         {
-            mGameActionEngine->AddGameAction(CARD_ATTACK_GAME_ACTION_NAME,
+            auto& boardCards = mBoardState->GetPlayerStates()[previousPlayerIndex].mPlayerBoardCards;
+            for (size_t i = 0; i < boardCards.size(); ++i)
             {
-                { CardAttackGameAction::PLAYER_INDEX_PARAM, std::to_string(previousPlayerIndex) },
-                { CardAttackGameAction::CARD_INDEX_PARAM, std::to_string(i) }
-            });
+                mGameActionEngine->AddGameAction(CARD_ATTACK_GAME_ACTION_NAME,
+                {
+                    { CardAttackGameAction::PLAYER_INDEX_PARAM, std::to_string(previousPlayerIndex) },
+                    { CardAttackGameAction::CARD_INDEX_PARAM, std::to_string(i) }
+                });
+            }
         }
         
         // Destroy all held cards
@@ -83,25 +87,28 @@ void NextPlayerGameAction::VSetNewGameState()
         { CardHistoryEntryAdditionGameAction::IS_TURN_COUNTER_PARAM, "true"}
     });
     
-    mGameActionEngine->AddGameAction(POISON_STACK_APPLICATION_GAME_ACTION_NAME, {});
-    mGameActionEngine->AddGameAction(POST_NEXT_PLAYER_GAME_ACTION_NAME);
-    
-    // Apply continual weight reduction effects
-    if ((mBoardState->GetActivePlayerState().mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::PERMANENT_CONTINUAL_WEIGHT_REDUCTION) != 0)
+    if (mBoardState->GetTurnCounter() != 0 || mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mHasHeroCard == false)
     {
-        mBoardState->GetActivePlayerState().mBoardModifiers.mGlobalCardStatModifiers[CardStatType::WEIGHT]--;
-    }
-    
-    // Both players get 4 cards
-    mGameActionEngine->AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
-    mGameActionEngine->AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
-    mGameActionEngine->AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
-    mGameActionEngine->AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
-    
-    // Bot player gets + 1 card
-    if (previousPlayerIndex == 0)
-    {
+        mGameActionEngine->AddGameAction(POISON_STACK_APPLICATION_GAME_ACTION_NAME, {});
+        mGameActionEngine->AddGameAction(POST_NEXT_PLAYER_GAME_ACTION_NAME);
+        
+        // Apply continual weight reduction effects
+        if ((mBoardState->GetActivePlayerState().mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::PERMANENT_CONTINUAL_WEIGHT_REDUCTION) != 0)
+        {
+            mBoardState->GetActivePlayerState().mBoardModifiers.mGlobalCardStatModifiers[CardStatType::WEIGHT]--;
+        }
+        
+        // Both players get 4 cards
         mGameActionEngine->AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
+        mGameActionEngine->AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
+        mGameActionEngine->AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
+        mGameActionEngine->AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
+        
+        // Bot player gets + 1 card
+        if (previousPlayerIndex == 0)
+        {
+            mGameActionEngine->AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
+        }
     }
 }
 
@@ -109,24 +116,31 @@ void NextPlayerGameAction::VSetNewGameState()
 
 void NextPlayerGameAction::VInitAnimation()
 {
-    mPendingAnimations = 1;
-    
-    auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
-    auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
-    auto scene = sceneManager.FindScene(game_constants::BATTLE_SCENE);
-    auto turnPointerSo = scene->FindSceneObject(game_constants::TURN_POINTER_SCENE_OBJECT_NAME);
-    bool localPlayerActive = mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX;
-    
-    animationManager.StartAnimation(std::make_unique<rendering::TweenRotationAnimation>(turnPointerSo, glm::vec3(0.0f, 0.0f, turnPointerSo->mRotation.z + (localPlayerActive ? math::PI/2 : -math::PI/2)), game_constants::TURN_POINTER_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::ElasticFunction, math::TweeningMode::EASE_IN), [=]()
+    if ((mBoardState->GetTurnCounter() != 0 && mBoardState->GetTurnCounter() != 1) || mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mHasHeroCard == false)
     {
-        mPendingAnimations--;
+        mPendingAnimations = 1;
+        
         auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
         auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
         auto scene = sceneManager.FindScene(game_constants::BATTLE_SCENE);
+        auto turnPointerSo = scene->FindSceneObject(game_constants::TURN_POINTER_SCENE_OBJECT_NAME);
+        bool localPlayerActive = mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX;
         
-        auto turnPointerHighlighterSo = scene->FindSceneObject(game_constants::TURN_POINTER_HIGHLIGHTER_SCENE_OBJECT_NAME);
-        animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(turnPointerHighlighterSo, 0.0f, game_constants::TURN_POINTER_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), [](){});
-    });
+        animationManager.StartAnimation(std::make_unique<rendering::TweenRotationAnimation>(turnPointerSo, glm::vec3(0.0f, 0.0f, turnPointerSo->mRotation.z + (localPlayerActive ? math::PI/2 : -math::PI/2)), game_constants::TURN_POINTER_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::ElasticFunction, math::TweeningMode::EASE_IN), [=]()
+        {
+            mPendingAnimations--;
+            auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+            auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
+            auto scene = sceneManager.FindScene(game_constants::BATTLE_SCENE);
+            
+            auto turnPointerHighlighterSo = scene->FindSceneObject(game_constants::TURN_POINTER_HIGHLIGHTER_SCENE_OBJECT_NAME);
+            animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(turnPointerHighlighterSo, 0.0f, game_constants::TURN_POINTER_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), [](){});
+        });
+    }
+    else
+    {
+        mPendingAnimations = 0;
+    }
 }
 
 ///------------------------------------------------------------------------------------------------

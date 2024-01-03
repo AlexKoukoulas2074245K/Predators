@@ -95,6 +95,7 @@ public:
     
     void ClearCardData();
     void LoadCardData(bool loadCardAssets);
+    int InsertDynamicCardData(const CardData& cardData);
     
 private:
     CardDataRepository() = default;

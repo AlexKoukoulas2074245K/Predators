@@ -298,7 +298,7 @@
         {
             "id": 30,
             "damage": 1,
-            "weight": 3,
+            "weight": 2,
             "family": "demons_normal",
             "name": "Youngster Demon",
             "texture": "story_cards/baby_demon.png",
@@ -307,7 +307,7 @@
         {
             "id": 31,
             "damage": 2,
-            "weight": 4,
+            "weight": 3,
             "family": "demons_normal",
             "name": "Clown Imp",
             "texture": "story_cards/small_imp.png",
@@ -316,7 +316,7 @@
         {
             "id": 32,
             "damage": 3,
-            "weight": 4,
+            "weight": 3,
             "family": "demons_medium",
             "name": "Scarlet Demon",
             "texture": "story_cards/red_young_adult_demon.png",
@@ -348,6 +348,16 @@
             "effect": "DAMAGE +2 FAMILY BOARD HELD",
             "tooltip": "Damage +2 for$ALL Demons on$hand & board",
             "texture": "story_cards/demon_wizard.png",
+            "shader": "basic.vs"
+        },
+        {
+            "id": 36,
+            "damage": 10,
+            "weight": 10,
+            "family": "demons_boss",
+            "name": "Test Boss",
+            "tooltip": "Damage +2 for$ALL Demons on$hand & board",
+            "texture": "story_cards/demon_boss_6.png",
             "shader": "basic.vs"
         }
     ]

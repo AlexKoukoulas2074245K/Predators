@@ -129,6 +129,104 @@ void ProgressionDataRepository::SetCurrentStoryMapNodeSeed(const int currentStor
 
 ///------------------------------------------------------------------------------------------------
 
+const int& ProgressionDataRepository::GetNextBattleTopPlayerHealth() const
+{
+    return mNextBattleTopPlayerHealth;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ProgressionDataRepository::SetNextBattleTopPlayerHealth(const int nextBattleTopPlayerHealth)
+{
+    mNextBattleTopPlayerHealth = nextBattleTopPlayerHealth;
+}
+
+///------------------------------------------------------------------------------------------------
+
+const int& ProgressionDataRepository::GetNextBattleBotPlayerHealth() const
+{
+    return mNextBattleBotPlayerHealth;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ProgressionDataRepository::SetNextBattleBotPlayerHealth(const int nextBattleBotPlayerHealth)
+{
+    mNextBattleBotPlayerHealth = nextBattleBotPlayerHealth;
+}
+
+///------------------------------------------------------------------------------------------------
+
+const int& ProgressionDataRepository::GetNextBattleTopPlayerInitWeight() const
+{
+    return mNextBattleTopPlayerInitWeight;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ProgressionDataRepository::SetNextBattleTopPlayerInitWeight(const int nextBattleTopPlayerInitWeight)
+{
+    mNextBattleTopPlayerInitWeight = nextBattleTopPlayerInitWeight;
+}
+
+///------------------------------------------------------------------------------------------------
+
+const int& ProgressionDataRepository::GetNextBattleBotPlayerInitWeight() const
+{
+    return mNextBattleBotPlayerInitWeight;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ProgressionDataRepository::SetNextBattleBotPlayerInitWeight(const int nextBattleBotPlayerInitWeight)
+{
+    mNextBattleBotPlayerInitWeight = nextBattleBotPlayerInitWeight;
+}
+
+///------------------------------------------------------------------------------------------------
+
+const int& ProgressionDataRepository::GetNextBattleTopPlayerWeightLimit() const
+{
+    return mNextBattleTopPlayerWeightLimit;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ProgressionDataRepository::SetNextBattleTopPlayerWeightLimit(const int nextBattleTopPlayerWeightLimit)
+{
+    mNextBattleTopPlayerWeightLimit = nextBattleTopPlayerWeightLimit;
+}
+
+///------------------------------------------------------------------------------------------------
+
+const int& ProgressionDataRepository::GetNextBattleBotPlayerWeightLimit() const
+{
+    return mNextBattleBotPlayerWeightLimit;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ProgressionDataRepository::SetNextBattleBotPlayerWeightLimit(const int nextBattleBotPlayerWeightLimit)
+{
+    mNextBattleBotPlayerWeightLimit = nextBattleBotPlayerWeightLimit;
+}
+
+///------------------------------------------------------------------------------------------------
+
+const int& ProgressionDataRepository::GetNextStoryOpponentDamage() const
+{
+    return mNextStoryOpponentDamage;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ProgressionDataRepository::SetNextStoryOpponentDamage(const int nextStoryOpponentDamage)
+{
+    mNextStoryOpponentDamage = nextStoryOpponentDamage;
+}
+
+///------------------------------------------------------------------------------------------------
+
 const glm::ivec2& ProgressionDataRepository::GetCurrentStoryMapNodeCoord() const
 {
     return mCurrentStoryMapNodeCoord;
@@ -181,6 +279,20 @@ const std::string& ProgressionDataRepository::GetNextStoryOpponentTexturePath() 
 void ProgressionDataRepository::SetNextStoryOpponentTexturePath(const std::string& nextStoryOpponentTexturePath)
 {
     mNextStoryOpponentTexturePath = nextStoryOpponentTexturePath;
+}
+
+///------------------------------------------------------------------------------------------------
+
+const std::string& ProgressionDataRepository::GetNextStoryOpponentName() const
+{
+    return mNextStoryOpponentName;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ProgressionDataRepository::SetNextStoryOpponentName(const std::string& nextStoryOpponentName)
+{
+    mNextStoryOpponentName = nextStoryOpponentName;
 }
 
 ///------------------------------------------------------------------------------------------------

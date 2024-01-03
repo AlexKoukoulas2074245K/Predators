@@ -66,9 +66,11 @@ protected:
         mBoardState->GetPlayerStates().emplace_back();
         mBoardState->GetPlayerStates().back().mPlayerDeckCards = cardCollectionType == CardCollectionType::ALL_NON_SPELL_CARDS ? CardDataRepository::GetInstance().GetAllNonSpellCardIds() : CardDataRepository::GetInstance().GetAllCardIds();
         mBoardState->GetPlayerStates().back().mPlayerHealth = TEST_DEFAULT_PLAYER_HEALTH;
+        mBoardState->GetPlayerStates().back().mPlayerWeightAmmoLimit = game_constants::TOP_PLAYER_DEFAULT_WEIGHT_LIMIT;
         mBoardState->GetPlayerStates().emplace_back();
         mBoardState->GetPlayerStates().back().mPlayerDeckCards = cardCollectionType == CardCollectionType::ALL_NON_SPELL_CARDS ? CardDataRepository::GetInstance().GetAllNonSpellCardIds() : CardDataRepository::GetInstance().GetAllCardIds();
         mBoardState->GetPlayerStates().back().mPlayerHealth = TEST_DEFAULT_PLAYER_HEALTH;
+        mBoardState->GetPlayerStates().back().mPlayerWeightAmmoLimit = game_constants::TOP_PLAYER_DEFAULT_WEIGHT_LIMIT;
     }
     
     void UpdateUntilActionOrIdle(const strutils::StringId& actionName)
@@ -776,7 +778,13 @@ TEST_F(GameActionTests, BattleSimulation)
     SimulateBattle();
     
     // Create family battle combinations
-    const auto& cardFamiliesSet = CardDataRepository::GetInstance().GetCardFamilies();
+    auto cardFamiliesSet = CardDataRepository::GetInstance().GetCardFamilies();
+    cardFamiliesSet.erase(game_constants::DEMONS_GENERIC_FAMILY_NAME);
+    cardFamiliesSet.erase(game_constants::DEMONS_NORMAL_FAMILY_NAME);
+    cardFamiliesSet.erase(game_constants::DEMONS_MEDIUM_FAMILY_NAME);
+    cardFamiliesSet.erase(game_constants::DEMONS_HARD_FAMILY_NAME);
+    cardFamiliesSet.erase(game_constants::DEMONS_BOSS_FAMILY_NAME);
+    
     std::vector<strutils::StringId> cardFamilies(cardFamiliesSet.begin(), cardFamiliesSet.end());
     std::unordered_map<strutils::StringId, std::vector<strutils::StringId>, strutils::StringIdHasher> cardFamilyBattleCombinations;
     

@@ -167,3 +167,17 @@ void CardDataRepository::LoadCardData(bool loadCardAssets)
 }
 
 ///------------------------------------------------------------------------------------------------
+
+int CardDataRepository::InsertDynamicCardData(const CardData& cardData)
+{
+    auto allCardIds = GetAllCardIds();
+    std::sort(allCardIds.begin(), allCardIds.end());
+    
+    auto newCardId = allCardIds.back() + 1;
+    mCardDataMap[newCardId] = cardData;
+    mCardDataMap[newCardId].mCardId = newCardId;
+    
+    return newCardId;
+}
+
+///------------------------------------------------------------------------------------------------

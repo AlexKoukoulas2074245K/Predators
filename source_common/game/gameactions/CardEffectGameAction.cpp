@@ -352,6 +352,7 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
                 {
                     if
                     (
+                        cardData->get().mCardFamily != game_constants::DEMONS_GENERIC_FAMILY_NAME &&
                         cardData->get().mCardFamily != game_constants::DEMONS_NORMAL_FAMILY_NAME &&
                         cardData->get().mCardFamily != game_constants::DEMONS_MEDIUM_FAMILY_NAME &&
                         cardData->get().mCardFamily != game_constants::DEMONS_HARD_FAMILY_NAME &&
@@ -423,6 +424,18 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
     // Next turn effect
     if (std::find(mEffectComponents.cbegin(), mEffectComponents.cend(), effects::EFFECT_COMPONENT_ENEMY_BOARD_DEBUFF) != mEffectComponents.cend())
     {
+        // For Hero Cards
+        if (mBoardState->GetInactivePlayerState().mHasHeroCard)
+        {
+            mGameActionEngine->AddGameAction(CARD_BUFFED_DEBUFFED_ANIMATION_GAME_ACTION_NAME,
+            {
+                { CardBuffedDebuffedAnimationGameAction::CARD_INDEX_PARAM, "0"},
+                { CardBuffedDebuffedAnimationGameAction::PLAYER_INDEX_PARAM, std::to_string(game_constants::REMOTE_PLAYER_INDEX)},
+                { CardBuffedDebuffedAnimationGameAction::IS_BOARD_CARD_PARAM, "true" },
+                { CardBuffedDebuffedAnimationGameAction::SCALE_FACTOR_PARAM, std::to_string(CARD_SCALE_DOWN_FACTOR) }
+            });
+        }
+        
         mBoardState->GetInactivePlayerState().mBoardModifiers.mGlobalCardStatModifiers[sAffectedStatTypeToCardStatType.at(mAffectedBoardCardsStatType)] += mEffectValue;
         mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask |= effects::board_modifier_masks::BOARD_SIDE_DEBUFF;
         mCardBoardEffectMask = effects::board_modifier_masks::BOARD_SIDE_DEBUFF;

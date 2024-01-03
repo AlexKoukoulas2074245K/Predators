@@ -51,6 +51,8 @@ struct PlayerState
     int mPlayerPoisonStack = 0;
     int mPlayerTotalWeightAmmo = 0;
     int mPlayerCurrentWeightAmmo = 0;
+    int mPlayerWeightAmmoLimit = 0;
+    bool mHasHeroCard = false;
 };
 
 ///------------------------------------------------------------------------------------------------
