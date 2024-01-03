@@ -18,7 +18,7 @@ class HeroCardEntryGameAction final: public BaseGameAction
 {
 public:
     static const std::string LAST_PLAYED_CARD_INDEX_PARAM;
-
+    
 public:
     void VSetNewGameState() override;
     
@@ -31,8 +31,20 @@ public:
     const std::vector<std::string>& VGetRequiredExtraParamNames() const override;
     
 private:
-    int mPendingAnimations;
+    enum class AnimationState
+    {
+        ANIMATING_HERO_CARD,
+        INITIALIZE_HEALTH_CRYSTAL_ANIMATION,
+        ANIMATING_HEALTH_CRYSTAL,
+        COMPLETE
+    };
+    
+    AnimationState mAnimationState;
     int mHeroCardId;
+    glm::vec3 mTargetHealthCrystalBasePosition;
+    glm::vec3 mTargetHealthCrystalValuePosition;
+    glm::vec3 mTargetHealthCrystalBaseScale;
+    glm::vec3 mTargetHealthCrystalValueScale;
 };
 
 ///------------------------------------------------------------------------------------------------

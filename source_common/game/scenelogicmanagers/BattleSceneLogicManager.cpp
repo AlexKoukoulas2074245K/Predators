@@ -1250,7 +1250,10 @@ void BattleSceneLogicManager::OnApplicationMovedToBackground(const events::Appli
         OnSettingsButtonPressed();
     }
     
-    mBattleSerializer->FlushStateToFile();
+    if (!ProgressionDataRepository::GetInstance().GetNextStoryOpponentName().empty())
+    {
+        mBattleSerializer->FlushStateToFile();
+    }
 }
 
 ///------------------------------------------------------------------------------------------------

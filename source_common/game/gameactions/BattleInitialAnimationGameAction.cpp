@@ -20,6 +20,8 @@
 
 static const strutils::StringId BOARD_SCENE_OBJECT_NAME = strutils::StringId("board");
 static const strutils::StringId REPLAY_TEXT_SCENE_OBJECT_NAME = strutils::StringId("replay_text");
+static const strutils::StringId TOP_PLAYER_HEALTH_CONTAINER_BASE = strutils::StringId("health_crystal_top_base");
+static const strutils::StringId TOP_PLAYER_HEALTH_CONTAINER_VALUE = strutils::StringId("health_crystal_top_value");
 
 static const glm::vec3 BOARD_TARGET_POSITION = {-0.013f, 0.003f, 0.0f };
 static const glm::vec3 BOARD_TARGET_ROTATION = {0.00f, 0.000f, math::PI/2 };
@@ -72,6 +74,15 @@ void BattleInitialAnimationGameAction::VInitAnimation()
         }
         
         sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+        
+        if (!ProgressionDataRepository::GetInstance().GetNextStoryOpponentName().empty())
+        {
+            if (sceneObject->mName == TOP_PLAYER_HEALTH_CONTAINER_BASE || sceneObject->mName == TOP_PLAYER_HEALTH_CONTAINER_VALUE)
+            {
+                continue;
+            }
+        }
+        
         CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, 1.0f, BOARD_ITEMS_FADE_IN_DURATION_SECS, animation_flags::NONE, BOARD_ANIMATION_DURATION_SECS), [=]()
         {
             mPendingAnimations--;
