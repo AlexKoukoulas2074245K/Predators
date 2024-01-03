@@ -73,7 +73,7 @@ void SceneManager::LoadPredefinedObjectsFromDescriptorForScene(std::shared_ptr<S
     auto sceneDescriptorJsonResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(sceneDescriptorPath);
     const auto sceneDescriptorJson =  nlohmann::json::parse(resourceService.GetResource<resources::DataFileResource>(sceneDescriptorJsonResourceId).GetContents());
 #else
-    const auto sceneDescriptorJson = serial::BaseDataFileDeserializer(SCENE_DESCRIPTORS_PATH + scene->GetName().GetString(), serial::DataFileType::ASSET_FILE_TYPE).GetState();
+    const auto sceneDescriptorJson = serial::BaseDataFileDeserializer(SCENE_DESCRIPTORS_PATH + scene->GetName().GetString(), serial::DataFileType::ASSET_FILE_TYPE, serial::WarnOnFileNotFoundBehavior::WARN, serial::CheckSumValidationBehavior::VALIDATE_CHECKSUM).GetState();
 #endif
     
     for (const auto& childSceneJson: sceneDescriptorJson["children_scenes"])

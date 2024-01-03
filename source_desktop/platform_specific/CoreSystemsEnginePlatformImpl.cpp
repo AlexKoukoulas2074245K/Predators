@@ -437,8 +437,8 @@ void PreprocessDataFiles(const std::string& dataFolder)
 {
     auto writeJsonToBinary = [=](const std::string& dataAssetFileName)
     {
-        auto jsonState = serial::BaseDataFileDeserializer(dataFolder + dataAssetFileName, serial::DataFileType::ASSET_FILE_TYPE, true).GetState();
-        serial::BaseDataFileSerializer serializer(dataFolder + dataAssetFileName, serial::DataFileType::ASSET_FILE_TYPE, true);
+        auto jsonState = serial::BaseDataFileDeserializer(dataFolder + dataAssetFileName, serial::DataFileType::ASSET_FILE_TYPE, serial::WarnOnFileNotFoundBehavior::WARN, serial::CheckSumValidationBehavior::SKIP_CHECKSUM_VALIDATION).GetState();
+        serial::BaseDataFileSerializer serializer(dataFolder + dataAssetFileName, serial::DataFileType::ASSET_FILE_TYPE, serial::DataFileOpeningBehavior::OPEN_DATA_FILE_ON_CONSTRUCTION, true);
         serializer.GetState() = jsonState;
         serializer.FlushStateToFile();
     };

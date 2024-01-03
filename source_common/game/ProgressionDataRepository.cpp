@@ -6,6 +6,8 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <game/ProgressionDataRepository.h>
+#include <game/utils/StoryDeserializer.h>
+#include <game/utils/StorySerializer.h>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -17,7 +19,58 @@ ProgressionDataRepository& ProgressionDataRepository::GetInstance()
 
 ///------------------------------------------------------------------------------------------------
 
-ValueWithDelayedDisplay<int>& ProgressionDataRepository::CurrencyCoins()
+ProgressionDataRepository::ProgressionDataRepository()
+    : mStoryCurrentHealth(0)
+    , mCurrencyCoins(0)
+{
+    mStoryDataSerializer = std::make_unique<StorySerializer>();
+    
+    ResetStoryData();
+    
+    mStoryDataDeserializer = std::make_unique<StoryDeserializer>(*this);
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ProgressionDataRepository::ResetStoryData()
+{
+    mStoryDataSerializer->GetState().clear();
+    
+    mStoryCurrentHealth = ValueWithDelayedDisplay<int>(0, 0, [=](const int& newValue) { mStoryDataSerializer->GetState()["current_story_health"] = newValue; });
+    mCurrencyCoins = ValueWithDelayedDisplay<long long>(0, 0, [=](const long long& newValue) { mStoryDataSerializer->GetState()["currency_coins"] = newValue; });
+    
+    mCurrentStoryPlayerDeck.clear();
+    mNextTopPlayerDeck.clear();
+    mNextBotPlayerDeck.clear();
+    mNextStoryOpponentTexturePath.clear();
+    mNextStoryOpponentName.clear();
+    
+    mSelectedStoryMapNodePosition = {};
+    mCurrentStoryMapNodeCoord = game_constants::STORY_MAP_INIT_COORD;
+    mSelectedStoryMapNodeData = nullptr;
+    
+    mStoryMapGenerationSeed = 0;
+    mCurrentStoryMapNodeSeed = 0;
+    mCurrentEventScreenIndex = 0;
+    mNextBattleTopPlayerHealth = 0;
+    mNextBattleBotPlayerHealth = 0;
+    mNextBattleTopPlayerInitWeight = 0;
+    mNextBattleBotPlayerInitWeight = 0;
+    mNextBattleTopPlayerWeightLimit = 0;
+    mNextBattleBotPlayerWeightLimit = 0;
+    mNextStoryOpponentDamage = 0;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ProgressionDataRepository::FlushStateToFile()
+{
+    mStoryDataSerializer->FlushStateToFile();
+}
+
+///------------------------------------------------------------------------------------------------
+
+ValueWithDelayedDisplay<long long>& ProgressionDataRepository::CurrencyCoins()
 {
     return mCurrencyCoins;
 }
@@ -55,6 +108,7 @@ StoryMapSceneType ProgressionDataRepository::GetCurrentStoryMapSceneType() const
 void ProgressionDataRepository::SetCurrentStoryMapSceneType(const StoryMapSceneType currentStoryMapSceneType)
 {
     mCurrentStoryMapSceneType = currentStoryMapSceneType;
+    mStoryDataSerializer->GetState()["current_story_map_scene_type"] = static_cast<int>(currentStoryMapSceneType);
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -69,6 +123,22 @@ const int& ProgressionDataRepository::GetCurrentEventScreenIndex() const
 void ProgressionDataRepository::SetCurrentEventScreenIndex(const int currentEventScreenIndex)
 {
     mCurrentEventScreenIndex = currentEventScreenIndex;
+    mStoryDataSerializer->GetState()["current_event_screen"] = currentEventScreenIndex;
+}
+
+///------------------------------------------------------------------------------------------------
+
+const std::vector<int>& ProgressionDataRepository::GetCurrentStoryPlayerDeck() const
+{
+    return mCurrentStoryPlayerDeck;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ProgressionDataRepository::SetCurrentStoryPlayerDeck(const std::vector<int>& deck)
+{
+    mCurrentStoryPlayerDeck = deck;
+    mStoryDataSerializer->GetState()["current_story_player_deck"] = deck;
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -83,6 +153,7 @@ const std::vector<int>& ProgressionDataRepository::GetNextTopPlayerDeck() const
 void ProgressionDataRepository::SetNextTopPlayerDeck(const std::vector<int>& deck)
 {
     mNextTopPlayerDeck = deck;
+    mStoryDataSerializer->GetState()["next_top_player_deck"] = deck;
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -97,6 +168,7 @@ const std::vector<int>& ProgressionDataRepository::GetNextBotPlayerDeck() const
 void ProgressionDataRepository::SetNextBotPlayerDeck(const std::vector<int>& deck)
 {
     mNextBotPlayerDeck = deck;
+    mStoryDataSerializer->GetState()["next_bot_player_deck"] = deck;
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -111,6 +183,7 @@ const int& ProgressionDataRepository::GetStoryMapGenerationSeed() const
 void ProgressionDataRepository::SetStoryMapGenerationSeed(const int storyMapGenerationSeed)
 {
     mStoryMapGenerationSeed = storyMapGenerationSeed;
+    mStoryDataSerializer->GetState()["story_seed"] = storyMapGenerationSeed;
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -125,6 +198,7 @@ const int& ProgressionDataRepository::GetCurrentStoryMapNodeSeed() const
 void ProgressionDataRepository::SetCurrentStoryMapNodeSeed(const int currentStoryMapNodeSeed)
 {
     mCurrentStoryMapNodeSeed = currentStoryMapNodeSeed;
+    mStoryDataSerializer->GetState()["current_story_map_node_seed"] = currentStoryMapNodeSeed;
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -139,6 +213,7 @@ const int& ProgressionDataRepository::GetNextBattleTopPlayerHealth() const
 void ProgressionDataRepository::SetNextBattleTopPlayerHealth(const int nextBattleTopPlayerHealth)
 {
     mNextBattleTopPlayerHealth = nextBattleTopPlayerHealth;
+    mStoryDataSerializer->GetState()["next_battle_top_health"] = nextBattleTopPlayerHealth;
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -153,6 +228,7 @@ const int& ProgressionDataRepository::GetNextBattleBotPlayerHealth() const
 void ProgressionDataRepository::SetNextBattleBotPlayerHealth(const int nextBattleBotPlayerHealth)
 {
     mNextBattleBotPlayerHealth = nextBattleBotPlayerHealth;
+    mStoryDataSerializer->GetState()["next_battle_bot_health"] = nextBattleBotPlayerHealth;
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -167,6 +243,7 @@ const int& ProgressionDataRepository::GetNextBattleTopPlayerInitWeight() const
 void ProgressionDataRepository::SetNextBattleTopPlayerInitWeight(const int nextBattleTopPlayerInitWeight)
 {
     mNextBattleTopPlayerInitWeight = nextBattleTopPlayerInitWeight;
+    mStoryDataSerializer->GetState()["next_battle_top_init_weight"] = nextBattleTopPlayerInitWeight;
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -181,6 +258,7 @@ const int& ProgressionDataRepository::GetNextBattleBotPlayerInitWeight() const
 void ProgressionDataRepository::SetNextBattleBotPlayerInitWeight(const int nextBattleBotPlayerInitWeight)
 {
     mNextBattleBotPlayerInitWeight = nextBattleBotPlayerInitWeight;
+    mStoryDataSerializer->GetState()["next_battle_bot_init_weight"] = nextBattleBotPlayerInitWeight;
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -195,6 +273,7 @@ const int& ProgressionDataRepository::GetNextBattleTopPlayerWeightLimit() const
 void ProgressionDataRepository::SetNextBattleTopPlayerWeightLimit(const int nextBattleTopPlayerWeightLimit)
 {
     mNextBattleTopPlayerWeightLimit = nextBattleTopPlayerWeightLimit;
+    mStoryDataSerializer->GetState()["next_battle_top_weight_limit"] = nextBattleTopPlayerWeightLimit;
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -209,6 +288,7 @@ const int& ProgressionDataRepository::GetNextBattleBotPlayerWeightLimit() const
 void ProgressionDataRepository::SetNextBattleBotPlayerWeightLimit(const int nextBattleBotPlayerWeightLimit)
 {
     mNextBattleBotPlayerWeightLimit = nextBattleBotPlayerWeightLimit;
+    mStoryDataSerializer->GetState()["next_battle_bot_weight_limit"] = nextBattleBotPlayerWeightLimit;
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -223,6 +303,7 @@ const int& ProgressionDataRepository::GetNextStoryOpponentDamage() const
 void ProgressionDataRepository::SetNextStoryOpponentDamage(const int nextStoryOpponentDamage)
 {
     mNextStoryOpponentDamage = nextStoryOpponentDamage;
+    mStoryDataSerializer->GetState()["next_story_opponent_damage"] = nextStoryOpponentDamage;
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -237,6 +318,11 @@ const glm::ivec2& ProgressionDataRepository::GetCurrentStoryMapNodeCoord() const
 void ProgressionDataRepository::SetCurrentStoryMapNodeCoord(const glm::ivec2& currentStoryMapNodeCoord)
 {
     mCurrentStoryMapNodeCoord = currentStoryMapNodeCoord;
+    
+    nlohmann::json currentStoryMapCoordJson;
+    currentStoryMapCoordJson["col"] = currentStoryMapNodeCoord.x;
+    currentStoryMapCoordJson["row"] = currentStoryMapNodeCoord.y;
+    mStoryDataSerializer->GetState()["current_story_map_node_coord"] = currentStoryMapCoordJson;
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -279,6 +365,7 @@ const std::string& ProgressionDataRepository::GetNextStoryOpponentTexturePath() 
 void ProgressionDataRepository::SetNextStoryOpponentTexturePath(const std::string& nextStoryOpponentTexturePath)
 {
     mNextStoryOpponentTexturePath = nextStoryOpponentTexturePath;
+    mStoryDataSerializer->GetState()["next_story_opponent_path"] = nextStoryOpponentTexturePath;
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -293,6 +380,7 @@ const std::string& ProgressionDataRepository::GetNextStoryOpponentName() const
 void ProgressionDataRepository::SetNextStoryOpponentName(const std::string& nextStoryOpponentName)
 {
     mNextStoryOpponentName = nextStoryOpponentName;
+    mStoryDataSerializer->GetState()["next_story_opponent_name"] = nextStoryOpponentName;
 }
 
 ///------------------------------------------------------------------------------------------------

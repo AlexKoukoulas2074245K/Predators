@@ -67,6 +67,8 @@ Game::~Game(){}
 
 void Game::Init()
 {
+    ProgressionDataRepository::GetInstance();
+    
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
     systemsEngine.GetFontRepository().LoadFont(game_constants::DEFAULT_FONT_NAME.GetString(), resources::ResourceReloadMode::DONT_RELOAD);
     systemsEngine.GetFontRepository().LoadFont(game_constants::DEFAULT_FONT_BLACK_NAME.GetString(), resources::ResourceReloadMode::DONT_RELOAD);
@@ -140,6 +142,7 @@ void Game::Update(const float dtMillis)
 
 void Game::ApplicationMovedToBackground()
 {
+    ProgressionDataRepository::GetInstance().FlushStateToFile();
     events::EventSystem::GetInstance().DispatchEvent<events::ApplicationMovedToBackgroundEvent>();
 }
 

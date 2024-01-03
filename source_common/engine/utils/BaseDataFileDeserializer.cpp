@@ -37,6 +37,11 @@ bool ValidateChecksum(T& contentsContainer)
         contentsContainer.pop_back();
     }
     
+    if (contentsContainer.empty())
+    {
+        return false;
+    }
+    
     contentsContainer.pop_back();
     
     if (contentsContainer.empty())
@@ -61,7 +66,7 @@ bool ValidateChecksum(T& contentsContainer)
 
 ///------------------------------------------------------------------------------------------------
 
-BaseDataFileDeserializer::BaseDataFileDeserializer(const std::string& fileNameWithoutExtension, const DataFileType& dataFileType, const bool skipCheckSumValidation /* = false */)
+BaseDataFileDeserializer::BaseDataFileDeserializer(const std::string& fileNameWithoutExtension, const DataFileType& dataFileType, const WarnOnFileNotFoundBehavior warnOnFnFBehavior, const CheckSumValidationBehavior checkSumValidationBehavior)
 {
 #if !defined(NDEBUG)
     std::string dataFileExtension = ".json";
@@ -78,7 +83,7 @@ BaseDataFileDeserializer::BaseDataFileDeserializer(const std::string& fileNameWi
         buffer << dataFile.rdbuf();
         auto contents = buffer.str();
         
-        if (!skipCheckSumValidation && !ValidateChecksum(contents))
+        if (checkSumValidationBehavior == CheckSumValidationBehavior::VALIDATE_CHECKSUM && !ValidateChecksum(contents))
         {
             ospopups::ShowMessageBox(ospopups::MessageBoxType::ERROR, "Corrupted file", ("Data File " + filePath + " is corrupted.").c_str());
             return;
@@ -95,7 +100,7 @@ BaseDataFileDeserializer::BaseDataFileDeserializer(const std::string& fileNameWi
     {
         std::vector<std::uint8_t> contents((std::istreambuf_iterator<char>(dataFile)), std::istreambuf_iterator<char>());
         
-        if (!skipCheckSumValidation && !ValidateChecksum(contents))
+        if (checkSumValidationBehavior == CheckSumValidationBehavior::VALIDATE_CHECKSUM && !ValidateChecksum(contents))
         {
             ospopups::ShowMessageBox(ospopups::MessageBoxType::ERROR, "Corrupted file", ("Data File " + filePath + " is corrupted.").c_str());
             return;
@@ -107,7 +112,7 @@ BaseDataFileDeserializer::BaseDataFileDeserializer(const std::string& fileNameWi
 #endif
         }
     }
-    else
+    else if (warnOnFnFBehavior == WarnOnFileNotFoundBehavior::WARN)
     {
         ospopups::ShowMessageBox(ospopups::MessageBoxType::ERROR, "File not found", ("Data File " + filePath + " not found.").c_str());
     }

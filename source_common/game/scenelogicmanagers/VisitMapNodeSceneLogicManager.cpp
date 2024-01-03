@@ -309,6 +309,7 @@ void VisitMapNodeSceneLogicManager::InitializeNodeVisitData()
             ProgressionDataRepository::GetInstance().SetNextBattleTopPlayerWeightLimit(std::stoi(std::get<scene::TextSceneObjectData>(nodeWeightTextSceneObject->mSceneObjectTypeData).mText));
             
             // Populate local player stats
+            ProgressionDataRepository::GetInstance().SetNextBotPlayerDeck(ProgressionDataRepository::GetInstance().GetCurrentStoryPlayerDeck());
             ProgressionDataRepository::GetInstance().SetNextBattleBotPlayerHealth(ProgressionDataRepository::GetInstance().StoryCurrentHealth().GetValue());
             ProgressionDataRepository::GetInstance().SetNextBattleBotPlayerInitWeight(game_constants::BOT_PLAYER_DEFAULT_WEIGHT - 1);
             ProgressionDataRepository::GetInstance().SetNextBattleBotPlayerWeightLimit(game_constants::BOT_PLAYER_DEFAULT_WEIGHT_LIMIT);

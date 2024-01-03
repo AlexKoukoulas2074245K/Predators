@@ -21,10 +21,26 @@ namespace serial
 
 ///------------------------------------------------------------------------------------------------
 
+enum class WarnOnFileNotFoundBehavior
+{
+    WARN,
+    DO_NOT_WARN
+};
+
+///------------------------------------------------------------------------------------------------
+
+enum class CheckSumValidationBehavior
+{
+    VALIDATE_CHECKSUM,
+    SKIP_CHECKSUM_VALIDATION
+};
+
+///------------------------------------------------------------------------------------------------
+
 class BaseDataFileDeserializer
 {
 public:
-    BaseDataFileDeserializer(const std::string& fileNameWithoutExtension, const DataFileType& dataFileType, const bool skipCheckSumValidation = false);
+    BaseDataFileDeserializer(const std::string& fileNameWithoutExtension, const DataFileType& dataFileType, const WarnOnFileNotFoundBehavior warnOnFnFBehavior, const CheckSumValidationBehavior checkSumValidationBehavior);
     virtual ~BaseDataFileDeserializer() = default;
     
     const nlohmann::json& GetState() const;

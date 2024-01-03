@@ -36,6 +36,8 @@ enum class StoryMapSceneType
 
 ///------------------------------------------------------------------------------------------------
 
+class StoryDeserializer;
+class StorySerializer;
 class ProgressionDataRepository final
 {
 public:
@@ -47,7 +49,10 @@ public:
     const ProgressionDataRepository& operator = (const ProgressionDataRepository&) = delete;
     ProgressionDataRepository& operator = (ProgressionDataRepository&&) = delete;
     
-    ValueWithDelayedDisplay<int>& CurrencyCoins();
+    void ResetStoryData();
+    void FlushStateToFile();
+    
+    ValueWithDelayedDisplay<long long>& CurrencyCoins();
     ValueWithDelayedDisplay<int>& StoryCurrentHealth();
     
     BattleControlType GetNextBattleControlType() const;
@@ -55,6 +60,9 @@ public:
     
     StoryMapSceneType GetCurrentStoryMapSceneType() const;
     void SetCurrentStoryMapSceneType(const StoryMapSceneType currentStoryMapSceneType);
+    
+    const std::vector<int>& GetCurrentStoryPlayerDeck() const;
+    void SetCurrentStoryPlayerDeck(const std::vector<int>& deck);
     
     const std::vector<int>& GetNextTopPlayerDeck() const;
     void SetNextTopPlayerDeck(const std::vector<int>& deck);
@@ -108,11 +116,14 @@ public:
     void SetNextStoryOpponentName(const std::string& nextStoryOpponentName);
     
 private:
-    ProgressionDataRepository() = default;
+    ProgressionDataRepository();
     
 private:
+    std::unique_ptr<StoryDeserializer> mStoryDataDeserializer;
+    std::unique_ptr<StorySerializer> mStoryDataSerializer;
     BattleControlType mNextBattleControlType;
     StoryMapSceneType mCurrentStoryMapSceneType;
+    std::vector<int> mCurrentStoryPlayerDeck;
     std::vector<int> mNextTopPlayerDeck;
     std::vector<int> mNextBotPlayerDeck;
     std::string mNextStoryOpponentTexturePath;
@@ -120,8 +131,8 @@ private:
     glm::vec3 mSelectedStoryMapNodePosition = {};
     glm::ivec2 mCurrentStoryMapNodeCoord = game_constants::STORY_MAP_INIT_COORD;
     const StoryMap::NodeData* mSelectedStoryMapNodeData = nullptr;
-    ValueWithDelayedDisplay<int> mStoryCurrentHealth = 0;
-    ValueWithDelayedDisplay<int> mCurrencyCoins = 0;
+    ValueWithDelayedDisplay<int> mStoryCurrentHealth;
+    ValueWithDelayedDisplay<long long> mCurrencyCoins;
     int mStoryMapGenerationSeed = 0;
     int mCurrentStoryMapNodeSeed = 0;
     int mCurrentEventScreenIndex = 0;

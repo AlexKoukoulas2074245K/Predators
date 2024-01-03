@@ -22,10 +22,18 @@ namespace serial
 
 ///------------------------------------------------------------------------------------------------
 
+enum class DataFileOpeningBehavior
+{
+    OPEN_DATA_FILE_ON_CONSTRUCTION,
+    DELAY_DATA_FILE_OPENING_TILL_FLUSH
+};
+
+///------------------------------------------------------------------------------------------------
+
 class BaseDataFileSerializer
 {
 public:
-    BaseDataFileSerializer(const std::string& fileNameWithoutExtension, const DataFileType& dataFileType, const bool forceWriteBinary = false);
+    BaseDataFileSerializer(const std::string& fileNameWithoutExtension, const DataFileType& dataFileType, const DataFileOpeningBehavior fileOpeningBehavior, const bool forceWriteBinary = false);
     virtual ~BaseDataFileSerializer() = default;
     
     void FlushStateToFile();

@@ -65,7 +65,7 @@ void FontRepository::LoadFont(const std::string& fontName, const resources::Reso
     auto fontDefinitionJsonResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_DATA_ROOT + fontDefinitionName + ".json", resourceReloadMode);
     const auto fontJson =  nlohmann::json::parse(CoreSystemsEngine::GetInstance().GetResourceLoadingService().GetResource<resources::DataFileResource>(fontDefinitionJsonResourceId).GetContents());
 #else
-    const auto fontJson = serial::BaseDataFileDeserializer(fontDefinitionName, serial::DataFileType::ASSET_FILE_TYPE).GetState();
+    const auto fontJson = serial::BaseDataFileDeserializer(fontDefinitionName, serial::DataFileType::ASSET_FILE_TYPE, serial::WarnOnFileNotFoundBehavior::WARN, serial::CheckSumValidationBehavior::VALIDATE_CHECKSUM).GetState();
 #endif
     
     Font font;

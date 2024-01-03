@@ -16,6 +16,15 @@
             "alpha": 1.0
         },
         {
+            "name": "replay_text",
+            "font": "font",
+            "text": "Replaying",
+            "scale": { "x": 0.00045, "y": 0.00045, "z": 0.00045 },
+            "position": { "x": -0.071, "y": 0.014, "z": 22.5 },
+            "alpha": 0.0,
+            "invisible": true
+        },
+        {
             "name": "card_location_indicator",
             "texture": "card_location_mask.png",
             "shader": "card_board_location_perlin_noise.vs",

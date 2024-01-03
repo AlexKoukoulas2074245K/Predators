@@ -43,6 +43,7 @@ static const strutils::StringId CARD_TOOLTIP_SCENE_OBJECT_NAME = strutils::Strin
 static const strutils::StringId HISTORY_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("history_button");
 static const strutils::StringId SETTINGS_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("settings_button");
 static const strutils::StringId HISTORY_OVERLAY_SCENE_OBJECT_NAME = strutils::StringId("history_overlay");
+static const strutils::StringId REPLAY_TEXT_SCENE_OBJECT_NAME = strutils::StringId("replay_text");
 static const strutils::StringId CARD_TOOLTIP_REVEAL_THRESHOLD_UNIFORM_NAME = strutils::StringId("reveal_threshold");
 static const strutils::StringId CARD_TOOLTIP_REVEAL_RGB_EXPONENT_UNIFORM_NAME = strutils::StringId("reveal_rgb_exponent");
 static const strutils::StringId IDLE_GAME_ACTION_NAME = strutils::StringId("IdleGameAction");
@@ -146,8 +147,12 @@ static const float TURN_POINTER_INTERACTION_PULSE_DURATION = 0.1f;
 static const float OVERLAY_SCENE_SPEED_ANIMATION_TARGET_DURATION = 0.5f;
 static const float CARD_HISTORY_CONTAINER_Z = 24.0f;
 static const float HISTORY_SCENE_FADE_IN_OUT_DURATION_SECS = 0.5f;
+static const float REPLAY_TEXT_FADE_IN_OUT_DURATION_SECS = 0.5f;
 static const float HISTORY_SCENE_FADE_IN_OUT_ITEM_OFFSETS = 0.4f;
 static const float BUTTONS_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 28.5f;
+static const float REPLAY_TEXT_PULSE_SCALE_FACTOR = 1.05f;
+static const float REPLAY_TEXT_INTER_PULSE_DURATION_SECS = 1.0f;
+static const float REPLAY_TEXT_MAX_ALPHA = 0.75f;
 
 #if defined(MOBILE_FLOW)
 static const float MOBILE_DISTANCE_FROM_CARD_LOCATION_INDICATOR = 0.003f;
@@ -259,9 +264,11 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
         
         mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = replayEngine->GetTopPlayerDeck();
         mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = replayEngine->GetBotPlayerDeck();
+        mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerHealth = replayEngine->GetTopPlayerStartingHealth();
+        mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth = replayEngine->GetBotPlayerStartingHealth();
     }
     
-    mBattleSerializer = std::make_unique<BattleSerializer>(seed, mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards, mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards);
+    mBattleSerializer = std::make_unique<BattleSerializer>(seed, mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards, mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards, mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerHealth, mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth);
     mActionEngine = std::make_unique<GameActionEngine>(GameActionEngine::EngineOperationMode::ANIMATED, seed, mBoardState.get(), this, mRuleEngine.get());
     mPlayerActionGenerationEngine = std::make_unique<PlayerActionGenerationEngine>(mRuleEngine.get(), mActionEngine.get(), PlayerActionGenerationEngine::ActionGenerationType::OPTIMISED);
     
@@ -277,6 +284,14 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
     if (mCurrentBattleControlType == BattleControlType::REPLAY)
     {
         replayEngine->ReplayActions(mActionEngine.get());
+        
+        if (mActionEngine->GetActionCount() > 2)
+        {
+            auto replayTextSceneObject = scene->FindSceneObject(REPLAY_TEXT_SCENE_OBJECT_NAME);
+            replayTextSceneObject->mInvisible = false;
+            CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(replayTextSceneObject, REPLAY_TEXT_MAX_ALPHA, REPLAY_TEXT_FADE_IN_OUT_DURATION_SECS), [=](){});
+            CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::PulseAnimation>(replayTextSceneObject, REPLAY_TEXT_PULSE_SCALE_FACTOR, REPLAY_TEXT_INTER_PULSE_DURATION_SECS, animation_flags::ANIMATE_CONTINUOUSLY), [](){});
+        }
     }
     else
     {
@@ -400,7 +415,19 @@ void BattleSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scen
         if (mActionEngine->GetActiveGameActionName() == IDLE_GAME_ACTION_NAME)
         {
             if (mCurrentBattleControlType == BattleControlType::AI_TOP_BOT || (mCurrentBattleControlType == BattleControlType::AI_TOP_ONLY && mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX))
-            mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get());
+            {
+                mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get());
+            }
+            else if (mCurrentBattleControlType == BattleControlType::REPLAY)
+            {
+                CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(activeScene->FindSceneObject(REPLAY_TEXT_SCENE_OBJECT_NAME), 0.0f, REPLAY_TEXT_FADE_IN_OUT_DURATION_SECS), [=]()
+                {
+                    activeScene->FindSceneObject(REPLAY_TEXT_SCENE_OBJECT_NAME)->mInvisible = true;
+                });
+                
+                mCurrentBattleControlType = BattleControlType::AI_TOP_ONLY;
+                ProgressionDataRepository::GetInstance().SetNextBattleControlType(mCurrentBattleControlType);
+            }
         }
         
         if (mCurrentBattleControlType == BattleControlType::AI_TOP_ONLY && mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX)

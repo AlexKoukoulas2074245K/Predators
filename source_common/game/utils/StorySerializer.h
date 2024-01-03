@@ -1,31 +1,27 @@
 ///------------------------------------------------------------------------------------------------
-///  BattleSerializer.h
+///  StorySerializer.h
 ///  Predators                                                                                            
 ///                                                                                                
-///  Created by Alex Koukoulas on 27/10/2023                                                       
+///  Created by Alex Koukoulas on 03/01/2024
 ///------------------------------------------------------------------------------------------------
 
-#ifndef BattleSerializer_h
-#define BattleSerializer_h
+#ifndef StorySerializer_h
+#define StorySerializer_h
 
 ///------------------------------------------------------------------------------------------------
 
 #include <engine/utils/BaseDataFileSerializer.h>
-#include <game/events/EventSystem.h>
 #include <engine/utils/StringUtils.h>
 #include <vector>
 
 ///------------------------------------------------------------------------------------------------
 
-class BattleSerializer final: public serial::BaseDataFileSerializer, public events::IListener
+class StorySerializer final: public serial::BaseDataFileSerializer
 {
 public:
-    BattleSerializer(const int gameSeed, const std::vector<int>& topPlayerDeck, const std::vector<int>& botPlayerDeck, int topPlayerStartingHealth, int botPlayerStartingHealth);
-
-private:
-    void OnSerializableGameActionEvent(const events::SerializableGameActionEvent& event);
+    StorySerializer();
 };
 
 ///------------------------------------------------------------------------------------------------
 
-#endif /* BattleSerializer_h */
+#endif /* StorySerializer_h */

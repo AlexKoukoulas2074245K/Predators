@@ -13,11 +13,13 @@
 ///------------------------------------------------------------------------------------------------
 
 BattleDeserializer::BattleDeserializer()
-    : serial::BaseDataFileDeserializer("last_battle", serial::DataFileType::PERSISTENCE_FILE_TYPE)
+    : serial::BaseDataFileDeserializer("last_battle", serial::DataFileType::PERSISTENCE_FILE_TYPE, serial::WarnOnFileNotFoundBehavior::WARN, serial::CheckSumValidationBehavior::VALIDATE_CHECKSUM)
 {
     mGameFileSeed = mState["seed"].get<int>();
     mTopPlayerDeck = mState["top_deck"].get<std::vector<int>>();
     mBotPlayerDeck = mState["bot_deck"].get<std::vector<int>>();
+    mTopPlayerStartingHealth = mState["top_player_starting_health"].get<int>();
+    mBotPlayerStartingHealth = mState["bot_player_starting_health"].get<int>();
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -25,6 +27,20 @@ BattleDeserializer::BattleDeserializer()
 int BattleDeserializer::GetGameFileSeed() const
 {
     return mGameFileSeed;
+}
+
+///------------------------------------------------------------------------------------------------
+
+int BattleDeserializer::GetTopPlayerStartingHealth() const
+{
+    return mTopPlayerStartingHealth;
+}
+
+///------------------------------------------------------------------------------------------------
+
+int BattleDeserializer::GetBotPlayerStartingHealth() const
+{
+    return mBotPlayerStartingHealth;
 }
 
 ///------------------------------------------------------------------------------------------------

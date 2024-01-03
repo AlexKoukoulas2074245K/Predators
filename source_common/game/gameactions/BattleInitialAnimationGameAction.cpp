@@ -19,6 +19,7 @@
 ///------------------------------------------------------------------------------------------------
 
 static const strutils::StringId BOARD_SCENE_OBJECT_NAME = strutils::StringId("board");
+static const strutils::StringId REPLAY_TEXT_SCENE_OBJECT_NAME = strutils::StringId("replay_text");
 
 static const glm::vec3 BOARD_TARGET_POSITION = {-0.013f, 0.003f, 0.0f };
 static const glm::vec3 BOARD_TARGET_ROTATION = {0.00f, 0.000f, math::PI/2 };
@@ -65,7 +66,7 @@ void BattleInitialAnimationGameAction::VInitAnimation()
             continue;
         }
         
-        if (sceneObject->mName == BOARD_SCENE_OBJECT_NAME)
+        if (sceneObject->mName == BOARD_SCENE_OBJECT_NAME || sceneObject->mName == REPLAY_TEXT_SCENE_OBJECT_NAME)
         {
             continue;
         }

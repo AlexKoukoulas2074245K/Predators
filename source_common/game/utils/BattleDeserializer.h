@@ -22,6 +22,9 @@ public:
     BattleDeserializer();
     
     int GetGameFileSeed() const;
+    int GetTopPlayerStartingHealth() const;
+    int GetBotPlayerStartingHealth() const;
+    
     const std::vector<int>& GetTopPlayerDeck() const;
     const std::vector<int>& GetBotPlayerDeck() const;
     
@@ -31,6 +34,8 @@ private:
     int mGameFileSeed;
     std::vector<int> mTopPlayerDeck;
     std::vector<int> mBotPlayerDeck;
+    int mTopPlayerStartingHealth;
+    int mBotPlayerStartingHealth;
 };
 
 ///------------------------------------------------------------------------------------------------

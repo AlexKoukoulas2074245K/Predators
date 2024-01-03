@@ -19,7 +19,7 @@ namespace serial
 
 ///------------------------------------------------------------------------------------------------
 
-BaseDataFileSerializer::BaseDataFileSerializer(const std::string& fileNameWithoutExtension, const DataFileType& dataFileType, const bool forceWriteBinary /* = false */)
+BaseDataFileSerializer::BaseDataFileSerializer(const std::string& fileNameWithoutExtension, const DataFileType& dataFileType, const DataFileOpeningBehavior fileOpeningBehavior, const bool forceWriteBinary /* = false */)
     : mDataFileType(dataFileType)
     , mWriteBinary(forceWriteBinary)
 {
@@ -30,7 +30,11 @@ BaseDataFileSerializer::BaseDataFileSerializer(const std::string& fileNameWithou
     std::string dataFileExtension = mWriteBinary ? ".bin" : ".json";
     
     mFilename = fileNameWithoutExtension + dataFileExtension;
-    OpenDataFile();
+    
+    if (fileOpeningBehavior == DataFileOpeningBehavior::OPEN_DATA_FILE_ON_CONSTRUCTION)
+    {
+        OpenDataFile();
+    }
 }
 
 ///------------------------------------------------------------------------------------------------
