@@ -70,6 +70,20 @@ void ProgressionDataRepository::FlushStateToFile()
 
 ///------------------------------------------------------------------------------------------------
 
+QuickPlayData* ProgressionDataRepository::GetQuickPlayData() const
+{
+    return mQuickPlayData.get();
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ProgressionDataRepository::SetQuickPlayData(std::unique_ptr<QuickPlayData> quickPlayData)
+{
+    mQuickPlayData = std::move(quickPlayData);
+}
+
+///------------------------------------------------------------------------------------------------
+
 ValueWithDelayedDisplay<long long>& ProgressionDataRepository::CurrencyCoins()
 {
     return mCurrencyCoins;

@@ -140,6 +140,9 @@ void MainMenuSceneLogicManager::VInitSceneCamera(std::shared_ptr<scene::Scene>)
 
 void MainMenuSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 {
+    ProgressionDataRepository::GetInstance().SetQuickPlayData(nullptr);
+    mQuickPlayData = std::make_unique<QuickPlayData>();
+    
     CardDataRepository::GetInstance().LoadCardData(true);
     mPreviousSubSceneStack = std::stack<SubSceneType>();
     mActiveSubScene = SubSceneType::NONE;
@@ -177,7 +180,7 @@ void MainMenuSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
     if (mCardFamilyContainerTop)
     {
         auto containerUpdateResult = mCardFamilyContainerTop->Update(dtMillis);
-        if (containerUpdateResult.mInteractedElementId != -1 && ProgressionDataRepository::GetInstance().GetNextBattleControlType() != BattleControlType::REPLAY)
+        if (containerUpdateResult.mInteractedElementId != -1 && mQuickPlayData->mBattleControlType != BattleControlType::REPLAY)
         {
             DeckSelected(containerUpdateResult.mInteractedElementId, true);
         }
@@ -186,7 +189,7 @@ void MainMenuSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
     if (mCardFamilyContainerBot)
     {
         auto containerUpdateResult = mCardFamilyContainerBot->Update(dtMillis);
-        if (containerUpdateResult.mInteractedElementId != -1 && ProgressionDataRepository::GetInstance().GetNextBattleControlType() != BattleControlType::REPLAY)
+        if (containerUpdateResult.mInteractedElementId != -1 && mQuickPlayData->mBattleControlType != BattleControlType::REPLAY)
         {
             DeckSelected(containerUpdateResult.mInteractedElementId, false);
         }
@@ -503,7 +506,8 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                 game_constants::DEFAULT_FONT_NAME,
                 "Start Battle",
                 START_BATTLE_BUTTON_NAME,
-                [=](){ events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::BATTLE_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE); },
+                [=](){ ProgressionDataRepository::GetInstance().SetQuickPlayData(std::move(mQuickPlayData));
+                    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::BATTLE_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE); },
                 *scene
             ));
             
@@ -582,15 +586,7 @@ void MainMenuSceneLogicManager::BattleModeSelected(const strutils::StringId& but
     if (!buttonName.isEmpty())
     {
         scene->FindSceneObject(buttonName)->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = SELECTED_BUTTON_COLOR;
-        ProgressionDataRepository::GetInstance().SetNextBattleControlType(BATTLE_MODE_BUTTON_NAMES_TO_BATTLE_CONTROL_TYPE.at(buttonName));
-        ProgressionDataRepository::GetInstance().SetNextBattleTopPlayerHealth(game_constants::TOP_PLAYER_DEFAULT_HEALTH);
-        ProgressionDataRepository::GetInstance().SetNextBattleBotPlayerHealth(game_constants::BOT_PLAYER_DEFAULT_HEALTH);
-        ProgressionDataRepository::GetInstance().SetNextBattleTopPlayerInitWeight(game_constants::TOP_PLAYER_DEFAULT_WEIGHT);
-        ProgressionDataRepository::GetInstance().SetNextBattleBotPlayerInitWeight(game_constants::BOT_PLAYER_DEFAULT_WEIGHT);
-        ProgressionDataRepository::GetInstance().SetNextBattleTopPlayerWeightLimit(game_constants::TOP_PLAYER_DEFAULT_WEIGHT_LIMIT);
-        ProgressionDataRepository::GetInstance().SetNextBattleBotPlayerWeightLimit(game_constants::BOT_PLAYER_DEFAULT_WEIGHT_LIMIT);
-        ProgressionDataRepository::GetInstance().SetNextStoryOpponentTexturePath("");
-        ProgressionDataRepository::GetInstance().SetNextStoryOpponentName("");
+        mQuickPlayData->mBattleControlType = BATTLE_MODE_BUTTON_NAMES_TO_BATTLE_CONTROL_TYPE.at(buttonName);
         
         auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
         for (auto& deckSelectionSceneObject: mDeckSelectionSceneObjects)
@@ -616,11 +612,11 @@ void MainMenuSceneLogicManager::DeckSelected(const int selectedDeckIndex, const 
     
     if (forTopPlayer)
     {
-        ProgressionDataRepository::GetInstance().SetNextTopPlayerDeck(CardDataRepository::GetInstance().GetCardIdsByFamily(respectiveDeckContainer->GetItems()[selectedDeckIndex].mCardFamilyName));
+        mQuickPlayData->mTopPlayerDeck = CardDataRepository::GetInstance().GetCardIdsByFamily(respectiveDeckContainer->GetItems()[selectedDeckIndex].mCardFamilyName);
     }
     else
     {
-        ProgressionDataRepository::GetInstance().SetNextBotPlayerDeck(CardDataRepository::GetInstance().GetCardIdsByFamily(respectiveDeckContainer->GetItems()[selectedDeckIndex].mCardFamilyName));
+        mQuickPlayData->mBotPlayerDeck = CardDataRepository::GetInstance().GetCardIdsByFamily(respectiveDeckContainer->GetItems()[selectedDeckIndex].mCardFamilyName);
     }
 }
 
@@ -643,7 +639,6 @@ void MainMenuSceneLogicManager::InitializeNewStoryData()
     ProgressionDataRepository::GetInstance().SetNextBotPlayerDeck(CardDataRepository::GetInstance().GetCardIdsByFamily(game_constants::DINOSAURS_FAMILY_NAME));
     ProgressionDataRepository::GetInstance().SetCurrentStoryPlayerDeck(CardDataRepository::GetInstance().GetCardIdsByFamily(game_constants::DINOSAURS_FAMILY_NAME));
     
-    ProgressionDataRepository::GetInstance().SetStoryMapGenerationSeed(0);
     events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_MAP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
 }
 

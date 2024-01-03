@@ -75,7 +75,7 @@ void BattleInitialAnimationGameAction::VInitAnimation()
         
         sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
         
-        if (!ProgressionDataRepository::GetInstance().GetNextStoryOpponentName().empty())
+        if (!ProgressionDataRepository::GetInstance().GetNextStoryOpponentName().empty() && !ProgressionDataRepository::GetInstance().GetQuickPlayData())
         {
             if (sceneObject->mName == TOP_PLAYER_HEALTH_CONTAINER_BASE || sceneObject->mName == TOP_PLAYER_HEALTH_CONTAINER_VALUE)
             {

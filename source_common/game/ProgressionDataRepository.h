@@ -36,6 +36,15 @@ enum class StoryMapSceneType
 
 ///------------------------------------------------------------------------------------------------
 
+struct QuickPlayData
+{
+    BattleControlType mBattleControlType;
+    std::vector<int> mTopPlayerDeck;
+    std::vector<int> mBotPlayerDeck;
+};
+
+///------------------------------------------------------------------------------------------------
+
 class StoryDeserializer;
 class StorySerializer;
 class ProgressionDataRepository final
@@ -51,6 +60,9 @@ public:
     
     void ResetStoryData();
     void FlushStateToFile();
+    
+    QuickPlayData* GetQuickPlayData() const;
+    void SetQuickPlayData(std::unique_ptr<QuickPlayData> quickPlayData);
     
     ValueWithDelayedDisplay<long long>& CurrencyCoins();
     ValueWithDelayedDisplay<int>& StoryCurrentHealth();
@@ -121,6 +133,7 @@ private:
 private:
     std::unique_ptr<StoryDeserializer> mStoryDataDeserializer;
     std::unique_ptr<StorySerializer> mStoryDataSerializer;
+    std::unique_ptr<QuickPlayData> mQuickPlayData;
     BattleControlType mNextBattleControlType;
     StoryMapSceneType mCurrentStoryMapSceneType;
     std::vector<int> mCurrentStoryPlayerDeck;

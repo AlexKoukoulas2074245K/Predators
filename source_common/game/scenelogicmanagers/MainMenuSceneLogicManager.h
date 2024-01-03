@@ -19,6 +19,7 @@
 ///------------------------------------------------------------------------------------------------
 
 class AnimatedButton;
+struct QuickPlayData;
 class MainMenuSceneLogicManager final: public ISceneLogicManager
 {
 public:
@@ -60,6 +61,7 @@ private:
     std::vector<std::unique_ptr<AnimatedButton>> mAnimatedButtons;
     std::unique_ptr<SwipeableContainer<CardFamilyEntry>> mCardFamilyContainerTop;
     std::unique_ptr<SwipeableContainer<CardFamilyEntry>> mCardFamilyContainerBot;
+    std::unique_ptr<QuickPlayData> mQuickPlayData;
     std::vector<std::shared_ptr<scene::SceneObject>> mDeckSelectionSceneObjects;
     SubSceneType mActiveSubScene;
     std::stack<SubSceneType> mPreviousSubSceneStack;

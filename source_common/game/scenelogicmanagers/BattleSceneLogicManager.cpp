@@ -228,20 +228,42 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
     mBoardState->GetPlayerStates().emplace_back();
     mBoardState->GetPlayerStates().emplace_back();
     
-    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerHealth = ProgressionDataRepository::GetInstance().GetNextBattleTopPlayerHealth();
-    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth = ProgressionDataRepository::GetInstance().GetNextBattleBotPlayerHealth();
-    
-    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerTotalWeightAmmo = ProgressionDataRepository::GetInstance().GetNextBattleTopPlayerInitWeight();
-    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerTotalWeightAmmo = ProgressionDataRepository::GetInstance().GetNextBattleBotPlayerInitWeight();
-    
-    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerCurrentWeightAmmo = ProgressionDataRepository::GetInstance().GetNextBattleTopPlayerInitWeight();
-    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerCurrentWeightAmmo = ProgressionDataRepository::GetInstance().GetNextBattleBotPlayerInitWeight();
-    
-    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerWeightAmmoLimit = ProgressionDataRepository::GetInstance().GetNextBattleTopPlayerWeightLimit();
-    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerWeightAmmoLimit = ProgressionDataRepository::GetInstance().GetNextBattleBotPlayerWeightLimit();
-    
-    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = ProgressionDataRepository::GetInstance().GetNextTopPlayerDeck();
-    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = ProgressionDataRepository::GetInstance().GetNextBotPlayerDeck();
+    auto* quickPlayData = ProgressionDataRepository::GetInstance().GetQuickPlayData();
+    if (quickPlayData)
+    {
+        mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerHealth = game_constants::TOP_PLAYER_DEFAULT_HEALTH;
+        mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth = game_constants::BOT_PLAYER_DEFAULT_HEALTH;
+        
+        mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerTotalWeightAmmo = game_constants::TOP_PLAYER_DEFAULT_WEIGHT;
+        mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerTotalWeightAmmo = game_constants::BOT_PLAYER_DEFAULT_WEIGHT;
+        
+        mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerCurrentWeightAmmo = game_constants::TOP_PLAYER_DEFAULT_WEIGHT;
+        mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerCurrentWeightAmmo = game_constants::BOT_PLAYER_DEFAULT_WEIGHT;
+        
+        mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerWeightAmmoLimit = game_constants::TOP_PLAYER_DEFAULT_WEIGHT_LIMIT;
+        mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerWeightAmmoLimit = game_constants::TOP_PLAYER_DEFAULT_WEIGHT_LIMIT;
+        
+        mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = quickPlayData->mTopPlayerDeck;
+        mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = quickPlayData->mBotPlayerDeck;
+        mCurrentBattleControlType = quickPlayData->mBattleControlType;
+    }
+    else
+    {
+        mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerHealth = ProgressionDataRepository::GetInstance().GetNextBattleTopPlayerHealth();
+        mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth = ProgressionDataRepository::GetInstance().GetNextBattleBotPlayerHealth();
+        
+        mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerTotalWeightAmmo = ProgressionDataRepository::GetInstance().GetNextBattleTopPlayerInitWeight();
+        mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerTotalWeightAmmo = ProgressionDataRepository::GetInstance().GetNextBattleBotPlayerInitWeight();
+        
+        mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerCurrentWeightAmmo = ProgressionDataRepository::GetInstance().GetNextBattleTopPlayerInitWeight();
+        mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerCurrentWeightAmmo = ProgressionDataRepository::GetInstance().GetNextBattleBotPlayerInitWeight();
+        
+        mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerWeightAmmoLimit = ProgressionDataRepository::GetInstance().GetNextBattleTopPlayerWeightLimit();
+        mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerWeightAmmoLimit = ProgressionDataRepository::GetInstance().GetNextBattleBotPlayerWeightLimit();
+        
+        mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = ProgressionDataRepository::GetInstance().GetNextTopPlayerDeck();
+        mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = ProgressionDataRepository::GetInstance().GetNextBotPlayerDeck();
+    }
     
     mActiveIndividualCardBoardEffectSceneObjects.emplace_back();
     mActiveIndividualCardBoardEffectSceneObjects.emplace_back();
@@ -254,7 +276,7 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
     
     mRuleEngine = std::make_unique<GameRuleEngine>(mBoardState.get());
 
-    auto seed = ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeSeed();
+    auto seed = quickPlayData ? math::RandomInt() : ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeSeed();
     std::unique_ptr<BattleDeserializer> replayEngine = nullptr;
     
     if (mCurrentBattleControlType == BattleControlType::REPLAY)
@@ -278,7 +300,7 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
     mActionEngine->AddGameAction(BATTLE_INITIAL_ANIMATION_GAME_ACTION_NAME);
     
     // Story battle, hero card action needs to be created
-    if (!ProgressionDataRepository::GetInstance().GetNextStoryOpponentName().empty())
+    if (!ProgressionDataRepository::GetInstance().GetNextStoryOpponentName().empty() && !quickPlayData)
     {
         ProgressionDataRepository::GetInstance().SetCurrentStoryMapSceneType(StoryMapSceneType::BATTLE);
         mActionEngine->AddGameAction(HERO_CARD_ENTRY_GAME_ACTION_NAME);
@@ -562,7 +584,7 @@ void BattleSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene> scene)
     else if (scene->GetName() == game_constants::BATTLE_SCENE)
     {
         // Serialize story battle
-        if (!ProgressionDataRepository::GetInstance().GetNextStoryOpponentName().empty())
+        if (!ProgressionDataRepository::GetInstance().GetNextStoryOpponentName().empty() && !ProgressionDataRepository::GetInstance().GetQuickPlayData())
         {
             ProgressionDataRepository::GetInstance().SetNextBattleControlType(BattleControlType::REPLAY);
             mBattleSerializer->FlushStateToFile();
@@ -1255,7 +1277,7 @@ void BattleSceneLogicManager::OnApplicationMovedToBackground(const events::Appli
         OnSettingsButtonPressed();
     }
     
-    if (!ProgressionDataRepository::GetInstance().GetNextStoryOpponentName().empty())
+    if (!ProgressionDataRepository::GetInstance().GetNextStoryOpponentName().empty() && !ProgressionDataRepository::GetInstance().GetQuickPlayData())
     {
         ProgressionDataRepository::GetInstance().SetNextBattleControlType(BattleControlType::REPLAY);
         mBattleSerializer->FlushStateToFile();
