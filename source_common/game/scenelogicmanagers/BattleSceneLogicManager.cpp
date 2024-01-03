@@ -564,6 +564,7 @@ void BattleSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene> scene)
         // Serialize story battle
         if (!ProgressionDataRepository::GetInstance().GetNextStoryOpponentName().empty())
         {
+            ProgressionDataRepository::GetInstance().SetNextBattleControlType(BattleControlType::REPLAY);
             mBattleSerializer->FlushStateToFile();
         }
         
@@ -1256,6 +1257,7 @@ void BattleSceneLogicManager::OnApplicationMovedToBackground(const events::Appli
     
     if (!ProgressionDataRepository::GetInstance().GetNextStoryOpponentName().empty())
     {
+        ProgressionDataRepository::GetInstance().SetNextBattleControlType(BattleControlType::REPLAY);
         mBattleSerializer->FlushStateToFile();
     }
 }

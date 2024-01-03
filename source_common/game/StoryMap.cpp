@@ -118,7 +118,7 @@ static const int MAP_GENERATION_PASSES = 5;
 #if defined(NDEBUG) || defined(MOBILE_FLOW)
 static const float NODES_CLOSE_ENOUGH_THRESHOLD = 0.050f;
 static const float NODES_CLOSE_ENOUGH_TO_EDGE_NODES_THRESHOLD = 0.075f;
-static const int MAX_MAP_GENERATION_ATTEMPTS = 300000;
+static const int MAX_MAP_GENERATION_ATTEMPTS = 100000;
 static const glm::vec2 VERTICAL_MAP_EDGE = {-0.95f, 0.95f};
 #else
 static const float NODES_CLOSE_ENOUGH_THRESHOLD = 0.030f;
