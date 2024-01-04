@@ -27,13 +27,17 @@ static const std::string COIN_STACK_TEXTURE_FILE_NAME = "coin_stack.png";
 static const std::string HEALTH_CRYSTAL_TEXTURE_FILE_NAME = "health_icon.png";
 static const std::string HEALTH_CRYSTAL_SCENE_OBJECT_NAME_PREFIX = "health_crystal_";
 
+static const glm::vec3 BATTLE_SCENE_SETTINGS_BUTTON_POSITION = {0.145f, 0.08f, 24.0f};
 static const glm::vec3 SETTINGS_BUTTON_POSITION = {0.145f, 0.161f, 24.0f};
 static const glm::vec3 SETTINGS_BUTTON_SCALE = {0.06f, 0.06f, 0.06f};
 static const glm::vec3 COIN_STACK_POSITION = {0.145f, 0.101f, 24.0f};
+static const glm::vec3 BATTLE_SCENE_COIN_STACK_POSITION = {0.145f, 0.05f, 24.0f};
 static const glm::vec3 COIN_STACK_SCALE = {0.08f, 0.08f, 0.08f};
 static const glm::vec3 COIN_VALUE_TEXT_POSITION = {0.155f, 0.105f, 24.0f};
+static const glm::vec3 BATTLE_SCENE_COIN_VALUE_TEXT_POSITION = {0.155f, 0.05f, 24.0f};
 static const glm::vec3 COIN_VALUE_TEXT_SCALE = {0.0004f, 0.0004f, 0.0004f};
 static const glm::vec3 COIN_VALUE_TEXT_COLOR = {0.80f, 0.71f, 0.11f};
+static const glm::vec3 BATTLE_SCENE_HEALTH_CRYSTAL_POSITION = {0.145f, 0.02f, 24.0f};
 static const glm::vec3 HEALTH_CRYSTAL_POSITION = {0.145f, 0.04f, 24.0f};
 
 static const float SETTINGS_BUTTON_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 31.5f;
@@ -42,10 +46,11 @@ static const float COIN_VALUE_TEXT_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 260.0f;
 static const float HEALTH_CRYSTAL_BASE_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 0.9f;
 static const float HEALTH_CRYSTAL_VALUE_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 260.0f;
 static const float HEALTH_CRYSTAL_CONTAINER_CUSTOM_SCALE_FACTOR = 2.0f;
+static const float BATTLE_SCENE_SCALE_FACTOR = 0.5f;
 
 ///------------------------------------------------------------------------------------------------
 
-GuiObjectManager::GuiObjectManager(std::shared_ptr<scene::Scene> scene)
+GuiObjectManager::GuiObjectManager(std::shared_ptr<scene::Scene> scene, const bool forBattleScene /* = false */)
     : mScene(scene)
 {
     // Sync any desynced values with delayed displays.
@@ -53,23 +58,25 @@ GuiObjectManager::GuiObjectManager(std::shared_ptr<scene::Scene> scene)
     ProgressionDataRepository::GetInstance().CurrencyCoins().SetDisplayedValue(ProgressionDataRepository::GetInstance().CurrencyCoins().GetValue());
     ProgressionDataRepository::GetInstance().StoryCurrentHealth().SetDisplayedValue(ProgressionDataRepository::GetInstance().StoryCurrentHealth().GetValue());
     
+    auto extraScaleFactor = forBattleScene ? BATTLE_SCENE_SCALE_FACTOR : 1.0f;
+    
     mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
     (
-        SETTINGS_BUTTON_POSITION,
-        SETTINGS_BUTTON_SCALE,
+        forBattleScene ? BATTLE_SCENE_SETTINGS_BUTTON_POSITION : SETTINGS_BUTTON_POSITION,
+        extraScaleFactor * SETTINGS_BUTTON_SCALE,
         SETTINGS_ICON_TEXTURE_FILE_NAME,
         game_constants::GUI_SETTINGS_BUTTON_SCENE_OBJECT_NAME,
         [=](){ OnSettingsButtonPressed(); },
         *scene,
         scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE,
-        SETTINGS_BUTTON_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR
+        SETTINGS_BUTTON_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR / extraScaleFactor
     ));
     
     auto coinStackSceneObject = scene->CreateSceneObject(game_constants::GUI_COIN_STACK_SCENE_OBJECT_NAME);
     coinStackSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
     coinStackSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + COIN_STACK_TEXTURE_FILE_NAME);
-    coinStackSceneObject->mPosition = COIN_STACK_POSITION;
-    coinStackSceneObject->mScale = COIN_STACK_SCALE;
+    coinStackSceneObject->mPosition = forBattleScene ? BATTLE_SCENE_COIN_STACK_POSITION : COIN_STACK_POSITION;
+    coinStackSceneObject->mScale = extraScaleFactor * COIN_STACK_SCALE;
     coinStackSceneObject->mSnapToEdgeBehavior = scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE;
     coinStackSceneObject->mSnapToEdgeScaleOffsetFactor = COIN_STACK_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR;
     
@@ -81,12 +88,12 @@ GuiObjectManager::GuiObjectManager(std::shared_ptr<scene::Scene> scene)
     coinValueTextSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + COIN_VALUE_TEXT_SHADER_FILE_NAME);
     coinValueTextSceneObject->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = COIN_VALUE_TEXT_COLOR;
     coinValueTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
-    coinValueTextSceneObject->mPosition = COIN_VALUE_TEXT_POSITION;
-    coinValueTextSceneObject->mScale = COIN_VALUE_TEXT_SCALE;
+    coinValueTextSceneObject->mPosition = forBattleScene ? BATTLE_SCENE_COIN_VALUE_TEXT_POSITION : COIN_VALUE_TEXT_POSITION;
+    coinValueTextSceneObject->mScale = extraScaleFactor * COIN_VALUE_TEXT_SCALE;
     coinValueTextSceneObject->mSnapToEdgeBehavior = scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE;
     coinValueTextSceneObject->mSnapToEdgeScaleOffsetFactor = COIN_VALUE_TEXT_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR;
     
-    mHealthStatContainer = std::make_unique<AnimatedStatContainer>(HEALTH_CRYSTAL_POSITION, HEALTH_CRYSTAL_TEXTURE_FILE_NAME, HEALTH_CRYSTAL_SCENE_OBJECT_NAME_PREFIX, ProgressionDataRepository::GetInstance().StoryCurrentHealth().GetDisplayedValue(), false, *scene, scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE, HEALTH_CRYSTAL_CONTAINER_CUSTOM_SCALE_FACTOR);
+    mHealthStatContainer = std::make_unique<AnimatedStatContainer>(forBattleScene ? BATTLE_SCENE_HEALTH_CRYSTAL_POSITION : HEALTH_CRYSTAL_POSITION, HEALTH_CRYSTAL_TEXTURE_FILE_NAME, HEALTH_CRYSTAL_SCENE_OBJECT_NAME_PREFIX, ProgressionDataRepository::GetInstance().StoryCurrentHealth().GetDisplayedValue(), forBattleScene, *scene, scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE, extraScaleFactor * HEALTH_CRYSTAL_CONTAINER_CUSTOM_SCALE_FACTOR);
     mHealthStatContainer->ForceSetDisplayedValue(ProgressionDataRepository::GetInstance().StoryCurrentHealth().GetValue());
     
     mHealthStatContainer->GetSceneObjects()[0]->mSnapToEdgeScaleOffsetFactor = HEALTH_CRYSTAL_BASE_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR;
@@ -155,7 +162,5 @@ void GuiObjectManager::OnSettingsButtonPressed()
     CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(mScene->GetUpdateTimeSpeedFactor(), 0.0f, game_constants::SCENE_SPEED_DILATION_ANIMATION_DURATION_SECS), [](){}, game_constants::SCENE_SPEED_DILATION_ANIMATION_NAME);
     events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(SETTINGS_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
 }
-
-
 
 ///------------------------------------------------------------------------------------------------

@@ -355,8 +355,6 @@ void StoryMapSceneLogicManager::OnPopSceneModal(const events::PopSceneModalEvent
 void StoryMapSceneLogicManager::OnWindowResize(const events::WindowResizeEvent&)
 {
     CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::STORY_MAP_SCENE)->RecalculatePositionOfEdgeSnappingSceneObjects();
-    
-    // Realign health stat container
     mGuiManager->OnWindowResize();
 }
 

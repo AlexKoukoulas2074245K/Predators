@@ -22,7 +22,7 @@ class AnimatedButton;
 class GuiObjectManager final
 {
 public:
-    GuiObjectManager(std::shared_ptr<scene::Scene> scene);
+    GuiObjectManager(std::shared_ptr<scene::Scene> scene, const bool forBattleScene = false);
     ~GuiObjectManager();
     
     void Update(const float dtMillis);

@@ -52,17 +52,17 @@
         {
             "name": "hero_card_destruction",
             "texture": "smoke.png",
-            "particle_count": 5,
+            "particle_count": 10,
             "prefilled": true,
             "continuous_generation": false,
             "enlarge_over_time": true,
             "rotate_over_time": false,
             "initially_rotated": false,
             "custom_update": false,
-            "lifetime_range": {"min": 0.5, "max": 1.0},
+            "lifetime_range": {"min": 1.0, "max": 1.5},
             "position_x_range": {"min": -0.03, "max": 0.01},
             "position_y_range": {"min": -0.03, "max": 0.01},
-            "particle_size_range": {"min": 0.01, "max": 0.02},
+            "particle_size_range": {"min": 0.02, "max": 0.04},
             "particle_enlargement_speed": 0.00001
         },
         {

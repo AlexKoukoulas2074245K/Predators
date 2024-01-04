@@ -28,6 +28,7 @@ class AnimatedStatContainer;
 class BoardState;
 class GameActionEngine;
 class GameRuleEngine;
+class GuiObjectManager;
 class PlayerActionGenerationEngine;
 
 namespace serial { class BaseDataFileSerializer; }
@@ -89,7 +90,7 @@ private:
     void OnStoryBattleFinished(const events::StoryBattleFinishedEvent&);
     void OnCardHistoryEntryAddition(const events::CardHistoryEntryAdditionEvent&);
     void OnHistoryButtonPressed();
-    void OnSettingsButtonPressed();
+    void FakeSettingsButtonPressed();
     glm::vec3 CalculateBoardEffectPosition(const size_t effectIndex, const size_t effectsCount, bool forRemotePlayer);
     
 private:
@@ -113,6 +114,7 @@ private:
     std::unique_ptr<serial::BaseDataFileSerializer> mBattleSerializer;
     std::unique_ptr<PlayerActionGenerationEngine> mPlayerActionGenerationEngine;
     std::unique_ptr<SwipeableContainer<CardHistoryEntry>> mCardHistoryContainer;
+    std::unique_ptr<GuiObjectManager> mGuiManager;
     std::shared_ptr<scene::Scene> mActiveScene;
     std::vector<std::unique_ptr<AnimatedButton>> mBattleSceneAnimatedButtons;
     std::vector<std::vector<std::shared_ptr<scene::SceneObject>>> mActiveIndividualCardBoardEffectSceneObjects;

@@ -43,7 +43,7 @@
             "texture": "turn_pointer.png",
             "scale": { "x": 0.08, "y": 0.08, "z": 0.08 },
             "position": { "x": 0.2, "y": 0.0, "z": 0.1 },
-            "snap_to_edge": "snap_to_right_edge"
+            "snap_to_edge": "snap_to_left_edge"
         },
         {
             "name": "turn_pointer_highlighter",
@@ -52,7 +52,7 @@
             "scale": { "x": 0.06, "y": 0.09, "z": 0.8 },
             "position": { "x": 0.2, "y": 0.0, "z": 1.45 },
             "alpha": 0.0,
-            "snap_to_edge": "snap_to_right_edge",
+            "snap_to_edge": "snap_to_left_edge",
             "uniform_floats":
             [
                 { "name": "time_speed", "value": 12.595 },

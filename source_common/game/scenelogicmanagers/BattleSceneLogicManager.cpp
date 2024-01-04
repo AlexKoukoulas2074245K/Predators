@@ -11,8 +11,9 @@
 #include <game/CardUtils.h>
 #include <game/events/EventSystem.h>
 #include <game/GameConstants.h>
-#include <game/utils/BattleDeserializer.h>
 #include <game/GameRuleEngine.h>
+#include <game/GuiObjectManager.h>
+#include <game/utils/BattleDeserializer.h>
 #include <game/utils/BattleSerializer.h>
 #include <game/gameactions/PlayCardGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
@@ -41,7 +42,6 @@ static const strutils::StringId CARD_LOCATION_INDICATOR_SCENE_OBJECT_NAME = stru
 static const strutils::StringId CARD_HISTORY_CAPSULE_SCENE_OBJECT_NAME = strutils::StringId("card_history_capsule");
 static const strutils::StringId CARD_TOOLTIP_SCENE_OBJECT_NAME = strutils::StringId("card_tooltip");
 static const strutils::StringId HISTORY_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("history_button");
-static const strutils::StringId SETTINGS_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("settings_button");
 static const strutils::StringId HISTORY_OVERLAY_SCENE_OBJECT_NAME = strutils::StringId("history_overlay");
 static const strutils::StringId REPLAY_TEXT_SCENE_OBJECT_NAME = strutils::StringId("replay_text");
 static const strutils::StringId CARD_TOOLTIP_REVEAL_THRESHOLD_UNIFORM_NAME = strutils::StringId("reveal_threshold");
@@ -84,7 +84,6 @@ static const std::string BOARD_SIDE_STAT_EFFECT_SHADER_FILE_NAME = "board_side_s
 static const std::string CARD_TOOLTIP_TEXTURE_FILE_NAME = "tooltip.png";
 static const std::string CARD_TOOLTIP_SHADER_FILE_NAME = "diagonal_reveal.vs";
 static const std::string HISTORY_ICON_TEXTURE_FILE_NAME = "history_button_icon.png";
-static const std::string SETTINGS_ICON_TEXTURE_FILE_NAME = "settings_button_icon.png";
 static const std::string HISTORY_OVERLAY_TEXTURE_FILE_NAME = "overlay.png";
 static const std::string CARD_HIGHLIGHTER_SCENE_OBJECT_NAME_PREFIX = "highlighter_card_";
 static const std::string HEALTH_CRYSTAL_TOP_SCENE_OBJECT_NAME_PREFIX = "health_crystal_top_";
@@ -109,8 +108,6 @@ static const glm::vec3 CARD_TOOLTIP_OFFSET = {0.084f, 0.08f, 0.1f};
 static const glm::vec3 CARD_TOOLTIP_HISTORY_OFFSET = {0.06f, 0.033f, 0.2f};
 static const glm::vec3 HISTORY_BUTTON_POSITION = {0.145f, -0.064f, 0.1f};
 static const glm::vec3 HISTORY_BUTTON_SCALE = {0.03f, 0.03f, 0.03f};
-static const glm::vec3 SETTINGS_BUTTON_POSITION = {0.145f, 0.061f, 0.1f};
-static const glm::vec3 SETTINGS_BUTTON_SCALE = {0.03f, 0.03f, 0.03f};
 static const glm::vec3 CARD_HISTORY_ENTRY_SCALE = {0.3f, -0.3f, 0.3f};
 static const glm::vec3 CARD_HISTORY_TURN_COUNTER_ENTRY_SCALE = {0.266f, -0.3f, 0.3f};
 static const glm::vec3 CARD_HISTORY_CAPSULE_POSITION = {0.0f, -0.102f, 25.0f};
@@ -227,6 +224,8 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
     mBoardState = std::make_unique<BoardState>();
     mBoardState->GetPlayerStates().emplace_back();
     mBoardState->GetPlayerStates().emplace_back();
+    
+    mGuiManager = std::make_unique<GuiObjectManager>(scene, true);
     
     auto* quickPlayData = ProgressionDataRepository::GetInstance().GetQuickPlayData();
     if (quickPlayData)
@@ -365,18 +364,7 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
         HISTORY_BUTTON_SCENE_OBJECT_NAME,
         [=](){ OnHistoryButtonPressed(); },
         *scene,
-        scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE,
-        BUTTONS_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR
-    ));
-    mBattleSceneAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
-    (
-        SETTINGS_BUTTON_POSITION,
-        SETTINGS_BUTTON_SCALE,
-        SETTINGS_ICON_TEXTURE_FILE_NAME,
-        SETTINGS_BUTTON_SCENE_OBJECT_NAME,
-        [=](){ OnSettingsButtonPressed(); },
-        *scene,
-        scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE,
+        scene::SnapToEdgeBehavior::SNAP_TO_LEFT_EDGE,
         BUTTONS_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR
     ));
     
@@ -458,6 +446,11 @@ void BattleSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scen
         if (mCurrentBattleControlType == BattleControlType::AI_TOP_ONLY && mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX)
         {
             HandleTouchInput(dtMillis);
+        }
+        
+        if (mGuiManager)
+        {
+            mGuiManager->Update(dtMillis);
         }
         
         UpdateMiscSceneObjects(dtMillis);
@@ -1274,7 +1267,7 @@ void BattleSceneLogicManager::OnApplicationMovedToBackground(const events::Appli
 {
     if (mIsActive)
     {
-        OnSettingsButtonPressed();
+        FakeSettingsButtonPressed();
     }
     
     if (!ProgressionDataRepository::GetInstance().GetNextStoryOpponentName().empty() && !ProgressionDataRepository::GetInstance().GetQuickPlayData())
@@ -1312,6 +1305,11 @@ void BattleSceneLogicManager::OnWindowResize(const events::WindowResizeEvent&)
     auto turnPointerHighlighterSo = battleScene->FindSceneObject(game_constants::TURN_POINTER_HIGHLIGHTER_SCENE_OBJECT_NAME);
     turnPointerHighlighterSo->mPosition = turnPointerSo->mPosition;
     turnPointerHighlighterSo->mPosition.z += game_constants::ACTION_HIGLIGHTER_Z_OFFSET;
+    
+    if (mGuiManager)
+    {
+        mGuiManager->OnWindowResize();
+    }
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -1871,7 +1869,7 @@ void BattleSceneLogicManager::OnHistoryButtonPressed()
 
 ///------------------------------------------------------------------------------------------------
 
-void BattleSceneLogicManager::OnSettingsButtonPressed()
+void BattleSceneLogicManager::FakeSettingsButtonPressed()
 {
     auto battleScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE);
     

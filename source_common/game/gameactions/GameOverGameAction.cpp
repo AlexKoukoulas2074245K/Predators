@@ -30,10 +30,13 @@ static const strutils::StringId CARD_ORIGIN_X_UNIFORM_NAME = strutils::StringId(
 static const strutils::StringId CARD_ORIGIN_Y_UNIFORM_NAME = strutils::StringId("card_origin_y");
 static const strutils::StringId HERO_CARD_DESTRUCTION_PARTICLE_NAME = strutils::StringId("hero_card_destruction");
 
-static const float CARD_DISSOLVE_SPEED = 0.0003f;
+static const float CARD_CAMERA_SHAKE_DURATION = 0.25f;
+static const float CARD_CAMERA_SHAKE_STRENGTH = 0.005f;
+static const float CARD_DISSOLVE_SPEED = 0.0009f;
 static const float MAX_CARD_DISSOLVE_VALUE = 1.2f;
-//static const float CARD_PLAY_PARTICLE_EMITTER_Z = 0.01f;
-static const float EXPLOSION_DELAY_SECS = 0.1f;
+static const float EXPLOSION_DELAY_SECS = 1.0f;
+
+static const int MAX_EXPLOSIONS = 5;
 
 static const glm::vec2 CARD_DISSOLVE_EFFECT_MAG_RANGE = {10.0f, 18.0f};
 
@@ -56,20 +59,13 @@ void GameOverGameAction::VSetNewGameState()
 
 void GameOverGameAction::VInitAnimation()
 {
-    auto& systemsEngine = CoreSystemsEngine::GetInstance();
     auto& scene = *CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE);
     
     if (!ProgressionDataRepository::GetInstance().GetNextStoryOpponentName().empty())
     {
         mExplosionDelaySecs = EXPLOSION_DELAY_SECS;
-        
-        auto cardSoWrapper = mBattleSceneLogicManager->GetBoardCardSoWrappers()[game_constants::REMOTE_PLAYER_INDEX][0];
-        cardSoWrapper->mSceneObject->mShaderResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CARD_DISSOLVE_SHADER_FILE_NAME);
-        cardSoWrapper->mSceneObject->mEffectTextureResourceIds[1] = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + DISSOLVE_TEXTURE_FILE_NAME);
-        cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] = 0.0f;
-        cardSoWrapper->mSceneObject->mShaderFloatUniformValues[CARD_ORIGIN_X_UNIFORM_NAME] = cardSoWrapper->mSceneObject->mPosition.x;
-        cardSoWrapper->mSceneObject->mShaderFloatUniformValues[CARD_ORIGIN_Y_UNIFORM_NAME] = cardSoWrapper->mSceneObject->mPosition.y;
-        cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_MAGNITUDE_UNIFORM_NAME] = math::RandomFloat(CARD_DISSOLVE_EFFECT_MAG_RANGE.x, CARD_DISSOLVE_EFFECT_MAG_RANGE.y);
+        mAnimationState = AnimationState::EXPLOSIONS;
+        mExplosionCounter = 0;
     }
     else
     {
@@ -89,36 +85,66 @@ void GameOverGameAction::VInitAnimation()
 
 ActionAnimationUpdateResult GameOverGameAction::VUpdateAnimation(const float dtMillis)
 {
+    auto& systemsEngine = CoreSystemsEngine::GetInstance();
+    
     if (!ProgressionDataRepository::GetInstance().GetNextStoryOpponentName().empty())
     {
-        auto cardSoWrapper = mBattleSceneLogicManager->GetBoardCardSoWrappers()[game_constants::REMOTE_PLAYER_INDEX][0];
-        cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] += dtMillis * CARD_DISSOLVE_SPEED;
-        
-        mExplosionDelaySecs -= dtMillis/1000.0f;
-        if (mExplosionDelaySecs <= 0.0f)
+        switch (mAnimationState)
         {
-            mExplosionDelaySecs = EXPLOSION_DELAY_SECS;
-            
-            auto particleEmitterPosition = cardSoWrapper->mSceneObject->mPosition;
-            particleEmitterPosition.x += math::RandomFloat(-0.01f, 0.01f);
-            particleEmitterPosition.y += math::RandomFloat(-0.01f, 0.01f);
-            particleEmitterPosition.z += math::RandomFloat(0.1f, 0.3f);
-            
-            CoreSystemsEngine::GetInstance().GetParticleManager().CreateParticleEmitterAtPosition
-            (
-                HERO_CARD_DESTRUCTION_PARTICLE_NAME,
-                particleEmitterPosition,
-                *CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE)
-            );
-        }
-        
-        if (cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] >= MAX_CARD_DISSOLVE_VALUE)
-        {
-            events::EventSystem::GetInstance().DispatchEvent<events::StoryBattleFinishedEvent>();
-            return ActionAnimationUpdateResult::FINISHED;
+            case AnimationState::EXPLOSIONS:
+            {
+                auto cardSoWrapper = mBattleSceneLogicManager->GetBoardCardSoWrappers()[game_constants::REMOTE_PLAYER_INDEX][0];
+                
+                mExplosionDelaySecs -= dtMillis/1000.0f;
+                if (mExplosionDelaySecs <= 0.0f)
+                {
+                    mExplosionDelaySecs = EXPLOSION_DELAY_SECS;
+                    
+                    if (mExplosionCounter++ <= MAX_EXPLOSIONS)
+                    {
+                        auto particleEmitterPosition = cardSoWrapper->mSceneObject->mPosition;
+                        particleEmitterPosition.x += math::RandomFloat(-0.01f, 0.01f);
+                        particleEmitterPosition.y += math::RandomFloat(-0.01f, 0.01f);
+                        particleEmitterPosition.z += math::RandomFloat(1.0f, 3.0f);
+                        
+                        CoreSystemsEngine::GetInstance().GetParticleManager().CreateParticleEmitterAtPosition
+                        (
+                             HERO_CARD_DESTRUCTION_PARTICLE_NAME,
+                             particleEmitterPosition,
+                             *CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE)
+                        );
+                        
+                        CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE)->GetCamera().Shake(CARD_CAMERA_SHAKE_DURATION, CARD_CAMERA_SHAKE_STRENGTH);
+                    }
+                    else
+                    {
+                        cardSoWrapper->mSceneObject->mShaderResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CARD_DISSOLVE_SHADER_FILE_NAME);
+                        cardSoWrapper->mSceneObject->mEffectTextureResourceIds[1] = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + DISSOLVE_TEXTURE_FILE_NAME);
+                        cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] = 0.0f;
+                        cardSoWrapper->mSceneObject->mShaderFloatUniformValues[CARD_ORIGIN_X_UNIFORM_NAME] = cardSoWrapper->mSceneObject->mPosition.x;
+                        cardSoWrapper->mSceneObject->mShaderFloatUniformValues[CARD_ORIGIN_Y_UNIFORM_NAME] = cardSoWrapper->mSceneObject->mPosition.y;
+                        cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_MAGNITUDE_UNIFORM_NAME] = math::RandomFloat(CARD_DISSOLVE_EFFECT_MAG_RANGE.x, CARD_DISSOLVE_EFFECT_MAG_RANGE.y);
+                        mAnimationState = AnimationState::DISSOLVE;
+                    }
+                }
+            } break;
+                
+            case AnimationState::DISSOLVE:
+            {
+                auto cardSoWrapper = mBattleSceneLogicManager->GetBoardCardSoWrappers()[game_constants::REMOTE_PLAYER_INDEX][0];
+                cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] += dtMillis * CARD_DISSOLVE_SPEED;
+                
+                if (cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] >= MAX_CARD_DISSOLVE_VALUE)
+                {
+                    events::EventSystem::GetInstance().DispatchEvent<events::StoryBattleFinishedEvent>();
+                    return ActionAnimationUpdateResult::FINISHED;
+                }
+            } break;
+                
+            default: break;
         }
     }
-    return ActionAnimationUpdateResult::ONGOING;
+    return mAnimationState == AnimationState::FINISHED ? ActionAnimationUpdateResult::FINISHED : ActionAnimationUpdateResult::ONGOING;
 }
 
 ///------------------------------------------------------------------------------------------------

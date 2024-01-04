@@ -31,7 +31,16 @@ public:
     const std::vector<std::string>& VGetRequiredExtraParamNames() const override;
     
 private:
+    enum class AnimationState
+    {
+        EXPLOSIONS,
+        DISSOLVE,
+        FINISHED
+    };
+     
+    AnimationState mAnimationState;
     float mExplosionDelaySecs;
+    int mExplosionCounter;
 };
 
 ///------------------------------------------------------------------------------------------------
