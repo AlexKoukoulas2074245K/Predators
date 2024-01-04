@@ -110,10 +110,9 @@ void EventSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene
 
 ///------------------------------------------------------------------------------------------------
 
-void EventSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene> scene)
+void EventSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene>)
 {
     events::EventSystem::GetInstance().UnregisterAllEventsForListener(this);
-    scene->RemoveAllParticleEffects();
 }
 
 ///------------------------------------------------------------------------------------------------
