@@ -8,6 +8,7 @@
 #include <engine/rendering/AnimationManager.h>
 #include <engine/scene/SceneObject.h>
 #include <engine/scene/Scene.h>
+#include <engine/utils/Logging.h>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -100,12 +101,6 @@ void AnimationManager::Update(const float dtMillis)
     mAnimationContainerLocked = true;
     for(auto iter = mAnimations.begin(); iter != mAnimations.end();)
     {
-        if (std::find(mAnimationNamesToRemove.begin(), mAnimationNamesToRemove.end(), iter->mAnimationName) != mAnimationNamesToRemove.end())
-        {
-            iter = mAnimations.erase(iter);
-            continue;
-        }
-        
         auto updateTimeMillis = dtMillis * (iter->mAnimation->VGetSceneObject() && iter->mAnimation->VGetSceneObject()->mScene ? iter->mAnimation->VGetSceneObject()->mScene->GetUpdateTimeSpeedFactor() : 1.0f);
         
         if (iter->mAnimation->VUpdate(updateTimeMillis) == AnimationUpdateResult::FINISHED)

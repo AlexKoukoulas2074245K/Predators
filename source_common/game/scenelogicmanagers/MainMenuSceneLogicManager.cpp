@@ -224,6 +224,7 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
     
     scene->RemoveAllSceneObjectsButTheOnesNamed(STATIC_SCENE_ELEMENTS);
     mAnimatedButtons.clear();
+    mDeckSelectionSceneObjects.clear();
     mCardFamilyContainerTop = nullptr;
     mCardFamilyContainerBot = nullptr;
     
@@ -515,7 +516,6 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
             DeckSelected(0, false);
             BattleModeSelected(NORMAL_BATTLE_MODE_BUTTON_NAME);
             
-            mDeckSelectionSceneObjects.clear();
             mDeckSelectionSceneObjects.push_back(topDeckTextSceneObject);
             mDeckSelectionSceneObjects.push_back(botDeckTextSceneObject);
             

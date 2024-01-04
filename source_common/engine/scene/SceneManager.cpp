@@ -5,6 +5,7 @@
 ///  Created by Alex Koukoulas on 03/10/2023                                                       
 ///------------------------------------------------------------------------------------------------
 
+#include <engine/rendering/AnimationManager.h>
 #include <engine/resloading/DataFileResource.h>
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneManager.h>
@@ -209,6 +210,10 @@ void SceneManager::RemoveScene(const strutils::StringId& sceneName)
     });
     if (findIter != mScenes.end())
     {
+        for (auto sceneObject: (*findIter)->GetSceneObjects())
+        {
+            sceneObject->mScene = nullptr;
+        }
         CollectTextureResourceIdCandidates(*findIter);
         mScenes.erase(findIter);
         UnloadUnusedTextures();

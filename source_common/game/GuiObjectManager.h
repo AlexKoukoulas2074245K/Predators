@@ -10,6 +10,7 @@
 
 ///------------------------------------------------------------------------------------------------
 
+#include <engine/utils/MathUtils.h>
 #include <memory>
 #include <vector>
 
@@ -28,6 +29,7 @@ public:
     void Update(const float dtMillis);
     void OnWindowResize();
     void ForceSetStoryHealthValue(const int storyHealthValue);
+    void AnimateCoinsToCoinStack(const glm::vec3& originPosition, const long long coinAmount);
     
 private:
     void SetCoinValueText();

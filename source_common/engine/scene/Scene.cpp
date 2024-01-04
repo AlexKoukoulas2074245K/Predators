@@ -26,6 +26,12 @@ Scene::Scene(const strutils::StringId& sceneName)
 
 ///------------------------------------------------------------------------------------------------
 
+Scene::~Scene()
+{
+}
+
+///------------------------------------------------------------------------------------------------
+
 std::shared_ptr<SceneObject> Scene::CreateSceneObject(const strutils::StringId sceneObjectName /* = strutils::StringId() */)
 {
     auto newSceneObject = std::make_shared<SceneObject>();

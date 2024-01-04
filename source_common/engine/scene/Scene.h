@@ -40,6 +40,7 @@ class Scene final
 {
 public:
     Scene(const strutils::StringId& sceneName);
+    ~Scene();
     
     [[nodiscard]] std::shared_ptr<SceneObject> CreateSceneObject(const strutils::StringId sceneObjectName = strutils::StringId());
     [[nodiscard]] std::shared_ptr<SceneObject> FindSceneObject(const strutils::StringId& sceneObjectName);

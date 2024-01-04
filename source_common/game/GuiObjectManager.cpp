@@ -13,12 +13,14 @@
 #include <game/ProgressionDataRepository.h>
 #include <engine/CoreSystemsEngine.h>
 #include <engine/rendering/AnimationManager.h>
+#include <engine/rendering/ParticleManager.h>
 #include <engine/scene/SceneManager.h>
 #include <engine/scene/Scene.h>
 
 ///------------------------------------------------------------------------------------------------
 
 static const strutils::StringId SETTINGS_SCENE = strutils::StringId("settings_scene");
+static const strutils::StringId PARTICLE_EMITTER_SCENE_OBJECT_NAME = strutils::StringId("particle_emitter");
 
 static const std::string OVERLAY_TEXTURE_FILE_NAME = "overlay.png";
 static const std::string COIN_VALUE_TEXT_SHADER_FILE_NAME = "basic_custom_color.vs";
@@ -153,6 +155,50 @@ void GuiObjectManager::OnWindowResize()
 void GuiObjectManager::ForceSetStoryHealthValue(const int storyHealthValue)
 {
     mHealthStatContainer->ForceSetDisplayedValue(storyHealthValue);
+}
+
+///------------------------------------------------------------------------------------------------
+
+void GuiObjectManager::AnimateCoinsToCoinStack(const glm::vec3& originPosition, const long long coinAmount)
+{
+    auto& particleManager = CoreSystemsEngine::GetInstance().GetParticleManager();
+    auto animatedNodePathParticleEmitterSceneObject = particleManager.CreateParticleEmitterAtPosition(strutils::StringId("coin_gain"), glm::vec3(), *mScene, PARTICLE_EMITTER_SCENE_OBJECT_NAME, [=](float dtMillis, scene::ParticleEmitterObjectData& particleEmitterData)
+    {
+        static const glm::vec3 COIN_INIT_POSITION_OFFSET = { 0.0f, 0.0f, 0.7f };
+        static const glm::vec3 COIN_TARGET_POSITION_OFFSET = { -0.02f, -0.01f, -22.5f };
+        static const glm::vec3 COIN_MID_POSITION_MIN = { 0.1f, -0.2f, 1.5f };
+        static const glm::vec3 COIN_MID_POSITION_MAX = { 0.3f, 0.2f, 1.5f };
+        static const float COIN_RESPAWN_TICK_SECS = 0.025f;
+        
+        auto& particleManager = CoreSystemsEngine::GetInstance().GetParticleManager();
+        auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+        
+        auto targetCoinPosition = mScene->FindSceneObject(game_constants::GUI_COIN_STACK_SCENE_OBJECT_NAME)->mPosition + COIN_TARGET_POSITION_OFFSET;
+
+        auto& particleEmitterSceneObject = *mScene->FindSceneObject(PARTICLE_EMITTER_SCENE_OBJECT_NAME);
+        
+        static float timeAccum = 0.0f;
+        timeAccum += dtMillis/1000.0f;
+        
+        if (timeAccum > COIN_RESPAWN_TICK_SECS && static_cast<int>(particleEmitterData.mTotalParticlesSpawned) < coinAmount)
+        {
+            timeAccum = 0.0f;
+            int particleIndex = particleManager.SpawnParticleAtFirstAvailableSlot(particleEmitterSceneObject);
+            
+            particleEmitterData.mParticlePositions[particleIndex] = originPosition + COIN_INIT_POSITION_OFFSET;
+            
+            math::BezierCurve curve(std::vector<glm::vec3>{particleEmitterData.mParticlePositions[particleIndex], glm::vec3(math::RandomFloat(COIN_MID_POSITION_MIN.x, COIN_MID_POSITION_MAX.x), math::RandomFloat(COIN_MID_POSITION_MIN.y, COIN_MID_POSITION_MAX.y), math::RandomFloat(COIN_MID_POSITION_MIN.z, COIN_MID_POSITION_MAX.z)), targetCoinPosition});
+            
+            animationManager.StartAnimation(std::make_unique<rendering::BezierCurveAnimation>(particleEmitterData.mParticlePositions[particleIndex], curve, game_constants::IN_GAME_DRAW_CARD_ANIMATION_DURATION_SECS), [=]()
+            {
+                std::get<scene::ParticleEmitterObjectData>(mScene->FindSceneObject(PARTICLE_EMITTER_SCENE_OBJECT_NAME)->mSceneObjectTypeData).mParticleLifetimeSecs[particleIndex] = 0.0f;
+                
+                // Animation only gold change
+                auto& coins = ProgressionDataRepository::GetInstance().CurrencyCoins();
+                coins.SetDisplayedValue(coins.GetDisplayedValue() + 1);
+            });
+        }
+    });
 }
 
 ///------------------------------------------------------------------------------------------------
