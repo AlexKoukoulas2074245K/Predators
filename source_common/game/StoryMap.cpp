@@ -475,7 +475,7 @@ void StoryMap::CreateMapSceneObjects()
             nodeHealthTextSceneObject->mScale = ENCOUNTER_STAT_TEXT_SCALE;
             nodeHealthTextSceneObject->mPosition = nodeHealthIconSceneObject->mPosition + ENCOUNTER_STAT_TEXT_POSITION_OFFSET;
             
-            auto boundingRect = scene_object_utils::GetSceneObjectBoundingRect(*nodeHealthTextSceneObject);
+            boundingRect = scene_object_utils::GetSceneObjectBoundingRect(*nodeHealthTextSceneObject);
             nodeHealthTextSceneObject->mPosition.x -= (boundingRect.topRight.x - boundingRect.bottomLeft.x)/2.0f;
             
             // Damage Icon
