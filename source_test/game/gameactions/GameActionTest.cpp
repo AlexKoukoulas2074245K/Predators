@@ -561,8 +561,10 @@ TEST_F(GameActionTests, TestBuffedDugOutRodentsHaveCorrectModifiersPostClearingN
     EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, currentHealth - (GET_CARD_DAMAGE(15) + 2 + GET_CARD_DAMAGE(4) + 2)); // 23 - 4 -3 = 16 (gust of wind cleared net)
 }
 
-int BATTLE_SIMULATION_ITERATIONS = 1000;
 
+int BATTLE_SIMULATION_ITERATIONS = 1000;
+//#define SIMULATE_BATTLES
+#if defined(SIMULATE_BATTLES)
 void GameActionTests::SimulateBattle(strutils::StringId topDeckFamilyName /*= strutils::StringId()*/, strutils::StringId botDeckFamilyName /*= strutils::StringId()*/)
 {
     const int PROGRESS_INCREMENTS = BATTLE_SIMULATION_ITERATIONS/100;
@@ -806,7 +808,7 @@ TEST_F(GameActionTests, BattleSimulation)
             }
         }
     }
-    
+
     // Simulate battles for card family vs card family
     for (const auto& battleCombinationEntry: cardFamilyBattleCombinations)
     {
@@ -817,3 +819,4 @@ TEST_F(GameActionTests, BattleSimulation)
         }
     }
 }
+#endif

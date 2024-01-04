@@ -190,6 +190,10 @@ void PlayCardGameAction::VInitAnimation()
     {
         AnimatedCardToBoard(lastPlayedCardSoWrapper);
     }
+    else if (ProgressionDataRepository::GetInstance().GetQuickPlayData() && ProgressionDataRepository::GetInstance().GetQuickPlayData()->mBattleControlType == BattleControlType::AI_TOP_ONLY && mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX)
+    {
+        AnimatedCardToBoard(lastPlayedCardSoWrapper);
+    }
     else
     {
         auto targetPosition = lastPlayedCardSoWrapper->mSceneObject->mPosition;

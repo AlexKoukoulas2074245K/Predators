@@ -17,7 +17,7 @@ public:
     int GetVal() const { return mVal; }
     
 private:
-    int mVal;
+    int mVal = 0;
 };
 
 class TestEvent2 final
@@ -27,7 +27,7 @@ public:
     int GetVal() const { return mVal; }
     
 private:
-    int mVal;
+    int mVal = 0;
 };
 
 ///------------------------------------------------------------------------------------------------
@@ -41,63 +41,54 @@ public:
     }
     int GetVal() const { return mVal; }
 private:
-    int mVal;
+    int mVal = 0;
 };
 
 ///------------------------------------------------------------------------------------------------
 
-class EventSystemTests : public testing::Test
+TEST(EventSystemTests, TestMultipleEventDispatchesTriggerCallback)
 {
-protected:
-    void SetUp() override
-    {
-        events::EventSystem::GetInstance().RegisterForEvent<TestEvent>(&mTestListener, &TestEventListener::OnTestEvent);
-    }
-    
-protected:
-    TestEventListener mTestListener;
-};
-
-
-///------------------------------------------------------------------------------------------------
-
-TEST_F(EventSystemTests, TestMultipleEventDispatchesTriggerCallback)
-{
+    TestEventListener listener;
+    events::EventSystem::GetInstance().RegisterForEvent<TestEvent>(&listener, &TestEventListener::OnTestEvent);
     events::EventSystem::GetInstance().DispatchEvent<TestEvent>(1);
-    EXPECT_EQ(mTestListener.GetVal(), 1);
+    EXPECT_EQ(listener.GetVal(), 1);
     
     events::EventSystem::GetInstance().DispatchEvent<TestEvent>(2);
-    EXPECT_EQ(mTestListener.GetVal(), 2);
+    EXPECT_EQ(listener.GetVal(), 2);
 }
 
 ///------------------------------------------------------------------------------------------------
 
-TEST_F(EventSystemTests, TestUnregistrationFromEventDoesNotTriggerCallbackForSubsequentDispatches)
+TEST(EventSystemTests, TestUnregistrationFromEventDoesNotTriggerCallbackForSubsequentDispatches)
 {
+    TestEventListener listener;
+    events::EventSystem::GetInstance().RegisterForEvent<TestEvent>(&listener, &TestEventListener::OnTestEvent);
     events::EventSystem::GetInstance().DispatchEvent<TestEvent>(1);
-    EXPECT_EQ(mTestListener.GetVal(), 1);
+    EXPECT_EQ(listener.GetVal(), 1);
     
-    events::EventSystem::GetInstance().UnregisterForEvent<TestEvent>(&mTestListener);
+    events::EventSystem::GetInstance().UnregisterForEvent<TestEvent>(&listener);
     events::EventSystem::GetInstance().DispatchEvent<TestEvent>(2);
-    EXPECT_EQ(mTestListener.GetVal(), 1);
+    EXPECT_EQ(listener.GetVal(), 1);
 }
 
 ///------------------------------------------------------------------------------------------------
 
-TEST_F(EventSystemTests, TestUnregistrationFromEventFollowedByReRegistrationTriggersCallbackForSubsequentDispatches)
+TEST(EventSystemTests, TestUnregistrationFromEventFollowedByReRegistrationTriggersCallbackForSubsequentDispatches)
 {
+    TestEventListener listener;
+    events::EventSystem::GetInstance().RegisterForEvent<TestEvent>(&listener, &TestEventListener::OnTestEvent);
     events::EventSystem::GetInstance().DispatchEvent<TestEvent>(1);
-    EXPECT_EQ(mTestListener.GetVal(), 1);
+    EXPECT_EQ(listener.GetVal(), 1);
     
-    events::EventSystem::GetInstance().UnregisterForEvent<TestEvent>(&mTestListener);    
-    events::EventSystem::GetInstance().RegisterForEvent<TestEvent>(&mTestListener, &TestEventListener::OnTestEvent);
+    events::EventSystem::GetInstance().UnregisterForEvent<TestEvent>(&listener);
+    events::EventSystem::GetInstance().RegisterForEvent<TestEvent>(&listener, &TestEventListener::OnTestEvent);
     events::EventSystem::GetInstance().DispatchEvent<TestEvent>(3);
-    EXPECT_EQ(mTestListener.GetVal(), 3);
+    EXPECT_EQ(listener.GetVal(), 3);
 }
 
 ///------------------------------------------------------------------------------------------------
 
-TEST_F(EventSystemTests, TestListenerDeallocationDoesNotTriggerCallbackForSubsequentDispatches)
+TEST(EventSystemTests, TestListenerDeallocationDoesNotTriggerCallbackForSubsequentDispatches)
 {
     static int sEventsListenedTo = 0;
     class NotSoLongLivedTestEventListener final: public events::IListener
@@ -128,7 +119,7 @@ TEST_F(EventSystemTests, TestListenerDeallocationDoesNotTriggerCallbackForSubseq
 
 ///------------------------------------------------------------------------------------------------
 
-TEST_F(EventSystemTests, TestListenerDeallocationDoesNotTriggerCallbackForSubsequentDispatchesOfAllRegisteredEvents)
+TEST(EventSystemTests, TestListenerDeallocationDoesNotTriggerCallbackForSubsequentDispatchesOfAllRegisteredEvents)
 {
     static int sEvents1ListenedTo = 0;
     static int sEvents2ListenedTo = 0;
@@ -175,26 +166,182 @@ TEST_F(EventSystemTests, TestListenerDeallocationDoesNotTriggerCallbackForSubseq
 
 ///------------------------------------------------------------------------------------------------
 
-TEST_F(EventSystemTests, TestEventRegistrationWithLambda)
+TEST(EventSystemTests, TestEventRegistrationWithLambda)
 {
-    static int sEventsListenedTo = 0;
-    class NotSoLongLivedTestEventListener final: public events::IListener
+    class NotSoLongLivedEvent {};
+    
+    class NotSoLongLivedTestEventListenerWithLambda final: public events::IListener
     {
     public:
-        void OnTestEvent(const TestEvent&)
+        void OnTestEvent(const NotSoLongLivedEvent&)
+        {
+            mEventsListenedTo++;
+        }
+        
+        int mEventsListenedTo = 0;
+    };
+    
+    NotSoLongLivedTestEventListenerWithLambda listener;
+    {
+        auto listenerHandle = events::EventSystem::GetInstance().RegisterForEvent<NotSoLongLivedEvent>([&](const NotSoLongLivedEvent& e){listener.OnTestEvent(e); });
+        events::EventSystem::GetInstance().DispatchEvent<NotSoLongLivedEvent>();
+    }
+    
+    events::EventSystem::GetInstance().DispatchEvent<NotSoLongLivedEvent>();
+    EXPECT_EQ(listener.mEventsListenedTo, 1);
+}
+
+///------------------------------------------------------------------------------------------------
+
+TEST(EventSystemTests, TestDoubleEventRegistrationIsNoOp)
+{
+    static int sEventsListenedTo = 0;
+    
+    class MultiRegistrationEvent {};
+    
+    class TestEventListenerMultiple final: public events::IListener
+    {
+    public:
+        void OnTestEvent(const MultiRegistrationEvent&)
         {
             sEventsListenedTo++;
         }
     };
     
-    NotSoLongLivedTestEventListener listener;
+    TestEventListenerMultiple listener;
+    events::EventSystem::GetInstance().RegisterForEvent<MultiRegistrationEvent>(&listener, &TestEventListenerMultiple::OnTestEvent);
+    events::EventSystem::GetInstance().RegisterForEvent<MultiRegistrationEvent>(&listener, &TestEventListenerMultiple::OnTestEvent);
+    
+    events::EventSystem::GetInstance().DispatchEvent<MultiRegistrationEvent>();
+    
+    EXPECT_EQ(sEventsListenedTo, 1);
+}
+
+///------------------------------------------------------------------------------------------------
+
+TEST(EventSystemTests, TestListenerUnregistrationFollowedByReregistrationTriggerCallbackOnce)
+{
+    static int sEventsListenedTo = 0;
+    
+    class TestDeallocationFollowedByReregistrationEvent {};
+    
+    class TestDeallocationFollowedByReregistrationListener final: public events::IListener
     {
-        auto listenerHandle = events::EventSystem::GetInstance().RegisterForEvent<TestEvent>([&](const TestEvent& e){listener.OnTestEvent(e); });
-        events::EventSystem::GetInstance().DispatchEvent<TestEvent>(1);
+    public:
+        void OnTestEvent(const TestDeallocationFollowedByReregistrationEvent&)
+        {
+            sEventsListenedTo++;
+        }
+    };
+    
+    TestDeallocationFollowedByReregistrationListener listener;
+    events::EventSystem::GetInstance().RegisterForEvent<TestDeallocationFollowedByReregistrationEvent>(&listener, &TestDeallocationFollowedByReregistrationListener::OnTestEvent);
+    
+    events::EventSystem::GetInstance().UnregisterAllEventsForListener(&listener);
+    events::EventSystem::GetInstance().RegisterForEvent<TestDeallocationFollowedByReregistrationEvent>(&listener, &TestDeallocationFollowedByReregistrationListener::OnTestEvent);
+    
+    events::EventSystem::GetInstance().UnregisterAllEventsForListener(&listener);
+    events::EventSystem::GetInstance().RegisterForEvent<TestDeallocationFollowedByReregistrationEvent>(&listener, &TestDeallocationFollowedByReregistrationListener::OnTestEvent);
+    
+    events::EventSystem::GetInstance().DispatchEvent<TestDeallocationFollowedByReregistrationEvent>();
+    
+    EXPECT_EQ(sEventsListenedTo, 1);
+}
+
+///------------------------------------------------------------------------------------------------
+
+TEST(EventSystemTests, TestDoubleListenerDeathDoesNotYieldAnyEventCallbacksForEither)
+{
+    static int sEventsListenedToByListenerA = 0;
+    static int sEventsListenedToByListenerB = 0;
+    
+    class TestDeallocationEvent {};
+    
+    class TestDeallocationListenerA final: public events::IListener
+    {
+    public:
+        void OnTestEvent(const TestDeallocationEvent&)
+        {
+            sEventsListenedToByListenerA++;
+        }
+    };
+    
+    class TestDeallocationListenerB final: public events::IListener
+    {
+    public:
+        void OnTestEvent(const TestDeallocationEvent&)
+        {
+            sEventsListenedToByListenerB++;
+        }
+    };
+    
+    {
+        TestDeallocationListenerA listenerA;
+        events::EventSystem::GetInstance().RegisterForEvent<TestDeallocationEvent>(&listenerA, &TestDeallocationListenerA::OnTestEvent);
+        
+        TestDeallocationListenerB listenerB;
+        events::EventSystem::GetInstance().RegisterForEvent<TestDeallocationEvent>(&listenerB, &TestDeallocationListenerB::OnTestEvent);
+        
+        events::EventSystem::GetInstance().DispatchEvent<TestDeallocationEvent>();
+        
+        EXPECT_EQ(sEventsListenedToByListenerA, 1);
+        EXPECT_EQ(sEventsListenedToByListenerB, 1);
     }
     
-    events::EventSystem::GetInstance().DispatchEvent<TestEvent>(1);
-    EXPECT_EQ(sEventsListenedTo, 1);
+    events::EventSystem::GetInstance().DispatchEvent<TestDeallocationEvent>();
+    
+    EXPECT_EQ(sEventsListenedToByListenerA, 1);
+    EXPECT_EQ(sEventsListenedToByListenerB, 1);
+}
+
+///------------------------------------------------------------------------------------------------
+
+TEST(EventSystemTests, TestDoubleListenerRegistrationUnregistrationRegistration)
+{
+    static int sEventsListenedToByListenerA = 0;
+    static int sEventsListenedToByListenerB = 0;
+    
+    class TestDeallocationEvent {};
+    
+    class TestDeallocationListenerA final: public events::IListener
+    {
+    public:
+        void OnTestEvent(const TestDeallocationEvent&)
+        {
+            sEventsListenedToByListenerA++;
+        }
+    };
+    
+    class TestDeallocationListenerB final: public events::IListener
+    {
+    public:
+        void OnTestEvent(const TestDeallocationEvent&)
+        {
+            sEventsListenedToByListenerB++;
+        }
+    };
+    
+    TestDeallocationListenerA listenerA;
+    events::EventSystem::GetInstance().RegisterForEvent<TestDeallocationEvent>(&listenerA, &TestDeallocationListenerA::OnTestEvent);
+    
+    TestDeallocationListenerB listenerB;
+    events::EventSystem::GetInstance().RegisterForEvent<TestDeallocationEvent>(&listenerB, &TestDeallocationListenerB::OnTestEvent);
+    
+    events::EventSystem::GetInstance().DispatchEvent<TestDeallocationEvent>();
+    
+    EXPECT_EQ(sEventsListenedToByListenerA, 1);
+    EXPECT_EQ(sEventsListenedToByListenerB, 1);
+    
+    events::EventSystem::GetInstance().UnregisterAllEventsForListener(&listenerA);
+    events::EventSystem::GetInstance().UnregisterAllEventsForListener(&listenerB);
+    
+    events::EventSystem::GetInstance().RegisterForEvent<TestDeallocationEvent>(&listenerA, &TestDeallocationListenerA::OnTestEvent);
+    events::EventSystem::GetInstance().RegisterForEvent<TestDeallocationEvent>(&listenerB, &TestDeallocationListenerB::OnTestEvent);
+    
+    events::EventSystem::GetInstance().DispatchEvent<TestDeallocationEvent>();
+    
+    EXPECT_EQ(sEventsListenedToByListenerA, 2);
+    EXPECT_EQ(sEventsListenedToByListenerB, 2);
 }
 
 ///------------------------------------------------------------------------------------------------

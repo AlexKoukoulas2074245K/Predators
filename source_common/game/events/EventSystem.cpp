@@ -24,10 +24,18 @@ EventSystem& EventSystem::GetInstance()
 
 void EventSystem::UnregisterAllEventsForListener(const IListener* listener)
 {
-    for (auto& eventEntry: mEventIdToDeadListeners)
+    for (auto& eventEntry: mEventIdToDeadListenerIds)
     {
-        eventEntry.second.insert(listener);
+        eventEntry.second.insert(std::make_pair(listener, listener->mInstanceId));
     }
+}
+
+///------------------------------------------------------------------------------------------------
+
+static std::size_t sInstanceIdCounter = 0;
+IListener::IListener()
+    : mInstanceId(sInstanceIdCounter++)
+{
 }
 
 ///------------------------------------------------------------------------------------------------

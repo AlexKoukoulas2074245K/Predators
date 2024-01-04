@@ -15,6 +15,7 @@
 #include <functional>
 #include <string>
 #include <unordered_map>
+#include <set>
 #include <vector>
 
 ///------------------------------------------------------------------------------------------------
@@ -27,8 +28,28 @@ namespace events
 class IListener
 {
 public:
+    IListener();
     virtual ~IListener();
+    
+public:
+    const std::size_t mInstanceId;
 };
+
+///------------------------------------------------------------------------------------------------
+
+struct DeadListenerHasher
+{
+    std::size_t operator()(const std::pair<const IListener*, std::size_t>& key) const
+    {
+        return key.second;
+    }
+};
+
+template<typename EventType>
+bool operator < (const std::pair<IListener*, std::function<void(const EventType&)>>& lhs, const std::pair<IListener*, std::function<void(const EventType&)>>& rhs)
+{
+    return lhs.first->mInstanceId < rhs.first->mInstanceId;
+}
 
 ///------------------------------------------------------------------------------------------------
 
@@ -40,24 +61,15 @@ public:
     template<typename EventType, class... Args>
     void DispatchEvent(Args&&... args)
     {
-        RegisterEvent<EventType>();
-        const auto& eventTypeId = GetTypeHash<EventType>();
-        
         EventType event(std::forward<Args>(args)...);
+        
+        CleanCallbacks<EventType>();
         if (!mEventCallbacks<EventType>.empty())
         {
             for (auto callbackIter = mEventCallbacks<EventType>.begin(); callbackIter != mEventCallbacks<EventType>.end();)
             {
-                if (mEventIdToDeadListeners[eventTypeId].count(callbackIter->first))
-                {
-                    mEventIdToDeadListeners[eventTypeId].erase(callbackIter->first);
-                    callbackIter = mEventCallbacks<EventType>.erase(callbackIter);
-                }
-                else
-                {
-                    callbackIter->second(event);
-                    callbackIter++;
-                }
+                callbackIter->second(event);
+                callbackIter++;
             }
         }
     };
@@ -65,54 +77,62 @@ public:
     template<typename EventType, typename FunctionType>
     [[nodiscard]] std::unique_ptr<IListener> RegisterForEvent(FunctionType callback)
     {
-        RegisterEvent<EventType>();
-        
+        CleanCallbacks<EventType>();
         auto listener = std::make_unique<IListener>();
-        mEventCallbacks<EventType>.push_back(std::make_pair(listener.get(), callback));
+        mEventCallbacks<EventType>.insert(std::make_pair(listener.get(), callback));
         return listener;
     }
     
     template<typename EventType, typename InstanceType, typename FunctionType>
     void RegisterForEvent(InstanceType* listener, FunctionType callback)
     {
-        RegisterEvent<EventType>();
-        
-        mEventCallbacks<EventType>.push_back(std::make_pair(listener, [listener, callback](const EventType& e){ (listener->*callback)(e); }));
+        CleanCallbacks<EventType>();
+        mEventCallbacks<EventType>.insert(std::make_pair(listener, [listener, callback](const EventType& e){ (listener->*callback)(e); }));
     }
     
     template<typename EventType>
     void UnregisterForEvent(IListener* listener)
     {
-        for (auto iter = mEventCallbacks<EventType>.begin(); iter != mEventCallbacks<EventType>.end();)
-        {
-            if (iter->first == static_cast<const void*>(listener))
-            {
-                iter = mEventCallbacks<EventType>.erase(iter);
-            }
-            else
-            {
-                iter++;
-            }
-        }
+        mEventCallbacks<EventType>.erase(std::make_pair(listener, nullptr));
     }
     
     void UnregisterAllEventsForListener(const IListener* listener);
     
 private:
     template<typename EventType>
-    void RegisterEvent()
+    void CleanCallbacks()
     {
         auto eventTypeId = GetTypeHash<EventType>();
-        mEventIdToDeadListeners[eventTypeId];
+        mEventIdToDeadListenerIds[eventTypeId];
+        
+        for (auto callbackIter = mEventCallbacks<EventType>.begin(); callbackIter != mEventCallbacks<EventType>.end();)
+        {
+            bool foundInDeadListenerIds = false;
+            for (auto deadListenerIter = mEventIdToDeadListenerIds[eventTypeId].begin(); deadListenerIter != mEventIdToDeadListenerIds[eventTypeId].end() && !foundInDeadListenerIds;)
+            {
+                if (deadListenerIter->first == callbackIter->first)
+                {
+                    callbackIter = mEventCallbacks<EventType>.erase(callbackIter);
+                    mEventIdToDeadListenerIds[eventTypeId].erase(deadListenerIter);
+                    foundInDeadListenerIds = true;
+                    break;
+                }
+                deadListenerIter++;
+            }
+            
+            if (!foundInDeadListenerIds)
+            {
+                callbackIter++;
+            }
+        }
     }
     
     EventSystem() = default;
     
 private:
     template<typename EventType>
-    static inline std::vector<std::pair<IListener*, std::function<void(const EventType&)>>> mEventCallbacks;
-    
-    std::unordered_map<size_t, std::unordered_set<const IListener*>> mEventIdToDeadListeners;
+    static inline std::set<std::pair<IListener*, std::function<void(const EventType&)>>> mEventCallbacks;
+    std::unordered_map<std::size_t, std::unordered_set<std::pair<const IListener*, std::size_t>, DeadListenerHasher>> mEventIdToDeadListenerIds;
 };
 
 ///------------------------------------------------------------------------------------------------
