@@ -177,7 +177,7 @@ void CoreSystemsEngine::Initialize()
 
 ///------------------------------------------------------------------------------------------------
 
-void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::function<void(const float)> clientUpdateFunction, std::function<void()> clientApplicationMovingToBackgroundFunction, std::function<void()> clientApplicationWindowResizeFunction, std::function<void()> clientCreateDebugWidgetsFunction)
+void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::function<void(const float)> clientUpdateFunction, std::function<void()> clientApplicationMovingToBackgroundFunction, std::function<void()> clientApplicationWindowResizeFunction, std::function<void()> clientCreateDebugWidgetsFunction, std::function<void()> clientOnOneSecondElapsedFunction)
 {
     PreprocessDataFiles("");
     mSystems->mParticleManager.LoadParticleData();
@@ -250,6 +250,8 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
             mSystems->mResourceLoadingService.ReloadMarkedResourcesFromDisk();
             mSystems->mFontRepository.ReloadMarkedFontsFromDisk();
             mSystems->mParticleManager.ReloadParticlesFromDisk();
+            
+            clientOnOneSecondElapsedFunction();
         }
         
         mSystems->mResourceLoadingService.Update();

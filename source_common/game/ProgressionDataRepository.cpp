@@ -64,6 +64,9 @@ void ProgressionDataRepository::ResetStoryData()
     mNextBattleTopPlayerWeightLimit = 0;
     mNextBattleBotPlayerWeightLimit = 0;
     mNextStoryOpponentDamage = 0;
+    mCurrentStorySecondsPlayed = 0;
+    
+    mIsCurrentlyPlayingStoryMode = false;
     
     SetNextBotPlayerDeck(CardDataRepository::GetInstance().GetCardIdsByFamily(game_constants::RODENTS_FAMILY_NAME));
     SetCurrentStoryPlayerDeck(CardDataRepository::GetInstance().GetCardIdsByFamily(game_constants::RODENTS_FAMILY_NAME));
@@ -331,6 +334,21 @@ void ProgressionDataRepository::SetNextStoryOpponentDamage(const int nextStoryOp
 
 ///------------------------------------------------------------------------------------------------
 
+const int& ProgressionDataRepository::GetCurrentStorySecondsPlayed() const
+{
+    return mCurrentStorySecondsPlayed;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ProgressionDataRepository::SetCurrentStorySecondPlayed(const int currentStorySecondsPlayed)
+{
+    mCurrentStorySecondsPlayed = currentStorySecondsPlayed;
+    mStoryDataSerializer->GetState()["current_story_seconds_played"] = mCurrentStorySecondsPlayed;
+}
+
+///------------------------------------------------------------------------------------------------
+
 const glm::ivec2& ProgressionDataRepository::GetCurrentStoryMapNodeCoord() const
 {
     return mCurrentStoryMapNodeCoord;
@@ -404,6 +422,20 @@ void ProgressionDataRepository::SetNextStoryOpponentName(const std::string& next
 {
     mNextStoryOpponentName = nextStoryOpponentName;
     mStoryDataSerializer->GetState()["next_story_opponent_name"] = nextStoryOpponentName;
+}
+
+///------------------------------------------------------------------------------------------------
+
+const bool& ProgressionDataRepository::IsCurrentlyPlayingStoryMode() const
+{
+    return mIsCurrentlyPlayingStoryMode;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ProgressionDataRepository::SetIsCurrentlyPlayingStoryMode(const bool isCurrentlyPlayingStoryMode)
+{
+    mIsCurrentlyPlayingStoryMode = isCurrentlyPlayingStoryMode;
 }
 
 ///------------------------------------------------------------------------------------------------

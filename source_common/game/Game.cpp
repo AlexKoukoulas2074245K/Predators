@@ -57,7 +57,7 @@ Game::Game(const int argc, char** argv)
         logging::Log(logging::LogType::INFO, "Initializing from CWD : %s", argv[0]);
     }
     
-    CoreSystemsEngine::GetInstance().Start([&](){ Init(); }, [&](const float dtMillis){ Update(dtMillis); }, [&](){ ApplicationMovedToBackground(); }, [&](){ WindowResize(); }, [&](){ CreateDebugWidgets(); });
+    CoreSystemsEngine::GetInstance().Start([&](){ Init(); }, [&](const float dtMillis){ Update(dtMillis); }, [&](){ ApplicationMovedToBackground(); }, [&](){ WindowResize(); }, [&](){ CreateDebugWidgets(); }, [&](){ OnOneSecondElapsed(); });
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -146,6 +146,16 @@ void Game::ApplicationMovedToBackground()
 {
     ProgressionDataRepository::GetInstance().FlushStateToFile();
     events::EventSystem::GetInstance().DispatchEvent<events::ApplicationMovedToBackgroundEvent>();
+}
+
+///------------------------------------------------------------------------------------------------
+
+void Game::OnOneSecondElapsed()
+{
+    if (ProgressionDataRepository::GetInstance().IsCurrentlyPlayingStoryMode())
+    {
+        ProgressionDataRepository::GetInstance().SetCurrentStorySecondPlayed(ProgressionDataRepository::GetInstance().GetCurrentStorySecondsPlayed() + 1);
+    }
 }
 
 ///------------------------------------------------------------------------------------------------

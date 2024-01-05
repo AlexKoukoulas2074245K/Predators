@@ -284,9 +284,6 @@ void VisitMapNodeSceneLogicManager::InitializeNodeVisitData()
         {
             auto normalCards = CardDataRepository::GetInstance().GetCardIdsByFamily(game_constants::DEMONS_NORMAL_FAMILY_NAME);
             opponentDeckBuilder.insert(opponentDeckBuilder.end(), normalCards.begin(), normalCards.end());
-             
-            auto genericDemonCards = CardDataRepository::GetInstance().GetCardIdsByFamily(game_constants::DEMONS_GENERIC_FAMILY_NAME);
-            opponentDeckBuilder.insert(opponentDeckBuilder.end(), genericDemonCards.begin(), genericDemonCards.end());
             
             // Populate opponent deck and battle control type
             ProgressionDataRepository::GetInstance().SetNextTopPlayerDeck(opponentDeckBuilder);

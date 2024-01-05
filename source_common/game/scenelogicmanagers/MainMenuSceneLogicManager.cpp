@@ -141,6 +141,8 @@ void MainMenuSceneLogicManager::VInitSceneCamera(std::shared_ptr<scene::Scene>)
 void MainMenuSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 {
     ProgressionDataRepository::GetInstance().SetQuickPlayData(nullptr);
+    ProgressionDataRepository::GetInstance().SetIsCurrentlyPlayingStoryMode(false);
+    
     mQuickPlayData = std::make_unique<QuickPlayData>();
     
     CardDataRepository::GetInstance().LoadCardData(true);
@@ -288,7 +290,9 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                     game_constants::DEFAULT_FONT_NAME,
                     "Continue Story",
                     CONTINUE_STORY_BUTTON_NAME,
-                    [=](){ events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(STORY_MAP_SCENE_TYPE_TO_SCENE_NAME.at(ProgressionDataRepository::GetInstance().GetCurrentStoryMapSceneType()), SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE); },
+                    [=](){
+                        ProgressionDataRepository::GetInstance().SetIsCurrentlyPlayingStoryMode(true);
+                        events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(STORY_MAP_SCENE_TYPE_TO_SCENE_NAME.at(ProgressionDataRepository::GetInstance().GetCurrentStoryMapSceneType()), SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE); },
                     *scene
                 ));
                 
@@ -636,6 +640,7 @@ void MainMenuSceneLogicManager::GoToPreviousSubScene(std::shared_ptr<scene::Scen
 void MainMenuSceneLogicManager::InitializeNewStoryData()
 {
     ProgressionDataRepository::GetInstance().ResetStoryData();
+    ProgressionDataRepository::GetInstance().SetIsCurrentlyPlayingStoryMode(true);
     events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_MAP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
     ProgressionDataRepository::GetInstance().FlushStateToFile();
 }

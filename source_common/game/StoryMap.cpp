@@ -599,6 +599,7 @@ void StoryMap::CreateMapSceneObjects()
                 particleEmitterData.mParticleSizes[i] += dtMillis * NODE_PATH_SCALE_SPEED;
                 if (particleEmitterData.mParticleSizes[i] > MAX_NODE_PATH_SCALE)
                 {
+                    particleEmitterData.mParticleSizes[i] = MAX_NODE_PATH_SCALE;
                     particleEmitterData.mParticleAngles[i] = -1.0f;
                 }
             }
@@ -607,6 +608,7 @@ void StoryMap::CreateMapSceneObjects()
                 particleEmitterData.mParticleSizes[i] -= dtMillis * NODE_PATH_SCALE_SPEED;
                 if (particleEmitterData.mParticleSizes[i] < MIN_NODE_PATH_SCALE)
                 {
+                    particleEmitterData.mParticleSizes[i] = MIN_NODE_PATH_SCALE;
                     particleEmitterData.mParticleAngles[i] = 1.0f;
                 }
             }
@@ -617,6 +619,7 @@ void StoryMap::CreateMapSceneObjects()
         for (size_t i = 0; i < particleEmitterData.mParticleCount; ++i)
         {
             particleEmitterData.mParticleLifetimeSecs[i] = INACTIVE_NODE_PATH_LIFETIME_SECS;
+            particleEmitterData.mParticleSizes[i] = MIN_NODE_PATH_SCALE;
         }
         
     });

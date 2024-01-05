@@ -60,11 +60,6 @@ void HeroCardEntryGameAction::VSetNewGameState()
     
     activePlayerState.mGoldenCardIds.push_back(mHeroCardId);
     activePlayerState.mPlayerBoardCards.push_back(mHeroCardId);
-    auto heroCardInDeckIter = std::find(activePlayerState.mPlayerDeckCards.begin(), activePlayerState.mPlayerDeckCards.end(), mHeroCardId);
-    if (heroCardInDeckIter != activePlayerState.mPlayerDeckCards.end())
-    {
-        activePlayerState.mPlayerDeckCards.erase(heroCardInDeckIter);
-    }
     
     mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.resize(activePlayerState.mPlayerBoardCards.size() + 1);
     

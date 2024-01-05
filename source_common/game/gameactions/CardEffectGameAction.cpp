@@ -242,7 +242,16 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
     mEffectComponents = strutils::StringSplit(effect, ' ');
     const auto& boardCards = mBoardState->GetActivePlayerState().mPlayerBoardCards;
     const auto& heldCards = mBoardState->GetActivePlayerState().mPlayerHeldCards;
-    const auto effectCardFamily = CardDataRepository::GetInstance().GetCardData(boardCards.back())->get().mCardFamily;
+    
+    auto effectCardFamily = CardDataRepository::GetInstance().GetCardData(boardCards.back())->get().mCardFamily;
+    if (effectCardFamily == game_constants::DEMONS_NORMAL_FAMILY_NAME ||
+        effectCardFamily == game_constants::DEMONS_MEDIUM_FAMILY_NAME ||
+        effectCardFamily == game_constants::DEMONS_HARD_FAMILY_NAME ||
+        effectCardFamily == game_constants::DEMONS_BOSS_FAMILY_NAME)
+    {
+        effectCardFamily = game_constants::DEMONS_GENERIC_FAMILY_NAME;
+    }
+    
     bool mAffectingFamilyOnly = false;
     
     std::vector<int> affectedBoardCardIndices;

@@ -114,6 +114,9 @@ public:
     const int& GetNextStoryOpponentDamage() const;
     void SetNextStoryOpponentDamage(const int nextStoryOpponentDamage);
     
+    const int& GetCurrentStorySecondsPlayed() const;
+    void SetCurrentStorySecondPlayed(const int currentStorySecondsPlayed);
+    
     const glm::ivec2& GetCurrentStoryMapNodeCoord() const;
     void SetCurrentStoryMapNodeCoord(const glm::ivec2& currentStoryMapNodeCoord);
     
@@ -128,6 +131,9 @@ public:
     
     const std::string& GetNextStoryOpponentName() const;
     void SetNextStoryOpponentName(const std::string& nextStoryOpponentName);
+    
+    const bool& IsCurrentlyPlayingStoryMode() const;
+    void SetIsCurrentlyPlayingStoryMode(const bool isCurrentlyPlayingStoryMode);
     
 private:
     ProgressionDataRepository();
@@ -160,6 +166,8 @@ private:
     int mNextBattleTopPlayerWeightLimit = 0;
     int mNextBattleBotPlayerWeightLimit = 0;
     int mNextStoryOpponentDamage = 0;
+    int mCurrentStorySecondsPlayed = 0;
+    bool mIsCurrentlyPlayingStoryMode = false;
 };
 
 ///------------------------------------------------------------------------------------------------

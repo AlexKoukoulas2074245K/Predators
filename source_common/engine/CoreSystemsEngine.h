@@ -41,7 +41,7 @@ public:
     const CoreSystemsEngine& operator = (const CoreSystemsEngine&) = delete;
     CoreSystemsEngine& operator = (CoreSystemsEngine&&) = delete;
     
-    void Start(std::function<void()> clientInitFunction, std::function<void(const float)> clientUpdateFunction, std::function<void()> clientApplicationMovedToBackgroundFunction, std::function<void()> clientApplicationWindowResizeFunction, std::function<void()> clientCreateDebugWidgetsFunction);
+    void Start(std::function<void()> clientInitFunction, std::function<void(const float)> clientUpdateFunction, std::function<void()> clientApplicationMovedToBackgroundFunction, std::function<void()> clientApplicationWindowResizeFunction, std::function<void()> clientCreateDebugWidgetsFunction, std::function<void()> clientOnOneSecondElapsedFunction);
     
     rendering::AnimationManager& GetAnimationManager();
     rendering::IRenderer& GetRenderer();

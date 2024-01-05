@@ -26,6 +26,7 @@ public:
     void Update(const float dtMillis);
     void ApplicationMovedToBackground();
     void WindowResize();
+    void OnOneSecondElapsed();
     void CreateDebugWidgets();
     
     std::unique_ptr<GameSceneTransitionManager> mGameSceneTransitionManager;

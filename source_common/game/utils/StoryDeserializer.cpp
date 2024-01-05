@@ -55,6 +55,11 @@ StoryDeserializer::StoryDeserializer(ProgressionDataRepository& progressionDataR
         progressionDataRepository.SetStoryMapGenerationSeed(storyJson["story_seed"].get<int>());
     }
     
+    if (storyJson.count("current_story_seconds_played"))
+    {
+        progressionDataRepository.SetCurrentStorySecondPlayed(storyJson["current_story_seconds_played"].get<int>());
+    }
+    
     if (storyJson.count("current_story_map_node_seed"))
     {
         progressionDataRepository.SetCurrentStoryMapNodeSeed(storyJson["current_story_map_node_seed"].get<int>());

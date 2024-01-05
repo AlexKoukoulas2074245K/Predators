@@ -171,7 +171,7 @@ void DefeatSceneLogicManager::InitSubScene(const SubSceneType subSceneType, std:
             scene::TextSceneObjectData textDataDefeatResultsBot;
             textDataDefeatResultsBot.mFontName = game_constants::DEFAULT_FONT_NAME;
             
-            auto timePreformatted = strutils::GetHoursMinutesStringFromSeconds(123456);
+            auto timePreformatted = strutils::GetHoursMinutesStringFromSeconds(ProgressionDataRepository::GetInstance().GetCurrentStorySecondsPlayed());
             auto timeComponents = strutils::StringSplit(timePreformatted, ':');
             textDataDefeatResultsBot.mText = "Time played: " + timeComponents[0] + "h " + timeComponents[1] + "m";
             

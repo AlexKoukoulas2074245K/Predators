@@ -343,7 +343,7 @@
         {
             "id": 35,
             "weight": 3,
-            "family": "demons",
+            "family": "demons_medium",
             "name": "Dark Magic",
             "effect": "DAMAGE +2 FAMILY BOARD HELD",
             "tooltip": "Damage +2 for$ALL Demons on$hand & board",
