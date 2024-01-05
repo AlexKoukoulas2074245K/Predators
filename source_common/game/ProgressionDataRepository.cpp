@@ -8,6 +8,8 @@
 #include <game/ProgressionDataRepository.h>
 #include <game/utils/StoryDeserializer.h>
 #include <game/utils/StorySerializer.h>
+#include <game/utils/PersistentAccountDataSerializer.h>
+#include <game/utils/PersistentAccountDataDeserializer.h>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -23,10 +25,13 @@ ProgressionDataRepository::ProgressionDataRepository()
     : mStoryCurrentHealth(0)
     , mCurrencyCoins(0)
 {
+    mPersistentDataSerializer = std::make_unique<PersistentAccountDataSerializer>();
     mStoryDataSerializer = std::make_unique<StorySerializer>();
     
+    mCurrencyCoins = ValueWithDelayedDisplay<long long>(0, 0, [=](const long long& newValue) { mPersistentDataSerializer->GetState()["currency_coins"] = newValue; });
     ResetStoryData();
     
+    mPersistentDataDeserializer = std::make_unique<PersistentAccountDataDeserializer>(*this);
     mStoryDataDeserializer = std::make_unique<StoryDeserializer>(*this);
 }
 
@@ -37,7 +42,6 @@ void ProgressionDataRepository::ResetStoryData()
     mStoryDataSerializer->GetState().clear();
     
     mStoryCurrentHealth = ValueWithDelayedDisplay<int>(0, 0, [=](const int& newValue) { mStoryDataSerializer->GetState()["current_story_health"] = newValue; });
-    mCurrencyCoins = ValueWithDelayedDisplay<long long>(0, 0, [=](const long long& newValue) { mStoryDataSerializer->GetState()["currency_coins"] = newValue; });
     
     mCurrentStoryPlayerDeck.clear();
     mNextTopPlayerDeck.clear();
@@ -66,6 +70,7 @@ void ProgressionDataRepository::ResetStoryData()
 void ProgressionDataRepository::FlushStateToFile()
 {
     mStoryDataSerializer->FlushStateToFile();
+    mPersistentDataSerializer->FlushStateToFile();
 }
 
 ///------------------------------------------------------------------------------------------------

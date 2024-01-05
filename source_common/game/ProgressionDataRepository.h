@@ -47,6 +47,8 @@ struct QuickPlayData
 
 class StoryDeserializer;
 class StorySerializer;
+class PersistentAccountDataSerializer;
+class PersistentAccountDataDeserializer;
 class ProgressionDataRepository final
 {
 public:
@@ -131,6 +133,8 @@ private:
     ProgressionDataRepository();
     
 private:
+    std::unique_ptr<PersistentAccountDataDeserializer> mPersistentDataDeserializer;
+    std::unique_ptr<PersistentAccountDataSerializer> mPersistentDataSerializer;
     std::unique_ptr<StoryDeserializer> mStoryDataDeserializer;
     std::unique_ptr<StorySerializer> mStoryDataSerializer;
     std::unique_ptr<QuickPlayData> mQuickPlayData;

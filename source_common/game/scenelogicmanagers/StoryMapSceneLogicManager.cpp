@@ -112,6 +112,7 @@ void StoryMapSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     ResetSwipeData();
     
     ProgressionDataRepository::GetInstance().SetCurrentStoryMapSceneType(StoryMapSceneType::STORY_MAP);
+    ProgressionDataRepository::GetInstance().FlushStateToFile();
     
     mMapUpdateState = MapUpdateState::NAVIGATING;
     mSelectedMapCoord = nullptr;

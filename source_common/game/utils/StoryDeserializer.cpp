@@ -25,13 +25,6 @@ StoryDeserializer::StoryDeserializer(ProgressionDataRepository& progressionDataR
         progressionDataRepository.StoryCurrentHealth().SetValue(storyHealth);
     }
     
-    if (storyJson.count("currency_coins"))
-    {
-        auto currency = storyJson["currency_coins"].get<long long>();
-        progressionDataRepository.CurrencyCoins().SetDisplayedValue(currency);
-        progressionDataRepository.CurrencyCoins().SetValue(currency);
-    }
-    
     if (storyJson.count("current_story_player_deck"))
     {
         progressionDataRepository.SetCurrentStoryPlayerDeck(storyJson["current_story_player_deck"].get<std::vector<int>>());
