@@ -5,6 +5,7 @@
 ///  Created by Alex Koukoulas on 08/12/2023                                                       
 ///------------------------------------------------------------------------------------------------
 
+#include <game/Cards.h>
 #include <game/ProgressionDataRepository.h>
 #include <game/utils/StoryDeserializer.h>
 #include <game/utils/StorySerializer.h>
@@ -41,7 +42,7 @@ void ProgressionDataRepository::ResetStoryData()
 {
     mStoryDataSerializer->GetState().clear();
     
-    mStoryCurrentHealth = ValueWithDelayedDisplay<int>(0, 0, [=](const int& newValue) { mStoryDataSerializer->GetState()["current_story_health"] = newValue; });
+    mStoryCurrentHealth = ValueWithDelayedDisplay<int>(1, 1, [=](const int& newValue) { mStoryDataSerializer->GetState()["current_story_health"] = newValue; });
     
     mCurrentStoryPlayerDeck.clear();
     mNextTopPlayerDeck.clear();
@@ -63,6 +64,9 @@ void ProgressionDataRepository::ResetStoryData()
     mNextBattleTopPlayerWeightLimit = 0;
     mNextBattleBotPlayerWeightLimit = 0;
     mNextStoryOpponentDamage = 0;
+    
+    SetNextBotPlayerDeck(CardDataRepository::GetInstance().GetCardIdsByFamily(game_constants::RODENTS_FAMILY_NAME));
+    SetCurrentStoryPlayerDeck(CardDataRepository::GetInstance().GetCardIdsByFamily(game_constants::RODENTS_FAMILY_NAME));
 }
 
 ///------------------------------------------------------------------------------------------------

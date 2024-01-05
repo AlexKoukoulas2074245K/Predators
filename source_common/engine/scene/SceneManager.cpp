@@ -176,6 +176,13 @@ void SceneManager::LoadPredefinedObjectsFromDescriptorForScene(std::shared_ptr<S
         if (sceneObjectJson.count("font"))
         {
             textData.mFontName = strutils::StringId(sceneObjectJson["font"].get<std::string>());
+            
+            if (sceneObjectJson.count("color"))
+            {
+                sceneObject->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME].r = sceneObjectJson["color"]["r"].get<float>();
+                sceneObject->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME].g = sceneObjectJson["color"]["g"].get<float>();
+                sceneObject->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME].b = sceneObjectJson["color"]["b"].get<float>();
+            }
         }
         if (sceneObjectJson.count("text"))
         {

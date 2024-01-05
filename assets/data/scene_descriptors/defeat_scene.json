@@ -1,0 +1,19 @@
+{
+    "children_scenes":
+    [
+    ],
+    
+    "scene_objects":
+    [
+        {
+            "name": "defeat_text",
+            "font": "font",
+            "text": "Defeat",
+            "shader": "basic_custom_color.vs",
+            "scale": { "x": 0.0007, "y": 0.0007, "z": 0.0007 },
+            "position": { "x": -0.1, "y": 0.177, "z": 23.1 },
+            "color": { "r": 0.8, "g": 0.0, "b": 0.0},
+            "alpha": 0.0
+        }
+    ]
+}

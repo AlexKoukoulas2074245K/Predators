@@ -33,6 +33,7 @@ public:
 private:
     enum class AnimationState
     {
+        DEFEAT,
         EXPLOSIONS,
         DISSOLVE,
         FINISHED

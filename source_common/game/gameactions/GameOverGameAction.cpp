@@ -24,6 +24,7 @@ const std::string GameOverGameAction::VICTORIOUS_PLAYER_INDEX_PARAM = "victoriou
 static const std::string CARD_DISSOLVE_SHADER_FILE_NAME = "card_dissolve.vs";
 static const std::string DISSOLVE_TEXTURE_FILE_NAME = "dissolve.png";
 
+static const strutils::StringId DEFEAT_SCENE_NAME = strutils::StringId("defeat_scene");
 static const strutils::StringId DISSOLVE_THRESHOLD_UNIFORM_NAME = strutils::StringId("dissolve_threshold");
 static const strutils::StringId DISSOLVE_MAGNITUDE_UNIFORM_NAME = strutils::StringId("dissolve_magnitude");
 static const strutils::StringId CARD_ORIGIN_X_UNIFORM_NAME = strutils::StringId("card_origin_x");
@@ -63,9 +64,18 @@ void GameOverGameAction::VInitAnimation()
     
     if (!ProgressionDataRepository::GetInstance().GetNextStoryOpponentName().empty())
     {
-        mExplosionDelaySecs = EXPLOSION_DELAY_SECS;
-        mAnimationState = AnimationState::EXPLOSIONS;
-        mExplosionCounter = 0;
+        if (std::stoi(mExtraActionParams.at(VICTORIOUS_PLAYER_INDEX_PARAM)) == game_constants::LOCAL_PLAYER_INDEX)
+        {
+            mExplosionDelaySecs = EXPLOSION_DELAY_SECS;
+            mAnimationState = AnimationState::EXPLOSIONS;
+            mExplosionCounter = 0;
+        }
+        else
+        {
+            mAnimationState = AnimationState::DEFEAT;
+            CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(scene.GetUpdateTimeSpeedFactor(), 0.0f, game_constants::SCENE_SPEED_DILATION_ANIMATION_DURATION_SECS), [](){}, game_constants::SCENE_SPEED_DILATION_ANIMATION_NAME);
+            events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(DEFEAT_SCENE_NAME, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+        }
     }
     else
     {

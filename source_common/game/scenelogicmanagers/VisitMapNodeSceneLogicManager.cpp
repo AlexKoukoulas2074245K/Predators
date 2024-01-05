@@ -43,7 +43,7 @@ static const float VISIT_BUTTON_Y_OFFSET_FROM_NODE = 0.05f;
 static const float BACK_BUTTON_HOR_DISTANCE_FROM_NODE = 0.1f;
 static const float BACK_BUTTON_Y_OFFSET_FROM_NODE = -0.03f;
 static const float BUTTON_Z = 24.0f;
-
+static const float STAGGERED_ITEM_ALPHA_DELAY_SECS = 0.1f;
 static const float FADE_IN_OUT_DURATION_SECS = 0.25f;
 
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
@@ -188,6 +188,7 @@ void VisitMapNodeSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> sce
     nodeDescriptionSceneObject->mPosition.z = BUTTON_Z;
     nodeDescriptionSceneObject->mScale = BUTTON_SCALE;
     
+    size_t sceneObjectIndex = 0;
     for (auto sceneObject: scene->GetSceneObjects())
     {
         if (sceneObject->mName == game_constants::OVERLAY_SCENE_OBJECT_NAME)
@@ -202,7 +203,7 @@ void VisitMapNodeSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> sce
             sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
         }
         
-        CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, 1.0f, FADE_IN_OUT_DURATION_SECS), [=]()
+        CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, 1.0f, FADE_IN_OUT_DURATION_SECS, animation_flags::NONE, sceneObjectIndex++ * STAGGERED_ITEM_ALPHA_DELAY_SECS), [=]()
         {
         });
     }

@@ -73,7 +73,7 @@ static const float SUBSCENE_ITEM_FADE_IN_OUT_DURATION_SECS = 0.25f;
 static const float DECK_SWIPEABLE_ENTRY_SCALE = 0.075f;
 static const float DECK_ENTRY_ALPHA = 0.5f;
 static const float DECK_ENTRY_Z = 0.1f;
-//static const float INITIAL_CAMERA_ZOOM_FACTOR_OFFSET = 54.065f;
+static const float STAGGERED_ITEM_ALPHA_DELAY_SECS = 0.1f;
 static const float DECK_SELECTED_MAX_SCALE_FACTOR = 1.15f;
 static const float DECK_SELECTED_MIN_SCALE_FACTOR = 0.65f;
 static const float DECK_SELECTION_ANIMATION_DURATION_SECS = 0.4f;
@@ -380,6 +380,39 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
         
         case SubSceneType::QUICK_BATTLE:
         {
+            mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
+            (
+                NORMAL_BATTLE_MODE_BUTTON_POSITION,
+                BUTTON_SCALE,
+                game_constants::DEFAULT_FONT_NAME,
+                "Normal",
+                NORMAL_BATTLE_MODE_BUTTON_NAME,
+                [=](){ BattleModeSelected(NORMAL_BATTLE_MODE_BUTTON_NAME); },
+                *scene
+            ));
+            
+            mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
+            (
+                AI_DEMO_BATTLE_MODE_BUTTON_POSITION,
+                BUTTON_SCALE,
+                game_constants::DEFAULT_FONT_NAME,
+                "AI Demo",
+                AI_DEMO_BATTLE_MODE_BUTTON_NAME,
+                [=](){ BattleModeSelected(AI_DEMO_BATTLE_MODE_BUTTON_NAME); },
+                *scene
+            ));
+            
+            mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
+            (
+                REPLAY_BATTLE_MODE_BUTTON_POSITION,
+                BUTTON_SCALE,
+                game_constants::DEFAULT_FONT_NAME,
+                "Replay",
+                REPLAY_BATTLE_MODE_BUTTON_NAME,
+                [=](){ BattleModeSelected(REPLAY_BATTLE_MODE_BUTTON_NAME); },
+                *scene
+            ));
+            
             scene::TextSceneObjectData textDataTop;
             textDataTop.mFontName = game_constants::DEFAULT_FONT_NAME;
             textDataTop.mText = "Top Deck";
@@ -458,34 +491,13 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
             
             mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
             (
-                NORMAL_BATTLE_MODE_BUTTON_POSITION,
+                START_BATTLE_BUTTON_POSITION,
                 BUTTON_SCALE,
                 game_constants::DEFAULT_FONT_NAME,
-                "Normal",
-                NORMAL_BATTLE_MODE_BUTTON_NAME,
-                [=](){ BattleModeSelected(NORMAL_BATTLE_MODE_BUTTON_NAME); },
-                *scene
-            ));
-            
-            mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
-            (
-                AI_DEMO_BATTLE_MODE_BUTTON_POSITION,
-                BUTTON_SCALE,
-                game_constants::DEFAULT_FONT_NAME,
-                "AI Demo",
-                AI_DEMO_BATTLE_MODE_BUTTON_NAME,
-                [=](){ BattleModeSelected(AI_DEMO_BATTLE_MODE_BUTTON_NAME); },
-                *scene
-            ));
-            
-            mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
-            (
-                REPLAY_BATTLE_MODE_BUTTON_POSITION,
-                BUTTON_SCALE,
-                game_constants::DEFAULT_FONT_NAME,
-                "Replay",
-                REPLAY_BATTLE_MODE_BUTTON_NAME,
-                [=](){ BattleModeSelected(REPLAY_BATTLE_MODE_BUTTON_NAME); },
+                "Start Battle",
+                START_BATTLE_BUTTON_NAME,
+                [=](){ ProgressionDataRepository::GetInstance().SetQuickPlayData(std::move(mQuickPlayData));
+                    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::BATTLE_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE); },
                 *scene
             ));
             
@@ -497,18 +509,6 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                 "Back",
                 BACK_BUTTON_NAME,
                 [=](){ GoToPreviousSubScene(scene); },
-                *scene
-            ));
-            
-            mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
-            (
-                START_BATTLE_BUTTON_POSITION,
-                BUTTON_SCALE,
-                game_constants::DEFAULT_FONT_NAME,
-                "Start Battle",
-                START_BATTLE_BUTTON_NAME,
-                [=](){ ProgressionDataRepository::GetInstance().SetQuickPlayData(std::move(mQuickPlayData));
-                    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::BATTLE_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE); },
                 *scene
             ));
             
@@ -534,6 +534,7 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
         default: break;
     }
     
+    size_t sceneObjectIndex = 0;
     for (auto sceneObject: scene->GetSceneObjects())
     {
         if (STATIC_SCENE_ELEMENTS.count(sceneObject->mName))
@@ -542,7 +543,7 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
         }
         
         sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
-        CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, 1.0f, SUBSCENE_ITEM_FADE_IN_OUT_DURATION_SECS), [=]()
+        CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, 1.0f, SUBSCENE_ITEM_FADE_IN_OUT_DURATION_SECS, animation_flags::NONE, sceneObjectIndex++ * STAGGERED_ITEM_ALPHA_DELAY_SECS), [=]()
         {
             mTransitioningToSubScene = false;
         });
@@ -635,12 +636,7 @@ void MainMenuSceneLogicManager::GoToPreviousSubScene(std::shared_ptr<scene::Scen
 void MainMenuSceneLogicManager::InitializeNewStoryData()
 {
     ProgressionDataRepository::GetInstance().ResetStoryData();
-    
-    ProgressionDataRepository::GetInstance().SetNextBotPlayerDeck(CardDataRepository::GetInstance().GetCardIdsByFamily(game_constants::RODENTS_FAMILY_NAME));
-    ProgressionDataRepository::GetInstance().SetCurrentStoryPlayerDeck(CardDataRepository::GetInstance().GetCardIdsByFamily(game_constants::RODENTS_FAMILY_NAME));
-    
     events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_MAP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
-    
     ProgressionDataRepository::GetInstance().FlushStateToFile();
 }
 
