@@ -42,7 +42,7 @@ void ProgressionDataRepository::ResetStoryData()
 {
     mStoryDataSerializer->GetState().clear();
     
-    mStoryCurrentHealth = ValueWithDelayedDisplay<int>(1, 1, [=](const int& newValue) { mStoryDataSerializer->GetState()["current_story_health"] = newValue; });
+    mStoryCurrentHealth = ValueWithDelayedDisplay<int>(60, 60, [=](const int& newValue) { mStoryDataSerializer->GetState()["current_story_health"] = newValue; });
     
     mCurrentStoryPlayerDeck.clear();
     mNextTopPlayerDeck.clear();

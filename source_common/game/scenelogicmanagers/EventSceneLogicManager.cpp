@@ -25,6 +25,7 @@ static const strutils::StringId VISIT_BUTTON_NAME = strutils::StringId("visit_bu
 static const strutils::StringId EVENT_PORTRAIT_SCENE_OBJECT_NAME = strutils::StringId("event_portrait");
 static const strutils::StringId EVENT_DESCRIPTION_SCENE_OBJECT_NAME = strutils::StringId("event_description");
 static const strutils::StringId EVENT_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("event_button");
+static const strutils::StringId DEFEAT_SCENE_NAME = strutils::StringId("defeat_scene");
 
 static const glm::vec3 BUTTON_SCALE = {0.0004f, 0.0004f, 0.0004f};
 static const glm::vec3 EVENT_DESCRIPTION_TEXT_SCALE = {0.0004f, 0.0004f, 0.0004f};
@@ -99,6 +100,14 @@ void EventSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene
     
     if (mTransitioning)
     {
+        return;
+    }
+    
+    auto& progressionHealth = ProgressionDataRepository::GetInstance().StoryCurrentHealth();
+    if (progressionHealth.GetDisplayedValue() <= 0)
+    {
+        events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(DEFEAT_SCENE_NAME, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+        mTransitioning = true;
         return;
     }
     

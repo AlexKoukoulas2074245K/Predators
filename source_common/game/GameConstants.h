@@ -110,7 +110,7 @@ namespace game_constants
     // General Game Constants
     inline constexpr int REMOTE_PLAYER_INDEX = 0;
     inline constexpr int LOCAL_PLAYER_INDEX = 1;
-    inline constexpr int MAX_BOARD_CARDS = 5;
+    inline constexpr int MAX_BOARD_CARDS = 4;
     inline constexpr int CARD_INTERACTIVE_MODE_DEFAULT = 0;
     inline constexpr int CARD_INTERACTIVE_MODE_INTERACTIVE = 1;
     inline constexpr int CARD_INTERACTIVE_MODE_NONINTERACTIVE = 2;

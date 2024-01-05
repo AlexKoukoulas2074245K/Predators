@@ -162,7 +162,7 @@ void DefeatSceneLogicManager::InitSubScene(const SubSceneType subSceneType, std:
         {
             scene::TextSceneObjectData textDataDefeatResultsTop;
             textDataDefeatResultsTop.mFontName = game_constants::DEFAULT_FONT_NAME;
-            textDataDefeatResultsTop.mText = "Highest level achieved: " + std::to_string(ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeCoord().x) + "!";
+            textDataDefeatResultsTop.mText = "Highest level achieved: " + std::to_string(ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeCoord().x) + "";
             auto textDefeatResultsTopSceneObject = scene->CreateSceneObject(DEFEAT_RESULTS_TEXT_TOP_NAME);
             textDefeatResultsTopSceneObject->mSceneObjectTypeData = std::move(textDataDefeatResultsTop);
             textDefeatResultsTopSceneObject->mPosition = DEFEAT_RESULTS_TEXT_TOP_POSITION;
@@ -171,7 +171,7 @@ void DefeatSceneLogicManager::InitSubScene(const SubSceneType subSceneType, std:
             scene::TextSceneObjectData textDataDefeatResultsBot;
             textDataDefeatResultsBot.mFontName = game_constants::DEFAULT_FONT_NAME;
             
-            auto timePreformatted = strutils::GetHoursMinutesStringFromSeconds(12345678);
+            auto timePreformatted = strutils::GetHoursMinutesStringFromSeconds(123456);
             auto timeComponents = strutils::StringSplit(timePreformatted, ':');
             textDataDefeatResultsBot.mText = "Time played: " + timeComponents[0] + "h " + timeComponents[1] + "m";
             

@@ -130,6 +130,10 @@ void GuiObjectManager::Update(const float dtMillis)
         animatedButton->Update(dtMillis);
     }
     
+    auto& currentHealth = ProgressionDataRepository::GetInstance().StoryCurrentHealth();
+    currentHealth.SetValue(math::Max(0, currentHealth.GetValue()));
+    currentHealth.SetDisplayedValue(math::Max(0, currentHealth.GetDisplayedValue()));
+    
     mHealthStatContainer->Update(dtMillis);
     SetCoinValueText();
 }

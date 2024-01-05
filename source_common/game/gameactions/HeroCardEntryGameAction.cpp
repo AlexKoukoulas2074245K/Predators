@@ -36,6 +36,8 @@ static const float CARD_PLAY_PARTICLE_EMITTER_Z = 0.01f;
 static const float IN_GAME_PLAYED_CARD_ANIMATION_DURATION = 0.5f;
 static const float HEALTH_CONTAINER_INIT_SCALE_FACTOR = 0.5f;
 static const float HEALTH_CRYSTAL_ANIMATION_DELAY_SECS = 0.5f;
+static const float HEALTH_CRYSTAL_ANIMATION_CURVE_MIDPOINT_Y_OFFSET = 0.05f;
+static const float HEALTH_CRYSTAL_ANIMATION_DURATION_SECS = 1.0f;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -176,8 +178,20 @@ ActionAnimationUpdateResult HeroCardEntryGameAction::VUpdateAnimation(const floa
             
         case AnimationState::INITIALIZE_HEALTH_CRYSTAL_ANIMATION:
         {
-            animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(topHealthContainerBase, mTargetHealthCrystalBasePosition, mTargetHealthCrystalBaseScale, 1.0f, animation_flags::NONE, HEALTH_CRYSTAL_ANIMATION_DELAY_SECS, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){ mAnimationState = AnimationState::COMPLETE; });
-            animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(topHealthContainerValue, mTargetHealthCrystalValuePosition, mTargetHealthCrystalValueScale, 1.0f, animation_flags::NONE, HEALTH_CRYSTAL_ANIMATION_DELAY_SECS, math::LinearFunction, math::TweeningMode::EASE_OUT), [](){});
+            animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(topHealthContainerBase, mTargetHealthCrystalBasePosition, mTargetHealthCrystalBaseScale, HEALTH_CRYSTAL_ANIMATION_DURATION_SECS, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT | animation_flags::IGNORE_Z_COMPONENT, HEALTH_CRYSTAL_ANIMATION_DELAY_SECS, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){ mAnimationState = AnimationState::COMPLETE; });
+            animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(topHealthContainerValue, mTargetHealthCrystalValuePosition, mTargetHealthCrystalValueScale, HEALTH_CRYSTAL_ANIMATION_DURATION_SECS, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT | animation_flags::IGNORE_Z_COMPONENT, HEALTH_CRYSTAL_ANIMATION_DELAY_SECS, math::LinearFunction, math::TweeningMode::EASE_OUT), [](){});
+            
+            auto crystalBaseMidwayPosition = (topHealthContainerBase->mPosition + mTargetHealthCrystalBasePosition)/2.0f;
+            crystalBaseMidwayPosition.y += HEALTH_CRYSTAL_ANIMATION_CURVE_MIDPOINT_Y_OFFSET;
+            
+            auto crystalValueMidwayPosition = (topHealthContainerValue->mPosition + mTargetHealthCrystalValuePosition)/2.0f;
+            crystalValueMidwayPosition.y += HEALTH_CRYSTAL_ANIMATION_CURVE_MIDPOINT_Y_OFFSET;
+            
+            math::BezierCurve crystalBaseCurve({ topHealthContainerBase->mPosition, crystalBaseMidwayPosition, mTargetHealthCrystalBasePosition });
+            math::BezierCurve crystalValueCurve({ topHealthContainerValue->mPosition, crystalValueMidwayPosition, mTargetHealthCrystalValuePosition });
+            
+            animationManager.StartAnimation(std::make_unique<rendering::BezierCurveAnimation>(topHealthContainerBase, crystalBaseCurve, HEALTH_CRYSTAL_ANIMATION_DURATION_SECS, animation_flags::NONE, HEALTH_CRYSTAL_ANIMATION_DELAY_SECS), [](){});
+            animationManager.StartAnimation(std::make_unique<rendering::BezierCurveAnimation>(topHealthContainerValue, crystalValueCurve, HEALTH_CRYSTAL_ANIMATION_DURATION_SECS, animation_flags::NONE, HEALTH_CRYSTAL_ANIMATION_DELAY_SECS), [](){});
             
             mAnimationState = AnimationState::ANIMATING_HEALTH_CRYSTAL;
         } break;
