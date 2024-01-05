@@ -129,6 +129,11 @@ void GameSceneTransitionManager::ChangeToScene
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
     auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
     
+    if (!mActiveSceneStack.empty())
+    {
+        sceneManager.FindScene(mActiveSceneStack.top().mActiveSceneName)->GetCamera().StopShake();
+    }
+    
     if (sceneChangeType != SceneChangeType::MODAL_SCENE && !mActiveSceneStack.empty())
     {
         // The first non modal scene + all of it's modals (if any) need to be popped

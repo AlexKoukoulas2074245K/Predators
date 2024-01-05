@@ -143,7 +143,7 @@ void GuiObjectManager::Update(const float dtMillis)
 void GuiObjectManager::SetCoinValueText()
 {
     auto coinValue = ProgressionDataRepository::GetInstance().CurrencyCoins().GetDisplayedValue();
-    coinValue = 123456;
+
     if (coinValue < 1000)
     {
         std::get<scene::TextSceneObjectData>(mScene->FindSceneObject(game_constants::GUI_COIN_VALUE_TEXT_SCENE_OBJECT_NAME)->mSceneObjectTypeData).mText = std::to_string(coinValue);
