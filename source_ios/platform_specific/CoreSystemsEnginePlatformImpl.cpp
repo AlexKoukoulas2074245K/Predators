@@ -127,7 +127,7 @@ void CoreSystemsEngine::Initialize()
 
 ///------------------------------------------------------------------------------------------------
 
-void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::function<void(const float)> clientUpdateFunction, std::function<void()> clientApplicationMovedToBackgroundFunction, std::function<void()>, std::function<void()>)
+void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::function<void(const float)> clientUpdateFunction, std::function<void()> clientApplicationMovedToBackgroundFunction, std::function<void()>, std::function<void()>, std::function<void()> clientOnOneSecondElapsedFunction)
 {
     mSystems->mParticleManager.LoadParticleData();
     
@@ -187,6 +187,8 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
             
             mSystems->mResourceLoadingService.ReloadMarkedResourcesFromDisk();
             mSystems->mFontRepository.ReloadMarkedFontsFromDisk();
+            
+            clientOnOneSecondElapsedFunction();
         }
   
         mSystems->mAnimationManager.Update(gameLogicMillis);

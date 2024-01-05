@@ -31,14 +31,14 @@ static const std::string COIN_STACK_TEXTURE_FILE_NAME = "coin_stack.png";
 static const std::string HEALTH_CRYSTAL_TEXTURE_FILE_NAME = "health_icon.png";
 static const std::string HEALTH_CRYSTAL_SCENE_OBJECT_NAME_PREFIX = "health_crystal_";
 
-static const glm::vec3 BATTLE_SCENE_SETTINGS_BUTTON_POSITION = {0.145f, 0.08f, 24.0f};
+static const glm::vec3 BATTLE_SCENE_SETTINGS_BUTTON_POSITION = {0.145f, 0.09f, 24.0f};
 static const glm::vec3 SETTINGS_BUTTON_POSITION = {0.145f, 0.161f, 24.0f};
 static const glm::vec3 SETTINGS_BUTTON_SCALE = {0.06f, 0.06f, 0.06f};
 static const glm::vec3 COIN_STACK_POSITION = {0.145f, 0.101f, 24.0f};
-static const glm::vec3 BATTLE_SCENE_COIN_STACK_POSITION = {0.145f, 0.05f, 24.0f};
+static const glm::vec3 BATTLE_SCENE_COIN_STACK_POSITION = {0.145f, 0.06f, 24.0f};
 static const glm::vec3 COIN_STACK_SCALE = {0.08f, 0.08f, 0.08f};
 static const glm::vec3 COIN_VALUE_TEXT_POSITION = {0.155f, 0.105f, 24.0f};
-static const glm::vec3 BATTLE_SCENE_COIN_VALUE_TEXT_POSITION = {0.155f, 0.05f, 24.0f};
+static const glm::vec3 BATTLE_SCENE_COIN_VALUE_TEXT_POSITION = {0.155f, 0.06f, 24.0f};
 static const glm::vec3 COIN_VALUE_TEXT_SCALE = {0.0004f, 0.0004f, 0.0004f};
 static const glm::vec3 COIN_VALUE_TEXT_COLOR = {0.80f, 0.71f, 0.11f};
 static const glm::vec3 BATTLE_SCENE_HEALTH_CRYSTAL_POSITION = {0.145f, 0.02f, 24.0f};
@@ -51,10 +51,10 @@ static const glm::vec3 BATTLE_COIN_MID_POSITION_MIN = { 0.04f, -0.02f, 1.5f };
 static const glm::vec3 BATTLE_COIN_MID_POSITION_MAX = { 0.14f, 0.1f, 1.5f };
 
 static const float COIN_RESPAWN_TICK_SECS = 0.025f;
-static const float SETTINGS_BUTTON_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 31.5f;
-static const float COIN_STACK_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 1.3f;
-static const float COIN_VALUE_TEXT_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 260.0f;
-static const float HEALTH_CRYSTAL_BASE_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 0.9f;
+static const float SETTINGS_BUTTON_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 33.5f;
+static const float COIN_STACK_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 1.4f;
+static const float COIN_VALUE_TEXT_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 280.0f;
+static const float HEALTH_CRYSTAL_BASE_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 1.0f;
 static const float HEALTH_CRYSTAL_VALUE_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 260.0f;
 static const float HEALTH_CRYSTAL_CONTAINER_CUSTOM_SCALE_FACTOR = 2.0f;
 static const float BATTLE_SCENE_SCALE_FACTOR = 0.5f;
@@ -143,7 +143,7 @@ void GuiObjectManager::Update(const float dtMillis)
 void GuiObjectManager::SetCoinValueText()
 {
     auto coinValue = ProgressionDataRepository::GetInstance().CurrencyCoins().GetDisplayedValue();
-    
+    coinValue = 123456;
     if (coinValue < 1000)
     {
         std::get<scene::TextSceneObjectData>(mScene->FindSceneObject(game_constants::GUI_COIN_VALUE_TEXT_SCENE_OBJECT_NAME)->mSceneObjectTypeData).mText = std::to_string(coinValue);
