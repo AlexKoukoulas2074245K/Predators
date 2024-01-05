@@ -225,7 +225,7 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
     mBoardState->GetPlayerStates().emplace_back();
     mBoardState->GetPlayerStates().emplace_back();
     
-    mGuiManager = std::make_unique<GuiObjectManager>(scene, true);
+    mGuiManager = std::make_unique<GuiObjectManager>(scene);
     
     auto* quickPlayData = ProgressionDataRepository::GetInstance().GetQuickPlayData();
     if (quickPlayData)
@@ -1258,6 +1258,7 @@ void BattleSceneLogicManager::RegisterForEvents()
     eventSystem.RegisterForEvent<events::ForceSendCardBackToPositionEvent>(this, &BattleSceneLogicManager::OnForceSendCardBackToPosition);
     eventSystem.RegisterForEvent<events::PoisonStackChangeChangeAnimationTriggerEvent>(this, &BattleSceneLogicManager::OnPoisonStackChangeChangeAnimationTrigger);
     eventSystem.RegisterForEvent<events::CardHistoryEntryAdditionEvent>(this, &BattleSceneLogicManager::OnCardHistoryEntryAddition);
+    eventSystem.RegisterForEvent<events::StoryBattleRewardsEvent>(this, &BattleSceneLogicManager::OnStoryBattleRewards);
     eventSystem.RegisterForEvent<events::StoryBattleFinishedEvent>(this, &BattleSceneLogicManager::OnStoryBattleFinished);
 }
 
@@ -1848,9 +1849,20 @@ void BattleSceneLogicManager::OnCardHistoryEntryAddition(const events::CardHisto
 
 ///------------------------------------------------------------------------------------------------
 
+void BattleSceneLogicManager::OnStoryBattleRewards(const events::StoryBattleRewardsEvent&)
+{
+    ProgressionDataRepository::GetInstance().SetCurrentStoryMapSceneType(StoryMapSceneType::STORY_MAP);
+    
+    auto battleCoinRewards = ProgressionDataRepository::GetInstance().GetNextBattleTopPlayerHealth() * ProgressionDataRepository::GetInstance().GetNextStoryOpponentDamage();
+    ProgressionDataRepository::GetInstance().CurrencyCoins().SetValue(ProgressionDataRepository::GetInstance().CurrencyCoins().GetValue() + battleCoinRewards);
+    mGuiManager->AnimateCoinsToCoinStack(mPlayerBoardCardSceneObjectWrappers[game_constants::REMOTE_PLAYER_INDEX][0]->mSceneObject->mPosition, battleCoinRewards);
+    ProgressionDataRepository::GetInstance().StoryCurrentHealth().SetValue(mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth);
+}
+
+///------------------------------------------------------------------------------------------------
+
 void BattleSceneLogicManager::OnStoryBattleFinished(const events::StoryBattleFinishedEvent&)
 {
-    ProgressionDataRepository::GetInstance().StoryCurrentHealth().SetValue(mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth);
     events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_MAP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
 }
 

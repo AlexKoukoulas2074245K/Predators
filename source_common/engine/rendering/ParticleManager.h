@@ -54,7 +54,7 @@ class ParticleManager final
 public:
     void UpdateSceneParticles(const float dtMilis, scene::Scene& scene);
 
-    std::shared_ptr<scene::SceneObject> CreateParticleEmitterAtPosition(const strutils::StringId particleEmitterName, const glm::vec3& pos, scene::Scene& scene, const strutils::StringId particleEmitterSceneObjectName = strutils::StringId(), std::function<void(float, scene::ParticleEmitterObjectData&)> customUpdateFunction = nullptr);
+    std::shared_ptr<scene::SceneObject> CreateParticleEmitterAtPosition(const strutils::StringId particleEmitterDefinitionName, const glm::vec3& pos, scene::Scene& scene, const strutils::StringId particleEmitterSceneObjectName = strutils::StringId(), std::function<void(float, scene::ParticleEmitterObjectData&)> customUpdateFunction = nullptr);
     int SpawnParticleAtFirstAvailableSlot(scene::SceneObject& particleEmitterSceneObject);
     
     void RemoveParticleEmitterFlag(const uint8_t flag, const strutils::StringId particleEmitterSceneObjectName, scene::Scene& scene);

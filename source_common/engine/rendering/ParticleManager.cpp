@@ -137,20 +137,20 @@ void ParticleManager::UpdateSceneParticles(const float dtMillis, scene::Scene& s
 
 std::shared_ptr<scene::SceneObject> ParticleManager::CreateParticleEmitterAtPosition
 (
-    const strutils::StringId particleEmitterName,
+    const strutils::StringId particleEmitterDefinitionName,
     const glm::vec3& pos,
     scene::Scene& scene,
     const strutils::StringId particleEmitterSceneObjectName /* = strutils::StringId() */,
     std::function<void(float, scene::ParticleEmitterObjectData&)> customUpdateFunction /* = nullptr */
 )
 {
-    if (!mParticleNamesToData.count(particleEmitterName))
+    if (!mParticleNamesToData.count(particleEmitterDefinitionName))
     {
-        ospopups::ShowMessageBox(ospopups::MessageBoxType::ERROR, "Unable to find particle definition", "Particle emitter definition: " + particleEmitterName.GetString() + " could not be found.");
+        ospopups::ShowMessageBox(ospopups::MessageBoxType::ERROR, "Unable to find particle definition", "Particle emitter definition: " + particleEmitterDefinitionName.GetString() + " could not be found.");
         return nullptr;
     }
     
-    auto particleEmitterData = mParticleNamesToData.at(particleEmitterName);
+    auto particleEmitterData = mParticleNamesToData.at(particleEmitterDefinitionName);
     
     auto particleSystemSo = scene.CreateSceneObject(particleEmitterSceneObjectName.isEmpty() ? strutils::StringId(PARTICLE_EMITTER_NAME_PREFIX + std::to_string(sParticleEmitterCount)) : particleEmitterSceneObjectName);
     particleSystemSo->mPosition = pos;

@@ -32,11 +32,11 @@ static const strutils::StringId HERO_CARD_DESTRUCTION_PARTICLE_NAME = strutils::
 
 static const float CARD_CAMERA_SHAKE_DURATION = 0.25f;
 static const float CARD_CAMERA_SHAKE_STRENGTH = 0.005f;
-static const float CARD_DISSOLVE_SPEED = 0.0009f;
+static const float CARD_DISSOLVE_SPEED = 0.0006f;
 static const float MAX_CARD_DISSOLVE_VALUE = 1.2f;
-static const float EXPLOSION_DELAY_SECS = 1.0f;
+static const float EXPLOSION_DELAY_SECS = 0.8f;
 
-static const int MAX_EXPLOSIONS = 5;
+static const int MAX_EXPLOSIONS = 10;
 
 static const glm::vec2 CARD_DISSOLVE_EFFECT_MAG_RANGE = {10.0f, 18.0f};
 
@@ -98,7 +98,7 @@ ActionAnimationUpdateResult GameOverGameAction::VUpdateAnimation(const float dtM
                 mExplosionDelaySecs -= dtMillis/1000.0f;
                 if (mExplosionDelaySecs <= 0.0f)
                 {
-                    mExplosionDelaySecs = EXPLOSION_DELAY_SECS;
+                    mExplosionDelaySecs = EXPLOSION_DELAY_SECS - (mExplosionCounter * 0.1f);
                     
                     if (mExplosionCounter++ <= MAX_EXPLOSIONS)
                     {
@@ -125,6 +125,7 @@ ActionAnimationUpdateResult GameOverGameAction::VUpdateAnimation(const float dtM
                         cardSoWrapper->mSceneObject->mShaderFloatUniformValues[CARD_ORIGIN_Y_UNIFORM_NAME] = cardSoWrapper->mSceneObject->mPosition.y;
                         cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_MAGNITUDE_UNIFORM_NAME] = math::RandomFloat(CARD_DISSOLVE_EFFECT_MAG_RANGE.x, CARD_DISSOLVE_EFFECT_MAG_RANGE.y);
                         mAnimationState = AnimationState::DISSOLVE;
+                        events::EventSystem::GetInstance().DispatchEvent<events::StoryBattleRewardsEvent>();
                     }
                 }
             } break;
@@ -132,9 +133,9 @@ ActionAnimationUpdateResult GameOverGameAction::VUpdateAnimation(const float dtM
             case AnimationState::DISSOLVE:
             {
                 auto cardSoWrapper = mBattleSceneLogicManager->GetBoardCardSoWrappers()[game_constants::REMOTE_PLAYER_INDEX][0];
-                cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] += dtMillis * CARD_DISSOLVE_SPEED;
+                cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] = math::Min(cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] + dtMillis * CARD_DISSOLVE_SPEED, MAX_CARD_DISSOLVE_VALUE);
                 
-                if (cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] >= MAX_CARD_DISSOLVE_VALUE)
+                if (cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] >= MAX_CARD_DISSOLVE_VALUE && !CoreSystemsEngine::GetInstance().GetAnimationManager().IsAnimationPlaying(game_constants::COIN_FLYING_ANIMATION_NAME))
                 {
                     events::EventSystem::GetInstance().DispatchEvent<events::StoryBattleFinishedEvent>();
                     return ActionAnimationUpdateResult::FINISHED;

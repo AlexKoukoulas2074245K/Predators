@@ -66,6 +66,7 @@ namespace game_constants
     inline const strutils::StringId GUI_SETTINGS_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("settings_button");
     inline const strutils::StringId GUI_COIN_STACK_SCENE_OBJECT_NAME = strutils::StringId("coin_stack");
     inline const strutils::StringId GUI_COIN_VALUE_TEXT_SCENE_OBJECT_NAME = strutils::StringId("coin_value_text");
+    inline const strutils::StringId COIN_FLYING_ANIMATION_NAME = strutils::StringId("coin_flying_animation");
 
     // Fonts
     inline const strutils::StringId DEFAULT_FONT_NAME = strutils::StringId("font");

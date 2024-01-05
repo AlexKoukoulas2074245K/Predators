@@ -143,28 +143,28 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
     mRegisteredStoryEvents.clear();
     
     ///------------------------------------------------------------------------------------------------
-    /// Gold cart event
-    auto goldToGain = math::ControlledRandomInt(30, 100) + 20 * ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeCoord().x;
+    /// Gold Coin cart event
+    auto coinsToGain = math::ControlledRandomInt(30, 100) + 20 * ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeCoord().x;
     mRegisteredStoryEvents.emplace_back
     (
         StoryRandomEventData
         ({
-            StoryRandomEventScreenData("events/gold_cart.png", {"", "", "You found a Gold cart!"},
+            StoryRandomEventScreenData("events/gold_coin_cart.png", {"", "", "You found a Gold Coin cart!"},
             {
-                StoryRandomEventButtonData("Collect the Gold", 1, [=]()
+                StoryRandomEventButtonData("Collect the Gold Coins", 1, [=]()
                 {
                     // Permanent gold change internally
                     auto& progressionCoins = ProgressionDataRepository::GetInstance().CurrencyCoins();
-                    progressionCoins.SetValue(progressionCoins.GetValue() + goldToGain);
-                    mGuiManager->AnimateCoinsToCoinStack(mScene->FindSceneObject(EVENT_PORTRAIT_SCENE_OBJECT_NAME)->mPosition, goldToGain);
+                    progressionCoins.SetValue(progressionCoins.GetValue() + coinsToGain);
+                    mGuiManager->AnimateCoinsToCoinStack(mScene->FindSceneObject(EVENT_PORTRAIT_SCENE_OBJECT_NAME)->mPosition, coinsToGain);
                 }),
                 StoryRandomEventButtonData("Ignore Cart", 2)
             }),
-            StoryRandomEventScreenData("events/gold_cart.png", {"", "You collected " + std::to_string(goldToGain) + " gold!"},
+            StoryRandomEventScreenData("events/gold_coin_cart.png", {"", "You collected " + std::to_string(coinsToGain) + " gold coins!"},
             {
                 StoryRandomEventButtonData("Ok", 3)
             }),
-            StoryRandomEventScreenData("events/gold_cart.png", {"", "You got suspicious and", "ignored the gold cart.."},
+            StoryRandomEventScreenData("events/gold_coin_cart.png", {"", "You got suspicious and", "ignored the gold coin cart.."},
             {
                 StoryRandomEventButtonData("Ok", 3)
             })
