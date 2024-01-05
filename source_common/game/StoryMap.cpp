@@ -16,6 +16,7 @@
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
 #include <engine/scene/SceneObjectUtils.h>
+#include <engine/utils/Logging.h>
 #include <engine/utils/PlatformMacros.h>
 #include <unordered_set>
 #include <unordered_map>
@@ -646,6 +647,7 @@ void StoryMap::CreateMapSceneObjects()
                 
                 auto& particleEmitterData = std::get<scene::ParticleEmitterObjectData>(emitterToUse->mSceneObjectTypeData);
                 particleEmitterData.mParticleSizes[indexSpawnedAt] = isPartOfEligiblePath ? NODE_PATH_SCALE + (pathSegments - i) * NODE_PATH_INIT_SCALE_SEPARATOR : MIN_NODE_PATH_SCALE;
+                logging::Log(logging::LogType::INFO, "Creating particle of size %.6f", particleEmitterData.mParticleSizes[indexSpawnedAt]);
                 particleEmitterData.mParticleAngles[indexSpawnedAt] = 1.0f; // signifies > 0.0f -> scale up, < 0.0f -> scale down
                 particleEmitterData.mParticlePositions[indexSpawnedAt] = mMapData.at(mapNodeEntry.first).mPosition + dirToNext * (i/static_cast<float>(pathSegments));
                 particleEmitterData.mParticlePositions[indexSpawnedAt].z = NODE_PATH_POSITION_Z + indexSpawnedAt * NODE_PATH_Z_SEPARATOR;

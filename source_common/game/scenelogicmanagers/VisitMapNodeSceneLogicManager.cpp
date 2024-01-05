@@ -322,6 +322,8 @@ void VisitMapNodeSceneLogicManager::InitializeNodeVisitData()
             assert(false);
         } break;
     }
+    
+    ProgressionDataRepository::GetInstance().FlushStateToFile();
 }
 
 ///------------------------------------------------------------------------------------------------
