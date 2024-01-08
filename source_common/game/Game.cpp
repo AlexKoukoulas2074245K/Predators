@@ -39,6 +39,7 @@
 #include <game/scenelogicmanagers/SettingsSceneLogicManager.h>
 #include <game/scenelogicmanagers/StoryMapSceneLogicManager.h>
 #include <game/scenelogicmanagers/VisitMapNodeSceneLogicManager.h>
+#include <game/scenelogicmanagers/WheelOfFortuneSceneLogicManager.h>
 #include <engine/utils/PersistenceUtils.h>
 #if defined(MOBILE_FLOW)
 #include <platform_specific/IOSUtils.h>
@@ -96,6 +97,7 @@ void Game::Init()
     mGameSceneTransitionManager->RegisterSceneLogicManager<MainMenuSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<StoryMapSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<VisitMapNodeSceneLogicManager>();
+    mGameSceneTransitionManager->RegisterSceneLogicManager<WheelOfFortuneSceneLogicManager>();
     
 #if defined(MOBILE_FLOW)
     if (ios_utils::IsIPad())

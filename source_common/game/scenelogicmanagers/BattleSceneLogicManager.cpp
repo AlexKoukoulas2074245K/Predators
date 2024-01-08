@@ -225,7 +225,7 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
     mBoardState->GetPlayerStates().emplace_back();
     mBoardState->GetPlayerStates().emplace_back();
     
-    mGuiManager = std::make_unique<GuiObjectManager>(scene);
+    mGuiManager = std::make_shared<GuiObjectManager>(scene);
     
     auto* quickPlayData = ProgressionDataRepository::GetInstance().GetQuickPlayData();
     if (quickPlayData)
@@ -598,6 +598,13 @@ void BattleSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene> scene)
         CoreSystemsEngine::GetInstance().GetSceneManager().RemoveScene(HISTORY_SCENE);
         events::EventSystem::GetInstance().UnregisterAllEventsForListener(this);
     }
+}
+
+///------------------------------------------------------------------------------------------------
+
+std::shared_ptr<GuiObjectManager> BattleSceneLogicManager::VGetGuiObjectManager()
+{
+    return mGuiManager;
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -1865,9 +1872,8 @@ void BattleSceneLogicManager::OnStoryBattleRewards(const events::StoryBattleRewa
 {
     ProgressionDataRepository::GetInstance().SetCurrentStoryMapSceneType(StoryMapSceneType::STORY_MAP);
     
-    auto battleCoinRewards = ProgressionDataRepository::GetInstance().GetNextBattleTopPlayerHealth() * ProgressionDataRepository::GetInstance().GetNextStoryOpponentDamage();
-    ProgressionDataRepository::GetInstance().CurrencyCoins().SetValue(ProgressionDataRepository::GetInstance().CurrencyCoins().GetValue() + battleCoinRewards);
-    mGuiManager->AnimateCoinsToCoinStack(mPlayerBoardCardSceneObjectWrappers[game_constants::REMOTE_PLAYER_INDEX][0]->mSceneObject->mPosition, battleCoinRewards);
+    auto battleCoinRewards = ProgressionDataRepository::GetInstance().GetNextBattleTopPlayerHealth();
+    events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(battleCoinRewards, mPlayerBoardCardSceneObjectWrappers[game_constants::REMOTE_PLAYER_INDEX][0]->mSceneObject->mPosition);
     ProgressionDataRepository::GetInstance().StoryCurrentHealth().SetValue(mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth);
 }
 

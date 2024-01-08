@@ -29,6 +29,7 @@ TEST(SceneManagerOperationTests, TestCorrectLogicSceneManagerGetsUpdated)
         void VInitScene(std::shared_ptr<scene::Scene>) override {};
         void VUpdate(const float, std::shared_ptr<scene::Scene>) override { sUpdateCounter++; };
         void VDestroyScene(std::shared_ptr<scene::Scene>) override {}
+        std::shared_ptr<GuiObjectManager> VGetGuiObjectManager() override { return nullptr; }
     };
     
     GameSceneTransitionManager gstm;
@@ -57,6 +58,7 @@ TEST(SceneManagerOperationTests, TestAssertTriggeredOnMultipleLogicSceneManagers
         void VInitScene(std::shared_ptr<scene::Scene>) override {};
         void VUpdate(const float, std::shared_ptr<scene::Scene>) override {};
         void VDestroyScene(std::shared_ptr<scene::Scene>) override {}
+        std::shared_ptr<GuiObjectManager> VGetGuiObjectManager() override { return nullptr; }
     };
     
     class DummySceneLogicManagerB final: public ISceneLogicManager
@@ -72,6 +74,7 @@ TEST(SceneManagerOperationTests, TestAssertTriggeredOnMultipleLogicSceneManagers
         void VInitScene(std::shared_ptr<scene::Scene>) override {};
         void VUpdate(const float, std::shared_ptr<scene::Scene>) override {};
         void VDestroyScene(std::shared_ptr<scene::Scene>) override {}
+        std::shared_ptr<GuiObjectManager> VGetGuiObjectManager() override { return nullptr; }
     };
     
     GameSceneTransitionManager gstm;
@@ -103,6 +106,7 @@ TEST(SceneManagerOperationTests, TestCorrectSceneLogicManagerInitsUpdatesAndDest
         void VInitScene(std::shared_ptr<scene::Scene>) override { initCounterA++; };
         void VUpdate(const float, std::shared_ptr<scene::Scene>) override { updateCounterA++; };
         void VDestroyScene(std::shared_ptr<scene::Scene>) override { destructionCounterA++; }
+        std::shared_ptr<GuiObjectManager> VGetGuiObjectManager() override { return nullptr; }
     };
     
     static int initCounterB = 0;
@@ -121,6 +125,7 @@ TEST(SceneManagerOperationTests, TestCorrectSceneLogicManagerInitsUpdatesAndDest
         void VInitScene(std::shared_ptr<scene::Scene>) override { initCounterB++; };
         void VUpdate(const float, std::shared_ptr<scene::Scene>) override { updateCounterB++; };
         void VDestroyScene(std::shared_ptr<scene::Scene>) override { destructionCounterB++; }
+        std::shared_ptr<GuiObjectManager> VGetGuiObjectManager() override { return nullptr; }
     };
     
     GameSceneTransitionManager gstm;

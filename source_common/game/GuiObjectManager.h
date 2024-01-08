@@ -10,6 +10,7 @@
 
 ///------------------------------------------------------------------------------------------------
 
+#include <game/events/EventSystem.h>
 #include <engine/utils/MathUtils.h>
 #include <memory>
 #include <vector>
@@ -20,20 +21,21 @@ namespace scene { class Scene; }
 
 class AnimatedStatContainer;
 class AnimatedButton;
-class GuiObjectManager final
+class GuiObjectManager final: public events::IListener
 {
 public:
     GuiObjectManager(std::shared_ptr<scene::Scene> scene);
     ~GuiObjectManager();
     
-    void Update(const float dtMillis);
+    void Update(const float dtMillis, const bool allowButtonInput = true);
     void OnWindowResize();
     void ForceSetStoryHealthValue(const int storyHealthValue);
-    void AnimateCoinsToCoinStack(const glm::vec3& originPosition, const long long coinAmount);
     
 private:
+    void AnimateCoinsToCoinStack(const glm::vec3& originPosition, const long long coinAmount);
     void SetCoinValueText();
     void OnSettingsButtonPressed();
+    void OnCoinReward(const events::CoinRewardEvent&);
     
 private:
     std::vector<std::unique_ptr<AnimatedButton>> mAnimatedButtons;

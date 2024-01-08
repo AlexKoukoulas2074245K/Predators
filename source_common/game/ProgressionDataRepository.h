@@ -90,6 +90,9 @@ public:
     const int& GetCurrentStoryMapNodeSeed() const;
     void SetCurrentStoryMapNodeSeed(const int currentStoryMapNodeSeed);
     
+    StoryMap::NodeType GetCurrentStoryMapNodeType() const;
+    void SetCurrentStoryMapNodeType(const StoryMap::NodeType currentStoryMapNodeType);
+    
     const int& GetCurrentEventScreenIndex() const;
     void SetCurrentEventScreenIndex(const int currentEventScreenIndex);
     
@@ -153,6 +156,7 @@ private:
     std::string mNextStoryOpponentName;
     glm::vec3 mSelectedStoryMapNodePosition = {};
     glm::ivec2 mCurrentStoryMapNodeCoord = game_constants::STORY_MAP_INIT_COORD;
+    StoryMap::NodeType mCurrentStoryMapNodeType = StoryMap::NodeType::NORMAL_ENCOUNTER;
     const StoryMap::NodeData* mSelectedStoryMapNodeData = nullptr;
     ValueWithDelayedDisplay<int> mStoryCurrentHealth;
     ValueWithDelayedDisplay<long long> mCurrencyCoins;

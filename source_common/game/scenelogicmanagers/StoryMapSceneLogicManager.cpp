@@ -104,7 +104,7 @@ void StoryMapSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     
     RegisterForEvents();
     
-    mGuiManager = std::make_unique<GuiObjectManager>(scene);
+    mGuiManager = std::make_shared<GuiObjectManager>(scene);
     
     mSwipeCamera = scene->GetCamera();
     mScene = scene;
@@ -332,6 +332,13 @@ void StoryMapSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene>)
 {
     events::EventSystem::GetInstance().UnregisterAllEventsForListener(this);
     mStoryMap->DestroyParticleEmitters();
+}
+
+///------------------------------------------------------------------------------------------------
+
+std::shared_ptr<GuiObjectManager> StoryMapSceneLogicManager::VGetGuiObjectManager()
+{
+    return mGuiManager;
 }
 
 ///------------------------------------------------------------------------------------------------

@@ -34,6 +34,7 @@ public:
     void VInitScene(std::shared_ptr<scene::Scene> scene) override;
     void VUpdate(const float dtMillis, std::shared_ptr<scene::Scene> activeScene) override;
     void VDestroyScene(std::shared_ptr<scene::Scene> scene) override;
+    std::shared_ptr<GuiObjectManager> VGetGuiObjectManager() override;
     
 private:
     void RegisterForEvents();
@@ -56,7 +57,7 @@ private:
     std::unique_ptr<StoryMap> mStoryMap;
     std::unique_ptr<MapCoord> mSelectedMapCoord;
     std::shared_ptr<scene::Scene> mScene;
-    std::unique_ptr<GuiObjectManager> mGuiManager;
+    std::shared_ptr<GuiObjectManager> mGuiManager;
     rendering::Camera mSwipeCamera;
     glm::vec3 mSwipeCurrentPos;
     glm::vec3 mCameraTargetPos;

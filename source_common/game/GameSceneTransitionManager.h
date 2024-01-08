@@ -33,6 +33,7 @@ public:
         
         SceneLogicManagerEntry entry;
         entry.mSceneLogicManager = std::make_unique<SceneLogicManagerT>();
+        entry.mSceneLogicManager->mGameSceneTransitionManager = this;
         
         for (const auto& applicableSceneName: entry.mSceneLogicManager->VGetApplicableSceneNames())
         {
@@ -43,6 +44,7 @@ public:
     }
     
     ISceneLogicManager* GetActiveSceneLogicManager();
+    ISceneLogicManager* GetSceneLogicManagerResponsibleForScene(const strutils::StringId& sceneName);
     
     void Update(const float dtMillis);
     void ChangeToScene

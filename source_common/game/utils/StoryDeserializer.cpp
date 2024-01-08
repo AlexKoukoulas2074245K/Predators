@@ -65,6 +65,11 @@ StoryDeserializer::StoryDeserializer(ProgressionDataRepository& progressionDataR
         progressionDataRepository.SetCurrentStoryMapNodeSeed(storyJson["current_story_map_node_seed"].get<int>());
     }
     
+    if (storyJson.count("current_story_map_node_type"))
+    {
+        progressionDataRepository.SetCurrentStoryMapNodeType(static_cast<StoryMap::NodeType>(storyJson["current_story_map_node_type"].get<int>()));
+    }
+    
     if (storyJson.count("next_battle_top_health"))
     {
         progressionDataRepository.SetNextBattleTopPlayerHealth(storyJson["next_battle_top_health"].get<int>());

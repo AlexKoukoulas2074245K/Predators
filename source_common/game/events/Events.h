@@ -216,6 +216,21 @@ public:
 
 ///------------------------------------------------------------------------------------------------
 
+class CoinRewardEvent final
+{
+public:
+    CoinRewardEvent(const int coinAmount, const glm::vec3& animationOriginPosition)
+        : mCoinAmount(coinAmount)
+        , mAnimationOriginPosition(animationOriginPosition)
+    {
+    }
+    
+    const int mCoinAmount;
+    const glm::vec3 mAnimationOriginPosition;
+};
+
+///------------------------------------------------------------------------------------------------
+
 class StoryBattleRewardsEvent final
 {
 };

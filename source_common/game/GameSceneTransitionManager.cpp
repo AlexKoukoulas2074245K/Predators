@@ -13,6 +13,7 @@
 #include <engine/scene/Scene.h>
 #include <engine/utils/Logging.h>
 #include <game/events/EventSystem.h>
+#include <SDL.h>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -80,6 +81,8 @@ void GameSceneTransitionManager::Update(const float dtMillis)
         DestroyActiveSceneLogicManager();
         mActiveSceneStack.pop();
         sceneManager.FindScene(mActiveSceneStack.top().mActiveSceneName)->SetLoaded(true);
+        SDL_RaiseWindow(&CoreSystemsEngine::GetInstance().GetContextWindow());
+        
         return;
     }
     else if (activeScene->GetName() == LOADING_SCENE_NAME && mLoadingScreenMinDelaySecs > 0.0f)
@@ -297,6 +300,18 @@ const std::vector<GameSceneTransitionManager::SceneLogicManagerEntry>& GameScene
 const std::stack<GameSceneTransitionManager::ActiveSceneEntry> GameSceneTransitionManager::GetActiveSceneStack() const
 {
     return mActiveSceneStack;
+}
+
+///------------------------------------------------------------------------------------------------
+
+ISceneLogicManager* GameSceneTransitionManager::GetSceneLogicManagerResponsibleForScene(const strutils::StringId& sceneName)
+{
+    auto sceneLogicManagerEntry = std::find_if(mRegisteredSceneLogicManagers.begin(), mRegisteredSceneLogicManagers.end(), [=](const SceneLogicManagerEntry& entry)
+    {
+        return entry.mSceneInitStatusMap.count(sceneName);
+    });
+    assert(sceneLogicManagerEntry != mRegisteredSceneLogicManagers.end());
+    return sceneLogicManagerEntry->mSceneLogicManager.get();
 }
 
 ///------------------------------------------------------------------------------------------------

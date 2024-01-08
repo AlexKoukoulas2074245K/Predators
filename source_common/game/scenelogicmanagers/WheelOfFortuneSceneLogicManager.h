@@ -1,12 +1,12 @@
 ///------------------------------------------------------------------------------------------------
-///  SettingsSceneLogicManager.h
+///  WheelOfFortuneSceneLogicManager.h
 ///  Predators                                                                                            
 ///                                                                                                
-///  Created by Alex Koukoulas on 14/12/2023
+///  Created by Alex Koukoulas on 08/01/2024
 ///------------------------------------------------------------------------------------------------
 
-#ifndef SettingsSceneLogicManager_h
-#define SettingsSceneLogicManager_h
+#ifndef WheelOfFortuneSceneLogicManager_h
+#define WheelOfFortuneSceneLogicManager_h
 
 ///------------------------------------------------------------------------------------------------
 
@@ -16,11 +16,12 @@
 ///------------------------------------------------------------------------------------------------
 
 class AnimatedButton;
-class SettingsSceneLogicManager final: public ISceneLogicManager
+class WheelOfFortuneController;
+class WheelOfFortuneSceneLogicManager final: public ISceneLogicManager
 {
 public:
-    SettingsSceneLogicManager();
-    ~SettingsSceneLogicManager();
+    WheelOfFortuneSceneLogicManager();
+    ~WheelOfFortuneSceneLogicManager();
     
     const std::vector<strutils::StringId>& VGetApplicableSceneNames() const override;
     
@@ -31,21 +32,12 @@ public:
     std::shared_ptr<GuiObjectManager> VGetGuiObjectManager() override;
     
 private:
-    enum class SubSceneType
-    {
-        NONE,
-        MAIN,
-        QUIT_CONFIRMATION
-    };
+    void OnWheelItemSelected(const int itemIndex, const std::shared_ptr<scene::SceneObject> itemSceneObject);
     
 private:
-    void InitSubScene(const SubSceneType subSceneType, std::shared_ptr<scene::Scene> scene);
-    void TransitionToSubScene(const SubSceneType subSceneType, std::shared_ptr<scene::Scene> scene);
-    
-private:
-    std::vector<std::unique_ptr<AnimatedButton>> mAnimatedButtons;
-    SubSceneType mActiveSubScene;
-    bool mTransitioningToSubScene;
+    std::unique_ptr<AnimatedButton> mSpinButton;
+    std::unique_ptr<WheelOfFortuneController> mWheelController;
+    bool mHasSpinnedWheel;
 };
 
 ///------------------------------------------------------------------------------------------------

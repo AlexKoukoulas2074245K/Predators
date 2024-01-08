@@ -106,6 +106,7 @@ namespace game_constants
     inline const strutils::StringId MAIN_MENU_SCENE = strutils::StringId("main_menu_scene");
     inline const strutils::StringId STORY_MAP_SCENE = strutils::StringId("story_map_scene");
     inline const strutils::StringId EVENT_SCENE = strutils::StringId("event_scene");
+    inline const strutils::StringId WHEEL_OF_FORTUNE_SCENE = strutils::StringId("wheel_of_fortune_scene");
 
     // General Game Constants
     inline constexpr int REMOTE_PLAYER_INDEX = 0;

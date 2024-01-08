@@ -51,6 +51,7 @@ public:
     void VInitScene(std::shared_ptr<scene::Scene> scene) override;
     void VUpdate(const float dtMillis, std::shared_ptr<scene::Scene> activeScene) override;
     void VDestroyScene(std::shared_ptr<scene::Scene> scene) override;
+    std::shared_ptr<GuiObjectManager> VGetGuiObjectManager() override;
     
     const BoardState& GetBoardState() const;
     GameActionEngine& GetActionEngine();
@@ -115,7 +116,7 @@ private:
     std::unique_ptr<serial::BaseDataFileSerializer> mBattleSerializer;
     std::unique_ptr<PlayerActionGenerationEngine> mPlayerActionGenerationEngine;
     std::unique_ptr<SwipeableContainer<CardHistoryEntry>> mCardHistoryContainer;
-    std::unique_ptr<GuiObjectManager> mGuiManager;
+    std::shared_ptr<GuiObjectManager> mGuiManager;
     std::shared_ptr<scene::Scene> mActiveScene;
     std::vector<std::unique_ptr<AnimatedButton>> mBattleSceneAnimatedButtons;
     std::vector<std::vector<std::shared_ptr<scene::SceneObject>>> mActiveIndividualCardBoardEffectSceneObjects;

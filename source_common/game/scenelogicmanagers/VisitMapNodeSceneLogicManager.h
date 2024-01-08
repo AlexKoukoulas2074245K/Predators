@@ -28,7 +28,8 @@ public:
     void VInitScene(std::shared_ptr<scene::Scene> scene) override;
     void VUpdate(const float dtMillis, std::shared_ptr<scene::Scene> activeScene) override;
     void VDestroyScene(std::shared_ptr<scene::Scene> scene) override;
-
+    std::shared_ptr<GuiObjectManager> VGetGuiObjectManager() override;
+    
 private:
     void InitializeNodeVisitData();
     

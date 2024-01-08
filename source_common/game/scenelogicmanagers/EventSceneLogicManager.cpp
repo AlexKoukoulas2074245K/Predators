@@ -80,7 +80,7 @@ void EventSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     mTransitioning = false;
     
     mCurrentEventButtons.clear();
-    mGuiManager = std::make_unique<GuiObjectManager>(scene);
+    mGuiManager = std::make_shared<GuiObjectManager>(scene);
     
     mCurrentEventIndex = 0;
     mCurrentEventScreenIndex = -1;
@@ -126,6 +126,13 @@ void EventSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene>)
 
 ///------------------------------------------------------------------------------------------------
 
+std::shared_ptr<GuiObjectManager> EventSceneLogicManager::VGetGuiObjectManager()
+{
+    return mGuiManager;
+}
+
+///------------------------------------------------------------------------------------------------
+
 void EventSceneLogicManager::RegisterForEvents()
 {
     auto& eventSystem = events::EventSystem::GetInstance();
@@ -162,10 +169,7 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
             {
                 StoryRandomEventButtonData("Collect the Gold Coins", 1, [=]()
                 {
-                    // Permanent gold change internally
-                    auto& progressionCoins = ProgressionDataRepository::GetInstance().CurrencyCoins();
-                    progressionCoins.SetValue(progressionCoins.GetValue() + coinsToGain);
-                    mGuiManager->AnimateCoinsToCoinStack(mScene->FindSceneObject(EVENT_PORTRAIT_SCENE_OBJECT_NAME)->mPosition, coinsToGain);
+                    events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(coinsToGain, mScene->FindSceneObject(EVENT_PORTRAIT_SCENE_OBJECT_NAME)->mPosition);
                 }),
                 StoryRandomEventButtonData("Ignore Cart", 2)
             }),

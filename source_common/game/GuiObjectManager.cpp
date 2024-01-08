@@ -16,6 +16,7 @@
 #include <engine/rendering/ParticleManager.h>
 #include <engine/scene/SceneManager.h>
 #include <engine/scene/Scene.h>
+#include <engine/utils/Logging.h>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -44,11 +45,11 @@ static const glm::vec3 COIN_VALUE_TEXT_COLOR = {0.80f, 0.71f, 0.11f};
 static const glm::vec3 BATTLE_SCENE_HEALTH_CRYSTAL_POSITION = {0.145f, 0.02f, 24.0f};
 static const glm::vec3 HEALTH_CRYSTAL_POSITION = {0.145f, 0.04f, 24.0f};
 static const glm::vec3 COIN_INIT_POSITION_OFFSET = { 0.0f, 0.0f, 0.7f };
-static const glm::vec3 COIN_TARGET_POSITION_OFFSET = { -0.02f, -0.01f, -22.5f };
-static const glm::vec3 COIN_MID_POSITION_MIN = { 0.1f, -0.2f, 1.5f };
-static const glm::vec3 COIN_MID_POSITION_MAX = { 0.3f, 0.2f, 1.5f };
-static const glm::vec3 BATTLE_COIN_MID_POSITION_MIN = { 0.04f, -0.02f, 1.5f };
-static const glm::vec3 BATTLE_COIN_MID_POSITION_MAX = { 0.14f, 0.1f, 1.5f };
+static const glm::vec3 COIN_TARGET_POSITION_OFFSET = { -0.02f, -0.01f, -0.001f };
+static const glm::vec3 COIN_MID_POSITION_MIN = { 0.1f, -0.2f, 0.01f };
+static const glm::vec3 COIN_MID_POSITION_MAX = { 0.3f, 0.2f, 0.02f };
+static const glm::vec3 BATTLE_COIN_MID_POSITION_MIN = { 0.04f, -0.02f, 0.01f };
+static const glm::vec3 BATTLE_COIN_MID_POSITION_MAX = { 0.14f, 0.1f, 0.02f };
 
 static const float COIN_RESPAWN_TICK_SECS = 0.025f;
 static const float SETTINGS_BUTTON_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 33.5f;
@@ -112,6 +113,9 @@ GuiObjectManager::GuiObjectManager(std::shared_ptr<scene::Scene> scene)
     mHealthStatContainer->GetSceneObjects()[0]->mSnapToEdgeScaleOffsetFactor = HEALTH_CRYSTAL_BASE_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR;
     mHealthStatContainer->GetSceneObjects()[1]->mSnapToEdgeScaleOffsetFactor = HEALTH_CRYSTAL_VALUE_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR;
     
+    Update(0.0f);
+    
+    events::EventSystem::GetInstance().RegisterForEvent<events::CoinRewardEvent>(this, &GuiObjectManager::OnCoinReward);
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -123,11 +127,14 @@ GuiObjectManager::~GuiObjectManager()
 
 ///------------------------------------------------------------------------------------------------
 
-void GuiObjectManager::Update(const float dtMillis)
+void GuiObjectManager::Update(const float dtMillis, const bool allowButtonInput /* = true */)
 {
-    for (auto& animatedButton: mAnimatedButtons)
+    if (allowButtonInput)
     {
-        animatedButton->Update(dtMillis);
+        for (auto& animatedButton: mAnimatedButtons)
+        {
+            animatedButton->Update(dtMillis);
+        }
     }
     
     auto& currentHealth = ProgressionDataRepository::GetInstance().StoryCurrentHealth();
@@ -178,6 +185,8 @@ void GuiObjectManager::AnimateCoinsToCoinStack(const glm::vec3& originPosition, 
 {
     auto forBattleScene = mScene->GetName() == game_constants::BATTLE_SCENE;
     auto& particleManager = CoreSystemsEngine::GetInstance().GetParticleManager();
+    mScene->RemoveSceneObject(PARTICLE_EMITTER_SCENE_OBJECT_NAME);
+    
     auto animatedNodePathParticleEmitterSceneObject = particleManager.CreateParticleEmitterAtPosition(forBattleScene ? PARTICLE_EMITTER_DEFINITION_COIN_SMALL : PARTICLE_EMITTER_DEFINITION_COIN_LARGE, glm::vec3(), *mScene, PARTICLE_EMITTER_SCENE_OBJECT_NAME, [=](float dtMillis, scene::ParticleEmitterObjectData& particleEmitterData)
     {
         auto& particleManager = CoreSystemsEngine::GetInstance().GetParticleManager();
@@ -200,7 +209,7 @@ void GuiObjectManager::AnimateCoinsToCoinStack(const glm::vec3& originPosition, 
             glm::vec3 coinMidPosition = glm::vec3(
                 math::RandomFloat(forBattleScene ? BATTLE_COIN_MID_POSITION_MIN.x : COIN_MID_POSITION_MIN.x, forBattleScene ? BATTLE_COIN_MID_POSITION_MAX.x : COIN_MID_POSITION_MAX.x),
                 math::RandomFloat(forBattleScene ? BATTLE_COIN_MID_POSITION_MIN.y : COIN_MID_POSITION_MIN.y, forBattleScene ? BATTLE_COIN_MID_POSITION_MAX.y : COIN_MID_POSITION_MAX.y),
-                math::RandomFloat(COIN_MID_POSITION_MIN.z, COIN_MID_POSITION_MAX.z));
+                (particleEmitterData.mParticlePositions[particleIndex].z + targetCoinPosition.z)/2.0f + math::RandomFloat(COIN_MID_POSITION_MIN.z, COIN_MID_POSITION_MAX.z));
             math::BezierCurve curve({particleEmitterData.mParticlePositions[particleIndex], coinMidPosition, targetCoinPosition});
             
             animationManager.StartAnimation(std::make_unique<rendering::BezierCurveAnimation>(particleEmitterData.mParticlePositions[particleIndex], curve, COIN_ANIMATION_DURATION_SECS), [=]()
@@ -221,6 +230,14 @@ void GuiObjectManager::OnSettingsButtonPressed()
 {
     CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(mScene->GetUpdateTimeSpeedFactor(), 0.0f, game_constants::SCENE_SPEED_DILATION_ANIMATION_DURATION_SECS), [](){}, game_constants::SCENE_SPEED_DILATION_ANIMATION_NAME);
     events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(SETTINGS_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+}
+
+///------------------------------------------------------------------------------------------------
+
+void GuiObjectManager::OnCoinReward(const events::CoinRewardEvent& event)
+{
+    ProgressionDataRepository::GetInstance().CurrencyCoins().SetValue(ProgressionDataRepository::GetInstance().CurrencyCoins().GetValue() + event.mCoinAmount);
+    AnimateCoinsToCoinStack(event.mAnimationOriginPosition, event.mCoinAmount);
 }
 
 ///------------------------------------------------------------------------------------------------

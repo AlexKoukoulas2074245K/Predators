@@ -122,6 +122,13 @@ void SettingsSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene> scen
 
 ///------------------------------------------------------------------------------------------------
 
+std::shared_ptr<GuiObjectManager> SettingsSceneLogicManager::VGetGuiObjectManager()
+{
+    return nullptr;
+}
+
+///------------------------------------------------------------------------------------------------
+
 void SettingsSceneLogicManager::InitSubScene(const SubSceneType subSceneType, std::shared_ptr<scene::Scene> scene)
 {
     if (mActiveSubScene == subSceneType)

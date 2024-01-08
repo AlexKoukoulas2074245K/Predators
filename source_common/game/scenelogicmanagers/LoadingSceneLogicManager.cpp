@@ -72,6 +72,13 @@ void LoadingSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene>)
 
 ///------------------------------------------------------------------------------------------------
 
+std::shared_ptr<GuiObjectManager> LoadingSceneLogicManager::VGetGuiObjectManager()
+{
+    return nullptr;
+}
+
+///------------------------------------------------------------------------------------------------
+
 void LoadingSceneLogicManager::SetLoadingProgress(const int progressPercent)
 {
     auto loadingScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(LOADING_SCENE_NAME);

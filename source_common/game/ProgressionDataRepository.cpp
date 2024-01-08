@@ -52,6 +52,7 @@ void ProgressionDataRepository::ResetStoryData()
     
     mSelectedStoryMapNodePosition = {};
     mCurrentStoryMapNodeCoord = game_constants::STORY_MAP_INIT_COORD;
+    mCurrentStoryMapNodeType = StoryMap::NodeType::NORMAL_ENCOUNTER;
     mSelectedStoryMapNodeData = nullptr;
     
     mStoryMapGenerationSeed = 0;
@@ -225,6 +226,21 @@ void ProgressionDataRepository::SetCurrentStoryMapNodeSeed(const int currentStor
 {
     mCurrentStoryMapNodeSeed = currentStoryMapNodeSeed;
     mStoryDataSerializer->GetState()["current_story_map_node_seed"] = currentStoryMapNodeSeed;
+}
+
+///------------------------------------------------------------------------------------------------
+
+StoryMap::NodeType ProgressionDataRepository::GetCurrentStoryMapNodeType() const
+{
+    return mCurrentStoryMapNodeType;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ProgressionDataRepository::SetCurrentStoryMapNodeType(const StoryMap::NodeType currentStoryMapNodeType)
+{
+    mCurrentStoryMapNodeType = currentStoryMapNodeType;
+    mStoryDataSerializer->GetState()["current_story_map_node_type"] = static_cast<int>(mCurrentStoryMapNodeType);
 }
 
 ///------------------------------------------------------------------------------------------------

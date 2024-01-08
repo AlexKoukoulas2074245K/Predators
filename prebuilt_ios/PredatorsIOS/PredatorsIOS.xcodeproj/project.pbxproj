@@ -46,6 +46,7 @@
 		4806A612F0016F3AA933D2E6 /* Events.h in Sources */ = {isa = PBXBuildFile; fileRef = B44A455E0B720A9A63FF5AA4 /* Events.h */; };
 		4E668AB696437BCD6C4ED337 /* StorySerializer.h in Sources */ = {isa = PBXBuildFile; fileRef = EC84408B7534251FFDF0A260 /* StorySerializer.h */; };
 		501213E2A69B305C643A8E93 /* SettingsSceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ACB1819C4991701AB7CC0E57 /* SettingsSceneLogicManager.cpp */; };
+		51E1BC4F96996906A21F7097 /* WheelOfFortuneSceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D62963F4CB34CF0E107E429E /* WheelOfFortuneSceneLogicManager.cpp */; };
 		52B39F69DE1A0FEBF83C1D36 /* SettingsSceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 448562865EFF7559B85054EF /* SettingsSceneLogicManager.h */; };
 		53015AED438EFD8B2A200C75 /* GameSceneTransitionManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 24271245E497E363CEB6240E /* GameSceneTransitionManager.cpp */; };
 		58064F3EFA224DCE2003C56B /* DemonNameGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BEB95046F3803B1D1A01C7E8 /* DemonNameGenerator.cpp */; };
@@ -78,6 +79,7 @@
 		87A8C87B81C696FE66FCCA16 /* ImageSurfaceResource.h in Sources */ = {isa = PBXBuildFile; fileRef = BFEE31CB1C81B110DF5D5525 /* ImageSurfaceResource.h */; };
 		8A2A1BE2924FF4A1BAE8B4A7 /* BattleDeserializer.h in Sources */ = {isa = PBXBuildFile; fileRef = AF90805AEC8FDF4F7790F186 /* BattleDeserializer.h */; };
 		8C30E26AB232F7060181908C /* VisitMapNodeSceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 7F4EFE5B9AD0922EEA5D2092 /* VisitMapNodeSceneLogicManager.h */; };
+		8C6879E014A7AB671A0DD060 /* WheelOfFortuneController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3FFC3EC6B172A7A1DD3C3E41 /* WheelOfFortuneController.cpp */; };
 		8E57024B619AFC5DFC1F5DB8 /* CardAttackGameAction.h in Sources */ = {isa = PBXBuildFile; fileRef = EF351FA09079CF49E388DC3A /* CardAttackGameAction.h */; };
 		8F23093EE098A3EBA8E96C18 /* ImageSurfaceLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 59DF82D26A3BD281A3C982D8 /* ImageSurfaceLoader.cpp */; };
 		92043B0E2A0947A4007CC7DE /* AVFAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92043B022A0947A4007CC7DE /* AVFAudio.framework */; };
@@ -136,6 +138,7 @@
 		AE22507215A89C5059C9B6E4 /* ParticleManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E765BE8BAD6EAAC5948DFB99 /* ParticleManager.cpp */; };
 		B008ED038AA9CC065666EC1D /* BattleSerializer.h in Sources */ = {isa = PBXBuildFile; fileRef = 880718DEC1DCC187AAD01069 /* BattleSerializer.h */; };
 		B1D0C3698F66A0C39401D13C /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AE78F573A1F0686BA8E55D7 /* Reachability.m */; };
+		B1D3B02DDDDDF2B072A6AABB /* WheelOfFortuneController.h in Sources */ = {isa = PBXBuildFile; fileRef = D51160558EDBE853D6C11381 /* WheelOfFortuneController.h */; };
 		B3635684978AFF0F4C6AE38E /* CardDestructionGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD346EFDC613D39305CC6BD2 /* CardDestructionGameAction.cpp */; };
 		B4646BE5AB02E3828791D61E /* SceneObjectUtils.h in Sources */ = {isa = PBXBuildFile; fileRef = 4D44F8A7427AB83EA69F0455 /* SceneObjectUtils.h */; };
 		B53BB940C66AA4E0C9B6570C /* GameOverGameAction.h in Sources */ = {isa = PBXBuildFile; fileRef = B525211824678482C123E701 /* GameOverGameAction.h */; };
@@ -147,6 +150,7 @@
 		CB369EDB3723CEDB16D2A2FE /* BaseDataFileSerializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 289376069695D28346FCC23A /* BaseDataFileSerializer.cpp */; };
 		CB531F303F3C1CE853301CBB /* CardEffectGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEDDB72469D33C82815CCED2 /* CardEffectGameAction.cpp */; };
 		CD43589E44EA02EC52040B60 /* PersistentAccountDataSerializer.h in Sources */ = {isa = PBXBuildFile; fileRef = 2741FEDA480E848F1024F2A3 /* PersistentAccountDataSerializer.h */; };
+		CD788CBDD4CB28DB7952C250 /* WheelOfFortuneSceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 74CBE4C620C35D7D3D16AF39 /* WheelOfFortuneSceneLogicManager.h */; };
 		D2E26E81223DD805B0E519C0 /* CardUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F62DA25CEC2725420792B4BA /* CardUtils.cpp */; };
 		DD1336F32DE09C22CF5258DE /* PlayerActionGenerationEngine.h in Sources */ = {isa = PBXBuildFile; fileRef = C2440AC9D2351884CB46159D /* PlayerActionGenerationEngine.h */; };
 		DE26E81E6B8122C68E6B0525 /* GameRuleEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B3D605C469F5491AEE121CBB /* GameRuleEngine.cpp */; };
@@ -323,6 +327,7 @@
 		3AFDF18B5E2C82DD4F486F53 /* TrapTriggeredAnimationGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = TrapTriggeredAnimationGameAction.h; sourceTree = "<group>"; };
 		3EF46F1C3E89ECBC526B9A73 /* BattleSerializer.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = BattleSerializer.cpp; sourceTree = "<group>"; };
 		3F2663D4D8A6185959494E12 /* BaseDataFileSerializer.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = BaseDataFileSerializer.h; sourceTree = "<group>"; };
+		3FFC3EC6B172A7A1DD3C3E41 /* WheelOfFortuneController.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = WheelOfFortuneController.cpp; path = WheelOfFortuneController.cpp; sourceTree = "<group>"; };
 		412405F5A340366C4088FC72 /* PlayerActionGenerationEngine.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = PlayerActionGenerationEngine.cpp; sourceTree = "<group>"; };
 		4178EB4C8E141EA2567CCB84 /* DefeatSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = DefeatSceneLogicManager.cpp; path = DefeatSceneLogicManager.cpp; sourceTree = "<group>"; };
 		41E9B2A6F18FC1E4E07DE13E /* AnimatedButton.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = AnimatedButton.cpp; sourceTree = "<group>"; };
@@ -348,6 +353,7 @@
 		70EAA9FFECCEE753A4D14AFF /* IOSUtils.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = IOSUtils.h; sourceTree = "<group>"; };
 		7213B89F1A8AC4B38238ECEB /* Cards.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = Cards.h; sourceTree = "<group>"; };
 		737A7BF42484F5DE03FA7A46 /* SceneObjectUtils.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = SceneObjectUtils.cpp; sourceTree = "<group>"; };
+		74CBE4C620C35D7D3D16AF39 /* WheelOfFortuneSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = WheelOfFortuneSceneLogicManager.h; path = WheelOfFortuneSceneLogicManager.h; sourceTree = "<group>"; };
 		768D33D1BE87D452631F7F3B /* CardPlayedParticleEffectGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = CardPlayedParticleEffectGameAction.h; sourceTree = "<group>"; };
 		7A0A589953BD1C5BD1C6CA6D /* BattleInitialAnimationGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = BattleInitialAnimationGameAction.h; sourceTree = "<group>"; };
 		7AACE80E9655088BE13935FF /* PlatformMacros.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = PlatformMacros.h; sourceTree = "<group>"; };
@@ -474,6 +480,8 @@
 		CEDDB72469D33C82815CCED2 /* CardEffectGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = CardEffectGameAction.cpp; sourceTree = "<group>"; };
 		D06AB41BD48F4EA034DFC9A4 /* LoadingSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = LoadingSceneLogicManager.h; sourceTree = "<group>"; };
 		D2CDD004F2E6D189785B5F62 /* Cards.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = Cards.cpp; sourceTree = "<group>"; };
+		D51160558EDBE853D6C11381 /* WheelOfFortuneController.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = WheelOfFortuneController.h; path = WheelOfFortuneController.h; sourceTree = "<group>"; };
+		D62963F4CB34CF0E107E429E /* WheelOfFortuneSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = WheelOfFortuneSceneLogicManager.cpp; path = WheelOfFortuneSceneLogicManager.cpp; sourceTree = "<group>"; };
 		D6D41ED6929574145EC5292C /* NextDinoDamageDoublingGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = NextDinoDamageDoublingGameAction.h; sourceTree = "<group>"; };
 		DB72B67D2CFD6314BEF828CB /* ProgressionDataRepository.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = ProgressionDataRepository.cpp; sourceTree = "<group>"; };
 		DC7E5EF8DD1626BCF3AB1038 /* SwipeableContainer.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = SwipeableContainer.h; sourceTree = "<group>"; };
@@ -603,6 +611,8 @@
 				54D1E9FC16CD3C543B9BED8D /* GuiObjectManager.cpp */,
 				18CDC4CDBECFB5581A49E860 /* StoryMap.h */,
 				032B5FAFE7405B08708BA231 /* GuiObjectManager.h */,
+				3FFC3EC6B172A7A1DD3C3E41 /* WheelOfFortuneController.cpp */,
+				D51160558EDBE853D6C11381 /* WheelOfFortuneController.h */,
 			);
 			path = game;
 			sourceTree = "<group>";
@@ -895,6 +905,8 @@
 				F72AEDE4A21BC185F5CFF4B1 /* EventSceneLogicManager.h */,
 				4178EB4C8E141EA2567CCB84 /* DefeatSceneLogicManager.cpp */,
 				2DE9DAA33D8DF5A132EA2AE4 /* DefeatSceneLogicManager.h */,
+				D62963F4CB34CF0E107E429E /* WheelOfFortuneSceneLogicManager.cpp */,
+				74CBE4C620C35D7D3D16AF39 /* WheelOfFortuneSceneLogicManager.h */,
 			);
 			path = scenelogicmanagers;
 			sourceTree = "<group>";
@@ -1309,6 +1321,10 @@
 				018117C504D94C3C38B6FBEC /* DefeatSceneLogicManager.h in Sources */,
 				7D9B70600F2941C81DA8C7E3 /* PersistentAccountDataDeserializer.h in Sources */,
 				CD43589E44EA02EC52040B60 /* PersistentAccountDataSerializer.h in Sources */,
+				51E1BC4F96996906A21F7097 /* WheelOfFortuneSceneLogicManager.cpp in Sources */,
+				8C6879E014A7AB671A0DD060 /* WheelOfFortuneController.cpp in Sources */,
+				CD788CBDD4CB28DB7952C250 /* WheelOfFortuneSceneLogicManager.h in Sources */,
+				B1D3B02DDDDDF2B072A6AABB /* WheelOfFortuneController.h in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -247,6 +247,13 @@ void VisitMapNodeSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene> 
 
 ///------------------------------------------------------------------------------------------------
 
+std::shared_ptr<GuiObjectManager> VisitMapNodeSceneLogicManager::VGetGuiObjectManager()
+{
+    return nullptr;
+}
+
+///------------------------------------------------------------------------------------------------
+
 void VisitMapNodeSceneLogicManager::InitializeNodeVisitData()
 {
     auto* selectedNodeData = ProgressionDataRepository::GetInstance().GetSelectedStoryMapNodeData();
@@ -256,6 +263,7 @@ void VisitMapNodeSceneLogicManager::InitializeNodeVisitData()
     
     ProgressionDataRepository::GetInstance().SetCurrentStoryMapNodeSeed(selectedNodeData->mNodeRandomSeed);
     ProgressionDataRepository::GetInstance().SetCurrentStoryMapNodeCoord(selectedNodeData->mCoords);
+    ProgressionDataRepository::GetInstance().SetCurrentStoryMapNodeType(selectedNodeData->mNodeType);
     
     std::vector<int> opponentDeckBuilder;
     
