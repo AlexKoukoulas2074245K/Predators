@@ -27,6 +27,7 @@ static const glm::vec2 WHEEL_ROTATION_MULTIPLIER_RANDOM_RANGE = {800.0f, 1200.0f
 static const float WHEEL_SPIN_ROTATION_DAMPING = 0.98f;
 static const float WHEEL_MIN_ROTATION_SPEED = 0.00008f;
 static const float WHEEL_INITIAL_SLOW_ROTATION_SPEED = 0.0002f;
+static const float WHEEL_SPEED_DELTA_MILLIS = 16.6666f;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -78,13 +79,13 @@ void WheelOfFortuneController::Spin()
 
 ///------------------------------------------------------------------------------------------------
 
-void WheelOfFortuneController::Update(const float dtMillis)
+void WheelOfFortuneController::Update(const float)
 {
     switch (mState)
     {
         case WheelState::INITIAL_SLOW_ROTATION:
         {
-            mWheelRotationSpeed = WHEEL_INITIAL_SLOW_ROTATION_SPEED;
+            mWheelRotationSpeed = 0.0f;
             
         } break;
             
@@ -108,7 +109,7 @@ void WheelOfFortuneController::Update(const float dtMillis)
         default: break;
     }
             
-    mWheelRotation -= mWheelRotationSpeed * dtMillis;
+    mWheelRotation -= mWheelRotationSpeed * WHEEL_SPEED_DELTA_MILLIS;
     if (mWheelRotation < -math::PI * 2.0f)
     {
         mWheelRotation += math::PI * 2.0f;
