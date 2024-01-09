@@ -12,6 +12,10 @@
 #include <engine/utils/BaseDataFileDeserializer.h>
 #include <fstream>
 #include <nlohmann/json.hpp>
+#include <engine/utils/PlatformMacros.h>
+#if defined(MOBILE_FLOW)
+#include <platform_specific/IOSUtils.h>
+#endif
 
 ///------------------------------------------------------------------------------------------------
 
@@ -91,6 +95,30 @@ void SceneManager::LoadPredefinedObjectsFromDescriptorForScene(std::shared_ptr<S
     
     for (const auto& sceneObjectJson: sceneDescriptorJson["scene_objects"])
     {
+        if (sceneObjectJson.count("tablet_only"))
+        {
+            if (sceneObjectJson["tablet_only"].get<bool>())
+            {
+#if defined(MOBILE_FLOW)
+                if (!ios_utils::IsIPad())
+                {
+                    continue;
+                }
+#else
+                continue;
+#endif
+            }
+            else
+            {
+#if defined(MOBILE_FLOW)
+                if (ios_utils::IsIPad())
+                {
+                    continue;
+                }
+#endif
+            }
+        }
+
         auto sceneObjectName = strutils::StringId(sceneObjectJson["name"].get<std::string>());
         assert (!scene->FindSceneObject(sceneObjectName));
         auto sceneObject = scene->CreateSceneObject(strutils::StringId(sceneObjectName));
@@ -162,6 +190,11 @@ void SceneManager::LoadPredefinedObjectsFromDescriptorForScene(std::shared_ptr<S
         if (sceneObjectJson.count("snap_to_edge"))
         {
             sceneObject->mSnapToEdgeBehavior = STRING_TO_SNAP_TO_EDGE_BEHAVIOR_MAP.at(sceneObjectJson["snap_to_edge"].get<std::string>());
+        }
+        
+        if (sceneObjectJson.count("snap_to_edge_factor"))
+        {
+            sceneObject->mSnapToEdgeScaleOffsetFactor = sceneObjectJson["snap_to_edge_factor"].get<float>();
         }
         
         if (sceneObjectJson.count("uniform_floats"))

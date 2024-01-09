@@ -106,7 +106,7 @@ static const glm::vec3 CARD_TOOLTIP_SCALE = {0.137f, 0.137f, 1/10.0f};
 static const glm::vec3 CARD_TOOLTIP_HISTORY_SCALE = {0.274f, 0.274f, 1/10.0f};
 static const glm::vec3 CARD_TOOLTIP_OFFSET = {0.084f, 0.08f, 0.1f};
 static const glm::vec3 CARD_TOOLTIP_HISTORY_OFFSET = {0.06f, 0.033f, 0.2f};
-static const glm::vec3 HISTORY_BUTTON_POSITION = {0.145f, -0.064f, 0.1f};
+static const glm::vec3 HISTORY_BUTTON_POSITION = {0.145f, -0.064f, 19.0f};
 static const glm::vec3 HISTORY_BUTTON_SCALE = {0.03f, 0.03f, 0.03f};
 static const glm::vec3 CARD_HISTORY_ENTRY_SCALE = {0.3f, -0.3f, 0.3f};
 static const glm::vec3 CARD_HISTORY_TURN_COUNTER_ENTRY_SCALE = {0.266f, -0.3f, 0.3f};
@@ -146,7 +146,7 @@ static const float CARD_HISTORY_CONTAINER_Z = 24.0f;
 static const float HISTORY_SCENE_FADE_IN_OUT_DURATION_SECS = 0.5f;
 static const float REPLAY_TEXT_FADE_IN_OUT_DURATION_SECS = 0.5f;
 static const float HISTORY_SCENE_FADE_IN_OUT_ITEM_OFFSETS = 0.4f;
-static const float BUTTONS_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 28.5f;
+static const float BUTTONS_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 68.5f;
 static const float REPLAY_TEXT_PULSE_SCALE_FACTOR = 1.05f;
 static const float REPLAY_TEXT_INTER_PULSE_DURATION_SECS = 1.0f;
 static const float REPLAY_TEXT_MAX_ALPHA = 0.75f;
@@ -376,7 +376,7 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
         HISTORY_BUTTON_SCENE_OBJECT_NAME,
         [=](){ OnHistoryButtonPressed(); },
         *scene,
-        scene::SnapToEdgeBehavior::SNAP_TO_LEFT_EDGE,
+        scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE,
         BUTTONS_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR
     ));
     
