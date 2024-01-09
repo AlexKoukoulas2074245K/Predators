@@ -11,6 +11,7 @@
 #include <engine/scene/SceneManager.h>
 #include <engine/scene/Scene.h>
 #include <engine/utils/Logging.h>
+#include <engine/utils/PlatformMacros.h>
 #include <game/events/EventSystem.h>
 #include <game/GameConstants.h>
 #include <game/gameactions/CardAttackGameAction.h>
@@ -20,6 +21,9 @@
 #include <game/gameactions/NextPlayerGameAction.h>
 #include <game/gameactions/PoisonStackApplicationGameAction.h>
 #include <numeric>
+#if defined(MOBILE_FLOW)
+#include <platform_specific/IOSUtils.h>
+#endif
 
 ///------------------------------------------------------------------------------------------------
 
@@ -126,7 +130,24 @@ void NextPlayerGameAction::VInitAnimation()
         auto turnPointerSo = scene->FindSceneObject(game_constants::TURN_POINTER_SCENE_OBJECT_NAME);
         bool localPlayerActive = mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX;
         
-        animationManager.StartAnimation(std::make_unique<rendering::TweenRotationAnimation>(turnPointerSo, glm::vec3(0.0f, 0.0f, turnPointerSo->mRotation.z + (localPlayerActive ? -math::PI/2 : math::PI/2)), game_constants::TURN_POINTER_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::ElasticFunction, math::TweeningMode::EASE_IN), [=]()
+        glm::vec3 targetRotation = glm::vec3(0.0f, 0.0f, turnPointerSo->mRotation.z + (localPlayerActive ? math::PI/2 : -math::PI/2));
+        
+#if defined(MOBILE_FLOW)
+        if (ios_utils::IsIPad())
+        {
+            targetRotation = glm::vec3(0.0f, 0.0f, turnPointerSo->mRotation.z + (localPlayerActive ? -math::PI/2 : math::PI/2));
+        }
+#endif
+        
+        animationManager.StartAnimation(std::make_unique<rendering::TweenRotationAnimation>
+        (
+            turnPointerSo,
+            targetRotation,
+            game_constants::TURN_POINTER_ANIMATION_DURATION_SECS,
+            animation_flags::NONE, 0.0f,
+            math::ElasticFunction,
+            math::TweeningMode::EASE_IN
+        ), [=]()
         {
             mPendingAnimations--;
             auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();

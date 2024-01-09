@@ -1,0 +1,17 @@
+{
+    "children_scenes":
+    [
+    ],
+    
+    "scene_objects":
+    [
+        {
+            "name": "card_selection_title",
+            "font": "font",
+            "text": "Card Rewards",
+            "scale": { "x": 0.0007, "y": 0.0007, "z": 0.0007 },
+            "position": { "x": -0.1, "y": 0.177, "z": 23.1 },
+            "alpha": 0.0
+        }
+    ]
+}

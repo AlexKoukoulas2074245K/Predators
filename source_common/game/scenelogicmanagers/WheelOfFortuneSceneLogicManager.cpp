@@ -22,10 +22,12 @@
 
 static const strutils::StringId WHEEL_OF_FORTUNE_SCENE_NAME = strutils::StringId("wheel_of_fortune_scene");
 static const strutils::StringId SPIN_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("spin_button");
+static const strutils::StringId CONTINUE_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("continue_button");
+static const strutils::StringId WHEEL_OF_FORTUNE_TITLE_SCENE_OBJECT_NAME = strutils::StringId("wheel_of_fortune_title");
 
-static const glm::vec3 SPIN_BUTTON_POSITION = {0.178f, 0.00f, 23.1f};
+static const glm::vec3 BUTTON_POSITION = {0.155f, -0.038f, 23.1f};
 static const glm::vec3 BUTTON_SCALE = {0.0005f, 0.0005f, 0.0005f};
-static const glm::vec3 COIN_REWARD_ORIGIN_POSITION = {-0.032f, -0.013f, 23.1f};
+static const glm::vec3 COIN_REWARD_ORIGIN_POSITION = {-0.032f, -0.034f, 23.1f};
 
 static const float FADE_IN_OUT_DURATION_SECS = 1.0f;
 
@@ -46,6 +48,12 @@ static const std::vector<std::string> WHEEL_REWARDS =
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
 {
     WHEEL_OF_FORTUNE_SCENE_NAME
+};
+
+static const std::unordered_set<strutils::StringId, strutils::StringIdHasher> STATIC_SCENE_ELEMENTS =
+{
+    WHEEL_OF_FORTUNE_TITLE_SCENE_OBJECT_NAME,
+    game_constants::OVERLAY_SCENE_OBJECT_NAME
 };
 
 ///------------------------------------------------------------------------------------------------
@@ -73,11 +81,14 @@ void WheelOfFortuneSceneLogicManager::VInitSceneCamera(std::shared_ptr<scene::Sc
 
 void WheelOfFortuneSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 {
+    mScene = scene;
+    
     mWheelController = std::make_unique<WheelOfFortuneController>(*scene, WHEEL_REWARDS, [=](const int itemIndex, const std::shared_ptr<scene::SceneObject> itemSceneObject){ OnWheelItemSelected(itemIndex, itemSceneObject); });
         
+    mContinueButton = nullptr;
     mSpinButton = std::make_unique<AnimatedButton>
     (
-        SPIN_BUTTON_POSITION,
+        BUTTON_POSITION,
         BUTTON_SCALE,
         game_constants::DEFAULT_FONT_NAME,
         "Spin!",
@@ -89,7 +100,10 @@ void WheelOfFortuneSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> s
                 mWheelController->Spin();
                 mHasSpinnedWheel = true;
                 
-                CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(mSpinButton->GetSceneObject(), 0.0f, FADE_IN_OUT_DURATION_SECS, animation_flags::NONE), [=](){});
+                CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(mSpinButton->GetSceneObject(), 0.0f, FADE_IN_OUT_DURATION_SECS, animation_flags::NONE), [=]()
+                {
+                    mSpinButton->GetSceneObject()->mInvisible = true;
+                });
             }
         },
         *scene
@@ -100,6 +114,13 @@ void WheelOfFortuneSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> s
         if (sceneObject->mName == game_constants::OVERLAY_SCENE_OBJECT_NAME)
         {
             continue;
+        }
+        
+        sceneObject->mInvisible = false;
+        
+        if (!STATIC_SCENE_ELEMENTS.count(sceneObject->mName))
+        {
+            sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
         }
         
         sceneObject->mInvisible = false;
@@ -120,6 +141,11 @@ void WheelOfFortuneSceneLogicManager::VUpdate(const float dtMillis, std::shared_
     if (!mHasSpinnedWheel)
     {
         mSpinButton->Update(dtMillis);
+    }
+    
+    if (mContinueButton)
+    {
+        mContinueButton->Update(dtMillis);
     }
     
     auto guiObjectManager = mGameSceneTransitionManager->GetSceneLogicManagerResponsibleForScene(mPreviousScene)->VGetGuiObjectManager();
@@ -165,6 +191,20 @@ void WheelOfFortuneSceneLogicManager::OnWheelItemSelected(const int itemIndex, c
     {
         events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(50, COIN_REWARD_ORIGIN_POSITION);
     }
+    
+    mContinueButton = std::make_unique<AnimatedButton>
+    (
+        BUTTON_POSITION,
+        BUTTON_SCALE,
+        game_constants::DEFAULT_FONT_NAME,
+        "Continue",
+        CONTINUE_BUTTON_SCENE_OBJECT_NAME,
+        [=]()
+        {
+            events::EventSystem::GetInstance().DispatchEvent<events::PopSceneModalEvent>();
+        },
+        *mScene
+    );
 }
 
 ///------------------------------------------------------------------------------------------------

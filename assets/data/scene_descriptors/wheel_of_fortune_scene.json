@@ -5,5 +5,15 @@
     
     "scene_objects":
     [
+        {
+            "name": "wheel_of_fortune_title",
+            "font": "font",
+            "text": "The Elite Wheel",
+            "shader": "basic_custom_color.vs",
+            "color": { "r": 0.96, "g": 0.47, "b": 0.25 },
+            "scale": { "x": 0.0007, "y": 0.0007, "z": 0.0007 },
+            "position": { "x": -0.213, "y": 0.177, "z": 23.1 },
+            "alpha": 0.0
+        }
     ]
 }

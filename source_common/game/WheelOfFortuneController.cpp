@@ -19,9 +19,9 @@ static const std::string WHEEL_BASE_TEXTURE_FILE_NAME = "wheel_of_fortune.png";
 static const std::string WHEEL_POINTER_TEXTURE_FILE_NAME = "wheel_of_fortune_pointer.png";
 static const std::string WHEEL_CENTER_TEXTURE_FILE_NAME = "wheel_of_fortune_center.png";
 
-static const glm::vec3 WHEEL_BASE_POSITION = {-0.05f, 0.0f, 23.1f};
-static const glm::vec3 WHEEL_COMPONENTS_POSITION = {-0.05f, 0.0f, 23.2f};
-static const glm::vec3 WHEEL_BASE_SCALE = {0.4f, 0.4f, 0.4f};
+static const glm::vec3 WHEEL_BASE_POSITION = {-0.05f, -0.05f, 23.1f};
+static const glm::vec3 WHEEL_COMPONENTS_POSITION = {-0.05f, -0.05f, 23.2f};
+static const glm::vec3 WHEEL_BASE_SCALE = {0.35f, 0.35f, 0.35f};
 
 static const glm::vec2 WHEEL_ROTATION_MULTIPLIER_RANDOM_RANGE = {800.0f, 1200.0f};
 static const float WHEEL_SPIN_ROTATION_DAMPING = 0.98f;
@@ -72,7 +72,7 @@ WheelOfFortuneController::WheelOfFortuneController(scene::Scene& scene, const st
 
 void WheelOfFortuneController::Spin()
 {
-    mWheelRotationSpeed = WHEEL_INITIAL_SLOW_ROTATION_SPEED * math::RandomFloat(WHEEL_ROTATION_MULTIPLIER_RANDOM_RANGE.s, WHEEL_ROTATION_MULTIPLIER_RANDOM_RANGE.t);
+    mWheelRotationSpeed = WHEEL_INITIAL_SLOW_ROTATION_SPEED * math::ControlledRandomFloat(WHEEL_ROTATION_MULTIPLIER_RANDOM_RANGE.s, WHEEL_ROTATION_MULTIPLIER_RANDOM_RANGE.t);
     mState = WheelState::SPINNING;
 }
 

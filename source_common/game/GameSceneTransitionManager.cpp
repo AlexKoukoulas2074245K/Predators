@@ -188,7 +188,16 @@ void GameSceneTransitionManager::ChangeToScene
         if (mTransitionAnimationsDisabled)
         {
             assert(!mActiveSceneStack.empty());
-            nextActiveSceneLogicManager->mPreviousScene = mActiveSceneStack.top().mActiveSceneName;
+            
+            // A modal on top of another modal will acknowledge the previous scene as the concrete one
+            if (!mActiveSceneStack.top().isModal)
+            {
+                nextActiveSceneLogicManager->mPreviousScene = mActiveSceneStack.top().mActiveSceneName;
+            }
+            else
+            {
+                nextActiveSceneLogicManager->mPreviousScene = mActiveSceneStack.top().mActiveSceneLogicManager->mPreviousScene;
+            }
             
             mActiveSceneStack.push({nextActiveSceneLogicManager, sceneName, true});
             InitializeActiveSceneLogicManager(sceneChangeType);
@@ -208,7 +217,16 @@ void GameSceneTransitionManager::ChangeToScene
             CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(overlaySceneObject, MODAL_MAX_ALPHA, OVERLAY_ANIMATION_TARGET_DURATION_SECS, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), [=]()
             {
                 assert(!mActiveSceneStack.empty());
-                nextActiveSceneLogicManager->mPreviousScene = mActiveSceneStack.top().mActiveSceneName;
+                
+                // A modal on top of another modal will acknowledge the previous scene as the concrete one
+                if (!mActiveSceneStack.top().isModal)
+                {
+                    nextActiveSceneLogicManager->mPreviousScene = mActiveSceneStack.top().mActiveSceneName;
+                }
+                else
+                {
+                    nextActiveSceneLogicManager->mPreviousScene = mActiveSceneStack.top().mActiveSceneLogicManager->mPreviousScene;
+                }
                 
                 mActiveSceneStack.push({nextActiveSceneLogicManager, newSceneNameCopy, true});
                 InitializeActiveSceneLogicManager(sceneChangeType);

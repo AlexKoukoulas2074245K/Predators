@@ -24,6 +24,7 @@ const std::string GameOverGameAction::VICTORIOUS_PLAYER_INDEX_PARAM = "victoriou
 static const std::string CARD_DISSOLVE_SHADER_FILE_NAME = "card_dissolve.vs";
 static const std::string DISSOLVE_TEXTURE_FILE_NAME = "dissolve.png";
 
+static const strutils::StringId CARD_SELECTION_REWARD_SCENE_NAME = strutils::StringId("card_selection_reward_scene");
 static const strutils::StringId WHEEL_OF_FORTUNE_SCENE_NAME = strutils::StringId("wheel_of_fortune_scene");
 static const strutils::StringId DEFEAT_SCENE_NAME = strutils::StringId("defeat_scene");
 static const strutils::StringId DISSOLVE_THRESHOLD_UNIFORM_NAME = strutils::StringId("dissolve_threshold");
@@ -148,13 +149,11 @@ ActionAnimationUpdateResult GameOverGameAction::VUpdateAnimation(const float dtM
                 
                 if (cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] >= MAX_CARD_DISSOLVE_VALUE && !CoreSystemsEngine::GetInstance().GetAnimationManager().IsAnimationPlaying(game_constants::COIN_FLYING_ANIMATION_NAME))
                 {
+                    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(CARD_SELECTION_REWARD_SCENE_NAME, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+                    
                     if (ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeType() == StoryMap::NodeType::ELITE_ENCOUNTER)
                     {
                         events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(WHEEL_OF_FORTUNE_SCENE_NAME, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
-                    }
-                    else
-                    {
-                        events::EventSystem::GetInstance().DispatchEvent<events::StoryBattleFinishedEvent>();
                     }
                     
                     return ActionAnimationUpdateResult::FINISHED;

@@ -1,12 +1,12 @@
 ///------------------------------------------------------------------------------------------------
-///  WheelOfFortuneSceneLogicManager.h
+///  CardSelectionRewardSceneLogicManager.h
 ///  Predators                                                                                            
 ///                                                                                                
-///  Created by Alex Koukoulas on 08/01/2024
+///  Created by Alex Koukoulas on 09/01/2024
 ///------------------------------------------------------------------------------------------------
 
-#ifndef WheelOfFortuneSceneLogicManager_h
-#define WheelOfFortuneSceneLogicManager_h
+#ifndef CardSelectionRewardSceneLogicManager_h
+#define CardSelectionRewardSceneLogicManager_h
 
 ///------------------------------------------------------------------------------------------------
 
@@ -16,12 +16,11 @@
 ///------------------------------------------------------------------------------------------------
 
 class AnimatedButton;
-class WheelOfFortuneController;
-class WheelOfFortuneSceneLogicManager final: public ISceneLogicManager
+class CardSelectionRewardSceneLogicManager final: public ISceneLogicManager
 {
 public:
-    WheelOfFortuneSceneLogicManager();
-    ~WheelOfFortuneSceneLogicManager();
+    CardSelectionRewardSceneLogicManager();
+    ~CardSelectionRewardSceneLogicManager();
     
     const std::vector<strutils::StringId>& VGetApplicableSceneNames() const override;
     
@@ -32,16 +31,12 @@ public:
     std::shared_ptr<GuiObjectManager> VGetGuiObjectManager() override;
     
 private:
-    void OnWheelItemSelected(const int itemIndex, const std::shared_ptr<scene::SceneObject> itemSceneObject);
-    
-private:
-    std::shared_ptr<scene::Scene> mScene;
-    std::unique_ptr<AnimatedButton> mSpinButton;
-    std::unique_ptr<AnimatedButton> mContinueButton;
-    std::unique_ptr<WheelOfFortuneController> mWheelController;
-    bool mHasSpinnedWheel;
+    std::unique_ptr<AnimatedButton> mOkButton;
+    bool mHasConfirmedSelection;
+    bool mHasPresentedSceneObjects;
+    float mInitialSurfacingDelaySecs;
 };
 
 ///------------------------------------------------------------------------------------------------
 
-#endif /* MainMenuSceneLogicManager_h */
+#endif /* CardSelectionRewardSceneLogicManager_h */

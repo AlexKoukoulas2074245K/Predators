@@ -32,6 +32,7 @@
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/GameActionFactory.h>
 #include <game/scenelogicmanagers/BattleSceneLogicManager.h>
+#include <game/scenelogicmanagers/CardSelectionRewardSceneLogicManager.h>
 #include <game/scenelogicmanagers/DefeatSceneLogicManager.h>
 #include <game/scenelogicmanagers/EventSceneLogicManager.h>
 #include <game/scenelogicmanagers/LoadingSceneLogicManager.h>
@@ -90,6 +91,7 @@ void Game::Init()
     
     mGameSceneTransitionManager = std::make_unique<GameSceneTransitionManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<BattleSceneLogicManager>();
+    mGameSceneTransitionManager->RegisterSceneLogicManager<CardSelectionRewardSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<DefeatSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<EventSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<SettingsSceneLogicManager>();
