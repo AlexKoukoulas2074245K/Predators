@@ -647,6 +647,7 @@ void MainMenuSceneLogicManager::GoToPreviousSubScene(std::shared_ptr<scene::Scen
 void MainMenuSceneLogicManager::InitializeNewStoryData()
 {
     ProgressionDataRepository::GetInstance().ResetStoryData();
+    ProgressionDataRepository::GetInstance().SetStoryMaxHealth(game_constants::STORY_DEFAULT_MAX_HEALTH);
     ProgressionDataRepository::GetInstance().SetIsCurrentlyPlayingStoryMode(true);
     events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_MAP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
     ProgressionDataRepository::GetInstance().FlushStateToFile();

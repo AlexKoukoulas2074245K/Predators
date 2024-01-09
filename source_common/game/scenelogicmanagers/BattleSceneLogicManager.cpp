@@ -38,6 +38,7 @@
 static const strutils::StringId HISTORY_SCENE = strutils::StringId("battle_history_scene");
 static const strutils::StringId SETTINGS_SCENE = strutils::StringId("settings_scene");
 static const strutils::StringId CARD_HISTORY_CONTAINER_NAME = strutils::StringId("card_history_container");
+static const strutils::StringId LOOT_INDICATOR_SCENE_OBJECT_NAME = strutils::StringId("loot_indicator");
 static const strutils::StringId HISTORY_TROLLEY_SCENE_OBJECT_NAME = strutils::StringId("history_trolley");
 static const strutils::StringId CARD_LOCATION_INDICATOR_SCENE_OBJECT_NAME = strutils::StringId("card_location_indicator");
 static const strutils::StringId CARD_HISTORY_CAPSULE_SCENE_OBJECT_NAME = strutils::StringId("card_history_capsule");
@@ -377,7 +378,7 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
         HISTORY_BUTTON_SCENE_OBJECT_NAME,
         [=](){ OnHistoryButtonPressed(); },
         *scene,
-        scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE,
+        scene::SnapToEdgeBehavior::SNAP_TO_LEFT_EDGE,
         BUTTONS_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR
     ));
     
@@ -1279,6 +1280,7 @@ void BattleSceneLogicManager::RegisterForEvents()
     eventSystem.RegisterForEvent<events::ForceSendCardBackToPositionEvent>(this, &BattleSceneLogicManager::OnForceSendCardBackToPosition);
     eventSystem.RegisterForEvent<events::PoisonStackChangeChangeAnimationTriggerEvent>(this, &BattleSceneLogicManager::OnPoisonStackChangeChangeAnimationTrigger);
     eventSystem.RegisterForEvent<events::CardHistoryEntryAdditionEvent>(this, &BattleSceneLogicManager::OnCardHistoryEntryAddition);
+    eventSystem.RegisterForEvent<events::StoryBattleWonEvent>(this, &BattleSceneLogicManager::OnStoryBattleWon);
     eventSystem.RegisterForEvent<events::StoryBattleFinishedEvent>(this, &BattleSceneLogicManager::OnStoryBattleFinished);
 }
 
@@ -1869,8 +1871,37 @@ void BattleSceneLogicManager::OnCardHistoryEntryAddition(const events::CardHisto
 
 ///------------------------------------------------------------------------------------------------
 
+void BattleSceneLogicManager::OnStoryBattleWon(const events::StoryBattleWonEvent&)
+{
+    auto battleCoinRewards = ProgressionDataRepository::GetInstance().GetNextBattleTopPlayerHealth();
+    
+    // Add victory coin indicator and animate them to gui
+    auto lootIndicatorSceneObject = mActiveScene->FindSceneObject(LOOT_INDICATOR_SCENE_OBJECT_NAME);
+    lootIndicatorSceneObject->mInvisible = false;
+    std::get<scene::TextSceneObjectData>(lootIndicatorSceneObject->mSceneObjectTypeData).mText = "+" + std::to_string(battleCoinRewards) + " coins";
+    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(lootIndicatorSceneObject, 1.0f, 0.5f), [=](){});
+    events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(battleCoinRewards, mPlayerBoardCardSceneObjectWrappers[game_constants::REMOTE_PLAYER_INDEX][0]->mSceneObject->mPosition);
+    
+    // Commit health values
+    ProgressionDataRepository::GetInstance().StoryCurrentHealth().SetValue(mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth);
+    ProgressionDataRepository::GetInstance().StoryCurrentHealth().SetDisplayedValue(mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth);
+    mGuiManager->ForceSetStoryHealthValue(mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth);
+    
+    // Set next scenes accordingly
+    ProgressionDataRepository::GetInstance().SetCurrentStoryMapNodeSeed(math::GetControlSeed());
+    ProgressionDataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::CARD_SELECTION);
+    if (ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeType() == StoryMap::NodeType::ELITE_ENCOUNTER)
+    {
+        ProgressionDataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::WHEEL);
+    }
+    ProgressionDataRepository::GetInstance().FlushStateToFile();
+}
+
+///------------------------------------------------------------------------------------------------
+
 void BattleSceneLogicManager::OnStoryBattleFinished(const events::StoryBattleFinishedEvent&)
 {
+    ProgressionDataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::BATTLE);
     events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_MAP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
 }
 

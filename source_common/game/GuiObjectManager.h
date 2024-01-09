@@ -32,10 +32,17 @@ public:
     void ForceSetStoryHealthValue(const int storyHealthValue);
     
 private:
-    void AnimateCoinsToCoinStack(const glm::vec3& originPosition, const long long coinAmount);
+    enum class StatParticleType
+    {
+        COINS,
+        HEALTH
+    };
+    
+    void AnimateStatParticlesToGui(const glm::vec3& originPosition, const StatParticleType statParticleType, const long long coinAmount);
     void SetCoinValueText();
     void OnSettingsButtonPressed();
     void OnCoinReward(const events::CoinRewardEvent&);
+    void OnHealthRefillReward(const events::HealthRefillRewardEvent&);
     
 private:
     std::vector<std::unique_ptr<AnimatedButton>> mAnimatedButtons;

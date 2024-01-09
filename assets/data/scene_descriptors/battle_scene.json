@@ -16,6 +16,17 @@
             "alpha": 1.0
         },
         {
+            "name": "loot_indicator",
+            "font": "font",
+            "shader": "basic_custom_color.vs",
+            "text": "+",
+            "scale": { "x": 0.0002, "y": 0.0002, "z": 0.0002 },
+            "position": { "x": -0.036, "y": 0.078, "z": 1.0 },
+            "alpha": 0.0,
+            "color": { "r": 0.8, "g": 0.71, "b": 0.11},
+            "invisible": true
+        },
+        {
             "name": "replay_text",
             "font": "font",
             "text": "Replaying",
@@ -68,7 +79,7 @@
             "texture": "turn_pointer.png",
             "scale": { "x": 0.08, "y": 0.08, "z": 0.08 },
             "position": { "x": 0.2, "y": 0.0, "z": 19.0 },
-            "snap_to_edge": "snap_to_right_edge",
+            "snap_to_edge": "snap_to_left_edge",
             "snap_to_edge_factor": 0.45
         },
         {
@@ -79,7 +90,7 @@
             "scale": { "x": 0.06, "y": 0.09, "z": 0.8 },
             "position": { "x": 0.2, "y": 0.0, "z": 19.0 },
             "alpha": 0.0,
-            "snap_to_edge": "snap_to_right_edge",
+            "snap_to_edge": "snap_to_left_edge",
             "uniform_floats":
             [
                 { "name": "time_speed", "value": 12.595 },

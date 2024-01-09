@@ -42,7 +42,7 @@ void ProgressionDataRepository::ResetStoryData()
 {
     mStoryDataSerializer->GetState().clear();
     
-    mStoryCurrentHealth = ValueWithDelayedDisplay<int>(60, 60, [=](const int& newValue) { mStoryDataSerializer->GetState()["current_story_health"] = newValue; });
+    mStoryCurrentHealth = ValueWithDelayedDisplay<int>(game_constants::STORY_DEFAULT_MAX_HEALTH, game_constants::STORY_DEFAULT_MAX_HEALTH, [=](const int& newValue) { mStoryDataSerializer->GetState()["current_story_health"] = newValue; });
     
     mCurrentStoryPlayerDeck.clear();
     mNextTopPlayerDeck.clear();
@@ -55,6 +55,7 @@ void ProgressionDataRepository::ResetStoryData()
     mCurrentStoryMapNodeType = StoryMap::NodeType::NORMAL_ENCOUNTER;
     mSelectedStoryMapNodeData = nullptr;
     
+    mStoryMaxHealth = game_constants::STORY_DEFAULT_MAX_HEALTH;
     mStoryMapGenerationSeed = 0;
     mCurrentStoryMapNodeSeed = 0;
     mCurrentEventScreenIndex = 0;
@@ -211,6 +212,21 @@ void ProgressionDataRepository::SetNextBotPlayerDeck(const std::vector<int>& dec
 {
     mNextBotPlayerDeck = deck;
     mStoryDataSerializer->GetState()["next_bot_player_deck"] = deck;
+}
+
+///------------------------------------------------------------------------------------------------
+
+const int& ProgressionDataRepository::GetStoryMaxHealth() const
+{
+    return mStoryMaxHealth;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ProgressionDataRepository::SetStoryMaxHealth(const int storyMaxHealth)
+{
+    mStoryMaxHealth = storyMaxHealth;
+    mStoryDataSerializer->GetState()["story_max_health"] = mStoryMaxHealth;
 }
 
 ///------------------------------------------------------------------------------------------------

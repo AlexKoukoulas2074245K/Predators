@@ -138,16 +138,7 @@ ActionAnimationUpdateResult GameOverGameAction::VUpdateAnimation(const float dtM
                         cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_MAGNITUDE_UNIFORM_NAME] = math::RandomFloat(CARD_DISSOLVE_EFFECT_MAG_RANGE.x, CARD_DISSOLVE_EFFECT_MAG_RANGE.y);
                         mAnimationState = AnimationState::DISSOLVE;
                         
-                        auto battleCoinRewards = ProgressionDataRepository::GetInstance().GetNextBattleTopPlayerHealth();
-                        events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(battleCoinRewards, mBattleSceneLogicManager->GetBoardCardSoWrappers()[game_constants::REMOTE_PLAYER_INDEX][0]->mSceneObject->mPosition);
-                        ProgressionDataRepository::GetInstance().StoryCurrentHealth().SetValue(mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth);
-                        ProgressionDataRepository::GetInstance().SetCurrentStoryMapNodeSeed(math::GetControlSeed());
-                        ProgressionDataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::CARD_SELECTION);
-                        if (ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeType() == StoryMap::NodeType::ELITE_ENCOUNTER)
-                        {
-                            ProgressionDataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::WHEEL);
-                        }
-                        ProgressionDataRepository::GetInstance().FlushStateToFile();
+                        events::EventSystem::GetInstance().DispatchEvent<events::StoryBattleWonEvent>();
                     }
                 }
             } break;
@@ -157,7 +148,7 @@ ActionAnimationUpdateResult GameOverGameAction::VUpdateAnimation(const float dtM
                 auto cardSoWrapper = mBattleSceneLogicManager->GetBoardCardSoWrappers()[game_constants::REMOTE_PLAYER_INDEX][0];
                 cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] = math::Min(cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] + dtMillis * CARD_DISSOLVE_SPEED, MAX_CARD_DISSOLVE_VALUE);
                 
-                if (cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] >= MAX_CARD_DISSOLVE_VALUE && !CoreSystemsEngine::GetInstance().GetAnimationManager().IsAnimationPlaying(game_constants::COIN_FLYING_ANIMATION_NAME))
+                if (cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] >= MAX_CARD_DISSOLVE_VALUE && !CoreSystemsEngine::GetInstance().GetAnimationManager().IsAnimationPlaying(game_constants::STAT_PARTICLE_FLYING_ANIMATION_NAME))
                 {
                     events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(CARD_SELECTION_REWARD_SCENE_NAME, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
                     

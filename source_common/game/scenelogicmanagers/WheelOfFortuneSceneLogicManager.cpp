@@ -28,7 +28,9 @@ static const strutils::StringId WHEEL_OF_FORTUNE_TITLE_SCENE_OBJECT_NAME = strut
 
 static const glm::vec3 BUTTON_POSITION = {0.155f, -0.038f, 23.1f};
 static const glm::vec3 BUTTON_SCALE = {0.0005f, 0.0005f, 0.0005f};
-static const glm::vec3 COIN_REWARD_ORIGIN_POSITION = {-0.032f, -0.034f, 23.1f};
+static const glm::vec3 REWARD_ORIGIN_POSITION = {-0.032f, -0.034f, 23.1f};
+
+static const int EXTRA_COINS_REWARD_VALUE = 50;
 
 static const float FADE_IN_OUT_DURATION_SECS = 1.0f;
 
@@ -189,15 +191,15 @@ void WheelOfFortuneSceneLogicManager::OnWheelItemSelected(const int itemIndex, c
 {
     if (WHEEL_REWARDS.at(itemIndex) == REWARD_EXTRA_COINS_TEXTURE)
     {
-        events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(50, COIN_REWARD_ORIGIN_POSITION);
+        events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(EXTRA_COINS_REWARD_VALUE, REWARD_ORIGIN_POSITION);
     }
     else if (WHEEL_REWARDS.at(itemIndex) == REWARD_EXTRA_HP_TEXTURE)
     {
-        events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(50, COIN_REWARD_ORIGIN_POSITION);
+        events::EventSystem::GetInstance().DispatchEvent<events::HealthRefillRewardEvent>(ProgressionDataRepository::GetInstance().GetStoryMaxHealth() - ProgressionDataRepository::GetInstance().StoryCurrentHealth().GetValue(), REWARD_ORIGIN_POSITION);
     }
     else if (WHEEL_REWARDS.at(itemIndex) == REWARD_REFILL_HP_TEXTURE)
     {
-        events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(50, COIN_REWARD_ORIGIN_POSITION);
+        events::EventSystem::GetInstance().DispatchEvent<events::HealthRefillRewardEvent>(ProgressionDataRepository::GetInstance().GetStoryMaxHealth() - ProgressionDataRepository::GetInstance().StoryCurrentHealth().GetValue(), REWARD_ORIGIN_POSITION);
     }
     
     if (!ProgressionDataRepository::GetInstance().GetNextStoryOpponentName().empty())

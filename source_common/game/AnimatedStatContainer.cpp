@@ -16,6 +16,7 @@
 
 static const std::string BASE_SCENE_OBJECT_NAME_POSTFIX = "base";
 static const std::string VALUE_SCENE_OBJECT_NAME_POSTFIX = "value";
+static const std::string HEALTH_STAT_CONTAINER_BASE_OBJECT_SHADER = "animated_stat_container_base_object.vs";
 
 static const glm::vec3 STAT_CRYSTAL_SCALE = {0.05f, 0.05f, 1.0f};
 static const glm::vec3 STAT_CRYSTAL_VALUE_SCALE = {0.00013f, 0.00013f, 1.0f};
@@ -43,6 +44,7 @@ AnimatedStatContainer::AnimatedStatContainer
 {
     auto crystalBaseSceneObject = scene.CreateSceneObject(strutils::StringId(crystalName + BASE_SCENE_OBJECT_NAME_POSTFIX));
     crystalBaseSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + textureFilename);
+    crystalBaseSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + HEALTH_STAT_CONTAINER_BASE_OBJECT_SHADER);
     crystalBaseSceneObject->mPosition = position;
     crystalBaseSceneObject->mScale = STAT_CRYSTAL_SCALE * mScaleFactor;
     crystalBaseSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = startHidden ? 0.0f : 1.0f;

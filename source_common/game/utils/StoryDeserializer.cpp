@@ -50,6 +50,11 @@ StoryDeserializer::StoryDeserializer(ProgressionDataRepository& progressionDataR
         progressionDataRepository.SetCurrentEventScreenIndex(storyJson["current_event_screen"].get<int>());
     }
     
+    if (storyJson.count("story_max_health"))
+    {
+        progressionDataRepository.SetStoryMaxHealth(storyJson["story_max_health"].get<int>());
+    }
+    
     if (storyJson.count("story_seed"))
     {
         progressionDataRepository.SetStoryMapGenerationSeed(storyJson["story_seed"].get<int>());

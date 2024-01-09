@@ -66,7 +66,7 @@ namespace game_constants
     inline const strutils::StringId GUI_SETTINGS_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("settings_button");
     inline const strutils::StringId GUI_COIN_STACK_SCENE_OBJECT_NAME = strutils::StringId("coin_stack");
     inline const strutils::StringId GUI_COIN_VALUE_TEXT_SCENE_OBJECT_NAME = strutils::StringId("coin_value_text");
-    inline const strutils::StringId COIN_FLYING_ANIMATION_NAME = strutils::StringId("coin_flying_animation");
+    inline const strutils::StringId STAT_PARTICLE_FLYING_ANIMATION_NAME = strutils::StringId("coin_flying_animation");
 
     // Fonts
     inline const strutils::StringId DEFAULT_FONT_NAME = strutils::StringId("font");
@@ -124,7 +124,8 @@ namespace game_constants
     inline constexpr int BOT_PLAYER_DEFAULT_WEIGHT = 3;
     inline constexpr int TOP_PLAYER_DEFAULT_WEIGHT_LIMIT = 10;
     inline constexpr int BOT_PLAYER_DEFAULT_WEIGHT_LIMIT = 10;
-
+    inline constexpr int STORY_DEFAULT_MAX_HEALTH = 60;
+    
     inline const float CARD_COMPONENT_Z_OFFSET = 0.1f;
     inline const float CARD_BOUNDING_RECT_X_MULTIPLIER = 0.5f;
     inline const float IN_GAME_PLAYED_CARD_Z = 0.1f;
@@ -179,12 +180,12 @@ namespace game_constants
 
     inline const glm::vec3 INDIVIDUAL_CARD_BOARD_EFFECT_SCALE = {1/20.0f, 1/20.0f, 1/20.0f};
     inline const glm::vec3 CARD_HIGHLIGHTER_SCALE = {0.08f, 0.13f, 1.0f};
-    inline const glm::vec3 HEALTH_CRYSTAL_TOP_POSITION = {-0.100f, 0.03f, 19.0f};
-    inline const glm::vec3 HEALTH_CRYSTAL_BOT_POSITION = {-0.100f, -0.03f, 19.0f};
-    inline const glm::vec3 WEIGHT_CRYSTAL_TOP_POSITION = {0.090f, 0.03f, 19.0f};
-    inline const glm::vec3 WEIGHT_CRYSTAL_BOT_POSITION = {0.090f, -0.03f, 19.0f};
-    inline const glm::vec3 POISON_STACK_TOP_POSITION = {-0.100f, 0.005f, 19.0f};
-    inline const glm::vec3 POISON_STACK_BOT_POSITION = {-0.100f, -0.055f, 19.0f};
+    inline const glm::vec3 HEALTH_CRYSTAL_TOP_POSITION = {-0.100f, 0.03f, 1.0f};
+    inline const glm::vec3 HEALTH_CRYSTAL_BOT_POSITION = {-0.100f, -0.03f, 1.0f};
+    inline const glm::vec3 WEIGHT_CRYSTAL_TOP_POSITION = {0.090f, 0.03f, 1.0f};
+    inline const glm::vec3 WEIGHT_CRYSTAL_BOT_POSITION = {0.090f, -0.03f, 1.0f};
+    inline const glm::vec3 POISON_STACK_TOP_POSITION = {-0.100f, 0.005f, 1.0f};
+    inline const glm::vec3 POISON_STACK_BOT_POSITION = {-0.100f, -0.055f, 1.0f};
     inline const glm::vec3 GAME_BOARD_INIT_POSITION = {-0.039f, 0.011f, 0.0f };
     inline const glm::vec3 GAME_BOARD_INIT_ROTATION = {0.0f, 0.0f, 3.14f };
 

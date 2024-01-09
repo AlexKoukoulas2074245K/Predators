@@ -231,6 +231,27 @@ public:
 
 ///------------------------------------------------------------------------------------------------
 
+class HealthRefillRewardEvent final
+{
+public:
+    HealthRefillRewardEvent(const int healthAmount, const glm::vec3& animationOriginPosition)
+        : mHealthAmount(healthAmount)
+        , mAnimationOriginPosition(animationOriginPosition)
+    {
+    }
+    
+    const int mHealthAmount;
+    const glm::vec3 mAnimationOriginPosition;
+};
+
+///------------------------------------------------------------------------------------------------
+
+class StoryBattleWonEvent final
+{
+};
+
+///------------------------------------------------------------------------------------------------
+
 class StoryBattleFinishedEvent final
 {
 };
