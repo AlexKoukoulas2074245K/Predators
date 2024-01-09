@@ -140,6 +140,21 @@ void ProgressionDataRepository::SetCurrentStoryMapSceneType(const StoryMapSceneT
 
 ///------------------------------------------------------------------------------------------------
 
+BattleSubSceneType ProgressionDataRepository::GetCurrentBattleSubSceneType() const
+{
+    return mCurrentBattleSubSceneType;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ProgressionDataRepository::SetCurrentBattleSubSceneType(const BattleSubSceneType currentBattleSubSceneType)
+{
+    mCurrentBattleSubSceneType = currentBattleSubSceneType;
+    mStoryDataSerializer->GetState()["current_battle_sub_scene_type"] = static_cast<int>(mCurrentBattleSubSceneType);
+}
+
+///------------------------------------------------------------------------------------------------
+
 const int& ProgressionDataRepository::GetCurrentEventScreenIndex() const
 {
     return mCurrentEventScreenIndex;

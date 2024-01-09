@@ -1,5 +1,5 @@
 ///------------------------------------------------------------------------------------------------
-///  BattleInitialAnimationGameAction.cpp
+///  BattleInitialSetupAndAnimationGameAction.cpp
 ///  Predators                                                                                            
 ///                                                                                                
 ///  Created by Alex Koukoulas on 14/12/2023
@@ -13,11 +13,17 @@
 #include <game/events/EventSystem.h>
 #include <game/GameConstants.h>
 #include <game/gameactions/GameActionEngine.h>
-#include <game/gameactions/BattleInitialAnimationGameAction.h>
+#include <game/gameactions/BattleInitialSetupAndAnimationGameAction.h>
 #include <game/scenelogicmanagers/BattleSceneLogicManager.h>
 
 ///------------------------------------------------------------------------------------------------
 
+const std::string BattleInitialSetupAndAnimationGameAction::CURRENT_BATTLE_SUBSCENE_PARAM = "currentBattleSubsceneParam";
+
+///------------------------------------------------------------------------------------------------
+
+static const strutils::StringId CARD_SELECTION_REWARD_SCENE_NAME = strutils::StringId("card_selection_reward_scene");
+static const strutils::StringId WHEEL_OF_FORTUNE_SCENE_NAME = strutils::StringId("wheel_of_fortune_scene");
 static const strutils::StringId BOARD_SCENE_OBJECT_NAME = strutils::StringId("board");
 static const strutils::StringId REPLAY_TEXT_SCENE_OBJECT_NAME = strutils::StringId("replay_text");
 static const strutils::StringId TOP_PLAYER_HEALTH_CONTAINER_BASE = strutils::StringId("health_crystal_top_base");
@@ -31,13 +37,20 @@ static const float BOARD_ITEMS_FADE_IN_DURATION_SECS = 0.5f;
 
 ///------------------------------------------------------------------------------------------------
 
-void BattleInitialAnimationGameAction::VSetNewGameState()
+static const std::vector<std::string> sRequiredExtraParamNames =
+{
+    BattleInitialSetupAndAnimationGameAction::CURRENT_BATTLE_SUBSCENE_PARAM
+};
+
+///------------------------------------------------------------------------------------------------
+
+void BattleInitialSetupAndAnimationGameAction::VSetNewGameState()
 {
 }
 
 ///------------------------------------------------------------------------------------------------
 
-void BattleInitialAnimationGameAction::VInitAnimation()
+void BattleInitialSetupAndAnimationGameAction::VInitAnimation()
 {
     auto battleScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE);
     auto boardSceneObject = battleScene->FindSceneObject(BOARD_SCENE_OBJECT_NAME);
@@ -93,25 +106,40 @@ void BattleInitialAnimationGameAction::VInitAnimation()
 
 ///------------------------------------------------------------------------------------------------
 
-ActionAnimationUpdateResult BattleInitialAnimationGameAction::VUpdateAnimation(const float)
+ActionAnimationUpdateResult BattleInitialSetupAndAnimationGameAction::VUpdateAnimation(const float)
 {
+    if (mPendingAnimations == 0)
+    {
+        if (!ProgressionDataRepository::GetInstance().GetNextStoryOpponentName().empty() && !ProgressionDataRepository::GetInstance().GetQuickPlayData())
+        {
+            auto currentSubSceneType = static_cast<BattleSubSceneType>(std::stoi(mExtraActionParams.at(CURRENT_BATTLE_SUBSCENE_PARAM)));
+            
+            if (currentSubSceneType == BattleSubSceneType::WHEEL)
+            {
+                events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(WHEEL_OF_FORTUNE_SCENE_NAME, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+            }
+            else if (currentSubSceneType == BattleSubSceneType::CARD_SELECTION)
+            {
+                events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(CARD_SELECTION_REWARD_SCENE_NAME, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+            }
+        }
+    }
     
     return mPendingAnimations == 0 ? ActionAnimationUpdateResult::FINISHED : ActionAnimationUpdateResult::ONGOING;
 }
 
 ///------------------------------------------------------------------------------------------------
 
-bool BattleInitialAnimationGameAction::VShouldBeSerialized() const
+bool BattleInitialSetupAndAnimationGameAction::VShouldBeSerialized() const
 {
     return false;
 }
 
 ///------------------------------------------------------------------------------------------------
 
-const std::vector<std::string>& BattleInitialAnimationGameAction::VGetRequiredExtraParamNames() const
+const std::vector<std::string>& BattleInitialSetupAndAnimationGameAction::VGetRequiredExtraParamNames() const
 {
-    static std::vector<std::string> v;
-    return v;
+    return sRequiredExtraParamNames;
 }
 
 ///------------------------------------------------------------------------------------------------

@@ -16,6 +16,7 @@
 #include <game/events/EventSystem.h>
 #include <game/GameSceneTransitionManager.h>
 #include <game/scenelogicmanagers/WheelOfFortuneSceneLogicManager.h>
+#include <game/ProgressionDataRepository.h>
 #include <game/WheelOfFortuneController.h>
 
 ///------------------------------------------------------------------------------------------------
@@ -82,6 +83,13 @@ void WheelOfFortuneSceneLogicManager::VInitSceneCamera(std::shared_ptr<scene::Sc
 void WheelOfFortuneSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 {
     mScene = scene;
+    
+    if (!ProgressionDataRepository::GetInstance().GetNextStoryOpponentName().empty())
+    {
+        ProgressionDataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::WHEEL);
+        ProgressionDataRepository::GetInstance().SetCurrentStoryMapNodeSeed(math::GetControlSeed());
+        ProgressionDataRepository::GetInstance().FlushStateToFile();
+    }
     
     mWheelController = std::make_unique<WheelOfFortuneController>(*scene, WHEEL_REWARDS, [=](const int itemIndex, const std::shared_ptr<scene::SceneObject> itemSceneObject){ OnWheelItemSelected(itemIndex, itemSceneObject); });
         
@@ -190,6 +198,13 @@ void WheelOfFortuneSceneLogicManager::OnWheelItemSelected(const int itemIndex, c
     else if (WHEEL_REWARDS.at(itemIndex) == REWARD_REFILL_HP_TEXTURE)
     {
         events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(50, COIN_REWARD_ORIGIN_POSITION);
+    }
+    
+    if (!ProgressionDataRepository::GetInstance().GetNextStoryOpponentName().empty())
+    {
+        ProgressionDataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::CARD_SELECTION);
+        ProgressionDataRepository::GetInstance().SetCurrentStoryMapNodeSeed(math::GetControlSeed());
+        ProgressionDataRepository::GetInstance().FlushStateToFile();
     }
     
     mContinueButton = std::make_unique<AnimatedButton>

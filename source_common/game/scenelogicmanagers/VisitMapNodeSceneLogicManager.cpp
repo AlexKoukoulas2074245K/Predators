@@ -307,6 +307,7 @@ void VisitMapNodeSceneLogicManager::InitializeNodeVisitData()
             
             ProgressionDataRepository::GetInstance().SetNextStoryOpponentTexturePath(CoreSystemsEngine::GetInstance().GetResourceLoadingService().GetResourcePath(nodePortraitSceneObject->mTextureResourceId));
             ProgressionDataRepository::GetInstance().SetNextStoryOpponentName(std::get<scene::TextSceneObjectData>(nodeNameTextSceneObject->mSceneObjectTypeData).mText);
+            ProgressionDataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::BATTLE);
             
             // Populate opponent stats
             ProgressionDataRepository::GetInstance().SetNextStoryOpponentDamage(std::stoi(std::get<scene::TextSceneObjectData>(nodeDamageTextSceneObject->mSceneObjectTypeData).mText));

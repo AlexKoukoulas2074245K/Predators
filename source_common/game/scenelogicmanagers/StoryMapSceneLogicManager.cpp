@@ -330,6 +330,7 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
 
 void StoryMapSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene>)
 {
+    mGuiManager = nullptr;
     events::EventSystem::GetInstance().UnregisterAllEventsForListener(this);
     mStoryMap->DestroyParticleEmitters();
 }

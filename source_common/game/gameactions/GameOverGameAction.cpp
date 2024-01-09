@@ -137,7 +137,17 @@ ActionAnimationUpdateResult GameOverGameAction::VUpdateAnimation(const float dtM
                         cardSoWrapper->mSceneObject->mShaderFloatUniformValues[CARD_ORIGIN_Y_UNIFORM_NAME] = cardSoWrapper->mSceneObject->mPosition.y;
                         cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_MAGNITUDE_UNIFORM_NAME] = math::RandomFloat(CARD_DISSOLVE_EFFECT_MAG_RANGE.x, CARD_DISSOLVE_EFFECT_MAG_RANGE.y);
                         mAnimationState = AnimationState::DISSOLVE;
-                        events::EventSystem::GetInstance().DispatchEvent<events::StoryBattleRewardsEvent>();
+                        
+                        auto battleCoinRewards = ProgressionDataRepository::GetInstance().GetNextBattleTopPlayerHealth();
+                        events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(battleCoinRewards, mBattleSceneLogicManager->GetBoardCardSoWrappers()[game_constants::REMOTE_PLAYER_INDEX][0]->mSceneObject->mPosition);
+                        ProgressionDataRepository::GetInstance().StoryCurrentHealth().SetValue(mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth);
+                        ProgressionDataRepository::GetInstance().SetCurrentStoryMapNodeSeed(math::GetControlSeed());
+                        ProgressionDataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::CARD_SELECTION);
+                        if (ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeType() == StoryMap::NodeType::ELITE_ENCOUNTER)
+                        {
+                            ProgressionDataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::WHEEL);
+                        }
+                        ProgressionDataRepository::GetInstance().FlushStateToFile();
                     }
                 }
             } break;

@@ -52,7 +52,7 @@
             "texture": "card_location_mask.png",
             "shader": "action_highlighter_perlin_noise.vs",
             "scale": { "x": 0.045, "y": 0.067, "z": 0.8 },
-            "position": { "x": 0.2, "y": 0.0, "z": 19.1},
+            "position": { "x": 0.2, "y": 0.0, "z": 19.0 },
             "alpha": 0.0,
             "snap_to_edge": "snap_to_left_edge",
             "uniform_floats":
@@ -77,7 +77,7 @@
             "texture": "card_location_mask.png",
             "shader": "action_highlighter_perlin_noise.vs",
             "scale": { "x": 0.06, "y": 0.09, "z": 0.8 },
-            "position": { "x": 0.2, "y": 0.0, "z": 19.1 },
+            "position": { "x": 0.2, "y": 0.0, "z": 19.0 },
             "alpha": 0.0,
             "snap_to_edge": "snap_to_right_edge",
             "uniform_floats":

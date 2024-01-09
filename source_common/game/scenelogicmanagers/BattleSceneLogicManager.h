@@ -88,7 +88,6 @@ private:
     void OnBoardSideCardEffectEnded(const events::BoardSideCardEffectEndedEvent&);
     void OnForceSendCardBackToPosition(const events::ForceSendCardBackToPositionEvent&);
     void OnPoisonStackChangeChangeAnimationTrigger(const events::PoisonStackChangeChangeAnimationTriggerEvent&);
-    void OnStoryBattleRewards(const events::StoryBattleRewardsEvent&);
     void OnStoryBattleFinished(const events::StoryBattleFinishedEvent&);
     void OnCardHistoryEntryAddition(const events::CardHistoryEntryAdditionEvent&);
     void OnHistoryButtonPressed();

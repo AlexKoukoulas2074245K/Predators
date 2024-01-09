@@ -15,6 +15,7 @@
 #include <game/GuiObjectManager.h>
 #include <game/utils/BattleDeserializer.h>
 #include <game/utils/BattleSerializer.h>
+#include <game/gameactions/BattleInitialSetupAndAnimationGameAction.h>
 #include <game/gameactions/PlayCardGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/PlayerActionGenerationEngine.h>
@@ -47,7 +48,7 @@ static const strutils::StringId REPLAY_TEXT_SCENE_OBJECT_NAME = strutils::String
 static const strutils::StringId CARD_TOOLTIP_REVEAL_THRESHOLD_UNIFORM_NAME = strutils::StringId("reveal_threshold");
 static const strutils::StringId CARD_TOOLTIP_REVEAL_RGB_EXPONENT_UNIFORM_NAME = strutils::StringId("reveal_rgb_exponent");
 static const strutils::StringId IDLE_GAME_ACTION_NAME = strutils::StringId("IdleGameAction");
-static const strutils::StringId BATTLE_INITIAL_ANIMATION_GAME_ACTION_NAME = strutils::StringId("BattleInitialAnimationGameAction");
+static const strutils::StringId BATTLE_INITIAL_SETUP_AND_ANIMATION_GAME_ACTION_NAME = strutils::StringId("BattleInitialSetupAndAnimationGameAction");
 static const strutils::StringId PLAY_CARD_ACTION_NAME = strutils::StringId("PlayCardGameAction");
 static const strutils::StringId NEXT_PLAYER_ACTION_NAME = strutils::StringId("NextPlayerGameAction");
 static const strutils::StringId CARD_BUFFED_DEBUFFED_ANIMATION_GAME_ACTION_NAME = strutils::StringId("CardBuffedDebuffedAnimationGameAction");
@@ -306,7 +307,7 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
     mActionEngine = std::make_unique<GameActionEngine>(GameActionEngine::EngineOperationMode::ANIMATED, seed, mBoardState.get(), this, mRuleEngine.get());
     mPlayerActionGenerationEngine = std::make_unique<PlayerActionGenerationEngine>(mRuleEngine.get(), mActionEngine.get(), PlayerActionGenerationEngine::ActionGenerationType::OPTIMISED);
     
-    mActionEngine->AddGameAction(BATTLE_INITIAL_ANIMATION_GAME_ACTION_NAME);
+    mActionEngine->AddGameAction(BATTLE_INITIAL_SETUP_AND_ANIMATION_GAME_ACTION_NAME, {{ BattleInitialSetupAndAnimationGameAction::CURRENT_BATTLE_SUBSCENE_PARAM, std::to_string(static_cast<int>(ProgressionDataRepository::GetInstance().GetCurrentBattleSubSceneType())) }});
     
     // Story battle, hero card action needs to be created
     if (!ProgressionDataRepository::GetInstance().GetNextStoryOpponentName().empty() && !quickPlayData)
@@ -595,6 +596,7 @@ void BattleSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene> scene)
             mBattleSerializer->FlushStateToFile();
         }
         
+        mGuiManager = nullptr;
         CoreSystemsEngine::GetInstance().GetSceneManager().RemoveScene(HISTORY_SCENE);
         events::EventSystem::GetInstance().UnregisterAllEventsForListener(this);
     }
@@ -1277,7 +1279,6 @@ void BattleSceneLogicManager::RegisterForEvents()
     eventSystem.RegisterForEvent<events::ForceSendCardBackToPositionEvent>(this, &BattleSceneLogicManager::OnForceSendCardBackToPosition);
     eventSystem.RegisterForEvent<events::PoisonStackChangeChangeAnimationTriggerEvent>(this, &BattleSceneLogicManager::OnPoisonStackChangeChangeAnimationTrigger);
     eventSystem.RegisterForEvent<events::CardHistoryEntryAdditionEvent>(this, &BattleSceneLogicManager::OnCardHistoryEntryAddition);
-    eventSystem.RegisterForEvent<events::StoryBattleRewardsEvent>(this, &BattleSceneLogicManager::OnStoryBattleRewards);
     eventSystem.RegisterForEvent<events::StoryBattleFinishedEvent>(this, &BattleSceneLogicManager::OnStoryBattleFinished);
 }
 
@@ -1864,17 +1865,6 @@ void BattleSceneLogicManager::OnCardHistoryEntryAddition(const events::CardHisto
         historyEntrySceneObject->mInvisible = true;
         mCardHistoryContainer->AddItem({{historyEntrySceneObject}, cardSoWrapper->mCardData->mCardId, event.mForRemotePlayer, event.mIsTurnCounter}, false);
     }
-}
-
-///------------------------------------------------------------------------------------------------
-
-void BattleSceneLogicManager::OnStoryBattleRewards(const events::StoryBattleRewardsEvent&)
-{
-    ProgressionDataRepository::GetInstance().SetCurrentStoryMapSceneType(StoryMapSceneType::STORY_MAP);
-    
-    auto battleCoinRewards = ProgressionDataRepository::GetInstance().GetNextBattleTopPlayerHealth();
-    events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(battleCoinRewards, mPlayerBoardCardSceneObjectWrappers[game_constants::REMOTE_PLAYER_INDEX][0]->mSceneObject->mPosition);
-    ProgressionDataRepository::GetInstance().StoryCurrentHealth().SetValue(mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth);
 }
 
 ///------------------------------------------------------------------------------------------------

@@ -15,6 +15,7 @@
 #include <game/GuiObjectManager.h>
 #include <game/events/EventSystem.h>
 #include <game/GameSceneTransitionManager.h>
+#include <game/ProgressionDataRepository.h>
 #include <game/scenelogicmanagers/CardSelectionRewardSceneLogicManager.h>
 
 ///------------------------------------------------------------------------------------------------
@@ -26,8 +27,8 @@ static const strutils::StringId CARD_SELECTION_TITLE_SCENE_OBJECT_NAME = strutil
 static const glm::vec3 OK_BUTTON_POSITION = {0.155f, -0.038f, 23.1f};
 static const glm::vec3 BUTTON_SCALE = {0.0005f, 0.0005f, 0.0005f};
 
-static const float FADE_IN_OUT_DURATION_SECS = 1.0f;
-static const float INITIAL_SURFACING_DELAY_SECS = 1.0f;
+static const float FADE_IN_OUT_DURATION_SECS = 0.5f;
+static const float INITIAL_SURFACING_DELAY_SECS = 0.5f;
 
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
 {
@@ -108,6 +109,13 @@ void CardSelectionRewardSceneLogicManager::VUpdate(const float dtMillis, std::sh
         mInitialSurfacingDelaySecs -= dtMillis/1000.0f;
         if (mInitialSurfacingDelaySecs <= 0.0f)
         {
+            if (!ProgressionDataRepository::GetInstance().GetNextStoryOpponentName().empty())
+            {
+                ProgressionDataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::CARD_SELECTION);
+                ProgressionDataRepository::GetInstance().SetCurrentStoryMapNodeSeed(math::GetControlSeed());
+                ProgressionDataRepository::GetInstance().FlushStateToFile();
+            }
+            
             for (auto sceneObject: scene->GetSceneObjects())
             {
                 if (sceneObject->mName == game_constants::OVERLAY_SCENE_OBJECT_NAME)

@@ -121,6 +121,7 @@ void EventSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene
 
 void EventSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene>)
 {
+    mGuiManager = nullptr;
     events::EventSystem::GetInstance().UnregisterAllEventsForListener(this);
 }
 

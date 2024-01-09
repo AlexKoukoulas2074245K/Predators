@@ -1,12 +1,12 @@
 ///------------------------------------------------------------------------------------------------
-///  BattleInitialAnimationGameAction.h
+///  BattleInitialSetupAndAnimationGameAction.h
 ///  Predators                                                                                            
 ///                                                                                                
 ///  Created by Alex Koukoulas on 14/12/2023
 ///------------------------------------------------------------------------------------------------
 
-#ifndef BattleInitialAnimationGameAction_h
-#define BattleInitialAnimationGameAction_h
+#ifndef BattleInitialSetupAndAnimationGameAction_h
+#define BattleInitialSetupAndAnimationGameAction_h
 
 ///------------------------------------------------------------------------------------------------
 
@@ -14,8 +14,11 @@
 
 ///------------------------------------------------------------------------------------------------
 
-class BattleInitialAnimationGameAction final: public BaseGameAction
+class BattleInitialSetupAndAnimationGameAction final: public BaseGameAction
 {
+public:
+    static const std::string CURRENT_BATTLE_SUBSCENE_PARAM;
+    
 public:
     void VSetNewGameState() override;
     
@@ -34,4 +37,4 @@ private:
 
 ///------------------------------------------------------------------------------------------------
 
-#endif /* BattleInitialAnimationGameAction_h */
+#endif /* BattleInitialSetupAndAnimationGameAction_h */
