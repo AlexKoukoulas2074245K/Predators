@@ -33,6 +33,7 @@ static constexpr int TARGET_GAME_LOGIC_FPS = 60;
 ///------------------------------------------------------------------------------------------------
 
 bool CoreSystemsEngine::mInitialized = false;
+static bool sIsShuttingDown = false;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -60,6 +61,7 @@ CoreSystemsEngine& CoreSystemsEngine::GetInstance()
 
 CoreSystemsEngine::~CoreSystemsEngine()
 {
+    sIsShuttingDown = true;
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -223,6 +225,13 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
             SDL_Delay(targetFpsMillis - frameEndMillisDiff);
         }
     }
+}
+
+///------------------------------------------------------------------------------------------------
+
+bool CoreSystemsEngine::IsShuttingDown()
+{
+    return sIsShuttingDown;
 }
 
 ///------------------------------------------------------------------------------------------------

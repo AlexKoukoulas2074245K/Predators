@@ -70,8 +70,10 @@ static const std::vector<std::string> BOSS_FIGHT_TEXTURES =
     "story_cards/demon_boss_7.png"
 };
 
-static const strutils::StringId ANIMATED_NODE_PATH_PARTICLE_EMITTER_NAME = strutils::StringId("node_path_animated");
-static const strutils::StringId STATIC_NODE_PATH_PARTICLE_EMITTER_NAME = strutils::StringId("node_path_static");
+static const strutils::StringId ANIMATED_NODE_PATH_PARTICLE_DEFINITION_NAME = strutils::StringId("node_path_animated");
+static const strutils::StringId STATIC_NODE_PATH_PARTICLE_DEFINITION_NAME = strutils::StringId("node_path_static");
+static const strutils::StringId ANIMATED_NODE_PATH_PARTICLE_EMITTER_NAME = strutils::StringId("node_path_animated_emitter");
+static const strutils::StringId STATIC_NODE_PATH_PARTICLE_EMITTER_NAME = strutils::StringId("node_path_animated_emitter");
 static const strutils::StringId IS_NODE_ACTIVE_UNIFORM_NAME = strutils::StringId("is_active");
 
 static const std::string STORY_MAP_NODE_SHADER_FILE_NAME = "story_map_node.vs";
@@ -590,7 +592,7 @@ void StoryMap::CreateMapSceneObjects()
     }
     
     auto& particleManager = CoreSystemsEngine::GetInstance().GetParticleManager();
-    auto animatedNodePathParticleEmitterSceneObject = particleManager.CreateParticleEmitterAtPosition(ANIMATED_NODE_PATH_PARTICLE_EMITTER_NAME, glm::vec3(), *mScene, ANIMATED_NODE_PATH_PARTICLE_EMITTER_NAME, [](float dtMillis, scene::ParticleEmitterObjectData& particleEmitterData)
+    auto animatedNodePathParticleEmitterSceneObject = particleManager.CreateParticleEmitterAtPosition(ANIMATED_NODE_PATH_PARTICLE_DEFINITION_NAME, glm::vec3(), *mScene, ANIMATED_NODE_PATH_PARTICLE_EMITTER_NAME, [](float dtMillis, scene::ParticleEmitterObjectData& particleEmitterData)
     {
         for (size_t i = 0; i < particleEmitterData.mParticleCount; ++i)
         {
@@ -614,7 +616,7 @@ void StoryMap::CreateMapSceneObjects()
             }
         }
     });
-    auto staticNodePathParticleEmitterSceneObject = particleManager.CreateParticleEmitterAtPosition(STATIC_NODE_PATH_PARTICLE_EMITTER_NAME, glm::vec3(), *mScene, STATIC_NODE_PATH_PARTICLE_EMITTER_NAME, [](float, scene::ParticleEmitterObjectData& particleEmitterData)
+    auto staticNodePathParticleEmitterSceneObject = particleManager.CreateParticleEmitterAtPosition(STATIC_NODE_PATH_PARTICLE_DEFINITION_NAME, glm::vec3(), *mScene, STATIC_NODE_PATH_PARTICLE_EMITTER_NAME, [](float, scene::ParticleEmitterObjectData& particleEmitterData)
     {
         for (size_t i = 0; i < particleEmitterData.mParticleCount; ++i)
         {

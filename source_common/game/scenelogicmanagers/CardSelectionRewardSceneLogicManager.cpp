@@ -28,7 +28,7 @@ static const glm::vec3 OK_BUTTON_POSITION = {0.155f, -0.038f, 23.1f};
 static const glm::vec3 BUTTON_SCALE = {0.0005f, 0.0005f, 0.0005f};
 
 static const float FADE_IN_OUT_DURATION_SECS = 0.5f;
-static const float INITIAL_SURFACING_DELAY_SECS = 0.5f;
+static const float INITIAL_SURFACING_DELAY_SECS = 1.0f;
 
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
 {

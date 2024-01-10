@@ -77,7 +77,7 @@ void HeroCardEntryGameAction::VSetNewGameState()
 void HeroCardEntryGameAction::VInitAnimation()
 {
     mAnimationState = AnimationState::ANIMATING_HERO_CARD;
-    
+
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
     auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
     auto scene = sceneManager.FindScene(game_constants::BATTLE_SCENE);

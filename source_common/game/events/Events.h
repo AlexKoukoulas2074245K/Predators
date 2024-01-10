@@ -244,6 +244,20 @@ public:
     const glm::vec3 mAnimationOriginPosition;
 };
 
+
+///------------------------------------------------------------------------------------------------
+
+class MaxHealthGainRewardEvent final
+{
+public:
+    MaxHealthGainRewardEvent(const int maxHealthGainAmount)
+        : mMaxHealthGainAmount(maxHealthGainAmount)
+    {
+    }
+    
+    const int mMaxHealthGainAmount;
+};
+
 ///------------------------------------------------------------------------------------------------
 
 class StoryBattleWonEvent final

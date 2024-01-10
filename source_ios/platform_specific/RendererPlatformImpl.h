@@ -34,6 +34,9 @@ public:
     
 private:
     RendererPlatformImpl() = default;
+    
+private:
+    std::vector<std::pair<rendering::Camera*, std::shared_ptr<scene::SceneObject>>> mSceneObjectsWithDeferredRendering;
 };
 
 ///------------------------------------------------------------------------------------------------

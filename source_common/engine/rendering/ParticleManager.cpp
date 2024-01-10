@@ -121,14 +121,6 @@ void ParticleManager::UpdateSceneParticles(const float dtMillis, scene::Scene& s
     
     for (const auto& particleEmitter: mParticleEmittersToDelete)
     {
-        auto& particleEmitterData = std::get<scene::ParticleEmitterObjectData>(particleEmitter->mSceneObjectTypeData);
-        GL_CALL(glDeleteBuffers(1, &particleEmitterData.mParticleUVBuffer));
-        GL_CALL(glDeleteBuffers(1, &particleEmitterData.mParticleSizesBuffer));
-        GL_CALL(glDeleteBuffers(1, &particleEmitterData.mParticleAnglesBuffer));
-        GL_CALL(glDeleteBuffers(1, &particleEmitterData.mParticleVertexBuffer));
-        GL_CALL(glDeleteBuffers(1, &particleEmitterData.mParticlePositionsBuffer));
-        GL_CALL(glDeleteBuffers(1, &particleEmitterData.mParticleLifetimeSecsBuffer));
-        GL_CALL(glDeleteVertexArrays(1, &particleEmitterData.mParticleVertexArrayObject));
         scene.RemoveSceneObject(particleEmitter->mName);
     }
 }
@@ -409,7 +401,7 @@ void ParticleManager::SpawnParticleAtIndex(const size_t index, const glm::vec3& 
     particleEmitterData.mParticlePositions[index] = sceneObjectPosition;
     particleEmitterData.mParticlePositions[index].x += xOffset;
     particleEmitterData.mParticlePositions[index].y += yOffset;
-    particleEmitterData.mParticlePositions[index].z += zOffset;
+    particleEmitterData.mParticlePositions[index].z = zOffset;
     particleEmitterData.mParticleVelocities[index].x += velXOffset;
     particleEmitterData.mParticleVelocities[index].y += velYOffset;
     particleEmitterData.mParticleSizes[index] = size;
@@ -426,6 +418,21 @@ void ParticleManager::SpawnParticleAtIndex(const size_t index, scene::SceneObjec
     {
         SpawnParticleAtIndex(index, particleEmitterSceneObject.mPosition, std::get<scene::ParticleEmitterObjectData>(particleEmitterSceneObject.mSceneObjectTypeData));
     }
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ParticleManager::RemoveParticleGraphicsData(scene::SceneObject& particleEmitterSceneObject)
+{
+    assert(std::holds_alternative<scene::ParticleEmitterObjectData>(particleEmitterSceneObject.mSceneObjectTypeData));
+    auto& particleEmitterData = std::get<scene::ParticleEmitterObjectData>(particleEmitterSceneObject.mSceneObjectTypeData);
+    GL_CALL(glDeleteBuffers(1, &particleEmitterData.mParticleUVBuffer));
+    GL_CALL(glDeleteBuffers(1, &particleEmitterData.mParticleSizesBuffer));
+    GL_CALL(glDeleteBuffers(1, &particleEmitterData.mParticleAnglesBuffer));
+    GL_CALL(glDeleteBuffers(1, &particleEmitterData.mParticleVertexBuffer));
+    GL_CALL(glDeleteBuffers(1, &particleEmitterData.mParticlePositionsBuffer));
+    GL_CALL(glDeleteBuffers(1, &particleEmitterData.mParticleLifetimeSecsBuffer));
+    GL_CALL(glDeleteVertexArrays(1, &particleEmitterData.mParticleVertexArrayObject));
 }
 
 ///------------------------------------------------------------------------------------------------

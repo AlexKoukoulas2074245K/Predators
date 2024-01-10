@@ -31,6 +31,7 @@ static const glm::vec3 BUTTON_SCALE = {0.0005f, 0.0005f, 0.0005f};
 static const glm::vec3 REWARD_ORIGIN_POSITION = {-0.032f, -0.034f, 23.1f};
 
 static const int EXTRA_COINS_REWARD_VALUE = 50;
+static const int EXTRA_HP_REWARD_VALUE = 10;
 
 static const float FADE_IN_OUT_DURATION_SECS = 1.0f;
 
@@ -45,7 +46,7 @@ static const std::vector<std::string> WHEEL_REWARDS =
     REWARD_EXTRA_COINS_TEXTURE,
     REWARD_REFILL_HP_TEXTURE,
     REWARD_EXTRA_COINS_TEXTURE,
-    REWARD_REFILL_HP_TEXTURE
+    REWARD_EXTRA_HP_TEXTURE
 };
 
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
@@ -195,7 +196,7 @@ void WheelOfFortuneSceneLogicManager::OnWheelItemSelected(const int itemIndex, c
     }
     else if (WHEEL_REWARDS.at(itemIndex) == REWARD_EXTRA_HP_TEXTURE)
     {
-        events::EventSystem::GetInstance().DispatchEvent<events::HealthRefillRewardEvent>(ProgressionDataRepository::GetInstance().GetStoryMaxHealth() - ProgressionDataRepository::GetInstance().StoryCurrentHealth().GetValue(), REWARD_ORIGIN_POSITION);
+        events::EventSystem::GetInstance().DispatchEvent<events::MaxHealthGainRewardEvent>(EXTRA_HP_REWARD_VALUE);
     }
     else if (WHEEL_REWARDS.at(itemIndex) == REWARD_REFILL_HP_TEXTURE)
     {

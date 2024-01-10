@@ -54,6 +54,23 @@ AnimationUpdateResult BaseAnimation::VUpdate(const float dtMillis)
 
 ///------------------------------------------------------------------------------------------------
 
+TimeDelayAnimation::TimeDelayAnimation(const float secsDuration)
+    : BaseAnimation(animation_flags::NONE, secsDuration, 0.0f)
+{
+}
+
+AnimationUpdateResult TimeDelayAnimation::VUpdate(const float dtMillis)
+{
+    return BaseAnimation::VUpdate(dtMillis);
+}
+
+std::shared_ptr<scene::SceneObject> TimeDelayAnimation::VGetSceneObject()
+{
+    return nullptr;
+}
+
+///------------------------------------------------------------------------------------------------
+
 TweenPositionScaleAnimation::TweenPositionScaleAnimation(std::shared_ptr<scene::SceneObject> sceneObjectTarget, const glm::vec3& targetPosition, const glm::vec3& targetScale, const float secsDuration, const uint8_t animationFlags /* = animation_flags::NONE */, const float secsDelay /* = 0.0f */, const std::function<float(const float)> tweeningFunc /* = math::LinearFunction */, const math::TweeningMode tweeningMode /* = math::TweeningMode::EASE_IN */)
     : BaseAnimation(animationFlags, secsDuration, secsDelay)
     , mSceneObjectTarget(sceneObjectTarget)

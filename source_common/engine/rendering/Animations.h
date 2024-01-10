@@ -73,6 +73,16 @@ protected:
 
 ///------------------------------------------------------------------------------------------------
 
+class TimeDelayAnimation: public BaseAnimation
+{
+public:
+    TimeDelayAnimation(const float secsDuration);
+    AnimationUpdateResult VUpdate(const float dtMillis) override;
+    std::shared_ptr<scene::SceneObject> VGetSceneObject() override;
+};
+
+///------------------------------------------------------------------------------------------------
+
 class TweenPositionScaleAnimation final: public BaseAnimation
 {
 public:

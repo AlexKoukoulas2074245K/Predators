@@ -38,6 +38,7 @@ private:
     void CreateIMGuiWidgets();
     
 private:
+    std::vector<std::pair<rendering::Camera*, std::shared_ptr<scene::SceneObject>>> mSceneObjectsWithDeferredRendering;
     std::vector<std::reference_wrapper<scene::Scene>> mCachedScenes;
 };
 

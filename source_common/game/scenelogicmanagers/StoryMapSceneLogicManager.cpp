@@ -345,6 +345,11 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
         }
         
         auto sceneObjectMeshDimensions = CoreSystemsEngine::GetInstance().GetResourceLoadingService().GetResource<resources::MeshResource>(sceneObject->mMeshResourceId).GetDimensions();
+        if (std::holds_alternative<scene::TextSceneObjectData>(sceneObject->mSceneObjectTypeData))
+        {
+            sceneObjectMeshDimensions *= 1000.0f;
+        }
+        
         int breachedSideIndex = 0;
         sceneObject->mInvisible = !math::IsMeshAtLeastPartlyInsideFrustum(sceneObject->mPosition, sceneObject->mScale, sceneObjectMeshDimensions, currentFrustum, breachedSideIndex);
     }
@@ -356,6 +361,7 @@ void StoryMapSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene>)
 {
     mGuiManager = nullptr;
     events::EventSystem::GetInstance().UnregisterAllEventsForListener(this);
+    mExcludedSceneObjectsFromFrustumCulling.clear();
     mStoryMap->DestroyParticleEmitters();
 }
 

@@ -57,14 +57,15 @@ public:
     std::shared_ptr<scene::SceneObject> CreateParticleEmitterAtPosition(const strutils::StringId particleEmitterDefinitionName, const glm::vec3& pos, scene::Scene& scene, const strutils::StringId particleEmitterSceneObjectName = strutils::StringId(), std::function<void(float, scene::ParticleEmitterObjectData&)> customUpdateFunction = nullptr);
     int SpawnParticleAtFirstAvailableSlot(scene::SceneObject& particleEmitterSceneObject);
     
+    void RemoveParticleGraphicsData(scene::SceneObject& particleEmitterSceneObject);
     void RemoveParticleEmitterFlag(const uint8_t flag, const strutils::StringId particleEmitterSceneObjectName, scene::Scene& scene);
+    void SortParticles(scene::ParticleEmitterObjectData& particleEmitterData) const;
     
     void LoadParticleData(const resources::ResourceReloadMode resourceReloadMode = resources::ResourceReloadMode::DONT_RELOAD);
     void ReloadParticlesFromDisk();
     
 private:
     ParticleManager() = default;
-    void SortParticles(scene::ParticleEmitterObjectData& particleEmitterData) const;
     void SpawnParticleAtIndex(const size_t index, const glm::vec3& sceneObjectPosition, scene::ParticleEmitterObjectData& particleEmitterObjectData);
     void SpawnParticleAtIndex(const size_t index, scene::SceneObject& particleEmitterSceneObject);
     

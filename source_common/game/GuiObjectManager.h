@@ -43,11 +43,13 @@ private:
     void OnSettingsButtonPressed();
     void OnCoinReward(const events::CoinRewardEvent&);
     void OnHealthRefillReward(const events::HealthRefillRewardEvent&);
+    void OnMaxHealthGainReward(const events::MaxHealthGainRewardEvent&);
     
 private:
     std::vector<std::unique_ptr<AnimatedButton>> mAnimatedButtons;
     std::unique_ptr<AnimatedStatContainer> mHealthStatContainer;
     std::shared_ptr<scene::Scene> mScene;
+    float mRewardAnimationSecsLeft;
 };
 
 ///------------------------------------------------------------------------------------------------

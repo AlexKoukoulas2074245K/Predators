@@ -308,6 +308,7 @@ void RendererPlatformImpl::VBeginRenderPass()
 {
     sDrawCallCounter = 0;
     sParticleCounter = 0;
+    mSceneObjectsWithDeferredRendering.clear();
     
     // Set View Port
     int w, h;
@@ -342,6 +343,11 @@ void RendererPlatformImpl::VRenderScene(scene::Scene& scene)
     for (const auto& sceneObject: scene.GetSceneObjects())
     {
         if (sceneObject->mInvisible) continue;
+        if (sceneObject->mDeferredRendering)
+        {
+            mSceneObjectsWithDeferredRendering.push_back(std::make_pair(&scene.GetCamera(), sceneObject));
+            continue;
+        }
         std::visit(SceneObjectTypeRendererVisitor(*sceneObject, scene.GetCamera()), sceneObject->mSceneObjectTypeData);
     }
 }
@@ -389,6 +395,11 @@ void RendererPlatformImpl::VRenderSceneObjectsToTexture(const std::vector<std::s
 
 void RendererPlatformImpl::VEndRenderPass()
 {
+    for (const auto& sceneObjectEntry: mSceneObjectsWithDeferredRendering)
+    {
+        std::visit(SceneObjectTypeRendererVisitor(*sceneObjectEntry.second, *sceneObjectEntry.first), sceneObjectEntry.second->mSceneObjectTypeData);
+    }
+    
 #if (!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)
     // Create all custom GUIs
     CreateIMGuiWidgets();

@@ -310,6 +310,8 @@ void RendererPlatformImpl::VBeginRenderPass()
     GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
     GL_CALL(glDisable(GL_CULL_FACE));
+    
+    mSceneObjectsWithDeferredRendering.clear();
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -319,6 +321,11 @@ void RendererPlatformImpl::VRenderScene(scene::Scene& scene)
     for (const auto& sceneObject: scene.GetSceneObjects())
     {
         if (sceneObject->mInvisible) continue;
+        if (sceneObject->mDeferredRendering)
+        {
+            mSceneObjectsWithDeferredRendering.push_back(std::make_pair(&scene.GetCamera(), sceneObject));
+            continue;
+        }
         std::visit(SceneObjectTypeRendererVisitor(*sceneObject, scene.GetCamera()), sceneObject->mSceneObjectTypeData);
     }
 }
@@ -362,6 +369,11 @@ void RendererPlatformImpl::VRenderSceneObjectsToTexture(const std::vector<std::s
 
 void RendererPlatformImpl::VEndRenderPass()
 {
+    for (const auto& sceneObjectEntry: mSceneObjectsWithDeferredRendering)
+    {
+        std::visit(SceneObjectTypeRendererVisitor(*sceneObjectEntry.second, *sceneObjectEntry.first), sceneObjectEntry.second->mSceneObjectTypeData);
+    }
+    
     // Swap window buffers
     SDL_GL_SwapWindow(&CoreSystemsEngine::GetInstance().GetContextWindow());
 }

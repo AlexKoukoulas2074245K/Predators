@@ -46,6 +46,7 @@ bool CoreSystemsEngine::mInitialized = false;
 static float sGameSpeed = 1.0f;
 static float sLastGameLogicDtMillis = 0.0f;
 static bool sPrintFPS = false;
+static bool sShuttingDown = false;
 
 #if (!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)
 static const int PROFILLING_SAMPLE_COUNT = 300;
@@ -84,6 +85,7 @@ CoreSystemsEngine& CoreSystemsEngine::GetInstance()
 
 CoreSystemsEngine::~CoreSystemsEngine()
 {
+    sShuttingDown = true;
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -331,6 +333,13 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
     }
     
     clientApplicationMovingToBackgroundFunction();
+}
+
+///------------------------------------------------------------------------------------------------
+
+bool CoreSystemsEngine::IsShuttingDown()
+{
+    return sShuttingDown;
 }
 
 ///------------------------------------------------------------------------------------------------

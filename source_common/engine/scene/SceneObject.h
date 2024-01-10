@@ -11,6 +11,7 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <engine/resloading/ResourceLoadingService.h>
+#include <engine/rendering/ParticleManager.h>
 #include <engine/utils/MathUtils.h>
 #include <engine/utils/StringUtils.h>
 #include <functional>
@@ -103,6 +104,14 @@ inline constexpr int EFFECT_TEXTURES_COUNT = 3;
 class Scene;
 struct SceneObject
 {
+    ~SceneObject()
+    {
+        if (std::holds_alternative<scene::ParticleEmitterObjectData>(mSceneObjectTypeData) && !CoreSystemsEngine::GetInstance().IsShuttingDown())
+        {
+            CoreSystemsEngine::GetInstance().GetParticleManager().RemoveParticleGraphicsData(*this);
+        }
+    }
+    
     const Scene* mScene = nullptr;
     strutils::StringId mName = strutils::StringId();
     std::variant<DefaultSceneObjectData, TextSceneObjectData, ParticleEmitterObjectData> mSceneObjectTypeData;
@@ -122,6 +131,7 @@ struct SceneObject
     float mSnapToEdgeScaleOffsetFactor = 0.0f;
     bool mIsBackground = false;
     bool mInvisible = false;
+    bool mDeferredRendering = false;
 };
 
 ///------------------------------------------------------------------------------------------------

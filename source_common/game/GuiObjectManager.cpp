@@ -24,8 +24,10 @@ static const strutils::StringId SETTINGS_SCENE = strutils::StringId("settings_sc
 static const strutils::StringId PARTICLE_EMITTER_SCENE_OBJECT_NAME = strutils::StringId("stat_particle_emitter");
 static const strutils::StringId PARTICLE_EMITTER_DEFINITION_COIN_SMALL = strutils::StringId("coin_gain_small");
 static const strutils::StringId PARTICLE_EMITTER_DEFINITION_COIN_LARGE = strutils::StringId("coin_gain_large");
-static const strutils::StringId PARTICLE_EMITTER_DEFINITION_HEALTH_SMALL = strutils::StringId("health_gain_small");
-static const strutils::StringId PARTICLE_EMITTER_DEFINITION_HEALTH_LARGE = strutils::StringId("health_gain_large");
+static const strutils::StringId PARTICLE_EMITTER_DEFINITION_HEALTH_SMALL = strutils::StringId("health_refill_small");
+static const strutils::StringId PARTICLE_EMITTER_DEFINITION_HEALTH_LARGE = strutils::StringId("health_refill_large");
+static const strutils::StringId PARTICLE_EMITTER_DEFINITION_HEALTH_GAIN_SMALL = strutils::StringId("health_gain_small");
+static const strutils::StringId PARTICLE_EMITTER_DEFINITION_HEALTH_GAIN_LARGE = strutils::StringId("health_gain_large");
 
 static const std::string OVERLAY_TEXTURE_FILE_NAME = "overlay.png";
 static const std::string COIN_VALUE_TEXT_SHADER_FILE_NAME = "animated_stat_container_value_object.vs";
@@ -52,6 +54,8 @@ static const glm::vec3 STAT_PARTICLE_MID_POSITION_MIN = { 0.1f, -0.2f, 0.01f };
 static const glm::vec3 STAT_PARTICLE_MID_POSITION_MAX = { 0.3f, 0.2f, 0.02f };
 static const glm::vec3 BATTLE_STAT_PARTICLE_MID_POSITION_MIN = { 0.04f, -0.02f, 0.01f };
 static const glm::vec3 BATTLE_STAT_PARTICLE_MID_POSITION_MAX = { 0.14f, 0.1f, 0.02f };
+static const glm::vec3 MAX_HEALTH_GAIN_BATTLE_PARTICLE_OFFSET_POSITION = {0.0f, -0.04f, -0.01f};
+static const glm::vec3 MAX_HEALTH_GAIN_PARTICLE_OFFSET_POSITION = {0.0f, -0.08f, -0.01f};
 
 static const float COIN_PARTICLE_RESPAWN_TICK_SECS = 0.025f;
 static const float HEALTH_PARTICLE_RESPAWN_TICK_SECS = 0.25f;
@@ -63,6 +67,9 @@ static const float HEALTH_CRYSTAL_VALUE_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 260.0
 static const float HEALTH_CRYSTAL_CONTAINER_CUSTOM_SCALE_FACTOR = 2.0f;
 static const float BATTLE_SCENE_SCALE_FACTOR = 0.5f;
 static const float STAT_PARTICLE_ANIMATION_DURATION_SECS = 0.75f;
+static const float MAX_HEALTH_GAIN_PARTICLE_RESPAWN_SECS = 0.2f;
+static const float MAX_HEALTH_GAIN_ANIMATINO_DURATION_SECS = 3.0f;
+static const float MAX_HEALTH_GAIN_PARTICLE_LIFETIME_SPEED = 0.001f;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -120,13 +127,13 @@ GuiObjectManager::GuiObjectManager(std::shared_ptr<scene::Scene> scene)
     
     events::EventSystem::GetInstance().RegisterForEvent<events::CoinRewardEvent>(this, &GuiObjectManager::OnCoinReward);
     events::EventSystem::GetInstance().RegisterForEvent<events::HealthRefillRewardEvent>(this, &GuiObjectManager::OnHealthRefillReward);
+    events::EventSystem::GetInstance().RegisterForEvent<events::MaxHealthGainRewardEvent>(this, &GuiObjectManager::OnMaxHealthGainReward);
 }
 
 ///------------------------------------------------------------------------------------------------
 
 GuiObjectManager::~GuiObjectManager()
 {
-    
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -291,6 +298,76 @@ void GuiObjectManager::OnHealthRefillReward(const events::HealthRefillRewardEven
     
     ProgressionDataRepository::GetInstance().StoryCurrentHealth().SetValue(ProgressionDataRepository::GetInstance().StoryCurrentHealth().GetValue() + event.mHealthAmount);
     AnimateStatParticlesToGui(event.mAnimationOriginPosition, StatParticleType::HEALTH, event.mHealthAmount);
+}
+
+///------------------------------------------------------------------------------------------------
+
+void GuiObjectManager::OnMaxHealthGainReward(const events::MaxHealthGainRewardEvent& event)
+{
+    for (auto sceneObject: mHealthStatContainer->GetSceneObjects())
+    {
+        sceneObject->mInvisible = false;
+        CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, 1.0f, 0.5f), [=]()
+        {
+            ProgressionDataRepository::GetInstance().StoryCurrentHealth().SetDisplayedValue(ProgressionDataRepository::GetInstance().StoryCurrentHealth().GetValue());
+        });
+    }
+    ProgressionDataRepository::GetInstance().SetStoryMaxHealth(ProgressionDataRepository::GetInstance().GetStoryMaxHealth() + event.mMaxHealthGainAmount);
+    ProgressionDataRepository::GetInstance().StoryCurrentHealth().SetValue(ProgressionDataRepository::GetInstance().StoryCurrentHealth().GetValue() + event.mMaxHealthGainAmount);
+    
+    auto forBattleScene = mScene->GetName() == game_constants::BATTLE_SCENE;
+    auto& particleManager = CoreSystemsEngine::GetInstance().GetParticleManager();
+    
+    mScene->RemoveSceneObject(PARTICLE_EMITTER_SCENE_OBJECT_NAME);
+    
+    mRewardAnimationSecsLeft = MAX_HEALTH_GAIN_ANIMATINO_DURATION_SECS;
+    auto particleDefinition = forBattleScene ? PARTICLE_EMITTER_DEFINITION_HEALTH_GAIN_SMALL : PARTICLE_EMITTER_DEFINITION_HEALTH_GAIN_LARGE;
+    auto animatedNodePathParticleEmitterSceneObject = particleManager.CreateParticleEmitterAtPosition(particleDefinition, mHealthStatContainer->GetSceneObjects().front()->mPosition + (forBattleScene ? MAX_HEALTH_GAIN_BATTLE_PARTICLE_OFFSET_POSITION: MAX_HEALTH_GAIN_PARTICLE_OFFSET_POSITION), *mScene, PARTICLE_EMITTER_SCENE_OBJECT_NAME, [=](float dtMillis, scene::ParticleEmitterObjectData& particleEmitterData)
+    {
+        auto& particleManager = CoreSystemsEngine::GetInstance().GetParticleManager();
+        
+        auto targetRespawnSecs = MAX_HEALTH_GAIN_PARTICLE_RESPAWN_SECS;
+        auto particleEmitterSceneObject = mScene->FindSceneObject(PARTICLE_EMITTER_SCENE_OBJECT_NAME);
+
+        static float timeAccum = 0.0f;
+        timeAccum += dtMillis/1000.0f;
+
+        mRewardAnimationSecsLeft -= dtMillis/1000.0f;
+        
+        if (timeAccum > targetRespawnSecs && mRewardAnimationSecsLeft > 0.0f)
+        {
+            timeAccum = 0.0f;
+            auto newParticleIndex = particleManager.SpawnParticleAtFirstAvailableSlot(*particleEmitterSceneObject);
+
+            particleEmitterData.mParticleLifetimeSecs[newParticleIndex] = math::RandomFloat(0.01f, 0.1f);
+            particleEmitterData.mParticleAngles[newParticleIndex] = 1.0f;
+        }
+        for (auto i = 0U; i < particleEmitterData.mParticleCount; ++i)
+        {
+            if (particleEmitterData.mParticleLifetimeSecs[i] <= 0.0f)
+            {
+                continue;
+            }
+
+            if (particleEmitterData.mParticleAngles[i] > 0.0f)
+            {
+                particleEmitterData.mParticleLifetimeSecs[i] += dtMillis * MAX_HEALTH_GAIN_PARTICLE_LIFETIME_SPEED;
+                if (particleEmitterData.mParticleLifetimeSecs[i] > 1.0f)
+                {
+                    particleEmitterData.mParticleAngles[i] = -1.0f;
+                }
+            }
+            else
+            {
+                particleEmitterData.mParticleLifetimeSecs[i] = math::Max(0.01f, particleEmitterData.mParticleLifetimeSecs[i] - dtMillis * MAX_HEALTH_GAIN_PARTICLE_LIFETIME_SPEED);
+            }
+
+            particleEmitterData.mParticlePositions[i] += particleEmitterData.mParticleVelocities[i] * dtMillis;
+        }
+        
+        particleManager.SortParticles(particleEmitterData);
+    });
+    animatedNodePathParticleEmitterSceneObject->mDeferredRendering = true;
 }
 
 ///------------------------------------------------------------------------------------------------
