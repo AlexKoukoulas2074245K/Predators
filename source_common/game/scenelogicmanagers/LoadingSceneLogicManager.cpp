@@ -42,10 +42,13 @@ void LoadingSceneLogicManager::VInitSceneCamera(std::shared_ptr<scene::Scene>)
 
 void LoadingSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 {
+    mLoadingProgressPrefixText = "Loading Progress: ";
     mTotalLoadingJobCount = -1;
     SetLoadingProgress(0);
     
     CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::PulseAnimation>(scene->FindSceneObject(LOADING_PROGRESS_TEXT_SCENE_OBJECT_NAME), LOADING_PROGRESS_TEXT_PULSE_SCALE_FACTOR, LOADING_PROGRESS_TEXT_INTER_PULSE_DURATION_SECS, animation_flags::ANIMATE_CONTINUOUSLY), [](){}, LOADING_TEXT_PULSE_ANIMATION_NAME);
+    
+    events::EventSystem::GetInstance().RegisterForEvent<events::LoadingProgressPrefixTextOverrideEvent>(this, &LoadingSceneLogicManager::OnLoadingProgressPrefixTextOverride);
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -68,6 +71,7 @@ void LoadingSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene>)
 {
     SetLoadingProgress(100);
     CoreSystemsEngine::GetInstance().GetAnimationManager().StopAnimation(LOADING_TEXT_PULSE_ANIMATION_NAME);
+    events::EventSystem::GetInstance().UnregisterAllEventsForListener(this);
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -83,7 +87,14 @@ void LoadingSceneLogicManager::SetLoadingProgress(const int progressPercent)
 {
     auto loadingScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(LOADING_SCENE_NAME);
     auto loadingProgressSceneObject = loadingScene->FindSceneObject(LOADING_PROGRESS_TEXT_SCENE_OBJECT_NAME);
-    std::get<scene::TextSceneObjectData>(loadingProgressSceneObject->mSceneObjectTypeData).mText = "Loading Progress: " + std::to_string(progressPercent) + "%";
+    std::get<scene::TextSceneObjectData>(loadingProgressSceneObject->mSceneObjectTypeData).mText = mLoadingProgressPrefixText + std::to_string(progressPercent) + "%";
+}
+
+///------------------------------------------------------------------------------------------------
+
+void LoadingSceneLogicManager::OnLoadingProgressPrefixTextOverride(const events::LoadingProgressPrefixTextOverrideEvent& event)
+{
+    mLoadingProgressPrefixText = event.mLoadingProgressPrefixTextOverride;
 }
 
 ///------------------------------------------------------------------------------------------------

@@ -10,11 +10,13 @@
 
 ///------------------------------------------------------------------------------------------------
 
+#include <atomic>
+#include <game/events/EventSystem.h>
 #include <game/scenelogicmanagers/ISceneLogicManager.h>
 
 ///------------------------------------------------------------------------------------------------
 
-class LoadingSceneLogicManager final: public ISceneLogicManager
+class LoadingSceneLogicManager final: public ISceneLogicManager, public events::IListener
 {
 public:
     const std::vector<strutils::StringId>& VGetApplicableSceneNames() const override;
@@ -27,9 +29,11 @@ public:
     
 private:
     void SetLoadingProgress(const int progressPercent);
+    void OnLoadingProgressPrefixTextOverride(const events::LoadingProgressPrefixTextOverrideEvent&);
     
 private:
     int mTotalLoadingJobCount;
+    std::string mLoadingProgressPrefixText;
 };
 
 ///------------------------------------------------------------------------------------------------

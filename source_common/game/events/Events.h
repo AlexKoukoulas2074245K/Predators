@@ -370,6 +370,20 @@ public:
 
 ///------------------------------------------------------------------------------------------------
 
+class LoadingProgressPrefixTextOverrideEvent final
+{
+public:
+    LoadingProgressPrefixTextOverrideEvent(const std::string& loadingProgressPrefixTextOverride)
+        : mLoadingProgressPrefixTextOverride(loadingProgressPrefixTextOverride)
+    {
+        
+    }
+    
+    const std::string mLoadingProgressPrefixTextOverride;
+};
+
+///------------------------------------------------------------------------------------------------
+
 class PopSceneModalEvent final
 {
 };

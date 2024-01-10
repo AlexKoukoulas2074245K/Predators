@@ -94,8 +94,12 @@ void StoryMapSceneLogicManager::VInitSceneCamera(std::shared_ptr<scene::Scene>)
 
 void StoryMapSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 {
-    const auto& currentMapCoord = ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeCoord();
+    if (ProgressionDataRepository::GetInstance().GetStoryMapGenerationSeed() == 0)
+    {
+        events::EventSystem::GetInstance().DispatchEvent<events::LoadingProgressPrefixTextOverrideEvent>("Generating New Story: ");
+    }
     
+    const auto& currentMapCoord = ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeCoord();
     std::thread mapGenerationThread = std::thread([=]
     {
         mStoryMap = std::make_unique<StoryMap>(scene, game_constants::STORY_NODE_MAP_DIMENSIONS, MapCoord(currentMapCoord.x, currentMapCoord.y));
