@@ -39,7 +39,7 @@ static const float CARD_DISSOLVE_SPEED = 0.0006f;
 static const float MAX_CARD_DISSOLVE_VALUE = 1.2f;
 static const float EXPLOSION_DELAY_SECS = 0.8f;
 
-static const int MAX_EXPLOSIONS = 10;
+static const int MAX_EXPLOSIONS = 5;
 
 static const glm::vec2 CARD_DISSOLVE_EFFECT_MAG_RANGE = {10.0f, 18.0f};
 

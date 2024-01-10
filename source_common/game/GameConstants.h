@@ -157,11 +157,11 @@ namespace game_constants
     inline const float IN_GAME_DRAW_CARD_INIT_X = 0.274f;
     inline const float IN_GAME_DRAW_CARD_TOP_PLAYER_MID_POINT_Y = -0.075f;
     inline const float IN_GAME_DRAW_CARD_BOT_PLAYER_MID_POINT_Y = 0.075f;
-    inline const float IN_GAME_DRAW_CARD_ANIMATION_DURATION_SECS = 0.75f;
+    inline const float IN_GAME_DRAW_CARD_ANIMATION_DURATION_SECS = 0.5f;
     inline const float IN_GAME_HIGHLIGHTED_CARD_Z = 20.0f;
     inline const float IN_GAME_CARD_FREE_MOVEMENT_ANIMATION_DURATION_SECS = 0.075f;
-    inline const float IN_GAME_DRAW_CARD_PUSH_EXISTING_CARDS_ANIMATION_DURATION_SECS = 0.25f;
-    inline const float IN_GAME_DRAW_CARD_PUSH_EXISTING_CARDS_ANIMATION_DELAY_SECS = 0.5f;
+    inline const float IN_GAME_DRAW_CARD_PUSH_EXISTING_CARDS_ANIMATION_DURATION_SECS = 0.2f;
+    inline const float IN_GAME_DRAW_CARD_PUSH_EXISTING_CARDS_ANIMATION_DELAY_SECS = 0.25f;
     inline const float IN_GAME_MOBILE_ONLY_FREE_MOVING_CARD_Y_OFFSET = 0.05f;
     inline const float IN_GAME_PLAYED_CARD_SCALE_FACTOR = 0.666f;
     inline const float ACTION_HIGLIGHTER_Z_OFFSET = -0.05f;

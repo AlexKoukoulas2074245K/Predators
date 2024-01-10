@@ -73,7 +73,7 @@ static const std::vector<std::string> BOSS_FIGHT_TEXTURES =
 static const strutils::StringId ANIMATED_NODE_PATH_PARTICLE_DEFINITION_NAME = strutils::StringId("node_path_animated");
 static const strutils::StringId STATIC_NODE_PATH_PARTICLE_DEFINITION_NAME = strutils::StringId("node_path_static");
 static const strutils::StringId ANIMATED_NODE_PATH_PARTICLE_EMITTER_NAME = strutils::StringId("node_path_animated_emitter");
-static const strutils::StringId STATIC_NODE_PATH_PARTICLE_EMITTER_NAME = strutils::StringId("node_path_animated_emitter");
+static const strutils::StringId STATIC_NODE_PATH_PARTICLE_EMITTER_NAME = strutils::StringId("node_path_static_emitter");
 static const strutils::StringId IS_NODE_ACTIVE_UNIFORM_NAME = strutils::StringId("is_active");
 
 static const std::string STORY_MAP_NODE_SHADER_FILE_NAME = "story_map_node.vs";
@@ -652,7 +652,6 @@ void StoryMap::CreateMapSceneObjects()
                 
                 auto& particleEmitterData = std::get<scene::ParticleEmitterObjectData>(emitterToUse->mSceneObjectTypeData);
                 particleEmitterData.mParticleSizes[indexSpawnedAt] = isPartOfEligiblePath ? NODE_PATH_SCALE + (pathSegments - i) * NODE_PATH_INIT_SCALE_SEPARATOR : MIN_NODE_PATH_SCALE;
-                logging::Log(logging::LogType::INFO, "Creating particle of size %.6f", particleEmitterData.mParticleSizes[indexSpawnedAt]);
                 particleEmitterData.mParticleAngles[indexSpawnedAt] = 1.0f; // signifies > 0.0f -> scale up, < 0.0f -> scale down
                 particleEmitterData.mParticlePositions[indexSpawnedAt] = mMapData.at(mapNodeEntry.first).mPosition + dirToNext * (i/static_cast<float>(pathSegments));
                 particleEmitterData.mParticlePositions[indexSpawnedAt].z = NODE_PATH_POSITION_Z + indexSpawnedAt * NODE_PATH_Z_SEPARATOR;
