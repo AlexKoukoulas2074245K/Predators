@@ -32,6 +32,9 @@
 #include <engine/scene/SceneObjectUtils.h>
 #include <engine/utils/Logging.h>
 #include <engine/utils/PlatformMacros.h>
+#if defined(MOBILE_FLOW)
+#include <platform_specific/IOSUtils.h>
+#endif
 
 ///------------------------------------------------------------------------------------------------
 
@@ -148,12 +151,13 @@ static const float CARD_HISTORY_CONTAINER_Z = 24.0f;
 static const float HISTORY_SCENE_FADE_IN_OUT_DURATION_SECS = 0.5f;
 static const float REPLAY_TEXT_FADE_IN_OUT_DURATION_SECS = 0.5f;
 static const float HISTORY_SCENE_FADE_IN_OUT_ITEM_OFFSETS = 0.4f;
-static const float BUTTONS_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 68.5f;
+static const float HISTORY_BUTTON_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 68.5f;
 static const float REPLAY_TEXT_PULSE_SCALE_FACTOR = 1.05f;
 static const float REPLAY_TEXT_INTER_PULSE_DURATION_SECS = 1.0f;
 static const float REPLAY_TEXT_MAX_ALPHA = 0.75f;
 
 #if defined(MOBILE_FLOW)
+static const float IPAD_HISTORY_BUTTON_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 15.5f;
 static const float MOBILE_DISTANCE_FROM_CARD_LOCATION_INDICATOR = 0.003f;
 #else
 static const float DESKTOP_DISTANCE_FROM_CARD_LOCATION_INDICATOR = 0.003f;
@@ -369,7 +373,15 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
     
     // Permanent Continual Weight Reduction Effects
     cardBoardEffectAnimation(game_constants::PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_TOP_SCENE_OBJECT_NAME, game_constants::PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_BOT_SCENE_OBJECT_NAME);
-
+    
+    auto historyButtonSnapToEdgeFactor = HISTORY_BUTTON_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR;
+#if defined(MOBILE_FLOW)
+    if (ios_utils::IsIPad())
+    {
+        historyButtonSnapToEdgeFactor = IPAD_HISTORY_BUTTON_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR;
+    }
+#endif
+    
     mBattleSceneAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
     (
         HISTORY_BUTTON_POSITION,
@@ -379,7 +391,7 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
         [=](){ OnHistoryButtonPressed(); },
         *scene,
         scene::SnapToEdgeBehavior::SNAP_TO_LEFT_EDGE,
-        BUTTONS_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR
+        historyButtonSnapToEdgeFactor
     ));
     
     auto historyScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(HISTORY_SCENE);
