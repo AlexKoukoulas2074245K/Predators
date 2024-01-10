@@ -8,6 +8,7 @@
 #include <engine/CoreSystemsEngine.h>
 #include <engine/input/IInputStateManager.h>
 #include <engine/rendering/AnimationManager.h>
+#include <engine/resloading/MeshResource.h>
 #include <engine/scene/SceneManager.h>
 #include <engine/scene/SceneObjectUtils.h>
 #include <engine/utils/Logging.h>
@@ -114,6 +115,8 @@ void StoryMapSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     ProgressionDataRepository::GetInstance().SetCurrentStoryMapSceneType(StoryMapSceneType::STORY_MAP);
     ProgressionDataRepository::GetInstance().FlushStateToFile();
     
+    mExcludedSceneObjectsFromFrustumCulling.clear();
+    
     mMapUpdateState = MapUpdateState::NAVIGATING;
     mSelectedMapCoord = nullptr;
 }
@@ -128,6 +131,14 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
     {
         logging::Log(logging::LogType::INFO, "Finished Map Generation after %d attempts", mapGenerationAttempts);
         mStoryMap->CreateMapSceneObjects();
+        
+        for (const auto& sceneObject: scene->GetSceneObjects())
+        {
+            if (sceneObject->mInvisible || std::holds_alternative<scene::ParticleEmitterObjectData>(sceneObject->mSceneObjectTypeData))
+            {
+                mExcludedSceneObjectsFromFrustumCulling.insert(sceneObject);
+            }
+        }
         
         // First time entering map initialisation
         if (currentMapCoord.x == game_constants::STORY_MAP_INIT_COORD.x && currentMapCoord.y == game_constants::STORY_MAP_INIT_COORD.y)
@@ -323,6 +334,19 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
                 mMapUpdateState = MapUpdateState::NAVIGATING;
             }
         } break;
+    }
+    
+    const auto& currentFrustum = mScene->GetCamera().CalculateFrustum();
+    for (auto& sceneObject: mScene->GetSceneObjects())
+    {
+        if (mExcludedSceneObjectsFromFrustumCulling.count(sceneObject))
+        {
+            continue;
+        }
+        
+        auto sceneObjectMeshDimensions = CoreSystemsEngine::GetInstance().GetResourceLoadingService().GetResource<resources::MeshResource>(sceneObject->mMeshResourceId).GetDimensions();
+        int breachedSideIndex = 0;
+        sceneObject->mInvisible = !math::IsMeshAtLeastPartlyInsideFrustum(sceneObject->mPosition, sceneObject->mScale, sceneObjectMeshDimensions, currentFrustum, breachedSideIndex);
     }
 }
 

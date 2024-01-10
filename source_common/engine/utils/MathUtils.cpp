@@ -170,6 +170,33 @@ bool RayToPlaneIntersection(const glm::vec3& rayOrigin, const glm::vec3& rayDire
 
 ///------------------------------------------------------------------------------------------------
 
+bool IsMeshAtLeastPartlyInsideFrustum(const glm::vec3& meshPosition, const glm::vec3& meshScale, const glm::vec3& meshDimensions, const Frustum& frustum, int& breachedSideIndex)
+{
+    const auto scaledMeshDimensions = meshDimensions * meshScale;
+    const auto frustumCheckSphereRadius = math::Max(scaledMeshDimensions.x, math::Max(scaledMeshDimensions.y, scaledMeshDimensions.z)) * 0.5f;
+    
+    for (auto i = 0U; i < 6U; ++i)
+    {
+        float dist =
+        frustum[i].x * meshPosition.x +
+        frustum[i].y * meshPosition.y +
+        frustum[i].z * meshPosition.z +
+        frustum[i].w - frustumCheckSphereRadius;
+        
+        if (dist > 0)
+        {
+            breachedSideIndex = i;
+            return false;
+        }
+                
+    }
+    
+    breachedSideIndex = -1;
+    return true;
+}
+
+///------------------------------------------------------------------------------------------------
+
 bool IsMeshFullyInsideFrustum(const glm::vec3& meshPosition, const glm::vec3& meshScale, const glm::vec3& meshDimensions, const Frustum& frustum, int& breachedSideIndex)
 {
     const auto scaledMeshDimensions = meshDimensions * meshScale;

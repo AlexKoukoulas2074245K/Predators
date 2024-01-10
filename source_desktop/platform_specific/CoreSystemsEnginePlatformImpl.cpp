@@ -316,7 +316,11 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
         
         for (int i = 0; i < PROFILLING_SAMPLE_COUNT - 1; ++i)
         {
-            sUpdateLogicMillisSamples[i] = sUpdateLogicMillisSamples[i + 1];
+            if (!freezeGame)
+            {
+                sUpdateLogicMillisSamples[i] = sUpdateLogicMillisSamples[i + 1];
+            }
+            
             sRenderingMillisSamples[i] = sRenderingMillisSamples[i + 1];
         }
 #else

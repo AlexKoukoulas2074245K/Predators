@@ -121,26 +121,65 @@ void Game::Init()
 
 void Game::Update(const float dtMillis)
 {
-    auto& systemsEngine = CoreSystemsEngine::GetInstance();
-    auto scene = systemsEngine.GetSceneManager().FindScene(game_constants::BATTLE_SCENE);
-    
+//    auto& systemsEngine = CoreSystemsEngine::GetInstance();
+//    auto scene = systemsEngine.GetSceneManager().FindScene(game_constants::MAIN_MENU_SCENE);
+//
 //    if (systemsEngine.GetInputStateManager().VButtonTapped(input::Button::MAIN_BUTTON))
 //    {
 //        auto touchPos = systemsEngine.GetInputStateManager().VGetPointingPosInWorldSpace(scene->GetCamera().GetViewMatrix(), scene->GetCamera().GetProjMatrix());
-//        //auto& systemsEngine = CoreSystemsEngine::GetInstance();
-//        //auto scene = systemsEngine.GetSceneManager().FindScene(game_constants::BATTLE_SCENE);
+//        auto& systemsEngine = CoreSystemsEngine::GetInstance();
+//        //auto scene = systemsEngine.GetSceneManager().FindScene(game_constants::M);
 //
 //        //auto targetPosition = game_constants::HEALTH_CRYSTAL_TOP_POSITION;
+//        static bool large = false;
+//        large = !large;
+//        
+//        auto animatedNodePathParticleEmitterSceneObject = systemsEngine.GetParticleManager().CreateParticleEmitterAtPosition(large ? strutils::StringId("health_gain_large") :  strutils::StringId("health_gain_small"), glm::vec3(touchPos.x, touchPos.y, 0.1f), *systemsEngine.GetSceneManager().FindScene(game_constants::MAIN_MENU_SCENE), large ? strutils::StringId("test_large") : strutils::StringId("test_small"), [=](float dtMillis, scene::ParticleEmitterObjectData& particleEmitterData)
+//        {
+//            auto& particleManager = CoreSystemsEngine::GetInstance().GetParticleManager();
+//            auto scene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::MAIN_MENU_SCENE);
 //
-//        systemsEngine.GetParticleManager().CreateParticleEmitterAtPosition
-//        (
-//            strutils::StringId("dirt"),
-//            glm::vec3(touchPos.x, touchPos.y, 0.1f),
-//            *systemsEngine.GetSceneManager().FindScene(game_constants::BATTLE_SCENE) // scene
-//        );
+//            auto targetRespawnSecs = 0.2f;
+//            auto particleEmitterSceneObject = scene->FindSceneObject(strutils::StringId("test_large"));
+//
+//            static float timeAccum = 0.0f;
+//            timeAccum += dtMillis/1000.0f;
+//
+//            if (timeAccum > targetRespawnSecs)
+//            {
+//                timeAccum = 0.0f;
+//                auto newParticleIndex = particleManager.SpawnParticleAtFirstAvailableSlot(*particleEmitterSceneObject);
+//                                                                                                                                 
+//                particleEmitterData.mParticleLifetimeSecs[newParticleIndex] = math::RandomFloat(0.01f, 0.1f);
+//                particleEmitterData.mParticleVelocities[newParticleIndex].y = 0.0001f;
+//                particleEmitterData.mParticleAngles[newParticleIndex] = 1.0f;
+//            }
+//
+//            for (auto i = 0U; i < particleEmitterData.mParticleCount; ++i)
+//            {
+//                if (particleEmitterData.mParticleLifetimeSecs[i] <= 0.0f)
+//                {
+//                    continue;
+//                }
+//
+//                if (particleEmitterData.mParticleAngles[i] > 0.0f)
+//                {
+//                    particleEmitterData.mParticleLifetimeSecs[i] += dtMillis * 0.001f;
+//                    if (particleEmitterData.mParticleLifetimeSecs[i] > 1.0f)
+//                    {
+//                        particleEmitterData.mParticleAngles[i] = -1.0f;
+//                    }
+//                }
+//                else
+//                {
+//                    particleEmitterData.mParticleLifetimeSecs[i] = math::Max(0.01f, particleEmitterData.mParticleLifetimeSecs[i] - dtMillis * 0.001f);
+//                }
+//
+//                particleEmitterData.mParticlePositions[i] += particleEmitterData.mParticleVelocities[i] * dtMillis;
+//            }
+//        });
 //    }
-//
-
+    
     mGameSceneTransitionManager->Update(dtMillis);
 }
 

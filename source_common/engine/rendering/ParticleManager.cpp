@@ -241,7 +241,7 @@ int ParticleManager::SpawnParticleAtFirstAvailableSlot(scene::SceneObject& parti
             }
         }
     }
-    return -1;
+    return 0;
 }
 
 ///------------------------------------------------------------------------------------------------

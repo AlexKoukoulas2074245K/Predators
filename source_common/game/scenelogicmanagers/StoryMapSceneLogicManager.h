@@ -58,6 +58,7 @@ private:
     std::unique_ptr<MapCoord> mSelectedMapCoord;
     std::shared_ptr<scene::Scene> mScene;
     std::shared_ptr<GuiObjectManager> mGuiManager;
+    std::unordered_set<std::shared_ptr<scene::SceneObject>> mExcludedSceneObjectsFromFrustumCulling;
     rendering::Camera mSwipeCamera;
     glm::vec3 mSwipeCurrentPos;
     glm::vec3 mCameraTargetPos;
