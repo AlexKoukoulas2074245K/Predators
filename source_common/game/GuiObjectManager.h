@@ -38,12 +38,22 @@ private:
         HEALTH
     };
     
+    enum class StatGainParticleType
+    {
+        MAX_HEALTH,
+        DAMAGE,
+        WEIGHT
+    };
+    
     void AnimateStatParticlesToGui(const glm::vec3& originPosition, const StatParticleType statParticleType, const long long coinAmount);
+    void AnimateStatGainParticles(const glm::vec3& originPosition, const StatGainParticleType statGainParticleType);
     void SetCoinValueText();
     void OnSettingsButtonPressed();
     void OnCoinReward(const events::CoinRewardEvent&);
     void OnHealthRefillReward(const events::HealthRefillRewardEvent&);
     void OnMaxHealthGainReward(const events::MaxHealthGainRewardEvent&);
+    void OnExtraDamageReward(const events::ExtraDamageRewardEvent&);
+    void OnExtraWeightReward(const events::ExtraWeightRewardEvent&);
     
 private:
     std::vector<std::unique_ptr<AnimatedButton>> mAnimatedButtons;

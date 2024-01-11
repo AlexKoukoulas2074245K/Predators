@@ -14,6 +14,7 @@
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/PlayCardGameAction.h>
 #include <game/gameactions/PlayerActionGenerationEngine.h>
+#include <game/ProgressionDataRepository.h>
 #include <memory>
 #include <set>
 
@@ -31,8 +32,8 @@ static const strutils::StringId CARD_EFFECT_GAME_ACTION_NAME = strutils::StringI
 
 ///------------------------------------------------------------------------------------------------
 
-#define GET_CARD_DAMAGE(id) CardDataRepository::GetInstance().GetCardData(id)->get().mCardDamage
-#define GET_CARD_WEIGHT(id) CardDataRepository::GetInstance().GetCardData(id)->get().mCardWeight
+#define GET_CARD_DAMAGE(id) CardDataRepository::GetInstance().GetCardData(id, 0).mCardDamage
+#define GET_CARD_WEIGHT(id) CardDataRepository::GetInstance().GetCardData(id, 0).mCardWeight
 
 ///------------------------------------------------------------------------------------------------
 
@@ -51,6 +52,7 @@ protected:
 protected:
     GameActionTests()
     {
+        ProgressionDataRepository::GetInstance().ResetStoryData();
         CardDataRepository::GetInstance().LoadCardData(false);
     }
     
@@ -563,7 +565,7 @@ TEST_F(GameActionTests, TestBuffedDugOutRodentsHaveCorrectModifiersPostClearingN
 
 
 int BATTLE_SIMULATION_ITERATIONS = 1000;
-//#define SIMULATE_BATTLES
+#define SIMULATE_BATTLES
 #if defined(SIMULATE_BATTLES)
 void GameActionTests::SimulateBattle(strutils::StringId topDeckFamilyName /*= strutils::StringId()*/, strutils::StringId botDeckFamilyName /*= strutils::StringId()*/)
 {
@@ -711,7 +713,7 @@ void GameActionTests::SimulateBattle(strutils::StringId topDeckFamilyName /*= st
         statistics << "Card pressence in won games: \n";
         auto cardStatRowPopulationLambda = [&](const std::pair<int, int> entry)
         {
-            const auto& cardData = CardDataRepository::GetInstance().GetCardData(entry.second)->get();
+            const auto& cardData = CardDataRepository::GetInstance().GetCardData(entry.second, 0);
             std::stringstream row;
             row << "\t" << "ID=" << cardData.mCardId << ", " << "d=" << cardData.mCardDamage << ", w=" << cardData.mCardWeight;
             row << std::setw(35 - static_cast<int>(row.str().size()));
@@ -759,7 +761,7 @@ void GameActionTests::SimulateBattle(strutils::StringId topDeckFamilyName /*= st
         
         for (const auto& entry: powerLevelAndCardIds)
         {
-            const auto& cardData = CardDataRepository::GetInstance().GetCardData(entry.second)->get();
+            const auto& cardData = CardDataRepository::GetInstance().GetCardData(entry.second, 0);
             std::stringstream row;
             row << "\t" << "ID=" << cardData.mCardId << ", " << "d=" << cardData.mCardDamage << ", w=" << cardData.mCardWeight;
             row << std::setw(35 - static_cast<int>(row.str().size()));

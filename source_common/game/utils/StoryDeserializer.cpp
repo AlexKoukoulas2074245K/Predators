@@ -18,6 +18,14 @@ StoryDeserializer::StoryDeserializer(ProgressionDataRepository& progressionDataR
 {
     const auto& storyJson = GetState();
     
+    if (storyJson.count("story_player_card_stat_modifiers"))
+    {
+        for (auto entryIter = storyJson["story_player_card_stat_modifiers"].begin(); entryIter != storyJson["story_player_card_stat_modifiers"].end(); ++entryIter)
+        {
+            progressionDataRepository.SetStoryPlayerCardStatModifier(static_cast<CardStatType>(std::stoi(entryIter.key())), entryIter.value().get<int>());
+        }
+    }
+    
     if (storyJson.count("current_story_health"))
     {
         auto storyHealth = storyJson["current_story_health"].get<int>();

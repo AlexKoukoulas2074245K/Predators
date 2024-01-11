@@ -34,9 +34,9 @@ void CardPlayedParticleEffectGameAction::VInitAnimation()
     const auto& lastPlayedCardSoWrapper = mBattleSceneLogicManager->GetBoardCardSoWrappers()[mBoardState->GetActivePlayerIndex()].back();
     auto scene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE);
     
-    assert(!lastPlayedCardSoWrapper->mCardData->mParticleEffect.isEmpty());
+    assert(!lastPlayedCardSoWrapper->mCardData.mParticleEffect.isEmpty());
     
-    CoreSystemsEngine::GetInstance().GetParticleManager().CreateParticleEmitterAtPosition(lastPlayedCardSoWrapper->mCardData->mParticleEffect, lastPlayedCardSoWrapper->mSceneObject->mPosition, *scene, PARTICLE_SCENE_OBJECT_NAME);
+    CoreSystemsEngine::GetInstance().GetParticleManager().CreateParticleEmitterAtPosition(lastPlayedCardSoWrapper->mCardData.mParticleEffect, lastPlayedCardSoWrapper->mSceneObject->mPosition, *scene, PARTICLE_SCENE_OBJECT_NAME);
 }
 
 ///------------------------------------------------------------------------------------------------

@@ -53,11 +53,11 @@ void InsectDuplicationGameAction::VInitAnimation()
     
     auto newCardSoWrapper = card_utils::CreateCardSoWrapper
     (
-     lastPlayedCardSoWrapper->mCardData,
+        &lastPlayedCardSoWrapper->mCardData,
         sourcePosition,
         (mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX ? game_constants::TOP_PLAYER_BOARD_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_BOARD_CARD_SO_NAME_PREFIX) + std::to_string(mBoardState->GetActivePlayerState().mPlayerBoardCards.size() - 1),
         CardOrientation::FRONT_FACE,
-        card_utils::GetCardRarity(lastPlayedCardSoWrapper->mCardData->mCardId, mBoardState->GetActivePlayerIndex(), *mBoardState),
+        card_utils::GetCardRarity(lastPlayedCardSoWrapper->mCardData.mCardId, mBoardState->GetActivePlayerIndex(), *mBoardState),
         true,
         mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX,
         true,

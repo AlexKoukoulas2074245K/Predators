@@ -13,6 +13,7 @@
 #include <engine/utils/OSMessageBox.h>
 #include <game/Cards.h>
 #include <game/GameConstants.h>
+#include <game/ProgressionDataRepository.h>
 #include <nlohmann/json.hpp>
 
 ///------------------------------------------------------------------------------------------------
@@ -72,16 +73,34 @@ std::vector<int> CardDataRepository::GetCardIdsByFamily(const strutils::StringId
 
 ///------------------------------------------------------------------------------------------------
 
-std::optional<std::reference_wrapper<const CardData>> CardDataRepository::GetCardData(const int cardId) const
+CardData CardDataRepository::GetCardData(const int cardId, const size_t forPlayerIndex) const
 {
     auto findIter = mCardDataMap.find(cardId);
     if (findIter != mCardDataMap.end())
     {
-        return std::optional<std::reference_wrapper<const CardData>>{findIter->second};
+        CardData cardData = findIter->second;
+        
+        if (!ProgressionDataRepository::GetInstance().GetQuickPlayData())
+        {
+            if (forPlayerIndex == game_constants::LOCAL_PLAYER_INDEX)
+            {
+                const auto& storyCardStatModifiers = ProgressionDataRepository::GetInstance().GetStoryPlayerCardStatModifiers();
+                if (storyCardStatModifiers.count(CardStatType::DAMAGE))
+                {
+                    cardData.mCardDamage += storyCardStatModifiers.at(CardStatType::DAMAGE);
+                }
+                if (storyCardStatModifiers.count(CardStatType::WEIGHT))
+                {
+                    cardData.mCardWeight += storyCardStatModifiers.at(CardStatType::WEIGHT);
+                }
+            }
+        }
+        
+        return cardData;
     }
     
     ospopups::ShowMessageBox(ospopups::MessageBoxType::ERROR, ("Cannot find card with id " + std::to_string(cardId)).c_str());
-    return std::nullopt;
+    return CardData();
 }
 
 ///------------------------------------------------------------------------------------------------

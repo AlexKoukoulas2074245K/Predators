@@ -48,6 +48,18 @@ enum class CardRarity
 
 ///------------------------------------------------------------------------------------------------
 
+enum class CardStatType
+{
+    DAMAGE,
+    WEIGHT
+};
+
+///------------------------------------------------------------------------------------------------
+
+using CardStatOverrides = std::unordered_map<CardStatType, int>;
+
+///------------------------------------------------------------------------------------------------
+
 struct CardData
 {
     bool IsSpell() const { return !mCardEffect.empty(); }
@@ -69,7 +81,7 @@ struct CardData
 struct CardSoWrapper
 {
     CardSoState mState = CardSoState::IDLE;
-    const CardData* mCardData = nullptr;
+    CardData mCardData;
     std::shared_ptr<scene::SceneObject> mSceneObject;
 };
 
@@ -90,7 +102,7 @@ public:
     std::vector<int> GetAllCardIds() const;
     std::vector<int> GetAllNonSpellCardIds() const;
     std::vector<int> GetCardIdsByFamily(const strutils::StringId& family) const;
-    std::optional<std::reference_wrapper<const CardData>> GetCardData(const int cardId) const;
+    CardData GetCardData(const int cardId, const size_t forPlayerIndex) const;
     const std::unordered_set<strutils::StringId, strutils::StringIdHasher>& GetCardFamilies() const;
     
     void CleanDeckFromTempIds(std::vector<int>& deck);

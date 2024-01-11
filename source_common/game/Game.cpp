@@ -133,7 +133,7 @@ void Game::Update(const float dtMillis)
 //        //auto targetPosition = game_constants::HEALTH_CRYSTAL_TOP_POSITION;
 //        static bool large = false;
 //        large = !large;
-//        
+//
 //        auto animatedNodePathParticleEmitterSceneObject = systemsEngine.GetParticleManager().CreateParticleEmitterAtPosition(large ? strutils::StringId("health_gain_large") :  strutils::StringId("health_gain_small"), glm::vec3(touchPos.x, touchPos.y, 0.1f), *systemsEngine.GetSceneManager().FindScene(game_constants::MAIN_MENU_SCENE), large ? strutils::StringId("test_large") : strutils::StringId("test_small"), [=](float dtMillis, scene::ParticleEmitterObjectData& particleEmitterData)
 //        {
 //            auto& particleManager = CoreSystemsEngine::GetInstance().GetParticleManager();
@@ -149,7 +149,7 @@ void Game::Update(const float dtMillis)
 //            {
 //                timeAccum = 0.0f;
 //                auto newParticleIndex = particleManager.SpawnParticleAtFirstAvailableSlot(*particleEmitterSceneObject);
-//                                                                                                                                 
+//
 //                particleEmitterData.mParticleLifetimeSecs[newParticleIndex] = math::RandomFloat(0.01f, 0.1f);
 //                particleEmitterData.mParticleVelocities[newParticleIndex].y = 0.0001f;
 //                particleEmitterData.mParticleAngles[newParticleIndex] = 1.0f;
@@ -224,7 +224,7 @@ void Game::WindowResize()
 #endif
 
 #if ((!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)) && (defined(CREATE_DEBUG_WIDGETS))
-static void CreateImGuiCardVecEntry(const std::string& cardIdPrefix, std::string& cardVec, const std::vector<CardStatOverrides>& cardOverrides, const effects::EffectBoardModifierMask boardModifierMask)
+static void CreateImGuiCardVecEntry(const std::string& cardIdPrefix, std::string& cardVec, const std::vector<CardStatOverrides>& cardOverrides, const effects::EffectBoardModifierMask boardModifierMask, const bool forRemotePlayer)
 {
     cardVec.erase(cardVec.begin());
     cardVec.erase(cardVec.end() - 1);
@@ -233,25 +233,25 @@ static void CreateImGuiCardVecEntry(const std::string& cardIdPrefix, std::string
     ImGui::SameLine();
     for (size_t i = 0; i < splitByNewLine.size(); ++i)
     {
-        auto cardDataOptional = CardDataRepository::GetInstance().GetCardData(std::stoi(splitByNewLine[i]));
+        auto cardData = CardDataRepository::GetInstance().GetCardData(std::stoi(splitByNewLine[i]), forRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX);
         ImGui::PushID((cardIdPrefix + std::to_string(i)).c_str());
         ImGui::Text((i == 0 ? "%s" : ",%s"), splitByNewLine[i].c_str());
         
-        if (cardDataOptional->get().IsSpell())
+        if (cardData.IsSpell())
         {
             ImGui::SetItemTooltip("(Name: %s, Family: %s, Effect: %s, Weight: %d)",
-                cardDataOptional->get().mCardName.c_str(),
-                cardDataOptional->get().mCardFamily.GetString().c_str(),
-                cardDataOptional->get().mCardEffect.c_str(),
-                cardDataOptional->get().mCardWeight);
+                                  cardData.mCardName.c_str(),
+                                  cardData.mCardFamily.GetString().c_str(),
+                                  cardData.mCardEffect.c_str(),
+                                  cardData.mCardWeight);
         }
         else
         {
             ImGui::SetItemTooltip("(Name: %s, Family: %s, Damage: %d, Weight: %d)",
-                cardDataOptional->get().mCardName.c_str(),
-                cardDataOptional->get().mCardFamily.GetString().c_str(),
-                cardDataOptional->get().mCardDamage,
-                cardDataOptional->get().mCardWeight);
+                                  cardData.mCardName.c_str(),
+                                  cardData.mCardFamily.GetString().c_str(),
+                                  cardData.mCardDamage,
+                                  cardData.mCardWeight);
         }
         
         ImGui::PopID();
@@ -457,13 +457,13 @@ void Game::CreateDebugWidgets()
     ImGui::SeparatorText("Remote Player Stats");
     ImGui::TextWrapped("%s", remotePlayerStats.c_str());
     ImGui::SeparatorText("Remote Player Hand");
-    CreateImGuiCardVecEntry("RemotePlayerHand", remotePlayerHand, boardState.GetPlayerStates()[0].mPlayerHeldCardStatOverrides, 0);
+    CreateImGuiCardVecEntry("RemotePlayerHand", remotePlayerHand, boardState.GetPlayerStates()[0].mPlayerHeldCardStatOverrides, 0, true);
     ImGui::SeparatorText("Remote Player Board");
-    CreateImGuiCardVecEntry("RemotePlayerBoard", remotePlayerBoard, boardState.GetPlayerStates()[0].mPlayerBoardCardStatOverrides, boardState.GetPlayerStates()[0].mBoardModifiers.mBoardModifierMask);
+    CreateImGuiCardVecEntry("RemotePlayerBoard", remotePlayerBoard, boardState.GetPlayerStates()[0].mPlayerBoardCardStatOverrides, boardState.GetPlayerStates()[0].mBoardModifiers.mBoardModifierMask, true);
     ImGui::SeparatorText("Local Player Board");
-    CreateImGuiCardVecEntry("LocalPlayerBoard", localPlayerBoard, boardState.GetPlayerStates()[1].mPlayerBoardCardStatOverrides, boardState.GetPlayerStates()[1].mBoardModifiers.mBoardModifierMask);
+    CreateImGuiCardVecEntry("LocalPlayerBoard", localPlayerBoard, boardState.GetPlayerStates()[1].mPlayerBoardCardStatOverrides, boardState.GetPlayerStates()[1].mBoardModifiers.mBoardModifierMask, false);
     ImGui::SeparatorText("Local Player Hand");
-    CreateImGuiCardVecEntry("LocalPlayerHand", localPlayerHand, boardState.GetPlayerStates()[1].mPlayerHeldCardStatOverrides, 0);
+    CreateImGuiCardVecEntry("LocalPlayerHand", localPlayerHand, boardState.GetPlayerStates()[1].mPlayerHeldCardStatOverrides, 0, false);
     ImGui::SeparatorText("Local Player Stats");
     ImGui::TextWrapped("%s", localPlayerStats.c_str());
     ImGui::End();

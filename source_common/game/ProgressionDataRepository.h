@@ -10,6 +10,7 @@
 
 ///------------------------------------------------------------------------------------------------
 
+#include <game/Cards.h>
 #include <game/GameConstants.h>
 #include <game/StoryMap.h>
 #include <game/utils/ValueWithDelayedDisplay.h>
@@ -71,6 +72,9 @@ public:
     
     void ResetStoryData();
     void FlushStateToFile();
+    
+    const std::unordered_map<CardStatType, int>& GetStoryPlayerCardStatModifiers() const;
+    void SetStoryPlayerCardStatModifier(const CardStatType statType, int statModifier);
     
     QuickPlayData* GetQuickPlayData() const;
     void SetQuickPlayData(std::unique_ptr<QuickPlayData> quickPlayData);
@@ -157,6 +161,7 @@ private:
     ProgressionDataRepository();
     
 private:
+    std::unordered_map<CardStatType, int> mStoryPlayerCardStatModifiers;
     std::unique_ptr<PersistentAccountDataDeserializer> mPersistentDataDeserializer;
     std::unique_ptr<PersistentAccountDataSerializer> mPersistentDataSerializer;
     std::unique_ptr<StoryDeserializer> mStoryDataDeserializer;

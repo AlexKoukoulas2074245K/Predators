@@ -50,8 +50,8 @@ void PlayerActionGenerationEngine::DecideAndPushNextActions(BoardState* currentB
     const auto& cardRepository = CardDataRepository::GetInstance();
     std::sort(currentHeldCardsCopySorted.begin(), currentHeldCardsCopySorted.end(), [&](const int& lhs, const int& rhs)
     {
-        auto& cardDataLhs = cardRepository.GetCardData(lhs)->get();
-        auto& cardDataRhs = cardRepository.GetCardData(rhs)->get();
+        const auto& cardDataLhs = cardRepository.GetCardData(lhs, boardStateCopy.GetActivePlayerIndex());
+        const auto& cardDataRhs = cardRepository.GetCardData(rhs, boardStateCopy.GetActivePlayerIndex());
         
         bool isLhsCardHighPriority = IsCardHighPriority(cardDataLhs, &boardStateCopy);
         bool isRhsCardHighPriority = IsCardHighPriority(cardDataRhs, &boardStateCopy);
@@ -83,12 +83,13 @@ void PlayerActionGenerationEngine::DecideAndPushNextActions(BoardState* currentB
     bool shouldWaitForFurtherActions = false;
     for (auto iter = currentHeldCardsCopySorted.cbegin(); iter != currentHeldCardsCopySorted.cend();)
     {
-        const auto* cardData = &cardRepository.GetCardData(*iter)->get();
+        const auto cardData = cardRepository.GetCardData(*iter, boardStateCopy.GetActivePlayerIndex());
+        
         // Find index of card in original vector
-        auto originalHeldCardIter = std::find(currentHeldCards.cbegin(), currentHeldCards.cend(), cardData->mCardId);
+        auto originalHeldCardIter = std::find(currentHeldCards.cbegin(), currentHeldCards.cend(), cardData.mCardId);
         const auto cardIndex = originalHeldCardIter - currentHeldCards.cbegin();
         
-        if (mGameRuleEngine->CanCardBePlayed(cardData, cardIndex, boardStateCopy.GetActivePlayerIndex(), &boardStateCopy))
+        if (mGameRuleEngine->CanCardBePlayed(&cardData, cardIndex, boardStateCopy.GetActivePlayerIndex(), &boardStateCopy))
         {
             assert(originalHeldCardIter != currentHeldCards.cend());
             
@@ -97,24 +98,24 @@ void PlayerActionGenerationEngine::DecideAndPushNextActions(BoardState* currentB
             mLastPlayedCard.mPlayerIndex = boardStateCopy.GetActivePlayerIndex();
             
             // Simulate card play effects on copy of board state
-            auto cardWeight = cardData->mCardWeight;
+            auto cardWeight = cardData.mCardWeight;
             const auto& cardStatOverrides = boardStateCopy.GetActivePlayerState().mPlayerHeldCardStatOverrides;
             if (static_cast<int>(cardStatOverrides.size()) > cardIndex)
             {
-                cardWeight = math::Max(0, cardStatOverrides[cardIndex].count(CardStatType::WEIGHT) ? cardStatOverrides[cardIndex].at(CardStatType::WEIGHT) : cardData->mCardWeight);
+                cardWeight = math::Max(0, cardStatOverrides[cardIndex].count(CardStatType::WEIGHT) ? cardStatOverrides[cardIndex].at(CardStatType::WEIGHT) : cardData.mCardWeight);
             }
-            if (!cardData->IsSpell() && boardStateCopy.GetActivePlayerState().mBoardModifiers.mGlobalCardStatModifiers.count(CardStatType::WEIGHT))
+            if (!cardData.IsSpell() && boardStateCopy.GetActivePlayerState().mBoardModifiers.mGlobalCardStatModifiers.count(CardStatType::WEIGHT))
             {
                 cardWeight = math::Max(0, cardWeight + boardStateCopy.GetActivePlayerState().mBoardModifiers.mGlobalCardStatModifiers.at(CardStatType::WEIGHT));
             }
             
             boardStateCopy.GetActivePlayerState().mPlayerCurrentWeightAmmo -= cardWeight;
-            currentBoardCards.push_back(cardData->mCardId);
+            currentBoardCards.push_back(cardData.mCardId);
             
             currentHeldCards.erase(originalHeldCardIter);
             iter = currentHeldCardsCopySorted.erase(iter);
             
-            shouldWaitForFurtherActions = IsCardHighPriority(*cardData, &boardStateCopy);
+            shouldWaitForFurtherActions = IsCardHighPriority(cardData, &boardStateCopy);
             if (shouldWaitForFurtherActions)
             {
                 break;

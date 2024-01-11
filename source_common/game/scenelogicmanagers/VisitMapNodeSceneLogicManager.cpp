@@ -318,7 +318,6 @@ void VisitMapNodeSceneLogicManager::InitializeNodeVisitData()
             // Populate local player stats
             ProgressionDataRepository::GetInstance().SetNextBotPlayerDeck(ProgressionDataRepository::GetInstance().GetCurrentStoryPlayerDeck());
             ProgressionDataRepository::GetInstance().SetNextBattleBotPlayerHealth(ProgressionDataRepository::GetInstance().StoryCurrentHealth().GetValue());
-            ProgressionDataRepository::GetInstance().SetNextBattleBotPlayerInitWeight(game_constants::BOT_PLAYER_DEFAULT_WEIGHT - 1);
             ProgressionDataRepository::GetInstance().SetNextBattleBotPlayerWeightLimit(game_constants::BOT_PLAYER_DEFAULT_WEIGHT_LIMIT);
             
             events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::BATTLE_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);

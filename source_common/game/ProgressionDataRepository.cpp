@@ -42,6 +42,8 @@ void ProgressionDataRepository::ResetStoryData()
 {
     mStoryDataSerializer->GetState().clear();
     
+    mStoryPlayerCardStatModifiers.clear();
+    
     mStoryCurrentHealth = ValueWithDelayedDisplay<int>(game_constants::STORY_DEFAULT_MAX_HEALTH, game_constants::STORY_DEFAULT_MAX_HEALTH, [=](const int& newValue) { mStoryDataSerializer->GetState()["current_story_health"] = newValue; });
     
     mCurrentStoryPlayerDeck.clear();
@@ -62,7 +64,7 @@ void ProgressionDataRepository::ResetStoryData()
     mNextBattleTopPlayerHealth = 0;
     mNextBattleBotPlayerHealth = 0;
     mNextBattleTopPlayerInitWeight = 0;
-    mNextBattleBotPlayerInitWeight = 0;
+    mNextBattleBotPlayerInitWeight = game_constants::BOT_PLAYER_DEFAULT_WEIGHT - 1;
     mNextBattleTopPlayerWeightLimit = 0;
     mNextBattleBotPlayerWeightLimit = 0;
     mNextStoryOpponentDamage = 0;
@@ -80,6 +82,27 @@ void ProgressionDataRepository::FlushStateToFile()
 {
     mStoryDataSerializer->FlushStateToFile();
     mPersistentDataSerializer->FlushStateToFile();
+}
+
+///------------------------------------------------------------------------------------------------
+
+const std::unordered_map<CardStatType, int>& ProgressionDataRepository::GetStoryPlayerCardStatModifiers() const
+{
+    return mStoryPlayerCardStatModifiers;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ProgressionDataRepository::SetStoryPlayerCardStatModifier(const CardStatType statType, int statModifier)
+{
+    mStoryPlayerCardStatModifiers[statType] = statModifier;
+    
+    nlohmann::json storyPlayerCardStatModifiersJson;
+    for (auto& cardStatModifierEntry: mStoryPlayerCardStatModifiers)
+    {
+        storyPlayerCardStatModifiersJson[std::to_string(static_cast<int>(cardStatModifierEntry.first))] = cardStatModifierEntry.second;
+    }
+    mStoryDataSerializer->GetState()["story_player_card_stat_modifiers"] = storyPlayerCardStatModifiersJson;
 }
 
 ///------------------------------------------------------------------------------------------------

@@ -522,15 +522,15 @@ void BattleSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scen
                 auto interactedElementEntry = mCardHistoryContainer->GetItems()[cardHistoryContainerUpdateResult.mInteractedElementId];
                 if (!interactedElementEntry.mIsTurnCounter)
                 {
-                    auto cardData = CardDataRepository::GetInstance().GetCardData(interactedElementEntry.mCardId);
+                    auto cardData = CardDataRepository::GetInstance().GetCardData(interactedElementEntry.mCardId, interactedElementEntry.mForOpponent ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX);
                     
                     DestroyCardTooltip(activeScene);
                     
-                    if (cardData->get().IsSpell())
+                    if (cardData.IsSpell())
                     {
                         sToolTipPointeePosX = interactedElementEntry.mSceneObjects.front()->mPosition.x;
                         
-                        CreateCardTooltip(interactedElementEntry.mSceneObjects.front()->mPosition, cardData->get().mCardEffectTooltip, interactedElementEntry.mSceneObjects.front()->mPosition.x < 0.0f ? 0 : 10, activeScene);
+                        CreateCardTooltip(interactedElementEntry.mSceneObjects.front()->mPosition, cardData.mCardEffectTooltip, interactedElementEntry.mSceneObjects.front()->mPosition.x < 0.0f ? 0 : 10, activeScene);
                     }
                 }
             }
@@ -689,9 +689,9 @@ void BattleSceneLogicManager::HandleTouchInput(const float dtMillis)
             mSecsCardHighlighted += dtMillis/1000.0f;
             if (mSecsCardHighlighted > CARD_TOOLTIP_CREATION_DELAY_SECS && battleScene->FindSceneObject(CARD_TOOLTIP_SCENE_OBJECT_NAME)->mInvisible)
             {
-                if (currentCardSoWrapper->mCardData->IsSpell())
+                if (currentCardSoWrapper->mCardData.IsSpell())
                 {
-                    CreateCardTooltip(currentCardSoWrapper->mSceneObject->mPosition, currentCardSoWrapper->mCardData->mCardEffectTooltip, i, battleScene);
+                    CreateCardTooltip(currentCardSoWrapper->mSceneObject->mPosition, currentCardSoWrapper->mCardData.mCardEffectTooltip, i, battleScene);
                 }
             }
         }
@@ -699,7 +699,7 @@ void BattleSceneLogicManager::HandleTouchInput(const float dtMillis)
 #if defined(MOBILE_FLOW)
         static std::unique_ptr<glm::vec2> selectedCardInitialTouchPosition = nullptr;
         if (inputStateManager.VButtonPressed(input::Button::MAIN_BUTTON) &&
-            mRuleEngine->CanCardBePlayed(currentCardSoWrapper->mCardData, i, game_constants::LOCAL_PLAYER_INDEX) &&
+            mRuleEngine->CanCardBePlayed(&currentCardSoWrapper->mCardData, i, game_constants::LOCAL_PLAYER_INDEX) &&
             ((currentCardSoWrapper->mState == CardSoState::HIGHLIGHTED && glm::distance(worldTouchPos, *selectedCardInitialTouchPosition) > 0.005f) || currentCardSoWrapper->mState == CardSoState::FREE_MOVING) &&
             !freeMovingCardThisFrame)
         {
@@ -720,7 +720,7 @@ void BattleSceneLogicManager::HandleTouchInput(const float dtMillis)
                 std::vector<std::string> cardNames;
                 for (const auto& soWrapper: mPendingCardsToBePlayed)
                 {
-                    cardNames.push_back(soWrapper->mCardData->mCardName);
+                    cardNames.push_back(soWrapper->mCardData.mCardName);
                 }
                 freeMovingCardThisFrame = true;
             }
@@ -780,7 +780,7 @@ void BattleSceneLogicManager::HandleTouchInput(const float dtMillis)
                  cursorInSceneObject &&
                  !otherHighlightedCardExists &&
                  currentCardSoWrapper->mState == CardSoState::HIGHLIGHTED &&
-                 mRuleEngine->CanCardBePlayed(currentCardSoWrapper->mCardData, i, game_constants::LOCAL_PLAYER_INDEX) &&
+                 mRuleEngine->CanCardBePlayed(&currentCardSoWrapper->mCardData, i, game_constants::LOCAL_PLAYER_INDEX) &&
                  battleScene->FindSceneObject(strutils::StringId(CARD_HIGHLIGHTER_SCENE_OBJECT_NAME_PREFIX + std::to_string(i))) != nullptr)
         {
             currentCardSoWrapper->mState = CardSoState::FREE_MOVING;
@@ -900,26 +900,26 @@ void BattleSceneLogicManager::UpdateMiscSceneObjects(const float dtMillis)
         if (mActionEngine->GetActiveGameActionName() != CARD_BUFFED_DEBUFFED_ANIMATION_GAME_ACTION_NAME &&
             mActionEngine->GetActiveGameActionName() != CARD_EFFECT_GAME_ACTION_NAME)
         {
-            auto canCardBePlayed = mRuleEngine->CanCardBePlayed(cardSoWrapper->mCardData, i, game_constants::LOCAL_PLAYER_INDEX);
+            auto canCardBePlayed = mRuleEngine->CanCardBePlayed(&cardSoWrapper->mCardData, i, game_constants::LOCAL_PLAYER_INDEX);
             cardSoWrapper->mSceneObject->mShaderIntUniformValues[game_constants::CARD_WEIGHT_INTERACTIVE_MODE_UNIFORM_NAME] = canCardBePlayed ? game_constants::CARD_INTERACTIVE_MODE_DEFAULT : game_constants::CARD_INTERACTIVE_MODE_NONINTERACTIVE;
             
-            if (cardSoWrapper->mCardData->IsSpell())
+            if (cardSoWrapper->mCardData.IsSpell())
             {
                 continue;
             }
             
             const auto& heldCardStatOverrides = mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHeldCardStatOverrides;
-            int overriddenWeight = cardSoWrapper->mCardData->mCardWeight;
+            int overriddenWeight = cardSoWrapper->mCardData.mCardWeight;
             if (heldCardStatOverrides.size() > i)
             {
-                overriddenWeight = math::Max(0, heldCardStatOverrides[i].count(CardStatType::WEIGHT) ? heldCardStatOverrides[i].at(CardStatType::WEIGHT) : cardSoWrapper->mCardData->mCardWeight);
+                overriddenWeight = math::Max(0, heldCardStatOverrides[i].count(CardStatType::WEIGHT) ? heldCardStatOverrides[i].at(CardStatType::WEIGHT) : cardSoWrapper->mCardData.mCardWeight);
             }
             if (mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mBoardModifiers.mGlobalCardStatModifiers.count(CardStatType::WEIGHT))
             {
                 overriddenWeight = math::Max(0, overriddenWeight + mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mBoardModifiers.mGlobalCardStatModifiers.at(CardStatType::WEIGHT));
             }
             
-            if (canCardBePlayed && overriddenWeight < cardSoWrapper->mCardData->mCardWeight)
+            if (canCardBePlayed && overriddenWeight < cardSoWrapper->mCardData.mCardWeight)
             {
                 cardSoWrapper->mSceneObject->mShaderIntUniformValues[game_constants::CARD_WEIGHT_INTERACTIVE_MODE_UNIFORM_NAME] = game_constants::CARD_INTERACTIVE_MODE_INTERACTIVE;
             }
@@ -1115,7 +1115,7 @@ void BattleSceneLogicManager::OnFreeMovingCardRelease(std::shared_ptr<CardSoWrap
     if (inBoardDropThreshold &&
         (mActionEngine->GetActiveGameActionName() == IDLE_GAME_ACTION_NAME || mActionEngine->GetActionCount() <= 2) &&
         mBoardState->GetActivePlayerIndex() == 1 &&
-        mRuleEngine->CanCardBePlayed(cardSoWrapper->mCardData, cardIndex, game_constants::LOCAL_PLAYER_INDEX))
+        mRuleEngine->CanCardBePlayed(&cardSoWrapper->mCardData, cardIndex, game_constants::LOCAL_PLAYER_INDEX))
     {
         bool inPendingCardsToBePlayed = std::find(mPendingCardsToBePlayed.begin(), mPendingCardsToBePlayed.end(), cardSoWrapper) != mPendingCardsToBePlayed.end();
         if (mCanPlayNextCard && !inPendingCardsToBePlayed)
@@ -1171,7 +1171,7 @@ void BattleSceneLogicManager::CreateCardHighlighter()
         cardHighlighterSo->mShaderFloatUniformValues[game_constants::PERLIN_TIME_SPEED_UNIFORM_NAME] = game_constants::ACTION_HIGLIGHTER_PERLIN_TIME_SPEED;
         cardHighlighterSo->mShaderFloatUniformValues[game_constants::PERLIN_RESOLUTION_UNIFORM_NAME] = game_constants::ACTION_HIGLIGHTER_PERLIN_RESOLUTION;
         cardHighlighterSo->mShaderFloatUniformValues[game_constants::PERLIN_CLARITY_UNIFORM_NAME] = game_constants::ACTION_HIGLIGHTER_PERLIN_CLARITY;
-        cardHighlighterSo->mShaderBoolUniformValues[game_constants::CARD_HIGHLIGHTER_INVALID_ACTION_UNIFORM_NAME] = !mRuleEngine->CanCardBePlayed((*highlightedCardIter)->mCardData, cardIndex, game_constants::LOCAL_PLAYER_INDEX);
+        cardHighlighterSo->mShaderBoolUniformValues[game_constants::CARD_HIGHLIGHTER_INVALID_ACTION_UNIFORM_NAME] = !mRuleEngine->CanCardBePlayed(&(*highlightedCardIter)->mCardData, cardIndex, game_constants::LOCAL_PLAYER_INDEX);
         cardHighlighterSo->mPosition = (*highlightedCardIter)->mSceneObject->mPosition;
         cardHighlighterSo->mPosition.z += game_constants::ACTION_HIGLIGHTER_Z_OFFSET;
         cardHighlighterSo->mScale = game_constants::CARD_HIGHLIGHTER_SCALE;
@@ -1453,11 +1453,11 @@ void BattleSceneLogicManager::OnCardBuffedDebuffed(const events::CardBuffedDebuf
         
         boardSceneObjectWrappers[event.mCardIndex] = card_utils::CreateCardSoWrapper
         (
-            cardSceneObjectWrapper->mCardData,
+            &cardSceneObjectWrapper->mCardData,
             cardSceneObjectWrapper->mSceneObject->mPosition,
             (event.mForRemotePlayer ? game_constants::TOP_PLAYER_BOARD_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_BOARD_CARD_SO_NAME_PREFIX) + std::to_string(event.mCardIndex),
             CardOrientation::FRONT_FACE,
-            card_utils::GetCardRarity(cardSceneObjectWrapper->mCardData->mCardId, event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX, *mBoardState),
+            card_utils::GetCardRarity(cardSceneObjectWrapper->mCardData.mCardId, event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX, *mBoardState),
             true,
             event.mForRemotePlayer,
             true,
@@ -1478,14 +1478,14 @@ void BattleSceneLogicManager::OnCardBuffedDebuffed(const events::CardBuffedDebuf
         
         heldSceneObjectWrappers[event.mCardIndex] = card_utils::CreateCardSoWrapper
         (
-            cardSceneObjectWrapper->mCardData,
+            &cardSceneObjectWrapper->mCardData,
             cardSceneObjectWrapper->mSceneObject->mPosition,
             (event.mForRemotePlayer ? game_constants::TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_HELD_CARD_SO_NAME_PREFIX) + std::to_string(event.mCardIndex),
             CardOrientation::FRONT_FACE,
-            card_utils::GetCardRarity(cardSceneObjectWrapper->mCardData->mCardId, event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX, *mBoardState),
+            card_utils::GetCardRarity(cardSceneObjectWrapper->mCardData.mCardId, event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX, *mBoardState),
             false,
             event.mForRemotePlayer,
-            mRuleEngine->CanCardBePlayed(heldSceneObjectWrappers[event.mCardIndex]->mCardData, event.mCardIndex, game_constants::LOCAL_PLAYER_INDEX),
+            mRuleEngine->CanCardBePlayed(&heldSceneObjectWrappers[event.mCardIndex]->mCardData, event.mCardIndex, game_constants::LOCAL_PLAYER_INDEX),
             (static_cast<int>(playerState.mPlayerHeldCardStatOverrides.size()) > event.mCardIndex ? playerState.mPlayerHeldCardStatOverrides.at(event.mCardIndex) : CardStatOverrides()),
             playerState.mBoardModifiers.mGlobalCardStatModifiers,
             *battleScene
@@ -1871,13 +1871,13 @@ void BattleSceneLogicManager::OnCardHistoryEntryAddition(const events::CardHisto
         historyEntrySceneObject->mShaderIntUniformValues[game_constants::CARD_WEIGHT_INTERACTIVE_MODE_UNIFORM_NAME] = cardSoWrapper->mSceneObject->mShaderIntUniformValues[game_constants::CARD_WEIGHT_INTERACTIVE_MODE_UNIFORM_NAME];
         historyEntrySceneObject->mScale = CARD_HISTORY_ENTRY_SCALE;
         historyEntrySceneObject->mTextureResourceId = cardSoWrapper->mSceneObject->mTextureResourceId;
-        historyEntrySceneObject->mEffectTextureResourceIds[0] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + (cardSoWrapper->mCardData->IsSpell() ? game_constants::GOLDEN_SPELL_CARD_FLAKES_MASK_TEXTURE_FILE_NAME : game_constants::GOLDEN_CARD_FLAKES_MASK_TEXTURE_FILE_NAME));
-        historyEntrySceneObject->mEffectTextureResourceIds[1] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + (cardSoWrapper->mCardData->IsSpell() ? HISTORY_ENTRY_SPELL_MASK_TEXTURE_FILE_NAME : HISTORY_ENTRY_MASK_TEXTURE_FILE_NAME));
+        historyEntrySceneObject->mEffectTextureResourceIds[0] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + (cardSoWrapper->mCardData.IsSpell() ? game_constants::GOLDEN_SPELL_CARD_FLAKES_MASK_TEXTURE_FILE_NAME : game_constants::GOLDEN_CARD_FLAKES_MASK_TEXTURE_FILE_NAME));
+        historyEntrySceneObject->mEffectTextureResourceIds[1] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + (cardSoWrapper->mCardData.IsSpell() ? HISTORY_ENTRY_SPELL_MASK_TEXTURE_FILE_NAME : HISTORY_ENTRY_MASK_TEXTURE_FILE_NAME));
         historyEntrySceneObject->mEffectTextureResourceIds[2] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + event.mEntryTypeTextureFileName);
         historyEntrySceneObject->mBoundingRectMultiplier.x = game_constants::CARD_BOUNDING_RECT_X_MULTIPLIER;
         historyEntrySceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
         historyEntrySceneObject->mInvisible = true;
-        mCardHistoryContainer->AddItem({{historyEntrySceneObject}, cardSoWrapper->mCardData->mCardId, event.mForRemotePlayer, event.mIsTurnCounter}, false);
+        mCardHistoryContainer->AddItem({{historyEntrySceneObject}, cardSoWrapper->mCardData.mCardId, event.mForRemotePlayer, event.mIsTurnCounter}, false);
     }
 }
 

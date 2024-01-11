@@ -56,34 +56,32 @@ void CardAttackGameAction::VSetNewGameState()
     assert(mExtraActionParams.count(PLAYER_INDEX_PARAM) != 0);
     
     auto cardIndex = std::stoi(mExtraActionParams.at(CARD_INDEX_PARAM));
-    auto attackingPayerIndex = std::stoi(mExtraActionParams.at(PLAYER_INDEX_PARAM));
-    auto& attackingPlayerBoardCards = mBoardState->GetPlayerStates()[attackingPayerIndex].mPlayerBoardCards;
-    const auto& attackingCardData = CardDataRepository::GetInstance().GetCardData(attackingPlayerBoardCards[cardIndex]);
-    
-    assert(attackingCardData);
+    auto attackingPlayerIndex = std::stoi(mExtraActionParams.at(PLAYER_INDEX_PARAM));
+    auto& attackingPlayerBoardCards = mBoardState->GetPlayerStates()[attackingPlayerIndex].mPlayerBoardCards;
+    const auto& attackingCardData = CardDataRepository::GetInstance().GetCardData(attackingPlayerBoardCards[cardIndex], attackingPlayerIndex);
     
     // Card has been destroyed in between this action's creation and it's invocation of setting state here
-    if (mBoardState->GetPlayerStates()[attackingPayerIndex].mBoardCardIndicesToDestroy.count(cardIndex))
+    if (mBoardState->GetPlayerStates()[attackingPlayerIndex].mBoardCardIndicesToDestroy.count(cardIndex))
     {
         return;
     }
     
     auto& activePlayerState = mBoardState->GetActivePlayerState();
-    auto& attackingPlayerOverrides = mBoardState->GetPlayerStates()[attackingPayerIndex].mPlayerBoardCardStatOverrides;
+    auto& attackingPlayerOverrides = mBoardState->GetPlayerStates()[attackingPlayerIndex].mPlayerBoardCardStatOverrides;
     
-    auto damage = attackingCardData->get().mCardDamage;
+    auto damage = attackingCardData.mCardDamage;
     
     if (!attackingPlayerOverrides.empty() && static_cast<int>(attackingPlayerOverrides.size()) > cardIndex && attackingPlayerOverrides[cardIndex].count(CardStatType::DAMAGE))
     {
         damage = math::Max(0, attackingPlayerOverrides[cardIndex].at(CardStatType::DAMAGE));
     }
     
-    if (mBoardState->GetPlayerStates()[attackingPayerIndex].mBoardModifiers.mGlobalCardStatModifiers.count(CardStatType::DAMAGE))
+    if (mBoardState->GetPlayerStates()[attackingPlayerIndex].mBoardModifiers.mGlobalCardStatModifiers.count(CardStatType::DAMAGE))
     {
-        damage = math::Max(0, damage + mBoardState->GetPlayerStates()[attackingPayerIndex].mBoardModifiers.mGlobalCardStatModifiers.at(CardStatType::DAMAGE));
+        damage = math::Max(0, damage + mBoardState->GetPlayerStates()[attackingPlayerIndex].mBoardModifiers.mGlobalCardStatModifiers.at(CardStatType::DAMAGE));
     }
     
-    if (attackingCardData->get().mCardFamily == game_constants::INSECTS_FAMILY_NAME)
+    if (attackingCardData.mCardFamily == game_constants::INSECTS_FAMILY_NAME)
     {
         activePlayerState.mPlayerPoisonStack++;
         
@@ -98,7 +96,7 @@ void CardAttackGameAction::VSetNewGameState()
     
     mGameActionEngine->AddGameAction(CARD_HISTORY_ENTRY_ADDITION_GAME_ACTION_NAME,
     {
-        { CardHistoryEntryAdditionGameAction::PLAYER_INDEX_PARAM, std::to_string(attackingPayerIndex) },
+        { CardHistoryEntryAdditionGameAction::PLAYER_INDEX_PARAM, std::to_string(attackingPlayerIndex) },
         { CardHistoryEntryAdditionGameAction::CARD_INDEX_PARAM, std::to_string(cardIndex) },
         { CardHistoryEntryAdditionGameAction::ENTRY_TYPE_TEXTURE_FILE_NAME_PARAM, CardHistoryEntryAdditionGameAction::ENTRY_TYPE_TEXTURE_FILE_NAME_BATTLE },
         { CardHistoryEntryAdditionGameAction::IS_TURN_COUNTER_PARAM, "false"}
@@ -109,20 +107,20 @@ void CardAttackGameAction::VSetNewGameState()
         activePlayerState.mPlayerHealth = 0;
         mGameActionEngine->AddGameAction(GAME_OVER_GAME_ACTION_NAME,
         {
-            { GameOverGameAction::VICTORIOUS_PLAYER_INDEX_PARAM, std::to_string(attackingPayerIndex)}
+            { GameOverGameAction::VICTORIOUS_PLAYER_INDEX_PARAM, std::to_string(attackingPlayerIndex)}
         });
     }
     else
     {
         // Check for rodents respawn flow
-        if (attackingCardData->get().mCardFamily == game_constants::RODENTS_FAMILY_NAME)
+        if (attackingCardData.mCardFamily == game_constants::RODENTS_FAMILY_NAME)
         {
             if (math::ControlledRandomFloat() <= game_constants::RODENTS_RESPAWN_CHANCE)
             {
                 mGameActionEngine->AddGameAction(RODENTS_DIG_ANIMATION_GAME_ACTION_NAME,
                 {
                     { RodentsDigAnimationGameAction::CARD_INDEX_PARAM, std::to_string(cardIndex) },
-                    { RodentsDigAnimationGameAction::PLAYER_INDEX_PARAM, std::to_string(attackingPayerIndex) }
+                    { RodentsDigAnimationGameAction::PLAYER_INDEX_PARAM, std::to_string(attackingPlayerIndex) }
                 });
                 return;
             }
@@ -137,7 +135,7 @@ void CardAttackGameAction::VSetNewGameState()
         mGameActionEngine->AddGameAction(CARD_DESTRUCTION_GAME_ACTION_NAME,
         {
             { CardDestructionGameAction::CARD_INDICES_PARAM, {"[" + std::to_string(cardIndex) + "]"}},
-            { CardDestructionGameAction::PLAYER_INDEX_PARAM, std::to_string(attackingPayerIndex)},
+            { CardDestructionGameAction::PLAYER_INDEX_PARAM, std::to_string(attackingPlayerIndex)},
             { CardDestructionGameAction::IS_BOARD_CARD_PARAM, "true"},
             { CardDestructionGameAction::IS_TRAP_TRIGGER_PARAM, "false"},
         });
@@ -200,7 +198,7 @@ void CardAttackGameAction::VInitAnimation()
                     
                     auto cardSoWrapper = mBattleSceneLogicManager->GetBoardCardSoWrappers().at(attackingPayerIndex).at(cardIndex);
                     
-                    if (!cardSoWrapper->mCardData->IsSpell() && cardSoWrapper->mCardData->mCardFamily == game_constants::INSECTS_FAMILY_NAME)
+                    if (!cardSoWrapper->mCardData.IsSpell() && cardSoWrapper->mCardData.mCardFamily == game_constants::INSECTS_FAMILY_NAME)
                     {
                         events::EventSystem::GetInstance().DispatchEvent<events::PoisonStackChangeChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, mBoardState->GetActivePlayerState().mPlayerPoisonStack);
                     }

@@ -64,10 +64,9 @@ void CardEffectGameAction::VSetNewGameState()
 {
     auto& activePlayerState = mBoardState->GetActivePlayerState();
     auto cardId = activePlayerState.mPlayerBoardCards.back();
-    const auto& cardEffectData = CardDataRepository::GetInstance().GetCardData(cardId);
+    const auto& cardEffectData = CardDataRepository::GetInstance().GetCardData(cardId, mBoardState->GetActivePlayerIndex());
     
-    assert(cardEffectData);
-    HandleCardEffect(cardEffectData->get().mCardEffect);
+    HandleCardEffect(cardEffectData.mCardEffect);
     
     // shouldn't really happen
     if (activePlayerState.mPlayerBoardCardStatOverrides.size() == activePlayerState.mPlayerBoardCards.size())
@@ -243,7 +242,7 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
     const auto& boardCards = mBoardState->GetActivePlayerState().mPlayerBoardCards;
     const auto& heldCards = mBoardState->GetActivePlayerState().mPlayerHeldCards;
     
-    auto effectCardFamily = CardDataRepository::GetInstance().GetCardData(boardCards.back())->get().mCardFamily;
+    auto effectCardFamily = CardDataRepository::GetInstance().GetCardData(boardCards.back(), mBoardState->GetActivePlayerIndex()).mCardFamily;
     if (effectCardFamily == game_constants::DEMONS_NORMAL_FAMILY_NAME ||
         effectCardFamily == game_constants::DEMONS_MEDIUM_FAMILY_NAME ||
         effectCardFamily == game_constants::DEMONS_HARD_FAMILY_NAME ||
@@ -295,7 +294,7 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
             {
                 for (auto i = 0U; i < heldCards.size(); ++i)
                 {
-                    if (!CardDataRepository::GetInstance().GetCardData(heldCards[i])->get().IsSpell())
+                    if (!CardDataRepository::GetInstance().GetCardData(heldCards[i], mBoardState->GetActivePlayerIndex()).IsSpell())
                     {
                         mGameActionEngine->AddGameAction(CARD_BUFFED_DEBUFFED_ANIMATION_GAME_ACTION_NAME,
                         {
@@ -352,8 +351,7 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
     {
         for (int i = 0; i < static_cast<int>(boardCards.size()) - 1; ++i)
         {
-            auto cardData = CardDataRepository::GetInstance().GetCardData(boardCards[i]);
-            assert(cardData);
+            auto cardData = CardDataRepository::GetInstance().GetCardData(boardCards[i], mBoardState->GetActivePlayerIndex());
             
             if (mAffectingFamilyOnly)
             {
@@ -361,23 +359,23 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
                 {
                     if
                     (
-                        cardData->get().mCardFamily != game_constants::DEMONS_GENERIC_FAMILY_NAME &&
-                        cardData->get().mCardFamily != game_constants::DEMONS_NORMAL_FAMILY_NAME &&
-                        cardData->get().mCardFamily != game_constants::DEMONS_MEDIUM_FAMILY_NAME &&
-                        cardData->get().mCardFamily != game_constants::DEMONS_HARD_FAMILY_NAME &&
-                        cardData->get().mCardFamily != game_constants::DEMONS_BOSS_FAMILY_NAME
+                        cardData.mCardFamily != game_constants::DEMONS_GENERIC_FAMILY_NAME &&
+                        cardData.mCardFamily != game_constants::DEMONS_NORMAL_FAMILY_NAME &&
+                        cardData.mCardFamily != game_constants::DEMONS_MEDIUM_FAMILY_NAME &&
+                        cardData.mCardFamily != game_constants::DEMONS_HARD_FAMILY_NAME &&
+                        cardData.mCardFamily != game_constants::DEMONS_BOSS_FAMILY_NAME
                     )
                     {
                         continue;
                     }
                 }
-                else if (cardData->get().mCardFamily != effectCardFamily)
+                else if (cardData.mCardFamily != effectCardFamily)
                 {
                     continue;
                 }
             }
             
-            if (!cardData->get().IsSpell())
+            if (!cardData.IsSpell())
             {
                 affectedBoardCardIndices.emplace_back(i);
             }
@@ -389,8 +387,7 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
     {
         for (int i = 0; i < static_cast<int>(heldCards.size()); ++i)
         {
-            auto cardData = CardDataRepository::GetInstance().GetCardData(heldCards[i]);
-            assert(cardData);
+            auto cardData = CardDataRepository::GetInstance().GetCardData(heldCards[i], mBoardState->GetActivePlayerIndex());
             
             if (mAffectingFamilyOnly)
             {
@@ -398,23 +395,23 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
                 {
                     if
                     (
-                        cardData->get().mCardFamily != game_constants::DEMONS_GENERIC_FAMILY_NAME &&
-                        cardData->get().mCardFamily != game_constants::DEMONS_NORMAL_FAMILY_NAME &&
-                        cardData->get().mCardFamily != game_constants::DEMONS_MEDIUM_FAMILY_NAME &&
-                        cardData->get().mCardFamily != game_constants::DEMONS_HARD_FAMILY_NAME &&
-                        cardData->get().mCardFamily != game_constants::DEMONS_BOSS_FAMILY_NAME
+                        cardData.mCardFamily != game_constants::DEMONS_GENERIC_FAMILY_NAME &&
+                        cardData.mCardFamily != game_constants::DEMONS_NORMAL_FAMILY_NAME &&
+                        cardData.mCardFamily != game_constants::DEMONS_MEDIUM_FAMILY_NAME &&
+                        cardData.mCardFamily != game_constants::DEMONS_HARD_FAMILY_NAME &&
+                        cardData.mCardFamily != game_constants::DEMONS_BOSS_FAMILY_NAME
                     )
                     {
                         continue;
                     }
                 }
-                else if (cardData->get().mCardFamily != effectCardFamily)
+                else if (cardData.mCardFamily != effectCardFamily)
                 {
                     continue;
                 }
             }
             
-            if (!cardData->get().IsSpell())
+            if (!cardData.IsSpell())
             {
                 affectedHeldCardIndices.emplace_back(i);
             }
@@ -468,7 +465,7 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
     for (auto affectedBoardCardIter = affectedBoardCardIndices.begin(); affectedBoardCardIter != affectedBoardCardIndices.end();)
     {
         const auto affectedStat = sAffectedStatTypeToCardStatType.at(mAffectedBoardCardsStatType);
-        auto cardData = CardDataRepository::GetInstance().GetCardData(mBoardState->GetActivePlayerState().mPlayerBoardCards.at(*affectedBoardCardIter))->get();
+        auto cardData = CardDataRepository::GetInstance().GetCardData(mBoardState->GetActivePlayerState().mPlayerBoardCards.at(*affectedBoardCardIter), mBoardState->GetActivePlayerIndex());
         auto currentValue = mAffectedBoardCardsStatType == AffectedStatType::DAMAGE ? cardData.mCardDamage : cardData.mCardWeight;
         
         if (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.size()) <= *affectedBoardCardIter)
@@ -504,7 +501,7 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
         if (mCardBoardEffectMask != effects::board_modifier_masks::PERMANENT_CONTINUAL_WEIGHT_REDUCTION)
         {
             const auto affectedStat = sAffectedStatTypeToCardStatType.at(mAffectedBoardCardsStatType);
-            auto cardData = CardDataRepository::GetInstance().GetCardData(mBoardState->GetActivePlayerState().mPlayerHeldCards.at(*affectedHeldCardIter))->get();
+            auto cardData = CardDataRepository::GetInstance().GetCardData(mBoardState->GetActivePlayerState().mPlayerHeldCards.at(*affectedHeldCardIter), mBoardState->GetActivePlayerIndex());
             auto currentValue = mAffectedBoardCardsStatType == AffectedStatType::DAMAGE ? cardData.mCardDamage : cardData.mCardWeight;
             
             if (static_cast<int>(mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.size()) <= *affectedHeldCardIter)

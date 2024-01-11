@@ -379,7 +379,7 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
         cardSoWrapper->mSceneObject = cardComponents.front();
     }
     
-    cardSoWrapper->mCardData = cardData;
+    cardSoWrapper->mCardData = *cardData;
     
     return cardSoWrapper;
 }

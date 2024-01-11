@@ -46,7 +46,7 @@ void NextDinoDamageDoublingGameAction::VSetNewGameState()
     else
     {
         playerBoardCardStatOverrides.resize(playerBoardCards.size());
-        playerBoardCardStatOverrides[playerBoardCards.size() -1][CardStatType::DAMAGE] = CardDataRepository::GetInstance().GetCardData(playerBoardCards.back())->get().mCardDamage * 2;
+        playerBoardCardStatOverrides[playerBoardCards.size() -1][CardStatType::DAMAGE] = CardDataRepository::GetInstance().GetCardData(playerBoardCards.back(), mBoardState->GetActivePlayerIndex()).mCardDamage * 2;
     }
     
     events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, false, effects::board_modifier_masks::DOUBLE_NEXT_DINO_DAMAGE);

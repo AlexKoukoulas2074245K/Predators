@@ -81,10 +81,11 @@ void HeroCardEntryGameAction::VInitAnimation()
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
     auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
     auto scene = sceneManager.FindScene(game_constants::BATTLE_SCENE);
+    auto cardData = CardDataRepository::GetInstance().GetCardData(mHeroCardId, game_constants::REMOTE_PLAYER_INDEX);
     
     auto heroCardSoWrapper = card_utils::CreateCardSoWrapper
     (
-        &CardDataRepository::GetInstance().GetCardData(mHeroCardId)->get(),
+        &cardData,
         glm::vec3(0.0f, 1.0f, 0.0f),
         game_constants::TOP_PLAYER_BOARD_CARD_SO_NAME_PREFIX + std::to_string(mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerBoardCards.size() - 1),
         CardOrientation::FRONT_FACE,

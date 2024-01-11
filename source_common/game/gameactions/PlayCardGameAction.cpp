@@ -58,25 +58,23 @@ void PlayCardGameAction::VSetNewGameState()
     
     auto lastPlayedCardIndex = std::stoi(mExtraActionParams.at(LAST_PLAYED_CARD_INDEX_PARAM));
     auto cardId = activePlayerState.mPlayerHeldCards[lastPlayedCardIndex];
-    auto cardData = CardDataRepository::GetInstance().GetCardData(cardId);
-    
-    assert(cardData.has_value());
+    auto cardData = CardDataRepository::GetInstance().GetCardData(cardId, mBoardState->GetActivePlayerIndex());
     
     // Tried to overplay?
-    mAborted = mGameRuleEngine && !mGameRuleEngine->CanCardBePlayed(&cardData->get(), lastPlayedCardIndex, mBoardState->GetActivePlayerIndex());
+    mAborted = mGameRuleEngine && !mGameRuleEngine->CanCardBePlayed(&cardData, lastPlayedCardIndex, mBoardState->GetActivePlayerIndex());
     if (mAborted)
     {
         return;
     }
     
-    auto cardWeight = cardData->get().mCardWeight;
+    auto cardWeight = cardData.mCardWeight;
     const auto& cardStatOverrides = activePlayerState.mPlayerHeldCardStatOverrides;
     
     if (static_cast<int>(cardStatOverrides.size()) > lastPlayedCardIndex)
     {
-        cardWeight = math::Max(0, cardStatOverrides[lastPlayedCardIndex].count(CardStatType::WEIGHT) ? cardStatOverrides[lastPlayedCardIndex].at(CardStatType::WEIGHT) : cardData->get().mCardWeight);
+        cardWeight = math::Max(0, cardStatOverrides[lastPlayedCardIndex].count(CardStatType::WEIGHT) ? cardStatOverrides[lastPlayedCardIndex].at(CardStatType::WEIGHT) : cardData.mCardWeight);
     }
-    if (!cardData->get().IsSpell() && activePlayerState.mBoardModifiers.mGlobalCardStatModifiers.count(CardStatType::WEIGHT))
+    if (!cardData.IsSpell() && activePlayerState.mBoardModifiers.mGlobalCardStatModifiers.count(CardStatType::WEIGHT))
     {
         cardWeight = math::Max(0, cardWeight + activePlayerState.mBoardModifiers.mGlobalCardStatModifiers.at(CardStatType::WEIGHT));
     }
@@ -104,12 +102,12 @@ void PlayCardGameAction::VSetNewGameState()
     }
     
     // Card-specific particle animation
-    if (!cardData->get().mParticleEffect.isEmpty())
+    if (!cardData.mParticleEffect.isEmpty())
     {
         mGameActionEngine->AddGameAction(CARD_PLAYED_PARTICLE_EFFECT_GAME_ACTION_NAME);
     }
     
-    if (cardData->get().IsSpell())
+    if (cardData.IsSpell())
     {
         mGameActionEngine->AddGameAction(CARD_HISTORY_ENTRY_ADDITION_GAME_ACTION_NAME,
         {
@@ -150,14 +148,14 @@ void PlayCardGameAction::VSetNewGameState()
         }
         
         if ((activePlayerState.mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::DUPLICATE_NEXT_INSECT) != 0 &&
-            cardData->get().mCardFamily == game_constants::INSECTS_FAMILY_NAME)
+            cardData.mCardFamily == game_constants::INSECTS_FAMILY_NAME)
         {
             mGameActionEngine->AddGameAction(INSECT_DUPLICATION_GAME_ACTION_NAME, {});
             activePlayerState.mBoardModifiers.mBoardModifierMask &= (~effects::board_modifier_masks::DUPLICATE_NEXT_INSECT);
         }
         
         if ((activePlayerState.mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::DOUBLE_NEXT_DINO_DAMAGE) != 0 &&
-            cardData->get().mCardFamily == game_constants::DINOSAURS_FAMILY_NAME)
+            cardData.mCardFamily == game_constants::DINOSAURS_FAMILY_NAME)
         {
             mGameActionEngine->AddGameAction(NEXT_DINO_DAMAGE_DOUBLING_GAME_ACTION_NAME, {});
             activePlayerState.mBoardModifiers.mBoardModifierMask &= (~effects::board_modifier_masks::DOUBLE_NEXT_DINO_DAMAGE);
@@ -227,11 +225,11 @@ void PlayCardGameAction::AnimatedCardToBoard(std::shared_ptr<CardSoWrapper> last
         scene->RemoveSceneObject(lastPlayedCardSoWrapper->mSceneObject->mName);
         lastPlayedCardSoWrapper = card_utils::CreateCardSoWrapper
         (
-            lastPlayedCardSoWrapper->mCardData,
+            &lastPlayedCardSoWrapper->mCardData,
             lastPlayedCardSoWrapper->mSceneObject->mPosition,
             game_constants::TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX + std::to_string(mBoardState->GetActivePlayerState().mPlayerBoardCards.size() - 1),
             CardOrientation::FRONT_FACE,
-            card_utils::GetCardRarity(lastPlayedCardSoWrapper->mCardData->mCardId, mBoardState->GetActivePlayerIndex(), *mBoardState),
+            card_utils::GetCardRarity(lastPlayedCardSoWrapper->mCardData.mCardId, mBoardState->GetActivePlayerIndex(), *mBoardState),
             false,
             true,
             true,

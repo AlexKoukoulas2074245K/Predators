@@ -219,6 +219,14 @@ void WheelOfFortuneSceneLogicManager::OnWheelItemSelected(const int itemIndex, c
     {
         events::EventSystem::GetInstance().DispatchEvent<events::HealthRefillRewardEvent>(ProgressionDataRepository::GetInstance().GetStoryMaxHealth() - ProgressionDataRepository::GetInstance().StoryCurrentHealth().GetValue(), REWARD_ORIGIN_POSITION);
     }
+    else if (WHEEL_REWARDS.at(itemIndex) == REWARD_EXTRA_DAMAGE_TEXTURE)
+    {
+        events::EventSystem::GetInstance().DispatchEvent<events::ExtraDamageRewardEvent>();
+    }
+    else if (WHEEL_REWARDS.at(itemIndex) == REWARD_EXTRA_WEIGHT_TEXTURE)
+    {
+        events::EventSystem::GetInstance().DispatchEvent<events::ExtraWeightRewardEvent>();
+    }
     
     if (!ProgressionDataRepository::GetInstance().GetNextStoryOpponentName().empty())
     {

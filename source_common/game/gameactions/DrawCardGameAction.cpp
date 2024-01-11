@@ -53,20 +53,19 @@ void DrawCardGameAction::VInitAnimation()
         if (i == cardCount - 1)
         {
             int cardId = mBoardState->GetActivePlayerState().mPlayerHeldCards.back();
-            auto cardOpt = CardDataRepository::GetInstance().GetCardData(cardId);
-            assert(cardOpt);
+            auto cardData = CardDataRepository::GetInstance().GetCardData(cardId, mBoardState->GetActivePlayerIndex());
             
             auto cardSoWrapper = card_utils::CreateCardSoWrapper
             (
-                &cardOpt->get(),
+                &cardData,
                 glm::vec3(game_constants::IN_GAME_DRAW_CARD_INIT_X + i * game_constants::IN_GAME_CARD_WIDTH/2,
                 remotePlayerActive ? game_constants::IN_GAME_TOP_PLAYER_HELD_CARD_Y : game_constants::IN_GAME_BOT_PLAYER_HELD_CARD_Y, finalCardPosition.z),
                 (remotePlayerActive ? game_constants::TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_HELD_CARD_SO_NAME_PREFIX) + std::to_string(i),
                 (remotePlayerActive ? CardOrientation::BACK_FACE : CardOrientation::FRONT_FACE),
-                card_utils::GetCardRarity(cardOpt->get().mCardId, mBoardState->GetActivePlayerIndex(), *mBoardState),
+                card_utils::GetCardRarity(cardData.mCardId, mBoardState->GetActivePlayerIndex(), *mBoardState),
                 false,
                 remotePlayerActive,
-                mGameRuleEngine->CanCardBePlayed(&cardOpt->get(), i, mBoardState->GetActivePlayerIndex()),
+                mGameRuleEngine->CanCardBePlayed(&cardData, i, mBoardState->GetActivePlayerIndex()),
                 {},
                 mBoardState->GetActivePlayerState().mBoardModifiers.mGlobalCardStatModifiers,
                 *scene
