@@ -62,7 +62,7 @@ WheelOfFortuneController::WheelOfFortuneController(scene::Scene& scene, const st
         wheelCenterSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + mItems[i]);
         wheelCenterSceneObject->mPosition = WHEEL_COMPONENTS_POSITION;
         wheelCenterSceneObject->mScale = WHEEL_BASE_SCALE;
-        wheelCenterSceneObject->mRotation.z -= i * math::PI/3;
+        wheelCenterSceneObject->mRotation.z -= i * math::PI/6;
         wheelCenterSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
     }
     
@@ -97,7 +97,7 @@ void WheelOfFortuneController::Update(const float)
                 mWheelRotationSpeed = 0.0f;
                 
                 // Calculate pointee index
-                auto sliceIndexFloat = (mWheelRotation + math::PI/6)/(-math::PI/3);
+                auto sliceIndexFloat = (mWheelRotation + math::PI/12)/(-math::PI/6);
                 auto itemIndex = static_cast<int>(sliceIndexFloat < 0.0f ? 0 : (mItems.size() - 1) - static_cast<int>(sliceIndexFloat));
                 
                 mOnItemSelectedCallback(itemIndex, mScene.FindSceneObject(strutils::StringId(WHEEL_ITEM_SCENE_OBJECT_NAME_PREFIX + std::to_string(itemIndex))));
@@ -133,7 +133,7 @@ void WheelOfFortuneController::ApplyRotationToItems()
     
     for (auto i = 0U; i < mItems.size(); ++i)
     {
-        mScene.FindSceneObject(strutils::StringId(WHEEL_ITEM_SCENE_OBJECT_NAME_PREFIX + std::to_string(i)))->mRotation.z = -(i * math::PI/3) + mWheelRotation;
+        mScene.FindSceneObject(strutils::StringId(WHEEL_ITEM_SCENE_OBJECT_NAME_PREFIX + std::to_string(i)))->mRotation.z = -(i * math::PI/6) + mWheelRotation;
     }
 }
 
