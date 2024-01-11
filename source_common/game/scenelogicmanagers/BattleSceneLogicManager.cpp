@@ -1307,7 +1307,7 @@ void BattleSceneLogicManager::OnApplicationMovedToBackground(const events::Appli
     
     if (!ProgressionDataRepository::GetInstance().GetNextStoryOpponentName().empty() && !ProgressionDataRepository::GetInstance().GetQuickPlayData())
     {
-        ProgressionDataRepository::GetInstance().SetNextBattleControlType(BattleControlType::REPLAY);
+        ProgressionDataRepository::GetInstance().SetNextBattleControlType(mCurrentBattleControlType);
         mBattleSerializer->FlushStateToFile();
     }
 }
