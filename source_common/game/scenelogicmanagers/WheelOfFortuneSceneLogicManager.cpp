@@ -30,29 +30,32 @@ static const glm::vec3 BUTTON_POSITION = {0.155f, -0.038f, 23.1f};
 static const glm::vec3 BUTTON_SCALE = {0.0005f, 0.0005f, 0.0005f};
 static const glm::vec3 REWARD_ORIGIN_POSITION = {-0.032f, -0.034f, 23.1f};
 
-static const int EXTRA_COINS_REWARD_VALUE = 50;
 static const int EXTRA_HP_REWARD_VALUE = 10;
 
 static const float FADE_IN_OUT_DURATION_SECS = 1.0f;
 
-static const std::string REWARD_EXTRA_COINS_TEXTURE = "wheel_of_fortune_items/extra_coins.png";
+static const std::string REWARD_EXTRA_15_COINS_TEXTURE = "wheel_of_fortune_items/extra_15_coins.png";
+static const std::string REWARD_EXTRA_50_COINS_TEXTURE = "wheel_of_fortune_items/extra_50_coins.png";
+static const std::string REWARD_EXTRA_100_COINS_TEXTURE = "wheel_of_fortune_items/extra_100_coins.png";
 static const std::string REWARD_EXTRA_HP_TEXTURE = "wheel_of_fortune_items/extra_hp.png";
 static const std::string REWARD_REFILL_HP_TEXTURE = "wheel_of_fortune_items/refill_hp.png";
+static const std::string REWARD_EXTRA_WEIGHT_TEXTURE = "wheel_of_fortune_items/extra_weight.png";
+static const std::string REWARD_EXTRA_DAMAGE_TEXTURE = "wheel_of_fortune_items/extra_damage.png";
 
 static const std::vector<std::string> WHEEL_REWARDS =
 {
-    REWARD_EXTRA_COINS_TEXTURE,
+    REWARD_EXTRA_15_COINS_TEXTURE,
     REWARD_EXTRA_HP_TEXTURE,
-    REWARD_EXTRA_COINS_TEXTURE,
+    REWARD_EXTRA_50_COINS_TEXTURE,
+    REWARD_EXTRA_15_COINS_TEXTURE,
+    REWARD_EXTRA_DAMAGE_TEXTURE,
+    REWARD_EXTRA_HP_TEXTURE,
+    REWARD_EXTRA_100_COINS_TEXTURE,
+    REWARD_EXTRA_HP_TEXTURE,
+    REWARD_EXTRA_15_COINS_TEXTURE,
     REWARD_REFILL_HP_TEXTURE,
-    REWARD_EXTRA_COINS_TEXTURE,
-    REWARD_EXTRA_HP_TEXTURE,
-    REWARD_EXTRA_COINS_TEXTURE,
-    REWARD_EXTRA_HP_TEXTURE,
-    REWARD_EXTRA_COINS_TEXTURE,
-    REWARD_REFILL_HP_TEXTURE,
-    REWARD_EXTRA_COINS_TEXTURE,
-    REWARD_EXTRA_HP_TEXTURE
+    REWARD_EXTRA_50_COINS_TEXTURE,
+    REWARD_EXTRA_WEIGHT_TEXTURE
 };
 
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
@@ -196,9 +199,17 @@ std::shared_ptr<GuiObjectManager> WheelOfFortuneSceneLogicManager::VGetGuiObject
 
 void WheelOfFortuneSceneLogicManager::OnWheelItemSelected(const int itemIndex, const std::shared_ptr<scene::SceneObject>)
 {
-    if (WHEEL_REWARDS.at(itemIndex) == REWARD_EXTRA_COINS_TEXTURE)
+    if (WHEEL_REWARDS.at(itemIndex) == REWARD_EXTRA_15_COINS_TEXTURE)
     {
-        events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(EXTRA_COINS_REWARD_VALUE, REWARD_ORIGIN_POSITION);
+        events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(15, REWARD_ORIGIN_POSITION);
+    }
+    else if (WHEEL_REWARDS.at(itemIndex) == REWARD_EXTRA_50_COINS_TEXTURE)
+    {
+        events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(50, REWARD_ORIGIN_POSITION);
+    }
+    else if (WHEEL_REWARDS.at(itemIndex) == REWARD_EXTRA_100_COINS_TEXTURE)
+    {
+        events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(100, REWARD_ORIGIN_POSITION);
     }
     else if (WHEEL_REWARDS.at(itemIndex) == REWARD_EXTRA_HP_TEXTURE)
     {

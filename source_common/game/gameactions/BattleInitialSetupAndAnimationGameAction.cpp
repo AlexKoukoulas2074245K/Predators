@@ -116,6 +116,7 @@ ActionAnimationUpdateResult BattleInitialSetupAndAnimationGameAction::VUpdateAni
             
             if (currentSubSceneType == BattleSubSceneType::WHEEL)
             {
+                events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(CARD_SELECTION_REWARD_SCENE_NAME, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
                 events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(WHEEL_OF_FORTUNE_SCENE_NAME, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
             }
             else if (currentSubSceneType == BattleSubSceneType::CARD_SELECTION)

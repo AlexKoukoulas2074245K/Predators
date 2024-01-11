@@ -58,12 +58,12 @@ WheelOfFortuneController::WheelOfFortuneController(scene::Scene& scene, const st
     
     for (auto i = 0U; i < mItems.size(); ++i)
     {
-        auto wheelCenterSceneObject = mScene.CreateSceneObject(strutils::StringId(WHEEL_ITEM_SCENE_OBJECT_NAME_PREFIX + std::to_string(i)));
-        wheelCenterSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + mItems[i]);
-        wheelCenterSceneObject->mPosition = WHEEL_COMPONENTS_POSITION;
-        wheelCenterSceneObject->mScale = WHEEL_BASE_SCALE;
-        wheelCenterSceneObject->mRotation.z -= i * math::PI/6;
-        wheelCenterSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+        auto wheelItemSceneObject = mScene.CreateSceneObject(strutils::StringId(WHEEL_ITEM_SCENE_OBJECT_NAME_PREFIX + std::to_string(i)));
+        wheelItemSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + mItems[i]);
+        wheelItemSceneObject->mPosition = WHEEL_COMPONENTS_POSITION;
+        wheelItemSceneObject->mScale = WHEEL_BASE_SCALE;
+        wheelItemSceneObject->mRotation.z -= i * math::PI/6;
+        wheelItemSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
     }
     
     mState = WheelState::INITIAL_SLOW_ROTATION;
