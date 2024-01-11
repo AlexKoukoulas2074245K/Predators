@@ -53,19 +53,19 @@
             "tablet_only": true,
             "name": "turn_pointer",
             "texture": "turn_pointer.png",
-            "scale": { "x": 0.06, "y": 0.06, "z": 0.06 },
+            "scale": { "x": 0.08, "y": 0.08, "z": 0.06 },
             "position": { "x": 0.2, "y": 0.0, "z": 19.0 },
-            "snap_to_edge": "snap_to_left_edge"
+            "snap_to_edge": "snap_to_right_edge"
         },
         {
             "tablet_only": true,
             "name": "turn_pointer_highlighter",
             "texture": "card_location_mask.png",
             "shader": "action_highlighter_perlin_noise.vs",
-            "scale": { "x": 0.045, "y": 0.067, "z": 0.8 },
+            "scale": { "x": 0.06, "y": 0.09, "z": 0.8 },
             "position": { "x": 0.2, "y": 0.0, "z": 19.0 },
             "alpha": 0.0,
-            "snap_to_edge": "snap_to_left_edge",
+            "snap_to_edge": "snap_to_right_edge",
             "uniform_floats":
             [
                 { "name": "time_speed", "value": 12.595 },
@@ -79,7 +79,7 @@
             "texture": "turn_pointer.png",
             "scale": { "x": 0.08, "y": 0.08, "z": 0.08 },
             "position": { "x": 0.2, "y": 0.0, "z": 19.0 },
-            "snap_to_edge": "snap_to_left_edge",
+            "snap_to_edge": "snap_to_right_edge",
             "snap_to_edge_factor": 0.45
         },
         {
@@ -90,7 +90,7 @@
             "scale": { "x": 0.06, "y": 0.09, "z": 0.8 },
             "position": { "x": 0.2, "y": 0.0, "z": 19.0 },
             "alpha": 0.0,
-            "snap_to_edge": "snap_to_left_edge",
+            "snap_to_edge": "snap_to_right_edge",
             "uniform_floats":
             [
                 { "name": "time_speed", "value": 12.595 },

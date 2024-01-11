@@ -64,7 +64,7 @@ void GameOverGameAction::VInitAnimation()
 {
     auto& scene = *CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE);
     
-    if (!ProgressionDataRepository::GetInstance().GetNextStoryOpponentName().empty())
+    if (!ProgressionDataRepository::GetInstance().GetNextStoryOpponentName().empty() && !ProgressionDataRepository::GetInstance().GetQuickPlayData())
     {
         if (std::stoi(mExtraActionParams.at(VICTORIOUS_PLAYER_INDEX_PARAM)) == game_constants::LOCAL_PLAYER_INDEX)
         {

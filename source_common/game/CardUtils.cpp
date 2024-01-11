@@ -57,16 +57,16 @@ int CalculateNonDeadCardsCount(const std::vector<int>& cards, const std::unorder
 glm::vec3 CalculateHeldCardPosition(const int cardIndex, const int playerCardCount, bool forRemotePlayer, const rendering::Camera& camera)
 {
     float cardBlockWidth = game_constants::IN_GAME_CARD_WIDTH * playerCardCount;
-    float cardStartX = -cardBlockWidth/2.0f;
+    float cardStartX = cardBlockWidth/2.0f;
     
-    auto targetX = cardStartX + cardIndex * game_constants::IN_GAME_CARD_WIDTH + game_constants::IN_GAME_CARD_WIDTH/2;
+    auto targetX = cardStartX - cardIndex * game_constants::IN_GAME_CARD_WIDTH - game_constants::IN_GAME_CARD_WIDTH/2;
     if (playerCardCount > game_constants::IN_GAME_CARD_PUSH_THRESHOLD)
     {
         float pushX = (playerCardCount - game_constants::IN_GAME_CARD_PUSH_THRESHOLD) * game_constants::IN_GAME_CARD_PUSH_VALUE * (math::Abs(cardIndex - playerCardCount/2));
         bool oddCardCount = playerCardCount % 2 != 0;
         if ((oddCardCount && cardIndex != playerCardCount/2) || !oddCardCount)
         {
-            targetX += (cardIndex < playerCardCount/2) ? pushX : -pushX;
+            targetX -= (cardIndex < playerCardCount/2) ? pushX : -pushX;
         }
     }
     

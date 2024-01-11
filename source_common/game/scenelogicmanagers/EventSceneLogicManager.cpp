@@ -377,6 +377,8 @@ void EventSceneLogicManager::CreateEventScreen(const int screenIndex)
             });
         }
     }
+    
+    OnWindowResize(events::WindowResizeEvent());
 }
 
 ///------------------------------------------------------------------------------------------------

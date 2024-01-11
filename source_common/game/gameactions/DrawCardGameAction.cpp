@@ -58,7 +58,7 @@ void DrawCardGameAction::VInitAnimation()
             auto cardSoWrapper = card_utils::CreateCardSoWrapper
             (
                 &cardData,
-                glm::vec3(game_constants::IN_GAME_DRAW_CARD_INIT_X + i * game_constants::IN_GAME_CARD_WIDTH/2,
+                glm::vec3(game_constants::IN_GAME_DRAW_CARD_INIT_X - i * game_constants::IN_GAME_CARD_WIDTH/2,
                 remotePlayerActive ? game_constants::IN_GAME_TOP_PLAYER_HELD_CARD_Y : game_constants::IN_GAME_BOT_PLAYER_HELD_CARD_Y, finalCardPosition.z),
                 (remotePlayerActive ? game_constants::TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_HELD_CARD_SO_NAME_PREFIX) + std::to_string(i),
                 (remotePlayerActive ? CardOrientation::BACK_FACE : CardOrientation::FRONT_FACE),
@@ -75,7 +75,7 @@ void DrawCardGameAction::VInitAnimation()
             events::EventSystem::GetInstance().DispatchEvent<events::CardCreationEvent>(cardSoWrapper, remotePlayerActive);
             
             auto midPos = cardSoWrapper->mSceneObject->mPosition;
-            midPos.x = math::Abs(cardSoWrapper->mSceneObject->mPosition.x - finalCardPosition.x)/2.0f;
+            midPos.x = (cardSoWrapper->mSceneObject->mPosition.x + finalCardPosition.x)/2.0f;
             midPos.y = remotePlayerActive ? game_constants::IN_GAME_DRAW_CARD_TOP_PLAYER_MID_POINT_Y : game_constants::IN_GAME_DRAW_CARD_BOT_PLAYER_MID_POINT_Y;
             
             math::BezierCurve curve(std::vector<glm::vec3>{cardSoWrapper->mSceneObject->mPosition, midPos, finalCardPosition});

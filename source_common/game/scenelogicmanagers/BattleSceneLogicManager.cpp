@@ -157,7 +157,7 @@ static const float REPLAY_TEXT_INTER_PULSE_DURATION_SECS = 1.0f;
 static const float REPLAY_TEXT_MAX_ALPHA = 0.75f;
 
 #if defined(MOBILE_FLOW)
-static const float IPAD_HISTORY_BUTTON_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 15.5f;
+static const float IPAD_HISTORY_BUTTON_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 69.0f;
 static const float MOBILE_DISTANCE_FROM_CARD_LOCATION_INDICATOR = 0.003f;
 #else
 static const float DESKTOP_DISTANCE_FROM_CARD_LOCATION_INDICATOR = 0.003f;
@@ -390,7 +390,7 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
         HISTORY_BUTTON_SCENE_OBJECT_NAME,
         [=](){ OnHistoryButtonPressed(); },
         *scene,
-        scene::SnapToEdgeBehavior::SNAP_TO_LEFT_EDGE,
+        scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE,
         historyButtonSnapToEdgeFactor
     ));
     
