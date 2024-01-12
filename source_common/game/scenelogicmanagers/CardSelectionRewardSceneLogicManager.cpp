@@ -222,7 +222,7 @@ void CardSelectionRewardSceneLogicManager::VUpdate(const float dtMillis, std::sh
                         *scene
                     );
                     
-                    if (!cardSoWrapper->mCardData.IsSpell())
+                    if (cardSoWrapper->mCardData.IsSpell())
                     {
                         CreateCardTooltip(cardSoWrapper->mSceneObject->mPosition + glm::vec3(0.0f, 0.1f, 0.0f), cardSoWrapper->mCardData.mCardEffectTooltip, i, scene);
                     }
