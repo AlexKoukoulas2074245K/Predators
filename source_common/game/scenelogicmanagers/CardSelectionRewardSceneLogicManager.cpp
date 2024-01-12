@@ -49,8 +49,9 @@ static const glm::vec3 BUTTON_SCALE = {0.0005f, 0.0005f, 0.0005f};
 static const glm::vec3 CARD_REWARD_DEFAULT_SCALE = glm::vec3(-0.273f, 0.2512f, 2.0f);
 static const glm::vec3 CARD_HIGHLIGHTER_SCALE = glm::vec3(0.08f, 0.13f, 1.0f) * 2.35f;
 static const glm::vec3 CARD_REWARD_EXPANDED_SCALE = 1.25f * CARD_REWARD_DEFAULT_SCALE;
-static const glm::vec3 CARD_TOOLTIP_HISTORY_SCALE = {0.274f, 0.274f, 1/10.0f};
-static const glm::vec3 CARD_TOOLTIP_HISTORY_OFFSET = {0.06f, 0.033f, 0.2f};
+static const glm::vec3 CARD_TOOLTIP_POSITION_OFFSET = {0.0f, 0.1f, 0.0f};
+static const glm::vec3 CARD_TOOLTIP_BASE_SCALE = {0.274f, 0.274f, 1/10.0f};
+static const glm::vec3 CARD_TOOLTIP_BASE_OFFSET = {0.06f, 0.033f, 0.2f};
 static const glm::vec3 CARD_TOOLTIP_TEXT_OFFSETS[game_constants::CARD_TOOLTIP_TEXT_ROWS_COUNT] =
 {
     { -0.033f, 0.029f, 0.1f },
@@ -218,13 +219,24 @@ void CardSelectionRewardSceneLogicManager::VUpdate(const float dtMillis, std::sh
                         CONFIRMATION_BUTTON_SCENE_OBJECT_NAME,
                         [=]()
                         {
+                            for (auto& cardReward: mCardRewards)
+                            {
+                                if (cardReward->mState == CardSoState::HIGHLIGHTED)
+                                {
+                                    auto currentPlayerDeck = ProgressionDataRepository::GetInstance().GetCurrentStoryPlayerDeck();
+                                    currentPlayerDeck.push_back(cardReward->mCardData.mCardId);
+                                    ProgressionDataRepository::GetInstance().SetCurrentStoryPlayerDeck(currentPlayerDeck);
+                                    break;
+                                }
+                            }
+                            events::EventSystem::GetInstance().DispatchEvent<events::StoryBattleFinishedEvent>();
                         },
                         *scene
                     );
                     
                     if (cardSoWrapper->mCardData.IsSpell())
                     {
-                        CreateCardTooltip(cardSoWrapper->mSceneObject->mPosition + glm::vec3(0.0f, 0.1f, 0.0f), cardSoWrapper->mCardData.mCardEffectTooltip, i, scene);
+                        CreateCardTooltip(cardSoWrapper->mSceneObject->mPosition + CARD_TOOLTIP_POSITION_OFFSET, cardSoWrapper->mCardData.mCardEffectTooltip, i, scene);
                     }
                     
                     mSceneState = SceneState::PENDING_CARD_SELECTION_CONFIRMATION;
@@ -308,16 +320,8 @@ void CardSelectionRewardSceneLogicManager::VUpdate(const float dtMillis, std::sh
 
 ///------------------------------------------------------------------------------------------------
 
-void CardSelectionRewardSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene> scene)
+void CardSelectionRewardSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene>)
 {
-    for (auto sceneObject: scene->GetSceneObjects())
-    {
-        CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, 0.0f, FADE_IN_OUT_DURATION_SECS), [=]()
-        {
-            sceneObject->mInvisible = true;
-        });
-    }
-    
     mCardRewards.clear();
 }
 
@@ -332,10 +336,35 @@ std::shared_ptr<GuiObjectManager> CardSelectionRewardSceneLogicManager::VGetGuiO
 
 void CardSelectionRewardSceneLogicManager::CreateCardRewards(std::shared_ptr<scene::Scene> scene)
 {
+    auto guessedStoryDeckFamilyName = CardDataRepository::GetInstance().GuessCurrentStoryDeckFamily();
+    auto allStoryDeckFamilyCards = CardDataRepository::GetInstance().GetCardIdsByFamily(guessedStoryDeckFamilyName);
+    std::sort(allStoryDeckFamilyCards.begin(), allStoryDeckFamilyCards.end());
+    
+    auto unlockedCards = ProgressionDataRepository::GetInstance().GetUnlockedCardIds();
+    std::sort(unlockedCards.begin(), unlockedCards.end());
+    
+    // Find unlocked cards for the current story deck's family
+    std::vector<int> familyUnlockedCards;
+    std::set_intersection(allStoryDeckFamilyCards.begin(), allStoryDeckFamilyCards.end(), unlockedCards.begin(), unlockedCards.end(), std::back_inserter(familyUnlockedCards));
+    
+    auto currentStoryDeck = ProgressionDataRepository::GetInstance().GetCurrentStoryPlayerDeck();
+    std::sort(currentStoryDeck.begin(), currentStoryDeck.end());
+    
+    // Final reward card pool is unlocked family cards minus any card on the current story deck
+    std::vector<int> finalRewardCardPool;
+    std::set_difference(familyUnlockedCards.begin(), familyUnlockedCards.end(), currentStoryDeck.begin(), currentStoryDeck.end(), std::back_inserter(finalRewardCardPool));
+    
+    // Claimed all possible unlocked family cards that are not in the current deck?
+    if (finalRewardCardPool.empty())
+    {
+        // Select duplicates from deck
+        finalRewardCardPool = currentStoryDeck;
+    }
+    
     for (size_t i = 0; i < 3; ++i)
     {
-        auto randomCardIndex = math::ControlledRandomInt() % CardDataRepository::GetInstance().GetCardDataCount();
-        auto cardData = CardDataRepository::GetInstance().GetCardData(CardDataRepository::GetInstance().GetAllCardIds()[randomCardIndex], game_constants::LOCAL_PLAYER_INDEX);
+        auto randomCardIndex = math::ControlledRandomInt() % finalRewardCardPool.size();
+        auto cardData = CardDataRepository::GetInstance().GetCardData(finalRewardCardPool[randomCardIndex], game_constants::LOCAL_PLAYER_INDEX);
         mCardRewards.push_back(card_utils::CreateCardSoWrapper(&cardData, glm::vec3(-0.18f + 0.15 * i, -0.0f, 23.2f), CARD_REWARD_SCENE_OBJECT_NAME_PREFIX + std::to_string(i), CardOrientation::FRONT_FACE, CardRarity::NORMAL, false, false, true, {}, {}, *scene));
         mCardRewards.back()->mSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
         mCardRewards.back()->mSceneObject->mScale = CARD_REWARD_DEFAULT_SCALE;
@@ -353,13 +382,13 @@ void CardSelectionRewardSceneLogicManager::CreateCardTooltip(const glm::vec3& ca
     auto tooltipSceneObject = scene->FindSceneObject(CARD_TOOLTIP_SCENE_OBJECT_NAME);
     bool shouldBeFlipped = cardIndex > 1;
     
-    tooltipSceneObject->mPosition = cardOriginPostion + CARD_TOOLTIP_HISTORY_OFFSET;
+    tooltipSceneObject->mPosition = cardOriginPostion + CARD_TOOLTIP_BASE_OFFSET;
     tooltipSceneObject->mPosition.x += shouldBeFlipped ? CARD_TOOLTIP_FLIPPED_X_OFFSET : 0.046f;
     
     tooltipSceneObject->mInvisible = false;
     tooltipSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
     tooltipSceneObject->mShaderFloatUniformValues[CARD_TOOLTIP_REVEAL_THRESHOLD_UNIFORM_NAME] = 0.0f;
-    tooltipSceneObject->mScale.x = shouldBeFlipped ? -CARD_TOOLTIP_HISTORY_SCALE.x : CARD_TOOLTIP_HISTORY_SCALE.x;
+    tooltipSceneObject->mScale.x = shouldBeFlipped ? -CARD_TOOLTIP_BASE_SCALE.x : CARD_TOOLTIP_BASE_SCALE.x;
     
     auto tooltipTextRows = strutils::StringSplit(tooltipText, '$');
     

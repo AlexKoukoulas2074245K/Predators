@@ -5,6 +5,7 @@
 ///  Created by Alex Koukoulas on 10/10/2023
 ///------------------------------------------------------------------------------------------------
 
+#include <algorithm>
 #include <engine/CoreSystemsEngine.h>
 #include <engine/resloading/ResourceLoadingService.h>
 #include <engine/resloading/DataFileResource.h>
@@ -15,6 +16,24 @@
 #include <game/GameConstants.h>
 #include <game/ProgressionDataRepository.h>
 #include <nlohmann/json.hpp>
+
+///------------------------------------------------------------------------------------------------
+
+static const std::vector<int> FRESH_ACCOUNT_UNLOCKED_CARDS =
+{
+    // All family story starting cards
+    17, 14, 3, 16, 4, 15, 8, 9, 7, 10, 2, 12,
+    
+    // Rest of available cards
+    0, 13, 6, 1, 11, 5, 18, 20, 21, 27, 28
+};
+
+static const std::unordered_map<strutils::StringId, std::vector<int>, strutils::StringIdHasher> FAMILY_STORY_STARTING_CARDS =
+{
+    { game_constants::DINOSAURS_FAMILY_NAME, {17, 14, 3, 16}},
+    { game_constants::RODENTS_FAMILY_NAME, {4, 15, 8, 9}},
+    { game_constants::INSECTS_FAMILY_NAME, {7, 10, 2, 12}},
+};
 
 ///------------------------------------------------------------------------------------------------
 
@@ -75,6 +94,20 @@ std::vector<int> CardDataRepository::GetCardIdsByFamily(const strutils::StringId
 
 ///------------------------------------------------------------------------------------------------
 
+std::vector<int> CardDataRepository::GetStoryStartingFamilyCards(const strutils::StringId& family) const
+{
+    return FAMILY_STORY_STARTING_CARDS.at(family);
+}
+
+///------------------------------------------------------------------------------------------------
+
+std::vector<int> CardDataRepository::GetFreshAccountUnlockedCardIds() const
+{
+    return FRESH_ACCOUNT_UNLOCKED_CARDS;
+}
+
+///------------------------------------------------------------------------------------------------
+
 CardData CardDataRepository::GetCardData(const int cardId, const size_t forPlayerIndex) const
 {
     auto findIter = mCardDataMap.find(cardId);
@@ -110,6 +143,31 @@ CardData CardDataRepository::GetCardData(const int cardId, const size_t forPlaye
 const std::unordered_set<strutils::StringId, strutils::StringIdHasher>& CardDataRepository::GetCardFamilies() const
 {
     return mCardFamilies;
+}
+
+///------------------------------------------------------------------------------------------------
+
+strutils::StringId CardDataRepository::GuessCurrentStoryDeckFamily() const
+{
+    auto currentStoryDeck = ProgressionDataRepository::GetInstance().GetCurrentStoryPlayerDeck();
+    std::sort(currentStoryDeck.begin(), currentStoryDeck.end());
+    
+    for (const auto& cardFamily: mCardFamilies)
+    {
+        auto allFamilyCards = GetCardIdsByFamily(cardFamily);
+        std::sort(allFamilyCards.begin(), allFamilyCards.end());
+        
+        std::vector<int> intersection;
+        std::set_intersection(currentStoryDeck.begin(), currentStoryDeck.end(), allFamilyCards.begin(), allFamilyCards.end(), std::back_inserter(intersection));
+        
+        if (!intersection.empty())
+        {
+            return cardFamily;
+        }
+    }
+    
+    assert(false);
+    return game_constants::RODENTS_FAMILY_NAME;
 }
 
 ///------------------------------------------------------------------------------------------------

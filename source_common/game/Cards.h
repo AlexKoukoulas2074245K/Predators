@@ -102,8 +102,12 @@ public:
     std::vector<int> GetAllCardIds() const;
     std::vector<int> GetAllNonSpellCardIds() const;
     std::vector<int> GetCardIdsByFamily(const strutils::StringId& family) const;
+    std::vector<int> GetStoryStartingFamilyCards(const strutils::StringId& family) const;
+    std::vector<int> GetFreshAccountUnlockedCardIds() const;
+    
     CardData GetCardData(const int cardId, const size_t forPlayerIndex) const;
     const std::unordered_set<strutils::StringId, strutils::StringIdHasher>& GetCardFamilies() const;
+    strutils::StringId GuessCurrentStoryDeckFamily() const;
     
     void CleanDeckFromTempIds(std::vector<int>& deck);
     void ClearCardData();

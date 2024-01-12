@@ -91,6 +91,9 @@ public:
     BattleSubSceneType GetCurrentBattleSubSceneType() const;
     void SetCurrentBattleSubSceneType(const BattleSubSceneType currentBattleSubSceneType);
     
+    const std::vector<int>& GetUnlockedCardIds() const;
+    void SetUnlockedCardIds(const std::vector<int>& unlockedCardIds);
+    
     const std::vector<int>& GetCurrentStoryPlayerDeck() const;
     void SetCurrentStoryPlayerDeck(const std::vector<int>& deck);
     
@@ -170,6 +173,7 @@ private:
     BattleControlType mNextBattleControlType;
     StoryMapSceneType mCurrentStoryMapSceneType;
     BattleSubSceneType mCurrentBattleSubSceneType;
+    std::vector<int> mUnlockedCardIds;
     std::vector<int> mCurrentStoryPlayerDeck;
     std::vector<int> mNextTopPlayerDeck;
     std::vector<int> mNextBotPlayerDeck;

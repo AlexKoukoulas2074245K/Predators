@@ -1914,6 +1914,7 @@ void BattleSceneLogicManager::OnStoryBattleWon(const events::StoryBattleWonEvent
 void BattleSceneLogicManager::OnStoryBattleFinished(const events::StoryBattleFinishedEvent&)
 {
     ProgressionDataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::BATTLE);
+    ProgressionDataRepository::GetInstance().FlushStateToFile();
     events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_MAP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
 }
 

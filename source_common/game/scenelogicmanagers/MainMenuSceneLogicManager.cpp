@@ -37,6 +37,7 @@ static const strutils::StringId BACK_BUTTON_NAME = strutils::StringId("back_butt
 static const strutils::StringId TITLE_SCENE_OBJECT_NAME = strutils::StringId("predators_title");
 static const strutils::StringId TOP_DECK_TEXT_SCENE_OBJECT_NAME = strutils::StringId("top_deck_text");
 static const strutils::StringId BOT_DECK_TEXT_SCENE_OBJECT_NAME = strutils::StringId("bot_deck_text");
+static const strutils::StringId STORY_DECK_CONTAINER_SCENE_OBJECT_NAME = strutils::StringId("story_deck_container");
 static const strutils::StringId TOP_DECK_CONTAINER_SCENE_OBJECT_NAME = strutils::StringId("top_deck_container");
 static const strutils::StringId BOT_DECK_CONTAINER_SCENE_OBJECT_NAME = strutils::StringId("bot_deck_container");
 static const strutils::StringId NEW_STORY_CONFIRMATION_BUTTON_NAME = strutils::StringId("new_story_confirmation");
@@ -190,7 +191,7 @@ void MainMenuSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
     if (mCardFamilyContainerTop)
     {
         auto containerUpdateResult = mCardFamilyContainerTop->Update(dtMillis);
-        if (containerUpdateResult.mInteractedElementId != -1 && (mQuickPlayData->mBattleControlType != BattleControlType::REPLAY || mActiveSubScene == SubSceneType::NEW_STORY_DECK_SELECTION))
+        if (containerUpdateResult.mInteractedElementId != -1 && mQuickPlayData->mBattleControlType != BattleControlType::REPLAY)
         {
             DeckSelected(containerUpdateResult.mInteractedElementId, true);
         }
@@ -199,7 +200,7 @@ void MainMenuSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
     if (mCardFamilyContainerBot)
     {
         auto containerUpdateResult = mCardFamilyContainerBot->Update(dtMillis);
-        if (containerUpdateResult.mInteractedElementId != -1 && mQuickPlayData->mBattleControlType != BattleControlType::REPLAY)
+        if (containerUpdateResult.mInteractedElementId != -1 && (mQuickPlayData->mBattleControlType != BattleControlType::REPLAY || mActiveSubScene == SubSceneType::NEW_STORY_DECK_SELECTION))
         {
             DeckSelected(containerUpdateResult.mInteractedElementId, false);
         }
@@ -418,13 +419,13 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
             deckSelectionTextSceneObject->mPosition = NEW_STORY_DECK_SELECTION_TEXT_POSITION;
             deckSelectionTextSceneObject->mScale = BUTTON_SCALE;
             
-            mCardFamilyContainerTop = std::make_unique<SwipeableContainer<CardFamilyEntry>>
+            mCardFamilyContainerBot = std::make_unique<SwipeableContainer<CardFamilyEntry>>
             (
                 SwipeDirection::HORIZONTAL,
                 glm::vec3(DECK_SWIPEABLE_ENTRY_SCALE * 2),
                 STORY_DECK_SELECTION_CONTAINER_TOP_BOUNDS,
                 STORY_DECK_SELECTION_CONTAINER_CUTOFF_VALUES,
-                TOP_DECK_CONTAINER_SCENE_OBJECT_NAME,
+                STORY_DECK_CONTAINER_SCENE_OBJECT_NAME,
                 DECK_ENTRY_Z,
                 *scene,
                 MIN_DECK_ENTRIES_TO_SCROLL
@@ -442,10 +443,10 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                     cardFamilyEntrySceneObject->mScale = glm::vec3(DECK_SWIPEABLE_ENTRY_SCALE);
                     cardFamilyEntrySceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + cardFamilyEntry.second);
                     
-                    CardFamilyEntry topEntry;
-                    topEntry.mCardFamilyName = cardFamilyEntry.first;
-                    topEntry.mSceneObjects.emplace_back(cardFamilyEntrySceneObject);
-                    mCardFamilyContainerTop->AddItem(std::move(topEntry), true);
+                    CardFamilyEntry cardEntry;
+                    cardEntry.mCardFamilyName = cardFamilyEntry.first;
+                    cardEntry.mSceneObjects.emplace_back(cardFamilyEntrySceneObject);
+                    mCardFamilyContainerBot->AddItem(std::move(cardEntry), true);
                 }
             }
             
@@ -458,14 +459,14 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                 START_NEW_STORY_BUTTON_SCENE_OBJECT_NAME,
                 [=]()
                 {
-                    ProgressionDataRepository::GetInstance().SetCurrentStoryPlayerDeck(mQuickPlayData->mTopPlayerDeck);
+                    ProgressionDataRepository::GetInstance().SetCurrentStoryPlayerDeck(mQuickPlayData->mBotPlayerDeck);
                     ProgressionDataRepository::GetInstance().FlushStateToFile();
                     StartNewStory();
                 },
                 *scene
             ));
             
-            DeckSelected(0, true);
+            DeckSelected(0, false);
         } break;
             
         case SubSceneType::QUICK_BATTLE:
@@ -701,13 +702,20 @@ void MainMenuSceneLogicManager::DeckSelected(const int selectedDeckIndex, const 
         animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(sceneObject, sceneObject->mPosition, targetScale, DECK_SELECTION_ANIMATION_DURATION_SECS, animation_flags::IGNORE_X_COMPONENT, 0.0f, math::ElasticFunction, math::TweeningMode::EASE_IN), [=](){});
     }
     
-    if (forTopPlayer)
+    if (mActiveSubScene == SubSceneType::NEW_STORY_DECK_SELECTION)
     {
-        mQuickPlayData->mTopPlayerDeck = CardDataRepository::GetInstance().GetCardIdsByFamily(respectiveDeckContainer->GetItems()[selectedDeckIndex].mCardFamilyName);
+        mQuickPlayData->mBotPlayerDeck = CardDataRepository::GetInstance().GetStoryStartingFamilyCards(respectiveDeckContainer->GetItems()[selectedDeckIndex].mCardFamilyName);
     }
     else
     {
-        mQuickPlayData->mBotPlayerDeck = CardDataRepository::GetInstance().GetCardIdsByFamily(respectiveDeckContainer->GetItems()[selectedDeckIndex].mCardFamilyName);
+        if (forTopPlayer)
+        {
+            mQuickPlayData->mTopPlayerDeck = CardDataRepository::GetInstance().GetCardIdsByFamily(respectiveDeckContainer->GetItems()[selectedDeckIndex].mCardFamilyName);
+        }
+        else
+        {
+            mQuickPlayData->mBotPlayerDeck = CardDataRepository::GetInstance().GetCardIdsByFamily(respectiveDeckContainer->GetItems()[selectedDeckIndex].mCardFamilyName);
+        }
     }
 }
 

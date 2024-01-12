@@ -24,6 +24,11 @@ PersistentAccountDataDeserializer::PersistentAccountDataDeserializer(Progression
         progressionDataRepository.CurrencyCoins().SetDisplayedValue(currency);
         progressionDataRepository.CurrencyCoins().SetValue(currency);
     }
+    
+    if (storyJson.count("unlocked_card_ids"))
+    {
+        progressionDataRepository.SetUnlockedCardIds(storyJson["unlocked_card_ids"].get<std::vector<int>>());
+    }
 }
 
 ///------------------------------------------------------------------------------------------------

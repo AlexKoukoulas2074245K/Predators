@@ -29,6 +29,8 @@ ProgressionDataRepository::ProgressionDataRepository()
     mPersistentDataSerializer = std::make_unique<PersistentAccountDataSerializer>();
     mStoryDataSerializer = std::make_unique<StorySerializer>();
     
+    // Persistent Account data initialization
+    mUnlockedCardIds = CardDataRepository::GetInstance().GetFreshAccountUnlockedCardIds();
     mCurrencyCoins = ValueWithDelayedDisplay<long long>(0, 0, [=](const long long& newValue) { mPersistentDataSerializer->GetState()["currency_coins"] = newValue; });
     ResetStoryData();
     
@@ -40,6 +42,7 @@ ProgressionDataRepository::ProgressionDataRepository()
 
 void ProgressionDataRepository::ResetStoryData()
 {
+    // Stroy data initialization
     mStoryDataSerializer->GetState().clear();
     
     mStoryPlayerCardStatModifiers.clear();
@@ -190,6 +193,21 @@ void ProgressionDataRepository::SetCurrentEventScreenIndex(const int currentEven
 {
     mCurrentEventScreenIndex = currentEventScreenIndex;
     mStoryDataSerializer->GetState()["current_event_screen"] = currentEventScreenIndex;
+}
+
+///------------------------------------------------------------------------------------------------
+
+const std::vector<int>& ProgressionDataRepository::GetUnlockedCardIds() const
+{
+    return mUnlockedCardIds;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ProgressionDataRepository::SetUnlockedCardIds(const std::vector<int>& unlockedCardIds)
+{
+    mUnlockedCardIds = unlockedCardIds;
+    mPersistentDataSerializer->GetState()["unlocked_card_ids"] = mUnlockedCardIds;
 }
 
 ///------------------------------------------------------------------------------------------------

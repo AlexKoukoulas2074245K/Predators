@@ -214,6 +214,10 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
         while(SDL_PollEvent(&event) != 0)
         {
             mSystems->mInputStateManager.VProcessInputEvent(event, shouldQuit, windowSizeChanged, applicationMovingToBackground);
+            if (shouldQuit)
+            {
+                break;
+            }
         }
         
         if (mSystems->mInputStateManager.VButtonTapped(input::Button::SECONDARY_BUTTON))
