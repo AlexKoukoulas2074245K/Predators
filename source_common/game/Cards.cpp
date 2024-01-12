@@ -58,6 +58,8 @@ std::vector<int> CardDataRepository::GetAllNonSpellCardIds() const
     return resultCardIds;
 }
 
+///------------------------------------------------------------------------------------------------
+
 std::vector<int> CardDataRepository::GetCardIdsByFamily(const strutils::StringId& family) const
 {
     std::vector<int> resultCardIds;

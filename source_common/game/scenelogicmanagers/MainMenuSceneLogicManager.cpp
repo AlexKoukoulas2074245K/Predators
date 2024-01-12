@@ -44,9 +44,14 @@ static const strutils::StringId NEW_STORY_CANCELLATION_BUTTON_NAME = strutils::S
 static const strutils::StringId NEW_STORY_CONFIRMATION_TEXT_TOP_NAME = strutils::StringId("new_story_confirmation_text_top");
 static const strutils::StringId NEW_STORY_CONFIRMATION_TEXT_MIDDLE_NAME = strutils::StringId("new_story_confirmation_text_middle");
 static const strutils::StringId NEW_STORY_CONFIRMATION_TEXT_BOT_NAME = strutils::StringId("new_story_confirmation_text_bot");
+static const strutils::StringId STORY_DECK_SELECTION_PROMPT_SCENE_OBJECT_NAME = strutils::StringId("story_deck_selection_prompt");
+static const strutils::StringId START_NEW_STORY_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("start_new_story_button");
 
 static const glm::vec2 DECK_ENTRY_CUTOFF_VALUES = {-0.01f, 0.25f};
+static const glm::vec2 STORY_DECK_ENTRY_CUTOFF_VALUES = {-0.15f, 0.15f};
 static const glm::vec2 DECK_CONTAINER_CUTOFF_VALUES = {0.05f, 0.15f};
+static const glm::vec2 STORY_DECK_SELECTION_CONTAINER_CUTOFF_VALUES = {-0.1f, 0.1f};
+
 static const glm::vec3 BUTTON_SCALE = {0.0005f, 0.0005f, 0.0005f};
 static const glm::vec3 STORY_MODE_BUTTON_POSITION = {-0.109f, 0.09f, 0.1f};
 static const glm::vec3 CONTINUE_STORY_BUTTON_POSITION = {-0.142f, 0.09f, 0.1f};
@@ -68,6 +73,8 @@ static const glm::vec3 NEW_STORY_CANCELLATION_BUTTON_POSITION = {0.036f, -0.103f
 static const glm::vec3 NEW_STORY_CONFIRMATION_TEXT_TOP_POSITION = {-0.267f, 0.09f, 23.1f};
 static const glm::vec3 NEW_STORY_CONFIRMATION_TEXT_MIDDLE_POSITION = {-0.282f, 0.039f, 23.1f};
 static const glm::vec3 NEW_STORY_CONFIRMATION_TEXT_BOT_POSITION = {-0.205f, -0.012f, 23.1f};
+static const glm::vec3 NEW_STORY_DECK_SELECTION_TEXT_POSITION = {-0.169f, 0.115f, 0.1f};
+static const glm::vec3 START_NEW_STORY_BUTTON_POSITION = {-0.043f, -0.145f, 23.1f};
 
 static const float SUBSCENE_ITEM_FADE_IN_OUT_DURATION_SECS = 0.25f;
 static const float DECK_SWIPEABLE_ENTRY_SCALE = 0.075f;
@@ -78,6 +85,7 @@ static const float DECK_SELECTED_MAX_SCALE_FACTOR = 1.15f;
 static const float DECK_SELECTED_MIN_SCALE_FACTOR = 0.65f;
 static const float DECK_SELECTION_ANIMATION_DURATION_SECS = 0.4f;
 
+static const math::Rectangle STORY_DECK_SELECTION_CONTAINER_TOP_BOUNDS = {{-0.15f, -0.08f}, {0.2f, 0.01f}};
 static const math::Rectangle DECK_SELECTION_CONTAINER_TOP_BOUNDS = {{-0.005f, -0.03f}, {0.24f, 0.04f}};
 static const math::Rectangle DECK_SELECTION_CONTAINER_BOT_BOUNDS = {{-0.005f, -0.11f}, {0.24f, -0.04f}};
 
@@ -182,7 +190,7 @@ void MainMenuSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
     if (mCardFamilyContainerTop)
     {
         auto containerUpdateResult = mCardFamilyContainerTop->Update(dtMillis);
-        if (containerUpdateResult.mInteractedElementId != -1 && mQuickPlayData->mBattleControlType != BattleControlType::REPLAY)
+        if (containerUpdateResult.mInteractedElementId != -1 && (mQuickPlayData->mBattleControlType != BattleControlType::REPLAY || mActiveSubScene == SubSceneType::NEW_STORY_DECK_SELECTION))
         {
             DeckSelected(containerUpdateResult.mInteractedElementId, true);
         }
@@ -323,7 +331,12 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                     game_constants::DEFAULT_FONT_NAME,
                     "New Story",
                     NEW_STORY_BUTTON_NAME,
-                    [=](){ InitializeNewStoryData(); },
+                    [=]()
+                    {
+                        ProgressionDataRepository::GetInstance().ResetStoryData();
+                        ProgressionDataRepository::GetInstance().FlushStateToFile();
+                        TransitionToSubScene(SubSceneType::NEW_STORY_DECK_SELECTION, scene);
+                    },
                     *scene
                 ));
             }
@@ -373,7 +386,12 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                 game_constants::DEFAULT_FONT_NAME,
                 "Yes",
                 NEW_STORY_CONFIRMATION_BUTTON_NAME,
-                [=](){ InitializeNewStoryData(); },
+                [=]()
+                {
+                    ProgressionDataRepository::GetInstance().ResetStoryData();
+                    ProgressionDataRepository::GetInstance().FlushStateToFile();
+                    TransitionToSubScene(SubSceneType::NEW_STORY_DECK_SELECTION, scene);
+                },
                 *scene
             ));
             
@@ -389,6 +407,67 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
             ));
         } break;
         
+        case SubSceneType::NEW_STORY_DECK_SELECTION:
+        {
+            scene::TextSceneObjectData textDataDeckSelectionPrompt;
+            textDataDeckSelectionPrompt.mFontName = game_constants::DEFAULT_FONT_NAME;
+            textDataDeckSelectionPrompt.mText = "Select Story Deck";
+            auto deckSelectionTextSceneObject = scene->CreateSceneObject(STORY_DECK_SELECTION_PROMPT_SCENE_OBJECT_NAME);
+            deckSelectionTextSceneObject->mSceneObjectTypeData = std::move(textDataDeckSelectionPrompt);
+            deckSelectionTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+            deckSelectionTextSceneObject->mPosition = NEW_STORY_DECK_SELECTION_TEXT_POSITION;
+            deckSelectionTextSceneObject->mScale = BUTTON_SCALE;
+            
+            mCardFamilyContainerTop = std::make_unique<SwipeableContainer<CardFamilyEntry>>
+            (
+                SwipeDirection::HORIZONTAL,
+                glm::vec3(DECK_SWIPEABLE_ENTRY_SCALE * 2),
+                STORY_DECK_SELECTION_CONTAINER_TOP_BOUNDS,
+                STORY_DECK_SELECTION_CONTAINER_CUTOFF_VALUES,
+                TOP_DECK_CONTAINER_SCENE_OBJECT_NAME,
+                DECK_ENTRY_Z,
+                *scene,
+                MIN_DECK_ENTRIES_TO_SCROLL
+            );
+            
+            for (const auto& cardFamilyEntry: CARD_FAMILY_NAMES_TO_SELECTION_TEXTURES)
+            {
+                {
+                    auto cardFamilyEntrySceneObject = scene->CreateSceneObject();
+                    cardFamilyEntrySceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + DECK_ENTRY_SHADER);
+                    cardFamilyEntrySceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MIN_X_UNIFORM_NAME] = STORY_DECK_ENTRY_CUTOFF_VALUES.s;
+                    cardFamilyEntrySceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MAX_X_UNIFORM_NAME] = STORY_DECK_ENTRY_CUTOFF_VALUES.t;
+                    cardFamilyEntrySceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = DECK_ENTRY_ALPHA;
+                    cardFamilyEntrySceneObject->mEffectTextureResourceIds[0] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + DECK_ENTRY_MASK_TEXTURE_FILE_NAME);
+                    cardFamilyEntrySceneObject->mScale = glm::vec3(DECK_SWIPEABLE_ENTRY_SCALE);
+                    cardFamilyEntrySceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + cardFamilyEntry.second);
+                    
+                    CardFamilyEntry topEntry;
+                    topEntry.mCardFamilyName = cardFamilyEntry.first;
+                    topEntry.mSceneObjects.emplace_back(cardFamilyEntrySceneObject);
+                    mCardFamilyContainerTop->AddItem(std::move(topEntry), true);
+                }
+            }
+            
+            mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
+            (
+                START_NEW_STORY_BUTTON_POSITION,
+                BUTTON_SCALE,
+                game_constants::DEFAULT_FONT_NAME,
+                "Start",
+                START_NEW_STORY_BUTTON_SCENE_OBJECT_NAME,
+                [=]()
+                {
+                    ProgressionDataRepository::GetInstance().SetCurrentStoryPlayerDeck(mQuickPlayData->mTopPlayerDeck);
+                    ProgressionDataRepository::GetInstance().FlushStateToFile();
+                    StartNewStory();
+                },
+                *scene
+            ));
+            
+            DeckSelected(0, true);
+        } break;
+            
         case SubSceneType::QUICK_BATTLE:
         {
             mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
@@ -644,10 +723,8 @@ void MainMenuSceneLogicManager::GoToPreviousSubScene(std::shared_ptr<scene::Scen
 
 ///------------------------------------------------------------------------------------------------
 
-void MainMenuSceneLogicManager::InitializeNewStoryData()
+void MainMenuSceneLogicManager::StartNewStory()
 {
-    ProgressionDataRepository::GetInstance().ResetStoryData();
-    ProgressionDataRepository::GetInstance().SetStoryMaxHealth(game_constants::STORY_DEFAULT_MAX_HEALTH);
     ProgressionDataRepository::GetInstance().SetIsCurrentlyPlayingStoryMode(true);
     events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_MAP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
     ProgressionDataRepository::GetInstance().FlushStateToFile();
