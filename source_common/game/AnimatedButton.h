@@ -49,6 +49,7 @@ public:
         scene::SnapToEdgeBehavior snapToEdgeBehavior = scene::SnapToEdgeBehavior::NONE,
         const float snapToEdgeScaleOffsetFactor = 1.0f
     );
+    ~AnimatedButton();
     
     void Update(const float dtMillis);
     std::shared_ptr<scene::SceneObject> GetSceneObject();

@@ -10,6 +10,7 @@
 
 ///------------------------------------------------------------------------------------------------
 
+#include <game/Cards.h>
 #include <game/scenelogicmanagers/ISceneLogicManager.h>
 #include <memory>
 
@@ -31,9 +32,20 @@ public:
     std::shared_ptr<GuiObjectManager> VGetGuiObjectManager() override;
     
 private:
-    std::unique_ptr<AnimatedButton> mOkButton;
-    bool mHasConfirmedSelection;
-    bool mHasPresentedSceneObjects;
+    void CreateCardRewards(std::shared_ptr<scene::Scene> scene);
+    void CreateCardTooltip(const glm::vec3& cardOriginPostion, const std::string& tooltipText, const size_t cardIndex, std::shared_ptr<scene::Scene> scene);
+    
+private:
+    enum class SceneState
+    {
+        PENDING_PRESENTATION,
+        PENDING_CARD_SELECTION,
+        PENDING_CARD_SELECTION_CONFIRMATION
+    };
+    
+    std::vector<std::shared_ptr<CardSoWrapper>> mCardRewards;
+    std::unique_ptr<AnimatedButton> mConfirmationButton;
+    SceneState mSceneState;
     float mInitialSurfacingDelaySecs;
 };
 

@@ -16,6 +16,8 @@
 
 static const float INTERACTION_ANIMATION_DURATION = 0.1f;
 static const float INTERACTION_ANIMATION_SCALE_FACTOR = 0.5f;
+static const strutils::StringId BUTTON_PULSING_ANIMATION_NAME = strutils::StringId("pulsing_animation");
+static const strutils::StringId BUTTON_CLICK_ANIMATION_NAME = strutils::StringId("click_animation");
 
 ///------------------------------------------------------------------------------------------------
 
@@ -78,6 +80,14 @@ AnimatedButton::AnimatedButton
 
 ///------------------------------------------------------------------------------------------------
 
+AnimatedButton::~AnimatedButton()
+{
+    CoreSystemsEngine::GetInstance().GetAnimationManager().StopAnimation(BUTTON_PULSING_ANIMATION_NAME);
+    CoreSystemsEngine::GetInstance().GetAnimationManager().StopAnimation(BUTTON_CLICK_ANIMATION_NAME);
+}
+
+///------------------------------------------------------------------------------------------------
+
 void AnimatedButton::Update(const float)
 {
     const auto& inputStateManager = CoreSystemsEngine::GetInstance().GetInputStateManager();
@@ -95,10 +105,10 @@ void AnimatedButton::Update(const float)
         {
             mSceneObject->mScale = originalScale;
             mAnimating = false;
-        });
+        }, BUTTON_PULSING_ANIMATION_NAME);
         
         // Dummy animation to invoke callback mid-way pulse animation
-        animationManager.StartAnimation(std::make_unique<rendering::TweenRotationAnimation>(mSceneObject, mSceneObject->mRotation, INTERACTION_ANIMATION_DURATION/2, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), [=](){ mOnPressCallback(); });
+        animationManager.StartAnimation(std::make_unique<rendering::TweenRotationAnimation>(mSceneObject, mSceneObject->mRotation, INTERACTION_ANIMATION_DURATION/2, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), [=](){ mOnPressCallback(); }, BUTTON_CLICK_ANIMATION_NAME);
     }
 }
 
