@@ -49,7 +49,7 @@ static const strutils::StringId STORY_DECK_SELECTION_PROMPT_SCENE_OBJECT_NAME = 
 static const strutils::StringId START_NEW_STORY_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("start_new_story_button");
 
 static const glm::vec2 DECK_ENTRY_CUTOFF_VALUES = {-0.01f, 0.25f};
-static const glm::vec2 STORY_DECK_ENTRY_CUTOFF_VALUES = {-0.15f, 0.15f};
+static const glm::vec2 STORY_DECK_ENTRY_CUTOFF_VALUES = {-0.25f, 0.15f};
 static const glm::vec2 DECK_CONTAINER_CUTOFF_VALUES = {0.05f, 0.15f};
 static const glm::vec2 STORY_DECK_SELECTION_CONTAINER_CUTOFF_VALUES = {-0.1f, 0.1f};
 
@@ -79,6 +79,7 @@ static const glm::vec3 START_NEW_STORY_BUTTON_POSITION = {-0.043f, -0.145f, 23.1
 
 static const float SUBSCENE_ITEM_FADE_IN_OUT_DURATION_SECS = 0.25f;
 static const float DECK_SWIPEABLE_ENTRY_SCALE = 0.075f;
+static const float STORY_DECK_SELECTION_ENTRY_SCALE = 0.115f;
 static const float DECK_ENTRY_ALPHA = 0.5f;
 static const float DECK_ENTRY_Z = 0.1f;
 static const float STAGGERED_ITEM_ALPHA_DELAY_SECS = 0.1f;
@@ -86,7 +87,7 @@ static const float DECK_SELECTED_MAX_SCALE_FACTOR = 1.15f;
 static const float DECK_SELECTED_MIN_SCALE_FACTOR = 0.65f;
 static const float DECK_SELECTION_ANIMATION_DURATION_SECS = 0.4f;
 
-static const math::Rectangle STORY_DECK_SELECTION_CONTAINER_TOP_BOUNDS = {{-0.15f, -0.08f}, {0.2f, 0.01f}};
+static const math::Rectangle STORY_DECK_SELECTION_CONTAINER_TOP_BOUNDS = {{-0.25f, -0.08f}, {0.2f, 0.01f}};
 static const math::Rectangle DECK_SELECTION_CONTAINER_TOP_BOUNDS = {{-0.005f, -0.03f}, {0.24f, 0.04f}};
 static const math::Rectangle DECK_SELECTION_CONTAINER_BOT_BOUNDS = {{-0.005f, -0.11f}, {0.24f, -0.04f}};
 
@@ -421,8 +422,8 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
             
             mCardFamilyContainerBot = std::make_unique<SwipeableContainer<CardFamilyEntry>>
             (
-                SwipeDirection::HORIZONTAL,
-                glm::vec3(DECK_SWIPEABLE_ENTRY_SCALE * 2),
+                ContainerType::HORIZONTAL_LINE,
+                glm::vec3(STORY_DECK_SELECTION_ENTRY_SCALE * 2),
                 STORY_DECK_SELECTION_CONTAINER_TOP_BOUNDS,
                 STORY_DECK_SELECTION_CONTAINER_CUTOFF_VALUES,
                 STORY_DECK_CONTAINER_SCENE_OBJECT_NAME,
@@ -440,7 +441,7 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                     cardFamilyEntrySceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MAX_X_UNIFORM_NAME] = STORY_DECK_ENTRY_CUTOFF_VALUES.t;
                     cardFamilyEntrySceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = DECK_ENTRY_ALPHA;
                     cardFamilyEntrySceneObject->mEffectTextureResourceIds[0] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + DECK_ENTRY_MASK_TEXTURE_FILE_NAME);
-                    cardFamilyEntrySceneObject->mScale = glm::vec3(DECK_SWIPEABLE_ENTRY_SCALE);
+                    cardFamilyEntrySceneObject->mScale = glm::vec3(STORY_DECK_SELECTION_ENTRY_SCALE);
                     cardFamilyEntrySceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + cardFamilyEntry.second);
                     
                     CardFamilyEntry cardEntry;
@@ -524,7 +525,7 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
             
             mCardFamilyContainerTop = std::make_unique<SwipeableContainer<CardFamilyEntry>>
             (
-                SwipeDirection::HORIZONTAL,
+                ContainerType::HORIZONTAL_LINE,
                 glm::vec3(DECK_SWIPEABLE_ENTRY_SCALE * 2),
                 DECK_SELECTION_CONTAINER_TOP_BOUNDS,
                 DECK_CONTAINER_CUTOFF_VALUES,
@@ -535,7 +536,7 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
             );
             mCardFamilyContainerBot = std::make_unique<SwipeableContainer<CardFamilyEntry>>
             (
-                SwipeDirection::HORIZONTAL,
+                ContainerType::HORIZONTAL_LINE,
                 glm::vec3(DECK_SWIPEABLE_ENTRY_SCALE * 2),
                 DECK_SELECTION_CONTAINER_BOT_BOUNDS,
                 DECK_CONTAINER_CUTOFF_VALUES,
@@ -698,7 +699,7 @@ void MainMenuSceneLogicManager::DeckSelected(const int selectedDeckIndex, const 
     for (auto i = 0; i < static_cast<int>(respectiveDeckContainer->GetItems().size()); ++i)
     {
         auto& sceneObject = respectiveDeckContainer->GetItems()[i].mSceneObjects.front();
-        auto targetScale = glm::vec3(DECK_SWIPEABLE_ENTRY_SCALE * (selectedDeckIndex == i ? DECK_SELECTED_MAX_SCALE_FACTOR : DECK_SELECTED_MIN_SCALE_FACTOR));
+        auto targetScale = glm::vec3((mActiveSubScene == SubSceneType::NEW_STORY_DECK_SELECTION ? STORY_DECK_SELECTION_ENTRY_SCALE : DECK_SWIPEABLE_ENTRY_SCALE) * (selectedDeckIndex == i ? DECK_SELECTED_MAX_SCALE_FACTOR : DECK_SELECTED_MIN_SCALE_FACTOR));
         animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(sceneObject, sceneObject->mPosition, targetScale, DECK_SELECTION_ANIMATION_DURATION_SECS, animation_flags::IGNORE_X_COMPONENT, 0.0f, math::ElasticFunction, math::TweeningMode::EASE_IN), [=](){});
     }
     

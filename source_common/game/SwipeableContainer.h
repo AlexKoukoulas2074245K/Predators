@@ -31,9 +31,9 @@ inline const float RUBBER_BANDING_ANIMATION_DURATION = 0.1f;
 
 ///------------------------------------------------------------------------------------------------
 
-enum class SwipeDirection
+enum class ContainerType
 {
-    HORIZONTAL, VERTICAL
+    HORIZONTAL_LINE, VERTICAL_MATRIX
 };
 
 ///------------------------------------------------------------------------------------------------
@@ -61,7 +61,7 @@ class SwipeableContainer final
 public:
     SwipeableContainer
     (
-        const SwipeDirection validSwipeDirection,
+        const ContainerType containerType,
         const glm::vec3& entryScale,
         const math::Rectangle& containerBounds,
         const glm::vec2& containerCutoffValues,
@@ -70,7 +70,7 @@ public:
         scene::Scene& scene,
         const size_t minItemsToAnimate = DEFAULT_MIN_ITEMS_TO_ANIMATE
      )
-        : mValidSwipeDirection(validSwipeDirection)
+        : mContainerType(containerType)
         , mEntryScale(entryScale)
         , mContainerBounds(containerBounds)
         , mContainerCutoffValues(containerCutoffValues)
@@ -133,9 +133,9 @@ public:
         
         for (int j = 0; j < static_cast<int>(item.mSceneObjects.size()); ++j)
         {
-            switch (mValidSwipeDirection)
+            switch (mContainerType)
             {
-                case SwipeDirection::HORIZONTAL:
+                case ContainerType::HORIZONTAL_LINE:
                 {
                     item.mSceneObjects[j]->mPosition = glm::vec3
                     (
@@ -145,7 +145,7 @@ public:
                     ) + itemOffsetsFromFirst[j];
                 } break;
                 
-                case SwipeDirection::VERTICAL:
+                case ContainerType::VERTICAL_MATRIX:
                 {
                     item.mSceneObjects[j]->mPosition = glm::vec3
                     (
@@ -358,7 +358,7 @@ private:
     }
     
 private:
-    const SwipeDirection mValidSwipeDirection;
+    const ContainerType mContainerType;
     const glm::vec3 mEntryScale;
     const math::Rectangle mContainerBounds;
     const glm::vec2 mContainerCutoffValues;

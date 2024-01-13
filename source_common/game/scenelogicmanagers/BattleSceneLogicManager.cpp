@@ -400,7 +400,7 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
 
     mCardHistoryContainer = std::make_unique<SwipeableContainer<CardHistoryEntry>>
     (
-        SwipeDirection::HORIZONTAL,
+        ContainerType::HORIZONTAL_LINE,
         CARD_HISTORY_ENTRY_SCALE,
         CARD_HISTORY_CONTAINER_BOUNDS,
         CARD_HISTORY_CONTAINER_CUTOFF_VALUES,
