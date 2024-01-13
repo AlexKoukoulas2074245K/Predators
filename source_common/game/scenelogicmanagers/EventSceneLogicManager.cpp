@@ -146,7 +146,7 @@ void EventSceneLogicManager::OnWindowResize(const events::WindowResizeEvent&)
 {
     CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::EVENT_SCENE)->RecalculatePositionOfEdgeSnappingSceneObjects();
     
-    // Realign health stat container
+    // Realign gui
     mGuiManager->OnWindowResize();
 }
 
@@ -205,7 +205,7 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
                         progressionHealth.SetValue(progressionHealth.GetValue() - randomHpLoss);
                         progressionHealth.SetDisplayedValue(progressionHealth.GetDisplayedValue() - randomHpLoss);
                         
-                        mScene->GetCamera().Shake(1.0f, 0.05f);
+                        mScene->GetCamera().Shake(1.0f, 0.05f, [=](){ OnWindowResize(events::WindowResizeEvent()); });
                     }
                 }),
                 StoryRandomEventButtonData("Go around  (100% -" + std::to_string(guaranteedHpLoss) + "*)", 3, [=]()
@@ -214,7 +214,7 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
                     progressionHealth.SetValue(progressionHealth.GetValue() - guaranteedHpLoss);
                     progressionHealth.SetDisplayedValue(progressionHealth.GetDisplayedValue() - guaranteedHpLoss);
                     
-                    mScene->GetCamera().Shake(0.4f, 0.002f);
+                    mScene->GetCamera().Shake(0.4f, 0.002f, [=](){ OnWindowResize(events::WindowResizeEvent()); });
                 })
             }),
             StoryRandomEventScreenData("events/lava_trap.png", {"", "You failed the jump, fell", "and got severely damaged.."},
@@ -232,7 +232,7 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
         })
     );
     
-    mCurrentEventIndex = math::ControlledRandomInt(0, static_cast<int>(mRegisteredStoryEvents.size()) - 1);
+    mCurrentEventIndex = 1;//;math::ControlledRandomInt(0, static_cast<int>(mRegisteredStoryEvents.size()) - 1);
 }
 
 ///------------------------------------------------------------------------------------------------

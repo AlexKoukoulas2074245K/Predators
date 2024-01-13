@@ -11,6 +11,7 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <engine/utils/MathUtils.h>
+#include <functional>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -42,9 +43,10 @@ public:
     /// Performs a camera shake.
     /// @param[in] targetDurationSecs the target (to be exceeded if shakeInterTremmorDelaySecs is set to a value > 0) seconds the shake will run for
     /// @param[in] shakeStrengthRadius (optional) sets the starting radius offset for the camera shake. defaults to 0.05f
+    /// @param[in] onCameraShakeEndCallback (optional) callback that will be invoked when the camera shake ends
     /// @param[in] shakeInterTremmorDelaySecs (optional) specifies the delay in between shake tremmors. Will also naturally lengthen the shake duration
     /// specified by durationSecs. Sane values are around 0.01f - 0.1f
-    void Shake(const float targetDurationSecs, const float shakeStrengthRadius = DEFAULT_SHAKE_STRENGTH_RADIUS, const float shakeInterTremmorDelaySecs = 0.0f);
+    void Shake(const float targetDurationSecs, const float shakeStrengthRadius = DEFAULT_SHAKE_STRENGTH_RADIUS, std::function<void()> onCameraShakeEndCallback = nullptr, const float shakeInterTremmorDelaySecs = 0.0f);
     void StopShake();
     
     void Update(const float dtMillis);
@@ -72,6 +74,7 @@ private:
     glm::vec3 mPosition;
     glm::mat4 mView;
     glm::mat4 mProj;
+    std::function<void()> mCameraShakeEndCallback;
 };
 
 ///------------------------------------------------------------------------------------------------

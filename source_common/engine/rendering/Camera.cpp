@@ -44,6 +44,7 @@ Camera::Camera(const float cameraLenseHeight)
 {
     mCameraLenseWidth = cameraLenseHeight * DEVICE_INVARIABLE_ASPECT;
     mCameraLenseHeight = cameraLenseHeight;
+    mCameraShakeEndCallback = nullptr;
     RecalculateMatrices();
 }
 
@@ -141,8 +142,10 @@ math::Frustum Camera::CalculateFrustum() const
 
 ///------------------------------------------------------------------------------------------------
 
-void Camera::Shake(const float targetDurationSecs, const float shakeStrengthRadius /* = DEFAULT_SHAKE_STRENGTH_RADIUS */, const float shakeInterTremmorDelaySecs /* = 0.0f */)
+void Camera::Shake(const float targetDurationSecs, const float shakeStrengthRadius /* = DEFAULT_SHAKE_STRENGTH_RADIUS */, std::function<void()> onCameraShakeEndCallback /* = nullptr */, const float shakeInterTremmorDelaySecs /* = 0.0f */)
 {
+    mCameraShakeEndCallback = onCameraShakeEndCallback;
+    
     if (mShakeData.mShakeCurrentRadius <= SHAKE_MIN_RADIUS)
     {
         mShakeData.mPreShakePosition = mPosition;
@@ -157,6 +160,13 @@ void Camera::Shake(const float targetDurationSecs, const float shakeStrengthRadi
         auto offset = glm::vec2(math::Sinf(mShakeData.mShakeRandomAngle) * mShakeData.mShakeCurrentRadius, math::Cosf(mShakeData.mShakeRandomAngle) * mShakeData.mShakeCurrentRadius);
         
         SetPosition(glm::vec3(mShakeData.mPreShakePosition.x + offset.x, mShakeData.mPreShakePosition.y + offset.y, GetPosition().z));
+    }
+    else
+    {
+        if (mCameraShakeEndCallback)
+        {
+            mCameraShakeEndCallback();
+        }
     }
 }
 
@@ -186,6 +196,11 @@ void Camera::Update(const float dtMillis)
         {
             mShakeData.mShakeCurrentRadius = SHAKE_MIN_RADIUS;
             SetPosition(mShakeData.mPreShakePosition);
+            
+            if (mCameraShakeEndCallback)
+            {
+                mCameraShakeEndCallback();
+            }
         }
         else
         {
