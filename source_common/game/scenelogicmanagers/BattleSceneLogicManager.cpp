@@ -251,6 +251,8 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
         mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = quickPlayData->mTopPlayerDeck;
         mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = quickPlayData->mBotPlayerDeck;
         mCurrentBattleControlType = quickPlayData->mBattleControlType;
+        
+        scene->FindSceneObject(game_constants::GUI_STORY_CARDS_BUTTON_SCENE_OBJECT_NAME)->mInvisible = true;
     }
     else
     {

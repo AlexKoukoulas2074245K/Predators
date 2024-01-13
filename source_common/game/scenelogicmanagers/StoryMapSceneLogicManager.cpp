@@ -26,9 +26,6 @@
 
 static const strutils::StringId VISIT_MAP_NODE_SCENE = strutils::StringId("visit_map_node_scene");
 static const strutils::StringId SETTINGS_SCENE = strutils::StringId("settings_scene");
-static const strutils::StringId SETTINGS_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("settings_button");
-static const strutils::StringId COIN_STACK_SCENE_OBJECT_NAME = strutils::StringId("coin_stack");
-static const strutils::StringId COIN_VALUE_TEXT_SCENE_OBJECT_NAME = strutils::StringId("coin_value_text");
 static const strutils::StringId BACKGROUND_SCENE_OBJECT_NAME = strutils::StringId("background");
 
 static const std::string OVERLAY_TEXTURE_FILE_NAME = "overlay.png";
@@ -60,9 +57,10 @@ static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
 
 static const std::vector<strutils::StringId> GUI_SCENE_OBJECT_NAMES =
 {
-    COIN_STACK_SCENE_OBJECT_NAME,
-    COIN_VALUE_TEXT_SCENE_OBJECT_NAME,
-    SETTINGS_BUTTON_SCENE_OBJECT_NAME,
+    game_constants::GUI_COIN_STACK_SCENE_OBJECT_NAME,
+    game_constants::GUI_COIN_VALUE_TEXT_SCENE_OBJECT_NAME,
+    game_constants::GUI_SETTINGS_BUTTON_SCENE_OBJECT_NAME,
+    game_constants::GUI_STORY_CARDS_BUTTON_SCENE_OBJECT_NAME,
     strutils::StringId(HEALTH_CRYSTAL_SCENE_OBJECT_NAME_PREFIX + "base"),
     strutils::StringId(HEALTH_CRYSTAL_SCENE_OBJECT_NAME_PREFIX + "value")
 };

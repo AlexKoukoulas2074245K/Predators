@@ -232,7 +232,7 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
         })
     );
     
-    mCurrentEventIndex = 1;//;math::ControlledRandomInt(0, static_cast<int>(mRegisteredStoryEvents.size()) - 1);
+    mCurrentEventIndex = math::ControlledRandomInt(0, static_cast<int>(mRegisteredStoryEvents.size()) - 1);
 }
 
 ///------------------------------------------------------------------------------------------------

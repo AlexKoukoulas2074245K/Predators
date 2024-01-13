@@ -49,6 +49,7 @@ private:
     void AnimateStatGainParticles(const glm::vec3& originPosition, const StatGainParticleType statGainParticleType);
     void SetCoinValueText();
     void OnSettingsButtonPressed();
+    void OnStoryCardsButtonPressed();
     void OnCoinReward(const events::CoinRewardEvent&);
     void OnHealthRefillReward(const events::HealthRefillRewardEvent&);
     void OnMaxHealthGainReward(const events::MaxHealthGainRewardEvent&);

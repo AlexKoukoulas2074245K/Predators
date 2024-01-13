@@ -64,6 +64,7 @@ namespace game_constants
     inline const strutils::StringId OVERLAY_SCENE_OBJECT_NAME = strutils::StringId("overlay");
     inline const strutils::StringId SCENE_SPEED_DILATION_ANIMATION_NAME = strutils::StringId("scene_speed_dilation_animation");
     inline const strutils::StringId GUI_SETTINGS_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("settings_button");
+    inline const strutils::StringId GUI_STORY_CARDS_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("story_cards_button");
     inline const strutils::StringId GUI_COIN_STACK_SCENE_OBJECT_NAME = strutils::StringId("coin_stack");
     inline const strutils::StringId GUI_COIN_VALUE_TEXT_SCENE_OBJECT_NAME = strutils::StringId("coin_value_text");
     inline const strutils::StringId STAT_PARTICLE_FLYING_ANIMATION_NAME = strutils::StringId("coin_flying_animation");
@@ -106,6 +107,7 @@ namespace game_constants
     inline const strutils::StringId MAIN_MENU_SCENE = strutils::StringId("main_menu_scene");
     inline const strutils::StringId STORY_MAP_SCENE = strutils::StringId("story_map_scene");
     inline const strutils::StringId EVENT_SCENE = strutils::StringId("event_scene");
+    inline const strutils::StringId STORY_CARDS_SCENE = strutils::StringId("story_cards_scene");
     inline const strutils::StringId WHEEL_OF_FORTUNE_SCENE = strutils::StringId("wheel_of_fortune_scene");
 
     // General Game Constants

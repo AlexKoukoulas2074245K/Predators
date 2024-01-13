@@ -96,7 +96,7 @@ void AnimatedButton::Update(const float)
     auto sceneObjectRect = scene_object_utils::GetSceneObjectBoundingRect(*mSceneObject);
     bool cursorInSceneObject = math::IsPointInsideRectangle(sceneObjectRect.bottomLeft, sceneObjectRect.topRight, worldTouchPos);
     
-    if (cursorInSceneObject && inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON) && !mAnimating)
+    if (!mSceneObject->mInvisible && cursorInSceneObject && inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON) && !mAnimating)
     {
         mAnimating = true;
         auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();

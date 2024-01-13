@@ -21,6 +21,7 @@
 ///------------------------------------------------------------------------------------------------
 
 static const strutils::StringId SETTINGS_SCENE = strutils::StringId("settings_scene");
+static const strutils::StringId STORY_CARDS_SCENE = strutils::StringId("story_cards_scene");
 static const strutils::StringId PARTICLE_EMITTER_SCENE_OBJECT_NAME = strutils::StringId("stat_particle_emitter");
 static const strutils::StringId PARTICLE_EMITTER_DEFINITION_COIN_SMALL = strutils::StringId("coin_gain_small");
 static const strutils::StringId PARTICLE_EMITTER_DEFINITION_COIN_LARGE = strutils::StringId("coin_gain_large");
@@ -36,13 +37,17 @@ static const strutils::StringId PARTICLE_EMITTER_DEFINITION_WEIGHT_GAIN_LARGE = 
 static const std::string OVERLAY_TEXTURE_FILE_NAME = "overlay.png";
 static const std::string COIN_VALUE_TEXT_SHADER_FILE_NAME = "animated_stat_container_value_object.vs";
 static const std::string SETTINGS_ICON_TEXTURE_FILE_NAME = "settings_button_icon.png";
+static const std::string STORY_CARDS_ICON_TEXTURE_FILE_NAME = "story_cards_button_icon.png";
 static const std::string COIN_STACK_TEXTURE_FILE_NAME = "coin_stack.png";
 static const std::string HEALTH_CRYSTAL_TEXTURE_FILE_NAME = "health_icon.png";
 static const std::string HEALTH_CRYSTAL_SCENE_OBJECT_NAME_PREFIX = "health_crystal_";
 
 static const glm::vec3 BATTLE_SCENE_SETTINGS_BUTTON_POSITION = {0.145f, 0.09f, 24.0f};
 static const glm::vec3 SETTINGS_BUTTON_POSITION = {0.145f, 0.161f, 24.0f};
+static const glm::vec3 BATTLE_SCENE_STORY_CARDS_BUTTON_POSITION = {0.145f, 0.09f, 24.0f};
+static const glm::vec3 STORY_CARDS_BUTTON_POSITION = {0.145f, 0.161f, 24.0f};
 static const glm::vec3 SETTINGS_BUTTON_SCALE = {0.06f, 0.06f, 0.06f};
+static const glm::vec3 STORY_CARDS_BUTTON_SCALE = {0.06f, 0.06f, 0.06f};
 static const glm::vec3 COIN_STACK_POSITION = {0.145f, 0.101f, 24.0f};
 static const glm::vec3 BATTLE_SCENE_COIN_STACK_POSITION = {0.145f, 0.06f, 24.0f};
 static const glm::vec3 COIN_STACK_SCALE = {0.08f, 0.08f, 0.08f};
@@ -65,6 +70,7 @@ static const glm::vec3 EXTRA_DAMAGE_WEIGHT_PARTICLE_ORIGIN_POSITION = {-0.025f, 
 static const float COIN_PARTICLE_RESPAWN_TICK_SECS = 0.025f;
 static const float HEALTH_PARTICLE_RESPAWN_TICK_SECS = 0.25f;
 static const float SETTINGS_BUTTON_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 33.5f;
+static const float STORY_CARDS_BUTTON_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 12.25f;
 static const float COIN_STACK_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 1.4f;
 static const float COIN_VALUE_TEXT_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 280.0f;
 static const float HEALTH_CRYSTAL_BASE_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 1.0f;
@@ -100,6 +106,19 @@ GuiObjectManager::GuiObjectManager(std::shared_ptr<scene::Scene> scene)
         scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE,
         SETTINGS_BUTTON_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR / extraScaleFactor
     ));
+    
+    mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
+    (
+        forBattleScene ? BATTLE_SCENE_STORY_CARDS_BUTTON_POSITION : STORY_CARDS_BUTTON_POSITION,
+        extraScaleFactor * STORY_CARDS_BUTTON_SCALE,
+        STORY_CARDS_ICON_TEXTURE_FILE_NAME,
+        game_constants::GUI_STORY_CARDS_BUTTON_SCENE_OBJECT_NAME,
+        [=](){ OnStoryCardsButtonPressed(); },
+        *scene,
+        scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE,
+        STORY_CARDS_BUTTON_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR / extraScaleFactor
+    ));
+    
     
     auto coinStackSceneObject = scene->CreateSceneObject(game_constants::GUI_COIN_STACK_SCENE_OBJECT_NAME);
     coinStackSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
@@ -350,6 +369,14 @@ void GuiObjectManager::OnSettingsButtonPressed()
 {
     CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(mScene->GetUpdateTimeSpeedFactor(), 0.0f, game_constants::SCENE_SPEED_DILATION_ANIMATION_DURATION_SECS), [](){}, game_constants::SCENE_SPEED_DILATION_ANIMATION_NAME);
     events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(SETTINGS_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+}
+
+///------------------------------------------------------------------------------------------------
+
+void GuiObjectManager::OnStoryCardsButtonPressed()
+{
+    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(mScene->GetUpdateTimeSpeedFactor(), 0.0f, game_constants::SCENE_SPEED_DILATION_ANIMATION_DURATION_SECS), [](){}, game_constants::SCENE_SPEED_DILATION_ANIMATION_NAME);
+    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(STORY_CARDS_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
 }
 
 ///------------------------------------------------------------------------------------------------
