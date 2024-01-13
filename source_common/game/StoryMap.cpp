@@ -116,7 +116,7 @@ static const float ELITE_STAT_FACTOR = 1.5f;
 static const float BOSS_STAT_FACTOR = 3.0f;
 
 static const int MAP_PATH_SEGMENTS_FACTOR = 30;
-static const int MAP_GENERATION_PASSES = 5;
+static const int MAP_GENERATION_PASSES = 6;
 
 #if defined(NDEBUG) || defined(MOBILE_FLOW)
 static const float NODES_CLOSE_ENOUGH_THRESHOLD = 0.050f;
@@ -129,8 +129,6 @@ static const float NODES_CLOSE_ENOUGH_TO_EDGE_NODES_THRESHOLD = 0.075f;
 static const int MAX_MAP_GENERATION_ATTEMPTS = 50000;
 static const glm::vec2 VERTICAL_MAP_EDGE = {-0.95f, 0.95f};
 #endif
-
-int mapGenerationAttempts = 0;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -173,9 +171,17 @@ const glm::ivec2& StoryMap::GetMapDimensions() const
 
 ///------------------------------------------------------------------------------------------------
 
+const MapGenerationInfo& StoryMap::GetMapGenerationInfo() const
+{
+    return mMapGenerationInfo;
+}
+
+///------------------------------------------------------------------------------------------------
+
 void StoryMap::GenerateMapData()
 {
-    mapGenerationAttempts = 0;
+    mMapGenerationInfo = {};
+    
     auto currentGenerationSeed = ProgressionDataRepository::GetInstance().GetStoryMapGenerationSeed();
     if (currentGenerationSeed == 0)
     {
@@ -197,7 +203,7 @@ void StoryMap::GenerateMapData()
         mMapGenerationAttemptsRemaining--;
         CoreSystemsEngine::GetInstance().GetResourceLoadingService().AddArtificialLoadingJobCount(-1);
         
-        mapGenerationAttempts++;
+        mMapGenerationInfo.mMapGenerationAttempts++;
         mMapData.clear();
         
         ProgressionDataRepository::GetInstance().SetStoryMapGenerationSeed(math::GetControlSeed());
@@ -251,18 +257,27 @@ bool StoryMap::FoundCloseEnoughNodes() const
             continue;
         }
         
-        if (math::Distance2(mMapData.at(MapCoord(0, 2)).mPosition, mapNodeEntry.second.mPosition) < NODES_CLOSE_ENOUGH_TO_EDGE_NODES_THRESHOLD)
+        if (math::Distance2(mMapData.at(MapCoord(0, mMapDimensions.y/2)).mPosition, mapNodeEntry.second.mPosition) < NODES_CLOSE_ENOUGH_TO_EDGE_NODES_THRESHOLD)
         {
+            mMapGenerationInfo.mCloseToStartingNodeErrors++;
             return true;
         }
         
-        if (math::Distance2(mMapData.at(MapCoord(mMapDimensions.x - 1, 2)).mPosition, mapNodeEntry.second.mPosition) < NODES_CLOSE_ENOUGH_TO_EDGE_NODES_THRESHOLD)
+        if (math::Distance2(mMapData.at(MapCoord(mMapDimensions.x - 1, mMapDimensions.y/2)).mPosition, mapNodeEntry.second.mPosition) < NODES_CLOSE_ENOUGH_TO_EDGE_NODES_THRESHOLD)
         {
+            mMapGenerationInfo.mCloseToBossNodeErrors++;
             return true;
         }
         
-        if (mapNodeEntry.second.mPosition.y < VERTICAL_MAP_EDGE.s || mapNodeEntry.second.mPosition.y > VERTICAL_MAP_EDGE.t)
+        if (mapNodeEntry.second.mPosition.y < VERTICAL_MAP_EDGE.s)
         {
+            mMapGenerationInfo.mCloseToSouthEdgeErrors++;
+            return true;
+        }
+        
+        if (mapNodeEntry.second.mPosition.y > VERTICAL_MAP_EDGE.t)
+        {
+            mMapGenerationInfo.mCloseToNorthEdgeErrors++;
             return true;
         }
         
@@ -275,6 +290,7 @@ bool StoryMap::FoundCloseEnoughNodes() const
             
             if (math::Distance2(otherMapNodeEntry.second.mPosition, mapNodeEntry.second.mPosition) < NODES_CLOSE_ENOUGH_THRESHOLD)
             {
+                mMapGenerationInfo.mCloseToOtherNodesErrors++;
                 return true;
             }
         }

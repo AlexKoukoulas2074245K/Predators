@@ -65,8 +65,6 @@ static const std::vector<strutils::StringId> GUI_SCENE_OBJECT_NAMES =
     strutils::StringId(HEALTH_CRYSTAL_SCENE_OBJECT_NAME_PREFIX + "value")
 };
 
-extern int mapGenerationAttempts;
-
 ///------------------------------------------------------------------------------------------------
 
 const std::vector<strutils::StringId>& StoryMapSceneLogicManager::VGetApplicableSceneNames() const
@@ -131,7 +129,13 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
     
     if (!mStoryMap->HasCreatedSceneObjects())
     {
-        logging::Log(logging::LogType::INFO, "Finished Map Generation after %d attempts", mapGenerationAttempts);
+        const auto& mapGenerationInfo = mStoryMap->GetMapGenerationInfo();
+        logging::Log(logging::LogType::INFO, "Finished Map Generation after %d attempts", mapGenerationInfo.mMapGenerationAttempts);
+        logging::Log(logging::LogType::INFO, "Close To Start Node Errors %d", mapGenerationInfo.mCloseToStartingNodeErrors);
+        logging::Log(logging::LogType::INFO, "Close To Boss Node Errors %d", mapGenerationInfo.mCloseToBossNodeErrors);
+        logging::Log(logging::LogType::INFO, "Close To North Edge Errors %d", mapGenerationInfo.mCloseToNorthEdgeErrors);
+        logging::Log(logging::LogType::INFO, "Close To South Edge Errors %d", mapGenerationInfo.mCloseToSouthEdgeErrors);
+        logging::Log(logging::LogType::INFO, "Close To Other Nodes Errors %d", mapGenerationInfo.mCloseToOtherNodesErrors);
         mStoryMap->CreateMapSceneObjects();
         
         for (const auto& sceneObject: scene->GetSceneObjects())

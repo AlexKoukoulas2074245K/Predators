@@ -63,6 +63,16 @@ struct MapCoordHasher
     }
 };
 
+struct MapGenerationInfo
+{
+    int mMapGenerationAttempts = 0;
+    int mCloseToStartingNodeErrors = 0;
+    int mCloseToBossNodeErrors = 0;
+    int mCloseToNorthEdgeErrors = 0;
+    int mCloseToSouthEdgeErrors = 0;
+    int mCloseToOtherNodesErrors = 0;
+};
+
 ///------------------------------------------------------------------------------------------------
 
 namespace scene { class Scene; }
@@ -98,6 +108,7 @@ public:
     bool HasCreatedSceneObjects() const;
     const std::map<MapCoord, StoryMap::NodeData>& GetMapData() const;
     const glm::ivec2& GetMapDimensions() const;
+    const MapGenerationInfo& GetMapGenerationInfo() const;
     
 private:
     void GenerateMapData();
@@ -114,6 +125,7 @@ private:
     int mMapGenerationAttemptsRemaining;
     bool mHasCreatedSceneObjects;
     std::map<MapCoord, NodeData> mMapData;
+    mutable MapGenerationInfo mMapGenerationInfo;
 };
 
 ///------------------------------------------------------------------------------------------------

@@ -193,9 +193,9 @@ namespace game_constants
     inline const glm::vec3 GAME_BOARD_INIT_POSITION = {-0.039f, 0.011f, 0.0f };
     inline const glm::vec3 GAME_BOARD_INIT_ROTATION = {0.0f, 0.0f, 3.14f };
 
-    inline const glm::ivec2 STORY_MAP_INIT_COORD = {0, 2};
-    inline const glm::ivec2 STORY_MAP_BOSS_COORD = {8, 2};
-    inline const glm::ivec2 STORY_NODE_MAP_DIMENSIONS = {9, 5};
+    inline const glm::ivec2 STORY_MAP_INIT_COORD = {0, 4};
+    inline const glm::ivec2 STORY_MAP_BOSS_COORD = {8, 4};
+    inline const glm::ivec2 STORY_NODE_MAP_DIMENSIONS = {9, 8};
 
     inline float GAME_BOARD_BASED_SCENE_ZOOM_FACTOR = 120.0f;
 }
