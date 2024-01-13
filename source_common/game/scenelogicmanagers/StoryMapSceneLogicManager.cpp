@@ -191,6 +191,9 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
                 }
             }
             
+            auto guiInteractionResult = mGuiManager->Update(dtMillis);
+            bool interactedWithGui = guiInteractionResult == GuiUpdateInteractionResult::CLICKED_GUI_BUTTONS;
+            
             const auto& currentCoord = MapCoord(ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeCoord().x, ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeCoord().y);
             const auto& currentMapNode = mStoryMap->GetMapData().at(currentCoord);
                 
@@ -198,7 +201,7 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
             auto touchPos = inputStateManager.VGetPointingPosInWorldSpace(mSwipeCamera.GetViewMatrix(), mSwipeCamera.GetProjMatrix());
             auto worldTouchPos = glm::vec3(touchPos.x, touchPos.y, 0.0f);
             
-            if (inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON))
+            if (!interactedWithGui && inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON))
             {
                 bool tappedGuiSceneObject = false;
                 for (const auto& guiSceneObjectName: GUI_SCENE_OBJECT_NAMES)
@@ -257,7 +260,7 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
                     mHasStartedSwipe = true;
                 }
             }
-            else if (inputStateManager.VButtonPressed(input::Button::MAIN_BUTTON))
+            else if (!interactedWithGui && inputStateManager.VButtonPressed(input::Button::MAIN_BUTTON))
             {
                 if (mHasStartedSwipe)
                 {
@@ -265,12 +268,10 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
                     mSwipeCurrentPos = worldTouchPos;
                 }
             }
-            else if (!inputStateManager.VButtonPressed(input::Button::MAIN_BUTTON))
+            else if (!interactedWithGui && !inputStateManager.VButtonPressed(input::Button::MAIN_BUTTON))
             {
                 ResetSwipeData();
             }
-            
-            mGuiManager->Update(dtMillis);
             
         } break;
             

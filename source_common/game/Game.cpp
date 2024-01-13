@@ -38,7 +38,7 @@
 #include <game/scenelogicmanagers/LoadingSceneLogicManager.h>
 #include <game/scenelogicmanagers/MainMenuSceneLogicManager.h>
 #include <game/scenelogicmanagers/SettingsSceneLogicManager.h>
-#include <game/scenelogicmanagers/StoryCardsSceneLogicManager.h>
+#include <game/scenelogicmanagers/StoryCardsLibrarySceneLogicManager.h>
 #include <game/scenelogicmanagers/StoryMapSceneLogicManager.h>
 #include <game/scenelogicmanagers/VisitMapNodeSceneLogicManager.h>
 #include <game/scenelogicmanagers/WheelOfFortuneSceneLogicManager.h>
@@ -98,7 +98,7 @@ void Game::Init()
     mGameSceneTransitionManager->RegisterSceneLogicManager<SettingsSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<LoadingSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<MainMenuSceneLogicManager>();
-    mGameSceneTransitionManager->RegisterSceneLogicManager<StoryCardsSceneLogicManager>();
+    mGameSceneTransitionManager->RegisterSceneLogicManager<StoryCardsLibrarySceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<StoryMapSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<VisitMapNodeSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<WheelOfFortuneSceneLogicManager>();

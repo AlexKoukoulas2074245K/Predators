@@ -286,7 +286,11 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
             {
                 if (scene->IsLoaded())
                 {
-                    scene->GetCamera().Update(gameLogicMillis * scene->GetUpdateTimeSpeedFactor());
+                    if (scene->GetUpdateTimeSpeedFactor() >= 1.0f)
+                    {
+                        scene->GetCamera().Update(gameLogicMillis * scene->GetUpdateTimeSpeedFactor());
+                    }
+                    
                     mSystems->mParticleManager.UpdateSceneParticles(gameLogicMillis * scene->GetUpdateTimeSpeedFactor(), *scene);
                     mSystems->mSceneManager.SortSceneObjects(scene);
                 }

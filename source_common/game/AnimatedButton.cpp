@@ -88,8 +88,10 @@ AnimatedButton::~AnimatedButton()
 
 ///------------------------------------------------------------------------------------------------
 
-void AnimatedButton::Update(const float)
+ButtonUpdateInteractionResult AnimatedButton::Update(const float)
 {
+    ButtonUpdateInteractionResult interactionResult = ButtonUpdateInteractionResult::NOT_CLICKED;
+    
     const auto& inputStateManager = CoreSystemsEngine::GetInstance().GetInputStateManager();
     auto worldTouchPos = inputStateManager.VGetPointingPosInWorldSpace(mScene.GetCamera().GetViewMatrix(), mScene.GetCamera().GetProjMatrix());
     
@@ -98,6 +100,7 @@ void AnimatedButton::Update(const float)
     
     if (!mSceneObject->mInvisible && cursorInSceneObject && inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON) && !mAnimating)
     {
+        interactionResult = ButtonUpdateInteractionResult::CLICKED;
         mAnimating = true;
         auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
         auto originalScale = mSceneObject->mScale;
@@ -110,6 +113,8 @@ void AnimatedButton::Update(const float)
         // Dummy animation to invoke callback mid-way pulse animation
         animationManager.StartAnimation(std::make_unique<rendering::TweenRotationAnimation>(mSceneObject, mSceneObject->mRotation, INTERACTION_ANIMATION_DURATION/2, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), [=](){ mOnPressCallback(); }, BUTTON_CLICK_ANIMATION_NAME);
     }
+    
+    return interactionResult;
 }
 
 ///------------------------------------------------------------------------------------------------

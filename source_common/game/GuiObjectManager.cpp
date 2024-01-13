@@ -21,7 +21,6 @@
 ///------------------------------------------------------------------------------------------------
 
 static const strutils::StringId SETTINGS_SCENE = strutils::StringId("settings_scene");
-static const strutils::StringId STORY_CARDS_SCENE = strutils::StringId("story_cards_scene");
 static const strutils::StringId PARTICLE_EMITTER_SCENE_OBJECT_NAME = strutils::StringId("stat_particle_emitter");
 static const strutils::StringId PARTICLE_EMITTER_DEFINITION_COIN_SMALL = strutils::StringId("coin_gain_small");
 static const strutils::StringId PARTICLE_EMITTER_DEFINITION_COIN_LARGE = strutils::StringId("coin_gain_large");
@@ -164,13 +163,18 @@ GuiObjectManager::~GuiObjectManager()
 
 ///------------------------------------------------------------------------------------------------
 
-void GuiObjectManager::Update(const float dtMillis, const bool allowButtonInput /* = true */)
+GuiUpdateInteractionResult GuiObjectManager::Update(const float dtMillis, const bool allowButtonInput /* = true */)
 {
+    GuiUpdateInteractionResult interactionResult = GuiUpdateInteractionResult::DID_NOT_CLICK_GUI_BUTTONS;
+    
     if (allowButtonInput)
     {
         for (auto& animatedButton: mAnimatedButtons)
         {
-            animatedButton->Update(dtMillis);
+            if (animatedButton->Update(dtMillis) == ButtonUpdateInteractionResult::CLICKED)
+            {
+                interactionResult = GuiUpdateInteractionResult::CLICKED_GUI_BUTTONS;
+            }
         }
     }
     
@@ -180,6 +184,8 @@ void GuiObjectManager::Update(const float dtMillis, const bool allowButtonInput 
     
     mHealthStatContainer->Update(dtMillis);
     SetCoinValueText();
+    
+    return interactionResult;
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -376,7 +382,7 @@ void GuiObjectManager::OnSettingsButtonPressed()
 void GuiObjectManager::OnStoryCardsButtonPressed()
 {
     CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(mScene->GetUpdateTimeSpeedFactor(), 0.0f, game_constants::SCENE_SPEED_DILATION_ANIMATION_DURATION_SECS), [](){}, game_constants::SCENE_SPEED_DILATION_ANIMATION_NAME);
-    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(STORY_CARDS_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_CARDS_LIBRARY_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
 }
 
 ///------------------------------------------------------------------------------------------------

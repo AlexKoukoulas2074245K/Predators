@@ -17,6 +17,14 @@
 
 ///------------------------------------------------------------------------------------------------
 
+enum class GuiUpdateInteractionResult
+{
+    CLICKED_GUI_BUTTONS,
+    DID_NOT_CLICK_GUI_BUTTONS
+};
+
+///------------------------------------------------------------------------------------------------
+
 namespace scene { class Scene; }
 
 class AnimatedStatContainer;
@@ -27,7 +35,7 @@ public:
     GuiObjectManager(std::shared_ptr<scene::Scene> scene);
     ~GuiObjectManager();
     
-    void Update(const float dtMillis, const bool allowButtonInput = true);
+    GuiUpdateInteractionResult Update(const float dtMillis, const bool allowButtonInput = true);
     void OnWindowResize();
     void ForceSetStoryHealthValue(const int storyHealthValue);
     

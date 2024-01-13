@@ -90,6 +90,8 @@ namespace game_constants
     inline const strutils::StringId DORMANT_CARD_VALUE_UNIFORM_NAME = strutils::StringId("dormant_value");
     inline const strutils::StringId CUTOFF_MIN_X_UNIFORM_NAME = strutils::StringId("cutoff_min_x");
     inline const strutils::StringId CUTOFF_MAX_X_UNIFORM_NAME = strutils::StringId("cutoff_max_x");
+    inline const strutils::StringId CUTOFF_MIN_Y_UNIFORM_NAME = strutils::StringId("cutoff_min_y");
+    inline const strutils::StringId CUTOFF_MAX_Y_UNIFORM_NAME = strutils::StringId("cutoff_max_y");
     inline const strutils::StringId CUSTOM_COLOR_UNIFORM_NAME = strutils::StringId("custom_color");
     
     // Card Family Names
@@ -107,7 +109,7 @@ namespace game_constants
     inline const strutils::StringId MAIN_MENU_SCENE = strutils::StringId("main_menu_scene");
     inline const strutils::StringId STORY_MAP_SCENE = strutils::StringId("story_map_scene");
     inline const strutils::StringId EVENT_SCENE = strutils::StringId("event_scene");
-    inline const strutils::StringId STORY_CARDS_SCENE = strutils::StringId("story_cards_scene");
+    inline const strutils::StringId STORY_CARDS_LIBRARY_SCENE = strutils::StringId("story_cards_library_scene");
     inline const strutils::StringId WHEEL_OF_FORTUNE_SCENE = strutils::StringId("wheel_of_fortune_scene");
 
     // General Game Constants

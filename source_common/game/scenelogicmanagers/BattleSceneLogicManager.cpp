@@ -1857,7 +1857,7 @@ void BattleSceneLogicManager::OnCardHistoryEntryAddition(const events::CardHisto
         turnCounterStringSceneObject->mPosition += CARD_HISTORY_TURN_COUNTER_TEXT_OFFSET; // Offset to be considered by SwipeableContainer
         turnCounterStringSceneObject->mScale = glm::vec3(CARD_TOOLTIP_TEXT_FONT_SIZE * 1.8f);
         turnCounterStringSceneObject->mInvisible = true;
-        mCardHistoryContainer->AddItem({{historyEntrySceneObject, turnCounterStringSceneObject}, 0, false, true}, false);
+        mCardHistoryContainer->AddItem({{historyEntrySceneObject, turnCounterStringSceneObject}, 0, false, true}, EntryAdditionStrategy::ADD_IN_FRONT);
     }
     else
     {
@@ -1879,7 +1879,7 @@ void BattleSceneLogicManager::OnCardHistoryEntryAddition(const events::CardHisto
         historyEntrySceneObject->mBoundingRectMultiplier.x = game_constants::CARD_BOUNDING_RECT_X_MULTIPLIER;
         historyEntrySceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
         historyEntrySceneObject->mInvisible = true;
-        mCardHistoryContainer->AddItem({{historyEntrySceneObject}, cardSoWrapper->mCardData.mCardId, event.mForRemotePlayer, event.mIsTurnCounter}, false);
+        mCardHistoryContainer->AddItem({{historyEntrySceneObject}, cardSoWrapper->mCardData.mCardId, event.mForRemotePlayer, event.mIsTurnCounter}, EntryAdditionStrategy::ADD_IN_FRONT);
     }
 }
 

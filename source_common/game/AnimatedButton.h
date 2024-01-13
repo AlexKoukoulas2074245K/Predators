@@ -23,6 +23,14 @@ namespace scene { struct SceneObject; }
 
 ///------------------------------------------------------------------------------------------------
 
+enum class ButtonUpdateInteractionResult
+{
+    CLICKED,
+    NOT_CLICKED
+};
+
+///------------------------------------------------------------------------------------------------
+
 class AnimatedButton final
 {
 public:
@@ -51,7 +59,7 @@ public:
     );
     ~AnimatedButton();
     
-    void Update(const float dtMillis);
+    ButtonUpdateInteractionResult Update(const float dtMillis);
     std::shared_ptr<scene::SceneObject> GetSceneObject();
     
 private:

@@ -447,7 +447,7 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                     CardFamilyEntry cardEntry;
                     cardEntry.mCardFamilyName = cardFamilyEntry.first;
                     cardEntry.mSceneObjects.emplace_back(cardFamilyEntrySceneObject);
-                    mCardFamilyContainerBot->AddItem(std::move(cardEntry), true);
+                    mCardFamilyContainerBot->AddItem(std::move(cardEntry), EntryAdditionStrategy::ADD_ON_THE_BACK);
                 }
             }
             
@@ -561,7 +561,7 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                     CardFamilyEntry topEntry;
                     topEntry.mCardFamilyName = cardFamilyEntry.first;
                     topEntry.mSceneObjects.emplace_back(cardFamilyEntrySceneObject);
-                    mCardFamilyContainerTop->AddItem(std::move(topEntry), true);
+                    mCardFamilyContainerTop->AddItem(std::move(topEntry), EntryAdditionStrategy::ADD_ON_THE_BACK);
                 }
                 
                 {
@@ -577,7 +577,7 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                     CardFamilyEntry botEntry;
                     botEntry.mCardFamilyName = cardFamilyEntry.first;
                     botEntry.mSceneObjects.emplace_back(cardFamilyEntrySceneObject);
-                    mCardFamilyContainerBot->AddItem(std::move(botEntry), true);
+                    mCardFamilyContainerBot->AddItem(std::move(botEntry), EntryAdditionStrategy::ADD_ON_THE_BACK);
                 }
             }
             
