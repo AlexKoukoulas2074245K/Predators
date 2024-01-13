@@ -121,7 +121,7 @@ namespace game_constants
     inline constexpr int TOP_PLAYER_DEFAULT_HEALTH = 33;
     inline constexpr int BOT_PLAYER_DEFAULT_HEALTH = 35;
     inline constexpr int TOP_PLAYER_DEFAULT_WEIGHT = 3;
-    inline constexpr int BOT_PLAYER_DEFAULT_WEIGHT = 3;
+    inline constexpr int BOT_PLAYER_DEFAULT_WEIGHT = 4;
     inline constexpr int TOP_PLAYER_DEFAULT_WEIGHT_LIMIT = 10;
     inline constexpr int BOT_PLAYER_DEFAULT_WEIGHT_LIMIT = 10;
     inline constexpr int STORY_DEFAULT_MAX_HEALTH = 60;

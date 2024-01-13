@@ -25,7 +25,7 @@ static const std::vector<int> FRESH_ACCOUNT_UNLOCKED_CARDS =
     17, 14, 3, 16, 4, 15, 8, 9, 7, 10, 2, 12,
     
     // Rest of available cards
-    0, 13, 6, 1, 11, 5, 18, 20, 21, 27, 28
+    0, 13, 6, 1, 11, 5, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28
 };
 
 static const std::unordered_map<strutils::StringId, std::vector<int>, strutils::StringIdHasher> FAMILY_STORY_STARTING_CARDS =
