@@ -97,7 +97,7 @@ static const glm::vec3 ENCOUNTER_STAT_HEALTH_ICON_POSITION_OFFSET = {0.00f, 0.07
 static const glm::vec3 ENCOUNTER_STAT_DAMAGE_ICON_POSITION_OFFSET = {-0.04f, 0.05f, 0.12f};
 static const glm::vec3 ENCOUNTER_STAT_WEIGHT_ICON_POSITION_OFFSET = {0.04f, 0.05f, 0.12f};
 
-static const float NODE_GENERATION_POSITION_NOISE = 0.1f;
+static const float NODE_GENERATION_POSITION_NOISE = 0.01f;
 static const float NODE_POSITION_Z = 0.1f;
 static const float NODE_PATH_POSITION_Z = 0.01f;
 static const float NODE_SCALE = 0.18f;
@@ -116,7 +116,7 @@ static const float ELITE_STAT_FACTOR = 1.5f;
 static const float BOSS_STAT_FACTOR = 3.0f;
 
 static const int MAP_PATH_SEGMENTS_FACTOR = 30;
-static const int MAP_GENERATION_PASSES = 6;
+static const int MAP_GENERATION_PASSES = 7;
 
 #if defined(NDEBUG) || defined(MOBILE_FLOW)
 static const float NODES_CLOSE_ENOUGH_THRESHOLD = 0.050f;
@@ -124,9 +124,9 @@ static const float NODES_CLOSE_ENOUGH_TO_EDGE_NODES_THRESHOLD = 0.075f;
 static const int MAX_MAP_GENERATION_ATTEMPTS = 100000;
 static const glm::vec2 VERTICAL_MAP_EDGE = {-0.95f, 0.95f};
 #else
-static const float NODES_CLOSE_ENOUGH_THRESHOLD = 0.030f;
+static const float NODES_CLOSE_ENOUGH_THRESHOLD = 0.050f;
 static const float NODES_CLOSE_ENOUGH_TO_EDGE_NODES_THRESHOLD = 0.075f;
-static const int MAX_MAP_GENERATION_ATTEMPTS = 50000;
+static const int MAX_MAP_GENERATION_ATTEMPTS = 100000;
 static const glm::vec2 VERTICAL_MAP_EDGE = {-0.95f, 0.95f};
 #endif
 
@@ -234,6 +234,13 @@ void StoryMap::GenerateMapData()
             }
         }
     } while (FoundCloseEnoughNodes() && mMapGenerationAttemptsRemaining > 0);
+
+    
+    for (auto& mapNodeEntry: mMapData)
+    {
+        mapNodeEntry.second.mPosition.x += math::ControlledRandomFloat(-NODE_GENERATION_POSITION_NOISE, NODE_GENERATION_POSITION_NOISE);
+        mapNodeEntry.second.mPosition.y += math::ControlledRandomFloat(-NODE_GENERATION_POSITION_NOISE, NODE_GENERATION_POSITION_NOISE);
+    }
     
     CoreSystemsEngine::GetInstance().GetResourceLoadingService().AddArtificialLoadingJobCount(-mMapGenerationAttemptsRemaining);
 }
@@ -729,8 +736,8 @@ glm::vec3 StoryMap::GenerateNodePositionForCoord(const MapCoord& mapCoord) const
             NODE_POSITION_Z
         );
         
-        resultPosition.x += math::ControlledRandomFloat(-NODE_GENERATION_POSITION_NOISE, NODE_GENERATION_POSITION_NOISE);
-        resultPosition.y += math::ControlledRandomFloat(-NODE_GENERATION_POSITION_NOISE, NODE_GENERATION_POSITION_NOISE);
+        //resultPosition.x += math::ControlledRandomFloat(-NODE_GENERATION_POSITION_NOISE, NODE_GENERATION_POSITION_NOISE);
+        //resultPosition.y += math::ControlledRandomFloat(-NODE_GENERATION_POSITION_NOISE, NODE_GENERATION_POSITION_NOISE);
         return resultPosition;
     }
 }
