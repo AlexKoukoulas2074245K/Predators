@@ -76,18 +76,19 @@
 					"page": "0",
 					"chnl": "15"
 				},
-				{
-					"id": "36",
-					"x": "202",
-					"y": "301",
-					"width": "60",
-					"height": "85",
-					"xoffset": "0",
-					"yoffset": "21",
-					"xadvance": "0",
-					"page": "0",
-					"chnl": "15"
-				},
+                {
+                    "id": "36",
+                    "x": "104",
+                    "y": "934",
+                    "width": "74",
+                    "height": "89",
+                    "xoffset": "0",
+                    "yoffset": "24",
+                    "xadvance": "0",
+                    "page": "0",
+                    "chnl": "15",
+                    "xoffsetoverride": "5"
+                },
 				{
 					"id": "37",
 					"x": "785",

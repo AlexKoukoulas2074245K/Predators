@@ -104,6 +104,7 @@ public:
     std::vector<int> GetCardIdsByFamily(const strutils::StringId& family) const;
     std::vector<int> GetStoryStartingFamilyCards(const strutils::StringId& family) const;
     std::vector<int> GetFreshAccountUnlockedCardIds() const;
+    std::vector<int> GetStoryUnlockedCardRewardsPool() const;
     
     CardData GetCardData(const int cardId, const size_t forPlayerIndex) const;
     const std::unordered_set<strutils::StringId, strutils::StringIdHasher>& GetCardFamilies() const;

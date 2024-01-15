@@ -34,6 +34,7 @@
 		3651C3A6F6531ABC2B5530B4 /* PersistenceUtils.h in Sources */ = {isa = PBXBuildFile; fileRef = 7E1FF37E2BCC1C04EABA7D6E /* PersistenceUtils.h */; };
 		3932349844F41A87BC153A8B /* TypeTraits.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EEE04C21CA0FF05632F35BB0 /* TypeTraits.cpp */; };
 		3A9BD4564DDE3B7F770B61FE /* PoisonStackApplicationGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B450F00D571A19EEA2B2018C /* PoisonStackApplicationGameAction.cpp */; };
+		3B49AD411488A17EF9B3007B /* ShopSceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 969369178A2CD8E5A6B8CB49 /* ShopSceneLogicManager.cpp */; };
 		3BF66DE631A90A5B18DAA6D7 /* ImageSurfaceLoader.h in Sources */ = {isa = PBXBuildFile; fileRef = 809A245389B128D782E60C07 /* ImageSurfaceLoader.h */; };
 		3C57F79423A88F9B91DB228F /* HeroCardEntryGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 516E3FF0C808841DB35ACF05 /* HeroCardEntryGameAction.cpp */; };
 		3D7719CC812F54B85FE8CF15 /* LoadingSceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = D06AB41BD48F4EA034DFC9A4 /* LoadingSceneLogicManager.h */; };
@@ -127,6 +128,7 @@
 		9DAEE50129D933B49F2D889B /* PoisonStackApplicationGameAction.h in Sources */ = {isa = PBXBuildFile; fileRef = 01DE8026E42F962701EBA308 /* PoisonStackApplicationGameAction.h */; };
 		9DBA498D23201024485D2301 /* StoryMapSceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6DABF2AD773648BC395F392D /* StoryMapSceneLogicManager.cpp */; };
 		A06267DC99AA41180FEEC5E7 /* IOSUtils.h in Sources */ = {isa = PBXBuildFile; fileRef = 70EAA9FFECCEE753A4D14AFF /* IOSUtils.h */; };
+		A20370A7C2235BBC2097574B /* ShopSceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = E935A2EA8B754F3F46B4A382 /* ShopSceneLogicManager.h */; };
 		A2D77982E2E1A21D9C1F22E3 /* EventSystem.h in Sources */ = {isa = PBXBuildFile; fileRef = E3A1C56ACA5ABB18A5A59BA3 /* EventSystem.h */; };
 		A32674AD8171CEFC27ED2AD7 /* StoryDeserializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 041558AA2FB286F980BF8F5F /* StoryDeserializer.cpp */; };
 		A546A01450E839443B41CA7C /* PlayerActionGenerationEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 412405F5A340366C4088FC72 /* PlayerActionGenerationEngine.cpp */; };
@@ -459,6 +461,7 @@
 		93034CE828C15EDB4C413249 /* BattleInitialSetupAndAnimationGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = BattleInitialSetupAndAnimationGameAction.h; path = BattleInitialSetupAndAnimationGameAction.h; sourceTree = "<group>"; };
 		93AE986D787BD40CD2934725 /* CardDestructionGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = CardDestructionGameAction.h; sourceTree = "<group>"; };
 		965C368E9DEEED51FA4114BC /* ProgressionDataRepository.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = ProgressionDataRepository.h; sourceTree = "<group>"; };
+		969369178A2CD8E5A6B8CB49 /* ShopSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = ShopSceneLogicManager.cpp; path = ShopSceneLogicManager.cpp; sourceTree = "<group>"; };
 		989D5D93E995723F377B2323 /* ThreadSafeQueue.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = ThreadSafeQueue.h; sourceTree = "<group>"; };
 		9F590974FFD4AB7AC83044F3 /* CardEffectComponents.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = CardEffectComponents.h; sourceTree = "<group>"; };
 		A3FCED8F928A60D20E451BCD /* PostNextPlayerGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = PostNextPlayerGameAction.h; sourceTree = "<group>"; };
@@ -497,6 +500,7 @@
 		E3A1C56ACA5ABB18A5A59BA3 /* EventSystem.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = EventSystem.h; sourceTree = "<group>"; };
 		E67EDB3334F60D1E57A5E6BD /* MainMenuSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = MainMenuSceneLogicManager.h; sourceTree = "<group>"; };
 		E765BE8BAD6EAAC5948DFB99 /* ParticleManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = ParticleManager.cpp; sourceTree = "<group>"; };
+		E935A2EA8B754F3F46B4A382 /* ShopSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ShopSceneLogicManager.h; path = ShopSceneLogicManager.h; sourceTree = "<group>"; };
 		EBD75F47AAFEB22AFA92DD21 /* PersistentAccountDataSerializer.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = PersistentAccountDataSerializer.cpp; path = PersistentAccountDataSerializer.cpp; sourceTree = "<group>"; };
 		EBF846548488DC5997004413 /* AnimationManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = AnimationManager.cpp; sourceTree = "<group>"; };
 		EC84408B7534251FFDF0A260 /* StorySerializer.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = StorySerializer.h; path = StorySerializer.h; sourceTree = "<group>"; };
@@ -919,6 +923,8 @@
 				18B3950AA83508FC6734E727 /* CardSelectionRewardSceneLogicManager.h */,
 				65DCF9D70C7A6F01862E6A92 /* StoryCardsLibrarySceneLogicManager.cpp */,
 				2C4124CE0B64C4F9BFBD0AA7 /* StoryCardsLibrarySceneLogicManager.h */,
+				969369178A2CD8E5A6B8CB49 /* ShopSceneLogicManager.cpp */,
+				E935A2EA8B754F3F46B4A382 /* ShopSceneLogicManager.h */,
 			);
 			path = scenelogicmanagers;
 			sourceTree = "<group>";
@@ -1341,6 +1347,8 @@
 				744C51C935086C2888B24309 /* CardSelectionRewardSceneLogicManager.h in Sources */,
 				CA8814DD5327C80AB298D0C8 /* StoryCardsLibrarySceneLogicManager.cpp in Sources */,
 				AD0736CBEE6D7B8E9093E0DC /* StoryCardsLibrarySceneLogicManager.h in Sources */,
+				3B49AD411488A17EF9B3007B /* ShopSceneLogicManager.cpp in Sources */,
+				A20370A7C2235BBC2097574B /* ShopSceneLogicManager.h in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

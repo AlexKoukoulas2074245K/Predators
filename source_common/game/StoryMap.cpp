@@ -736,8 +736,6 @@ glm::vec3 StoryMap::GenerateNodePositionForCoord(const MapCoord& mapCoord) const
             NODE_POSITION_Z
         );
         
-        //resultPosition.x += math::ControlledRandomFloat(-NODE_GENERATION_POSITION_NOISE, NODE_GENERATION_POSITION_NOISE);
-        //resultPosition.y += math::ControlledRandomFloat(-NODE_GENERATION_POSITION_NOISE, NODE_GENERATION_POSITION_NOISE);
         return resultPosition;
     }
 }
@@ -756,7 +754,7 @@ StoryMap::NodeType StoryMap::SelectNodeTypeForCoord(const MapCoord& mapCoord) co
     {
         return NodeType::BOSS_ENCOUNTER;
     }
-    else if (mapCoord.mCol == mMapDimensions.x - 2)
+    else if (mapCoord.mCol == mMapDimensions.x - 8)
     {
         return NodeType::SHOP;
     }

@@ -32,7 +32,8 @@ enum class StoryMapSceneType
 {
     STORY_MAP,
     EVENT,
-    BATTLE
+    BATTLE,
+    SHOP
 };
 
 ///------------------------------------------------------------------------------------------------

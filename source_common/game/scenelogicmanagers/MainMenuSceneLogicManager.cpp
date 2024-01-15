@@ -122,7 +122,8 @@ static const std::unordered_map<StoryMapSceneType, strutils::StringId> STORY_MAP
 {
     { StoryMapSceneType::STORY_MAP, game_constants::STORY_MAP_SCENE },
     { StoryMapSceneType::EVENT, game_constants::EVENT_SCENE },
-    { StoryMapSceneType::BATTLE, game_constants::BATTLE_SCENE }
+    { StoryMapSceneType::BATTLE, game_constants::BATTLE_SCENE },
+    { StoryMapSceneType::SHOP, game_constants::SHOP_SCENE }
 };
 
 ///------------------------------------------------------------------------------------------------

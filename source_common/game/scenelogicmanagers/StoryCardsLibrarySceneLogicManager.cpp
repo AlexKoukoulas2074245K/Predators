@@ -268,6 +268,7 @@ void StoryCardsLibrarySceneLogicManager::VDestroyScene(std::shared_ptr<scene::Sc
                 sceneObject->mName == CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES[3]
             )
             {
+                sceneObject->mInvisible = true;
                 return;
             }
             scene->RemoveSceneObject(sceneObject->mName);

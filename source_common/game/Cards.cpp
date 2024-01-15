@@ -108,6 +108,38 @@ std::vector<int> CardDataRepository::GetFreshAccountUnlockedCardIds() const
 
 ///------------------------------------------------------------------------------------------------
 
+std::vector<int> CardDataRepository::GetStoryUnlockedCardRewardsPool() const
+{
+    auto guessedStoryDeckFamilyName = GuessCurrentStoryDeckFamily();
+    auto allStoryDeckFamilyCards = GetCardIdsByFamily(guessedStoryDeckFamilyName);
+    std::sort(allStoryDeckFamilyCards.begin(), allStoryDeckFamilyCards.end());
+    
+    auto unlockedCards = ProgressionDataRepository::GetInstance().GetUnlockedCardIds();
+    std::sort(unlockedCards.begin(), unlockedCards.end());
+    
+    // Find unlocked cards for the current story deck's family
+    std::vector<int> familyUnlockedCards;
+    std::set_intersection(allStoryDeckFamilyCards.begin(), allStoryDeckFamilyCards.end(), unlockedCards.begin(), unlockedCards.end(), std::back_inserter(familyUnlockedCards));
+    
+    auto currentStoryDeck = ProgressionDataRepository::GetInstance().GetCurrentStoryPlayerDeck();
+    std::sort(currentStoryDeck.begin(), currentStoryDeck.end());
+    
+    // Final reward card pool is unlocked family cards minus any card on the current story deck
+    std::vector<int> finalRewardCardPool;
+    std::set_difference(familyUnlockedCards.begin(), familyUnlockedCards.end(), currentStoryDeck.begin(), currentStoryDeck.end(), std::back_inserter(finalRewardCardPool));
+    
+    // Claimed all possible unlocked family cards that are not in the current deck?
+    if (finalRewardCardPool.empty())
+    {
+        // Select duplicates from deck
+        finalRewardCardPool = currentStoryDeck;
+    };
+    
+    return finalRewardCardPool;
+}
+
+///------------------------------------------------------------------------------------------------
+
 CardData CardDataRepository::GetCardData(const int cardId, const size_t forPlayerIndex) const
 {
     auto findIter = mCardDataMap.find(cardId);

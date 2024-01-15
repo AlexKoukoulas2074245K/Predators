@@ -336,35 +336,11 @@ std::shared_ptr<GuiObjectManager> CardSelectionRewardSceneLogicManager::VGetGuiO
 
 void CardSelectionRewardSceneLogicManager::CreateCardRewards(std::shared_ptr<scene::Scene> scene)
 {
-    auto guessedStoryDeckFamilyName = CardDataRepository::GetInstance().GuessCurrentStoryDeckFamily();
-    auto allStoryDeckFamilyCards = CardDataRepository::GetInstance().GetCardIdsByFamily(guessedStoryDeckFamilyName);
-    std::sort(allStoryDeckFamilyCards.begin(), allStoryDeckFamilyCards.end());
-    
-    auto unlockedCards = ProgressionDataRepository::GetInstance().GetUnlockedCardIds();
-    std::sort(unlockedCards.begin(), unlockedCards.end());
-    
-    // Find unlocked cards for the current story deck's family
-    std::vector<int> familyUnlockedCards;
-    std::set_intersection(allStoryDeckFamilyCards.begin(), allStoryDeckFamilyCards.end(), unlockedCards.begin(), unlockedCards.end(), std::back_inserter(familyUnlockedCards));
-    
-    auto currentStoryDeck = ProgressionDataRepository::GetInstance().GetCurrentStoryPlayerDeck();
-    std::sort(currentStoryDeck.begin(), currentStoryDeck.end());
-    
-    // Final reward card pool is unlocked family cards minus any card on the current story deck
-    std::vector<int> finalRewardCardPool;
-    std::set_difference(familyUnlockedCards.begin(), familyUnlockedCards.end(), currentStoryDeck.begin(), currentStoryDeck.end(), std::back_inserter(finalRewardCardPool));
-    
-    // Claimed all possible unlocked family cards that are not in the current deck?
-    if (finalRewardCardPool.empty())
-    {
-        // Select duplicates from deck
-        finalRewardCardPool = currentStoryDeck;
-    }
-    
+    const auto& cardRewardsPool = CardDataRepository::GetInstance().GetStoryUnlockedCardRewardsPool();
     for (size_t i = 0; i < 3; ++i)
     {
-        auto randomCardIndex = math::ControlledRandomInt() % finalRewardCardPool.size();
-        auto cardData = CardDataRepository::GetInstance().GetCardData(finalRewardCardPool[randomCardIndex], game_constants::LOCAL_PLAYER_INDEX);
+        auto randomCardIndex = math::ControlledRandomInt() % cardRewardsPool.size();
+        auto cardData = CardDataRepository::GetInstance().GetCardData(cardRewardsPool[randomCardIndex], game_constants::LOCAL_PLAYER_INDEX);
         mCardRewards.push_back(card_utils::CreateCardSoWrapper(&cardData, glm::vec3(-0.18f + 0.15 * i, -0.0f, 23.2f), CARD_REWARD_SCENE_OBJECT_NAME_PREFIX + std::to_string(i), CardOrientation::FRONT_FACE, CardRarity::NORMAL, false, false, true, {}, {}, *scene));
         mCardRewards.back()->mSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
         mCardRewards.back()->mSceneObject->mScale = CARD_REWARD_DEFAULT_SCALE;

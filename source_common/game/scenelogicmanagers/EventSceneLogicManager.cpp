@@ -21,7 +21,6 @@
 
 ///------------------------------------------------------------------------------------------------
 
-static const strutils::StringId VISIT_BUTTON_NAME = strutils::StringId("visit_button");
 static const strutils::StringId EVENT_PORTRAIT_SCENE_OBJECT_NAME = strutils::StringId("event_portrait");
 static const strutils::StringId EVENT_DESCRIPTION_SCENE_OBJECT_NAME = strutils::StringId("event_description");
 static const strutils::StringId EVENT_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("event_button");
