@@ -134,23 +134,8 @@ void ShopSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene:
         case SceneState::CREATING_DYNAMIC_OBJECTS:
         {
             CreateDynamicSceneObjects();
-            
-            size_t scenObjectIndex = 0U;
-            for (auto sceneObject: mScene->GetSceneObjects())
-            {
-                if (!strutils::StringStartsWith(sceneObject->mName.GetString(), PRODUCT_NAME_PREFIX))
-                {
-                    continue;
-                }
-                
-                sceneObject->mInvisible = false;
-                sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
-                
-                CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, 1.0f, FADE_IN_OUT_DURATION_SECS, animation_flags::NONE, scenObjectIndex++ * STAGGERED_FADE_IN_SECS), [=]()
-                {
-                });
-            }
-    
+            FadeInDynamicSceneObjects();
+
             OnWindowResize(events::WindowResizeEvent{});
             mSceneState = SceneState::BROWSING_SHOP;
         } break;
@@ -194,7 +179,7 @@ void ShopSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene:
                     auto sceneObjectRect = scene_object_utils::GetSceneObjectBoundingRect(*product->mSceneObjects.front());
                     
                     bool cursorInSceneObject = math::IsPointInsideRectangle(sceneObjectRect.bottomLeft, sceneObjectRect.topRight, worldTouchPos);
-                    if (cursorInSceneObject && inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON))
+                    if (cursorInSceneObject && inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON) && mItemsFinishedFadingIn)
                     {
                         // Product highlighting
                         if (!product->mHighlighted)
@@ -352,6 +337,41 @@ void ShopSceneLogicManager::CreateDynamicSceneObjects()
     ));
     mAnimatedButtons.back()->GetSceneObject()->mInvisible = true;
     mAnimatedButtons.back()->GetSceneObject()->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ShopSceneLogicManager::FadeInDynamicSceneObjects()
+{
+    size_t sceneObjectCounter = 0U;
+    mItemsFinishedFadingIn = false;
+    for (auto shelfIndex = 0U; shelfIndex < mProducts.size(); ++shelfIndex)
+    {
+        for (auto shelfItemIndex = 0U; shelfItemIndex < mProducts[shelfIndex].size(); ++shelfItemIndex)
+        {
+            if (mProducts[shelfIndex][shelfItemIndex] == nullptr)
+            {
+                continue;
+            }
+            
+            auto& product = mProducts[shelfIndex][shelfItemIndex];
+            auto productSceneObjectCount = product->mSceneObjects.size();
+            for (auto sceneObjectIndex = 0U; sceneObjectIndex < product->mSceneObjects.size(); ++sceneObjectIndex)
+            {
+                auto sceneObject = product->mSceneObjects[sceneObjectIndex];
+                sceneObject->mInvisible = false;
+                sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+                
+                CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, 1.0f, FADE_IN_OUT_DURATION_SECS, animation_flags::NONE, sceneObjectCounter++ * STAGGERED_FADE_IN_SECS), [=]()
+                {
+                    if (shelfIndex == SHELF_COUNT - 1 && shelfItemIndex == SHELF_ITEM_COUNT - 1 && sceneObjectIndex == productSceneObjectCount - 1)
+                    {
+                        mItemsFinishedFadingIn = true;
+                    }
+                });
+            }
+        }
+    }
 }
 
 ///------------------------------------------------------------------------------------------------

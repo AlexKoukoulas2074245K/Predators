@@ -39,6 +39,7 @@ private:
     void RegisterForEvents();
     void OnWindowResize(const events::WindowResizeEvent& event);
     void CreateDynamicSceneObjects();
+    void FadeInDynamicSceneObjects();
     void CreateProducts();
     void HighlightProduct(const size_t productShelfIndex, const size_t productShelfItemIndex);
     void DehighlightProduct(const size_t productShelfIndex, const size_t productShelfItemIndex);
@@ -78,6 +79,7 @@ private:
     std::shared_ptr<scene::Scene> mScene;
     SceneState mSceneState;
     glm::vec3 mSelectedProductInitialPosition;
+    bool mItemsFinishedFadingIn;
 };
 
 ///------------------------------------------------------------------------------------------------
