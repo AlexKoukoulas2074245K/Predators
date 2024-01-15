@@ -42,6 +42,8 @@ private:
     void CreateProducts();
     void HighlightProduct(const size_t productShelfIndex, const size_t productShelfItemIndex);
     void DehighlightProduct(const size_t productShelfIndex, const size_t productShelfItemIndex);
+    void SelectProduct(const size_t productShelfIndex, const size_t productShelfItemIndex);
+    void DeselectProduct(const size_t productShelfIndex, const size_t productShelfItemIndex);
     
 private:
     struct Product
@@ -65,6 +67,7 @@ private:
     {
         CREATING_DYNAMIC_OBJECTS,
         BROWSING_SHOP,
+        SELECTED_PRODUCT,
         LEAVING_SHOP
     };
     
@@ -74,6 +77,7 @@ private:
     std::shared_ptr<GuiObjectManager> mGuiManager;
     std::shared_ptr<scene::Scene> mScene;
     SceneState mSceneState;
+    glm::vec3 mSelectedProductInitialPosition;
 };
 
 ///------------------------------------------------------------------------------------------------
