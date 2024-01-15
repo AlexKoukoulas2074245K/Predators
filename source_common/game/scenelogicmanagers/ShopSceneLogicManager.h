@@ -38,7 +38,10 @@ public:
 private:
     void RegisterForEvents();
     void OnWindowResize(const events::WindowResizeEvent& event);
+    void CreateDynamicSceneObjects();
     void CreateProducts();
+    void HighlightProduct(const size_t productShelfIndex, const size_t productShelfItemIndex);
+    void DehighlightProduct(const size_t productShelfIndex, const size_t productShelfItemIndex);
     
 private:
     struct Product
@@ -47,6 +50,7 @@ private:
             : mProductId(productId)
             , mPrice(price)
             , mSingleUse(singleUse)
+            , mHighlighted(false)
         {
         }
         
@@ -54,6 +58,14 @@ private:
         const int mPrice;
         const bool mSingleUse;
         std::vector<std::shared_ptr<scene::SceneObject>> mSceneObjects;
+        bool mHighlighted;
+    };
+    
+    enum class SceneState
+    {
+        CREATING_DYNAMIC_OBJECTS,
+        BROWSING_SHOP,
+        LEAVING_SHOP
     };
     
 private:
@@ -61,8 +73,7 @@ private:
     std::vector<std::vector<std::unique_ptr<Product>>> mProducts;
     std::shared_ptr<GuiObjectManager> mGuiManager;
     std::shared_ptr<scene::Scene> mScene;
-    bool mTransitioning;
-    bool mHasCreatedSceneObjects;
+    SceneState mSceneState;
 };
 
 ///------------------------------------------------------------------------------------------------

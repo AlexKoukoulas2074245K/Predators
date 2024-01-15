@@ -109,6 +109,61 @@ std::shared_ptr<scene::SceneObject> TweenPositionScaleAnimation::VGetSceneObject
 
 ///------------------------------------------------------------------------------------------------
 
+TweenPositionScaleGroupAnimation::TweenPositionScaleGroupAnimation(std::vector<std::shared_ptr<scene::SceneObject>> sceneObjectTargets, const glm::vec3& targetPosition, const glm::vec3& targetScale, const float secsDuration, const uint8_t animationFlags /* = animation_flags::NONE */, const float secsDelay /* = 0.0f */, const std::function<float(const float)> tweeningFunc /* = math::LinearFunction */, const math::TweeningMode tweeningMode /* = math::TweeningMode::EASE_IN */)
+    : BaseAnimation(animationFlags, secsDuration, secsDelay)
+    , mSceneObjectTargets(sceneObjectTargets)
+    , mTweeningFunc(tweeningFunc)
+    , mTweeningMode(tweeningMode)
+{
+    assert(!IS_FLAG_SET(animation_flags::ANIMATE_CONTINUOUSLY));
+    
+    float scaleRatioX = targetScale.x/sceneObjectTargets.front()->mScale.x;
+    float scaleRatioY = targetScale.y/sceneObjectTargets.front()->mScale.y;
+
+    for (auto sceneObject: sceneObjectTargets)
+    {
+        glm::vec3 sceneObjectOffset(0.0f);
+        
+        sceneObjectOffset = sceneObject->mPosition - sceneObjectTargets.front()->mPosition;
+        
+        mInitPositions.emplace_back(sceneObject->mPosition);
+        mTargetPositions.emplace_back(targetPosition + (glm::vec3(sceneObjectOffset.x * scaleRatioX, sceneObjectOffset.y * scaleRatioY, sceneObjectOffset.z)));
+
+        mInitScales.emplace_back(sceneObject->mScale);
+        mTargetScales.emplace_back(glm::vec3(sceneObject->mScale.x * scaleRatioX, sceneObject->mScale.y * scaleRatioY, 1.0f));
+    }
+}
+
+AnimationUpdateResult TweenPositionScaleGroupAnimation::VUpdate(const float dtMillis)
+{
+    auto animationUpdateResult = BaseAnimation::VUpdate(dtMillis);
+    
+    for (size_t i = 0; i < mSceneObjectTargets.size(); ++i)
+     {
+         auto sceneObject = mSceneObjectTargets.at(i);
+
+         float x = sceneObject->mPosition.x;
+         float z = sceneObject->mPosition.z;
+         float y = sceneObject->mPosition.y;
+
+         sceneObject->mPosition = math::Lerp(mInitPositions[i], mTargetPositions[i], math::TweenValue(mAnimationT, mTweeningFunc, mTweeningMode));
+         sceneObject->mPosition.z = IS_FLAG_SET(animation_flags::IGNORE_Z_COMPONENT) ? z : sceneObject->mPosition.z;
+         sceneObject->mPosition.x = IS_FLAG_SET(animation_flags::IGNORE_X_COMPONENT) ? x : sceneObject->mPosition.x;
+         sceneObject->mPosition.y = IS_FLAG_SET(animation_flags::IGNORE_Y_COMPONENT) ? y : sceneObject->mPosition.y;
+
+         sceneObject->mScale = math::Lerp(mInitScales[i], mTargetScales[i], math::TweenValue(mAnimationT, mTweeningFunc, mTweeningMode));
+     }
+    
+    return animationUpdateResult;
+}
+
+std::shared_ptr<scene::SceneObject> TweenPositionScaleGroupAnimation::VGetSceneObject()
+{
+    return mSceneObjectTargets.front();
+}
+
+///------------------------------------------------------------------------------------------------
+
 TweenRotationAnimation::TweenRotationAnimation(std::shared_ptr<scene::SceneObject> sceneObjectTarget, const glm::vec3& targetRotation, const float secsDuration, const uint8_t animationFlags /* = animation_flags::NONE */, const float secsDelay /* = 0.0f */, const std::function<float(const float)> tweeningFunc /* = math::LinearFunction */, const math::TweeningMode tweeningMode /* = math::TweeningMode::EASE_IN */)
     : BaseAnimation(animationFlags, secsDuration, secsDelay)
     , mSceneObjectTarget(sceneObjectTarget)

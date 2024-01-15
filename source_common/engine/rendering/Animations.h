@@ -102,6 +102,25 @@ private:
 
 ///------------------------------------------------------------------------------------------------
 
+class TweenPositionScaleGroupAnimation final: public BaseAnimation
+{
+public:
+    TweenPositionScaleGroupAnimation(std::vector<std::shared_ptr<scene::SceneObject>> sceneObjectTargets, const glm::vec3& targetPosition, const glm::vec3& targetScale, const float secsDuration, const uint8_t animationFlags = animation_flags::NONE, const float secsDelay = 0.0f, const std::function<float(const float)> tweeningFunc = math::LinearFunction, const math::TweeningMode tweeningMode = math::TweeningMode::EASE_IN);
+    AnimationUpdateResult VUpdate(const float dtMillis) override;
+    std::shared_ptr<scene::SceneObject> VGetSceneObject() override;
+    
+private:
+    std::vector<std::shared_ptr<scene::SceneObject>> mSceneObjectTargets;
+    const std::function<float(const float)> mTweeningFunc;
+    const math::TweeningMode mTweeningMode;
+    std::vector<glm::vec3> mInitScales;
+    std::vector<glm::vec3> mTargetScales;
+    std::vector<glm::vec3> mInitPositions;
+    std::vector<glm::vec3> mTargetPositions;
+};
+
+///------------------------------------------------------------------------------------------------
+
 class TweenRotationAnimation final: public BaseAnimation
 {
 public:

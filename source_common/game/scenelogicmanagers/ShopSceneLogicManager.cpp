@@ -6,9 +6,11 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <engine/CoreSystemsEngine.h>
+#include <engine/input/IInputStateManager.h>
 #include <engine/rendering/AnimationManager.h>
 #include <engine/rendering/ParticleManager.h>
 #include <engine/resloading/ResourceLoadingService.h>
+#include <engine/scene/SceneObjectUtils.h>
 #include <engine/utils/Logging.h>
 #include <engine/utils/PlatformMacros.h>
 #include <engine/scene/SceneManager.h>
@@ -60,6 +62,9 @@ static const glm::vec2 PRODUCT_GROUP_MIN_MAX_ANIMATION_DELAY_SECS = {0.0f, 1.0f}
 static const float PRODUCT_BOUNCE_ANIMATION_DURATION_SECS = 1.0f;
 static const float CONTINUE_BUTTON_SNAP_TO_EDGE_FACTOR = 950000.0f;
 static const float FADE_IN_OUT_DURATION_SECS = 0.25f;
+static const float HIGHLIGHTED_PRODUCT_SCALE_FACTOR = 1.25f;
+static const float PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS = 0.5f;
+static const float STAGGERED_FADE_IN_SECS = 0.1f;
 
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
 {
@@ -102,7 +107,6 @@ void ShopSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     CardDataRepository::GetInstance().LoadCardData(true);
     
     mScene = scene;
-    mTransitioning = false;
     mGuiManager = std::make_shared<GuiObjectManager>(scene);
     
     RegisterForEvents();
@@ -110,74 +114,83 @@ void ShopSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     math::SetControlSeed(ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeSeed());
     ProgressionDataRepository::GetInstance().SetCurrentStoryMapSceneType(StoryMapSceneType::SHOP);
     
-    mHasCreatedSceneObjects = false;
+    mSceneState = SceneState::CREATING_DYNAMIC_OBJECTS;
 }
 
 ///------------------------------------------------------------------------------------------------
 
 void ShopSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene::Scene>)
 {
-    if (!mHasCreatedSceneObjects)
+    switch (mSceneState)
     {
-        CreateProducts();
-        
-        mAnimatedButtons.clear();
-        mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
-        (
-            CONTINUE_BUTTON_POSITION,
-            BUTTON_SCALE,
-            game_constants::DEFAULT_FONT_NAME,
-            "Continue",
-            CONTINUE_BUTTON_SCENE_OBJECT_NAME,
-            [=]()
-            {
-                events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_MAP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
-                mTransitioning = true;
-            },
-            *mScene,
-            scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE,
-            CONTINUE_BUTTON_SNAP_TO_EDGE_FACTOR
-        ));
-        
-        size_t scenObjectIndex = 0U;
-        for (auto sceneObject: mScene->GetSceneObjects())
+        case SceneState::CREATING_DYNAMIC_OBJECTS:
         {
-            if (!strutils::StringStartsWith(sceneObject->mName.GetString(), PRODUCT_NAME_PREFIX))
+            CreateDynamicSceneObjects();
+            OnWindowResize(events::WindowResizeEvent{});
+            mSceneState = SceneState::BROWSING_SHOP;
+        } break;
+            
+        case SceneState::BROWSING_SHOP:
+        {
+            mGuiManager->Update(dtMillis);
+            
+            auto& progressionHealth = ProgressionDataRepository::GetInstance().StoryCurrentHealth();
+            if (progressionHealth.GetDisplayedValue() <= 0)
             {
-                continue;
+                events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(DEFEAT_SCENE_NAME, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+                mSceneState = SceneState::LEAVING_SHOP;
+                return;
             }
             
-            sceneObject->mInvisible = false;
-            sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
-            
-            CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, 1.0f, FADE_IN_OUT_DURATION_SECS, animation_flags::NONE, scenObjectIndex++ * 0.1f), [=]()
+            for (auto& animatedButton: mAnimatedButtons)
             {
-            });
-        }
-        
-        mHasCreatedSceneObjects = true;
-        
-        OnWindowResize(events::WindowResizeEvent{});
-    }
-    
-    mGuiManager->Update(dtMillis);
-    
-    if (mTransitioning)
-    {
-        return;
-    }
-    
-    auto& progressionHealth = ProgressionDataRepository::GetInstance().StoryCurrentHealth();
-    if (progressionHealth.GetDisplayedValue() <= 0)
-    {
-        events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(DEFEAT_SCENE_NAME, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
-        mTransitioning = true;
-        return;
-    }
-    
-    for (auto& animatedButton: mAnimatedButtons)
-    {
-        animatedButton->Update(dtMillis);
+                animatedButton->Update(dtMillis);
+            }
+            
+            auto& inputStateManager = CoreSystemsEngine::GetInstance().GetInputStateManager();
+            
+            auto worldTouchPos = inputStateManager.VGetPointingPosInWorldSpace(mScene->GetCamera().GetViewMatrix(), mScene->GetCamera().GetProjMatrix());
+            
+            for (auto row = 0U; row < mProducts.size(); ++row)
+            {
+                for (auto col = 0U; col < mProducts.size(); ++col)
+                {
+                    if (mProducts[row][col] == nullptr)
+                    {
+                        continue;
+                    }
+                    
+                    auto& product = mProducts[row][col];
+                    
+                    auto sceneObjectRect = scene_object_utils::GetSceneObjectBoundingRect(*product->mSceneObjects.front());
+                    
+                    bool cursorInSceneObject = math::IsPointInsideRectangle(sceneObjectRect.bottomLeft, sceneObjectRect.topRight, worldTouchPos);
+                    if (cursorInSceneObject && inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON))
+                    {
+                        if (!product->mHighlighted)
+                        {
+                            product->mHighlighted = true;
+                            HighlightProduct(row, col);
+                        }
+                    }
+                    
+                    #if !defined(MOBILE_FLOW)
+                    if (cursorInSceneObject && !product->mHighlighted)
+                    {
+                        product->mHighlighted = true;
+                        HighlightProduct(row, col);
+                    }
+                    else if (!cursorInSceneObject && product->mHighlighted)
+                    {
+                        product->mHighlighted = false;
+                        DehighlightProduct(row, col);
+                    }
+                    #endif
+                }
+            }
+        } break;
+            
+        default: break;
     }
 }
 
@@ -214,6 +227,47 @@ void ShopSceneLogicManager::OnWindowResize(const events::WindowResizeEvent&)
     
     // Realign gui
     mGuiManager->OnWindowResize();
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ShopSceneLogicManager::CreateDynamicSceneObjects()
+{
+    CreateProducts();
+    
+    mAnimatedButtons.clear();
+    mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
+    (
+        CONTINUE_BUTTON_POSITION,
+        BUTTON_SCALE,
+        game_constants::DEFAULT_FONT_NAME,
+        "Continue",
+        CONTINUE_BUTTON_SCENE_OBJECT_NAME,
+        [=]()
+        {
+            events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_MAP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
+            mSceneState = SceneState::LEAVING_SHOP;
+        },
+        *mScene,
+        scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE,
+        CONTINUE_BUTTON_SNAP_TO_EDGE_FACTOR
+    ));
+    
+    size_t scenObjectIndex = 0U;
+    for (auto sceneObject: mScene->GetSceneObjects())
+    {
+        if (!strutils::StringStartsWith(sceneObject->mName.GetString(), PRODUCT_NAME_PREFIX))
+        {
+            continue;
+        }
+        
+        sceneObject->mInvisible = false;
+        sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+        
+        CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, 1.0f, FADE_IN_OUT_DURATION_SECS, animation_flags::NONE, scenObjectIndex++ * STAGGERED_FADE_IN_SECS), [=]()
+        {
+        });
+    }
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -294,10 +348,6 @@ void ShopSceneLogicManager::CreateProducts()
                 priceTagSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + PRICE_TAG_TEXTURE_FILE_NAME_PREFIX + std::to_string(std::to_string(product->mPrice).size()) + ".png");
                 priceTagSceneObject->mPosition = SHELF_ITEM_TARGET_BASE_POSITIONS[shelfIndex] + PRODUCT_PRICE_TAG_POSITION_OFFSET;
                 priceTagSceneObject->mScale = PRICE_TAG_SCALE;
-                if (math::ControlledRandomInt(0, 1) == 1)
-                {
-                    priceTagSceneObject->mScale.y *= -1.0f;
-                }
                 priceTagSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
                 priceTagSceneObject->mSnapToEdgeBehavior = scene::SnapToEdgeBehavior::SNAP_TO_LEFT_EDGE;
                 priceTagSceneObject->mSnapToEdgeScaleOffsetFactor = 1.1f + 1.5f * shelfItemIndex;
@@ -331,6 +381,26 @@ void ShopSceneLogicManager::CreateProducts()
             }
         }
     }
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ShopSceneLogicManager::HighlightProduct(const size_t productShelfIndex, const size_t productShelfItemIndex)
+{
+    auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+    auto& product = mProducts[productShelfIndex][productShelfItemIndex];
+    
+    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleGroupAnimation>(product->mSceneObjects, product->mSceneObjects[0]->mPosition, (std::holds_alternative<int>(product->mProductId) ? CARD_PRODUCT_SCALE : GENERIC_PRODUCT_SCALE) * HIGHLIGHTED_PRODUCT_SCALE_FACTOR, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::ElasticFunction, math::TweeningMode::EASE_IN), [=](){});
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ShopSceneLogicManager::DehighlightProduct(const size_t productShelfIndex, const size_t productShelfItemIndex)
+{
+    auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+    auto& product = mProducts[productShelfIndex][productShelfItemIndex];
+    
+    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleGroupAnimation>(product->mSceneObjects, product->mSceneObjects[0]->mPosition, (std::holds_alternative<int>(product->mProductId) ? CARD_PRODUCT_SCALE : GENERIC_PRODUCT_SCALE), PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::ElasticFunction, math::TweeningMode::EASE_IN), [=](){});
 }
 
 ///------------------------------------------------------------------------------------------------
