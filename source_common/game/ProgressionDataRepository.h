@@ -143,6 +143,11 @@ public:
     const int& GetCurrentStorySecondsPlayed() const;
     void SetCurrentStorySecondPlayed(const int currentStorySecondsPlayed);
     
+    const std::vector<std::pair<int, int>>& GetCurrentShopBoughtProductCoordinates() const;
+    void ClearShopBoughtProductCoordinates();
+    void SetShopBoughtProductCoordinates(const std::vector<std::pair<int, int>>& shopBoughtProductCoordinates);
+    void AddShopBoughtProductCoordinates(const std::pair<int, int>& shopBoughtProductCoordinates);
+    
     const glm::ivec2& GetCurrentStoryMapNodeCoord() const;
     void SetCurrentStoryMapNodeCoord(const glm::ivec2& currentStoryMapNodeCoord);
     
@@ -178,6 +183,7 @@ private:
     std::vector<int> mCurrentStoryPlayerDeck;
     std::vector<int> mNextTopPlayerDeck;
     std::vector<int> mNextBotPlayerDeck;
+    std::vector<std::pair<int, int>> mCurrentShopBoughtProductCoordinates;
     std::string mNextStoryOpponentTexturePath;
     std::string mNextStoryOpponentName;
     glm::vec3 mSelectedStoryMapNodePosition = {};

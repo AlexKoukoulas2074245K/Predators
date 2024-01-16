@@ -40,6 +40,7 @@ private:
     void RegisterForEvents();
     void OnWindowResize(const events::WindowResizeEvent& event);
     void CreateDynamicSceneObjects();
+    void HandleAlreadyBoughtProducts();
     void FadeInDynamicSceneObjects();
     void CreateProducts();
     void HighlightProduct(const size_t productShelfIndex, const size_t productShelfItemIndex);
@@ -50,6 +51,7 @@ private:
     void DestroyCardTooltip();
     void LoadProductData();
     void OnBuyProductAttempt(const size_t productShelfIndex, const size_t productShelfItemIndex);
+    void OnCantBuyProductConfirmationButtonPressed();
     void FindHighlightedProduct(size_t& productShelfIndex, size_t& productShelfItemIndex);
     
 private:
@@ -91,6 +93,7 @@ private:
         BROWSING_SHOP,
         SELECTED_PRODUCT,
         CANT_BUY_PRODUCT_CONFIRMATION,
+        BUYING_PRODUCT,
         LEAVING_SHOP
     };
     

@@ -277,6 +277,7 @@ void VisitMapNodeSceneLogicManager::InitializeNodeVisitData()
         
         case StoryMap::NodeType::SHOP:
         {
+            ProgressionDataRepository::GetInstance().ClearShopBoughtProductCoordinates();
             events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::SHOP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
         } break;
             

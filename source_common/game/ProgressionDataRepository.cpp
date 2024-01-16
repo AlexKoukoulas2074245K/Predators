@@ -49,6 +49,7 @@ void ProgressionDataRepository::ResetStoryData()
     
     mStoryCurrentHealth = ValueWithDelayedDisplay<int>(game_constants::STORY_DEFAULT_MAX_HEALTH, game_constants::STORY_DEFAULT_MAX_HEALTH, [=](const int& newValue) { mStoryDataSerializer->GetState()["current_story_health"] = newValue; });
     
+    mCurrentShopBoughtProductCoordinates.clear();
     mCurrentStoryPlayerDeck.clear();
     mNextTopPlayerDeck.clear();
     mNextBotPlayerDeck.clear();
@@ -433,6 +434,37 @@ void ProgressionDataRepository::SetCurrentStorySecondPlayed(const int currentSto
 {
     mCurrentStorySecondsPlayed = currentStorySecondsPlayed;
     mStoryDataSerializer->GetState()["current_story_seconds_played"] = mCurrentStorySecondsPlayed;
+}
+
+///------------------------------------------------------------------------------------------------
+
+const std::vector<std::pair<int, int>>& ProgressionDataRepository::GetCurrentShopBoughtProductCoordinates() const
+{
+    return mCurrentShopBoughtProductCoordinates;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ProgressionDataRepository::ClearShopBoughtProductCoordinates()
+{
+    mCurrentShopBoughtProductCoordinates.clear();
+    mStoryDataSerializer->GetState()["current_shop_bought_product_coordinates"].clear();
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ProgressionDataRepository::SetShopBoughtProductCoordinates(const std::vector<std::pair<int, int>>& shopBoughtProductCoordinates)
+{
+    mCurrentShopBoughtProductCoordinates = shopBoughtProductCoordinates;
+    mStoryDataSerializer->GetState()["current_shop_bought_product_coordinates"] = mCurrentShopBoughtProductCoordinates;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ProgressionDataRepository::AddShopBoughtProductCoordinates(const std::pair<int, int>& shopBoughtProductCoordinates)
+{
+    mCurrentShopBoughtProductCoordinates.push_back(shopBoughtProductCoordinates);
+    mStoryDataSerializer->GetState()["current_shop_bought_product_coordinates"] = mCurrentShopBoughtProductCoordinates;
 }
 
 ///------------------------------------------------------------------------------------------------

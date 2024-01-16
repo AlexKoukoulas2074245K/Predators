@@ -68,6 +68,11 @@ StoryDeserializer::StoryDeserializer(ProgressionDataRepository& progressionDataR
         progressionDataRepository.SetStoryMapGenerationSeed(storyJson["story_seed"].get<int>());
     }
     
+    if (storyJson.count("current_shop_bought_product_coordinates"))
+    {
+        progressionDataRepository.SetShopBoughtProductCoordinates(storyJson["current_shop_bought_product_coordinates"].get<std::vector<std::pair<int, int>>>());
+    }
+    
     if (storyJson.count("current_story_seconds_played"))
     {
         progressionDataRepository.SetCurrentStorySecondPlayed(storyJson["current_story_seconds_played"].get<int>());

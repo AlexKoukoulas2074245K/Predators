@@ -152,6 +152,7 @@ void ShopSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene:
         case SceneState::CREATING_DYNAMIC_OBJECTS:
         {
             CreateDynamicSceneObjects();
+            HandleAlreadyBoughtProducts();
             FadeInDynamicSceneObjects();
 
             OnWindowResize(events::WindowResizeEvent{});
@@ -377,27 +378,7 @@ void ShopSceneLogicManager::CreateDynamicSceneObjects()
         CANT_BUY_PRODUCT_CONFIRMATION_BUTTON_SCENE_OBJECT_NAME,
         [=]()
         {
-            auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
-            
-            // Fade out selected product overlay
-            auto cantBuyProductOverlaySceneObject = mScene->FindSceneObject(CANT_BUY_PRODUCT_OVERLAY_SCENE_OBJECT_NAME);
-            animationManager.StopAllAnimationsPlayingForSceneObject(cantBuyProductOverlaySceneObject->mName);
-            animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(cantBuyProductOverlaySceneObject, 0.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){ cantBuyProductOverlaySceneObject->mInvisible = true; });
-            
-            // Fade out can't buy product text 0
-            auto cantBuyProductText0SceneObject = mScene->FindSceneObject(CANT_BUY_PRODUCT_TEXT_0_SCENE_OBJECT_NAME);
-            animationManager.StopAllAnimationsPlayingForSceneObject(cantBuyProductText0SceneObject->mName);
-            animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(cantBuyProductText0SceneObject, 0.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){ cantBuyProductText0SceneObject->mInvisible = true; });
-            
-            // Fade out can't buy product text 1
-            auto cantBuyProductText1SceneObject = mScene->FindSceneObject(CANT_BUY_PRODUCT_TEXT_1_SCENE_OBJECT_NAME);
-            animationManager.StopAllAnimationsPlayingForSceneObject(cantBuyProductText1SceneObject->mName);
-            animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(cantBuyProductText1SceneObject, 0.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){ cantBuyProductText1SceneObject->mInvisible = true; });
-            
-            // Fade out cant buy product confirmation button
-            auto cantBuyProductButtonSceneObject = mScene->FindSceneObject(CANT_BUY_PRODUCT_CONFIRMATION_BUTTON_SCENE_OBJECT_NAME);
-            CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(cantBuyProductButtonSceneObject, 0.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){ cantBuyProductButtonSceneObject->mInvisible = true; });
-            mSceneState = SceneState::SELECTED_PRODUCT;
+            OnCantBuyProductConfirmationButtonPressed();
         },
         *mScene
     ));
@@ -555,6 +536,22 @@ void ShopSceneLogicManager::CreateProducts()
                 CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::BouncePositionAnimation>(sceneObject, itemGroupBounceSpeed, PRODUCT_BOUNCE_ANIMATION_DURATION_SECS, animation_flags::ANIMATE_CONTINUOUSLY, itemGroupBounceDelay), [](){});
             }
         }
+    }
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ShopSceneLogicManager::HandleAlreadyBoughtProducts()
+{
+    const auto& alreadyBoughtProductCoords = ProgressionDataRepository::GetInstance().GetCurrentShopBoughtProductCoordinates();
+    for (const auto& boughtProductCoord: alreadyBoughtProductCoords)
+    {
+        auto& productInstance = mProducts[boughtProductCoord.first][boughtProductCoord.second];
+        for (auto sceneObject: productInstance->mSceneObjects)
+        {
+            mScene->RemoveSceneObject(sceneObject->mName);
+        }
+        mProducts[boughtProductCoord.first][boughtProductCoord.second] = nullptr;
     }
 }
 
@@ -808,6 +805,14 @@ void ShopSceneLogicManager::OnBuyProductAttempt(const size_t productShelfIndex, 
         
         mSceneState = SceneState::CANT_BUY_PRODUCT_CONFIRMATION;
     }
+    // Product/Service is purchased
+    else
+    {
+        ProgressionDataRepository::GetInstance().AddShopBoughtProductCoordinates(std::make_pair(productShelfIndex, productShelfItemIndex));
+        
+        
+        mSceneState = SceneState::BUYING_PRODUCT;
+    }
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -831,6 +836,33 @@ void ShopSceneLogicManager::FindHighlightedProduct(size_t& productShelfIndex, si
             }
         }
     }
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ShopSceneLogicManager::OnCantBuyProductConfirmationButtonPressed()
+{
+    auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+    
+    // Fade out selected product overlay
+    auto cantBuyProductOverlaySceneObject = mScene->FindSceneObject(CANT_BUY_PRODUCT_OVERLAY_SCENE_OBJECT_NAME);
+    animationManager.StopAllAnimationsPlayingForSceneObject(cantBuyProductOverlaySceneObject->mName);
+    animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(cantBuyProductOverlaySceneObject, 0.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){ cantBuyProductOverlaySceneObject->mInvisible = true; });
+    
+    // Fade out can't buy product text 0
+    auto cantBuyProductText0SceneObject = mScene->FindSceneObject(CANT_BUY_PRODUCT_TEXT_0_SCENE_OBJECT_NAME);
+    animationManager.StopAllAnimationsPlayingForSceneObject(cantBuyProductText0SceneObject->mName);
+    animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(cantBuyProductText0SceneObject, 0.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){ cantBuyProductText0SceneObject->mInvisible = true; });
+    
+    // Fade out can't buy product text 1
+    auto cantBuyProductText1SceneObject = mScene->FindSceneObject(CANT_BUY_PRODUCT_TEXT_1_SCENE_OBJECT_NAME);
+    animationManager.StopAllAnimationsPlayingForSceneObject(cantBuyProductText1SceneObject->mName);
+    animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(cantBuyProductText1SceneObject, 0.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){ cantBuyProductText1SceneObject->mInvisible = true; });
+    
+    // Fade out cant buy product confirmation button
+    auto cantBuyProductButtonSceneObject = mScene->FindSceneObject(CANT_BUY_PRODUCT_CONFIRMATION_BUTTON_SCENE_OBJECT_NAME);
+    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(cantBuyProductButtonSceneObject, 0.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){ cantBuyProductButtonSceneObject->mInvisible = true; });
+    mSceneState = SceneState::SELECTED_PRODUCT;
 }
 
 ///------------------------------------------------------------------------------------------------
