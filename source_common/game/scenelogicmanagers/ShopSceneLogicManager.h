@@ -21,6 +21,7 @@
 
 class AnimatedButton;
 class GuiObjectManager;
+class CardTooltipController;
 class ShopSceneLogicManager final: public ISceneLogicManager, public events::IListener
 {    
 public:
@@ -94,6 +95,7 @@ private:
     std::vector<std::unique_ptr<AnimatedButton>> mAnimatedButtons;
     std::unordered_map<strutils::StringId, ProductDefinition, strutils::StringIdHasher> mProductDefinitions;
     std::vector<std::vector<std::unique_ptr<ProductInstance>>> mProducts;
+    std::unique_ptr<CardTooltipController> mCardTooltipController;
     std::shared_ptr<GuiObjectManager> mGuiManager;
     std::shared_ptr<scene::Scene> mScene;
     SceneState mSceneState;

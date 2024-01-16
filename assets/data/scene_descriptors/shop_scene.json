@@ -49,48 +49,6 @@
             "snap_to_edge": "snap_to_left_edge",
             "snap_to_edge_factor": 0.020,
             "invisible": false
-        },
-        {
-            "name": "card_tooltip",
-            "texture": "tooltip.png",
-            "shader": "diagonal_reveal.vs",
-            "scale": { "x": 0.274, "y": 0.274, "z": 1.0 },
-            "position": { "x": 0.0, "y": -0.102, "z": 24.5 },
-            "alpha": 1.0,
-            "invisible": true,
-            "uniform_floats":
-            [
-                { "name": "reveal_threshold", "value": 0.0 },
-                { "name": "reveal_rgb_exponent", "value": 1.127 }
-            ]
-        },
-        {
-            "name": "card_tooltip_text_0",
-            "font": "font_black",
-            "scale": { "x": 0.00032, "y": 0.00032, "z": 0.00032 },
-            "alpha": 0.0,
-            "invisible": true
-        },
-        {
-            "name": "card_tooltip_text_1",
-            "font": "font_black",
-            "scale": { "x": 0.00032, "y": 0.00032, "z": 0.00032 },
-            "alpha": 0.0,
-            "invisible": true
-        },
-        {
-            "name": "card_tooltip_text_2",
-            "font": "font_black",
-            "scale": { "x": 0.00032, "y": 0.00032, "z": 0.00032 },
-            "alpha": 0.0,
-            "invisible": true
-        },
-        {
-            "name": "card_tooltip_text_3",
-            "font": "font_black",
-            "scale": { "x": 0.00032, "y": 0.00032, "z": 0.00032 },
-            "alpha": 0.0,
-            "invisible": true
         }
     ]
 }
