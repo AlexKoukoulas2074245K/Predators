@@ -20,6 +20,7 @@
 ///------------------------------------------------------------------------------------------------
 
 class AnimatedButton;
+class CardTooltipController;
 class StoryCardsLibrarySceneLogicManager final: public ISceneLogicManager, public events::IListener
 {
 public:
@@ -49,6 +50,7 @@ private:
     std::shared_ptr<scene::Scene> mScene;
     std::vector<std::unique_ptr<AnimatedButton>> mAnimatedButtons;
     std::unique_ptr<SwipeableContainer<CardEntry>> mCardContainer;
+    std::unique_ptr<CardTooltipController> mCardTooltipController;
     bool mTransitioning;
 };
 

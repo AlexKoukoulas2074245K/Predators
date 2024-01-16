@@ -587,7 +587,7 @@ void ShopSceneLogicManager::SelectProduct(const size_t productShelfIndex, const 
         
         if (!productDefinition.mDescription.empty())
         {
-            CreateCardTooltip(SELECTED_PRODUCT_TARGET_POSITION + CARD_TOOLTIP_POSITION_OFFSET, productDefinition.mDescription);
+            CreateCardTooltip(SELECTED_PRODUCT_TARGET_POSITION, productDefinition.mDescription);
         }
     });
 }
@@ -656,7 +656,7 @@ void ShopSceneLogicManager::CreateCardTooltip(const glm::vec3& cardOriginPostion
     
     mCardTooltipController = std::make_unique<CardTooltipController>
     (
-        cardOriginPostion,
+        cardOriginPostion + CARD_TOOLTIP_POSITION_OFFSET,
         CARD_TOOLTIP_BASE_SCALE,
         tooltipText,
         false,
