@@ -48,6 +48,4 @@ void main()
         
         frag_color = frag_color * ambient_light_color + light_accumulator;
     }
-    
-    frag_color.a *= custom_alpha;
 }

@@ -49,6 +49,8 @@ private:
     void CreateCardTooltip(const glm::vec3& cardOriginPostion, const std::string& tooltipText);
     void DestroyCardTooltip();
     void LoadProductData();
+    void OnBuyProductAttempt(const size_t productShelfIndex, const size_t productShelfItemIndex);
+    void FindHighlightedProduct(size_t& productShelfIndex, size_t& productShelfItemIndex);
     
 private:
     struct ProductDefinition
@@ -88,6 +90,7 @@ private:
         CREATING_DYNAMIC_OBJECTS,
         BROWSING_SHOP,
         SELECTED_PRODUCT,
+        CANT_BUY_PRODUCT_CONFIRMATION,
         LEAVING_SHOP
     };
     

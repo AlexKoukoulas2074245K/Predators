@@ -25,8 +25,6 @@ void main()
 
     if (frag_color.a < 0.1) discard;
     
-    frag_color.a *= custom_alpha;
-    
     if (affected_by_light)
     {
         vec4 light_accumulator = vec4(0.0f, 0.0f, 0.0f, 0.0f);

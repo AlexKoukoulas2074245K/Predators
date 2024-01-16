@@ -22,6 +22,14 @@
             "invisible": true
         },
         {
+            "name": "cant_buy_product_overlay",
+            "texture": "overlay.png",
+            "scale": { "x": 10.0, "y": 10.0, "z": 10.0 },
+            "position": { "x": 0.0, "y": 0.0, "z": 20.0 },
+            "alpha": 0.0,
+            "invisible": true
+        },
+        {
             "name": "background",
             "texture": "story_cards/shop.png",
             "scale": { "x": -0.5, "y": 0.5, "z": 0.5 },
@@ -49,6 +57,24 @@
             "snap_to_edge": "snap_to_left_edge",
             "snap_to_edge_factor": 0.020,
             "invisible": false
+        },
+        {
+            "name": "cant_buy_product_text_0",
+            "font": "font",
+            "text": "You don't have sufficient coins",
+            "position": { "x": -0.237, "y": 0.086, "z": 20.1 },
+            "scale": { "x": 0.0004, "y": 0.0004, "z": 0.0004 },
+            "alpha": 0.0,
+            "invisible": true
+        },
+        {
+            "name": "cant_buy_product_text_1",
+            "font": "font",
+            "text": "to buy this product!",
+            "position": { "x": -0.157, "y": 0.042, "z": 20.1 },
+            "scale": { "x": 0.0004, "y": 0.0004, "z": 0.0004 },
+            "alpha": 0.0,
+            "invisible": true
         }
     ]
 }

@@ -3,14 +3,14 @@
     [
         {
             "name": "damage_gain_+1",
-            "price": 500,
+            "price": 5000,
             "texture_path": "shop_items/damage_gain_icon.png",
             "description": "Permanent +1$damage increase$for all normal$   cards",
             "is_single_use": true
         },
         {
             "name": "weight_gain_+1",
-            "price": 200,
+            "price": 2000,
             "texture_path": "shop_items/weight_gain_icon.png",
             "description": "Permanent +1$starting weight for$all future story$    battles",
             "is_single_use": true

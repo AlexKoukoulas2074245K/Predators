@@ -31,7 +31,11 @@ static constexpr int SHELF_COUNT = 3;
 static constexpr int SHELF_ITEM_COUNT = 3;
 
 static const strutils::StringId SELECTED_PRODUCT_OVERLAY_SCENE_OBJECT_NAME = strutils::StringId("selected_product_overlay");
+static const strutils::StringId CANT_BUY_PRODUCT_OVERLAY_SCENE_OBJECT_NAME = strutils::StringId("cant_buy_product_overlay");
+static const strutils::StringId CANT_BUY_PRODUCT_CONFIRMATION_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("cant_buy_product_confirmation_button");
 static const strutils::StringId CONTINUE_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("continue_button");
+static const strutils::StringId CANT_BUY_PRODUCT_TEXT_0_SCENE_OBJECT_NAME = strutils::StringId("cant_buy_product_text_0");
+static const strutils::StringId CANT_BUY_PRODUCT_TEXT_1_SCENE_OBJECT_NAME = strutils::StringId("cant_buy_product_text_1");
 static const strutils::StringId BUY_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("buy_button");
 static const strutils::StringId CANCEL_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("cancel_button");
 static const strutils::StringId DEFEAT_SCENE_NAME = strutils::StringId("defeat_scene");
@@ -47,9 +51,11 @@ static const std::string PRODUCT_NAME_PREFIX = "product_";
 
 static const glm::vec3 BUTTON_SCALE = {0.0004f, 0.0004f, 0.0004f};
 static const glm::vec3 CONTINUE_BUTTON_POSITION = {0.0f, -0.1f, 0.3f};
+static const glm::vec3 CANT_BUY_PRODUCT_CONFIRMATION_BUTTON_POSITION = {-0.09f, -0.125f, 20.1f};
 static const glm::vec3 BUY_BUTTON_POSITION = {-0.225f, 0.05f, 6.0f};
 static const glm::vec3 CANCEL_BUTTON_POSITION = {-0.25f, -0.05f, 6.0f};
-static const glm::vec3 COIN_VALUE_TEXT_COLOR = {0.80f, 0.71f, 0.11f};
+static const glm::vec3 COIN_RED_VALUE_TEXT_COLOR = {0.80f, 0.11f, 0.11f};
+static const glm::vec3 COIN_NORMAL_VALUE_TEXT_COLOR = {0.80f, 0.71f, 0.11f};
 static const glm::vec3 GENERIC_PRODUCT_SCALE = {0.125f, 0.125f, 0.125f};
 static const glm::vec3 CARD_PRODUCT_SCALE = {-0.125f, 0.125f, 0.125f};
 static const glm::vec3 PRODUCT_POSITION_OFFSET = {0.0f, 0.0f, 0.4f};
@@ -77,7 +83,7 @@ static const float HIGHLIGHTED_PRODUCT_SCALE_FACTOR = 1.25f;
 static const float SELECTED_PRODUCT_SCALE_FACTOR = 2.0f;
 static const float PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS = 0.35f;
 static const float STAGGERED_FADE_IN_SECS = 0.1f;
-static const float SELECTED_PRODUCT_OVERLAY_MAX_ALPHA = 0.95f;
+static const float SELECTED_PRODUCT_OVERLAY_MAX_ALPHA = 0.9f;
 
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
 {
@@ -238,6 +244,23 @@ void ShopSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene:
                 mCardTooltipController->Update(dtMillis);
             }
         } break;
+        
+        case SceneState::CANT_BUY_PRODUCT_CONFIRMATION:
+        {
+            if (mScene->FindSceneObject(CANT_BUY_PRODUCT_OVERLAY_SCENE_OBJECT_NAME)->mInvisible)
+            {
+                return;
+            }
+            
+            for (auto& animatedButton: mAnimatedButtons)
+            {
+                if (animatedButton->GetSceneObject()->mName == CANT_BUY_PRODUCT_CONFIRMATION_BUTTON_SCENE_OBJECT_NAME)
+                {
+                    animatedButton->Update(dtMillis);
+                    break;
+                }
+            }
+        } break;
             
         default: break;
     }
@@ -312,7 +335,9 @@ void ShopSceneLogicManager::CreateDynamicSceneObjects()
         BUY_BUTTON_SCENE_OBJECT_NAME,
         [=]()
         {
-            
+            size_t productShelfIndex, productShelfItemIndex;
+            FindHighlightedProduct(productShelfIndex, productShelfItemIndex);
+            OnBuyProductAttempt(productShelfIndex, productShelfItemIndex);
         },
         *mScene
     ));
@@ -328,23 +353,46 @@ void ShopSceneLogicManager::CreateDynamicSceneObjects()
         CANCEL_BUTTON_SCENE_OBJECT_NAME,
         [=]()
         {
-            for (auto shelfIndex = 0U; shelfIndex < mProducts.size(); ++shelfIndex)
-            {
-                for (auto shelfItemIndex = 0U; shelfItemIndex < mProducts[shelfIndex].size(); ++shelfItemIndex)
-                {
-                    if (mProducts[shelfIndex][shelfItemIndex] == nullptr)
-                    {
-                        continue;
-                    }
-                    
-                    if (mProducts[shelfIndex][shelfItemIndex]->mHighlighted)
-                    {
-                        DeselectProduct(shelfIndex, shelfItemIndex);
-                    }
-                }
-            }
-            
+            size_t productShelfIndex, productShelfItemIndex;
+            FindHighlightedProduct(productShelfIndex, productShelfItemIndex);
+            DeselectProduct(productShelfIndex, productShelfItemIndex);
             mSceneState = SceneState::BROWSING_SHOP;
+        },
+        *mScene
+    ));
+    mAnimatedButtons.back()->GetSceneObject()->mInvisible = true;
+    mAnimatedButtons.back()->GetSceneObject()->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+    
+    mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
+    (
+        CANT_BUY_PRODUCT_CONFIRMATION_BUTTON_POSITION,
+        BUTTON_SCALE,
+        game_constants::DEFAULT_FONT_NAME,
+        "Continue",
+        CANT_BUY_PRODUCT_CONFIRMATION_BUTTON_SCENE_OBJECT_NAME,
+        [=]()
+        {
+            auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+            
+            // Fade out selected product overlay
+            auto cantBuyProductOverlaySceneObject = mScene->FindSceneObject(CANT_BUY_PRODUCT_OVERLAY_SCENE_OBJECT_NAME);
+            animationManager.StopAllAnimationsPlayingForSceneObject(cantBuyProductOverlaySceneObject->mName);
+            animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(cantBuyProductOverlaySceneObject, 0.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){ cantBuyProductOverlaySceneObject->mInvisible = true; });
+            
+            // Fade out can't buy product text 0
+            auto cantBuyProductText0SceneObject = mScene->FindSceneObject(CANT_BUY_PRODUCT_TEXT_0_SCENE_OBJECT_NAME);
+            animationManager.StopAllAnimationsPlayingForSceneObject(cantBuyProductText0SceneObject->mName);
+            animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(cantBuyProductText0SceneObject, 0.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){ cantBuyProductText0SceneObject->mInvisible = true; });
+            
+            // Fade out can't buy product text 1
+            auto cantBuyProductText1SceneObject = mScene->FindSceneObject(CANT_BUY_PRODUCT_TEXT_1_SCENE_OBJECT_NAME);
+            animationManager.StopAllAnimationsPlayingForSceneObject(cantBuyProductText1SceneObject->mName);
+            animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(cantBuyProductText1SceneObject, 0.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){ cantBuyProductText1SceneObject->mInvisible = true; });
+            
+            // Fade out cant buy product confirmation button
+            auto cantBuyProductButtonSceneObject = mScene->FindSceneObject(CANT_BUY_PRODUCT_CONFIRMATION_BUTTON_SCENE_OBJECT_NAME);
+            CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(cantBuyProductButtonSceneObject, 0.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){ cantBuyProductButtonSceneObject->mInvisible = true; });
+            mSceneState = SceneState::SELECTED_PRODUCT;
         },
         *mScene
     ));
@@ -484,7 +532,7 @@ void ShopSceneLogicManager::CreateProducts()
                 priceTextSceneObject->mPosition = SHELF_ITEM_TARGET_BASE_POSITIONS[shelfIndex] + PRODUCT_PRICE_TAG_TEXT_POSITION_OFFSET;
                 priceTextSceneObject->mSceneObjectTypeData = std::move(priceTextData);
                 priceTextSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + BASIC_CUSTOM_COLOR_SHADER_FILE_NAME);
-                priceTextSceneObject->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = COIN_VALUE_TEXT_COLOR;
+                priceTextSceneObject->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = productDefinition.mPrice > ProgressionDataRepository::GetInstance().CurrencyCoins().GetValue() ? COIN_RED_VALUE_TEXT_COLOR : COIN_NORMAL_VALUE_TEXT_COLOR;
                 priceTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
                 priceTextSceneObject->mScale = PRICE_TAG_TEXT_SCALE;
                 priceTextSceneObject->mSnapToEdgeBehavior = scene::SnapToEdgeBehavior::SNAP_TO_LEFT_EDGE;
@@ -701,6 +749,67 @@ void ShopSceneLogicManager::LoadProductData()
         bool isProductSingleUse = shopDefinitionObject["is_single_use"].get<bool>();
         
         mProductDefinitions.emplace(std::make_pair(productName, ProductDefinition(productName, productTexturePath, productDescription, productPrice, isProductSingleUse)));
+    }
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ShopSceneLogicManager::OnBuyProductAttempt(const size_t productShelfIndex, const size_t productShelfItemIndex)
+{
+    auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+    auto& product = mProducts[productShelfIndex][productShelfItemIndex];
+    const auto& productDefinition = mProductDefinitions.at(product->mProductName);
+    
+    if (productDefinition.mPrice > ProgressionDataRepository::GetInstance().CurrencyCoins().GetValue())
+    {
+        // Fade in can't buy product confirmation button
+        auto cantBuyProductConfirmationButtonSceneObject = mScene->FindSceneObject(CANT_BUY_PRODUCT_CONFIRMATION_BUTTON_SCENE_OBJECT_NAME);
+        cantBuyProductConfirmationButtonSceneObject->mInvisible = false;
+        animationManager.StopAllAnimationsPlayingForSceneObject(cantBuyProductConfirmationButtonSceneObject->mName);
+        animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(cantBuyProductConfirmationButtonSceneObject, 1.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){});
+        
+        // Fade in can't buy product text 0
+        auto cantBuyProductText0SceneObject = mScene->FindSceneObject(CANT_BUY_PRODUCT_TEXT_0_SCENE_OBJECT_NAME);
+        cantBuyProductText0SceneObject->mInvisible = false;
+        animationManager.StopAllAnimationsPlayingForSceneObject(cantBuyProductText0SceneObject->mName);
+        animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(cantBuyProductText0SceneObject, 1.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){});
+        
+        // Fade in can't buy product text 1
+        auto cantBuyProductText1SceneObject = mScene->FindSceneObject(CANT_BUY_PRODUCT_TEXT_1_SCENE_OBJECT_NAME);
+        cantBuyProductText1SceneObject->mInvisible = false;
+        animationManager.StopAllAnimationsPlayingForSceneObject(cantBuyProductText1SceneObject->mName);
+        animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(cantBuyProductText1SceneObject, 1.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){});
+        
+        // Fade in selected product overlay
+        auto cantBuyProductOverlaySceneObject = mScene->FindSceneObject(CANT_BUY_PRODUCT_OVERLAY_SCENE_OBJECT_NAME);
+        cantBuyProductOverlaySceneObject->mInvisible = false;
+        animationManager.StopAllAnimationsPlayingForSceneObject(cantBuyProductOverlaySceneObject->mName);
+        animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(cantBuyProductOverlaySceneObject, SELECTED_PRODUCT_OVERLAY_MAX_ALPHA, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){});
+        
+        mSceneState = SceneState::CANT_BUY_PRODUCT_CONFIRMATION;
+    }
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ShopSceneLogicManager::FindHighlightedProduct(size_t& productShelfIndex, size_t& productShelfItemIndex)
+{
+    for (auto shelfIndex = 0U; shelfIndex < mProducts.size(); ++shelfIndex)
+    {
+        for (auto shelfItemIndex = 0U; shelfItemIndex < mProducts[shelfIndex].size(); ++shelfItemIndex)
+        {
+            if (mProducts[shelfIndex][shelfItemIndex] == nullptr)
+            {
+                continue;
+            }
+            
+            if (mProducts[shelfIndex][shelfItemIndex]->mHighlighted)
+            {
+                productShelfIndex = shelfIndex;
+                productShelfItemIndex = shelfItemIndex;
+                return;
+            }
+        }
     }
 }
 
