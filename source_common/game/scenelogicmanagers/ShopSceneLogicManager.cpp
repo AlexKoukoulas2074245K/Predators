@@ -10,9 +10,11 @@
 #include <engine/rendering/AnimationManager.h>
 #include <engine/rendering/ParticleManager.h>
 #include <engine/resloading/ResourceLoadingService.h>
+#include <engine/resloading/DataFileResource.h>
 #include <engine/scene/SceneObjectUtils.h>
 #include <engine/utils/Logging.h>
 #include <engine/utils/PlatformMacros.h>
+#include <engine/utils/BaseDataFileDeserializer.h>
 #include <engine/scene/SceneManager.h>
 #include <game/AnimatedButton.h>
 #include <game/Cards.h>
@@ -32,15 +34,27 @@ static const strutils::StringId CONTINUE_BUTTON_SCENE_OBJECT_NAME = strutils::St
 static const strutils::StringId BUY_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("buy_button");
 static const strutils::StringId CANCEL_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("cancel_button");
 static const strutils::StringId DEFEAT_SCENE_NAME = strutils::StringId("defeat_scene");
-static const strutils::StringId DAMAGE_GAIN_UNIQUE_ID = strutils::StringId("shop_items/damage_gain_icon.png");
-static const strutils::StringId WEIGHT_GAIN_UNIQUE_ID = strutils::StringId("shop_items/weight_gain_icon.png");
-static const strutils::StringId COINS_TO_LIFE_UNIQUE_ID = strutils::StringId("shop_items/coins_to_life_icon.png");
-static const strutils::StringId LIFE_TO_COINS_UNIQUE_ID = strutils::StringId("shop_items/life_to_coins_icon.png");
-static const strutils::StringId CARD_DELETION_UNIQUE_ID = strutils::StringId("shop_items/delete_card_icon.png");
+static const strutils::StringId DAMAGE_GAIN_PRODUCT_NAME = strutils::StringId("damage_gain_+1");
+static const strutils::StringId WEIGHT_GAIN_PRODUCT_NAME = strutils::StringId("weight_gain_+1");
+static const strutils::StringId COINS_TO_LIFE_PRODUCT_NAME = strutils::StringId("coins_to_life");
+static const strutils::StringId LIFE_TO_COINS_PRODUCT_NAME = strutils::StringId("life_to_coins");
+static const strutils::StringId CARD_DELETION_PRODUCT_NAME = strutils::StringId("card_deletion");
+static const strutils::StringId CARD_TOOLTIP_SCENE_OBJECT_NAME = strutils::StringId("card_tooltip");
+static const strutils::StringId CARD_TOOLTIP_REVEAL_THRESHOLD_UNIFORM_NAME = strutils::StringId("reveal_threshold");
+static const strutils::StringId CARD_TOOLTIP_REVEAL_RGB_EXPONENT_UNIFORM_NAME = strutils::StringId("reveal_rgb_exponent");
+static const strutils::StringId CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES [game_constants::CARD_TOOLTIP_TEXT_ROWS_COUNT] =
+{
+    strutils::StringId("card_tooltip_text_0"),
+    strutils::StringId("card_tooltip_text_1"),
+    strutils::StringId("card_tooltip_text_2"),
+    strutils::StringId("card_tooltip_text_3")
+};
 
 static const std::string BASIC_CUSTOM_COLOR_SHADER_FILE_NAME = "basic_custom_color.vs";
 static const std::string PRICE_TAG_TEXTURE_FILE_NAME_PREFIX = "shop_items/price_tag_digits_";
 static const std::string PRODUCT_NAME_PREFIX = "product_";
+static const std::string CARD_TOOLTIP_TEXTURE_FILE_NAME = "tooltip.png";
+static const std::string CARD_TOOLTIP_SHADER_FILE_NAME = "diagonal_reveal.vs";
 
 static const glm::vec3 BUTTON_SCALE = {0.0004f, 0.0004f, 0.0004f};
 static const glm::vec3 CONTINUE_BUTTON_POSITION = {0.0f, -0.1f, 0.3f};
@@ -61,6 +75,17 @@ static const glm::vec3 SHELF_ITEM_TARGET_BASE_POSITIONS[SHELF_COUNT] =
     { 0.0f, 0.04f, 0.0f },
     { 0.0f, -0.09f, 0.0f }
 };
+static const glm::vec3 CARD_TOOLTIP_POSITION_OFFSET = {0.0f, 0.1f, 0.0f};
+static const glm::vec3 CARD_TOOLTIP_BASE_SCALE = {0.274f, 0.274f, 1/10.0f};
+static const glm::vec3 CARD_TOOLTIP_BASE_OFFSET = {0.06f, 0.033f, 0.2f};
+static const glm::vec3 CARD_TOOLTIP_TEXT_OFFSETS[game_constants::CARD_TOOLTIP_TEXT_ROWS_COUNT] =
+{
+    { -0.033f, 0.029f, 0.1f },
+    { -0.051f, 0.014f, 0.1f },
+    { -0.036f, -0.000f, 0.1f },
+    { -0.03f, -0.014f, 0.1f }
+};
+
 
 static const glm::vec2 PRODUCT_GROUP_MIN_MAX_BOUNCE_SPEED = {0.0000015f, 0.0000045f};
 static const glm::vec2 PRODUCT_GROUP_MIN_MAX_ANIMATION_DELAY_SECS = {0.0f, 1.0f};
@@ -73,6 +98,13 @@ static const float SELECTED_PRODUCT_SCALE_FACTOR = 2.0f;
 static const float PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS = 0.35f;
 static const float STAGGERED_FADE_IN_SECS = 0.1f;
 static const float SELECTED_PRODUCT_OVERLAY_MAX_ALPHA = 0.95f;
+static const float CARD_TOOLTIP_MAX_REVEAL_THRESHOLD = 2.0f;
+static const float CARD_TOOLTIP_REVEAL_SPEED = 1.0f/200.0f;
+static const float CARD_TOOLTIP_TEXT_REVEAL_SPEED = 1.0f/500.0f;
+static const float CARD_TOOLTIP_FLIPPED_X_OFFSET = -0.17f;
+static const float CARD_TOOLTIP_FLIPPED_Y_OFFSET = -0.25f;
+static const float CARD_TOOLTIP_TEXT_FLIPPED_X_OFFSET = -0.007f;
+static const float CARD_TOOLTIP_TEXT_FLIPPED_Y_OFFSET = -0.014f;
 
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
 {
@@ -113,6 +145,7 @@ void ShopSceneLogicManager::VInitSceneCamera(std::shared_ptr<scene::Scene>)
 void ShopSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 {
     CardDataRepository::GetInstance().LoadCardData(true);
+    LoadProductData();
     
     mScene = scene;
     mGuiManager = std::make_shared<GuiObjectManager>(scene);
@@ -224,6 +257,19 @@ void ShopSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene:
                 }
                 
                 animatedButton->Update(dtMillis);
+            }
+            
+            auto cardTooltipSceneObject = mScene->FindSceneObject(CARD_TOOLTIP_SCENE_OBJECT_NAME);
+            cardTooltipSceneObject->mShaderFloatUniformValues[CARD_TOOLTIP_REVEAL_THRESHOLD_UNIFORM_NAME] += dtMillis * CARD_TOOLTIP_REVEAL_SPEED;
+            if (cardTooltipSceneObject->mShaderFloatUniformValues[CARD_TOOLTIP_REVEAL_THRESHOLD_UNIFORM_NAME] >= CARD_TOOLTIP_MAX_REVEAL_THRESHOLD)
+            {
+                cardTooltipSceneObject->mShaderFloatUniformValues[CARD_TOOLTIP_REVEAL_THRESHOLD_UNIFORM_NAME] = CARD_TOOLTIP_MAX_REVEAL_THRESHOLD;
+                
+                for (auto i = 0; i < game_constants::CARD_TOOLTIP_TEXT_ROWS_COUNT; ++i)
+                {
+                    auto tooltipTextSceneObject = mScene->FindSceneObject(CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES[i]);
+                    tooltipTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = math::Min(1.0f, tooltipTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] +  dtMillis * CARD_TOOLTIP_TEXT_REVEAL_SPEED);
+                }
             }
         } break;
             
@@ -389,21 +435,27 @@ void ShopSceneLogicManager::CreateProducts()
     }
     
     // First Shelf
-    mProducts[0][0] = std::make_unique<Product>(DAMAGE_GAIN_UNIQUE_ID, 500, true);
-    mProducts[0][1] = std::make_unique<Product>(WEIGHT_GAIN_UNIQUE_ID, 200, true);
+    mProducts[0][0] = std::make_unique<ProductInstance>(DAMAGE_GAIN_PRODUCT_NAME);
+    mProducts[0][1] = std::make_unique<ProductInstance>(WEIGHT_GAIN_PRODUCT_NAME);
     
     // Second Shelf
     const auto& cardRewardsPool = CardDataRepository::GetInstance().GetStoryUnlockedCardRewardsPool();
     for (size_t col = 0; col < SHELF_ITEM_COUNT; ++col)
     {
         auto randomCardIndex = static_cast<int>(math::ControlledRandomInt() % cardRewardsPool.size());
-        mProducts[1][col] = std::make_unique<Product>(cardRewardsPool[randomCardIndex], 50, true);
+        auto cardId = cardRewardsPool[randomCardIndex];
+        const auto& cardData = CardDataRepository::GetInstance().GetCardData(cardId, true);
+        auto productDefinitionName = strutils::StringId("card_" + std::to_string(cardId));
+        
+        auto cardPrice = cardData.IsSpell() ? 100 : 50;
+        mProductDefinitions.emplace(std::make_pair(productDefinitionName, ProductDefinition(productDefinitionName, cardId, cardData.mCardEffectTooltip, cardPrice, true)));
+        mProducts[1][col] = std::make_unique<ProductInstance>(productDefinitionName);
     }
     
     // Thid Shelf
-    mProducts[2][0] = std::make_unique<Product>(COINS_TO_LIFE_UNIQUE_ID, 0, true);
-    mProducts[2][1] = std::make_unique<Product>(LIFE_TO_COINS_UNIQUE_ID, 0, true);
-    mProducts[2][2] = std::make_unique<Product>(CARD_DELETION_UNIQUE_ID, 100, true);
+    mProducts[2][0] = std::make_unique<ProductInstance>(COINS_TO_LIFE_PRODUCT_NAME);
+    mProducts[2][1] = std::make_unique<ProductInstance>(LIFE_TO_COINS_PRODUCT_NAME);
+    mProducts[2][2] = std::make_unique<ProductInstance>(CARD_DELETION_PRODUCT_NAME);
     
     for (int shelfIndex = 0; shelfIndex < SHELF_COUNT; ++shelfIndex)
     {
@@ -415,12 +467,13 @@ void ShopSceneLogicManager::CreateProducts()
             }
             
             auto& product = mProducts[shelfIndex][shelfItemIndex];
+            const auto& productDefinition = mProductDefinitions.at(product->mProductName);
             
             // Generic Product
-            if (std::holds_alternative<strutils::StringId>(product->mProductId))
+            if (std::holds_alternative<std::string>(productDefinition.mProductTexturePathOrCardId))
             {
                 auto shelfItemSceneObject = mScene->CreateSceneObject(strutils::StringId(PRODUCT_NAME_PREFIX + std::to_string(shelfIndex) + "_" + std::to_string(shelfItemIndex)));
-                shelfItemSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + std::get<strutils::StringId>(product->mProductId).GetString());
+                shelfItemSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + std::get<std::string>(productDefinition.mProductTexturePathOrCardId));
                 shelfItemSceneObject->mPosition = SHELF_ITEM_TARGET_BASE_POSITIONS[shelfIndex] + PRODUCT_POSITION_OFFSET;
                 shelfItemSceneObject->mScale = GENERIC_PRODUCT_SCALE;
                 shelfItemSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
@@ -432,7 +485,7 @@ void ShopSceneLogicManager::CreateProducts()
             // Card Product
             else
             {
-                auto cardId = std::get<int>(product->mProductId);
+                auto cardId = std::get<int>(productDefinition.mProductTexturePathOrCardId);
                 auto cardData = CardDataRepository::GetInstance().GetCardData(cardId, game_constants::LOCAL_PLAYER_INDEX);
                 auto cardSoWrapper = card_utils::CreateCardSoWrapper(&cardData, glm::vec3(), PRODUCT_NAME_PREFIX + std::to_string(shelfIndex) + "_" + std::to_string(shelfItemIndex), CardOrientation::FRONT_FACE, CardRarity::NORMAL, false, false, true, {}, {}, *mScene);
 
@@ -445,10 +498,10 @@ void ShopSceneLogicManager::CreateProducts()
                 product->mSceneObjects.push_back(cardSoWrapper->mSceneObject);
             }
             
-            if (product->mPrice > 0)
+            if (productDefinition.mPrice > 0)
             {
                 auto priceTagSceneObject = mScene->CreateSceneObject(strutils::StringId(PRODUCT_NAME_PREFIX + std::to_string(shelfIndex) + "_" + std::to_string(shelfItemIndex) + "_tag"));
-                priceTagSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + PRICE_TAG_TEXTURE_FILE_NAME_PREFIX + std::to_string(std::to_string(product->mPrice).size()) + ".png");
+                priceTagSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + PRICE_TAG_TEXTURE_FILE_NAME_PREFIX + std::to_string(std::to_string(productDefinition.mPrice).size()) + ".png");
                 priceTagSceneObject->mPosition = SHELF_ITEM_TARGET_BASE_POSITIONS[shelfIndex] + PRODUCT_PRICE_TAG_POSITION_OFFSET;
                 priceTagSceneObject->mScale = PRICE_TAG_SCALE;
                 priceTagSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
@@ -458,7 +511,7 @@ void ShopSceneLogicManager::CreateProducts()
                 
                 scene::TextSceneObjectData priceTextData;
                 priceTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
-                priceTextData.mText = std::to_string(product->mPrice) + "$";
+                priceTextData.mText = std::to_string(productDefinition.mPrice) + "$";
                 
                 auto priceTextSceneObject = mScene->CreateSceneObject(strutils::StringId(PRODUCT_NAME_PREFIX + std::to_string(shelfIndex) + "_" + std::to_string(shelfItemIndex) + "_price_text"));
                 priceTextSceneObject->mPosition = SHELF_ITEM_TARGET_BASE_POSITIONS[shelfIndex] + PRODUCT_PRICE_TAG_TEXT_POSITION_OFFSET;
@@ -491,8 +544,9 @@ void ShopSceneLogicManager::HighlightProduct(const size_t productShelfIndex, con
 {
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
     auto& product = mProducts[productShelfIndex][productShelfItemIndex];
+    const auto& productDefinition = mProductDefinitions.at(product->mProductName);
     
-    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleGroupAnimation>(product->mSceneObjects, product->mSceneObjects[0]->mPosition, (std::holds_alternative<int>(product->mProductId) ? CARD_PRODUCT_SCALE : GENERIC_PRODUCT_SCALE) * HIGHLIGHTED_PRODUCT_SCALE_FACTOR, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::ElasticFunction, math::TweeningMode::EASE_IN), [=](){});
+    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleGroupAnimation>(product->mSceneObjects, product->mSceneObjects[0]->mPosition, (std::holds_alternative<int>(productDefinition.mProductTexturePathOrCardId) ? CARD_PRODUCT_SCALE : GENERIC_PRODUCT_SCALE) * HIGHLIGHTED_PRODUCT_SCALE_FACTOR, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::ElasticFunction, math::TweeningMode::EASE_IN), [=](){});
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -501,8 +555,9 @@ void ShopSceneLogicManager::DehighlightProduct(const size_t productShelfIndex, c
 {
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
     auto& product = mProducts[productShelfIndex][productShelfItemIndex];
+    const auto& productDefinition = mProductDefinitions.at(product->mProductName);
     
-    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleGroupAnimation>(product->mSceneObjects, product->mSceneObjects[0]->mPosition, (std::holds_alternative<int>(product->mProductId) ? CARD_PRODUCT_SCALE : GENERIC_PRODUCT_SCALE), PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::ElasticFunction, math::TweeningMode::EASE_IN), [=](){});
+    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleGroupAnimation>(product->mSceneObjects, product->mSceneObjects[0]->mPosition, (std::holds_alternative<int>(productDefinition.mProductTexturePathOrCardId) ? CARD_PRODUCT_SCALE : GENERIC_PRODUCT_SCALE), PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::ElasticFunction, math::TweeningMode::EASE_IN), [=](){});
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -511,6 +566,7 @@ void ShopSceneLogicManager::SelectProduct(const size_t productShelfIndex, const 
 {
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
     auto& product = mProducts[productShelfIndex][productShelfItemIndex];
+    const auto& productDefinition = mProductDefinitions.at(product->mProductName);
     
     for (auto shelfIndex = 0U; shelfIndex < mProducts.size(); ++shelfIndex)
     {
@@ -556,15 +612,28 @@ void ShopSceneLogicManager::SelectProduct(const size_t productShelfIndex, const 
     
     // Animate product (and related scene objects to target position)
     mSelectedProductInitialPosition = product->mSceneObjects.front()->mPosition;
-    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleGroupAnimation>(product->mSceneObjects, SELECTED_PRODUCT_TARGET_POSITION, (std::holds_alternative<int>(product->mProductId) ? CARD_PRODUCT_SCALE : GENERIC_PRODUCT_SCALE) * SELECTED_PRODUCT_SCALE_FACTOR, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){});
+    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleGroupAnimation>(product->mSceneObjects, SELECTED_PRODUCT_TARGET_POSITION, (std::holds_alternative<int>(productDefinition.mProductTexturePathOrCardId) ? CARD_PRODUCT_SCALE : GENERIC_PRODUCT_SCALE) * SELECTED_PRODUCT_SCALE_FACTOR, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=]()
+    {
+        // Create card tooltip if necessary
+        auto& product = mProducts[productShelfIndex][productShelfItemIndex];
+        const auto& productDefinition = mProductDefinitions.at(product->mProductName);
+        
+        if (!productDefinition.mDescription.empty())
+        {
+            CreateCardTooltip(SELECTED_PRODUCT_TARGET_POSITION + CARD_TOOLTIP_POSITION_OFFSET, productDefinition.mDescription);
+        }
+    });
 }
 
 ///------------------------------------------------------------------------------------------------
 
 void ShopSceneLogicManager::DeselectProduct(const size_t productShelfIndex, const size_t productShelfItemIndex)
 {
+    DestroyCardTooltip();
+    
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
     auto& product = mProducts[productShelfIndex][productShelfItemIndex];
+    const auto& productDefinition = mProductDefinitions.at(product->mProductName);
     product->mHighlighted = false;
     
     for (auto& sceneObject: product->mSceneObjects)
@@ -586,7 +655,7 @@ void ShopSceneLogicManager::DeselectProduct(const size_t productShelfIndex, cons
     animationManager.StopAllAnimationsPlayingForSceneObject(selectedProductOverlaySceneObject->mName);
     animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(mScene->FindSceneObject(SELECTED_PRODUCT_OVERLAY_SCENE_OBJECT_NAME), 0.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){ selectedProductOverlaySceneObject->mInvisible = true; });
     
-    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleGroupAnimation>(product->mSceneObjects, mSelectedProductInitialPosition, (std::holds_alternative<int>(product->mProductId) ? CARD_PRODUCT_SCALE : GENERIC_PRODUCT_SCALE), PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=]()
+    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleGroupAnimation>(product->mSceneObjects, mSelectedProductInitialPosition, (std::holds_alternative<int>(productDefinition.mProductTexturePathOrCardId) ? CARD_PRODUCT_SCALE : GENERIC_PRODUCT_SCALE), PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=]()
     {
         for (auto shelfIndex = 0U; shelfIndex < mProducts.size(); ++shelfIndex)
         {
@@ -609,6 +678,93 @@ void ShopSceneLogicManager::DeselectProduct(const size_t productShelfIndex, cons
             }
         }
     });
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ShopSceneLogicManager::CreateCardTooltip(const glm::vec3& cardOriginPostion, const std::string& tooltipText)
+{
+    auto tooltipSceneObject = mScene->FindSceneObject(CARD_TOOLTIP_SCENE_OBJECT_NAME);
+    bool shouldBeHorFlipped = cardOriginPostion.x > 0.0f;
+    bool shouldBeVerFlipped = cardOriginPostion.y > 0.1f;
+    
+    tooltipSceneObject->mPosition = cardOriginPostion + CARD_TOOLTIP_BASE_OFFSET;
+    tooltipSceneObject->mPosition.x += shouldBeHorFlipped ? CARD_TOOLTIP_FLIPPED_X_OFFSET : 0.046f;
+    tooltipSceneObject->mPosition.y += shouldBeVerFlipped ? CARD_TOOLTIP_FLIPPED_Y_OFFSET : 0.0f;
+    
+    tooltipSceneObject->mInvisible = false;
+    tooltipSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
+    tooltipSceneObject->mShaderFloatUniformValues[CARD_TOOLTIP_REVEAL_THRESHOLD_UNIFORM_NAME] = 0.0f;
+    tooltipSceneObject->mScale.x = shouldBeHorFlipped ? -CARD_TOOLTIP_BASE_SCALE.x : CARD_TOOLTIP_BASE_SCALE.x;
+    tooltipSceneObject->mScale.y = shouldBeVerFlipped ? -CARD_TOOLTIP_BASE_SCALE.y : CARD_TOOLTIP_BASE_SCALE.y;
+    
+    auto tooltipTextRows = strutils::StringSplit(tooltipText, '$');
+    
+    if (tooltipTextRows.size() == 1)
+    {
+        auto tooltipTextSceneObject = mScene->FindSceneObject(CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES[1]);
+        tooltipTextSceneObject->mPosition = tooltipSceneObject->mPosition;
+        tooltipTextSceneObject->mPosition += 2.0f * CARD_TOOLTIP_TEXT_OFFSETS[1];
+        tooltipTextSceneObject->mPosition.x += shouldBeHorFlipped ? (2.0f * CARD_TOOLTIP_TEXT_FLIPPED_X_OFFSET) : 0.0f;
+        tooltipTextSceneObject->mPosition.y += shouldBeVerFlipped ? (2.0f * CARD_TOOLTIP_TEXT_FLIPPED_Y_OFFSET) : 0.0f;
+        tooltipTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+        std::get<scene::TextSceneObjectData>(tooltipTextSceneObject->mSceneObjectTypeData).mText = tooltipTextRows[0];
+        tooltipTextSceneObject->mInvisible = false;
+    }
+    else
+    {
+        for (auto i = 0U; i < tooltipTextRows.size(); ++i)
+        {
+            assert(i < game_constants::CARD_TOOLTIP_TEXT_ROWS_COUNT);
+            auto tooltipTextSceneObject = mScene->FindSceneObject(CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES[i]);
+            tooltipTextSceneObject->mPosition = tooltipSceneObject->mPosition;
+            tooltipTextSceneObject->mPosition += 2.0f * CARD_TOOLTIP_TEXT_OFFSETS[i];
+            tooltipTextSceneObject->mPosition.x += shouldBeHorFlipped ? (2.0f * CARD_TOOLTIP_TEXT_FLIPPED_X_OFFSET) : 0.0f;
+            tooltipTextSceneObject->mPosition.y += shouldBeVerFlipped ? (2.0f * CARD_TOOLTIP_TEXT_FLIPPED_Y_OFFSET) : 0.0f;
+            tooltipTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+            std::get<scene::TextSceneObjectData>(tooltipTextSceneObject->mSceneObjectTypeData).mText = tooltipTextRows[i];
+            tooltipTextSceneObject->mInvisible = false;
+        }
+    }
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ShopSceneLogicManager::DestroyCardTooltip()
+{
+    auto tooltipSceneObject = mScene->FindSceneObject(CARD_TOOLTIP_SCENE_OBJECT_NAME);
+    tooltipSceneObject->mInvisible = true;
+
+    for (auto i = 0; i < game_constants::CARD_TOOLTIP_TEXT_ROWS_COUNT; ++i)
+    {
+        auto tooltipTextSceneObject = mScene->FindSceneObject(CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES[i]);
+        tooltipTextSceneObject->mInvisible = true;
+    }
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ShopSceneLogicManager::LoadProductData()
+{
+      auto& systemsEngine = CoreSystemsEngine::GetInstance();
+      
+  #if !defined(NDEBUG)
+      auto productDefinitionJsonResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_DATA_ROOT + "shop_product_data.json", resources::DONT_RELOAD);
+      const auto particlesJson =  nlohmann::json::parse(systemsEngine.GetResourceLoadingService().GetResource<resources::DataFileResource>(productDefinitionJsonResourceId).GetContents());
+  #else
+      const auto particlesJson = serial::BaseDataFileDeserializer("shop_product_data", serial::DataFileType::ASSET_FILE_TYPE, serial::WarnOnFileNotFoundBehavior::WARN, serial::CheckSumValidationBehavior::VALIDATE_CHECKSUM).GetState();
+  #endif
+    
+    for (const auto& shopDefinitionObject: particlesJson["shop_product_data"])
+    {
+        strutils::StringId productName = strutils::StringId(shopDefinitionObject["name"].get<std::string>());
+        int productPrice = shopDefinitionObject["price"].get<int>();
+        std::string productTexturePath = shopDefinitionObject["texture_path"].get<std::string>();
+        std::string productDescription = shopDefinitionObject["description"].get<std::string>();
+        bool isProductSingleUse = shopDefinitionObject["is_single_use"].get<bool>();
+        
+        mProductDefinitions.emplace(std::make_pair(productName, ProductDefinition(productName, productTexturePath, productDescription, productPrice, isProductSingleUse)));
+    }
 }
 
 ///------------------------------------------------------------------------------------------------

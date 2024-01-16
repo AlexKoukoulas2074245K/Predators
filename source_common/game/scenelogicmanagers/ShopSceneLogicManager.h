@@ -45,21 +45,39 @@ private:
     void DehighlightProduct(const size_t productShelfIndex, const size_t productShelfItemIndex);
     void SelectProduct(const size_t productShelfIndex, const size_t productShelfItemIndex);
     void DeselectProduct(const size_t productShelfIndex, const size_t productShelfItemIndex);
+    void CreateCardTooltip(const glm::vec3& cardOriginPostion, const std::string& tooltipText);
+    void DestroyCardTooltip();
+    void LoadProductData();
     
 private:
-    struct Product
+    struct ProductDefinition
     {
-        Product(const std::variant<strutils::StringId, int>& productId, const int price, const bool singleUse)
-            : mProductId(productId)
+        ProductDefinition(const strutils::StringId& productName, const std::variant<int, std::string>& productTexturePathOrCardId, const std::string& description, const int price, const bool isSingleUse)
+            : mProductName(productName)
+            , mProductTexturePathOrCardId(productTexturePathOrCardId)
+            , mDescription(description)
             , mPrice(price)
-            , mSingleUse(singleUse)
+            , mIsSingleUse(isSingleUse)
+        {
+        }
+        
+        const strutils::StringId mProductName;
+        const std::variant<int, std::string> mProductTexturePathOrCardId;
+        const std::string mDescription;
+        const int mPrice;
+        const bool mIsSingleUse;
+        
+    };
+    
+    struct ProductInstance
+    {
+        ProductInstance(const strutils::StringId& productName)
+            : mProductName(productName)
             , mHighlighted(false)
         {
         }
         
-        const std::variant<strutils::StringId, int> mProductId;
-        const int mPrice;
-        const bool mSingleUse;
+        const strutils::StringId mProductName;
         std::vector<std::shared_ptr<scene::SceneObject>> mSceneObjects;
         bool mHighlighted;
     };
@@ -74,7 +92,8 @@ private:
     
 private:
     std::vector<std::unique_ptr<AnimatedButton>> mAnimatedButtons;
-    std::vector<std::vector<std::unique_ptr<Product>>> mProducts;
+    std::unordered_map<strutils::StringId, ProductDefinition, strutils::StringIdHasher> mProductDefinitions;
+    std::vector<std::vector<std::unique_ptr<ProductInstance>>> mProducts;
     std::shared_ptr<GuiObjectManager> mGuiManager;
     std::shared_ptr<scene::Scene> mScene;
     SceneState mSceneState;
