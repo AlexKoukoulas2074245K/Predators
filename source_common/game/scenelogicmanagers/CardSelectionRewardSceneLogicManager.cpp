@@ -15,6 +15,7 @@
 #include <engine/scene/SceneObjectUtils.h>
 #include <game/AnimatedButton.h>
 #include <game/CardUtils.h>
+#include <game/CardTooltipController.h>
 #include <game/GuiObjectManager.h>
 #include <game/events/EventSystem.h>
 #include <game/GameSceneTransitionManager.h>
@@ -27,21 +28,9 @@ static const strutils::StringId CARD_SELECTION_REWARD_SCENE_NAME = strutils::Str
 static const strutils::StringId REWARD_HIGHLIGHTER_SCENE_OBJECT_NAME = strutils::StringId("reward_highlighter");
 static const strutils::StringId CONFIRMATION_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("confirmation_button");
 static const strutils::StringId CARD_SELECTION_TITLE_SCENE_OBJECT_NAME = strutils::StringId("card_selection_title");
-static const strutils::StringId CARD_TOOLTIP_SCENE_OBJECT_NAME = strutils::StringId("card_tooltip");
-static const strutils::StringId CARD_TOOLTIP_REVEAL_THRESHOLD_UNIFORM_NAME = strutils::StringId("reveal_threshold");
-static const strutils::StringId CARD_TOOLTIP_REVEAL_RGB_EXPONENT_UNIFORM_NAME = strutils::StringId("reveal_rgb_exponent");
 static const strutils::StringId DARKEN_UNIFORM_NAME = strutils::StringId("darken");
-static const strutils::StringId CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES [game_constants::CARD_TOOLTIP_TEXT_ROWS_COUNT] =
-{
-    strutils::StringId("card_tooltip_text_0"),
-    strutils::StringId("card_tooltip_text_1"),
-    strutils::StringId("card_tooltip_text_2"),
-    strutils::StringId("card_tooltip_text_3")
-};
 
 static const std::string CARD_REWARD_SCENE_OBJECT_NAME_PREFIX = "card_reward_";
-static const std::string CARD_TOOLTIP_TEXTURE_FILE_NAME = "tooltip.png";
-static const std::string CARD_TOOLTIP_SHADER_FILE_NAME = "diagonal_reveal.vs";
 static const std::string CARD_REWARD_SHADER_FILE_NAME = "card_reward.vs";
 
 static const glm::vec3 CONFIRMATION_BUTTON_POSITION = {-0.10f, -0.18f, 23.1f};
@@ -51,22 +40,9 @@ static const glm::vec3 CARD_HIGHLIGHTER_SCALE = glm::vec3(0.08f, 0.13f, 1.0f) * 
 static const glm::vec3 CARD_REWARD_EXPANDED_SCALE = 1.25f * CARD_REWARD_DEFAULT_SCALE;
 static const glm::vec3 CARD_TOOLTIP_POSITION_OFFSET = {0.0f, 0.1f, 0.0f};
 static const glm::vec3 CARD_TOOLTIP_BASE_SCALE = {0.274f, 0.274f, 1/10.0f};
-static const glm::vec3 CARD_TOOLTIP_BASE_OFFSET = {0.06f, 0.033f, 0.2f};
-static const glm::vec3 CARD_TOOLTIP_TEXT_OFFSETS[game_constants::CARD_TOOLTIP_TEXT_ROWS_COUNT] =
-{
-    { -0.033f, 0.029f, 0.1f },
-    { -0.051f, 0.014f, 0.1f },
-    { -0.036f, -0.000f, 0.1f },
-    { -0.03f, -0.014f, 0.1f }
-};
 
 static const float FADE_IN_OUT_DURATION_SECS = 0.5f;
 static const float INITIAL_SURFACING_DELAY_SECS = 1.0f;
-static const float CARD_TOOLTIP_MAX_REVEAL_THRESHOLD = 2.0f;
-static const float CARD_TOOLTIP_REVEAL_SPEED = 1.0f/200.0f;
-static const float CARD_TOOLTIP_TEXT_REVEAL_SPEED = 1.0f/500.0f;
-static const float CARD_TOOLTIP_FLIPPED_X_OFFSET = -0.17f;
-static const float CARD_TOOLTIP_TEXT_FLIPPED_X_OFFSET = -0.007f;
 static const float CARD_HIGHLIGHTER_X_OFFSET = -0.003f;
 static const float CARD_HIGHLIGHT_ANIMATION_DURATION_SECS = 0.5f;
 static const float CARD_REWARD_SURFACE_DELAY_SECS = 0.5f;
@@ -108,6 +84,7 @@ void CardSelectionRewardSceneLogicManager::VInitSceneCamera(std::shared_ptr<scen
 void CardSelectionRewardSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 {
     mCardRewards.clear();
+    mCardTooltipController = nullptr;
     mSceneState = SceneState::PENDING_PRESENTATION;
     mInitialSurfacingDelaySecs = INITIAL_SURFACING_DELAY_SECS;
     
@@ -146,15 +123,7 @@ void CardSelectionRewardSceneLogicManager::VUpdate(const float dtMillis, std::sh
                 
                 for (auto sceneObject: scene->GetSceneObjects())
                 {
-                    if
-                    (
-                        sceneObject->mName == game_constants::OVERLAY_SCENE_OBJECT_NAME ||
-                        sceneObject->mName == CARD_TOOLTIP_SCENE_OBJECT_NAME ||
-                        sceneObject->mName == CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES[0] ||
-                        sceneObject->mName == CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES[1] ||
-                        sceneObject->mName == CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES[2] ||
-                        sceneObject->mName == CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES[3]
-                    )
+                    if (sceneObject->mName == game_constants::OVERLAY_SCENE_OBJECT_NAME)
                     {
                         continue;
                     }
@@ -236,7 +205,7 @@ void CardSelectionRewardSceneLogicManager::VUpdate(const float dtMillis, std::sh
                     
                     if (cardSoWrapper->mCardData.IsSpell())
                     {
-                        CreateCardTooltip(cardSoWrapper->mSceneObject->mPosition + CARD_TOOLTIP_POSITION_OFFSET, cardSoWrapper->mCardData.mCardEffectTooltip, i, scene);
+                        CreateCardTooltip(cardSoWrapper->mSceneObject->mPosition, cardSoWrapper->mCardData.mCardEffectTooltip, i, scene);
                     }
                     
                     mSceneState = SceneState::PENDING_CARD_SELECTION_CONFIRMATION;
@@ -262,17 +231,9 @@ void CardSelectionRewardSceneLogicManager::VUpdate(const float dtMillis, std::sh
         {
             mConfirmationButton->Update(dtMillis);
             
-            auto cardTooltipSceneObject = scene->FindSceneObject(CARD_TOOLTIP_SCENE_OBJECT_NAME);
-            cardTooltipSceneObject->mShaderFloatUniformValues[CARD_TOOLTIP_REVEAL_THRESHOLD_UNIFORM_NAME] += dtMillis * CARD_TOOLTIP_REVEAL_SPEED;
-            if (cardTooltipSceneObject->mShaderFloatUniformValues[CARD_TOOLTIP_REVEAL_THRESHOLD_UNIFORM_NAME] >= CARD_TOOLTIP_MAX_REVEAL_THRESHOLD)
+            if (mCardTooltipController)
             {
-                cardTooltipSceneObject->mShaderFloatUniformValues[CARD_TOOLTIP_REVEAL_THRESHOLD_UNIFORM_NAME] = CARD_TOOLTIP_MAX_REVEAL_THRESHOLD;
-                
-                for (auto i = 0; i < game_constants::CARD_TOOLTIP_TEXT_ROWS_COUNT; ++i)
-                {
-                    auto tooltipTextSceneObject = scene->FindSceneObject(CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES[i]);
-                    tooltipTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = math::Min(1.0f, tooltipTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] +  dtMillis * CARD_TOOLTIP_TEXT_REVEAL_SPEED);
-                }
+                mCardTooltipController->Update(dtMillis);
             }
             
             auto& inputStateManager = CoreSystemsEngine::GetInstance().GetInputStateManager();
@@ -294,15 +255,7 @@ void CardSelectionRewardSceneLogicManager::VUpdate(const float dtMillis, std::sh
 #endif
                 }
                 
-                auto tooltipSceneObject = scene->FindSceneObject(CARD_TOOLTIP_SCENE_OBJECT_NAME);
-                tooltipSceneObject->mInvisible = true;
-    
-                for (auto i = 0; i < game_constants::CARD_TOOLTIP_TEXT_ROWS_COUNT; ++i)
-                {
-                    auto tooltipTextSceneObject = scene->FindSceneObject(CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES[i]);
-                    tooltipTextSceneObject->mInvisible = true;
-                }
-                
+                DestroyCardTooltip(scene);
                 scene->RemoveSceneObject(mConfirmationButton->GetSceneObject()->mName);
                 mConfirmationButton = nullptr;
                 scene->RemoveSceneObject(REWARD_HIGHLIGHTER_SCENE_OBJECT_NAME);
@@ -320,8 +273,9 @@ void CardSelectionRewardSceneLogicManager::VUpdate(const float dtMillis, std::sh
 
 ///------------------------------------------------------------------------------------------------
 
-void CardSelectionRewardSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene>)
+void CardSelectionRewardSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene> scene)
 {
+    DestroyCardTooltip(scene);
     mCardRewards.clear();
 }
 
@@ -355,43 +309,32 @@ void CardSelectionRewardSceneLogicManager::CreateCardRewards(std::shared_ptr<sce
 
 void CardSelectionRewardSceneLogicManager::CreateCardTooltip(const glm::vec3& cardOriginPostion, const std::string& tooltipText, const size_t cardIndex, std::shared_ptr<scene::Scene> scene)
 {
-    auto tooltipSceneObject = scene->FindSceneObject(CARD_TOOLTIP_SCENE_OBJECT_NAME);
-    bool shouldBeFlipped = cardIndex > 1;
-    
-    tooltipSceneObject->mPosition = cardOriginPostion + CARD_TOOLTIP_BASE_OFFSET;
-    tooltipSceneObject->mPosition.x += shouldBeFlipped ? CARD_TOOLTIP_FLIPPED_X_OFFSET : 0.046f;
-    
-    tooltipSceneObject->mInvisible = false;
-    tooltipSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
-    tooltipSceneObject->mShaderFloatUniformValues[CARD_TOOLTIP_REVEAL_THRESHOLD_UNIFORM_NAME] = 0.0f;
-    tooltipSceneObject->mScale.x = shouldBeFlipped ? -CARD_TOOLTIP_BASE_SCALE.x : CARD_TOOLTIP_BASE_SCALE.x;
-    
-    auto tooltipTextRows = strutils::StringSplit(tooltipText, '$');
-    
-    if (tooltipTextRows.size() == 1)
+    bool shouldBeHorFlipped = cardIndex > 1;
+    mCardTooltipController = std::make_unique<CardTooltipController>
+    (
+        cardOriginPostion + CARD_TOOLTIP_POSITION_OFFSET,
+        CARD_TOOLTIP_BASE_SCALE,
+        tooltipText,
+        false,
+        shouldBeHorFlipped,
+        false,
+        *scene
+    );
+}
+
+///------------------------------------------------------------------------------------------------
+
+void CardSelectionRewardSceneLogicManager::DestroyCardTooltip(std::shared_ptr<scene::Scene> scene)
+{
+    if (mCardTooltipController)
     {
-        auto tooltipTextSceneObject = scene->FindSceneObject(CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES[1]);
-        tooltipTextSceneObject->mPosition = tooltipSceneObject->mPosition;
-        tooltipTextSceneObject->mPosition += 2.0f * CARD_TOOLTIP_TEXT_OFFSETS[1];
-        tooltipTextSceneObject->mPosition.x += shouldBeFlipped ? (2.0f * CARD_TOOLTIP_TEXT_FLIPPED_X_OFFSET) : 0.0f;
-        tooltipTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
-        std::get<scene::TextSceneObjectData>(tooltipTextSceneObject->mSceneObjectTypeData).mText = tooltipTextRows[0];
-        tooltipTextSceneObject->mInvisible = false;
-    }
-    else
-    {
-        for (auto i = 0U; i < tooltipTextRows.size(); ++i)
+        for (auto sceneObject: mCardTooltipController->GetSceneObjects())
         {
-            assert(i < game_constants::CARD_TOOLTIP_TEXT_ROWS_COUNT);
-            auto tooltipTextSceneObject = scene->FindSceneObject(CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES[i]);
-            tooltipTextSceneObject->mPosition = tooltipSceneObject->mPosition;
-            tooltipTextSceneObject->mPosition += 2.0f * CARD_TOOLTIP_TEXT_OFFSETS[i];
-            tooltipTextSceneObject->mPosition.x += shouldBeFlipped ? (2.0f * CARD_TOOLTIP_TEXT_FLIPPED_X_OFFSET) : 0.0f;
-            tooltipTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
-            std::get<scene::TextSceneObjectData>(tooltipTextSceneObject->mSceneObjectTypeData).mText = tooltipTextRows[i];
-            tooltipTextSceneObject->mInvisible = false;
+            scene->RemoveSceneObject(sceneObject->mName);
         }
     }
+    
+    mCardTooltipController = nullptr;
 }
 
 ///------------------------------------------------------------------------------------------------

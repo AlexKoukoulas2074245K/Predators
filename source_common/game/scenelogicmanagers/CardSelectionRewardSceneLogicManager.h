@@ -17,6 +17,7 @@
 ///------------------------------------------------------------------------------------------------
 
 class AnimatedButton;
+class CardTooltipController;
 class CardSelectionRewardSceneLogicManager final: public ISceneLogicManager
 {
 public:
@@ -34,6 +35,7 @@ public:
 private:
     void CreateCardRewards(std::shared_ptr<scene::Scene> scene);
     void CreateCardTooltip(const glm::vec3& cardOriginPostion, const std::string& tooltipText, const size_t cardIndex, std::shared_ptr<scene::Scene> scene);
+    void DestroyCardTooltip(std::shared_ptr<scene::Scene> scene);
     
 private:
     enum class SceneState
@@ -45,6 +47,7 @@ private:
     
     std::vector<std::shared_ptr<CardSoWrapper>> mCardRewards;
     std::unique_ptr<AnimatedButton> mConfirmationButton;
+    std::unique_ptr<CardTooltipController> mCardTooltipController;
     SceneState mSceneState;
     float mInitialSurfacingDelaySecs;
 };

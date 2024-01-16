@@ -248,7 +248,7 @@ void StoryCardsLibrarySceneLogicManager::OnWindowResize(const events::WindowResi
 void StoryCardsLibrarySceneLogicManager::CreateCardTooltip(const glm::vec3& cardOriginPostion, const std::string& tooltipText)
 {
     bool shouldBeHorFlipped = cardOriginPostion.x > 0.0f;
-    bool shouldBeVerFlipped = cardOriginPostion.y > 0.1f;
+    bool shouldBeVerFlipped = cardOriginPostion.y > 0.0f;
     
     mCardTooltipController = std::make_unique<CardTooltipController>
     (

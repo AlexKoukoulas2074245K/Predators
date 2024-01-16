@@ -652,7 +652,6 @@ void ShopSceneLogicManager::DeselectProduct(const size_t productShelfIndex, cons
 void ShopSceneLogicManager::CreateCardTooltip(const glm::vec3& cardOriginPostion, const std::string& tooltipText)
 {
     bool shouldBeHorFlipped = cardOriginPostion.x > 0.0f;
-    bool shouldBeVerFlipped = cardOriginPostion.y > 0.1f;
     
     mCardTooltipController = std::make_unique<CardTooltipController>
     (
@@ -661,7 +660,7 @@ void ShopSceneLogicManager::CreateCardTooltip(const glm::vec3& cardOriginPostion
         tooltipText,
         false,
         shouldBeHorFlipped,
-        shouldBeVerFlipped,
+        false,
         *mScene
     );
 }

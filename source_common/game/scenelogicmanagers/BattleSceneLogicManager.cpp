@@ -289,7 +289,7 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
     if (mCurrentBattleControlType == BattleControlType::REPLAY)
     {
         replayEngine = std::make_unique<BattleDeserializer>();
-        seed = replayEngine->GetGameFileSeed();
+        seed = quickPlayData ? replayEngine->GetGameFileSeed() : seed;
         
         mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = replayEngine->GetTopPlayerDeck();
         mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = replayEngine->GetBotPlayerDeck();
