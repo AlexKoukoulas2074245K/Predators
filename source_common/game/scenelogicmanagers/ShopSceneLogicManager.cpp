@@ -29,6 +29,7 @@
 
 static constexpr int SHELF_COUNT = 3;
 static constexpr int SHELF_ITEM_COUNT = 3;
+static constexpr std::pair<int, int> COINS_TO_LIFE_RATE = std::make_pair(100, 30);
 
 static const strutils::StringId SELECTED_PRODUCT_OVERLAY_SCENE_OBJECT_NAME = strutils::StringId("selected_product_overlay");
 static const strutils::StringId CANT_BUY_PRODUCT_OVERLAY_SCENE_OBJECT_NAME = strutils::StringId("cant_buy_product_overlay");
@@ -48,6 +49,10 @@ static const strutils::StringId CARD_DELETION_PRODUCT_NAME = strutils::StringId(
 static const std::string BASIC_CUSTOM_COLOR_SHADER_FILE_NAME = "basic_custom_color.vs";
 static const std::string PRICE_TAG_TEXTURE_FILE_NAME_PREFIX = "shop_items/price_tag_digits_";
 static const std::string PRODUCT_NAME_PREFIX = "product_";
+static const std::string CANT_BUY_PRODUCT_COIN_CASE_TEXT = "You don't have sufficient coins";
+static const std::string CANT_BUY_PRODUCT_HEALTH_CASE_TEXT = "You don't have sufficient health";
+static const std::string CANT_BUY_PRODUCT_CASE_TEXT = "to buy this product!";
+static const std::string CANT_USE_SERVICE_CASE_TEXT = "to use this service!";
 
 static const glm::vec3 BUTTON_SCALE = {0.0004f, 0.0004f, 0.0004f};
 static const glm::vec3 CONTINUE_BUTTON_POSITION = {0.0f, -0.1f, 0.3f};
@@ -759,8 +764,13 @@ void ShopSceneLogicManager::OnBuyProductAttempt(const size_t productShelfIndex, 
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
     auto& product = mProducts[productShelfIndex][productShelfItemIndex];
     const auto& productDefinition = mProductDefinitions.at(product->mProductName);
+    auto currentCoinsValue = ProgressionDataRepository::GetInstance().CurrencyCoins().GetValue();
+    auto currentHealthValue = ProgressionDataRepository::GetInstance().StoryCurrentHealth().GetValue();
     
-    if (productDefinition.mPrice > ProgressionDataRepository::GetInstance().CurrencyCoins().GetValue())
+    // Insufficient funds/health case
+    if (productDefinition.mPrice > currentCoinsValue ||
+        (product->mProductName == COINS_TO_LIFE_PRODUCT_NAME && COINS_TO_LIFE_RATE.first > currentCoinsValue) ||
+        (product->mProductName == LIFE_TO_COINS_PRODUCT_NAME && COINS_TO_LIFE_RATE.second >= currentHealthValue))
     {
         // Fade in can't buy product confirmation button
         auto cantBuyProductConfirmationButtonSceneObject = mScene->FindSceneObject(CANT_BUY_PRODUCT_CONFIRMATION_BUTTON_SCENE_OBJECT_NAME);
@@ -770,12 +780,22 @@ void ShopSceneLogicManager::OnBuyProductAttempt(const size_t productShelfIndex, 
         
         // Fade in can't buy product text 0
         auto cantBuyProductText0SceneObject = mScene->FindSceneObject(CANT_BUY_PRODUCT_TEXT_0_SCENE_OBJECT_NAME);
+        std::get<scene::TextSceneObjectData>(cantBuyProductText0SceneObject->mSceneObjectTypeData).mText = product->mProductName == LIFE_TO_COINS_PRODUCT_NAME ?
+            CANT_BUY_PRODUCT_HEALTH_CASE_TEXT:
+            CANT_BUY_PRODUCT_COIN_CASE_TEXT;
         cantBuyProductText0SceneObject->mInvisible = false;
         animationManager.StopAllAnimationsPlayingForSceneObject(cantBuyProductText0SceneObject->mName);
         animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(cantBuyProductText0SceneObject, 1.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){});
         
         // Fade in can't buy product text 1
         auto cantBuyProductText1SceneObject = mScene->FindSceneObject(CANT_BUY_PRODUCT_TEXT_1_SCENE_OBJECT_NAME);
+        std::get<scene::TextSceneObjectData>(cantBuyProductText1SceneObject->mSceneObjectTypeData).mText =
+            (product->mProductName == LIFE_TO_COINS_PRODUCT_NAME ||
+             product->mProductName == COINS_TO_LIFE_PRODUCT_NAME ||
+             product->mProductName == CARD_DELETION_PRODUCT_NAME) ?
+            CANT_USE_SERVICE_CASE_TEXT:
+            CANT_BUY_PRODUCT_CASE_TEXT;
+        
         cantBuyProductText1SceneObject->mInvisible = false;
         animationManager.StopAllAnimationsPlayingForSceneObject(cantBuyProductText1SceneObject->mName);
         animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(cantBuyProductText1SceneObject, 1.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){});
