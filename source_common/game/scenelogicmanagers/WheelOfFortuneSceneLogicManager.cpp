@@ -244,6 +244,15 @@ void WheelOfFortuneSceneLogicManager::OnWheelItemSelected(const int itemIndex, c
         CONTINUE_BUTTON_SCENE_OBJECT_NAME,
         [=]()
         {
+            auto guiObjectManager = mGameSceneTransitionManager->GetSceneLogicManagerResponsibleForScene(mPreviousScene)->VGetGuiObjectManager();
+            if (guiObjectManager)
+            {
+                guiObjectManager->StopRewardAnimation();
+            }
+            
+            ProgressionDataRepository::GetInstance().StoryCurrentHealth().SetDisplayedValue(ProgressionDataRepository::GetInstance().StoryCurrentHealth().GetValue());
+            guiObjectManager->ForceSetStoryHealthValue(ProgressionDataRepository::GetInstance().StoryCurrentHealth().GetValue());
+            
             events::EventSystem::GetInstance().DispatchEvent<events::PopSceneModalEvent>();
         },
         *mScene

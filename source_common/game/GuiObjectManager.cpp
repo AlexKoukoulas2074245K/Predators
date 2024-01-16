@@ -224,6 +224,15 @@ void GuiObjectManager::ForceSetStoryHealthValue(const int storyHealthValue)
 
 ///------------------------------------------------------------------------------------------------
 
+void GuiObjectManager::StopRewardAnimation()
+{
+    auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+    animationManager.StopAllAnimations();
+    mScene->RemoveSceneObject(PARTICLE_EMITTER_SCENE_OBJECT_NAME);
+}
+
+///------------------------------------------------------------------------------------------------
+
 void GuiObjectManager::AnimateStatParticlesToGui(const glm::vec3& originPosition, const StatParticleType statParticleType, const long long statAmount)
 {
     auto forBattleScene = mScene->GetName() == game_constants::BATTLE_SCENE;

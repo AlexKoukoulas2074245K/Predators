@@ -38,6 +38,7 @@ public:
     GuiUpdateInteractionResult Update(const float dtMillis, const bool allowButtonInput = true);
     void OnWindowResize();
     void ForceSetStoryHealthValue(const int storyHealthValue);
+    void StopRewardAnimation();
     
 private:
     enum class StatParticleType
