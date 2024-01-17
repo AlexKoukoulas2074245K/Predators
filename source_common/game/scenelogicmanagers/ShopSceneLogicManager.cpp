@@ -307,6 +307,8 @@ void ShopSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene:
         }
         default: break;
     }
+    
+    UpdateProductPriceTags();
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -1018,7 +1020,7 @@ void ShopSceneLogicManager::AnimateBoughtCardToLibrary(const size_t productShelf
     // Calculate bezier points for card animation
     auto cardLibraryIconPosition = mScene->FindSceneObject(game_constants::GUI_STORY_CARDS_BUTTON_SCENE_OBJECT_NAME)->mPosition;
     glm::vec3 midPosition = glm::vec3(SELECTED_PRODUCT_TARGET_POSITION + cardLibraryIconPosition)/2.0f;
-    midPosition.y += math::RandomFloat(-0.2f, 0.2f);
+    midPosition.y += math::RandomSign() == 1 ? 0.3f: -0.3f;
     math::BezierCurve curve({SELECTED_PRODUCT_TARGET_POSITION, midPosition, cardLibraryIconPosition});
     
     // Animate bought card to card library icon
@@ -1045,6 +1047,30 @@ void ShopSceneLogicManager::AnimateBoughtCardToLibrary(const size_t productShelf
             });
         });
     });
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ShopSceneLogicManager::UpdateProductPriceTags()
+{
+    for (int shelfIndex = 0; shelfIndex < SHELF_COUNT; ++shelfIndex)
+    {
+        for (int shelfItemIndex = 0; shelfItemIndex < SHELF_ITEM_COUNT; ++shelfItemIndex)
+        {
+            if (mProducts[shelfIndex][shelfItemIndex] == nullptr)
+            {
+                continue;
+            }
+            
+            auto& product = mProducts[shelfIndex][shelfItemIndex];
+            const auto& productDefinition = mProductDefinitions.at(product->mProductName);
+            
+            if (productDefinition.mPrice > 0)
+            {
+                product->mSceneObjects[2]->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = productDefinition.mPrice > ProgressionDataRepository::GetInstance().CurrencyCoins().GetValue() ? COIN_RED_VALUE_TEXT_COLOR : COIN_NORMAL_VALUE_TEXT_COLOR;
+            }
+        }
+    }
 }
 
 ///------------------------------------------------------------------------------------------------

@@ -56,6 +56,7 @@ private:
     void FindHighlightedProduct(size_t& productShelfIndex, size_t& productShelfItemIndex);
     void ChangeAndAnimateCoinValueReduction(long long coinValueReduction);
     void AnimateBoughtCardToLibrary(const size_t productShelfIndex, const size_t productShelfItemIndex);
+    void UpdateProductPriceTags();
     
 private:
     struct ProductDefinition
