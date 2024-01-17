@@ -67,7 +67,7 @@ static const glm::vec3 STAT_GAIN_PARTICLE_OFFSET_POSITION = {0.0f, -0.08f, -0.01
 static const glm::vec3 EXTRA_DAMAGE_WEIGHT_PARTICLE_ORIGIN_POSITION = {-0.025f, -0.12f, 23.5f};
 
 static const float COIN_PARTICLE_RESPAWN_TICK_SECS = 0.025f;
-static const float HEALTH_PARTICLE_RESPAWN_TICK_SECS = 0.25f;
+static const float HEALTH_PARTICLE_RESPAWN_TICK_SECS = 0.125f;
 static const float SETTINGS_BUTTON_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 33.5f;
 static const float STORY_CARDS_BUTTON_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 12.25f;
 static const float COIN_STACK_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 1.4f;
@@ -306,6 +306,12 @@ void GuiObjectManager::AnimateStatParticlesToGui(const glm::vec3& originPosition
                         health.SetDisplayedValue(health.GetDisplayedValue() + 1);
                     } break;
                 }
+
+                if (CoreSystemsEngine::GetInstance().GetAnimationManager().GetAnimationCountPlayingWithName(game_constants::STAT_PARTICLE_FLYING_ANIMATION_NAME) == 1)
+                {
+                    events::EventSystem::GetInstance().DispatchEvent<events::GuiRewardAnimationFinishedEvent>();
+                }
+                
             }, game_constants::STAT_PARTICLE_FLYING_ANIMATION_NAME);
         }
     });
@@ -330,6 +336,8 @@ void GuiObjectManager::AnimateStatGainParticles(const glm::vec3& originPosition,
         default: break;
     }
     
+    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TimeDelayAnimation>(STAT_GAIN_ANIMATION_DURATION_SECS * 2), [](){ events::EventSystem::GetInstance().DispatchEvent<events::GuiRewardAnimationFinishedEvent>(); } );
+        
     auto particleEmitterSceneObject = particleManager.CreateParticleEmitterAtPosition(particleDefinition, originPosition + (forBattleScene ? STAT_GAIN_BATTLE_PARTICLE_OFFSET_POSITION: STAT_GAIN_PARTICLE_OFFSET_POSITION), *mScene, PARTICLE_EMITTER_SCENE_OBJECT_NAME, [=](float dtMillis, scene::ParticleEmitterObjectData& particleEmitterData)
     {
         auto& particleManager = CoreSystemsEngine::GetInstance().GetParticleManager();

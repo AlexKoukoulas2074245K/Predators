@@ -283,6 +283,12 @@ class StoryBattleFinishedEvent final
 
 ///------------------------------------------------------------------------------------------------
 
+class GuiRewardAnimationFinishedEvent final
+{
+};
+
+///------------------------------------------------------------------------------------------------
+
 class LastCardPlayedFinalizedEvent final
 {
 public:

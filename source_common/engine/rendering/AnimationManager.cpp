@@ -53,7 +53,7 @@ void AnimationManager::StopAllAnimationsPlayingForSceneObject(const strutils::St
 {
     for(auto iter = mAnimations.begin(); iter != mAnimations.end();)
     {
-        if (iter->mAnimation->VGetSceneObject()->mName == sceneObjectName)
+        if (iter->mAnimation->VGetSceneObject() && iter->mAnimation->VGetSceneObject()->mName == sceneObjectName)
         {
             if (mAnimationContainerLocked)
             {
@@ -146,6 +146,15 @@ bool AnimationManager::IsAnimationPlaying(const strutils::StringId& animationNam
 int AnimationManager::GetAnimationsPlayingCount() const
 {
     return static_cast<int>(mAnimations.size());
+}
+
+///------------------------------------------------------------------------------------------------
+
+int AnimationManager::GetAnimationCountPlayingWithName(const strutils::StringId& animationName) const
+{
+    return
+          static_cast<int>(std::count_if(mAnimations.begin(), mAnimations.end(), [=](const AnimationEntry& animationEntry){ return animationEntry.mAnimationName == animationName; }))
+    + static_cast<int>(std::count_if(mAnimationsToAdd.begin(), mAnimationsToAdd.end(), [=](const AnimationEntry& animationEntry){ return animationEntry.mAnimationName == animationName; })) - static_cast<int>(std::count(mAnimationNamesToRemove.begin(), mAnimationNamesToRemove.end(), animationName));
 }
 
 ///------------------------------------------------------------------------------------------------

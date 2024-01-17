@@ -21,7 +21,7 @@ static const std::string HEALTH_STAT_CONTAINER_BASE_OBJECT_SHADER = "animated_st
 static const glm::vec3 STAT_CRYSTAL_SCALE = {0.05f, 0.05f, 1.0f};
 static const glm::vec3 STAT_CRYSTAL_VALUE_SCALE = {0.00013f, 0.00013f, 1.0f};
 static const glm::vec3 STAT_CRYSTAL_VALUE_POSITION_OFFSET = {0.003, 0.002, 0.02f};
-static const float MAX_VALUE_CHANGE_DELAY_SECS = 0.2f;
+static const float MAX_VALUE_CHANGE_DELAY_SECS = 0.1f;
 
 ///------------------------------------------------------------------------------------------------
 

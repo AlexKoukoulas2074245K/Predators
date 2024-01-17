@@ -39,6 +39,7 @@ public:
 private:
     void RegisterForEvents();
     void OnWindowResize(const events::WindowResizeEvent& event);
+    void OnGuiRewardAnimationFinished(const events::GuiRewardAnimationFinishedEvent& event);
     void CreateDynamicSceneObjects();
     void HandleAlreadyBoughtProducts();
     void FadeInDynamicSceneObjects();
@@ -53,6 +54,7 @@ private:
     void OnBuyProductAttempt(const size_t productShelfIndex, const size_t productShelfItemIndex);
     void OnCantBuyProductConfirmationButtonPressed();
     void FindHighlightedProduct(size_t& productShelfIndex, size_t& productShelfItemIndex);
+    void ChangeAndAnimateCoinValueReduction(long long coinValueReduction);
     
 private:
     struct ProductDefinition
@@ -93,7 +95,9 @@ private:
         BROWSING_SHOP,
         SELECTED_PRODUCT,
         CANT_BUY_PRODUCT_CONFIRMATION,
-        BUYING_PRODUCT,
+        BUYING_CARD_PRODUCT,
+        BUYING_NON_CARD_PRODUCT,
+        FINISHING_PRODUCT_PURCHASE,
         LEAVING_SHOP
     };
     
@@ -107,6 +111,8 @@ private:
     SceneState mSceneState;
     glm::vec3 mSelectedProductInitialPosition;
     bool mItemsFinishedFadingIn;
+    float mCoinAnimationValue;
+    bool mAnimatingCoinValue;
 };
 
 ///------------------------------------------------------------------------------------------------

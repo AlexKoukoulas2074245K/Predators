@@ -37,6 +37,7 @@ public:
     
     bool IsAnimationPlaying(const strutils::StringId& animationName) const;
     int GetAnimationsPlayingCount() const;
+    int GetAnimationCountPlayingWithName(const strutils::StringId& animationName) const;
     
 private:
     AnimationManager() = default;
