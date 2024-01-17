@@ -274,21 +274,6 @@ void ShopSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene:
             
         case SceneState::BUYING_NON_CARD_PRODUCT:
         {
-            mGuiManager->Update(dtMillis);
-            
-            if (mAnimatingCoinValue)
-            {
-                ProgressionDataRepository::GetInstance().CurrencyCoins().SetDisplayedValue(static_cast<long long>(mCoinAnimationValue));
-            }
-            
-            auto& progressionHealth = ProgressionDataRepository::GetInstance().StoryCurrentHealth();
-            if (progressionHealth.GetDisplayedValue() <= 0)
-            {
-                events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(DEFEAT_SCENE_NAME, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
-                mSceneState = SceneState::LEAVING_SHOP;
-                return;
-            }
-            
             size_t productShelfIndex, productShelfItemIndex;
             FindHighlightedProduct(productShelfIndex, productShelfItemIndex);
             auto& product = mProducts[productShelfIndex][productShelfItemIndex];
@@ -298,11 +283,15 @@ void ShopSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene:
             {
                 product->mSceneObjects.front()->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] = MAX_CARD_DISSOLVE_VALUE;
             }
-        } break;
-        
+        } // Intentional Fallthrough
         case SceneState::BUYING_CARD_PRODUCT:
         {
+            mGuiManager->Update(dtMillis);
             
+            if (mAnimatingCoinValue)
+            {
+                ProgressionDataRepository::GetInstance().CurrencyCoins().SetDisplayedValue(static_cast<long long>(mCoinAnimationValue));
+            }
         } break;
             
         case SceneState::FINISHING_PRODUCT_PURCHASE:
@@ -825,6 +814,7 @@ void ShopSceneLogicManager::OnBuyProductAttempt(const size_t productShelfIndex, 
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
     auto& product = mProducts[productShelfIndex][productShelfItemIndex];
     const auto& productDefinition = mProductDefinitions.at(product->mProductName);
+    
     auto currentCoinsValue = ProgressionDataRepository::GetInstance().CurrencyCoins().GetValue();
     auto currentHealthValue = ProgressionDataRepository::GetInstance().StoryCurrentHealth().GetValue();
     
@@ -910,11 +900,21 @@ void ShopSceneLogicManager::OnBuyProductAttempt(const size_t productShelfIndex, 
             ChangeAndAnimateCoinValueReduction(productDefinition.mPrice);
         }
         
-        ProgressionDataRepository::GetInstance().AddShopBoughtProductCoordinates(std::make_pair(productShelfIndex, productShelfItemIndex));
-        ProgressionDataRepository::GetInstance().FlushStateToFile();
+        // Fade out tag and price scene objects
+        for (auto i = 1U; i < product->mSceneObjects.size(); ++i)
+        {
+            animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(product->mSceneObjects[i], 0.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){ mProducts[productShelfIndex][productShelfItemIndex]->mSceneObjects[i]->mInvisible = true; });
+        }
         
         if (std::holds_alternative<int>(productDefinition.mProductTexturePathOrCardId))
         {
+            // Add card to player's deck
+            auto currentPlayerDeck = ProgressionDataRepository::GetInstance().GetCurrentStoryPlayerDeck();
+            currentPlayerDeck.push_back(std::get<int>(productDefinition.mProductTexturePathOrCardId));
+            ProgressionDataRepository::GetInstance().SetCurrentStoryPlayerDeck(currentPlayerDeck);
+            
+            AnimateBoughtCardToLibrary(productShelfIndex, productShelfItemIndex);
+            
             mSceneState = SceneState::BUYING_CARD_PRODUCT;
         }
         else
@@ -926,12 +926,12 @@ void ShopSceneLogicManager::OnBuyProductAttempt(const size_t productShelfIndex, 
             product->mSceneObjects.front()->mShaderFloatUniformValues[ORIGIN_Y_UNIFORM_NAME] = product->mSceneObjects.front()->mPosition.y;
             product->mSceneObjects.front()->mShaderFloatUniformValues[DISSOLVE_MAGNITUDE_UNIFORM_NAME] = math::RandomFloat(CARD_DISSOLVE_EFFECT_MAG_RANGE.x, CARD_DISSOLVE_EFFECT_MAG_RANGE.y);
             
-            for (auto i = 1U; i < product->mSceneObjects.size(); ++i)
-            {
-                animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(product->mSceneObjects[i], 0.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){ mProducts[productShelfIndex][productShelfItemIndex]->mSceneObjects[i]->mInvisible = true; });
-            }
             mSceneState = SceneState::BUYING_NON_CARD_PRODUCT;
         }
+        
+        // Commit change to data repository and flush
+        ProgressionDataRepository::GetInstance().AddShopBoughtProductCoordinates(std::make_pair(productShelfIndex, productShelfItemIndex));
+        ProgressionDataRepository::GetInstance().FlushStateToFile();
         
         DestroyCardTooltip();
         
@@ -1006,6 +1006,45 @@ void ShopSceneLogicManager::ChangeAndAnimateCoinValueReduction(long long coinVal
     mAnimatingCoinValue = true;
     
     CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(mCoinAnimationValue, static_cast<float>(storyCurrencyCoins.GetValue()), ANIMATED_COIN_VALUE_DURATION_SECS), [=](){ mAnimatingCoinValue = false; });
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ShopSceneLogicManager::AnimateBoughtCardToLibrary(const size_t productShelfIndex, const size_t productShelfItemIndex)
+{
+    auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+    auto& product = mProducts[productShelfIndex][productShelfItemIndex];
+    
+    // Calculate bezier points for card animation
+    auto cardLibraryIconPosition = mScene->FindSceneObject(game_constants::GUI_STORY_CARDS_BUTTON_SCENE_OBJECT_NAME)->mPosition;
+    glm::vec3 midPosition = glm::vec3(SELECTED_PRODUCT_TARGET_POSITION + cardLibraryIconPosition)/2.0f;
+    midPosition.y += math::RandomFloat(-0.2f, 0.2f);
+    math::BezierCurve curve({SELECTED_PRODUCT_TARGET_POSITION, midPosition, cardLibraryIconPosition});
+    
+    // Animate bought card to card library icon
+    animationManager.StartAnimation(std::make_unique<rendering::BezierCurveAnimation>(product->mSceneObjects.front()->mPosition, curve, 1.0f), [=](){ mSceneState = SceneState::FINISHING_PRODUCT_PURCHASE; });
+    
+    // And its alpha
+    animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(product->mSceneObjects.front(), 0.3f, 1.0f), [=](){ mProducts[productShelfIndex][productShelfItemIndex]->mSceneObjects[0]->mInvisible = true; });
+    
+    // And its scale
+    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(product->mSceneObjects.front(), glm::vec3(), CARD_PRODUCT_SCALE, 1.0f, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT | animation_flags::IGNORE_Z_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+    {
+        events::EventSystem::GetInstance().DispatchEvent<events::GuiRewardAnimationFinishedEvent>();
+         
+        // And pulse card library icon
+        auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+        auto cardLibraryIconSceneObject = mScene->FindSceneObject(game_constants::GUI_STORY_CARDS_BUTTON_SCENE_OBJECT_NAME);
+        auto originalScale = cardLibraryIconSceneObject->mScale;
+        animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardLibraryIconSceneObject, cardLibraryIconSceneObject->mPosition, originalScale * 1.25f, 0.1f, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT | animation_flags::IGNORE_Z_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+        {
+            auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+            animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardLibraryIconSceneObject, cardLibraryIconSceneObject->mPosition, originalScale, 0.1f, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT | animation_flags::IGNORE_Z_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+            {
+                cardLibraryIconSceneObject->mScale = originalScale;
+            });
+        });
+    });
 }
 
 ///------------------------------------------------------------------------------------------------
