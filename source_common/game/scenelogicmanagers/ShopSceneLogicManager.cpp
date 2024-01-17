@@ -89,6 +89,7 @@ static const glm::vec3 CARD_TOOLTIP_BASE_SCALE = {0.274f, 0.274f, 1/10.0f};
 static const glm::vec2 PRODUCT_GROUP_MIN_MAX_BOUNCE_SPEED = {0.0000015f, 0.0000045f};
 static const glm::vec2 PRODUCT_GROUP_MIN_MAX_ANIMATION_DELAY_SECS = {0.0f, 1.0f};
 static const glm::vec2 CARD_DISSOLVE_EFFECT_MAG_RANGE = {3.0f, 6.0f};
+static const glm::vec2 CARD_BOUGHT_ANIMATION_MIN_MAX_OFFSETS = {-0.3f, 0.3f};
 
 static const float PRODUCT_BOUNCE_ANIMATION_DURATION_SECS = 1.0f;
 static const float CONTINUE_BUTTON_SNAP_TO_EDGE_FACTOR = 950000.0f;
@@ -101,6 +102,10 @@ static const float SELECTED_PRODUCT_OVERLAY_MAX_ALPHA = 0.9f;
 static const float CARD_DISSOLVE_SPEED = 0.0005f;
 static const float MAX_CARD_DISSOLVE_VALUE = 1.2f;
 static const float ANIMATED_COIN_VALUE_DURATION_SECS = 1.5f;
+static const float CARD_BOUGHT_ANIMATION_DURATION_SECS = 1.0f;
+static const float CARD_BOUGHT_ANIMATION_MIN_ALPHA = 0.3f;
+static const float CARD_BOUGHT_ANIMATION_LIBRARY_ICON_PULSE_FACTOR = 1.25f;
+static const float CARD_BOUGHT_ANIMATION_LIBRARY_ICON_PULSE_DURATION_SECS = 0.1f;
 
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
 {
@@ -1020,28 +1025,28 @@ void ShopSceneLogicManager::AnimateBoughtCardToLibrary(const size_t productShelf
     // Calculate bezier points for card animation
     auto cardLibraryIconPosition = mScene->FindSceneObject(game_constants::GUI_STORY_CARDS_BUTTON_SCENE_OBJECT_NAME)->mPosition;
     glm::vec3 midPosition = glm::vec3(SELECTED_PRODUCT_TARGET_POSITION + cardLibraryIconPosition)/2.0f;
-    midPosition.y += math::RandomSign() == 1 ? 0.3f: -0.3f;
+    midPosition.y += math::RandomSign() == 1 ? CARD_BOUGHT_ANIMATION_MIN_MAX_OFFSETS.t : CARD_BOUGHT_ANIMATION_MIN_MAX_OFFSETS.s ;
     math::BezierCurve curve({SELECTED_PRODUCT_TARGET_POSITION, midPosition, cardLibraryIconPosition});
     
     // Animate bought card to card library icon
-    animationManager.StartAnimation(std::make_unique<rendering::BezierCurveAnimation>(product->mSceneObjects.front()->mPosition, curve, 1.0f), [=](){ mSceneState = SceneState::FINISHING_PRODUCT_PURCHASE; });
+    animationManager.StartAnimation(std::make_unique<rendering::BezierCurveAnimation>(product->mSceneObjects.front()->mPosition, curve, CARD_BOUGHT_ANIMATION_DURATION_SECS), [=](){ mSceneState = SceneState::FINISHING_PRODUCT_PURCHASE; });
     
     // And its alpha
-    animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(product->mSceneObjects.front(), 0.3f, 1.0f), [=](){ mProducts[productShelfIndex][productShelfItemIndex]->mSceneObjects[0]->mInvisible = true; });
+    animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(product->mSceneObjects.front(), CARD_BOUGHT_ANIMATION_MIN_ALPHA, CARD_BOUGHT_ANIMATION_DURATION_SECS), [=](){ mProducts[productShelfIndex][productShelfItemIndex]->mSceneObjects[0]->mInvisible = true; });
     
     // And its scale
-    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(product->mSceneObjects.front(), glm::vec3(), CARD_PRODUCT_SCALE, 1.0f, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT | animation_flags::IGNORE_Z_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(product->mSceneObjects.front(), glm::vec3(), CARD_PRODUCT_SCALE, CARD_BOUGHT_ANIMATION_DURATION_SECS, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT | animation_flags::IGNORE_Z_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
     {
         events::EventSystem::GetInstance().DispatchEvent<events::GuiRewardAnimationFinishedEvent>();
-         
+   
         // And pulse card library icon
         auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
         auto cardLibraryIconSceneObject = mScene->FindSceneObject(game_constants::GUI_STORY_CARDS_BUTTON_SCENE_OBJECT_NAME);
         auto originalScale = cardLibraryIconSceneObject->mScale;
-        animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardLibraryIconSceneObject, cardLibraryIconSceneObject->mPosition, originalScale * 1.25f, 0.1f, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT | animation_flags::IGNORE_Z_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+        animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardLibraryIconSceneObject, cardLibraryIconSceneObject->mPosition, originalScale * CARD_BOUGHT_ANIMATION_LIBRARY_ICON_PULSE_FACTOR, CARD_BOUGHT_ANIMATION_LIBRARY_ICON_PULSE_DURATION_SECS, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT | animation_flags::IGNORE_Z_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
         {
             auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
-            animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardLibraryIconSceneObject, cardLibraryIconSceneObject->mPosition, originalScale, 0.1f, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT | animation_flags::IGNORE_Z_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+            animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardLibraryIconSceneObject, cardLibraryIconSceneObject->mPosition, originalScale, CARD_BOUGHT_ANIMATION_LIBRARY_ICON_PULSE_DURATION_SECS, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT | animation_flags::IGNORE_Z_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
             {
                 cardLibraryIconSceneObject->mScale = originalScale;
             });
