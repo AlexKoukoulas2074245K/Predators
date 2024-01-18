@@ -39,7 +39,7 @@ private:
     void OnWindowResize(const events::WindowResizeEvent&);
     void CreateCardTooltip(const glm::vec3& cardOriginPostion, const std::string& tooltipText);
     void DestroyCardTooltip();
-    void SelectCard(int selectedCardIndex);
+    void SelectCard();
     void DeleteCard();
     void DeselectCard();
     

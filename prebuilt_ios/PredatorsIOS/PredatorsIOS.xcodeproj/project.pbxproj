@@ -149,9 +149,11 @@
 		B7D15E15CCD322ECF9B33EC3 /* ISceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 8AAC9EE5A84B083F6DDC6065 /* ISceneLogicManager.h */; };
 		BB5025C3ABC5304A8FEF477D /* StoryDeserializer.h in Sources */ = {isa = PBXBuildFile; fileRef = 2EFEAA42540EE199342FF02C /* StoryDeserializer.h */; };
 		BE61AB91666D512DCBABF147 /* GoldenCardPlayedEffectGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 28CE98C2AE21D8079AF2E907 /* GoldenCardPlayedEffectGameAction.cpp */; };
+		BF4CEDCB9F4DDCD1D778AA1F /* CardTooltipController.h in Sources */ = {isa = PBXBuildFile; fileRef = B25A5742A2E334B615B7DF40 /* CardTooltipController.h */; };
 		BF89E63AA07D3B4A4CA06BEB /* CardSelectionRewardSceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 19748D85CAC57E2F35EE9666 /* CardSelectionRewardSceneLogicManager.cpp */; };
 		C06C11526C266B530F8DA2A9 /* ProgressionDataRepository.h in Sources */ = {isa = PBXBuildFile; fileRef = 965C368E9DEEED51FA4114BC /* ProgressionDataRepository.h */; };
 		C9843ECC6AE93D7BC4521A3F /* BattleInitialSetupAndAnimationGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7BFAE370D9B90D60A2FE3A83 /* BattleInitialSetupAndAnimationGameAction.cpp */; };
+		C9C1F6656CCB2FCBCBCBE68E /* CardTooltipController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4EFECE16CCB0ADBC363A29A2 /* CardTooltipController.cpp */; };
 		CA8814DD5327C80AB298D0C8 /* StoryCardsLibrarySceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 65DCF9D70C7A6F01862E6A92 /* StoryCardsLibrarySceneLogicManager.cpp */; };
 		CB369EDB3723CEDB16D2A2FE /* BaseDataFileSerializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 289376069695D28346FCC23A /* BaseDataFileSerializer.cpp */; };
 		CB531F303F3C1CE853301CBB /* CardEffectGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEDDB72469D33C82815CCED2 /* CardEffectGameAction.cpp */; };
@@ -346,6 +348,7 @@
 		484A6A1B1B0D7ADC1BEEF99A /* RenderingUtils.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = RenderingUtils.cpp; sourceTree = "<group>"; };
 		4D44F8A7427AB83EA69F0455 /* SceneObjectUtils.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = SceneObjectUtils.h; sourceTree = "<group>"; };
 		4E40B33B0D48EFF2D940A533 /* BattleDeserializer.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = BattleDeserializer.cpp; sourceTree = "<group>"; };
+		4EFECE16CCB0ADBC363A29A2 /* CardTooltipController.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = CardTooltipController.cpp; path = CardTooltipController.cpp; sourceTree = "<group>"; };
 		516E3FF0C808841DB35ACF05 /* HeroCardEntryGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = HeroCardEntryGameAction.cpp; path = HeroCardEntryGameAction.cpp; sourceTree = "<group>"; };
 		5185CB2E38BF19BD1C54BAF6 /* TrapTriggeredAnimationGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = TrapTriggeredAnimationGameAction.cpp; sourceTree = "<group>"; };
 		549C84D3FE6BA93E39F0B406 /* EventSystem.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = EventSystem.cpp; sourceTree = "<group>"; };
@@ -469,6 +472,7 @@
 		ACB1819C4991701AB7CC0E57 /* SettingsSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = SettingsSceneLogicManager.cpp; sourceTree = "<group>"; };
 		AF90805AEC8FDF4F7790F186 /* BattleDeserializer.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = BattleDeserializer.h; sourceTree = "<group>"; };
 		B0E40336BF3CCBB53A0B7053 /* SceneManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = SceneManager.cpp; sourceTree = "<group>"; };
+		B25A5742A2E334B615B7DF40 /* CardTooltipController.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = CardTooltipController.h; path = CardTooltipController.h; sourceTree = "<group>"; };
 		B3A902E2D8B1AD656D561A89 /* GameConstants.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = GameConstants.h; sourceTree = "<group>"; };
 		B3D605C469F5491AEE121CBB /* GameRuleEngine.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = GameRuleEngine.cpp; sourceTree = "<group>"; };
 		B44A455E0B720A9A63FF5AA4 /* Events.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = Events.h; sourceTree = "<group>"; };
@@ -625,6 +629,8 @@
 				032B5FAFE7405B08708BA231 /* GuiObjectManager.h */,
 				3FFC3EC6B172A7A1DD3C3E41 /* WheelOfFortuneController.cpp */,
 				D51160558EDBE853D6C11381 /* WheelOfFortuneController.h */,
+				4EFECE16CCB0ADBC363A29A2 /* CardTooltipController.cpp */,
+				B25A5742A2E334B615B7DF40 /* CardTooltipController.h */,
 			);
 			path = game;
 			sourceTree = "<group>";
@@ -1349,6 +1355,8 @@
 				AD0736CBEE6D7B8E9093E0DC /* StoryCardsLibrarySceneLogicManager.h in Sources */,
 				3B49AD411488A17EF9B3007B /* ShopSceneLogicManager.cpp in Sources */,
 				A20370A7C2235BBC2097574B /* ShopSceneLogicManager.h in Sources */,
+				C9C1F6656CCB2FCBCBCBE68E /* CardTooltipController.cpp in Sources */,
+				BF4CEDCB9F4DDCD1D778AA1F /* CardTooltipController.h in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

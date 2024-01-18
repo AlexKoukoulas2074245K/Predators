@@ -466,7 +466,6 @@ public:
         mBlockedUpdate = blockedUpdate;
     }
     
-private:
     void ResetSwipeData()
     {
         mHasStartedSwipe = false;

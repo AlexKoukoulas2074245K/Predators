@@ -66,6 +66,7 @@ static const float SELECTED_CARD_SCALE_FACTOR = 1.0f;
 static const float CARD_DISSOLVE_SPEED = 0.0005f;
 static const float MAX_CARD_DISSOLVE_VALUE = 1.2f;
 static const float ANIMATED_COIN_VALUE_DURATION_SECS = 1.5f;
+static const float MAX_SWIPE_DISTANCE_THRESHOLD_TO_CANCEL_CARD_SELECTION = 0.01f;
 
 static constexpr std::pair<int, int> CARD_DELETION_PRODUCT_COORDS = std::make_pair(2, 2);
 static constexpr int MIN_CONTAINER_ENTRIES_TO_ANIMATE = 5;
@@ -251,6 +252,20 @@ void StoryCardsLibrarySceneLogicManager::VUpdate(const float dtMillis, std::shar
                 static int sToolTipIndex = -1;
                 static float sToolTipPointeePosY = 0.0f;
                 
+                if (mSelectedCardIndex != -1 && !CoreSystemsEngine::GetInstance().GetInputStateManager().VButtonPressed(input::Button::MAIN_BUTTON))
+                {
+                    const auto& inputStateManager = CoreSystemsEngine::GetInstance().GetInputStateManager();
+                    
+                    auto worldTouchPos = inputStateManager.VGetPointingPosInWorldSpace(mScene->GetCamera().GetViewMatrix(), mScene->GetCamera().GetProjMatrix());
+                    auto sceneObjectRect = scene_object_utils::GetSceneObjectBoundingRect(*mCardContainer->GetItems()[mSelectedCardIndex].mSceneObjects.front());
+                    
+                    if (math::IsPointInsideRectangle(sceneObjectRect.bottomLeft, sceneObjectRect.topRight, worldTouchPos) && glm::distance(mSelectedCardInitialPosition, mCardContainer->GetItems()[mSelectedCardIndex].mSceneObjects.front()->mPosition) < MAX_SWIPE_DISTANCE_THRESHOLD_TO_CANCEL_CARD_SELECTION)
+                    {
+                        SelectCard();
+                        return;
+                    }
+                }
+                
                 const auto& cardHistoryContainerUpdateResult = mCardContainer->Update(dtMillis);
                 if (cardHistoryContainerUpdateResult.mInteractionType == InteractionType::INTERACTED_WITH_ELEMENTS)
                 {
@@ -277,10 +292,16 @@ void StoryCardsLibrarySceneLogicManager::VUpdate(const float dtMillis, std::shar
                                 
                             case CardLibraryBehaviorType::BROWSING_FOR_DELETION:
                             {
-                                SelectCard(cardHistoryContainerUpdateResult.mInteractedElementId);
+                                mSelectedCardIndex = cardHistoryContainerUpdateResult.mInteractedElementId;
+                                mSelectedCardInitialPosition = mCardContainer->GetItems()[mSelectedCardIndex].mSceneObjects.front()->mPosition;
                             } break;
                         }
                     }
+                }
+                
+                if (!CoreSystemsEngine::GetInstance().GetInputStateManager().VButtonPressed(input::Button::MAIN_BUTTON))
+                {
+                    mSelectedCardIndex = -1;
                 }
                 
                 if (sToolTipIndex != -1)
@@ -429,9 +450,8 @@ void StoryCardsLibrarySceneLogicManager::DestroyCardTooltip()
 
 ///------------------------------------------------------------------------------------------------
 
-void StoryCardsLibrarySceneLogicManager::SelectCard(int selectedCardIndex)
+void StoryCardsLibrarySceneLogicManager::SelectCard()
 {
-    mSelectedCardIndex = selectedCardIndex;
     auto card = mCardContainer->GetItems()[mSelectedCardIndex].mCardSoWrapper;
     auto cardSceneObject = mCardContainer->GetItems()[mSelectedCardIndex].mSceneObjects.front();
     
@@ -456,7 +476,7 @@ void StoryCardsLibrarySceneLogicManager::SelectCard(int selectedCardIndex)
     animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(cardDeletionOverlaySceneObject, SELECTED_CARD_OVERLAY_MAX_ALPHA, SELECTED_CARD_ANIMATION_DURATION_SECS), [=](){});
     
     // Animate product (and related scene objects to target position)
-    mSelectedCardInitialPosition = cardSceneObject->mPosition;
+    mSelectedCardInitialPosition = card->mSceneObject->mPosition;
     animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(card->mSceneObject, SELECTED_CARD_TARGET_POSITION, CARD_ENTRY_SCALE * SELECTED_CARD_SCALE_FACTOR, SELECTED_CARD_ANIMATION_DURATION_SECS), [=]()
     {
         if (card->mCardData.IsSpell())
@@ -538,6 +558,7 @@ void StoryCardsLibrarySceneLogicManager::DeselectCard()
     animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSceneObject, mSelectedCardInitialPosition, CARD_ENTRY_SCALE, SELECTED_CARD_ANIMATION_DURATION_SECS), [=](){ mSceneState = SceneState::BROWSING_CARDS; });
     
     mSelectedCardIndex = -1;
+    mCardContainer->ResetSwipeData();
 }
 
 ///------------------------------------------------------------------------------------------------
