@@ -58,13 +58,12 @@ static const glm::vec3 BATTLE_SCENE_HEALTH_CRYSTAL_POSITION = {0.145f, 0.02f, 24
 static const glm::vec3 HEALTH_CRYSTAL_POSITION = {0.145f, 0.04f, 24.0f};
 static const glm::vec3 STAT_PARTICLE_INIT_POSITION_OFFSET = { 0.0f, 0.0f, 0.7f };
 static const glm::vec3 STAT_PARTICLE_TARGET_POSITION_OFFSET = { -0.02f, -0.01f, -0.001f };
-static const glm::vec3 STAT_PARTICLE_MID_POSITION_MIN = { 0.1f, -0.2f, 0.01f };
-static const glm::vec3 STAT_PARTICLE_MID_POSITION_MAX = { 0.3f, 0.2f, 0.02f };
-static const glm::vec3 BATTLE_STAT_PARTICLE_MID_POSITION_MIN = { 0.04f, -0.02f, 0.01f };
-static const glm::vec3 BATTLE_STAT_PARTICLE_MID_POSITION_MAX = { 0.14f, 0.1f, 0.02f };
 static const glm::vec3 STAT_GAIN_BATTLE_PARTICLE_OFFSET_POSITION = {0.0f, -0.04f, -0.01f};
 static const glm::vec3 STAT_GAIN_PARTICLE_OFFSET_POSITION = {0.0f, -0.08f, -0.01f};
 static const glm::vec3 EXTRA_DAMAGE_WEIGHT_PARTICLE_ORIGIN_POSITION = {-0.025f, -0.12f, 23.5f};
+
+static const glm::vec2 STAT_FLYING_PARTICLE_MIN_MAX_Y_OFFSET = {-0.1f, 0.1f};
+static const glm::vec2 STAT_FLYING_PARTYCLE_MIN_MAX_Z_OFFSET = {0.01f, 0.02f};
 
 static const float COIN_PARTICLE_RESPAWN_TICK_SECS = 0.025f;
 static const float HEALTH_PARTICLE_RESPAWN_TICK_SECS = 0.125f;
@@ -280,10 +279,12 @@ void GuiObjectManager::AnimateStatParticlesToGui(const glm::vec3& originPosition
             
             particleEmitterData.mParticlePositions[particleIndex] = originPosition + STAT_PARTICLE_INIT_POSITION_OFFSET;
             
-            glm::vec3 midPosition = glm::vec3(
-                math::RandomFloat(forBattleScene ? BATTLE_STAT_PARTICLE_MID_POSITION_MIN.x : STAT_PARTICLE_MID_POSITION_MIN.x, forBattleScene ? BATTLE_STAT_PARTICLE_MID_POSITION_MAX.x : STAT_PARTICLE_MID_POSITION_MAX.x),
-                math::RandomFloat(forBattleScene ? BATTLE_STAT_PARTICLE_MID_POSITION_MIN.y : STAT_PARTICLE_MID_POSITION_MIN.y, forBattleScene ? BATTLE_STAT_PARTICLE_MID_POSITION_MAX.y : STAT_PARTICLE_MID_POSITION_MAX.y),
-                (particleEmitterData.mParticlePositions[particleIndex].z + targetPosition.z)/2.0f + math::RandomFloat(STAT_PARTICLE_MID_POSITION_MIN.z, STAT_PARTICLE_MID_POSITION_MAX.z));
+            glm::vec3 midPosition = (particleEmitterData.mParticlePositions[particleIndex] + targetPosition)/2.0f;
+            midPosition.y += forBattleScene ?
+                math::RandomFloat(STAT_FLYING_PARTICLE_MIN_MAX_Y_OFFSET.s, STAT_FLYING_PARTICLE_MIN_MAX_Y_OFFSET.t) :
+                math::RandomFloat(2.0f * STAT_FLYING_PARTICLE_MIN_MAX_Y_OFFSET.s, 2.0f * STAT_FLYING_PARTICLE_MIN_MAX_Y_OFFSET.t);
+            midPosition.z = (particleEmitterData.mParticlePositions[particleIndex].z + targetPosition.z)/2.0f + math::RandomFloat(STAT_FLYING_PARTYCLE_MIN_MAX_Z_OFFSET.s, STAT_FLYING_PARTYCLE_MIN_MAX_Z_OFFSET.t);
+            
             math::BezierCurve curve({particleEmitterData.mParticlePositions[particleIndex], midPosition, targetPosition});
             
             animationManager.StartAnimation(std::make_unique<rendering::BezierCurveAnimation>(particleEmitterData.mParticlePositions[particleIndex], curve, STAT_PARTICLE_ANIMATION_DURATION_SECS), [=]()
