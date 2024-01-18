@@ -89,7 +89,6 @@ private:
     void OnForceSendCardBackToPosition(const events::ForceSendCardBackToPositionEvent&);
     void OnPoisonStackChangeChangeAnimationTrigger(const events::PoisonStackChangeChangeAnimationTriggerEvent&);
     void OnStoryBattleWon(const events::StoryBattleWonEvent&);
-    void OnStoryBattleFinished(const events::StoryBattleFinishedEvent&);
     void OnCardHistoryEntryAddition(const events::CardHistoryEntryAdditionEvent&);
     void OnHistoryButtonPressed();
     void FakeSettingsButtonPressed();

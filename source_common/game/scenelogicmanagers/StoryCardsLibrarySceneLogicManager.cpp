@@ -377,6 +377,11 @@ void StoryCardsLibrarySceneLogicManager::VDestroyScene(std::shared_ptr<scene::Sc
     
     for (auto sceneObject: scene->GetSceneObjects())
     {
+        if (sceneObject->mName == game_constants::OVERLAY_SCENE_OBJECT_NAME)
+        {
+            continue;
+        }
+        
         CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, 0.0f, ITEMS_FADE_IN_OUT_DURATION_SECS), [=]()
         {
             if (sceneObject->mName == STORY_CARDS_TITLE_SCENE_OBJECT_NAME ||

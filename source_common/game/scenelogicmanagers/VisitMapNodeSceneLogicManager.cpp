@@ -231,6 +231,11 @@ void VisitMapNodeSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene> 
 {
     for (auto sceneObject: scene->GetSceneObjects())
     {
+        if (sceneObject->mName == game_constants::OVERLAY_SCENE_OBJECT_NAME)
+        {
+            continue;
+        }
+        
         CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, 0.0f, FADE_IN_OUT_DURATION_SECS), [=]()
         {
             sceneObject->mInvisible = true;

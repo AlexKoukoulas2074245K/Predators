@@ -39,6 +39,8 @@ static const float ATTACKING_CARD_PARTICLE_EMITTER_Z = 0.01f;
 static const float ATTACKING_CARD_SHORT_ANIMATION_DURATION = 0.25f;
 static const float ATTACKING_CARD_LONG_ANIMATION_DURATION = 0.4f;
 static const float ATTACKING_CARD_ANIMATION_ELEVATED_Z = 20.0f;
+static const float ATTACKING_CARD_CAMERA_SHAKE_MAX_DURATION = 2.0f;
+static const float ATTACKING_CARD_CAMERA_SHAKE_MAX_STRENGTH = 0.045f;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -210,8 +212,8 @@ void CardAttackGameAction::VInitAnimation()
                         *CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE)
                      );
                     
-                    auto cameraShakeDuration = ATTACKING_CARD_CAMERA_SHAKE_DURATION * (1.0f + 0.05f * std::powf(static_cast<float>(mPendingDamage), 2.0f));
-                    auto cameraShakeStrength = ATTACKING_CARD_CAMERA_SHAKE_STRENGTH * (1.0f + 0.05f * std::powf(static_cast<float>(mPendingDamage), 2.0f));
+                    auto cameraShakeDuration = math::Min(ATTACKING_CARD_CAMERA_SHAKE_MAX_DURATION, ATTACKING_CARD_CAMERA_SHAKE_DURATION * (1.0f + 0.05f * std::powf(static_cast<float>(mPendingDamage), 2.0f)));
+                    auto cameraShakeStrength = math::Min(ATTACKING_CARD_CAMERA_SHAKE_MAX_STRENGTH, ATTACKING_CARD_CAMERA_SHAKE_STRENGTH * (1.0f + 0.05f * std::powf(static_cast<float>(mPendingDamage), 2.0f)));
                     CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE)->GetCamera().Shake(cameraShakeDuration, cameraShakeStrength);
                     
                     animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObject, mOriginalCardPosition, mOriginalCardScale, ATTACKING_CARD_LONG_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [&]()

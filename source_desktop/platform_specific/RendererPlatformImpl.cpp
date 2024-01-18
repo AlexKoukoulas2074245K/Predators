@@ -507,6 +507,7 @@ void RendererPlatformImpl::CreateIMGuiWidgets()
             {
                 ImGui::PushID(sceneObjectName.GetString().c_str());
                 std::visit(imguiVisitor, sceneObject->mSceneObjectTypeData);
+                ImGui::Text("Invisible: %s", sceneObject->mInvisible ? "true": "false");
                 ImGui::Text("Mesh: %s", resService.GetResourcePath(sceneObject->mMeshResourceId).c_str());
                 ImGui::Text("Shader: %s", resService.GetResourcePath(sceneObject->mShaderResourceId).c_str());
                 ImGui::Text("Texture: %s", resService.GetResourcePath(sceneObject->mTextureResourceId).c_str());

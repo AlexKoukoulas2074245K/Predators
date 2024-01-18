@@ -36,13 +36,15 @@ private:
     void CreateCardRewards(std::shared_ptr<scene::Scene> scene);
     void CreateCardTooltip(const glm::vec3& cardOriginPostion, const std::string& tooltipText, const size_t cardIndex, std::shared_ptr<scene::Scene> scene);
     void DestroyCardTooltip(std::shared_ptr<scene::Scene> scene);
+    void OnConfirmationButtonPressed();
     
 private:
     enum class SceneState
     {
         PENDING_PRESENTATION,
         PENDING_CARD_SELECTION,
-        PENDING_CARD_SELECTION_CONFIRMATION
+        PENDING_CARD_SELECTION_CONFIRMATION,
+        CARD_SELECTION_CONFIRMATION_ANIMATION
     };
     
     std::vector<std::shared_ptr<CardSoWrapper>> mCardRewards;

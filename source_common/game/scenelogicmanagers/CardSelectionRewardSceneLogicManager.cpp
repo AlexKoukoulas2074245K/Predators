@@ -40,7 +40,12 @@ static const glm::vec3 CARD_HIGHLIGHTER_SCALE = glm::vec3(0.08f, 0.13f, 1.0f) * 
 static const glm::vec3 CARD_REWARD_EXPANDED_SCALE = 1.25f * CARD_REWARD_DEFAULT_SCALE;
 static const glm::vec3 CARD_TOOLTIP_POSITION_OFFSET = {0.0f, 0.1f, 0.0f};
 static const glm::vec3 CARD_TOOLTIP_BASE_SCALE = {0.274f, 0.274f, 1/10.0f};
+static const glm::vec2 CARD_BOUGHT_ANIMATION_MIN_MAX_OFFSETS = {-0.15f, 0.15f};
 
+static const float CARD_BOUGHT_ANIMATION_DURATION_SECS = 1.0f;
+static const float CARD_BOUGHT_ANIMATION_MIN_ALPHA = 0.3f;
+static const float CARD_BOUGHT_ANIMATION_LIBRARY_ICON_PULSE_FACTOR = 1.25f;
+static const float CARD_BOUGHT_ANIMATION_LIBRARY_ICON_PULSE_DURATION_SECS = 0.1f;
 static const float FADE_IN_OUT_DURATION_SECS = 0.5f;
 static const float INITIAL_SURFACING_DELAY_SECS = 1.0f;
 static const float CARD_HIGHLIGHTER_X_OFFSET = -0.003f;
@@ -173,6 +178,7 @@ void CardSelectionRewardSceneLogicManager::VUpdate(const float dtMillis, std::sh
                     cardHighlighterSo->mShaderFloatUniformValues[game_constants::PERLIN_TIME_SPEED_UNIFORM_NAME] = game_constants::ACTION_HIGLIGHTER_PERLIN_TIME_SPEED;
                     cardHighlighterSo->mShaderFloatUniformValues[game_constants::PERLIN_RESOLUTION_UNIFORM_NAME] = game_constants::ACTION_HIGLIGHTER_PERLIN_RESOLUTION;
                     cardHighlighterSo->mShaderFloatUniformValues[game_constants::PERLIN_CLARITY_UNIFORM_NAME] = game_constants::ACTION_HIGLIGHTER_PERLIN_CLARITY;
+                    cardHighlighterSo->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
                     cardHighlighterSo->mShaderBoolUniformValues[game_constants::CARD_HIGHLIGHTER_INVALID_ACTION_UNIFORM_NAME] = false;
                     cardHighlighterSo->mPosition = cardSoWrapper->mSceneObject->mPosition;
                     cardHighlighterSo->mPosition.x += CARD_HIGHLIGHTER_X_OFFSET;
@@ -188,17 +194,9 @@ void CardSelectionRewardSceneLogicManager::VUpdate(const float dtMillis, std::sh
                         CONFIRMATION_BUTTON_SCENE_OBJECT_NAME,
                         [=]()
                         {
-                            for (auto& cardReward: mCardRewards)
-                            {
-                                if (cardReward->mState == CardSoState::HIGHLIGHTED)
-                                {
-                                    auto currentPlayerDeck = ProgressionDataRepository::GetInstance().GetCurrentStoryPlayerDeck();
-                                    currentPlayerDeck.push_back(cardReward->mCardData.mCardId);
-                                    ProgressionDataRepository::GetInstance().SetCurrentStoryPlayerDeck(currentPlayerDeck);
-                                    break;
-                                }
-                            }
-                            events::EventSystem::GetInstance().DispatchEvent<events::StoryBattleFinishedEvent>();
+                            DestroyCardTooltip(scene);
+                            CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(cardHighlighterSo, 0.0f, 0.25f), [=](){ cardHighlighterSo->mInvisible = true; });
+                            OnConfirmationButtonPressed();
                         },
                         *scene
                     );
@@ -261,6 +259,10 @@ void CardSelectionRewardSceneLogicManager::VUpdate(const float dtMillis, std::sh
                 scene->RemoveSceneObject(REWARD_HIGHLIGHTER_SCENE_OBJECT_NAME);
                 mSceneState = SceneState::PENDING_CARD_SELECTION;
             }
+        } break;
+            
+        case SceneState::CARD_SELECTION_CONFIRMATION_ANIMATION:
+        {
         } break;
     }
     
@@ -335,6 +337,71 @@ void CardSelectionRewardSceneLogicManager::DestroyCardTooltip(std::shared_ptr<sc
     }
     
     mCardTooltipController = nullptr;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void CardSelectionRewardSceneLogicManager::OnConfirmationButtonPressed()
+{
+    for (auto& cardReward: mCardRewards)
+    {
+        if (cardReward->mState == CardSoState::HIGHLIGHTED)
+        {
+            auto currentPlayerDeck = ProgressionDataRepository::GetInstance().GetCurrentStoryPlayerDeck();
+            currentPlayerDeck.push_back(cardReward->mCardData.mCardId);
+            ProgressionDataRepository::GetInstance().SetCurrentStoryPlayerDeck(currentPlayerDeck);
+            ProgressionDataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::BATTLE);
+            ProgressionDataRepository::GetInstance().FlushStateToFile();
+            mSceneState = SceneState::CARD_SELECTION_CONFIRMATION_ANIMATION;
+            
+            auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+            
+            // Calculate bezier points for card animation
+            auto previousScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(mPreviousScene);
+            auto cardLibraryIconSceneObject = previousScene->FindSceneObject(game_constants::GUI_STORY_CARDS_BUTTON_SCENE_OBJECT_NAME);
+            auto cardLibraryIconPosition = cardLibraryIconSceneObject->mPosition;
+            glm::vec3 midPosition = glm::vec3(cardReward->mSceneObject->mPosition + cardLibraryIconPosition)/2.0f;
+            midPosition.y += math::RandomSign() == 1 ? CARD_BOUGHT_ANIMATION_MIN_MAX_OFFSETS.t : CARD_BOUGHT_ANIMATION_MIN_MAX_OFFSETS.s;
+            
+            if (mPreviousScene == game_constants::BATTLE_SCENE)
+            {
+                midPosition.x *= 2.0f;
+                midPosition.y *= 2.0f;
+                cardLibraryIconPosition.x *= 2.0f;
+                cardLibraryIconPosition.y *= 2.0f;
+            }
+            
+            math::BezierCurve curve({cardReward->mSceneObject->mPosition, midPosition, cardLibraryIconPosition});
+            
+            // Animate bought card to card library icon
+            animationManager.StartAnimation(std::make_unique<rendering::BezierCurveAnimation>(cardReward->mSceneObject, curve, CARD_BOUGHT_ANIMATION_DURATION_SECS), [=](){});
+            
+            // And its alpha
+            animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(cardReward->mSceneObject, CARD_BOUGHT_ANIMATION_MIN_ALPHA, CARD_BOUGHT_ANIMATION_DURATION_SECS), [=](){ cardReward->mSceneObject->mInvisible = true; });
+            
+            // And its scale
+            auto targetScale = cardReward->mSceneObject->mScale/3.0f;
+            animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardReward->mSceneObject, glm::vec3(), targetScale, CARD_BOUGHT_ANIMATION_DURATION_SECS, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT | animation_flags::IGNORE_Z_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+            {
+                
+                // And pulse card library icon
+                auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+                auto previousScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(mPreviousScene);
+                auto cardLibraryIconSceneObject = previousScene->FindSceneObject(game_constants::GUI_STORY_CARDS_BUTTON_SCENE_OBJECT_NAME);
+                auto originalScale = cardLibraryIconSceneObject->mScale;
+                animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardLibraryIconSceneObject, cardLibraryIconSceneObject->mPosition, originalScale * CARD_BOUGHT_ANIMATION_LIBRARY_ICON_PULSE_FACTOR, CARD_BOUGHT_ANIMATION_LIBRARY_ICON_PULSE_DURATION_SECS, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT | animation_flags::IGNORE_Z_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+                {
+                    auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+                    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardLibraryIconSceneObject, cardLibraryIconSceneObject->mPosition, originalScale, CARD_BOUGHT_ANIMATION_LIBRARY_ICON_PULSE_DURATION_SECS, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT | animation_flags::IGNORE_Z_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+                    {
+                        cardLibraryIconSceneObject->mScale = originalScale;
+                        events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_MAP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
+                    });
+                });
+            });
+            break;
+        }
+    }
 }
 
 ///------------------------------------------------------------------------------------------------

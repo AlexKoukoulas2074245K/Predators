@@ -277,12 +277,6 @@ class StoryBattleWonEvent final
 
 ///------------------------------------------------------------------------------------------------
 
-class StoryBattleFinishedEvent final
-{
-};
-
-///------------------------------------------------------------------------------------------------
-
 class GuiRewardAnimationFinishedEvent final
 {
 };

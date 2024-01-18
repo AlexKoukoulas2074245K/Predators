@@ -952,7 +952,7 @@ void ShopSceneLogicManager::OnBuyProductAttempt(const size_t productShelfIndex, 
             ChangeAndAnimateCoinValueReduction(COINS_TO_LIFE_RATE.first);
             
             auto& storyCurrentHealth = ProgressionDataRepository::GetInstance().StoryCurrentHealth();
-            auto healthRestored = math::Max(ProgressionDataRepository::GetInstance().GetStoryMaxHealth(), storyCurrentHealth.GetValue() + COINS_TO_LIFE_RATE.second) - storyCurrentHealth.GetValue();
+            auto healthRestored = math::Min(ProgressionDataRepository::GetInstance().GetStoryMaxHealth(), storyCurrentHealth.GetValue() + COINS_TO_LIFE_RATE.second) - storyCurrentHealth.GetValue();
             events::EventSystem::GetInstance().DispatchEvent<events::HealthRefillRewardEvent>(healthRestored, product->mSceneObjects.front()->mPosition);
         }
         

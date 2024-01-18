@@ -1295,7 +1295,6 @@ void BattleSceneLogicManager::RegisterForEvents()
     eventSystem.RegisterForEvent<events::PoisonStackChangeChangeAnimationTriggerEvent>(this, &BattleSceneLogicManager::OnPoisonStackChangeChangeAnimationTrigger);
     eventSystem.RegisterForEvent<events::CardHistoryEntryAdditionEvent>(this, &BattleSceneLogicManager::OnCardHistoryEntryAddition);
     eventSystem.RegisterForEvent<events::StoryBattleWonEvent>(this, &BattleSceneLogicManager::OnStoryBattleWon);
-    eventSystem.RegisterForEvent<events::StoryBattleFinishedEvent>(this, &BattleSceneLogicManager::OnStoryBattleFinished);
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -1909,15 +1908,6 @@ void BattleSceneLogicManager::OnStoryBattleWon(const events::StoryBattleWonEvent
         ProgressionDataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::WHEEL);
     }
     ProgressionDataRepository::GetInstance().FlushStateToFile();
-}
-
-///------------------------------------------------------------------------------------------------
-
-void BattleSceneLogicManager::OnStoryBattleFinished(const events::StoryBattleFinishedEvent&)
-{
-    ProgressionDataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::BATTLE);
-    ProgressionDataRepository::GetInstance().FlushStateToFile();
-    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_MAP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
 }
 
 ///------------------------------------------------------------------------------------------------

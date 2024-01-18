@@ -96,26 +96,7 @@ void GameSceneTransitionManager::Update(const float dtMillis)
     if (activeScene->IsLoaded())
     {
         mActiveSceneStack.top().mActiveSceneLogicManager->VUpdate(dtMillis, activeScene);
-    }
-    
-    
-#if (!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)
-//    for (auto scene: CoreSystemsEngine::GetInstance().GetSceneManager().GetScenes())
-//    {
-//        if
-//        (
-//            scene->GetName() != mActiveSceneStack.top().mActiveSceneName &&
-//            scene->GetSceneObjects().size() > 0 &&
-//            scene->GetSceneObjects().back()->mPosition.z >= OVERLAY_Z &&
-//            scene->GetSceneObjects().back()->mName != game_constants::OVERLAY_SCENE_OBJECT_NAME
-//        )
-//        {
-//            logging::Log(logging::LogType::WARNING, "Found scene object: %s with exceeding Z: %.6f",
-//                scene->GetSceneObjects().back()->mName.GetString().c_str(),
-//                scene->GetSceneObjects().back()->mPosition.z);
-//        }
-//    }
-#endif
+    }    
 }
 
 ///------------------------------------------------------------------------------------------------
