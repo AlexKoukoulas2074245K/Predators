@@ -101,6 +101,12 @@ void AnimationManager::Update(const float dtMillis)
     mAnimationContainerLocked = true;
     for(auto iter = mAnimations.begin(); iter != mAnimations.end();)
     {
+        if (std::find(mAnimationNamesToRemove.cbegin(), mAnimationNamesToRemove.cend(), iter->mAnimationName) != mAnimationNamesToRemove.cend())
+        {
+            ++iter;
+            continue;
+        }
+        
         auto updateTimeMillis = dtMillis * (iter->mAnimation->VGetSceneObject() && iter->mAnimation->VGetSceneObject()->mScene ? iter->mAnimation->VGetSceneObject()->mScene->GetUpdateTimeSpeedFactor() : 1.0f);
         
         if (iter->mAnimation->VUpdate(updateTimeMillis) == AnimationUpdateResult::FINISHED)

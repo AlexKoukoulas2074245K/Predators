@@ -26,20 +26,25 @@
 
 static const strutils::StringId CARD_SELECTION_REWARD_SCENE_NAME = strutils::StringId("card_selection_reward_scene");
 static const strutils::StringId REWARD_HIGHLIGHTER_SCENE_OBJECT_NAME = strutils::StringId("reward_highlighter");
+static const strutils::StringId SKIP_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("skip_button");
 static const strutils::StringId CONFIRMATION_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("confirmation_button");
 static const strutils::StringId CARD_SELECTION_TITLE_SCENE_OBJECT_NAME = strutils::StringId("card_selection_title");
 static const strutils::StringId DARKEN_UNIFORM_NAME = strutils::StringId("darken");
+static const strutils::StringId CARD_SELECTION_ANIMATION_NAME = strutils::StringId("card_selection_animation");
 
 static const std::string CARD_REWARD_SCENE_OBJECT_NAME_PREFIX = "card_reward_";
 static const std::string CARD_REWARD_SHADER_FILE_NAME = "card_reward.vs";
 
 static const glm::vec3 CONFIRMATION_BUTTON_POSITION = {-0.10f, -0.18f, 23.1f};
+static const glm::vec3 SKIP_BUTTON_SCALE = {0.00035f, 0.00035f, 0.00035f};
 static const glm::vec3 BUTTON_SCALE = {0.0005f, 0.0005f, 0.0005f};
 static const glm::vec3 CARD_REWARD_DEFAULT_SCALE = glm::vec3(-0.273f, 0.2512f, 2.0f);
 static const glm::vec3 CARD_HIGHLIGHTER_SCALE = glm::vec3(0.08f, 0.13f, 1.0f) * 2.35f;
 static const glm::vec3 CARD_REWARD_EXPANDED_SCALE = 1.25f * CARD_REWARD_DEFAULT_SCALE;
 static const glm::vec3 CARD_TOOLTIP_POSITION_OFFSET = {0.0f, 0.1f, 0.0f};
 static const glm::vec3 CARD_TOOLTIP_BASE_SCALE = {0.274f, 0.274f, 1/10.0f};
+static const glm::vec3 SKIP_BUTTON_POSITION = {0.0f, -0.1f, 23.1f};
+
 static const glm::vec2 CARD_BOUGHT_ANIMATION_MIN_MAX_OFFSETS = {-0.15f, 0.15f};
 
 static const float CARD_BOUGHT_ANIMATION_DURATION_SECS = 1.0f;
@@ -51,6 +56,9 @@ static const float INITIAL_SURFACING_DELAY_SECS = 1.0f;
 static const float CARD_HIGHLIGHTER_X_OFFSET = -0.003f;
 static const float CARD_HIGHLIGHT_ANIMATION_DURATION_SECS = 0.5f;
 static const float CARD_REWARD_SURFACE_DELAY_SECS = 0.5f;
+static const float SKIP_BUTTON_SNAP_TO_EDGE_FACTOR = 1850000.0f;
+static const float SKIP_BUTTON_MIN_ALPHA = 0.3f;
+static const float SUSPENDED_FOR_GUI_FLOW_Z_REDUCTION = 3.0f;
 
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
 {
@@ -93,6 +101,24 @@ void CardSelectionRewardSceneLogicManager::VInitScene(std::shared_ptr<scene::Sce
     mSceneState = SceneState::PENDING_PRESENTATION;
     mInitialSurfacingDelaySecs = INITIAL_SURFACING_DELAY_SECS;
     
+    mSkipButton = std::make_unique<AnimatedButton>
+    (
+        SKIP_BUTTON_POSITION,
+        SKIP_BUTTON_SCALE,
+        game_constants::DEFAULT_FONT_NAME,
+        "Skip Rewards",
+        SKIP_BUTTON_SCENE_OBJECT_NAME,
+        [=]()
+        {
+            ProgressionDataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::BATTLE);
+            ProgressionDataRepository::GetInstance().FlushStateToFile();
+            events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_MAP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
+        },
+        *scene,
+        scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE,
+        SKIP_BUTTON_SNAP_TO_EDGE_FACTOR
+    );
+    
     for (auto sceneObject: scene->GetSceneObjects())
     {
         if (sceneObject->mName == game_constants::OVERLAY_SCENE_OBJECT_NAME)
@@ -103,6 +129,8 @@ void CardSelectionRewardSceneLogicManager::VInitScene(std::shared_ptr<scene::Sce
         sceneObject->mInvisible = true;
         sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
     }
+    
+    RegisterForEvents();
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -160,7 +188,7 @@ void CardSelectionRewardSceneLogicManager::VUpdate(const float dtMillis, std::sh
                     if (cardSoWrapper->mState == CardSoState::IDLE)
                     {
                         cardSoWrapper->mState = CardSoState::HIGHLIGHTED;
-                        animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObject, cardSoWrapper->mSceneObject->mPosition, CARD_REWARD_EXPANDED_SCALE, 0.5f, animation_flags::NONE, 0.0f, math::ElasticFunction, math::TweeningMode::EASE_IN), [=](){});
+                        animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObject, cardSoWrapper->mSceneObject->mPosition, CARD_REWARD_EXPANDED_SCALE, 0.5f, animation_flags::NONE, 0.0f, math::ElasticFunction, math::TweeningMode::EASE_IN), [=](){}, CARD_SELECTION_ANIMATION_NAME);
                     }
                     
                     for (auto j = 0U; j < mCardRewards.size(); ++j)
@@ -213,20 +241,23 @@ void CardSelectionRewardSceneLogicManager::VUpdate(const float dtMillis, std::sh
                 if (cursorInSceneObject && cardSoWrapper->mState == CardSoState::IDLE)
                 {
                     cardSoWrapper->mState = CardSoState::HIGHLIGHTED;
-                    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObject, cardSoWrapper->mSceneObject->mPosition, CARD_REWARD_EXPANDED_SCALE, CARD_HIGHLIGHT_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::ElasticFunction, math::TweeningMode::EASE_IN), [=](){});
+                    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObject, cardSoWrapper->mSceneObject->mPosition, CARD_REWARD_EXPANDED_SCALE, CARD_HIGHLIGHT_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::ElasticFunction, math::TweeningMode::EASE_IN), [=](){}, CARD_SELECTION_ANIMATION_NAME);
                 }
                 else if (!cursorInSceneObject && cardSoWrapper->mState == CardSoState::HIGHLIGHTED)
                 {
                     cardSoWrapper->mState = CardSoState::IDLE;
-                    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObject, cardSoWrapper->mSceneObject->mPosition, CARD_REWARD_DEFAULT_SCALE, CARD_HIGHLIGHT_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::ElasticFunction, math::TweeningMode::EASE_IN), [=](){});
+                    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObject, cardSoWrapper->mSceneObject->mPosition, CARD_REWARD_DEFAULT_SCALE, CARD_HIGHLIGHT_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::ElasticFunction, math::TweeningMode::EASE_IN), [=](){}, CARD_SELECTION_ANIMATION_NAME);
                 }
 #endif
             }
             
+            mSkipButton->GetSceneObject()->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
+            mSkipButton->Update(dtMillis);
         } break;
             
         case SceneState::PENDING_CARD_SELECTION_CONFIRMATION:
         {
+            mSkipButton->GetSceneObject()->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = SKIP_BUTTON_MIN_ALPHA;
             mConfirmationButton->Update(dtMillis);
             
             if (mCardTooltipController)
@@ -249,7 +280,7 @@ void CardSelectionRewardSceneLogicManager::VUpdate(const float dtMillis, std::sh
                     
 #if defined(MOBILE_FLOW)
                     mCardRewards[i]->mState = CardSoState::IDLE;
-                    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(mCardRewards[i]->mSceneObject, mCardRewards[i]->mSceneObject->mPosition, CARD_REWARD_DEFAULT_SCALE, CARD_HIGHLIGHT_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::ElasticFunction, math::TweeningMode::EASE_IN), [=](){});
+                    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(mCardRewards[i]->mSceneObject, mCardRewards[i]->mSceneObject->mPosition, CARD_REWARD_DEFAULT_SCALE, CARD_HIGHLIGHT_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::ElasticFunction, math::TweeningMode::EASE_IN), [=](){}, CARD_SELECTION_ANIMATION_NAME);
 #endif
                 }
                 
@@ -263,7 +294,14 @@ void CardSelectionRewardSceneLogicManager::VUpdate(const float dtMillis, std::sh
             
         case SceneState::CARD_SELECTION_CONFIRMATION_ANIMATION:
         {
+            return;
         } break;
+    }
+    
+    auto guiObjectManager = mGameSceneTransitionManager->GetSceneLogicManagerResponsibleForScene(mPreviousScene)->VGetGuiObjectManager();
+    if (guiObjectManager)
+    {
+        guiObjectManager->Update(dtMillis, true);
     }
     
     auto cardHighlighterObject = scene->FindSceneObject(strutils::StringId(REWARD_HIGHLIGHTER_SCENE_OBJECT_NAME));
@@ -277,6 +315,7 @@ void CardSelectionRewardSceneLogicManager::VUpdate(const float dtMillis, std::sh
 
 void CardSelectionRewardSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene> scene)
 {
+    events::EventSystem::GetInstance().UnregisterAllEventsForListener(this);
     DestroyCardTooltip(scene);
     mCardRewards.clear();
 }
@@ -286,6 +325,50 @@ void CardSelectionRewardSceneLogicManager::VDestroyScene(std::shared_ptr<scene::
 std::shared_ptr<GuiObjectManager> CardSelectionRewardSceneLogicManager::VGetGuiObjectManager()
 {
     return nullptr;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void CardSelectionRewardSceneLogicManager::RegisterForEvents()
+{
+    auto& eventSystem = events::EventSystem::GetInstance();
+    
+    eventSystem.RegisterForEvent<events::WindowResizeEvent>(this, &CardSelectionRewardSceneLogicManager::OnWindowResize);
+    eventSystem.RegisterForEvent<events::SceneChangeEvent>(this, &CardSelectionRewardSceneLogicManager::OnSceneChange);
+    eventSystem.RegisterForEvent<events::PopSceneModalEvent>(this, &CardSelectionRewardSceneLogicManager::OnPopSceneModal);
+}
+
+///------------------------------------------------------------------------------------------------
+
+void CardSelectionRewardSceneLogicManager::OnWindowResize(const events::WindowResizeEvent&)
+{
+    CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(CARD_SELECTION_REWARD_SCENE_NAME)->RecalculatePositionOfEdgeSnappingSceneObjects();
+}
+
+///------------------------------------------------------------------------------------------------
+
+void CardSelectionRewardSceneLogicManager::OnSceneChange(const events::SceneChangeEvent& event)
+{
+    if (event.mNewSceneName == game_constants::SETTINGS_SCENE || event.mNewSceneName == game_constants::STORY_CARDS_LIBRARY_SCENE)
+    {
+        CoreSystemsEngine::GetInstance().GetAnimationManager().StopAnimation(CARD_SELECTION_ANIMATION_NAME);
+        auto scene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(CARD_SELECTION_REWARD_SCENE_NAME);
+        for (auto sceneObject: scene->GetSceneObjects())
+        {
+            sceneObject->mPosition.z -= SUSPENDED_FOR_GUI_FLOW_Z_REDUCTION;
+        }
+    }
+}
+
+///------------------------------------------------------------------------------------------------
+
+void CardSelectionRewardSceneLogicManager::OnPopSceneModal(const events::PopSceneModalEvent&)
+{
+    auto scene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(CARD_SELECTION_REWARD_SCENE_NAME);
+    for (auto sceneObject: scene->GetSceneObjects())
+    {
+        sceneObject->mPosition.z += SUSPENDED_FOR_GUI_FLOW_Z_REDUCTION;
+    }
 }
 
 ///------------------------------------------------------------------------------------------------

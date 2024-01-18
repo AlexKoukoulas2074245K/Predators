@@ -31,7 +31,7 @@
             "font": "font",
             "text": "Replaying",
             "scale": { "x": 0.00045, "y": 0.00045, "z": 0.00045 },
-            "position": { "x": -0.071, "y": 0.014, "z": 22.5 },
+            "position": { "x": -0.071, "y": 0.014, "z": 19.0 },
             "alpha": 0.0,
             "invisible": true
         },

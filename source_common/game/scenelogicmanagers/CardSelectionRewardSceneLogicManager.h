@@ -11,6 +11,7 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <game/Cards.h>
+#include <game/events/EventSystem.h>
 #include <game/scenelogicmanagers/ISceneLogicManager.h>
 #include <memory>
 
@@ -18,7 +19,7 @@
 
 class AnimatedButton;
 class CardTooltipController;
-class CardSelectionRewardSceneLogicManager final: public ISceneLogicManager
+class CardSelectionRewardSceneLogicManager final: public ISceneLogicManager, public events::IListener
 {
 public:
     CardSelectionRewardSceneLogicManager();
@@ -33,6 +34,10 @@ public:
     std::shared_ptr<GuiObjectManager> VGetGuiObjectManager() override;
     
 private:
+    void RegisterForEvents();
+    void OnWindowResize(const events::WindowResizeEvent& event);
+    void OnSceneChange(const events::SceneChangeEvent& event);
+    void OnPopSceneModal(const events::PopSceneModalEvent& event);
     void CreateCardRewards(std::shared_ptr<scene::Scene> scene);
     void CreateCardTooltip(const glm::vec3& cardOriginPostion, const std::string& tooltipText, const size_t cardIndex, std::shared_ptr<scene::Scene> scene);
     void DestroyCardTooltip(std::shared_ptr<scene::Scene> scene);
@@ -48,6 +53,7 @@ private:
     };
     
     std::vector<std::shared_ptr<CardSoWrapper>> mCardRewards;
+    std::unique_ptr<AnimatedButton> mSkipButton;
     std::unique_ptr<AnimatedButton> mConfirmationButton;
     std::unique_ptr<CardTooltipController> mCardTooltipController;
     SceneState mSceneState;
