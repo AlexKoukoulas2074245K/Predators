@@ -47,6 +47,14 @@ enum class BattleSubSceneType
 
 ///------------------------------------------------------------------------------------------------
 
+enum class CardLibraryBehaviorType
+{
+    NORMAL_BROWSING,
+    BROWSING_FOR_DELETION
+};
+
+///------------------------------------------------------------------------------------------------
+
 struct QuickPlayData
 {
     BattleControlType mBattleControlType;
@@ -91,6 +99,9 @@ public:
     
     BattleSubSceneType GetCurrentBattleSubSceneType() const;
     void SetCurrentBattleSubSceneType(const BattleSubSceneType currentBattleSubSceneType);
+    
+    CardLibraryBehaviorType GetCurrentCardLibraryBehaviorType() const;
+    void SetCurrentCardLibraryBehaviorType(const CardLibraryBehaviorType currentCardLibraryBehaviorType);
     
     const std::vector<int>& GetUnlockedCardIds() const;
     void SetUnlockedCardIds(const std::vector<int>& unlockedCardIds);
@@ -179,6 +190,7 @@ private:
     BattleControlType mNextBattleControlType;
     StoryMapSceneType mCurrentStoryMapSceneType;
     BattleSubSceneType mCurrentBattleSubSceneType;
+    CardLibraryBehaviorType mCurrentCardLibraryBehaviorType;
     std::vector<int> mUnlockedCardIds;
     std::vector<int> mCurrentStoryPlayerDeck;
     std::vector<int> mNextTopPlayerDeck;

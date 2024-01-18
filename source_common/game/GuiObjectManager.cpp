@@ -78,7 +78,7 @@ static const float HEALTH_CRYSTAL_CONTAINER_CUSTOM_SCALE_FACTOR = 2.0f;
 static const float BATTLE_SCENE_SCALE_FACTOR = 0.5f;
 static const float STAT_PARTICLE_ANIMATION_DURATION_SECS = 0.75f;
 static const float STAT_GAIN_PARTICLE_RESPAWN_SECS = 0.2f;
-static const float STAT_GAIN_ANIMATION_DURATION_SECS = 3.0f;
+static const float STAT_GAIN_ANIMATION_DURATION_SECS = 2.0f;
 static const float STAT_GAIN_PARTICLE_LIFETIME_SPEED = 0.001f;
 
 ///------------------------------------------------------------------------------------------------
@@ -398,6 +398,7 @@ void GuiObjectManager::OnSettingsButtonPressed()
 
 void GuiObjectManager::OnStoryCardsButtonPressed()
 {
+    ProgressionDataRepository::GetInstance().SetCurrentCardLibraryBehaviorType(CardLibraryBehaviorType::NORMAL_BROWSING);
     CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(mScene->GetUpdateTimeSpeedFactor(), 0.0f, game_constants::SCENE_SPEED_DILATION_ANIMATION_DURATION_SECS), [](){}, game_constants::SCENE_SPEED_DILATION_ANIMATION_NAME);
     events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_CARDS_LIBRARY_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
 }

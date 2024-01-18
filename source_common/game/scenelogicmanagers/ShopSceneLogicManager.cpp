@@ -30,6 +30,7 @@
 static constexpr int SHELF_COUNT = 3;
 static constexpr int SHELF_ITEM_COUNT = 3;
 static constexpr std::pair<int, int> COINS_TO_LIFE_RATE = std::make_pair(100, 30);
+static constexpr std::pair<int, int> CARD_DELETION_PRODUCT_COORDS = std::make_pair(2, 2);
 
 static const strutils::StringId SELECTED_PRODUCT_OVERLAY_SCENE_OBJECT_NAME = strutils::StringId("selected_product_overlay");
 static const strutils::StringId CANT_BUY_PRODUCT_OVERLAY_SCENE_OBJECT_NAME = strutils::StringId("cant_buy_product_overlay");
@@ -37,6 +38,7 @@ static const strutils::StringId CANT_BUY_PRODUCT_CONFIRMATION_BUTTON_SCENE_OBJEC
 static const strutils::StringId CONTINUE_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("continue_button");
 static const strutils::StringId CANT_BUY_PRODUCT_TEXT_0_SCENE_OBJECT_NAME = strutils::StringId("cant_buy_product_text_0");
 static const strutils::StringId CANT_BUY_PRODUCT_TEXT_1_SCENE_OBJECT_NAME = strutils::StringId("cant_buy_product_text_1");
+static const strutils::StringId SELECT_CARD_FOR_DELETION_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("select_card_for_deletion_button");
 static const strutils::StringId BUY_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("buy_button");
 static const strutils::StringId CANCEL_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("cancel_button");
 static const strutils::StringId DEFEAT_SCENE_NAME = strutils::StringId("defeat_scene");
@@ -63,9 +65,11 @@ static const std::string CANT_BUY_PRODUCT_CASE_TEXT = "to buy this product!";
 static const std::string CANT_USE_SERVICE_CASE_TEXT = "to use this service!";
 
 static const glm::vec3 BUTTON_SCALE = {0.0004f, 0.0004f, 0.0004f};
+static const glm::vec3 SELECT_CARD_FOR_DELETION_BUTTON_SCALE = {0.0003f, 0.0003f, 0.0003f};
 static const glm::vec3 CONTINUE_BUTTON_POSITION = {0.0f, -0.1f, 0.3f};
 static const glm::vec3 CANT_BUY_PRODUCT_CONFIRMATION_BUTTON_POSITION = {-0.09f, -0.125f, 20.1f};
 static const glm::vec3 BUY_BUTTON_POSITION = {-0.225f, 0.05f, 6.0f};
+static const glm::vec3 SELECT_CARD_FOR_DELETION_BUTTON_POSITION = {-0.305f, 0.04f, 6.0f};
 static const glm::vec3 CANCEL_BUTTON_POSITION = {-0.25f, -0.05f, 6.0f};
 static const glm::vec3 COIN_RED_VALUE_TEXT_COLOR = {0.80f, 0.11f, 0.11f};
 static const glm::vec3 COIN_NORMAL_VALUE_TEXT_COLOR = {0.80f, 0.71f, 0.11f};
@@ -178,6 +182,8 @@ void ShopSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene:
             
         case SceneState::BROWSING_SHOP:
         {
+            CheckProductsFinishedFadingIn();
+            
             mGuiManager->Update(dtMillis);
             
             if (!mScene->FindSceneObject(SELECTED_PRODUCT_OVERLAY_SCENE_OBJECT_NAME)->mInvisible)
@@ -340,6 +346,7 @@ void ShopSceneLogicManager::RegisterForEvents()
 {
     auto& eventSystem = events::EventSystem::GetInstance();
     eventSystem.RegisterForEvent<events::WindowResizeEvent>(this, &ShopSceneLogicManager::OnWindowResize);
+    eventSystem.RegisterForEvent<events::CardDeletionAnimationFinishedEvent>(this, &ShopSceneLogicManager::OnCardDeletionAnimationFinished);
     eventSystem.RegisterForEvent<events::GuiRewardAnimationFinishedEvent>(this, &ShopSceneLogicManager::OnGuiRewardAnimationFinished);
 }
 
@@ -351,6 +358,15 @@ void ShopSceneLogicManager::OnWindowResize(const events::WindowResizeEvent&)
     
     // Realign gui
     mGuiManager->OnWindowResize();
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ShopSceneLogicManager::OnCardDeletionAnimationFinished(const events::CardDeletionAnimationFinishedEvent&)
+{
+    DeselectProduct(CARD_DELETION_PRODUCT_COORDS.first, CARD_DELETION_PRODUCT_COORDS.second);
+    HandleAlreadyBoughtProducts();
+    mSceneState = SceneState::BROWSING_SHOP;
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -409,6 +425,24 @@ void ShopSceneLogicManager::CreateDynamicSceneObjects()
     
     mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
     (
+        SELECT_CARD_FOR_DELETION_BUTTON_POSITION,
+        SELECT_CARD_FOR_DELETION_BUTTON_SCALE,
+        game_constants::DEFAULT_FONT_NAME,
+        "Select Card to Delete",
+        SELECT_CARD_FOR_DELETION_BUTTON_SCENE_OBJECT_NAME,
+        [=]()
+        {
+            size_t productShelfIndex, productShelfItemIndex;
+            FindHighlightedProduct(productShelfIndex, productShelfItemIndex);
+            OnBuyProductAttempt(productShelfIndex, productShelfItemIndex);
+        },
+        *mScene
+    ));
+    mAnimatedButtons.back()->GetSceneObject()->mInvisible = true;
+    mAnimatedButtons.back()->GetSceneObject()->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+    
+    mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
+    (
         CANCEL_BUTTON_POSITION,
         BUTTON_SCALE,
         game_constants::DEFAULT_FONT_NAME,
@@ -448,7 +482,6 @@ void ShopSceneLogicManager::CreateDynamicSceneObjects()
 void ShopSceneLogicManager::FadeInDynamicSceneObjects()
 {
     size_t sceneObjectCounter = 0U;
-    mItemsFinishedFadingIn = false;
     for (auto shelfIndex = 0U; shelfIndex < mProducts.size(); ++shelfIndex)
     {
         for (auto shelfItemIndex = 0U; shelfItemIndex < mProducts[shelfIndex].size(); ++shelfItemIndex)
@@ -459,20 +492,13 @@ void ShopSceneLogicManager::FadeInDynamicSceneObjects()
             }
             
             auto& product = mProducts[shelfIndex][shelfItemIndex];
-            auto productSceneObjectCount = product->mSceneObjects.size();
             for (auto sceneObjectIndex = 0U; sceneObjectIndex < product->mSceneObjects.size(); ++sceneObjectIndex)
             {
                 auto sceneObject = product->mSceneObjects[sceneObjectIndex];
                 sceneObject->mInvisible = false;
                 sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
                 
-                CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, 1.0f, FADE_IN_OUT_DURATION_SECS, animation_flags::NONE, sceneObjectCounter++ * STAGGERED_FADE_IN_SECS), [=]()
-                {
-                    if (shelfIndex == SHELF_COUNT - 1 && shelfItemIndex == SHELF_ITEM_COUNT - 1 && sceneObjectIndex == productSceneObjectCount - 1)
-                    {
-                        mItemsFinishedFadingIn = true;
-                    }
-                });
+                CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, 1.0f, FADE_IN_OUT_DURATION_SECS, animation_flags::NONE, sceneObjectCounter++ * STAGGERED_FADE_IN_SECS), [=](){});
             }
         }
     }
@@ -669,11 +695,22 @@ void ShopSceneLogicManager::SelectProduct(const size_t productShelfIndex, const 
         }
     }
     
-    // Fade in buy button
-    auto buyButtonSceneObject = mScene->FindSceneObject(BUY_BUTTON_SCENE_OBJECT_NAME);
-    buyButtonSceneObject->mInvisible = false;
-    animationManager.StopAllAnimationsPlayingForSceneObject(buyButtonSceneObject->mName);
-    animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(buyButtonSceneObject, 1.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){});
+    if (product->mProductName == CARD_DELETION_PRODUCT_NAME)
+    {
+        // Fade in buy button
+        auto selectCardForDeletionButtonSceneObject = mScene->FindSceneObject(SELECT_CARD_FOR_DELETION_BUTTON_SCENE_OBJECT_NAME);
+        selectCardForDeletionButtonSceneObject->mInvisible = false;
+        animationManager.StopAllAnimationsPlayingForSceneObject(selectCardForDeletionButtonSceneObject->mName);
+        animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(selectCardForDeletionButtonSceneObject, 1.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){});
+    }
+    else
+    {
+        // Fade in buy button
+        auto buyButtonSceneObject = mScene->FindSceneObject(BUY_BUTTON_SCENE_OBJECT_NAME);
+        buyButtonSceneObject->mInvisible = false;
+        animationManager.StopAllAnimationsPlayingForSceneObject(buyButtonSceneObject->mName);
+        animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(buyButtonSceneObject, 1.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){});
+    }
 
     // Fade in cancel button
     auto cancelButtonSceneObject = mScene->FindSceneObject(CANCEL_BUTTON_SCENE_OBJECT_NAME);
@@ -719,9 +756,18 @@ void ShopSceneLogicManager::DeselectProduct(const size_t productShelfIndex, cons
         sceneObject->mSnapToEdgeBehavior = scene::SnapToEdgeBehavior::SNAP_TO_LEFT_EDGE;
     }
     
-    // Fade out buy button
-    auto buyButtonSceneObject = mScene->FindSceneObject(BUY_BUTTON_SCENE_OBJECT_NAME);
-    animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(buyButtonSceneObject, 0.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){ buyButtonSceneObject->mInvisible = true; });
+    if (product->mProductName == CARD_DELETION_PRODUCT_NAME)
+    {
+        // Fade out select card for deletion button
+        auto selectCardForDeletionButtonSceneObject = mScene->FindSceneObject(SELECT_CARD_FOR_DELETION_BUTTON_SCENE_OBJECT_NAME);
+        animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(selectCardForDeletionButtonSceneObject, 0.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){ selectCardForDeletionButtonSceneObject->mInvisible = true; });
+    }
+    else
+    {
+        // Fade out buy button
+        auto buyButtonSceneObject = mScene->FindSceneObject(BUY_BUTTON_SCENE_OBJECT_NAME);
+        animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(buyButtonSceneObject, 0.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){ buyButtonSceneObject->mInvisible = true; });
+    }
     
     // Fade out cancel button
     auto cancelButtonSceneObject = mScene->FindSceneObject(CANCEL_BUTTON_SCENE_OBJECT_NAME);
@@ -878,7 +924,15 @@ void ShopSceneLogicManager::OnBuyProductAttempt(const size_t productShelfIndex, 
     {
         mAnimatingCoinValue = false;
         
-        if (product->mProductName == WEIGHT_GAIN_PRODUCT_NAME)
+        if (product->mProductName == CARD_DELETION_PRODUCT_NAME)
+        {
+            // Card deletion follows a unique flow for card deletion
+            ProgressionDataRepository::GetInstance().SetCurrentCardLibraryBehaviorType(CardLibraryBehaviorType::BROWSING_FOR_DELETION);
+            CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(mScene->GetUpdateTimeSpeedFactor(), 0.0f, game_constants::SCENE_SPEED_DILATION_ANIMATION_DURATION_SECS), [](){}, game_constants::SCENE_SPEED_DILATION_ANIMATION_NAME);
+            events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_CARDS_LIBRARY_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+            return;
+        }
+        else if (product->mProductName == WEIGHT_GAIN_PRODUCT_NAME)
         {
             events::EventSystem::GetInstance().DispatchEvent<events::ExtraWeightRewardEvent>();
         }
@@ -942,9 +996,18 @@ void ShopSceneLogicManager::OnBuyProductAttempt(const size_t productShelfIndex, 
         
         DestroyCardTooltip();
         
-        // Fade out buy button
-        auto buyButtonSceneObject = mScene->FindSceneObject(BUY_BUTTON_SCENE_OBJECT_NAME);
-        animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(buyButtonSceneObject, 0.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){ buyButtonSceneObject->mInvisible = true; });
+        if (product->mProductName == CARD_DELETION_PRODUCT_NAME)
+        {
+            // Fade out select card for deletion button
+            auto selectCardForDeletionButtonSceneObject = mScene->FindSceneObject(SELECT_CARD_FOR_DELETION_BUTTON_SCENE_OBJECT_NAME);
+            animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(selectCardForDeletionButtonSceneObject, 0.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){ selectCardForDeletionButtonSceneObject->mInvisible = true; });
+        }
+        else
+        {
+            // Fade out buy button
+            auto buyButtonSceneObject = mScene->FindSceneObject(BUY_BUTTON_SCENE_OBJECT_NAME);
+            animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(buyButtonSceneObject, 0.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){ buyButtonSceneObject->mInvisible = true; });
+        }
         
         // Fade out cancel button
         auto cancelButtonSceneObject = mScene->FindSceneObject(CANCEL_BUTTON_SCENE_OBJECT_NAME);
@@ -1073,6 +1136,34 @@ void ShopSceneLogicManager::UpdateProductPriceTags()
             if (productDefinition.mPrice > 0)
             {
                 product->mSceneObjects[2]->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = productDefinition.mPrice > ProgressionDataRepository::GetInstance().CurrencyCoins().GetValue() ? COIN_RED_VALUE_TEXT_COLOR : COIN_NORMAL_VALUE_TEXT_COLOR;
+            }
+        }
+    }
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ShopSceneLogicManager::CheckProductsFinishedFadingIn()
+{
+    mItemsFinishedFadingIn = true;
+    for (int shelfIndex = 0; shelfIndex < SHELF_COUNT; ++shelfIndex)
+    {
+        for (int shelfItemIndex = 0; shelfItemIndex < SHELF_ITEM_COUNT; ++shelfItemIndex)
+        {
+            if (mProducts[shelfIndex][shelfItemIndex] == nullptr)
+            {
+                continue;
+            }
+            
+            auto& product = mProducts[shelfIndex][shelfItemIndex];
+            
+            for (auto sceneObject: product->mSceneObjects)
+            {
+                if (sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] < 1.0f)
+                {
+                    mItemsFinishedFadingIn = false;
+                    return;
+                }
             }
         }
     }

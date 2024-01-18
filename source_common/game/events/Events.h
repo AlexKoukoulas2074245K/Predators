@@ -289,6 +289,12 @@ class GuiRewardAnimationFinishedEvent final
 
 ///------------------------------------------------------------------------------------------------
 
+class CardDeletionAnimationFinishedEvent final
+{
+};
+
+///------------------------------------------------------------------------------------------------
+
 class LastCardPlayedFinalizedEvent final
 {
 public:

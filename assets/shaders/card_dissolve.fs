@@ -14,7 +14,6 @@ uniform vec4 ambient_light_color;
 uniform vec4 point_light_colors[32];
 uniform vec3 point_light_positions[32];
 uniform float point_light_powers[32];
-uniform float custom_alpha;
 uniform float dissolve_threshold;
 uniform float dissolve_magnitude;
 uniform float card_origin_x;

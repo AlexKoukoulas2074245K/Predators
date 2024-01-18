@@ -39,6 +39,7 @@ public:
 private:
     void RegisterForEvents();
     void OnWindowResize(const events::WindowResizeEvent& event);
+    void OnCardDeletionAnimationFinished(const events::CardDeletionAnimationFinishedEvent&);
     void OnGuiRewardAnimationFinished(const events::GuiRewardAnimationFinishedEvent& event);
     void CreateDynamicSceneObjects();
     void HandleAlreadyBoughtProducts();
@@ -57,6 +58,7 @@ private:
     void ChangeAndAnimateCoinValueReduction(long long coinValueReduction);
     void AnimateBoughtCardToLibrary(const size_t productShelfIndex, const size_t productShelfItemIndex);
     void UpdateProductPriceTags();
+    void CheckProductsFinishedFadingIn();
     
 private:
     struct ProductDefinition

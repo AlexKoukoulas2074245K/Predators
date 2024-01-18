@@ -18,8 +18,6 @@ uniform float dissolve_threshold;
 uniform float dissolve_magnitude;
 uniform float origin_x;
 uniform float origin_y;
-uniform float time;
-uniform float light_pos_x;
 uniform bool affected_by_light;
 uniform int active_light_count;
 out vec4 frag_color;

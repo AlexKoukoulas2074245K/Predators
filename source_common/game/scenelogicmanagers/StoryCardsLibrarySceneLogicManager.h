@@ -39,8 +39,18 @@ private:
     void OnWindowResize(const events::WindowResizeEvent&);
     void CreateCardTooltip(const glm::vec3& cardOriginPostion, const std::string& tooltipText);
     void DestroyCardTooltip();
+    void SelectCard(int selectedCardIndex);
+    void DeleteCard();
+    void DeselectCard();
     
 private:
+    enum class SceneState
+    {
+        BROWSING_CARDS,
+        SELECTED_CARD_FOR_DELETION,
+        DISSOLVING_DELETED_CARD
+    };
+    
     struct CardEntry
     {
         std::vector<std::shared_ptr<scene::SceneObject>> mSceneObjects;
@@ -51,7 +61,12 @@ private:
     std::vector<std::unique_ptr<AnimatedButton>> mAnimatedButtons;
     std::unique_ptr<SwipeableContainer<CardEntry>> mCardContainer;
     std::unique_ptr<CardTooltipController> mCardTooltipController;
+    glm::vec3 mSelectedCardInitialPosition;
+    SceneState mSceneState;
+    float mCoinAnimationValue;
+    int mSelectedCardIndex;
     bool mTransitioning;
+    bool mAnimatingCoinValue;
 };
 
 ///------------------------------------------------------------------------------------------------

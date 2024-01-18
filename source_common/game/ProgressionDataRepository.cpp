@@ -59,6 +59,7 @@ void ProgressionDataRepository::ResetStoryData()
     mSelectedStoryMapNodePosition = {};
     mCurrentStoryMapNodeCoord = game_constants::STORY_MAP_INIT_COORD;
     mCurrentStoryMapNodeType = StoryMap::NodeType::NORMAL_ENCOUNTER;
+    mCurrentCardLibraryBehaviorType = CardLibraryBehaviorType::NORMAL_BROWSING;
     mSelectedStoryMapNodeData = nullptr;
     
     mStoryMaxHealth = game_constants::STORY_DEFAULT_MAX_HEALTH;
@@ -179,6 +180,20 @@ void ProgressionDataRepository::SetCurrentBattleSubSceneType(const BattleSubScen
 {
     mCurrentBattleSubSceneType = currentBattleSubSceneType;
     mStoryDataSerializer->GetState()["current_battle_sub_scene_type"] = static_cast<int>(mCurrentBattleSubSceneType);
+}
+
+///------------------------------------------------------------------------------------------------
+
+CardLibraryBehaviorType ProgressionDataRepository::GetCurrentCardLibraryBehaviorType() const
+{
+    return mCurrentCardLibraryBehaviorType;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ProgressionDataRepository::SetCurrentCardLibraryBehaviorType(const CardLibraryBehaviorType currentCardLibraryBehaviorType)
+{
+    mCurrentCardLibraryBehaviorType = currentCardLibraryBehaviorType;
 }
 
 ///------------------------------------------------------------------------------------------------
