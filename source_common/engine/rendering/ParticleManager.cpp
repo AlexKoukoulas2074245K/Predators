@@ -41,7 +41,7 @@ static const std::vector<float> PARTICLE_UVS =
 
 static int sParticleEmitterCount = 0;
 static std::string PARTICLE_EMITTER_NAME_PREFIX = "particle_emitter_";
-static std::string PARTICLE_SHADER_FILE_NAME = "generic_particle.vs";
+static std::string GENERIC_PARTICLE_SHADER_FILE_NAME = "generic_particle.vs";
 
 ///------------------------------------------------------------------------------------------------
 
@@ -147,7 +147,7 @@ std::shared_ptr<scene::SceneObject> ParticleManager::CreateParticleEmitterAtPosi
     auto particleSystemSo = scene.CreateSceneObject(particleEmitterSceneObjectName.isEmpty() ? strutils::StringId(PARTICLE_EMITTER_NAME_PREFIX + std::to_string(sParticleEmitterCount)) : particleEmitterSceneObjectName);
     particleSystemSo->mPosition = pos;
     particleSystemSo->mTextureResourceId = particleEmitterData.mTextureResourceId;
-    particleSystemSo->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + PARTICLE_SHADER_FILE_NAME);
+    particleSystemSo->mShaderResourceId = particleEmitterData.mShaderResourceId;
     
     assert(IS_FLAG_SET(particle_flags::PREFILLED) || IS_FLAG_SET(particle_flags::CONTINUOUS_PARTICLE_GENERATION) || IS_FLAG_SET(particle_flags::CUSTOM_UPDATE));
     
@@ -257,6 +257,7 @@ void ParticleManager::LoadParticleData(const resources::ResourceReloadMode resou
         strutils::StringId particleName = strutils::StringId(particleObject["name"].get<std::string>());
         
         particleEmitterData.mTextureResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + particleObject["texture"].get<std::string>());
+        particleEmitterData.mShaderResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + (particleObject.count("shader") ? particleObject["shader"].get<std::string>() : GENERIC_PARTICLE_SHADER_FILE_NAME));
         particleEmitterData.mParticleCount = particleObject["particle_count"].get<int>();
         
         particleEmitterData.mParticleFlags |= particleObject["prefilled"].get<bool>() ? particle_flags::PREFILLED : particle_flags::NONE;

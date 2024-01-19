@@ -24,7 +24,7 @@ void main()
     float final_uv_y = 1.0 - uv_frag.y;
     frag_color = texture(tex, vec2(final_uv_x, final_uv_y));
 
-    if (frag_color.a < 0.1) discard;
+    if (frag_color.a < 0.6) discard;
     
     frag_color.a *= custom_alpha;
     

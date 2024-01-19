@@ -121,7 +121,8 @@
         },
         {
             "name": "node_path_animated",
-            "texture": "map_node_path_animated.png",
+            "texture": "map_node_path.png",
+            "shader": "node_path.vs",
             "particle_count": 512,
             "prefilled": false,
             "continuous_generation": false,
@@ -136,7 +137,8 @@
         },
         {
             "name": "node_path_static",
-            "texture": "map_node_path_static.png",
+            "texture": "map_node_path.png",
+            "shader": "node_path.vs",
             "particle_count": 512,
             "prefilled": false,
             "continuous_generation": false,

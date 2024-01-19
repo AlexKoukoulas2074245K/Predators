@@ -50,6 +50,7 @@ struct ParticleEmitterObjectData
     uint8_t mParticleFlags;
     
     resources::ResourceId mTextureResourceId;
+    resources::ResourceId mShaderResourceId;
     
     std::vector<glm::vec3> mParticlePositions;
     std::vector<glm::vec3> mParticleVelocities;
