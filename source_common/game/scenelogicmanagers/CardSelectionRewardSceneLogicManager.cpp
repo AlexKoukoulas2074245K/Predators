@@ -364,6 +364,12 @@ void CardSelectionRewardSceneLogicManager::OnSceneChange(const events::SceneChan
 
 void CardSelectionRewardSceneLogicManager::OnPopSceneModal(const events::PopSceneModalEvent&)
 {
+    if (CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::WHEEL_OF_FORTUNE_SCENE))
+    {
+        // Coming in from wheel
+        return;
+    }
+    
     auto scene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(CARD_SELECTION_REWARD_SCENE_NAME);
     for (auto sceneObject: scene->GetSceneObjects())
     {
