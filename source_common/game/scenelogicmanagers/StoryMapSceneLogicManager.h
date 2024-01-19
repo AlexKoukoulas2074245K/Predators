@@ -21,7 +21,6 @@
 class AnimatedButton;
 class AnimatedStatContainer;
 class GuiObjectManager;
-class StoryMap;
 class StoryMapSceneLogicManager final: public ISceneLogicManager, public events::IListener
 {
 public:
@@ -58,12 +57,15 @@ private:
     std::unique_ptr<MapCoord> mSelectedMapCoord;
     std::shared_ptr<scene::Scene> mScene;
     std::shared_ptr<GuiObjectManager> mGuiManager;
+    std::shared_ptr<StoryMap::NodeData> mTappedMapNodeData;
     std::unordered_set<std::shared_ptr<scene::SceneObject>> mExcludedSceneObjectsFromFrustumCulling;
     rendering::Camera mSwipeCamera;
+    glm::vec3 mSwipeVelocity;
     glm::vec3 mSwipeCurrentPos;
     glm::vec3 mCameraTargetPos;
     glm::vec3 mPreviousDirectionToTargetNode;
     glm::vec3 mFreshMapCameraAnimationInitPosition;
+    glm::vec3 mTappedNodeInitCameraPosition;
     MapUpdateState mMapUpdateState;
     bool mHasStartedSwipe;
 };

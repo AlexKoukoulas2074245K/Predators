@@ -43,6 +43,10 @@ static const float CAMERA_NOT_MOVED_THRESHOLD = 0.0001f;
 static const float CAMERA_MOVING_TO_NODE_SPEED = 0.0005f;
 static const float SELECTED_NODE_Z_OFFSET = 23.3f;
 static const float FRESH_MAP_ANIMATION_TARGET_Y_OFFSET = -0.19f;
+static const float SWIPE_VELOCITY_DAMPING = 0.9f;
+static const float SWIPE_VELOCITY_INTEGRATION_SPEED = 0.04f;
+static const float SWIPE_VELOCITY_MIN_MAGNITUDE_TO_START_MOVING = 0.0001f;
+static const float MAX_CAMERA_DISTANCE_TO_REGISTER_NODE_TAP = 0.01f;
 
 #if defined(NDEBUG) || defined(MOBILE_FLOW)
 static const float FRESH_MAP_ANIMATION_SPEED = 0.2f;
@@ -219,7 +223,6 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
                     }
                 }
                     
-                bool tappedNodeObject = false;
                 for (const auto& nodeMapData: mStoryMap->GetMapData())
                 {
                     auto sceneObject = scene->FindSceneObject(strutils::StringId(nodeMapData.first.ToString()));
@@ -232,29 +235,16 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
                             continue;
                         }
                         
-                        ResetSelectedMapNode();
-                        
-                        // Setup data for moving to target node
-                        ProgressionDataRepository::GetInstance().SetSelectedStoryMapNodePosition(sceneObject->mPosition);
-                        ProgressionDataRepository::GetInstance().SetSelectedStoryMapNodeData(&nodeMapData.second);
-                        
-                        mMapUpdateState = MapUpdateState::MOVING_TO_NODE;
-                        mCameraTargetPos = sceneObject->mPosition;
-                        mCameraTargetPos.x = math::Max(MAP_SWIPE_X_BOUNDS.s, math::Min(MAP_SWIPE_X_BOUNDS.t, mCameraTargetPos.x));
-                        mCameraTargetPos.y = math::Max(MAP_SWIPE_Y_BOUNDS.s, math::Min(MAP_SWIPE_Y_BOUNDS.t, mCameraTargetPos.y));
-                        mCameraTargetPos.z = mScene->GetCamera().GetPosition().z;
-                        mSelectedMapCoord = std::make_unique<MapCoord>(nodeMapData.first);
-                        for (auto mapNodeComponentSceneObject: scene->FindSceneObjectsWhoseNameStartsWith(mSelectedMapCoord->ToString()))
-                        {
-                            mapNodeComponentSceneObject->mPosition.z += SELECTED_NODE_Z_OFFSET;
-                        }
-                        
-                        tappedNodeObject = true;
+                        // Node registered as tapped, nothing will happen unless
+                        // we release the touch and the camera hasn't moved much from it
+                        mTappedMapNodeData = std::make_shared<StoryMap::NodeData>(nodeMapData.second);
+                        mTappedNodeInitCameraPosition = mScene->GetCamera().GetPosition();
                         break;
                     }
                 }
                 
-                if (tappedGuiSceneObject || tappedNodeObject)
+                mSwipeVelocity = glm::vec3(0.0f);
+                if (tappedGuiSceneObject)
                 {
                     ResetSwipeData();
                 }
@@ -268,15 +258,62 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
             {
                 if (mHasStartedSwipe)
                 {
-                    MoveMapBy(mSwipeCurrentPos - worldTouchPos);
+                    const auto deltaMotion = mSwipeCurrentPos - worldTouchPos;
+                    if (glm::length(deltaMotion) < 1.0f)
+                    {
+                        mSwipeVelocity = deltaMotion;
+                    }
+                    
                     mSwipeCurrentPos = worldTouchPos;
                 }
             }
-            else if (!interactedWithGui && !inputStateManager.VButtonPressed(input::Button::MAIN_BUTTON))
+            else if (!inputStateManager.VButtonPressed(input::Button::MAIN_BUTTON))
             {
-                ResetSwipeData();
+                if (!interactedWithGui)
+                {
+                    ResetSwipeData();
+                }
+                
+                // Only once the touch is released and we the camera is sufficiently close
+                // to the originally tapped node do we actually move to it.
+                if (mTappedMapNodeData && glm::distance(mTappedNodeInitCameraPosition, mScene->GetCamera().GetPosition()) < MAX_CAMERA_DISTANCE_TO_REGISTER_NODE_TAP)
+                {
+                    MapCoord targetMapCoord(mTappedMapNodeData->mCoords.x, mTappedMapNodeData->mCoords.y);
+                    mSwipeVelocity = glm::vec3(0.0f);
+                    ResetSwipeData();
+                    
+                    ResetSelectedMapNode();
+
+                    // Setup data for moving to target node
+                    ProgressionDataRepository::GetInstance().SetSelectedStoryMapNodePosition(mTappedMapNodeData->mPosition);
+                    ProgressionDataRepository::GetInstance().SetSelectedStoryMapNodeData(&mStoryMap->GetMapData().at(targetMapCoord));
+
+                    mMapUpdateState = MapUpdateState::MOVING_TO_NODE;
+                    mCameraTargetPos = mTappedMapNodeData->mPosition;
+                    mCameraTargetPos.x = math::Max(MAP_SWIPE_X_BOUNDS.s, math::Min(MAP_SWIPE_X_BOUNDS.t, mCameraTargetPos.x));
+                    mCameraTargetPos.y = math::Max(MAP_SWIPE_Y_BOUNDS.s, math::Min(MAP_SWIPE_Y_BOUNDS.t, mCameraTargetPos.y));
+                    mCameraTargetPos.z = mScene->GetCamera().GetPosition().z;
+                    mSelectedMapCoord = std::make_unique<MapCoord>(mTappedMapNodeData->mCoords.x, mTappedMapNodeData->mCoords.y);
+                    for (auto mapNodeComponentSceneObject: scene->FindSceneObjectsWhoseNameStartsWith(mSelectedMapCoord->ToString()))
+                    {
+                        mapNodeComponentSceneObject->mPosition.z += SELECTED_NODE_Z_OFFSET;
+                    }
+                }
+                        
+                mTappedMapNodeData = nullptr;
             }
             
+            // Move map and integrate velocity
+            if (glm::length(mSwipeVelocity) > SWIPE_VELOCITY_MIN_MAGNITUDE_TO_START_MOVING)
+            {
+                MoveMapBy(mSwipeVelocity * dtMillis * SWIPE_VELOCITY_INTEGRATION_SPEED);
+                mSwipeVelocity.x *= SWIPE_VELOCITY_DAMPING;
+                mSwipeVelocity.y *= SWIPE_VELOCITY_DAMPING;
+            }
+            else
+            {
+                mSwipeVelocity = glm::vec3(0.0f);
+            }
         } break;
             
         case MapUpdateState::MOVING_TO_NODE:
