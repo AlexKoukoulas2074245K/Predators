@@ -123,6 +123,7 @@ void StoryMapSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     
     mMapUpdateState = MapUpdateState::NAVIGATING;
     mSelectedMapCoord = nullptr;
+    mTappedMapNodeData = nullptr;
 }
 
 ///------------------------------------------------------------------------------------------------
