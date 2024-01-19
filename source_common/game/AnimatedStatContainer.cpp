@@ -123,12 +123,7 @@ AnimatedStatContainerUpdateResult AnimatedStatContainer::Update(const float dtMi
         updateResult = AnimatedStatContainerUpdateResult::FINISHED;
     }
     
-    std::get<scene::TextSceneObjectData>(valueCrystalSo->mSceneObjectTypeData).mText = std::to_string(mDisplayedValue);
-    valueCrystalSo->mPosition = baseCrystalSo->mPosition + STAT_CRYSTAL_VALUE_POSITION_OFFSET;
-    
-    auto boundingRect = scene_object_utils::GetSceneObjectBoundingRect(*valueCrystalSo);
-    valueCrystalSo->mPosition.x -= (boundingRect.topRight.x - boundingRect.bottomLeft.x)/2.0f;
-    
+    RealignBaseAndValueSceneObjects();
     
     return updateResult;
 }
@@ -145,7 +140,13 @@ std::vector<std::shared_ptr<scene::SceneObject>>& AnimatedStatContainer::GetScen
 void AnimatedStatContainer::ForceSetDisplayedValue(const int displayedValue)
 {
     mDisplayedValue = displayedValue;
-    
+    RealignBaseAndValueSceneObjects();
+}
+
+///------------------------------------------------------------------------------------------------
+
+void AnimatedStatContainer::RealignBaseAndValueSceneObjects()
+{
     auto baseCrystalSo = mSceneObjects.front();
     auto valueCrystalSo = mSceneObjects.back();
     

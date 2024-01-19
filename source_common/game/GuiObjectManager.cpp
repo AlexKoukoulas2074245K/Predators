@@ -212,7 +212,7 @@ void GuiObjectManager::SetCoinValueText()
 
 void GuiObjectManager::OnWindowResize()
 {
-    mHealthStatContainer->Update(0.0f);
+    mHealthStatContainer->RealignBaseAndValueSceneObjects();
 }
 
 ///------------------------------------------------------------------------------------------------

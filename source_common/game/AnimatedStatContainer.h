@@ -45,6 +45,7 @@ public:
     
     std::vector<std::shared_ptr<scene::SceneObject>>& GetSceneObjects();
     void ForceSetDisplayedValue(const int displayedValue);
+    void RealignBaseAndValueSceneObjects();
     
 private:
     const int& mValueToTrack;

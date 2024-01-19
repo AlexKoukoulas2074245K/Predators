@@ -214,6 +214,13 @@ void Camera::Update(const float dtMillis)
 
 ///------------------------------------------------------------------------------------------------
 
+bool Camera::IsShaking() const
+{
+    return mShakeData.mShakeCurrentRadius > SHAKE_MIN_RADIUS;
+}
+
+///------------------------------------------------------------------------------------------------
+
 void Camera::StopShake()
 {
     mShakeData.mShakeCurrentRadius = 0.0f;
