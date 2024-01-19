@@ -78,7 +78,8 @@ static const float BATTLE_SCENE_SCALE_FACTOR = 0.5f;
 static const float STAT_PARTICLE_ANIMATION_DURATION_SECS = 0.75f;
 static const float STAT_GAIN_PARTICLE_RESPAWN_SECS = 0.2f;
 static const float STAT_GAIN_ANIMATION_DURATION_SECS = 2.0f;
-static const float STAT_GAIN_PARTICLE_LIFETIME_SPEED = 0.001f;
+static const float STAT_GAIN_PARTICLE_LIFETIME_SPEED = 0.002f;
+static const float MAX_HEALTH_STAT_GAIN_PARTICLE_LIFETIME_SPEED = 0.004f;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -365,10 +366,12 @@ void GuiObjectManager::AnimateStatGainParticles(const glm::vec3& originPosition,
             {
                 continue;
             }
-
+            
+            auto particleLifetimeSpeed = statGainParticleType != StatGainParticleType::MAX_HEALTH ? STAT_GAIN_PARTICLE_LIFETIME_SPEED : MAX_HEALTH_STAT_GAIN_PARTICLE_LIFETIME_SPEED;
+            particleLifetimeSpeed *= forBattleScene ? 0.5f : 1.0f;
             if (particleEmitterData.mParticleAngles[i] > 0.0f)
             {
-                particleEmitterData.mParticleLifetimeSecs[i] += dtMillis * STAT_GAIN_PARTICLE_LIFETIME_SPEED;
+                particleEmitterData.mParticleLifetimeSecs[i] += dtMillis * particleLifetimeSpeed;
                 if (particleEmitterData.mParticleLifetimeSecs[i] > (statGainParticleType == StatGainParticleType::MAX_HEALTH ? 1.0f : 2.0f))
                 {
                     particleEmitterData.mParticleAngles[i] = -1.0f;
@@ -376,10 +379,14 @@ void GuiObjectManager::AnimateStatGainParticles(const glm::vec3& originPosition,
             }
             else
             {
-                particleEmitterData.mParticleLifetimeSecs[i] = math::Max(0.01f, particleEmitterData.mParticleLifetimeSecs[i] - dtMillis * STAT_GAIN_PARTICLE_LIFETIME_SPEED);
+                particleEmitterData.mParticleLifetimeSecs[i] = math::Max(0.01f, particleEmitterData.mParticleLifetimeSecs[i] - dtMillis * particleLifetimeSpeed);
             }
 
             particleEmitterData.mParticlePositions[i] += particleEmitterData.mParticleVelocities[i] * dtMillis;
+            if (statGainParticleType != StatGainParticleType::MAX_HEALTH)
+            {
+                particleEmitterData.mParticlePositions[i].x = math::Sinf(particleEmitterData.mParticleLifetimeSecs[i] * (forBattleScene ? 8.0f : 4.0f))/(forBattleScene ? 8.0f : 4.0f) - 0.05f;
+            }
         }
         
         particleManager.SortParticles(particleEmitterData);
