@@ -66,6 +66,7 @@ void ProgressionDataRepository::ResetStoryData()
     mStoryMapGenerationSeed = 0;
     mCurrentStoryMapNodeSeed = 0;
     mCurrentEventScreenIndex = 0;
+    mCurrentEventIndex = 0;
     mNextBattleTopPlayerHealth = 0;
     mNextBattleBotPlayerHealth = 0;
     mNextBattleTopPlayerInitWeight = 0;
@@ -209,6 +210,21 @@ void ProgressionDataRepository::SetCurrentEventScreenIndex(const int currentEven
 {
     mCurrentEventScreenIndex = currentEventScreenIndex;
     mStoryDataSerializer->GetState()["current_event_screen"] = currentEventScreenIndex;
+}
+
+///------------------------------------------------------------------------------------------------
+
+const int& ProgressionDataRepository::GetCurrentEventIndex() const
+{
+    return mCurrentEventIndex;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ProgressionDataRepository::SetCurrentEventIndex(const int currentEventIndex)
+{
+    mCurrentEventIndex = currentEventIndex;
+    mStoryDataSerializer->GetState()["current_event"] = currentEventIndex;
 }
 
 ///------------------------------------------------------------------------------------------------

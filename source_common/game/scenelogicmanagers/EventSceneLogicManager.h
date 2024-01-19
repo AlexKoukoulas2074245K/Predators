@@ -45,16 +45,18 @@ private:
     class StoryRandomEventButtonData
     {
     public:
-        StoryRandomEventButtonData(const std::string& buttonText, const int nextScreenIndex, const std::function<void()> onClickCallback = nullptr)
+        StoryRandomEventButtonData(const std::string& buttonText, const int nextScreenIndex, const std::function<void()> onClickCallback = nullptr, const int randomCounter = 0)
             : mButtonText(buttonText)
             , mNextScreenIndex(nextScreenIndex)
             , mOnClickCallback(onClickCallback)
+            , mRandomCounter(randomCounter)
         {
         }
         
         const std::string mButtonText;
-        const int mNextScreenIndex;
+        int mNextScreenIndex;
         const std::function<void()> mOnClickCallback;
+        int mRandomCounter;
     };
     
     class StoryRandomEventScreenData
@@ -80,12 +82,14 @@ private:
     class StoryRandomEventData
     {
     public:
-        StoryRandomEventData(const std::vector<StoryRandomEventScreenData>& eventScreens)
+        StoryRandomEventData(const std::vector<StoryRandomEventScreenData>& eventScreens, std::function<bool()> applicabilityFunction)
             : mEventScreens(eventScreens)
+            , mApplicabilityFunction(applicabilityFunction)
         {
         }
     
         const std::vector<StoryRandomEventScreenData> mEventScreens;
+        const std::function<bool()> mApplicabilityFunction;
     };
     
 private:

@@ -58,6 +58,11 @@ StoryDeserializer::StoryDeserializer(ProgressionDataRepository& progressionDataR
         progressionDataRepository.SetCurrentEventScreenIndex(storyJson["current_event_screen"].get<int>());
     }
     
+    if (storyJson.count("current_event"))
+    {
+        progressionDataRepository.SetCurrentEventIndex(storyJson["current_event"].get<int>());
+    }
+    
     if (storyJson.count("story_max_health"))
     {
         progressionDataRepository.SetStoryMaxHealth(storyJson["story_max_health"].get<int>());

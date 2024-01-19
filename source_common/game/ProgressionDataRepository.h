@@ -130,6 +130,9 @@ public:
     const int& GetCurrentEventScreenIndex() const;
     void SetCurrentEventScreenIndex(const int currentEventScreenIndex);
     
+    const int& GetCurrentEventIndex() const;
+    void SetCurrentEventIndex(const int currentEventIndex);
+        
     const int& GetNextBattleTopPlayerHealth() const;
     void SetNextBattleTopPlayerHealth(const int nextBattleTopPlayerHealth);
     
@@ -208,6 +211,7 @@ private:
     int mStoryMapGenerationSeed = 0;
     int mCurrentStoryMapNodeSeed = 0;
     int mCurrentEventScreenIndex = 0;
+    int mCurrentEventIndex = 0;
     int mNextBattleTopPlayerHealth = 0;
     int mNextBattleBotPlayerHealth = 0;
     int mNextBattleTopPlayerInitWeight = 0;

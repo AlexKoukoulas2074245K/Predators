@@ -124,6 +124,7 @@ void StoryMapSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     mMapUpdateState = MapUpdateState::NAVIGATING;
     mSelectedMapCoord = nullptr;
     mTappedMapNodeData = nullptr;
+    mSwipeVelocity = glm::vec3(0.0f);
 }
 
 ///------------------------------------------------------------------------------------------------

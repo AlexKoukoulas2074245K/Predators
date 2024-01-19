@@ -26,8 +26,8 @@ static const strutils::StringId EVENT_DESCRIPTION_SCENE_OBJECT_NAME = strutils::
 static const strutils::StringId EVENT_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("event_button");
 static const strutils::StringId DEFEAT_SCENE_NAME = strutils::StringId("defeat_scene");
 
-static const glm::vec3 BUTTON_SCALE = {0.0004f, 0.0004f, 0.0004f};
-static const glm::vec3 EVENT_DESCRIPTION_TEXT_SCALE = {0.0004f, 0.0004f, 0.0004f};
+static const glm::vec3 BUTTON_SCALE = {0.0003f, 0.0003f, 0.0003f};
+static const glm::vec3 EVENT_DESCRIPTION_TEXT_SCALE = {0.0003f, 0.0003f, 0.0003f};
 static const glm::vec3 EVENT_PORTRAIT_SCALE = {0.4f, 0.4f, 0.4f};
 static const glm::vec3 EVENT_PORTRAIT_POSITION = {-0.1f, 0.0f, 0.8f};
 
@@ -35,8 +35,8 @@ static const float EVENT_SCREEN_FADE_IN_OUT_DURATION_SECS = 0.25f;
 static const float EVENT_SCREEN_ITEM_Z = 1.0f;
 static const float EVENT_PORTRAIT_ALPHA = 0.75f;
 static const float EVENT_PORTRAIT_SNAP_TO_EDGE_SCALE_OFFSET_FACTOR = 0.09f;
-static const float EVENT_DESCRIPTION_TEXT_SNAP_TO_EDGE_SCALE_OFFSET_FACTOR = 1500.0f;
-static const float EVENT_BUTTON_SNAP_TO_EDGE_OFFSET_FACTOR = 1500.0f;
+static const float EVENT_DESCRIPTION_TEXT_SNAP_TO_EDGE_SCALE_OFFSET_FACTOR = 2000.0f;
+static const float EVENT_BUTTON_SNAP_TO_EDGE_OFFSET_FACTOR = 2000.0f;
 
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
 {
@@ -160,78 +160,144 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
     
     ///------------------------------------------------------------------------------------------------
     /// Gold Coin cart event
-    auto coinsToGain = math::ControlledRandomInt(30, 100) + 20 * ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeCoord().x;
-    mRegisteredStoryEvents.emplace_back
-    (
-        StoryRandomEventData
-        ({
-            StoryRandomEventScreenData("events/gold_coin_cart.png", {"", "", "You found a Gold Coin cart!"},
-            {
-                StoryRandomEventButtonData("Collect the Gold Coins", 1, [=]()
+    {
+        auto coinsToGain = math::ControlledRandomInt(30, 100) + 20 * ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeCoord().x;
+        mRegisteredStoryEvents.emplace_back
+        (
+            StoryRandomEventData
+            ({
+                StoryRandomEventScreenData("events/gold_coin_cart.png", {"", "", "You approach a Gold Coin cart!"},
                 {
-                    events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(coinsToGain, mScene->FindSceneObject(EVENT_PORTRAIT_SCENE_OBJECT_NAME)->mPosition);
+                    StoryRandomEventButtonData("Collect the Gold Coins", 1, [=]()
+                    {
+                        events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(coinsToGain, mScene->FindSceneObject(EVENT_PORTRAIT_SCENE_OBJECT_NAME)->mPosition);
+                    }),
+                    StoryRandomEventButtonData("Ignore Cart", 2)
                 }),
-                StoryRandomEventButtonData("Ignore Cart", 2)
-            }),
-            StoryRandomEventScreenData("events/gold_coin_cart.png", {"", "You collected " + std::to_string(coinsToGain) + " gold coins!"},
-            {
-                StoryRandomEventButtonData("Ok", 3)
-            }),
-            StoryRandomEventScreenData("events/gold_coin_cart.png", {"", "You got suspicious and", "ignored the gold coin cart.."},
-            {
-                StoryRandomEventButtonData("Ok", 3)
-            })
-        })
-    );
+                StoryRandomEventScreenData("events/gold_coin_cart.png", {"", "You collected " + std::to_string(coinsToGain) + " gold coins!"},
+                {
+                    StoryRandomEventButtonData("Ok", 3)
+                }),
+                StoryRandomEventScreenData("events/gold_coin_cart.png", {"", "You got suspicious and", "ignored the gold coin cart.."},
+                {
+                    StoryRandomEventButtonData("Ok", 3)
+                })
+            }, [](){ return true; })
+        );
+    }
     
     ///------------------------------------------------------------------------------------------------
     /// Lava Trap event
-    auto guaranteedHpLoss = math::ControlledRandomInt(1, 2);
-    auto randomHpLoss = math::ControlledRandomInt(5, 10);
-    auto failedJump = math::ControlledRandomInt(1, 3) == 1;
-    
-    mRegisteredStoryEvents.emplace_back
-    (
-        StoryRandomEventData
-        ({
-            StoryRandomEventScreenData("events/lava_trap.png", {"You approach a steep cliff", "overlooking a river of lava.", "You can either try jumping,", "risking a fall, or circle around", "stepping on the hot ground."},
-            {
-                StoryRandomEventButtonData("Risk the Jump  (33% -" + std::to_string(randomHpLoss) + "*)", failedJump ? 1 : 2, [=]()
+    {
+        auto guaranteedHpLoss = math::ControlledRandomInt(1, 2);
+        auto randomHpLoss = math::ControlledRandomInt(5, 10);
+        auto failedJump = math::ControlledRandomInt(1, 3) == 1;
+        
+        mRegisteredStoryEvents.emplace_back
+        (
+            StoryRandomEventData
+            ({
+                StoryRandomEventScreenData("events/lava_trap.png", {"You approach a steep cliff", "overlooking a river of lava.", "You can either try jumping,", "risking a fall, or circle around", "stepping on the hot ground."},
                 {
-                    if (failedJump)
+                    StoryRandomEventButtonData("Risk the Jump  (33% -" + std::to_string(randomHpLoss) + "*)", failedJump ? 1 : 2, [=]()
+                    {
+                        if (failedJump)
+                        {
+                            auto& progressionHealth = ProgressionDataRepository::GetInstance().StoryCurrentHealth();
+                            progressionHealth.SetValue(progressionHealth.GetValue() - randomHpLoss);
+                            progressionHealth.SetDisplayedValue(progressionHealth.GetDisplayedValue() - randomHpLoss);
+                            
+                            mScene->GetCamera().Shake(1.0f, 0.05f, [=](){ OnWindowResize(events::WindowResizeEvent()); });
+                        }
+                    }),
+                    StoryRandomEventButtonData("Go around  (100% -" + std::to_string(guaranteedHpLoss) + "*)", 3, [=]()
                     {
                         auto& progressionHealth = ProgressionDataRepository::GetInstance().StoryCurrentHealth();
-                        progressionHealth.SetValue(progressionHealth.GetValue() - randomHpLoss);
-                        progressionHealth.SetDisplayedValue(progressionHealth.GetDisplayedValue() - randomHpLoss);
+                        progressionHealth.SetValue(progressionHealth.GetValue() - guaranteedHpLoss);
+                        progressionHealth.SetDisplayedValue(progressionHealth.GetDisplayedValue() - guaranteedHpLoss);
                         
-                        mScene->GetCamera().Shake(1.0f, 0.05f, [=](){ OnWindowResize(events::WindowResizeEvent()); });
-                    }
+                        mScene->GetCamera().Shake(0.4f, 0.002f, [=](){ OnWindowResize(events::WindowResizeEvent()); });
+                    })
                 }),
-                StoryRandomEventButtonData("Go around  (100% -" + std::to_string(guaranteedHpLoss) + "*)", 3, [=]()
+                StoryRandomEventScreenData("events/lava_trap.png", {"", "You failed the jump, fell", "and got severely damaged.."},
                 {
-                    auto& progressionHealth = ProgressionDataRepository::GetInstance().StoryCurrentHealth();
-                    progressionHealth.SetValue(progressionHealth.GetValue() - guaranteedHpLoss);
-                    progressionHealth.SetDisplayedValue(progressionHealth.GetDisplayedValue() - guaranteedHpLoss);
-                    
-                    mScene->GetCamera().Shake(0.4f, 0.002f, [=](){ OnWindowResize(events::WindowResizeEvent()); });
-                })
-            }),
-            StoryRandomEventScreenData("events/lava_trap.png", {"", "You failed the jump, fell", "and got severely damaged.."},
-            {
-                StoryRandomEventButtonData("Ok", 4)
-            }),
-            StoryRandomEventScreenData("events/lava_trap.png", {"", "You successfully jumped", "over the clif without", "a scratch!"},
-            {
-                StoryRandomEventButtonData("Ok", 4)
-            }),
-            StoryRandomEventScreenData("events/lava_trap.png", {"", "You decided to back,", "stepping on the hot ground..."},
-            {
-                StoryRandomEventButtonData("Ok", 4)
-            }),
-        })
-    );
+                    StoryRandomEventButtonData("Ok", 4)
+                }),
+                StoryRandomEventScreenData("events/lava_trap.png", {"", "You successfully jumped", "over the clif without", "a scratch!"},
+                {
+                    StoryRandomEventButtonData("Ok", 4)
+                }),
+                StoryRandomEventScreenData("events/lava_trap.png", {"", "You decided to circle around,", "stepping on the hot ground..."},
+                {
+                    StoryRandomEventButtonData("Ok", 4)
+                }),
+            }, [](){ return true; })
+        );
+    }
     
-    mCurrentEventIndex = math::ControlledRandomInt(0, static_cast<int>(mRegisteredStoryEvents.size()) - 1);
+    ///------------------------------------------------------------------------------------------------
+    /// Mysterious Spring event
+    {
+        auto guaranteedHpGain = math::ControlledRandomInt(10, 15);
+        auto randomHpLoss = math::ControlledRandomInt(5, 10);
+        auto failedMaxDrink = math::ControlledRandomInt(1, 2) == 1;
+        
+        mRegisteredStoryEvents.emplace_back
+        (
+            StoryRandomEventData
+            ({
+                StoryRandomEventScreenData("events/mysterious_spring.png", {"You approach a moonlit forest glade.", "An animated emerald water spring", "catches you eye. It looks safe", "to drink, however many skulls", "are littered throughout the lake.", "How much water should you drink?"},
+                {
+                    StoryRandomEventButtonData("Drink LOADS (50% Full Refill* or 50% -" + std::to_string(randomHpLoss) + "*)", failedMaxDrink ? 1 : 2, [=]()
+                    {
+                        if (failedMaxDrink)
+                        {
+                            auto& progressionHealth = ProgressionDataRepository::GetInstance().StoryCurrentHealth();
+                            progressionHealth.SetValue(progressionHealth.GetValue() - randomHpLoss);
+                            progressionHealth.SetDisplayedValue(progressionHealth.GetDisplayedValue() - randomHpLoss);
+                            
+                            mScene->GetCamera().Shake(1.0f, 0.05f, [=](){ OnWindowResize(events::WindowResizeEvent()); });
+                        }
+                        else
+                        {
+                            events::EventSystem::GetInstance().DispatchEvent<events::HealthRefillRewardEvent>(ProgressionDataRepository::GetInstance().GetStoryMaxHealth() - ProgressionDataRepository::GetInstance().StoryCurrentHealth().GetValue(), mScene->FindSceneObject(EVENT_PORTRAIT_SCENE_OBJECT_NAME)->mPosition);
+                        }
+                    }),
+                    StoryRandomEventButtonData("Just a sip (100% +" + std::to_string(guaranteedHpGain) + "*)", 3, [=]()
+                    {
+                        auto& storyCurrentHealth = ProgressionDataRepository::GetInstance().StoryCurrentHealth();
+                        auto healthRestored = math::Min(ProgressionDataRepository::GetInstance().GetStoryMaxHealth(), storyCurrentHealth.GetValue() + guaranteedHpGain) - storyCurrentHealth.GetValue();
+                        events::EventSystem::GetInstance().DispatchEvent<events::HealthRefillRewardEvent>(healthRestored, mScene->FindSceneObject(EVENT_PORTRAIT_SCENE_OBJECT_NAME)->mPosition);
+                    })
+                }),
+                StoryRandomEventScreenData("events/mysterious_spring.png", {"", "You drank greedily, only to", "soon realize that the spring", "was poisoned!"},
+                {
+                    StoryRandomEventButtonData("Ok", 4)
+                }),
+                StoryRandomEventScreenData("events/mysterious_spring.png", {"", "You drank greedily as much", "as you could. A serene aura surrounded", "you and made you feel exceptionally", "     refreshed"},
+                {
+                    StoryRandomEventButtonData("Ok", 4)
+                }),
+                StoryRandomEventScreenData("events/mysterious_spring.png", {"", "You decided to a quick,", "safe sip and felt slightly refreshed."},
+                {
+                    StoryRandomEventButtonData("Ok", 4)
+                }),
+            }, [](){ return ProgressionDataRepository::GetInstance().StoryCurrentHealth().GetValue() < 0.9f * ProgressionDataRepository::GetInstance().GetStoryMaxHealth(); })
+        );
+    }
+    
+    auto eventIndexSelectionRandInt = math::ControlledRandomInt(0, static_cast<int>(mRegisteredStoryEvents.size()) - 1);
+    mCurrentEventIndex = ProgressionDataRepository::GetInstance().GetCurrentEventIndex();
+    if (mCurrentEventIndex == -1)
+    {
+        mCurrentEventIndex = eventIndexSelectionRandInt;
+        while (!mRegisteredStoryEvents[mCurrentEventIndex].mApplicabilityFunction())
+        {
+            mCurrentEventIndex = (mCurrentEventIndex + 1) % mRegisteredStoryEvents.size();
+        }
+        mCurrentEventIndex = 2;
+        ProgressionDataRepository::GetInstance().SetCurrentEventIndex(mCurrentEventIndex);
+    }
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -281,7 +347,6 @@ void EventSceneLogicManager::CreateEventScreen(const int screenIndex)
         return;
     }
     mCurrentEventScreenIndex = screenIndex;
-    ProgressionDataRepository::GetInstance().SetCurrentEventScreenIndex(mCurrentEventScreenIndex);
     
     mCurrentEventButtons.clear();
     
@@ -331,7 +396,7 @@ void EventSceneLogicManager::CreateEventScreen(const int screenIndex)
     {
         mCurrentEventButtons.emplace_back(std::make_unique<AnimatedButton>
         (
-            glm::vec3(0.0f, -0.07f - screenButtonIndex * 0.08f, EVENT_SCREEN_ITEM_Z),
+            glm::vec3(0.0f, -0.09f - screenButtonIndex * 0.06f, EVENT_SCREEN_ITEM_Z),
             BUTTON_SCALE,
             game_constants::DEFAULT_FONT_NAME,
             screenButton.mButtonText,
@@ -342,6 +407,8 @@ void EventSceneLogicManager::CreateEventScreen(const int screenIndex)
                 {
                     screenButton.mOnClickCallback();
                 }
+                ProgressionDataRepository::GetInstance().SetCurrentEventScreenIndex(screenButton.mNextScreenIndex);
+                ProgressionDataRepository::GetInstance().FlushStateToFile();
                 TransitionToEventScreen(screenButton.mNextScreenIndex);
             },
             *mScene,

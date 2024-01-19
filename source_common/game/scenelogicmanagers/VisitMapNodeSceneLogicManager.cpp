@@ -276,6 +276,7 @@ void VisitMapNodeSceneLogicManager::InitializeNodeVisitData()
     {
         case StoryMap::NodeType::EVENT:
         {
+            ProgressionDataRepository::GetInstance().SetCurrentEventIndex(-1);
             ProgressionDataRepository::GetInstance().SetCurrentEventScreenIndex(0);
             events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::EVENT_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
         } break;
