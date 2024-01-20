@@ -48,6 +48,10 @@
 #include <platform_specific/IOSUtils.h>
 #endif
 
+#if defined(MACOS) || defined(MOBILE_FLOW)
+#include <platform_utilities/AppleUtils.h>
+#endif
+
 ///------------------------------------------------------------------------------------------------
 
 static const strutils::StringId MAIN_MENU_SCENE = strutils::StringId("main_menu_scene");

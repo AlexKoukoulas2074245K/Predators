@@ -1,36 +1,32 @@
 ///------------------------------------------------------------------------------------------------
-///  IOSUtils.mm
+///  AppleUtils.h
 ///  Predators
 ///
 ///  Created by Alex Koukoulas on 16/11/2023.
 ///-----------------------------------------------------------------------------------------------
 
-#include <platform_specific/IOSUtils.h>
-#import <Foundation/Foundation.h>
-#import <UIKit/UIDevice.h>
+#ifndef AppleUtils_h
+#define AppleUtils_h
 
 ///-----------------------------------------------------------------------------------------------
 
-namespace ios_utils
+#include <stdarg.h>
+#include <stdio.h>  
+#include <string>
+
+///-----------------------------------------------------------------------------------------------
+
+namespace apple_utils
 {
 
 ///-----------------------------------------------------------------------------------------------
 
-bool IsIPad()
-{
-    NSString *deviceType = [UIDevice currentDevice].model;
-    if([deviceType isEqualToString:@"iPhone"]) {
-        return false;
-    }
-    else if([deviceType isEqualToString:@"iPod touch"]) {
-        return false;
-    }
-    
-    return true;
-}
+bool IsConnectedToTheInternet();
 
 ///-----------------------------------------------------------------------------------------------
 
 }
 
 ///-----------------------------------------------------------------------------------------------
+
+#endif /* AppleUtils_h */

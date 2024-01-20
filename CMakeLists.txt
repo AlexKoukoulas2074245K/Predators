@@ -34,9 +34,17 @@ else()
   set(PLATFORM_DIRECTORY source_desktop)
 endif()
 
+# Platform specific utililties directories + CMakeLists
+if(APPLE)
+  set(PLATFORM_UTILITIES_DIRECTORY source_apple_utilities)
+else()
+  set(PLATFORM_UTILITIES_DIRECTORY source_windows_utilities)
+endif()
+
 # Add common includes
 include_directories(source_common)
 include_directories(${PLATFORM_DIRECTORY})
+include_directories(${PLATFORM_UTILITIES_DIRECTORY})
 include_directories(${SDL2_INCLUDE_DIRS} ${SDL2main_INCLUDE_DIRS})
 include_directories(${GLM_INCLUDE_DIRS})
 include_directories(${SDL2_IMAGE_INCLUDE_DIRS})
@@ -55,6 +63,7 @@ endif()
 
 # Common directories + CMakeLists
 add_subdirectory(${PLATFORM_DIRECTORY})
+add_subdirectory(${PLATFORM_UTILITIES_DIRECTORY})
 add_subdirectory(source_common)
 add_subdirectory(lib/googletest)
 add_subdirectory(source_test)
@@ -63,11 +72,13 @@ add_subdirectory(source_test)
 if(WIN32)
   target_compile_options(${PROJECT_NAME} PRIVATE /W4)
   target_compile_options(${PROJECT_NAME}_platform PRIVATE /W4)
+  target_compile_options(${PROJECT_NAME}_platform_utilities PRIVATE /W4)
   target_compile_options(${PROJECT_NAME}_test PRIVATE /W4)
   set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
 else()
   target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -pedantic -Werror)
   target_compile_options(${PROJECT_NAME}_platform PRIVATE -Wall -Wextra -pedantic -Werror)
+  target_compile_options(${PROJECT_NAME}_platform_utilities PRIVATE -Wall -Wextra -pedantic -Werror)
   target_compile_options(${PROJECT_NAME}_test PRIVATE -Wall -Wextra -pedantic -Werror)
 endif()
 
@@ -75,6 +86,6 @@ endif()
 set_target_properties(gmock gmock_main gtest gtest_main Predators_lib PROPERTIES FOLDER HiddenTargets)
 
 # Put these targets in the 'ProjectTargets' folder in the IDE.
-set_target_properties(Predators Predators_platform Predators_test Predators_platform PROPERTIES FOLDER ProjectTargets)
+set_target_properties(Predators Predators_platform Predators_test Predators_platform_utilities PROPERTIES FOLDER ProjectTargets)
 
 

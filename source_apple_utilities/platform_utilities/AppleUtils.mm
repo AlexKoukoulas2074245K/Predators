@@ -1,32 +1,24 @@
 ///------------------------------------------------------------------------------------------------
-///  IOSUtils.mm
+///  AppleUtils.cpp
 ///  Predators
 ///
-///  Created by Alex Koukoulas on 16/11/2023.
+///  Created by Alex Koukoulas on 20/01/2024.
 ///-----------------------------------------------------------------------------------------------
 
-#include <platform_specific/IOSUtils.h>
+#include <platform_utilities/AppleUtils.h>
 #import <Foundation/Foundation.h>
-#import <UIKit/UIDevice.h>
+#import <platform_utilities/Reachability.h>
 
 ///-----------------------------------------------------------------------------------------------
 
-namespace ios_utils
+namespace apple_utils
 {
 
 ///-----------------------------------------------------------------------------------------------
 
-bool IsIPad()
+bool IsConnectedToTheInternet()
 {
-    NSString *deviceType = [UIDevice currentDevice].model;
-    if([deviceType isEqualToString:@"iPhone"]) {
-        return false;
-    }
-    else if([deviceType isEqualToString:@"iPod touch"]) {
-        return false;
-    }
-    
-    return true;
+    return !([[Reachability reachabilityForInternetConnection] currentReachabilityStatus] == NotReachable);
 }
 
 ///-----------------------------------------------------------------------------------------------

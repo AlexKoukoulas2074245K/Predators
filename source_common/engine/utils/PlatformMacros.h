@@ -18,6 +18,7 @@
         #define MOBILE_FLOW
     #else
         #define DESKTOP_FLOW
+        #define MACOS
     #endif
 #endif
 
