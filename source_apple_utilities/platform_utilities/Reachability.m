@@ -34,6 +34,13 @@
 #import <ifaddrs.h>
 #import <netdb.h>
 
+#include <TargetConditionals.h>
+#if TARGET_IPHONE_SIMULATOR || TARGET_OS_IPHONE
+    #define MOBILE_FLOW
+#else
+    #define DESKTOP_FLOW
+    #define MACOS
+#endif
 
 NSString *const kReachabilityChangedNotification = @"kReachabilityChangedNotification";
 
@@ -182,7 +189,7 @@ static void TMReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkRea
     self.reachabilityBlock       = nil;
     self.reachabilitySerialQueue = nil;
     
-#if !defined(TARGET_OS_IPHONE)
+#if !defined(MOBILE_FLOW)
     [super dealloc];
 #endif
 }
