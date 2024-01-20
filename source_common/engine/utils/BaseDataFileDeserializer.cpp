@@ -83,7 +83,7 @@ BaseDataFileDeserializer::BaseDataFileDeserializer(const std::string& fileNameWi
 #if defined(MACOS) || defined(MOBILE_FLOW)
     auto filePath = (dataFileType == DataFileType::PERSISTENCE_FILE_TYPE ? apple_utils::GetPersistentDataDirectoryPath() : resources::ResourceLoadingService::RES_DATA_ROOT) + fileNameWithoutExtension + dataFileExtension;
 #elif defined(WINDOWS)
-    auto filePath = (dataFileType == DataFileType::PERSISTENCE_FILE_TYPE ? persistence_utils::GetPersistentDataDirectoryPath() : resources::ResourceLoadingService::RES_DATA_ROOT) + fileNameWithoutExtension + dataFileExtension;
+    auto filePath = (dataFileType == DataFileType::PERSISTENCE_FILE_TYPE ? windows_utils::GetPersistentDataDirectoryPath() : resources::ResourceLoadingService::RES_DATA_ROOT) + fileNameWithoutExtension + dataFileExtension;
 #endif
     
     std::ifstream dataFile(filePath);
@@ -103,7 +103,12 @@ BaseDataFileDeserializer::BaseDataFileDeserializer(const std::string& fileNameWi
         {
             mState = nlohmann::json::parse(contents);
 #else
-    auto filePath = (dataFileType == DataFileType::PERSISTENCE_FILE_TYPE ? persistence_utils::GetPersistentDataDirectoryPath() : resources::ResourceLoadingService::RES_DATA_ROOT) + fileNameWithoutExtension + dataFileExtension;
+#if defined(MACOS) || defined(MOBILE_FLOW)
+    auto filePath = (dataFileType == DataFileType::PERSISTENCE_FILE_TYPE ? apple_utils::GetPersistentDataDirectoryPath() : resources::ResourceLoadingService::RES_DATA_ROOT) + fileNameWithoutExtension + dataFileExtension;
+#elif defined(WINDOWS)
+    auto filePath = (dataFileType == DataFileType::PERSISTENCE_FILE_TYPE ? windows_utils::GetPersistentDataDirectoryPath() : resources::ResourceLoadingService::RES_DATA_ROOT) + fileNameWithoutExtension + dataFileExtension;
+#endif
+
     logging::Log(logging::LogType::INFO, "Loading binary: %s", filePath.c_str());
     std::ifstream dataFile(filePath, std::ios::binary);
     if (dataFile.is_open())
