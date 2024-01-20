@@ -17,6 +17,7 @@
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
 #include <engine/utils/Logging.h>
+#include <engine/utils/FileUtils.h>
 #include <engine/utils/MathUtils.h>
 #include <engine/utils/OSMessageBox.h>
 #include <engine/utils/PlatformMacros.h>
@@ -43,7 +44,6 @@
 #include <game/scenelogicmanagers/StoryMapSceneLogicManager.h>
 #include <game/scenelogicmanagers/VisitMapNodeSceneLogicManager.h>
 #include <game/scenelogicmanagers/WheelOfFortuneSceneLogicManager.h>
-#include <engine/utils/PersistenceUtils.h>
 #if defined(MOBILE_FLOW)
 #include <platform_specific/IOSUtils.h>
 #endif
@@ -67,7 +67,7 @@ Game::Game(const int argc, char** argv)
     {
         logging::Log(logging::LogType::INFO, "Initializing from CWD : %s", argv[0]);
     }
-    
+    apple_utils::SetAssetFolder();
     CoreSystemsEngine::GetInstance().Start([&](){ Init(); }, [&](const float dtMillis){ Update(dtMillis); }, [&](){ ApplicationMovedToBackground(); }, [&](){ WindowResize(); }, [&](){ CreateDebugWidgets(); }, [&](){ OnOneSecondElapsed(); });
 }
 
@@ -125,7 +125,7 @@ void Game::Init()
     game_constants::GAME_BOARD_BASED_SCENE_ZOOM_FACTOR = 120.0f;
 #endif
     
-    mGameSceneTransitionManager->ChangeToScene(MAIN_MENU_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+    mGameSceneTransitionManager->ChangeToScene(MAIN_MENU_SCENE, SceneChangeType::CONCRETE_SCENE_SYNC_LOADING, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
 }
 
 ///------------------------------------------------------------------------------------------------

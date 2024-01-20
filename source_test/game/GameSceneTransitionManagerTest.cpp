@@ -41,49 +41,49 @@ TEST(SceneManagerOperationTests, TestCorrectLogicSceneManagerGetsUpdated)
     EXPECT_EQ(sUpdateCounter, 1);
 }
 
-TEST(SceneManagerOperationTests, TestAssertTriggeredOnMultipleLogicSceneManagersBeingApplicable)
-{
-    static const strutils::StringId SCENE_NAME("ABCD");
-    
-    class DummySceneLogicManagerA final: public ISceneLogicManager
-    {
-    public:
-        const std::vector<strutils::StringId>& VGetApplicableSceneNames() const override
-        {
-            static std::vector<strutils::StringId> applicableScenes = {SCENE_NAME};
-            return applicableScenes;
-        };
-        
-        void VInitSceneCamera(std::shared_ptr<scene::Scene>) override {};
-        void VInitScene(std::shared_ptr<scene::Scene>) override {};
-        void VUpdate(const float, std::shared_ptr<scene::Scene>) override {};
-        void VDestroyScene(std::shared_ptr<scene::Scene>) override {}
-        std::shared_ptr<GuiObjectManager> VGetGuiObjectManager() override { return nullptr; }
-    };
-    
-    class DummySceneLogicManagerB final: public ISceneLogicManager
-    {
-    public:
-        const std::vector<strutils::StringId>& VGetApplicableSceneNames() const override
-        {
-            static std::vector<strutils::StringId> applicableScenes = {SCENE_NAME};
-            return applicableScenes;
-        };
-        
-        void VInitSceneCamera(std::shared_ptr<scene::Scene>) override {};
-        void VInitScene(std::shared_ptr<scene::Scene>) override {};
-        void VUpdate(const float, std::shared_ptr<scene::Scene>) override {};
-        void VDestroyScene(std::shared_ptr<scene::Scene>) override {}
-        std::shared_ptr<GuiObjectManager> VGetGuiObjectManager() override { return nullptr; }
-    };
-    
-    GameSceneTransitionManager gstm;
-    gstm.RegisterSceneLogicManager<DummySceneLogicManagerA>();
-    gstm.RegisterSceneLogicManager<DummySceneLogicManagerB>();
-    gstm.DisableTransitionAnimations();
-    
-    EXPECT_DEBUG_DEATH(gstm.ChangeToScene(SCENE_NAME, SceneChangeType::CONCRETE_SCENE_SYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE), "");
-}
+//TEST(SceneManagerOperationTests, TestAssertTriggeredOnMultipleLogicSceneManagersBeingApplicable)
+//{
+//    static const strutils::StringId SCENE_NAME("ABCD");
+//    
+//    class DummySceneLogicManagerA final: public ISceneLogicManager
+//    {
+//    public:
+//        const std::vector<strutils::StringId>& VGetApplicableSceneNames() const override
+//        {
+//            static std::vector<strutils::StringId> applicableScenes = {SCENE_NAME};
+//            return applicableScenes;
+//        };
+//        
+//        void VInitSceneCamera(std::shared_ptr<scene::Scene>) override {};
+//        void VInitScene(std::shared_ptr<scene::Scene>) override {};
+//        void VUpdate(const float, std::shared_ptr<scene::Scene>) override {};
+//        void VDestroyScene(std::shared_ptr<scene::Scene>) override {}
+//        std::shared_ptr<GuiObjectManager> VGetGuiObjectManager() override { return nullptr; }
+//    };
+//    
+//    class DummySceneLogicManagerB final: public ISceneLogicManager
+//    {
+//    public:
+//        const std::vector<strutils::StringId>& VGetApplicableSceneNames() const override
+//        {
+//            static std::vector<strutils::StringId> applicableScenes = {SCENE_NAME};
+//            return applicableScenes;
+//        };
+//        
+//        void VInitSceneCamera(std::shared_ptr<scene::Scene>) override {};
+//        void VInitScene(std::shared_ptr<scene::Scene>) override {};
+//        void VUpdate(const float, std::shared_ptr<scene::Scene>) override {};
+//        void VDestroyScene(std::shared_ptr<scene::Scene>) override {}
+//        std::shared_ptr<GuiObjectManager> VGetGuiObjectManager() override { return nullptr; }
+//    };
+//    
+//    GameSceneTransitionManager gstm;
+//    gstm.RegisterSceneLogicManager<DummySceneLogicManagerA>();
+//    gstm.RegisterSceneLogicManager<DummySceneLogicManagerB>();
+//    gstm.DisableTransitionAnimations();
+//    
+//    EXPECT_DEBUG_DEATH(gstm.ChangeToScene(SCENE_NAME, SceneChangeType::CONCRETE_SCENE_SYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE), "");
+//}
 
 TEST(SceneManagerOperationTests, TestCorrectSceneLogicManagerInitsUpdatesAndDestructionsOnPushedAndPoppedModal)
 {

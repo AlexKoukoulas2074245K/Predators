@@ -20,7 +20,6 @@
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/PlayerActionGenerationEngine.h>
 #include <game/scenelogicmanagers/BattleSceneLogicManager.h>
-#include <engine/utils/PersistenceUtils.h>
 #include <engine/CoreSystemsEngine.h>
 #include <engine/input/IInputStateManager.h>
 #include <engine/rendering/AnimationManager.h>

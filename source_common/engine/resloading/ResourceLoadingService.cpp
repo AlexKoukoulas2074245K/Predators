@@ -34,29 +34,29 @@ namespace resources
 ///------------------------------------------------------------------------------------------------
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
-    const std::string ResourceLoadingService::RES_ROOT = "../../assets/";
+    std::string ResourceLoadingService::RES_ROOT = "../../assets/";
 #elif __APPLE__
     #include <TargetConditionals.h>
     #if TARGET_IPHONE_SIMULATOR
-        const std::string ResourceLoadingService::RES_ROOT = "assets/";
+        std::string ResourceLoadingService::RES_ROOT = "assets/";
     #elif TARGET_OS_IPHONE
-        const std::string ResourceLoadingService::RES_ROOT = "assets/";
+        std::string ResourceLoadingService::RES_ROOT = "assets/";
     #else
-        const std::string ResourceLoadingService::RES_ROOT = "../../../assets/";
+        std::string ResourceLoadingService::RES_ROOT = "";
     #endif
 #else
-    const std::string ResourceLoadingService::RES_ROOT = "../../../assets/";
+    std::string ResourceLoadingService::RES_ROOT = "";
 #endif
 
-const std::string ResourceLoadingService::RES_DATA_ROOT          = RES_ROOT + "data/";
-const std::string ResourceLoadingService::RES_SCRIPTS_ROOT       = RES_ROOT + "scripts/";
-const std::string ResourceLoadingService::RES_MESHES_ROOT        = RES_ROOT + "meshes/";
-const std::string ResourceLoadingService::RES_MUSIC_ROOT         = RES_ROOT + "music/";
-const std::string ResourceLoadingService::RES_SOUNDS_ROOT        = RES_ROOT + "sounds/";
-const std::string ResourceLoadingService::RES_SHADERS_ROOT       = RES_ROOT + "shaders/";
-const std::string ResourceLoadingService::RES_TEXTURES_ROOT      = RES_ROOT + "textures/";
-const std::string ResourceLoadingService::RES_ATLASES_ROOT       = RES_TEXTURES_ROOT + "atlases/";
-const std::string ResourceLoadingService::RES_FONT_MAP_DATA_ROOT = RES_DATA_ROOT + "font_maps/";
+std::string ResourceLoadingService::RES_DATA_ROOT          = RES_ROOT + "data/";
+std::string ResourceLoadingService::RES_SCRIPTS_ROOT       = RES_ROOT + "scripts/";
+std::string ResourceLoadingService::RES_MESHES_ROOT        = RES_ROOT + "meshes/";
+std::string ResourceLoadingService::RES_MUSIC_ROOT         = RES_ROOT + "music/";
+std::string ResourceLoadingService::RES_SOUNDS_ROOT        = RES_ROOT + "sounds/";
+std::string ResourceLoadingService::RES_SHADERS_ROOT       = RES_ROOT + "shaders/";
+std::string ResourceLoadingService::RES_TEXTURES_ROOT      = RES_ROOT + "textures/";
+std::string ResourceLoadingService::RES_ATLASES_ROOT       = RES_TEXTURES_ROOT + "atlases/";
+std::string ResourceLoadingService::RES_FONT_MAP_DATA_ROOT = RES_DATA_ROOT + "font_maps/";
 
 static const std::string ZIPPED_ASSETS_FILE_NAME = "assets.zip";
 
@@ -146,6 +146,16 @@ ResourceLoadingService::~ResourceLoadingService()
 void ResourceLoadingService::Initialize()
 {
     using namespace strutils;
+    
+    RES_DATA_ROOT          = RES_ROOT + "data/";
+    RES_SCRIPTS_ROOT       = RES_ROOT + "scripts/";
+    RES_MESHES_ROOT        = RES_ROOT + "meshes/";
+    RES_MUSIC_ROOT         = RES_ROOT + "music/";
+    RES_SOUNDS_ROOT        = RES_ROOT + "sounds/";
+    RES_SHADERS_ROOT       = RES_ROOT + "shaders/";
+    RES_TEXTURES_ROOT      = RES_ROOT + "textures/";
+    RES_ATLASES_ROOT       = RES_TEXTURES_ROOT + "atlases/";
+    RES_FONT_MAP_DATA_ROOT = RES_DATA_ROOT + "font_maps/";
     
 #ifdef UNZIP_FLOW
     objectiveC_utils::UnzipAssets((RES_ROOT + ZIPPED_ASSETS_FILE_NAME).c_str(), RES_ROOT.c_str());

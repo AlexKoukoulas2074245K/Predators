@@ -188,10 +188,6 @@ static void TMReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkRea
     self.unreachableBlock        = nil;
     self.reachabilityBlock       = nil;
     self.reachabilitySerialQueue = nil;
-    
-#if !defined(MOBILE_FLOW)
-    [super dealloc];
-#endif
 }
 
 #pragma mark - Notifier Methods

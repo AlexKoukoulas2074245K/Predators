@@ -8,8 +8,13 @@
 #include <engine/resloading/ResourceLoadingService.h>
 #include <engine/utils/BaseDataFileSerializer.h>
 #include <engine/utils/Logging.h>
-#include <engine/utils/PersistenceUtils.h>
+#include <engine/utils/PlatformMacros.h>
 #include <engine/utils/StringUtils.h>
+#if defined(MACOS) || defined(MOBILE_FLOW)
+#include <platform_utilities/AppleUtils.h>
+#elif defined(WINDOWS)
+#include <platform_utilities/WindowsUtils.h>
+#endif
 #include <filesystem>
 
 ///------------------------------------------------------------------------------------------------
@@ -78,17 +83,23 @@ void BaseDataFileSerializer::OpenDataFile()
     {
         if (mDataFileType == DataFileType::PERSISTENCE_FILE_TYPE)
         {
+    #if defined(MACOS) || defined(MOBILE_FLOW)
+            auto directoryPath = apple_utils::GetPersistentDataDirectoryPath();
+    #elif defined(WINDOWS)
+            auto directoryPath = windows_utils::GetPersistentDataDirectoryPath();
+    #endif
+            
     #if defined(DESKTOP_FLOW)
-            std::filesystem::create_directory(persistence_utils::GetPersistentDataDirectoryPath());
+            std::filesystem::create_directory(directoryPath);
     #endif
             
             if (mWriteBinary)
             {
-                mFile.open(persistence_utils::GetPersistentDataDirectoryPath() + mFilename, std::ios::binary);
+                mFile.open(directoryPath + mFilename, std::ios::binary);
             }
             else
             {
-                mFile.open(persistence_utils::GetPersistentDataDirectoryPath() + mFilename);
+                mFile.open(directoryPath + mFilename);
             }
         }
         else if (mDataFileType == DataFileType::ASSET_FILE_TYPE)

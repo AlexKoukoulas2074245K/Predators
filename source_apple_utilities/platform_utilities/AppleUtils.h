@@ -22,6 +22,8 @@ namespace apple_utils
 ///-----------------------------------------------------------------------------------------------
 
 bool IsConnectedToTheInternet();
+std::string GetPersistentDataDirectoryPath();
+void SetAssetFolder();
 
 ///-----------------------------------------------------------------------------------------------
 

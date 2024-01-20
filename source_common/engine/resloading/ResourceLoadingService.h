@@ -53,16 +53,16 @@ class ResourceLoadingService final
 {
     friend struct CoreSystemsEngine::SystemsImpl;
 public:
-    static const std::string RES_ROOT;    
-    static const std::string RES_DATA_ROOT;
-    static const std::string RES_SCRIPTS_ROOT;   
-    static const std::string RES_MESHES_ROOT;
-    static const std::string RES_MUSIC_ROOT;
-    static const std::string RES_SOUNDS_ROOT;
-    static const std::string RES_SHADERS_ROOT;
-    static const std::string RES_TEXTURES_ROOT;     
-    static const std::string RES_ATLASES_ROOT;
-    static const std::string RES_FONT_MAP_DATA_ROOT;
+    static std::string RES_ROOT;    
+    static std::string RES_DATA_ROOT;
+    static std::string RES_SCRIPTS_ROOT;   
+    static std::string RES_MESHES_ROOT;
+    static std::string RES_MUSIC_ROOT;
+    static std::string RES_SOUNDS_ROOT;
+    static std::string RES_SHADERS_ROOT;
+    static std::string RES_TEXTURES_ROOT;     
+    static std::string RES_ATLASES_ROOT;
+    static std::string RES_FONT_MAP_DATA_ROOT;
     
     ~ResourceLoadingService();
     ResourceLoadingService(const ResourceLoadingService&) = delete;

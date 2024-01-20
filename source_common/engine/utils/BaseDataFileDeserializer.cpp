@@ -8,9 +8,14 @@
 #include <engine/resloading/ResourceLoadingService.h>
 #include <engine/utils/BaseDataFileDeserializer.h>
 #include <engine/utils/OSMessageBox.h>
-#include <engine/utils/PersistenceUtils.h>
 #include <engine/utils/Logging.h>
+#include <engine/utils/PlatformMacros.h>
 #include <engine/utils/StringUtils.h>
+#if defined(MACOS) || defined(MOBILE_FLOW)
+#include <platform_utilities/AppleUtils.h>
+#elif defined(WINDOWS)
+#include <platform_utilities/WindowsUtils.h>
+#endif
 #include <fstream>
 #include <nlohmann/json.hpp>
 #include <vector>
@@ -75,7 +80,12 @@ BaseDataFileDeserializer::BaseDataFileDeserializer(const std::string& fileNameWi
 #endif
     
 #if !defined(NDEBUG)
+#if defined(MACOS) || defined(MOBILE_FLOW)
+    auto filePath = (dataFileType == DataFileType::PERSISTENCE_FILE_TYPE ? apple_utils::GetPersistentDataDirectoryPath() : resources::ResourceLoadingService::RES_DATA_ROOT) + fileNameWithoutExtension + dataFileExtension;
+#elif defined(WINDOWS)
     auto filePath = (dataFileType == DataFileType::PERSISTENCE_FILE_TYPE ? persistence_utils::GetPersistentDataDirectoryPath() : resources::ResourceLoadingService::RES_DATA_ROOT) + fileNameWithoutExtension + dataFileExtension;
+#endif
+    
     std::ifstream dataFile(filePath);
     if (dataFile.is_open())
     {
