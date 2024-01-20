@@ -5,11 +5,12 @@
 ///  Created by Alex Koukoulas on 19/09/2023
 ///------------------------------------------------------------------------------------------------
 
-//#define TESTING
+#define TESTING
 
 ///------------------------------------------------------------------------------------------------
 
 #if defined(TESTING)
+#include <platform_utilities/AppleUtils.h>
 #include <gtest/gtest.h>
 
 ///------------------------------------------------------------------------------------------------
@@ -20,6 +21,7 @@ extern int BATTLE_SIMULATION_ITERATIONS;
 
 int main(int argc, char** argv) {
     BATTLE_SIMULATION_ITERATIONS = 1000;
+    apple_utils::SetAssetFolder();
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }
