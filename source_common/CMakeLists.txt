@@ -25,7 +25,12 @@ if(NOT APPLE)
   set(OPENGL_LIBRARIES opengl32.lib)
 endif()
 
-target_link_libraries(${PROJECT_NAME} ${PROJECT_NAME}_platform ${PROJECT_NAME}_platform_utilities ${SDL2_LIBS} ${SDL2_IMAGE_LIBRARIES} ${OPENGL_LIBRARIES} ${FREETYPE_LIBRARIES})
+if(NOT APPLE)
+  set(WININET_LIBRARIES Wininet.lib)
+  set(WININET_DLLS Wininet.dll)
+endif()
+
+target_link_libraries(${PROJECT_NAME} ${PROJECT_NAME}_platform ${PROJECT_NAME}_platform_utilities ${SDL2_LIBS} ${SDL2_IMAGE_LIBRARIES} ${OPENGL_LIBRARIES} ${WININET_LIBRARIES} ${FREETYPE_LIBRARIES})
 
 assign_source_group(${SOURCES})
 

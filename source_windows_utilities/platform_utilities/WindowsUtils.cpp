@@ -1,33 +1,26 @@
 ///------------------------------------------------------------------------------------------------
-///  IOSUtils.h
+///  WindowsUtils.cpp
 ///  Predators
 ///
-///  Created by Alex Koukoulas on 16/11/2023.
+///  Created by Alex Koukoulas on 20/01/2024.
 ///-----------------------------------------------------------------------------------------------
 
-#ifndef IOSUtils_h
-#define IOSUtils_h
-
-///-----------------------------------------------------------------------------------------------
-
-#include <stdarg.h>
-#include <stdio.h>  
-#include <string>
+#include <platform_utilities/WindowsUtils.h>
+#include <Windows.h>
+#include <wininet.h>
 
 ///-----------------------------------------------------------------------------------------------
 
-namespace ios_utils
+namespace windows_utils
 {
 
 ///-----------------------------------------------------------------------------------------------
 
-bool IsIPad();
-bool IsConnectedToTheInternet();
-
-///-----------------------------------------------------------------------------------------------
-
+bool IsConnectedToTheInternet()
+{
+    return InternetCheckConnection("http://www.google.com", FLAG_ICC_FORCE_CONNECTION, 0);
 }
 
 ///-----------------------------------------------------------------------------------------------
 
-#endif /* IOSUtils_h */
+}

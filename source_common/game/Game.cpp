@@ -50,7 +50,10 @@
 
 #if defined(MACOS) || defined(MOBILE_FLOW)
 #include <platform_utilities/AppleUtils.h>
+#elif defined(WINDOWS)
+#include <platform_utilities/WindowsUtils.h>
 #endif
+
 
 ///------------------------------------------------------------------------------------------------
 
