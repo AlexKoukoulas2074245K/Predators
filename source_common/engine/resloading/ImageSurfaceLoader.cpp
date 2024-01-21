@@ -75,7 +75,7 @@ std::shared_ptr<IResource> ImageSurfaceLoader::VCreateAndLoadResource(const std:
         return nullptr;
     }
     
-#if !defined(DESKTOP_FLOW)
+#if defined(MACOS) || defined(MOBILE_FLOW)
     // OpenGL ES 3.0 format shenanigans
     SDL_LockSurface(sdlSurface);
     for (int y = 0; y < sdlSurface->h; ++y)

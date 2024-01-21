@@ -46,6 +46,21 @@ private:
 
 ///------------------------------------------------------------------------------------------------
 
+TEST(EventSystemTests, TestUnregistrationFromEventFollowedByReRegistrationTriggersCallbackForSubsequentDispatches)
+{
+    TestEventListener listener;
+    events::EventSystem::GetInstance().RegisterForEvent<TestEvent>(&listener, &TestEventListener::OnTestEvent);
+    events::EventSystem::GetInstance().DispatchEvent<TestEvent>(1);
+    EXPECT_EQ(listener.GetVal(), 1);
+    
+    events::EventSystem::GetInstance().UnregisterForEvent<TestEvent>(&listener);
+    events::EventSystem::GetInstance().RegisterForEvent<TestEvent>(&listener, &TestEventListener::OnTestEvent);
+    events::EventSystem::GetInstance().DispatchEvent<TestEvent>(3);
+    EXPECT_EQ(listener.GetVal(), 3);
+}
+
+///------------------------------------------------------------------------------------------------
+
 TEST(EventSystemTests, TestMultipleEventDispatchesTriggerCallback)
 {
     TestEventListener listener;
@@ -69,21 +84,6 @@ TEST(EventSystemTests, TestUnregistrationFromEventDoesNotTriggerCallbackForSubse
     events::EventSystem::GetInstance().UnregisterForEvent<TestEvent>(&listener);
     events::EventSystem::GetInstance().DispatchEvent<TestEvent>(2);
     EXPECT_EQ(listener.GetVal(), 1);
-}
-
-///------------------------------------------------------------------------------------------------
-
-TEST(EventSystemTests, TestUnregistrationFromEventFollowedByReRegistrationTriggersCallbackForSubsequentDispatches)
-{
-    TestEventListener listener;
-    events::EventSystem::GetInstance().RegisterForEvent<TestEvent>(&listener, &TestEventListener::OnTestEvent);
-    events::EventSystem::GetInstance().DispatchEvent<TestEvent>(1);
-    EXPECT_EQ(listener.GetVal(), 1);
-    
-    events::EventSystem::GetInstance().UnregisterForEvent<TestEvent>(&listener);
-    events::EventSystem::GetInstance().RegisterForEvent<TestEvent>(&listener, &TestEventListener::OnTestEvent);
-    events::EventSystem::GetInstance().DispatchEvent<TestEvent>(3);
-    EXPECT_EQ(listener.GetVal(), 3);
 }
 
 ///------------------------------------------------------------------------------------------------

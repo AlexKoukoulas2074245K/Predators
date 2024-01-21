@@ -137,6 +137,10 @@
 		928B0D3C2B5C557D0025DF3F /* StringUtilsTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 928B0D322B5C557D0025DF3F /* StringUtilsTest.cpp */; };
 		928B0D3D2B5C557D0025DF3F /* SceneTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 928B0D342B5C557D0025DF3F /* SceneTest.cpp */; };
 		928B0D3E2B5C557D0025DF3F /* SceneManagerTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 928B0D352B5C557D0025DF3F /* SceneManagerTest.cpp */; };
+		928B0D4C2B5D7B7E0025DF3F /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 928B0D4A2B5D7B7D0025DF3F /* SDL2.framework */; };
+		928B0D4D2B5D7B7E0025DF3F /* SDL2.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 928B0D4A2B5D7B7D0025DF3F /* SDL2.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		928B0D4E2B5D7B7E0025DF3F /* SDL2_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 928B0D4B2B5D7B7E0025DF3F /* SDL2_image.framework */; };
+		928B0D4F2B5D7B7E0025DF3F /* SDL2_image.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 928B0D4B2B5D7B7E0025DF3F /* SDL2_image.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		95BF1C18A001B37A45C9BF9E /* IRenderer.h in Sources */ = {isa = PBXBuildFile; fileRef = E0599E67CDFA7350C55C73A5 /* IRenderer.h */; };
 		9F60F6BEA7D20AB4B5EFA323 /* ResourceLoadingService.h in Sources */ = {isa = PBXBuildFile; fileRef = 7C92E4EC0FBCD6AFCA53FD77 /* ResourceLoadingService.h */; };
 		A190FCD102A510B7AF224622 /* AnimationManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E9824F6D620FAB012DF0BC78 /* AnimationManager.cpp */; };
@@ -169,6 +173,21 @@
 		FC7CB5DD2DD48F46BC3CAF9D /* MathUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 393520815AD90C67A6A6989C /* MathUtils.cpp */; };
 		FF10C06D59F9228C0A2C9E43 /* ShaderLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 255CBE3395586957104E385D /* ShaderLoader.cpp */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		928B0D502B5D7B7E0025DF3F /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				928B0D4D2B5D7B7E0025DF3F /* SDL2.framework in Embed Frameworks */,
+				928B0D4F2B5D7B7E0025DF3F /* SDL2_image.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		0106479588E4C78D4F938113 /* DataFileLoader.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = DataFileLoader.cpp; sourceTree = "<group>"; };
@@ -386,6 +405,8 @@
 		928B0D322B5C557D0025DF3F /* StringUtilsTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StringUtilsTest.cpp; sourceTree = "<group>"; };
 		928B0D342B5C557D0025DF3F /* SceneTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SceneTest.cpp; sourceTree = "<group>"; };
 		928B0D352B5C557D0025DF3F /* SceneManagerTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SceneManagerTest.cpp; sourceTree = "<group>"; };
+		928B0D4A2B5D7B7D0025DF3F /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = ../../../../../Library/Developer/SDL2.framework; sourceTree = "<group>"; };
+		928B0D4B2B5D7B7E0025DF3F /* SDL2_image.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_image.framework; path = ../../../../../Library/Developer/SDL2_image.framework; sourceTree = "<group>"; };
 		93D83DB41AD868D09B2A3C94 /* TextureResource.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = TextureResource.cpp; sourceTree = "<group>"; };
 		988043F06556266668BE5677 /* TypeTraits.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = TypeTraits.cpp; sourceTree = "<group>"; };
 		989BFF482B72A00F213431FE /* TextureResource.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = TextureResource.h; sourceTree = "<group>"; };
@@ -422,7 +443,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				928B0D4E2B5D7B7E0025DF3F /* SDL2_image.framework in Frameworks */,
 				928B0D1F2B5C3E120025DF3F /* OpenGL.framework in Frameworks */,
+				928B0D4C2B5D7B7E0025DF3F /* SDL2.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -858,6 +881,8 @@
 		928B0D1D2B5C3E120025DF3F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				928B0D4B2B5D7B7E0025DF3F /* SDL2_image.framework */,
+				928B0D4A2B5D7B7D0025DF3F /* SDL2.framework */,
 				928B0D1E2B5C3E120025DF3F /* OpenGL.framework */,
 			);
 			name = Frameworks;
@@ -989,6 +1014,7 @@
 				928B07D02B5C385D0025DF3F /* Sources */,
 				928B07D12B5C385D0025DF3F /* Frameworks */,
 				928B07D22B5C385D0025DF3F /* Resources */,
+				928B0D502B5D7B7E0025DF3F /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -1332,6 +1358,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = XS89APN396;
 				ENABLE_HARDENED_RUNTIME = YES;
+				FRAMEWORK_SEARCH_PATHS = /Library/Developer/;
 				GENERATE_INFOPLIST_FILE = YES;
 				HEADER_SEARCH_PATHS = (
 					"/Users/Code/Predators/source_common/**",
@@ -1353,9 +1380,9 @@
 				MARKETING_VERSION = 1.0;
 				OTHER_LDFLAGS = (
 					/opt/homebrew/lib/libfreetype.dylib,
-					/opt/homebrew/lib/libSDL2_image.dylib,
 					/opt/homebrew/lib/libgtest.a,
-					/opt/homebrew/lib/libSDL2.dylib,
+					/usr/local/lib/libgtest.a,
+					/usr/local/lib/libfreetype.dylib,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.alexkoukoulas2074245k.Predators;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1374,6 +1401,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = XS89APN396;
 				ENABLE_HARDENED_RUNTIME = YES;
+				FRAMEWORK_SEARCH_PATHS = /Library/Developer/;
 				GENERATE_INFOPLIST_FILE = YES;
 				HEADER_SEARCH_PATHS = (
 					"/Users/Code/Predators/source_common/**",
@@ -1395,9 +1423,9 @@
 				MARKETING_VERSION = 1.0;
 				OTHER_LDFLAGS = (
 					/opt/homebrew/lib/libfreetype.dylib,
-					/opt/homebrew/lib/libSDL2_image.dylib,
 					/opt/homebrew/lib/libgtest.a,
-					/opt/homebrew/lib/libSDL2.dylib,
+					/usr/local/lib/libgtest.a,
+					/usr/local/lib/libfreetype.dylib,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.alexkoukoulas2074245k.Predators;
 				PRODUCT_NAME = "$(TARGET_NAME)";
