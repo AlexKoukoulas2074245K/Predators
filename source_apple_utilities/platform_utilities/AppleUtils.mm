@@ -11,6 +11,10 @@
 #include <engine/resloading/ResourceLoadingService.h>
 #include <engine/utils/PlatformMacros.h>
 
+#if __has_include(<UIKit/UIKit.h>)
+#import <UIKit/UIKit.h>
+#endif
+
 ///-----------------------------------------------------------------------------------------------
 
 namespace apple_utils
@@ -28,12 +32,25 @@ bool IsConnectedToTheInternet()
 std::string GetPersistentDataDirectoryPath()
 {
 #if defined(MACOS)
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString *path = [paths objectAtIndex:0];
+    NSArray* paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString* path = [paths objectAtIndex:0];
     return std::string([path UTF8String]) + "/";
 #else
     return std::string(getenv("HOME")) + "/Documents/";
 #endif
+}
+
+///-----------------------------------------------------------------------------------------------
+
+std::string GetDeviceId()
+{
+#if defined(MACOS)
+    NSString* deviceId = [[NSHost currentHost] localizedName];
+#else
+    NSString *deviceId = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
+#endif
+    
+    return std::string([deviceId UTF8String]);
 }
 
 ///-----------------------------------------------------------------------------------------------

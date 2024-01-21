@@ -134,6 +134,9 @@ void Game::Init()
 
 void Game::Update(const float dtMillis)
 {
+//#if defined(MACOS) || defined(MOBILE_FLOW)
+//    logging::Log(logging::LogType::INFO, "Device ID %s", apple_utils::GetDeviceId().c_str());
+//#endif
 //    auto& systemsEngine = CoreSystemsEngine::GetInstance();
 //    auto scene = systemsEngine.GetSceneManager().FindScene(game_constants::MAIN_MENU_SCENE);
 //

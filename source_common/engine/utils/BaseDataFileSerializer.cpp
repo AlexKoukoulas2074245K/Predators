@@ -48,6 +48,11 @@ void BaseDataFileSerializer::FlushStateToFile()
 {
     OpenDataFile();
     
+#if defined(MACOS) || defined(MOBILE_FLOW)
+    mState["device_id"] = apple_utils::GetDeviceId();
+#elif defined(WINDOWS)
+#endif
+    
     if (mFile.is_open())
     {
         auto checksumString = "&" + std::to_string(strutils::StringId(mState.dump(4)).GetStringId());

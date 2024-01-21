@@ -23,6 +23,7 @@ namespace apple_utils
 
 bool IsConnectedToTheInternet();
 std::string GetPersistentDataDirectoryPath();
+std::string GetDeviceId();
 void SetAssetFolder();
 
 ///-----------------------------------------------------------------------------------------------
