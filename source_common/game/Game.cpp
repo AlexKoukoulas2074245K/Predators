@@ -44,12 +44,14 @@
 #include <game/scenelogicmanagers/StoryMapSceneLogicManager.h>
 #include <game/scenelogicmanagers/VisitMapNodeSceneLogicManager.h>
 #include <game/scenelogicmanagers/WheelOfFortuneSceneLogicManager.h>
+
 #if defined(MOBILE_FLOW)
 #include <platform_specific/IOSUtils.h>
 #endif
 
 #if defined(MACOS) || defined(MOBILE_FLOW)
 #include <platform_utilities/AppleUtils.h>
+#include <platform_utilities/CloudKitUtils.h>
 #elif defined(WINDOWS)
 #include <platform_utilities/WindowsUtils.h>
 #endif
@@ -68,6 +70,7 @@ Game::Game(const int argc, char** argv)
         logging::Log(logging::LogType::INFO, "Initializing from CWD : %s", argv[0]);
     }
 #if defined(MACOS) || defined(MOBILE_FLOW)
+    cloudkit_utils::QueryPlayerProgress();
     apple_utils::SetAssetFolder();
 #endif
     CoreSystemsEngine::GetInstance().Start([&](){ Init(); }, [&](const float dtMillis){ Update(dtMillis); }, [&](){ ApplicationMovedToBackground(); }, [&](){ WindowResize(); }, [&](){ CreateDebugWidgets(); }, [&](){ OnOneSecondElapsed(); });

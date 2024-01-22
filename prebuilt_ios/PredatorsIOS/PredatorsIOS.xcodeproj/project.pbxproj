@@ -31,6 +31,7 @@
 		319240EBD6239D85BBC296D4 /* HeroCardEntryGameAction.h in Sources */ = {isa = PBXBuildFile; fileRef = 29F47083135B416C6DE08460 /* HeroCardEntryGameAction.h */; };
 		325E0BFE0DB183461C5D674A /* CardBuffedDebuffedAnimationGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FC7FB6D156D6379E6C2D6D23 /* CardBuffedDebuffedAnimationGameAction.cpp */; };
 		32F69AD35C49478F91F4F782 /* PostNextPlayerGameAction.h in Sources */ = {isa = PBXBuildFile; fileRef = A3FCED8F928A60D20E451BCD /* PostNextPlayerGameAction.h */; };
+		3626643513B624E715E2B4C5 /* CloudKitUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = F592E9DA6B763A3750432246 /* CloudKitUtils.mm */; };
 		3932349844F41A87BC153A8B /* TypeTraits.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EEE04C21CA0FF05632F35BB0 /* TypeTraits.cpp */; };
 		3A9BD4564DDE3B7F770B61FE /* PoisonStackApplicationGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B450F00D571A19EEA2B2018C /* PoisonStackApplicationGameAction.cpp */; };
 		3B49AD411488A17EF9B3007B /* ShopSceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 969369178A2CD8E5A6B8CB49 /* ShopSceneLogicManager.cpp */; };
@@ -56,6 +57,7 @@
 		5C9953DDFEE1C355339E8F4D /* EventSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 549C84D3FE6BA93E39F0B406 /* EventSystem.cpp */; };
 		5D35EB306ABAAA6602F12C00 /* PostNextPlayerGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD189C394560D3EE41F57243 /* PostNextPlayerGameAction.cpp */; };
 		5D419704660E8D39EF808018 /* AnimatedButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41E9B2A6F18FC1E4E07DE13E /* AnimatedButton.cpp */; };
+		5EE22680E263BDE168812A46 /* CloudKitUtils.h in Sources */ = {isa = PBXBuildFile; fileRef = 35B913CBC29BA48AF1623AD8 /* CloudKitUtils.h */; };
 		5F70A6903C6F6704B8D0F3A9 /* SwipeableContainer.h in Sources */ = {isa = PBXBuildFile; fileRef = DC7E5EF8DD1626BCF3AB1038 /* SwipeableContainer.h */; };
 		607D79514D308CAB36CCE397 /* Reachability.h in Sources */ = {isa = PBXBuildFile; fileRef = 004199EB9C76A566BFE4196A /* Reachability.h */; };
 		60B9E1F13C4A6D7D1A4551BA /* VisitMapNodeSceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C16A1AADA07DA3267641EB14 /* VisitMapNodeSceneLogicManager.cpp */; };
@@ -113,6 +115,7 @@
 		9206EBFF2ACDC99D00198337 /* InputStateManagerPlatformImpl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9206EBFA2ACDC99D00198337 /* InputStateManagerPlatformImpl.cpp */; };
 		9206EC002ACDC99D00198337 /* SDL_uikit_main.c in Sources */ = {isa = PBXBuildFile; fileRef = 9206EBFB2ACDC99D00198337 /* SDL_uikit_main.c */; };
 		9206EC3D2ACDCD9100198337 /* assets in Resources */ = {isa = PBXBuildFile; fileRef = 9206EC3C2ACDCD9100198337 /* assets */; };
+		9233DADB2B5E866900C55555 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9233DACC2B5E866900C55555 /* CloudKit.framework */; };
 		9254CA512969B35800EFE0CC /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92C851A12969A8D00021923F /* SDL2.framework */; };
 		925FD880298AD7D50058E747 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 925FD87F298AD7D50058E747 /* AudioToolbox.framework */; };
 		92C7FC462B06794C008568C6 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92C7FC372B06794C008568C6 /* UIKit.framework */; };
@@ -335,6 +338,7 @@
 		2DE9DAA33D8DF5A132EA2AE4 /* DefeatSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = DefeatSceneLogicManager.h; sourceTree = "<group>"; };
 		2EFEAA42540EE199342FF02C /* StoryDeserializer.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = StoryDeserializer.h; sourceTree = "<group>"; };
 		344CBBF97D2153B6F31D21E5 /* BattleSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = BattleSceneLogicManager.cpp; sourceTree = "<group>"; };
+		35B913CBC29BA48AF1623AD8 /* CloudKitUtils.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = CloudKitUtils.h; sourceTree = "<group>"; };
 		36BA43D12A116F9CEDEEC5BB /* AnimationManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = AnimationManager.h; sourceTree = "<group>"; };
 		39131F81E2261F37C53AACE3 /* MainMenuSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = MainMenuSceneLogicManager.cpp; sourceTree = "<group>"; };
 		3AFDF18B5E2C82DD4F486F53 /* TrapTriggeredAnimationGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = TrapTriggeredAnimationGameAction.h; sourceTree = "<group>"; };
@@ -451,6 +455,8 @@
 		9206EBFB2ACDC99D00198337 /* SDL_uikit_main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SDL_uikit_main.c; sourceTree = "<group>"; };
 		9206EBFC2ACDC99D00198337 /* InputStateManagerPlatformImpl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InputStateManagerPlatformImpl.h; sourceTree = "<group>"; };
 		9206EC3C2ACDCD9100198337 /* assets */ = {isa = PBXFileReference; lastKnownFileType = folder; name = assets; path = ../../../assets; sourceTree = "<group>"; };
+		9233DAB82B5E85EA00C55555 /* PredatorsIOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PredatorsIOS.entitlements; sourceTree = "<group>"; };
+		9233DACC2B5E866900C55555 /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
 		925FD87F298AD7D50058E747 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		9285241629A9095A007EA0D9 /* GameController.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameController.framework; path = System/Library/Frameworks/GameController.framework; sourceTree = SDKROOT; };
 		92C7FC372B06794C008568C6 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -515,6 +521,7 @@
 		EF351FA09079CF49E388DC3A /* CardAttackGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = CardAttackGameAction.h; sourceTree = "<group>"; };
 		F0FFCD7AE0C78521E3B1DFF2 /* BaseDataFileDeserializer.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = BaseDataFileDeserializer.cpp; sourceTree = "<group>"; };
 		F24C3EF902991ED1C9E6C625 /* CardHistoryEntryAdditionGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = CardHistoryEntryAdditionGameAction.h; sourceTree = "<group>"; };
+		F592E9DA6B763A3750432246 /* CloudKitUtils.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; path = CloudKitUtils.mm; sourceTree = "<group>"; };
 		F62DA25CEC2725420792B4BA /* CardUtils.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = CardUtils.cpp; sourceTree = "<group>"; };
 		F72AEDE4A21BC185F5CFF4B1 /* EventSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = EventSceneLogicManager.h; sourceTree = "<group>"; };
 		F8E2E92C3F1233C55CD9F31A /* InsectDuplicationGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = InsectDuplicationGameAction.cpp; sourceTree = "<group>"; };
@@ -530,6 +537,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9233DADB2B5E866900C55555 /* CloudKit.framework in Frameworks */,
 				925FD880298AD7D50058E747 /* AudioToolbox.framework in Frameworks */,
 				92C7FC462B06794C008568C6 /* UIKit.framework in Frameworks */,
 				92043B0E2A0947A4007CC7DE /* AVFAudio.framework in Frameworks */,
@@ -573,6 +581,8 @@
 				6A2B9146BB3700AB6F103DBE /* AppleUtils.h */,
 				E9FBFE64EC9ABB84EDA6AF38 /* Reachability.m */,
 				B4A6DDE15E3BA94F6E014EFF /* AppleUtils.mm */,
+				35B913CBC29BA48AF1623AD8 /* CloudKitUtils.h */,
+				F592E9DA6B763A3750432246 /* CloudKitUtils.mm */,
 			);
 			path = platform_utilities;
 			sourceTree = "<group>";
@@ -882,6 +892,7 @@
 		92C851582969A7CA0021923F /* PredatorsIOS */ = {
 			isa = PBXGroup;
 			children = (
+				9233DAB82B5E85EA00C55555 /* PredatorsIOS.entitlements */,
 				9206EC3C2ACDCD9100198337 /* assets */,
 				9206EA262ACDC3FE00198337 /* source_common */,
 				9206EA1F2ACDC3FE00198337 /* source_ios */,
@@ -914,6 +925,7 @@
 		92C851B42969A95A0021923F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				9233DACC2B5E866900C55555 /* CloudKit.framework */,
 				92C7FC372B06794C008568C6 /* UIKit.framework */,
 				92043B022A0947A4007CC7DE /* AVFAudio.framework */,
 				9285241629A9095A007EA0D9 /* GameController.framework */,
@@ -1378,6 +1390,8 @@
 				B209DCA09AE5D2ECDCEB382C /* AppleUtils.h in Sources */,
 				8BC6F1366D6E64083B8D2ADD /* Reachability.m in Sources */,
 				184764CEA45E8103AB5053DA /* AppleUtils.mm in Sources */,
+				5EE22680E263BDE168812A46 /* CloudKitUtils.h in Sources */,
+				3626643513B624E715E2B4C5 /* CloudKitUtils.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1537,6 +1551,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = PredatorsIOS/PredatorsIOS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = XS89APN396;
@@ -1574,6 +1589,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = PredatorsIOS/PredatorsIOS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = XS89APN396;

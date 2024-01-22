@@ -5,6 +5,7 @@
 ///  Created by Alex Koukoulas on 16/12/2023
 ///------------------------------------------------------------------------------------------------
 
+#include <chrono>
 #include <engine/resloading/ResourceLoadingService.h>
 #include <engine/utils/BaseDataFileSerializer.h>
 #include <engine/utils/Logging.h>
@@ -12,6 +13,7 @@
 #include <engine/utils/StringUtils.h>
 #if defined(MACOS) || defined(MOBILE_FLOW)
 #include <platform_utilities/AppleUtils.h>
+#include <platform_utilities/CloudKitUtils.h>
 #elif defined(WINDOWS)
 #include <platform_utilities/WindowsUtils.h>
 #endif
@@ -48,6 +50,10 @@ void BaseDataFileSerializer::FlushStateToFile()
 {
     OpenDataFile();
     
+    auto duration = std::chrono::system_clock::now().time_since_epoch();
+    auto secsSinceEpoch = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
+    
+    mState["timestamp"] = secsSinceEpoch;
 #if defined(MACOS) || defined(MOBILE_FLOW)
     mState["device_id"] = apple_utils::GetDeviceId();
 #elif defined(WINDOWS)
@@ -71,6 +77,14 @@ void BaseDataFileSerializer::FlushStateToFile()
         
         mFile.close();
     }
+    
+#if defined(MACOS) || defined(MOBILE_FLOW)
+    if (mDataFileType == DataFileType::PERSISTENCE_FILE_TYPE)
+    {
+        cloudkit_utils::SavePlayerProgress();
+    }
+#elif defined(WINDOWS)
+#endif
 }
 
 ///------------------------------------------------------------------------------------------------
