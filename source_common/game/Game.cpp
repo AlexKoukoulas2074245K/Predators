@@ -16,11 +16,13 @@
 #include <engine/scene/SceneManager.h>
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
+#include <engine/utils/BaseDataFileDeserializer.h>
 #include <engine/utils/Logging.h>
 #include <engine/utils/FileUtils.h>
 #include <engine/utils/MathUtils.h>
 #include <engine/utils/OSMessageBox.h>
 #include <engine/utils/PlatformMacros.h>
+#include <fstream>
 #include <game/BoardState.h>
 #include <game/Game.h>
 #include <game/GameConstants.h>
@@ -60,6 +62,57 @@
 ///------------------------------------------------------------------------------------------------
 
 static const strutils::StringId MAIN_MENU_SCENE = strutils::StringId("main_menu_scene");
+static bool sForeignProgressionFileFound = false;
+
+///------------------------------------------------------------------------------------------------
+
+#if defined(MACOS) || defined(MOBILE_FLOW)
+void OnCloudQueryCompleted(cloudkit_utils::QueryResultData resultData)
+{
+    if (!resultData.mSuccessfullyQueriedAtLeastOneFileField)
+    {
+        return;
+    }
+    
+    auto writeDataStringToTempFile = [](const std::string& tempFileNameWithoutExtension, const std::string& data)
+    {
+        if (!data.empty())
+        {
+            std::string dataFileExtension = ".json";
+            
+            auto filePath = apple_utils::GetPersistentDataDirectoryPath() + tempFileNameWithoutExtension + dataFileExtension;
+            std::remove(filePath.c_str());
+            
+            std::ofstream file(filePath);
+            file << data;
+            
+            file.close();
+        }
+    };
+    
+    auto localDeviceId = apple_utils::GetDeviceId();
+    
+    auto checkForDeviceIdInconsistency = [=](const std::string& targetDataFileNameWithoutExtension, const serial::BaseDataFileDeserializer& dataFileDeserializer)
+    {
+        if (dataFileDeserializer.GetState().count("device_id"))
+        {
+            auto deviceId = dataFileDeserializer.GetState().at("device_id").get<std::string>();
+            if (deviceId != localDeviceId)
+            {
+                sForeignProgressionFileFound = true;
+            }
+        }
+    };
+    
+    writeDataStringToTempFile("cloud_persistent", resultData.mPersistentProgressRawString);
+    writeDataStringToTempFile("cloud_story", resultData.mStoryProgressRawString);
+    writeDataStringToTempFile("cloud_last_battle", resultData.mLastBattleRawString);
+    
+    checkForDeviceIdInconsistency("persistent", serial::BaseDataFileDeserializer("cloud_persistent", serial::DataFileType::PERSISTENCE_FILE_TYPE, serial::WarnOnFileNotFoundBehavior::WARN, serial::CheckSumValidationBehavior::VALIDATE_CHECKSUM));
+    checkForDeviceIdInconsistency("story", serial::BaseDataFileDeserializer("cloud_story", serial::DataFileType::PERSISTENCE_FILE_TYPE, serial::WarnOnFileNotFoundBehavior::WARN, serial::CheckSumValidationBehavior::VALIDATE_CHECKSUM));
+    checkForDeviceIdInconsistency("last_battle", serial::BaseDataFileDeserializer("cloud_last_battle", serial::DataFileType::PERSISTENCE_FILE_TYPE, serial::WarnOnFileNotFoundBehavior::WARN, serial::CheckSumValidationBehavior::VALIDATE_CHECKSUM));
+}
+#endif
 
 ///------------------------------------------------------------------------------------------------
 
@@ -70,7 +123,7 @@ Game::Game(const int argc, char** argv)
         logging::Log(logging::LogType::INFO, "Initializing from CWD : %s", argv[0]);
     }
 #if defined(MACOS) || defined(MOBILE_FLOW)
-    cloudkit_utils::QueryPlayerProgress();
+    cloudkit_utils::QueryPlayerProgress([=](cloudkit_utils::QueryResultData resultData){ OnCloudQueryCompleted(resultData); });
     apple_utils::SetAssetFolder();
 #endif
     CoreSystemsEngine::GetInstance().Start([&](){ Init(); }, [&](const float dtMillis){ Update(dtMillis); }, [&](){ ApplicationMovedToBackground(); }, [&](){ WindowResize(); }, [&](){ CreateDebugWidgets(); }, [&](){ OnOneSecondElapsed(); });
@@ -137,9 +190,9 @@ void Game::Init()
 
 void Game::Update(const float dtMillis)
 {
-//#if defined(MACOS) || defined(MOBILE_FLOW)
-//    logging::Log(logging::LogType::INFO, "Device ID %s", apple_utils::GetDeviceId().c_str());
-//#endif
+#if defined(MACOS) || defined(MOBILE_FLOW)
+    cloudkit_utils::CheckForCloudSaving();
+#endif
 //    auto& systemsEngine = CoreSystemsEngine::GetInstance();
 //    auto scene = systemsEngine.GetSceneManager().FindScene(game_constants::MAIN_MENU_SCENE);
 //

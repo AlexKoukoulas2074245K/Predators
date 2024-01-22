@@ -54,17 +54,10 @@ bool ValidateChecksum(T& contentsContainer)
         return false;
     }
     
-#if !defined(NDEBUG)
     if (checkSumString == std::to_string(strutils::StringId(nlohmann::json::parse(contentsContainer).dump(4)).GetStringId()))
     {
         return true;
     }
-#else
-    if (checkSumString == std::to_string(strutils::StringId(nlohmann::json::from_ubjson(contentsContainer).dump(4)).GetStringId()))
-    {
-        return true;
-    }
-#endif
     
     return false;
 }
@@ -73,13 +66,8 @@ bool ValidateChecksum(T& contentsContainer)
 
 BaseDataFileDeserializer::BaseDataFileDeserializer(const std::string& fileNameWithoutExtension, const DataFileType& dataFileType, const WarnOnFileNotFoundBehavior warnOnFnFBehavior, const CheckSumValidationBehavior checkSumValidationBehavior)
 {
-#if !defined(NDEBUG)
     std::string dataFileExtension = ".json";
-#else
-    std::string dataFileExtension = ".bin";
-#endif
     
-#if !defined(NDEBUG)
 #if defined(MACOS) || defined(MOBILE_FLOW)
     auto filePath = (dataFileType == DataFileType::PERSISTENCE_FILE_TYPE ? apple_utils::GetPersistentDataDirectoryPath() : resources::ResourceLoadingService::RES_DATA_ROOT) + fileNameWithoutExtension + dataFileExtension;
 #elif defined(WINDOWS)
@@ -102,29 +90,6 @@ BaseDataFileDeserializer::BaseDataFileDeserializer(const std::string& fileNameWi
         if (contents.size() > 1)
         {
             mState = nlohmann::json::parse(contents);
-#else
-#if defined(MACOS) || defined(MOBILE_FLOW)
-    auto filePath = (dataFileType == DataFileType::PERSISTENCE_FILE_TYPE ? apple_utils::GetPersistentDataDirectoryPath() : resources::ResourceLoadingService::RES_DATA_ROOT) + fileNameWithoutExtension + dataFileExtension;
-#elif defined(WINDOWS)
-    auto filePath = (dataFileType == DataFileType::PERSISTENCE_FILE_TYPE ? windows_utils::GetPersistentDataDirectoryPath() : resources::ResourceLoadingService::RES_DATA_ROOT) + fileNameWithoutExtension + dataFileExtension;
-#endif
-
-    logging::Log(logging::LogType::INFO, "Loading binary: %s", filePath.c_str());
-    std::ifstream dataFile(filePath, std::ios::binary);
-    if (dataFile.is_open())
-    {
-        std::vector<std::uint8_t> contents((std::istreambuf_iterator<char>(dataFile)), std::istreambuf_iterator<char>());
-        
-        if (checkSumValidationBehavior == CheckSumValidationBehavior::VALIDATE_CHECKSUM && !ValidateChecksum(contents))
-        {
-            ospopups::ShowMessageBox(ospopups::MessageBoxType::ERROR, "Corrupted file", ("Data File " + filePath + " is corrupted.").c_str());
-            return;
-        }
-        
-        if (contents.size() > 1)
-        {
-            mState = nlohmann::json::from_ubjson(contents);
-#endif
         }
     }
     else if (warnOnFnFBehavior == WarnOnFileNotFoundBehavior::WARN)

@@ -10,6 +10,7 @@
 
 ///-----------------------------------------------------------------------------------------------
 
+#include <functional>
 #include <stdarg.h>
 #include <stdio.h>  
 #include <string>
@@ -21,8 +22,16 @@ namespace cloudkit_utils
 
 ///-----------------------------------------------------------------------------------------------
 
-void QueryPlayerProgress();
+struct QueryResultData
+{
+    bool mSuccessfullyQueriedAtLeastOneFileField = false;
+    std::string mPersistentProgressRawString;
+    std::string mStoryProgressRawString;
+    std::string mLastBattleRawString;
+};
+void QueryPlayerProgress(std::function<void(QueryResultData)> onQueryCompleteCallback);
 void SavePlayerProgress();
+void CheckForCloudSaving();
 
 ///-----------------------------------------------------------------------------------------------
 

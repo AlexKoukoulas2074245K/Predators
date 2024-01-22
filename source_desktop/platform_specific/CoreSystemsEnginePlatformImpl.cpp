@@ -57,10 +57,6 @@ static void CreateEngineDebugWidgets();
 
 ///------------------------------------------------------------------------------------------------
 
-static void PreprocessDataFiles(const std::string& dataFolder);
-
-///------------------------------------------------------------------------------------------------
-
 struct CoreSystemsEngine::SystemsImpl
 {
     rendering::AnimationManager mAnimationManager;
@@ -181,7 +177,6 @@ void CoreSystemsEngine::Initialize()
 
 void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::function<void(const float)> clientUpdateFunction, std::function<void()> clientApplicationMovingToBackgroundFunction, std::function<void()> clientApplicationWindowResizeFunction, std::function<void()> clientCreateDebugWidgetsFunction, std::function<void()> clientOnOneSecondElapsedFunction)
 {
-    PreprocessDataFiles("");
     mSystems->mParticleManager.LoadParticleData();
     clientInitFunction();
     
@@ -203,7 +198,7 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
         bool applicationMovingToBackground = false;
         
         // Calculate frame delta
-        const auto currentMillisSinceInit = static_cast<float>(SDL_GetTicks());  // the number of milliseconds since the SDL library
+        const auto currentMillisSinceInit = static_cast<float>(SDL_GetTicks());  // the number of milliseconds since the SDL library initialized
         const auto dtMillis = currentMillisSinceInit - lastFrameMillisSinceInit; // millis diff between current and last frame
         
         lastFrameMillisSinceInit = currentMillisSinceInit;
@@ -452,36 +447,5 @@ void CreateEngineDebugWidgets()
     ImGui::End();
 #endif
 }
-
-///------------------------------------------------------------------------------------------------
-
-#if !defined(NDEBUG)
-void PreprocessDataFiles(const std::string& dataFolder)
-{
-    auto writeJsonToBinary = [=](const std::string& dataAssetFileName)
-    {
-        auto jsonState = serial::BaseDataFileDeserializer(dataFolder + dataAssetFileName, serial::DataFileType::ASSET_FILE_TYPE, serial::WarnOnFileNotFoundBehavior::WARN, serial::CheckSumValidationBehavior::SKIP_CHECKSUM_VALIDATION).GetState();
-        serial::BaseDataFileSerializer serializer(dataFolder + dataAssetFileName, serial::DataFileType::ASSET_FILE_TYPE, serial::DataFileOpeningBehavior::OPEN_DATA_FILE_ON_CONSTRUCTION, true);
-        serializer.GetState() = jsonState;
-        serializer.FlushStateToFile();
-    };
-    
-    const auto& fileNames = fileutils::GetAllFilenamesInDirectory(resources::ResourceLoadingService::RES_DATA_ROOT + dataFolder);
-    for (const auto& fileName: fileNames)
-    {
-        const auto extension = fileutils::GetFileExtension(fileName);
-        if (extension == "json")
-        {
-            writeJsonToBinary(fileutils::GetFileNameWithoutExtension(fileName));
-        }
-        else if (extension != "bin")
-        {
-            PreprocessDataFiles(fileName + "/");
-        }
-    }
-}
-#else
-void PreprocessDataFiles(const std::string&){}
-#endif
 
 ///------------------------------------------------------------------------------------------------

@@ -149,22 +149,22 @@ static stb_uint stb_adler32(stb_uint adler32, stb_uchar *buffer, stb_uint buflen
     blocklen = buflen % 5552;
     while (buflen) {
         for (i=0; i + 7 < blocklen; i += 8) {
-            s1 += buffer[0], s2 += s1;
-            s1 += buffer[1], s2 += s1;
-            s1 += buffer[2], s2 += s1;
-            s1 += buffer[3], s2 += s1;
-            s1 += buffer[4], s2 += s1;
-            s1 += buffer[5], s2 += s1;
-            s1 += buffer[6], s2 += s1;
-            s1 += buffer[7], s2 += s1;
+            static_cast<void>(s1 += buffer[0]), s2 += s1;
+            static_cast<void>(s1 += buffer[1]), s2 += s1;
+            static_cast<void>(s1 += buffer[2]), s2 += s1;
+            static_cast<void>(s1 += buffer[3]), s2 += s1;
+            static_cast<void>(s1 += buffer[4]), s2 += s1;
+            static_cast<void>(s1 += buffer[5]), s2 += s1;
+            static_cast<void>(s1 += buffer[6]), s2 += s1;
+            static_cast<void>(s1 += buffer[7]), s2 += s1;
 
             buffer += 8;
         }
 
         for (; i < blocklen; ++i)
-            s1 += *buffer++, s2 += s1;
+            static_cast<void>(s1 += *buffer++), s2 += s1;
 
-        s1 %= ADLER_MOD, s2 %= ADLER_MOD;
+        static_cast<void>(s1 %= ADLER_MOD), s2 %= ADLER_MOD;
         buflen -= blocklen;
         blocklen = 5552;
     }

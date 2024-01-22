@@ -33,7 +33,7 @@ enum class DataFileOpeningBehavior
 class BaseDataFileSerializer
 {
 public:
-    BaseDataFileSerializer(const std::string& fileNameWithoutExtension, const DataFileType& dataFileType, const DataFileOpeningBehavior fileOpeningBehavior, const bool forceWriteBinary = false);
+    BaseDataFileSerializer(const std::string& fileNameWithoutExtension, const DataFileType& dataFileType, const DataFileOpeningBehavior fileOpeningBehavior);
     virtual ~BaseDataFileSerializer() = default;
     
     void FlushStateToFile();
@@ -50,7 +50,6 @@ private:
     const DataFileType mDataFileType;
     std::string mFilename;
     std::ofstream mFile;
-    bool mWriteBinary;
 };
 
 ///------------------------------------------------------------------------------------------------
