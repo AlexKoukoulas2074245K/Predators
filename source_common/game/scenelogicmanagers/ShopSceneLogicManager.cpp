@@ -840,13 +840,9 @@ void ShopSceneLogicManager::DestroyCardTooltip()
 
 void ShopSceneLogicManager::LoadProductData()
 {
-  #if !defined(NDEBUG)
-      auto& systemsEngine = CoreSystemsEngine::GetInstance();
-      auto productDefinitionJsonResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_DATA_ROOT + "shop_product_data.json", resources::DONT_RELOAD);
-      const auto particlesJson =  nlohmann::json::parse(systemsEngine.GetResourceLoadingService().GetResource<resources::DataFileResource>(productDefinitionJsonResourceId).GetContents());
-  #else
-      const auto particlesJson = serial::BaseDataFileDeserializer("shop_product_data", serial::DataFileType::ASSET_FILE_TYPE, serial::WarnOnFileNotFoundBehavior::WARN, serial::CheckSumValidationBehavior::VALIDATE_CHECKSUM).GetState();
-  #endif
+    auto& systemsEngine = CoreSystemsEngine::GetInstance();
+    auto productDefinitionJsonResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_DATA_ROOT + "shop_product_data.json", resources::DONT_RELOAD);
+    const auto particlesJson =  nlohmann::json::parse(systemsEngine.GetResourceLoadingService().GetResource<resources::DataFileResource>(productDefinitionJsonResourceId).GetContents());
     
     for (const auto& shopDefinitionObject: particlesJson["shop_product_data"])
     {

@@ -244,12 +244,8 @@ void ParticleManager::LoadParticleData(const resources::ResourceReloadMode resou
   
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
     
-#if !defined(NDEBUG)
     auto particlesDefinitionJsonResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_DATA_ROOT + "particle_data.json", resourceReloadMode);
     const auto particlesJson =  nlohmann::json::parse(systemsEngine.GetResourceLoadingService().GetResource<resources::DataFileResource>(particlesDefinitionJsonResourceId).GetContents());
-#else
-    const auto particlesJson = serial::BaseDataFileDeserializer("particle_data", serial::DataFileType::ASSET_FILE_TYPE, serial::WarnOnFileNotFoundBehavior::WARN, serial::CheckSumValidationBehavior::VALIDATE_CHECKSUM).GetState();
-#endif
     
     for (const auto& particleObject: particlesJson["particle_data"])
     {

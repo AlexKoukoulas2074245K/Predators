@@ -295,6 +295,11 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
         );
     }
     
+    for (auto i = 0; i < mRegisteredStoryEvents.size(); ++i)
+    {
+        logging::Log(logging::LogType::INFO, "Event %d applicable=%s", i, mRegisteredStoryEvents[i].mApplicabilityFunction() ? "true" : "false");
+    }
+    
     auto eventIndexSelectionRandInt = math::ControlledRandomInt(0, static_cast<int>(mRegisteredStoryEvents.size()) - 1);
     mCurrentEventIndex = DataRepository::GetInstance().GetCurrentEventIndex();
     if (mCurrentEventIndex == -1)

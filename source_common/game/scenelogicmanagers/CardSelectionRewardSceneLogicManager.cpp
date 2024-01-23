@@ -389,7 +389,7 @@ void CardSelectionRewardSceneLogicManager::OnPopSceneModal(const events::PopScen
 
 void CardSelectionRewardSceneLogicManager::CreateCardRewards(std::shared_ptr<scene::Scene> scene)
 {
-    const auto& cardRewardsPool = CardDataRepository::GetInstance().GetStoryUnlockedCardRewardsPool();
+    auto cardRewardsPool = CardDataRepository::GetInstance().GetStoryUnlockedCardRewardsPool();
     for (size_t i = 0; i < 3; ++i)
     {
         auto randomCardIndex = math::ControlledRandomInt() % cardRewardsPool.size();
@@ -400,6 +400,11 @@ void CardSelectionRewardSceneLogicManager::CreateCardRewards(std::shared_ptr<sce
         mCardRewards.back()->mSceneObject->mShaderBoolUniformValues[DARKEN_UNIFORM_NAME] = false;
         mCardRewards.back()->mSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CARD_REWARD_SHADER_FILE_NAME);
         CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(mCardRewards.back()->mSceneObject, 1.0f, FADE_IN_OUT_DURATION_SECS, animation_flags::NONE, CARD_REWARD_SURFACE_DELAY_SECS + i * CARD_REWARD_SURFACE_DELAY_SECS), [=](){});
+        
+        if (cardRewardsPool.size() > 1)
+        {
+            cardRewardsPool.erase(cardRewardsPool.begin() + randomCardIndex);
+        }
     }
     
 }

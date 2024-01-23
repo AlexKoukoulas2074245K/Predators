@@ -232,14 +232,8 @@ void CardDataRepository::ClearCardData()
 void CardDataRepository::LoadCardData(bool loadCardAssets)
 {
     auto& resourceService = CoreSystemsEngine::GetInstance().GetResourceLoadingService();
-    
-#if !defined(NDEBUG)
     auto cardsDefinitionJsonResourceId = resourceService.LoadResource(resources::ResourceLoadingService::RES_DATA_ROOT + "card_data.json");
     const auto cardDataJson =  nlohmann::json::parse(resourceService.GetResource<resources::DataFileResource>(cardsDefinitionJsonResourceId).GetContents());
-#else
-    const auto cardDataJson = serial::BaseDataFileDeserializer("card_data", serial::DataFileType::ASSET_FILE_TYPE, serial::WarnOnFileNotFoundBehavior::WARN, serial::CheckSumValidationBehavior::VALIDATE_CHECKSUM).GetState();
-#endif
-    
     for (const auto& cardFamily: cardDataJson["card_families"])
     {
         mCardFamilies.insert(strutils::StringId(cardFamily.get<std::string>()));
