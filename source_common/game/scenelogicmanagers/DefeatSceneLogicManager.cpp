@@ -14,7 +14,7 @@
 #include <game/AnimatedButton.h>
 #include <game/Cards.h>
 #include <game/events/EventSystem.h>
-#include <game/ProgressionDataRepository.h>
+#include <game/DataRepository.h>
 #include <game/scenelogicmanagers/DefeatSceneLogicManager.h>
 #include <SDL_events.h>
 
@@ -169,7 +169,7 @@ void DefeatSceneLogicManager::InitSubScene(const SubSceneType subSceneType, std:
         {
             scene::TextSceneObjectData textDataDefeatResultsTop;
             textDataDefeatResultsTop.mFontName = game_constants::DEFAULT_FONT_NAME;
-            textDataDefeatResultsTop.mText = "Highest level achieved: " + std::to_string(ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeCoord().x) + "";
+            textDataDefeatResultsTop.mText = "Highest level achieved: " + std::to_string(DataRepository::GetInstance().GetCurrentStoryMapNodeCoord().x) + "";
             auto textDefeatResultsTopSceneObject = scene->CreateSceneObject(DEFEAT_RESULTS_TEXT_TOP_NAME);
             textDefeatResultsTopSceneObject->mSceneObjectTypeData = std::move(textDataDefeatResultsTop);
             textDefeatResultsTopSceneObject->mPosition = DEFEAT_RESULTS_TEXT_TOP_POSITION;
@@ -178,7 +178,7 @@ void DefeatSceneLogicManager::InitSubScene(const SubSceneType subSceneType, std:
             scene::TextSceneObjectData textDataDefeatResultsBot;
             textDataDefeatResultsBot.mFontName = game_constants::DEFAULT_FONT_NAME;
             
-            auto timePreformatted = strutils::GetHoursMinutesStringFromSeconds(ProgressionDataRepository::GetInstance().GetCurrentStorySecondsPlayed());
+            auto timePreformatted = strutils::GetHoursMinutesStringFromSeconds(DataRepository::GetInstance().GetCurrentStorySecondsPlayed());
             auto timeComponents = strutils::StringSplit(timePreformatted, ':');
             textDataDefeatResultsBot.mText = "Time played: " + timeComponents[0] + "h " + timeComponents[1] + "m";
             
@@ -196,8 +196,8 @@ void DefeatSceneLogicManager::InitSubScene(const SubSceneType subSceneType, std:
                 BACK_TO_MAIN_MENU_BUTTON_NAME,
                 [=]()
                 {
-                    ProgressionDataRepository::GetInstance().ResetStoryData();
-                    ProgressionDataRepository::GetInstance().FlushStateToFile();
+                    DataRepository::GetInstance().ResetStoryData();
+                    DataRepository::GetInstance().FlushStateToFile();
                     events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::MAIN_MENU_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
                 },
                 *scene

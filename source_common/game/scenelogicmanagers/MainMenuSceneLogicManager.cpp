@@ -14,7 +14,7 @@
 #include <game/Cards.h>
 #include <game/events/EventSystem.h>
 #include <game/scenelogicmanagers/MainMenuSceneLogicManager.h>
-#include <game/ProgressionDataRepository.h>
+#include <game/DataRepository.h>
 #include <SDL_events.h>
 
 ///------------------------------------------------------------------------------------------------
@@ -151,8 +151,8 @@ void MainMenuSceneLogicManager::VInitSceneCamera(std::shared_ptr<scene::Scene>)
 
 void MainMenuSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 {
-    ProgressionDataRepository::GetInstance().SetQuickPlayData(nullptr);
-    ProgressionDataRepository::GetInstance().SetIsCurrentlyPlayingStoryMode(false);
+    DataRepository::GetInstance().SetQuickPlayData(nullptr);
+    DataRepository::GetInstance().SetIsCurrentlyPlayingStoryMode(false);
     
     mQuickPlayData = std::make_unique<QuickPlayData>();
     
@@ -298,7 +298,7 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
            
         case SubSceneType::STORY_MODE:
         {
-            bool progressExists = ProgressionDataRepository::GetInstance().GetStoryMapGenerationSeed() != 0;
+            bool progressExists = DataRepository::GetInstance().GetStoryMapGenerationSeed() != 0;
             if (progressExists)
             {
                 mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
@@ -309,8 +309,8 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                     "Continue Story",
                     CONTINUE_STORY_BUTTON_NAME,
                     [=](){
-                        ProgressionDataRepository::GetInstance().SetIsCurrentlyPlayingStoryMode(true);
-                        events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(STORY_MAP_SCENE_TYPE_TO_SCENE_NAME.at(ProgressionDataRepository::GetInstance().GetCurrentStoryMapSceneType()), SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE); },
+                        DataRepository::GetInstance().SetIsCurrentlyPlayingStoryMode(true);
+                        events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(STORY_MAP_SCENE_TYPE_TO_SCENE_NAME.at(DataRepository::GetInstance().GetCurrentStoryMapSceneType()), SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE); },
                     *scene
                 ));
                 
@@ -336,8 +336,8 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                     NEW_STORY_BUTTON_NAME,
                     [=]()
                     {
-                        ProgressionDataRepository::GetInstance().ResetStoryData();
-                        ProgressionDataRepository::GetInstance().FlushStateToFile();
+                        DataRepository::GetInstance().ResetStoryData();
+                        DataRepository::GetInstance().FlushStateToFile();
                         TransitionToSubScene(SubSceneType::NEW_STORY_DECK_SELECTION, scene);
                     },
                     *scene
@@ -391,8 +391,8 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                 NEW_STORY_CONFIRMATION_BUTTON_NAME,
                 [=]()
                 {
-                    ProgressionDataRepository::GetInstance().ResetStoryData();
-                    ProgressionDataRepository::GetInstance().FlushStateToFile();
+                    DataRepository::GetInstance().ResetStoryData();
+                    DataRepository::GetInstance().FlushStateToFile();
                     TransitionToSubScene(SubSceneType::NEW_STORY_DECK_SELECTION, scene);
                 },
                 *scene
@@ -461,8 +461,8 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                 START_NEW_STORY_BUTTON_SCENE_OBJECT_NAME,
                 [=]()
                 {
-                    ProgressionDataRepository::GetInstance().SetCurrentStoryPlayerDeck(mQuickPlayData->mBotPlayerDeck);
-                    ProgressionDataRepository::GetInstance().FlushStateToFile();
+                    DataRepository::GetInstance().SetCurrentStoryPlayerDeck(mQuickPlayData->mBotPlayerDeck);
+                    DataRepository::GetInstance().FlushStateToFile();
                     StartNewStory();
                 },
                 *scene
@@ -589,7 +589,7 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                 game_constants::DEFAULT_FONT_NAME,
                 "Start Battle",
                 START_BATTLE_BUTTON_NAME,
-                [=](){ ProgressionDataRepository::GetInstance().SetQuickPlayData(std::move(mQuickPlayData));
+                [=](){ DataRepository::GetInstance().SetQuickPlayData(std::move(mQuickPlayData));
                     events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::BATTLE_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE); },
                 *scene
             ));
@@ -735,9 +735,9 @@ void MainMenuSceneLogicManager::GoToPreviousSubScene(std::shared_ptr<scene::Scen
 
 void MainMenuSceneLogicManager::StartNewStory()
 {
-    ProgressionDataRepository::GetInstance().SetIsCurrentlyPlayingStoryMode(true);
+    DataRepository::GetInstance().SetIsCurrentlyPlayingStoryMode(true);
     events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_MAP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
-    ProgressionDataRepository::GetInstance().FlushStateToFile();
+    DataRepository::GetInstance().FlushStateToFile();
 }
 
 ///------------------------------------------------------------------------------------------------

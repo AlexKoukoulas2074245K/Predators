@@ -22,7 +22,7 @@
 #include <game/CardUtils.h>
 #include <game/events/EventSystem.h>
 #include <game/GuiObjectManager.h>
-#include <game/ProgressionDataRepository.h>
+#include <game/DataRepository.h>
 #include <game/scenelogicmanagers/ShopSceneLogicManager.h>
 
 ///------------------------------------------------------------------------------------------------
@@ -158,8 +158,8 @@ void ShopSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     
     RegisterForEvents();
     
-    math::SetControlSeed(ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeSeed());
-    ProgressionDataRepository::GetInstance().SetCurrentStoryMapSceneType(StoryMapSceneType::SHOP);
+    math::SetControlSeed(DataRepository::GetInstance().GetCurrentStoryMapNodeSeed());
+    DataRepository::GetInstance().SetCurrentStoryMapSceneType(StoryMapSceneType::SHOP);
     
     mSceneState = SceneState::CREATING_DYNAMIC_OBJECTS;
 }
@@ -301,7 +301,7 @@ void ShopSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene:
             
             if (mAnimatingCoinValue)
             {
-                ProgressionDataRepository::GetInstance().CurrencyCoins().SetDisplayedValue(static_cast<long long>(mCoinAnimationValue));
+                DataRepository::GetInstance().CurrencyCoins().SetDisplayedValue(static_cast<long long>(mCoinAnimationValue));
             }
         } break;
             
@@ -601,7 +601,7 @@ void ShopSceneLogicManager::CreateProducts()
                 priceTextSceneObject->mPosition = SHELF_ITEM_TARGET_BASE_POSITIONS[shelfIndex] + PRODUCT_PRICE_TAG_TEXT_POSITION_OFFSET;
                 priceTextSceneObject->mSceneObjectTypeData = std::move(priceTextData);
                 priceTextSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + BASIC_CUSTOM_COLOR_SHADER_FILE_NAME);
-                priceTextSceneObject->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = productDefinition.mPrice > ProgressionDataRepository::GetInstance().CurrencyCoins().GetValue() ? COIN_RED_VALUE_TEXT_COLOR : COIN_NORMAL_VALUE_TEXT_COLOR;
+                priceTextSceneObject->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = productDefinition.mPrice > DataRepository::GetInstance().CurrencyCoins().GetValue() ? COIN_RED_VALUE_TEXT_COLOR : COIN_NORMAL_VALUE_TEXT_COLOR;
                 priceTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
                 priceTextSceneObject->mScale = PRICE_TAG_TEXT_SCALE;
                 priceTextSceneObject->mSnapToEdgeBehavior = scene::SnapToEdgeBehavior::SNAP_TO_LEFT_EDGE;
@@ -626,7 +626,7 @@ void ShopSceneLogicManager::CreateProducts()
 
 void ShopSceneLogicManager::HandleAlreadyBoughtProducts()
 {
-    const auto& alreadyBoughtProductCoords = ProgressionDataRepository::GetInstance().GetCurrentShopBoughtProductCoordinates();
+    const auto& alreadyBoughtProductCoords = DataRepository::GetInstance().GetCurrentShopBoughtProductCoordinates();
     for (const auto& boughtProductCoord: alreadyBoughtProductCoords)
     {
         auto& productInstance = mProducts[boughtProductCoord.first][boughtProductCoord.second];
@@ -868,14 +868,14 @@ void ShopSceneLogicManager::OnBuyProductAttempt(const size_t productShelfIndex, 
     auto& product = mProducts[productShelfIndex][productShelfItemIndex];
     const auto& productDefinition = mProductDefinitions.at(product->mProductName);
     
-    auto currentCoinsValue = ProgressionDataRepository::GetInstance().CurrencyCoins().GetValue();
-    auto currentHealthValue = ProgressionDataRepository::GetInstance().StoryCurrentHealth().GetValue();
+    auto currentCoinsValue = DataRepository::GetInstance().CurrencyCoins().GetValue();
+    auto currentHealthValue = DataRepository::GetInstance().StoryCurrentHealth().GetValue();
     
     // Insufficient funds/health case
     if (productDefinition.mPrice > currentCoinsValue ||
         (product->mProductName == COINS_TO_LIFE_PRODUCT_NAME && COINS_TO_LIFE_RATE.first > currentCoinsValue) ||
         (product->mProductName == LIFE_TO_COINS_PRODUCT_NAME && COINS_TO_LIFE_RATE.second >= currentHealthValue) ||
-        (product->mProductName == COINS_TO_LIFE_PRODUCT_NAME && ProgressionDataRepository::GetInstance().StoryCurrentHealth().GetValue() == ProgressionDataRepository::GetInstance().GetStoryMaxHealth()))
+        (product->mProductName == COINS_TO_LIFE_PRODUCT_NAME && DataRepository::GetInstance().StoryCurrentHealth().GetValue() == DataRepository::GetInstance().GetStoryMaxHealth()))
     {
         // Fade in can't buy product confirmation button
         auto cantBuyProductConfirmationButtonSceneObject = mScene->FindSceneObject(CANT_BUY_PRODUCT_CONFIRMATION_BUTTON_SCENE_OBJECT_NAME);
@@ -889,7 +889,7 @@ void ShopSceneLogicManager::OnBuyProductAttempt(const size_t productShelfIndex, 
             CANT_BUY_PRODUCT_HEALTH_CASE_TEXT:
             CANT_BUY_PRODUCT_COIN_CASE_TEXT;
         
-        if (product->mProductName == COINS_TO_LIFE_PRODUCT_NAME && ProgressionDataRepository::GetInstance().StoryCurrentHealth().GetValue() == ProgressionDataRepository::GetInstance().GetStoryMaxHealth())
+        if (product->mProductName == COINS_TO_LIFE_PRODUCT_NAME && DataRepository::GetInstance().StoryCurrentHealth().GetValue() == DataRepository::GetInstance().GetStoryMaxHealth())
         {
             std::get<scene::TextSceneObjectData>(cantBuyProductText0SceneObject->mSceneObjectTypeData).mText = CANT_BUY_PRODUCT_FULL_HEALTH_CASE_TEXT;
         }
@@ -927,7 +927,7 @@ void ShopSceneLogicManager::OnBuyProductAttempt(const size_t productShelfIndex, 
         if (product->mProductName == CARD_DELETION_PRODUCT_NAME)
         {
             // Card deletion follows a unique flow for card deletion
-            ProgressionDataRepository::GetInstance().SetCurrentCardLibraryBehaviorType(CardLibraryBehaviorType::BROWSING_FOR_DELETION);
+            DataRepository::GetInstance().SetCurrentCardLibraryBehaviorType(CardLibraryBehaviorType::BROWSING_FOR_DELETION);
             CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(mScene->GetUpdateTimeSpeedFactor(), 0.0f, game_constants::SCENE_SPEED_DILATION_ANIMATION_DURATION_SECS), [](){}, game_constants::SCENE_SPEED_DILATION_ANIMATION_NAME);
             events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_CARDS_LIBRARY_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
             return;
@@ -942,7 +942,7 @@ void ShopSceneLogicManager::OnBuyProductAttempt(const size_t productShelfIndex, 
         }
         else if (product->mProductName == LIFE_TO_COINS_PRODUCT_NAME)
         {
-            auto& storyCurrenteHealth = ProgressionDataRepository::GetInstance().StoryCurrentHealth();
+            auto& storyCurrenteHealth = DataRepository::GetInstance().StoryCurrentHealth();
             storyCurrenteHealth.SetDisplayedValue(storyCurrenteHealth.GetValue() - COINS_TO_LIFE_RATE.second);
             storyCurrenteHealth.SetValue(storyCurrenteHealth.GetValue() - COINS_TO_LIFE_RATE.second);
             events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(COINS_TO_LIFE_RATE.first, product->mSceneObjects.front()->mPosition);
@@ -951,8 +951,8 @@ void ShopSceneLogicManager::OnBuyProductAttempt(const size_t productShelfIndex, 
         {
             ChangeAndAnimateCoinValueReduction(COINS_TO_LIFE_RATE.first);
             
-            auto& storyCurrentHealth = ProgressionDataRepository::GetInstance().StoryCurrentHealth();
-            auto healthRestored = math::Min(ProgressionDataRepository::GetInstance().GetStoryMaxHealth(), storyCurrentHealth.GetValue() + COINS_TO_LIFE_RATE.second) - storyCurrentHealth.GetValue();
+            auto& storyCurrentHealth = DataRepository::GetInstance().StoryCurrentHealth();
+            auto healthRestored = math::Min(DataRepository::GetInstance().GetStoryMaxHealth(), storyCurrentHealth.GetValue() + COINS_TO_LIFE_RATE.second) - storyCurrentHealth.GetValue();
             events::EventSystem::GetInstance().DispatchEvent<events::HealthRefillRewardEvent>(healthRestored, product->mSceneObjects.front()->mPosition);
         }
         
@@ -970,9 +970,9 @@ void ShopSceneLogicManager::OnBuyProductAttempt(const size_t productShelfIndex, 
         if (std::holds_alternative<int>(productDefinition.mProductTexturePathOrCardId))
         {
             // Add card to player's deck
-            auto currentPlayerDeck = ProgressionDataRepository::GetInstance().GetCurrentStoryPlayerDeck();
+            auto currentPlayerDeck = DataRepository::GetInstance().GetCurrentStoryPlayerDeck();
             currentPlayerDeck.push_back(std::get<int>(productDefinition.mProductTexturePathOrCardId));
-            ProgressionDataRepository::GetInstance().SetCurrentStoryPlayerDeck(currentPlayerDeck);
+            DataRepository::GetInstance().SetCurrentStoryPlayerDeck(currentPlayerDeck);
             
             AnimateBoughtCardToLibrary(productShelfIndex, productShelfItemIndex);
             
@@ -991,8 +991,8 @@ void ShopSceneLogicManager::OnBuyProductAttempt(const size_t productShelfIndex, 
         }
         
         // Commit change to data repository and flush
-        ProgressionDataRepository::GetInstance().AddShopBoughtProductCoordinates(std::make_pair(productShelfIndex, productShelfItemIndex));
-        ProgressionDataRepository::GetInstance().FlushStateToFile();
+        DataRepository::GetInstance().AddShopBoughtProductCoordinates(std::make_pair(productShelfIndex, productShelfItemIndex));
+        DataRepository::GetInstance().FlushStateToFile();
         
         DestroyCardTooltip();
         
@@ -1069,7 +1069,7 @@ void ShopSceneLogicManager::OnCantBuyProductConfirmationButtonPressed()
 
 void ShopSceneLogicManager::ChangeAndAnimateCoinValueReduction(long long coinValueReduction)
 {
-    auto& storyCurrencyCoins = ProgressionDataRepository::GetInstance().CurrencyCoins();
+    auto& storyCurrencyCoins = DataRepository::GetInstance().CurrencyCoins();
     storyCurrencyCoins.SetValue(storyCurrencyCoins.GetValue() - coinValueReduction);
     
     mCoinAnimationValue = storyCurrencyCoins.GetDisplayedValue();
@@ -1135,7 +1135,7 @@ void ShopSceneLogicManager::UpdateProductPriceTags()
             
             if (productDefinition.mPrice > 0)
             {
-                product->mSceneObjects[2]->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = productDefinition.mPrice > ProgressionDataRepository::GetInstance().CurrencyCoins().GetValue() ? COIN_RED_VALUE_TEXT_COLOR : COIN_NORMAL_VALUE_TEXT_COLOR;
+                product->mSceneObjects[2]->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = productDefinition.mPrice > DataRepository::GetInstance().CurrencyCoins().GetValue() ? COIN_RED_VALUE_TEXT_COLOR : COIN_NORMAL_VALUE_TEXT_COLOR;
             }
         }
     }

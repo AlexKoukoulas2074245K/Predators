@@ -64,7 +64,7 @@ void GameOverGameAction::VInitAnimation()
 {
     auto& scene = *CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE);
     
-    if (!ProgressionDataRepository::GetInstance().GetNextStoryOpponentName().empty() && !ProgressionDataRepository::GetInstance().GetQuickPlayData())
+    if (!DataRepository::GetInstance().GetNextStoryOpponentName().empty() && !DataRepository::GetInstance().GetQuickPlayData())
     {
         if (std::stoi(mExtraActionParams.at(VICTORIOUS_PLAYER_INDEX_PARAM)) == game_constants::LOCAL_PLAYER_INDEX)
         {
@@ -99,7 +99,7 @@ ActionAnimationUpdateResult GameOverGameAction::VUpdateAnimation(const float dtM
 {
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
     
-    if (!ProgressionDataRepository::GetInstance().GetNextStoryOpponentName().empty())
+    if (!DataRepository::GetInstance().GetNextStoryOpponentName().empty())
     {
         switch (mAnimationState)
         {
@@ -152,7 +152,7 @@ ActionAnimationUpdateResult GameOverGameAction::VUpdateAnimation(const float dtM
                 {
                     events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(CARD_SELECTION_REWARD_SCENE_NAME, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
                     
-                    if (ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeType() == StoryMap::NodeType::ELITE_ENCOUNTER)
+                    if (DataRepository::GetInstance().GetCurrentStoryMapNodeType() == StoryMap::NodeType::ELITE_ENCOUNTER)
                     {
                         events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(WHEEL_OF_FORTUNE_SCENE_NAME, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
                     }

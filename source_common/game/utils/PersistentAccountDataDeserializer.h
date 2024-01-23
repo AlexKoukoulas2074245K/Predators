@@ -15,11 +15,11 @@
 
 ///------------------------------------------------------------------------------------------------
 
-class ProgressionDataRepository;
+class DataRepository;
 class PersistentAccountDataDeserializer final: public serial::BaseDataFileDeserializer
 {
 public:
-    PersistentAccountDataDeserializer(ProgressionDataRepository& progressionDataRepository);
+    PersistentAccountDataDeserializer(DataRepository& dataRepository);
 };
 
 ///------------------------------------------------------------------------------------------------

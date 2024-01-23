@@ -6,7 +6,7 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <game/GameConstants.h>
-#include <game/ProgressionDataRepository.h>
+#include <game/DataRepository.h>
 #include <game/StoryMap.h>
 #include <game/utils/DemonNameGenerator.h>
 #include <engine/CoreSystemsEngine.h>
@@ -182,7 +182,7 @@ void StoryMap::GenerateMapData()
 {
     mMapGenerationInfo = {};
     
-    auto currentGenerationSeed = ProgressionDataRepository::GetInstance().GetStoryMapGenerationSeed();
+    auto currentGenerationSeed = DataRepository::GetInstance().GetStoryMapGenerationSeed();
     if (currentGenerationSeed == 0)
     {
         // New map will be generated
@@ -206,7 +206,7 @@ void StoryMap::GenerateMapData()
         mMapGenerationInfo.mMapGenerationAttempts++;
         mMapData.clear();
         
-        ProgressionDataRepository::GetInstance().SetStoryMapGenerationSeed(math::GetControlSeed());
+        DataRepository::GetInstance().SetStoryMapGenerationSeed(math::GetControlSeed());
         
         for (int i = 0; i < MAP_GENERATION_PASSES; ++i)
         {

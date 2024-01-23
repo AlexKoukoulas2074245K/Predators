@@ -183,7 +183,7 @@ BattleSceneLogicManager::~BattleSceneLogicManager()
 
 void BattleSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 {
-    mCurrentBattleControlType = ProgressionDataRepository::GetInstance().GetNextBattleControlType();
+    mCurrentBattleControlType = DataRepository::GetInstance().GetNextBattleControlType();
     
     if (scene->GetName() == game_constants::BATTLE_SCENE)
     {
@@ -232,7 +232,7 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
     
     mGuiManager = std::make_shared<GuiObjectManager>(scene);
     
-    auto* quickPlayData = ProgressionDataRepository::GetInstance().GetQuickPlayData();
+    auto* quickPlayData = DataRepository::GetInstance().GetQuickPlayData();
     if (quickPlayData)
     {
         mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerHealth = game_constants::TOP_PLAYER_DEFAULT_HEALTH;
@@ -255,20 +255,20 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
     }
     else
     {
-        mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerHealth = ProgressionDataRepository::GetInstance().GetNextBattleTopPlayerHealth();
-        mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth = ProgressionDataRepository::GetInstance().GetNextBattleBotPlayerHealth();
+        mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerHealth = DataRepository::GetInstance().GetNextBattleTopPlayerHealth();
+        mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth = DataRepository::GetInstance().GetNextBattleBotPlayerHealth();
         
-        mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerTotalWeightAmmo = ProgressionDataRepository::GetInstance().GetNextBattleTopPlayerInitWeight();
-        mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerTotalWeightAmmo = ProgressionDataRepository::GetInstance().GetNextBattleBotPlayerInitWeight();
+        mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerTotalWeightAmmo = DataRepository::GetInstance().GetNextBattleTopPlayerInitWeight();
+        mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerTotalWeightAmmo = DataRepository::GetInstance().GetNextBattleBotPlayerInitWeight();
         
-        mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerCurrentWeightAmmo = ProgressionDataRepository::GetInstance().GetNextBattleTopPlayerInitWeight();
-        mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerCurrentWeightAmmo = ProgressionDataRepository::GetInstance().GetNextBattleBotPlayerInitWeight();
+        mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerCurrentWeightAmmo = DataRepository::GetInstance().GetNextBattleTopPlayerInitWeight();
+        mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerCurrentWeightAmmo = DataRepository::GetInstance().GetNextBattleBotPlayerInitWeight();
         
-        mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerWeightAmmoLimit = ProgressionDataRepository::GetInstance().GetNextBattleTopPlayerWeightLimit();
-        mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerWeightAmmoLimit = ProgressionDataRepository::GetInstance().GetNextBattleBotPlayerWeightLimit();
+        mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerWeightAmmoLimit = DataRepository::GetInstance().GetNextBattleTopPlayerWeightLimit();
+        mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerWeightAmmoLimit = DataRepository::GetInstance().GetNextBattleBotPlayerWeightLimit();
         
-        mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = ProgressionDataRepository::GetInstance().GetNextTopPlayerDeck();
-        mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = ProgressionDataRepository::GetInstance().GetNextBotPlayerDeck();
+        mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = DataRepository::GetInstance().GetNextTopPlayerDeck();
+        mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = DataRepository::GetInstance().GetNextBotPlayerDeck();
     }
     
     mActiveIndividualCardBoardEffectSceneObjects.emplace_back();
@@ -282,7 +282,7 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
     
     mRuleEngine = std::make_unique<GameRuleEngine>(mBoardState.get());
 
-    auto seed = quickPlayData ? math::RandomInt() : ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeSeed();
+    auto seed = quickPlayData ? math::RandomInt() : DataRepository::GetInstance().GetCurrentStoryMapNodeSeed();
     std::unique_ptr<BattleDeserializer> replayEngine = nullptr;
     
     if (mCurrentBattleControlType == BattleControlType::REPLAY)
@@ -295,13 +295,13 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
         mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerHealth = replayEngine->GetTopPlayerStartingHealth();
         mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth = replayEngine->GetBotPlayerStartingHealth();
         
-        if (!ProgressionDataRepository::GetInstance().GetNextStoryOpponentName().empty() && !quickPlayData)
+        if (!DataRepository::GetInstance().GetNextStoryOpponentName().empty() && !quickPlayData)
         {
-            mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerHealth = ProgressionDataRepository::GetInstance().GetNextBattleTopPlayerHealth();
-            mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth = ProgressionDataRepository::GetInstance().GetNextBattleBotPlayerHealth();
+            mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerHealth = DataRepository::GetInstance().GetNextBattleTopPlayerHealth();
+            mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth = DataRepository::GetInstance().GetNextBattleBotPlayerHealth();
             
-            mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = ProgressionDataRepository::GetInstance().GetNextTopPlayerDeck();
-            mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = ProgressionDataRepository::GetInstance().GetNextBotPlayerDeck();
+            mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards = DataRepository::GetInstance().GetNextTopPlayerDeck();
+            mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards = DataRepository::GetInstance().GetNextBotPlayerDeck();
         }
     }
     
@@ -313,12 +313,12 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
     mActionEngine = std::make_unique<GameActionEngine>(GameActionEngine::EngineOperationMode::ANIMATED, seed, mBoardState.get(), this, mRuleEngine.get());
     mPlayerActionGenerationEngine = std::make_unique<PlayerActionGenerationEngine>(mRuleEngine.get(), mActionEngine.get(), PlayerActionGenerationEngine::ActionGenerationType::OPTIMISED);
     
-    mActionEngine->AddGameAction(BATTLE_INITIAL_SETUP_AND_ANIMATION_GAME_ACTION_NAME, {{ BattleInitialSetupAndAnimationGameAction::CURRENT_BATTLE_SUBSCENE_PARAM, std::to_string(static_cast<int>(ProgressionDataRepository::GetInstance().GetCurrentBattleSubSceneType())) }});
+    mActionEngine->AddGameAction(BATTLE_INITIAL_SETUP_AND_ANIMATION_GAME_ACTION_NAME, {{ BattleInitialSetupAndAnimationGameAction::CURRENT_BATTLE_SUBSCENE_PARAM, std::to_string(static_cast<int>(DataRepository::GetInstance().GetCurrentBattleSubSceneType())) }});
     
     // Story battle, hero card action needs to be created
-    if (!ProgressionDataRepository::GetInstance().GetNextStoryOpponentName().empty() && !quickPlayData)
+    if (!DataRepository::GetInstance().GetNextStoryOpponentName().empty() && !quickPlayData)
     {
-        ProgressionDataRepository::GetInstance().SetCurrentStoryMapSceneType(StoryMapSceneType::BATTLE);
+        DataRepository::GetInstance().SetCurrentStoryMapSceneType(StoryMapSceneType::BATTLE);
         mActionEngine->AddGameAction(HERO_CARD_ENTRY_GAME_ACTION_NAME);
     }
     
@@ -466,7 +466,7 @@ void BattleSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scen
                 });
                 
                 mCurrentBattleControlType = BattleControlType::AI_TOP_ONLY;
-                ProgressionDataRepository::GetInstance().SetNextBattleControlType(mCurrentBattleControlType);
+                DataRepository::GetInstance().SetNextBattleControlType(mCurrentBattleControlType);
             }
         }
         
@@ -604,9 +604,9 @@ void BattleSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene> scene)
     else if (scene->GetName() == game_constants::BATTLE_SCENE)
     {
         // Serialize story battle
-        if (!ProgressionDataRepository::GetInstance().GetNextStoryOpponentName().empty() && !ProgressionDataRepository::GetInstance().GetQuickPlayData())
+        if (!DataRepository::GetInstance().GetNextStoryOpponentName().empty() && !DataRepository::GetInstance().GetQuickPlayData())
         {
-            ProgressionDataRepository::GetInstance().SetNextBattleControlType(BattleControlType::REPLAY);
+            DataRepository::GetInstance().SetNextBattleControlType(BattleControlType::REPLAY);
             mBattleSerializer->FlushStateToFile();
         }
         
@@ -1305,9 +1305,9 @@ void BattleSceneLogicManager::OnApplicationMovedToBackground(const events::Appli
         FakeSettingsButtonPressed();
     }
     
-    if (!ProgressionDataRepository::GetInstance().GetNextStoryOpponentName().empty() && !ProgressionDataRepository::GetInstance().GetQuickPlayData())
+    if (!DataRepository::GetInstance().GetNextStoryOpponentName().empty() && !DataRepository::GetInstance().GetQuickPlayData())
     {
-        ProgressionDataRepository::GetInstance().SetNextBattleControlType(mCurrentBattleControlType);
+        DataRepository::GetInstance().SetNextBattleControlType(mCurrentBattleControlType);
         mBattleSerializer->FlushStateToFile();
     }
 }
@@ -1885,7 +1885,7 @@ void BattleSceneLogicManager::OnCardHistoryEntryAddition(const events::CardHisto
 
 void BattleSceneLogicManager::OnStoryBattleWon(const events::StoryBattleWonEvent&)
 {
-    auto battleCoinRewards = ProgressionDataRepository::GetInstance().GetNextBattleTopPlayerHealth();
+    auto battleCoinRewards = DataRepository::GetInstance().GetNextBattleTopPlayerHealth();
     
     // Add victory coin indicator and animate them to gui
     auto lootIndicatorSceneObject = mActiveScene->FindSceneObject(LOOT_INDICATOR_SCENE_OBJECT_NAME);
@@ -1895,18 +1895,18 @@ void BattleSceneLogicManager::OnStoryBattleWon(const events::StoryBattleWonEvent
     events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(battleCoinRewards, mPlayerBoardCardSceneObjectWrappers[game_constants::REMOTE_PLAYER_INDEX][0]->mSceneObject->mPosition);
     
     // Commit health values
-    ProgressionDataRepository::GetInstance().StoryCurrentHealth().SetValue(mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth);
-    ProgressionDataRepository::GetInstance().StoryCurrentHealth().SetDisplayedValue(mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth);
+    DataRepository::GetInstance().StoryCurrentHealth().SetValue(mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth);
+    DataRepository::GetInstance().StoryCurrentHealth().SetDisplayedValue(mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth);
     mGuiManager->ForceSetStoryHealthValue(mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth);
     
     // Set next scenes accordingly
-    ProgressionDataRepository::GetInstance().SetCurrentStoryMapNodeSeed(math::GetControlSeed());
-    ProgressionDataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::CARD_SELECTION);
-    if (ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeType() == StoryMap::NodeType::ELITE_ENCOUNTER)
+    DataRepository::GetInstance().SetCurrentStoryMapNodeSeed(math::GetControlSeed());
+    DataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::CARD_SELECTION);
+    if (DataRepository::GetInstance().GetCurrentStoryMapNodeType() == StoryMap::NodeType::ELITE_ENCOUNTER)
     {
-        ProgressionDataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::WHEEL);
+        DataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::WHEEL);
     }
-    ProgressionDataRepository::GetInstance().FlushStateToFile();
+    DataRepository::GetInstance().FlushStateToFile();
 }
 
 ///------------------------------------------------------------------------------------------------

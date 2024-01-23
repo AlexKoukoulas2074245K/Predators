@@ -15,11 +15,11 @@
 
 ///------------------------------------------------------------------------------------------------
 
-class ProgressionDataRepository;
+class DataRepository;
 class StoryDeserializer final: public serial::BaseDataFileDeserializer
 {
 public:
-    StoryDeserializer(ProgressionDataRepository& progressionDataRepository);
+    StoryDeserializer(DataRepository& dataRepository);
 };
 
 ///------------------------------------------------------------------------------------------------

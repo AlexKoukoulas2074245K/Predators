@@ -17,6 +17,7 @@
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
 #include <engine/utils/BaseDataFileDeserializer.h>
+#include <engine/utils/Date.h>
 #include <engine/utils/Logging.h>
 #include <engine/utils/FileUtils.h>
 #include <engine/utils/MathUtils.h>
@@ -30,11 +31,12 @@
 #include <game/CardUtils.h>
 #include <game/events/EventSystem.h>
 #include <game/GameSceneTransitionManager.h>
-#include <game/ProgressionDataRepository.h>
+#include <game/DataRepository.h>
 #include <game/gameactions/BaseGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/GameActionFactory.h>
 #include <game/scenelogicmanagers/BattleSceneLogicManager.h>
+#include <game/scenelogicmanagers/CloudDataConfirmationSceneLogicManager.h>
 #include <game/scenelogicmanagers/CardSelectionRewardSceneLogicManager.h>
 #include <game/scenelogicmanagers/DefeatSceneLogicManager.h>
 #include <game/scenelogicmanagers/EventSceneLogicManager.h>
@@ -94,12 +96,21 @@ void OnCloudQueryCompleted(cloudkit_utils::QueryResultData resultData)
     
     auto checkForDeviceIdInconsistency = [=](const std::string& targetDataFileNameWithoutExtension, const serial::BaseDataFileDeserializer& dataFileDeserializer)
     {
-        if (dataFileDeserializer.GetState().count("device_id"))
+        if
+        (
+            dataFileDeserializer.GetState().count("device_id") &&
+            dataFileDeserializer.GetState().count("device_name") &&
+            dataFileDeserializer.GetState().count("timestamp")
+        )
         {
             auto deviceId = dataFileDeserializer.GetState().at("device_id").get<std::string>();
             if (deviceId != localDeviceId)
             {
+                using namespace date;
+                std::stringstream s;
+                s << std::chrono::system_clock::time_point(std::chrono::seconds(dataFileDeserializer.GetState().at("timestamp").get<long>()));
                 sForeignProgressionFileFound = true;
+                DataRepository::GetInstance().SetCloudDataDeviceNameAndTime("(From " + dataFileDeserializer.GetState().at("device_name").get<std::string>() + " at " + strutils::StringSplit(s.str(), '.')[0] + ")");
             }
         }
     };
@@ -137,7 +148,7 @@ Game::~Game(){}
 
 void Game::Init()
 {
-    ProgressionDataRepository::GetInstance();
+    DataRepository::GetInstance();
     
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
     systemsEngine.GetFontRepository().LoadFont(game_constants::DEFAULT_FONT_NAME.GetString(), resources::ResourceReloadMode::DONT_RELOAD);
@@ -159,6 +170,7 @@ void Game::Init()
     mGameSceneTransitionManager = std::make_unique<GameSceneTransitionManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<BattleSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<CardSelectionRewardSceneLogicManager>();
+    mGameSceneTransitionManager->RegisterSceneLogicManager<CloudDataConfirmationSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<DefeatSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<EventSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<SettingsSceneLogicManager>();
@@ -169,7 +181,7 @@ void Game::Init()
     mGameSceneTransitionManager->RegisterSceneLogicManager<StoryMapSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<VisitMapNodeSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<WheelOfFortuneSceneLogicManager>();
-    
+
 #if defined(MOBILE_FLOW)
     if (ios_utils::IsIPad())
     {
@@ -182,7 +194,7 @@ void Game::Init()
 #else
     game_constants::GAME_BOARD_BASED_SCENE_ZOOM_FACTOR = 120.0f;
 #endif
-    
+
     mGameSceneTransitionManager->ChangeToScene(MAIN_MENU_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
 }
 
@@ -192,6 +204,17 @@ void Game::Update(const float dtMillis)
 {
 #if defined(MACOS) || defined(MOBILE_FLOW)
     cloudkit_utils::CheckForCloudSaving();
+    
+    if
+    (
+        sForeignProgressionFileFound &&
+        mGameSceneTransitionManager->GetActiveSceneStack().top().mActiveSceneName == MAIN_MENU_SCENE &&
+        !CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::LOADING_SCENE_NAME)
+    )
+    {
+        mGameSceneTransitionManager->ChangeToScene(game_constants::CLOUD_DATA_CONFIRMATION_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+        sForeignProgressionFileFound = false;
+    }
 #endif
 //    auto& systemsEngine = CoreSystemsEngine::GetInstance();
 //    auto scene = systemsEngine.GetSceneManager().FindScene(game_constants::MAIN_MENU_SCENE);
@@ -259,7 +282,7 @@ void Game::Update(const float dtMillis)
 
 void Game::ApplicationMovedToBackground()
 {
-    ProgressionDataRepository::GetInstance().FlushStateToFile();
+    DataRepository::GetInstance().FlushStateToFile();
     events::EventSystem::GetInstance().DispatchEvent<events::ApplicationMovedToBackgroundEvent>();
 }
 
@@ -267,9 +290,9 @@ void Game::ApplicationMovedToBackground()
 
 void Game::OnOneSecondElapsed()
 {
-    if (ProgressionDataRepository::GetInstance().IsCurrentlyPlayingStoryMode())
+    if (DataRepository::GetInstance().IsCurrentlyPlayingStoryMode())
     {
-        ProgressionDataRepository::GetInstance().SetCurrentStorySecondPlayed(ProgressionDataRepository::GetInstance().GetCurrentStorySecondsPlayed() + 1);
+        DataRepository::GetInstance().SetCurrentStorySecondPlayed(DataRepository::GetInstance().GetCurrentStorySecondsPlayed() + 1);
     }
 }
 

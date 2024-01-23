@@ -10,7 +10,7 @@
 #include <game/GuiObjectManager.h>
 #include <game/GameConstants.h>
 #include <game/events/EventSystem.h>
-#include <game/ProgressionDataRepository.h>
+#include <game/DataRepository.h>
 #include <engine/CoreSystemsEngine.h>
 #include <engine/rendering/AnimationManager.h>
 #include <engine/rendering/ParticleManager.h>
@@ -88,8 +88,8 @@ GuiObjectManager::GuiObjectManager(std::shared_ptr<scene::Scene> scene)
 {
     // Sync any desynced values with delayed displays.
     // Might not be the best place to do this.
-    ProgressionDataRepository::GetInstance().CurrencyCoins().SetDisplayedValue(ProgressionDataRepository::GetInstance().CurrencyCoins().GetValue());
-    ProgressionDataRepository::GetInstance().StoryCurrentHealth().SetDisplayedValue(ProgressionDataRepository::GetInstance().StoryCurrentHealth().GetValue());
+    DataRepository::GetInstance().CurrencyCoins().SetDisplayedValue(DataRepository::GetInstance().CurrencyCoins().GetValue());
+    DataRepository::GetInstance().StoryCurrentHealth().SetDisplayedValue(DataRepository::GetInstance().StoryCurrentHealth().GetValue());
     
     auto forBattleScene = scene->GetName() == game_constants::BATTLE_SCENE;
     auto extraScaleFactor = forBattleScene ? BATTLE_SCENE_SCALE_FACTOR : 1.0f;
@@ -129,7 +129,7 @@ GuiObjectManager::GuiObjectManager(std::shared_ptr<scene::Scene> scene)
     
     scene::TextSceneObjectData coinValueText;
     coinValueText.mFontName = game_constants::DEFAULT_FONT_NAME;
-    coinValueText.mText = std::to_string(ProgressionDataRepository::GetInstance().CurrencyCoins().GetValue());
+    coinValueText.mText = std::to_string(DataRepository::GetInstance().CurrencyCoins().GetValue());
     auto coinValueTextSceneObject = scene->CreateSceneObject(game_constants::GUI_COIN_VALUE_TEXT_SCENE_OBJECT_NAME);
     coinValueTextSceneObject->mSceneObjectTypeData = std::move(coinValueText);
     coinValueTextSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + COIN_VALUE_TEXT_SHADER_FILE_NAME);
@@ -140,8 +140,8 @@ GuiObjectManager::GuiObjectManager(std::shared_ptr<scene::Scene> scene)
     coinValueTextSceneObject->mSnapToEdgeBehavior = scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE;
     coinValueTextSceneObject->mSnapToEdgeScaleOffsetFactor = COIN_VALUE_TEXT_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR;
     
-    mHealthStatContainer = std::make_unique<AnimatedStatContainer>(forBattleScene ? BATTLE_SCENE_HEALTH_CRYSTAL_POSITION : HEALTH_CRYSTAL_POSITION, HEALTH_CRYSTAL_TEXTURE_FILE_NAME, HEALTH_CRYSTAL_SCENE_OBJECT_NAME_PREFIX, ProgressionDataRepository::GetInstance().StoryCurrentHealth().GetDisplayedValue(), forBattleScene, *scene, scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE, extraScaleFactor * HEALTH_CRYSTAL_CONTAINER_CUSTOM_SCALE_FACTOR);
-    mHealthStatContainer->ForceSetDisplayedValue(ProgressionDataRepository::GetInstance().StoryCurrentHealth().GetValue());
+    mHealthStatContainer = std::make_unique<AnimatedStatContainer>(forBattleScene ? BATTLE_SCENE_HEALTH_CRYSTAL_POSITION : HEALTH_CRYSTAL_POSITION, HEALTH_CRYSTAL_TEXTURE_FILE_NAME, HEALTH_CRYSTAL_SCENE_OBJECT_NAME_PREFIX, DataRepository::GetInstance().StoryCurrentHealth().GetDisplayedValue(), forBattleScene, *scene, scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE, extraScaleFactor * HEALTH_CRYSTAL_CONTAINER_CUSTOM_SCALE_FACTOR);
+    mHealthStatContainer->ForceSetDisplayedValue(DataRepository::GetInstance().StoryCurrentHealth().GetValue());
     
     mHealthStatContainer->GetSceneObjects()[0]->mSnapToEdgeScaleOffsetFactor = HEALTH_CRYSTAL_BASE_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR;
     mHealthStatContainer->GetSceneObjects()[1]->mSnapToEdgeScaleOffsetFactor = HEALTH_CRYSTAL_VALUE_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR;
@@ -178,7 +178,7 @@ GuiUpdateInteractionResult GuiObjectManager::Update(const float dtMillis, const 
         }
     }
     
-    auto& currentHealth = ProgressionDataRepository::GetInstance().StoryCurrentHealth();
+    auto& currentHealth = DataRepository::GetInstance().StoryCurrentHealth();
     currentHealth.SetValue(math::Max(0, currentHealth.GetValue()));
     currentHealth.SetDisplayedValue(math::Max(0, currentHealth.GetDisplayedValue()));
     
@@ -192,7 +192,7 @@ GuiUpdateInteractionResult GuiObjectManager::Update(const float dtMillis, const 
 
 void GuiObjectManager::SetCoinValueText()
 {
-    auto coinValue = ProgressionDataRepository::GetInstance().CurrencyCoins().GetDisplayedValue();
+    auto coinValue = DataRepository::GetInstance().CurrencyCoins().GetDisplayedValue();
 
     if (coinValue < 1000)
     {
@@ -297,14 +297,14 @@ void GuiObjectManager::AnimateStatParticlesToGui(const glm::vec3& originPosition
                     case StatParticleType::COINS:
                     {
                         // Animation only coin change
-                        auto& coins = ProgressionDataRepository::GetInstance().CurrencyCoins();
+                        auto& coins = DataRepository::GetInstance().CurrencyCoins();
                         coins.SetDisplayedValue(coins.GetDisplayedValue() + 1);
                     } break;
                         
                     case StatParticleType::HEALTH:
                     {
                         // Animation only health change
-                        auto& health = ProgressionDataRepository::GetInstance().StoryCurrentHealth();
+                        auto& health = DataRepository::GetInstance().StoryCurrentHealth();
                         health.SetDisplayedValue(health.GetDisplayedValue() + 1);
                     } break;
                 }
@@ -406,7 +406,7 @@ void GuiObjectManager::OnSettingsButtonPressed()
 
 void GuiObjectManager::OnStoryCardsButtonPressed()
 {
-    ProgressionDataRepository::GetInstance().SetCurrentCardLibraryBehaviorType(CardLibraryBehaviorType::NORMAL_BROWSING);
+    DataRepository::GetInstance().SetCurrentCardLibraryBehaviorType(CardLibraryBehaviorType::NORMAL_BROWSING);
     CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(mScene->GetUpdateTimeSpeedFactor(), 0.0f, game_constants::SCENE_SPEED_DILATION_ANIMATION_DURATION_SECS), [](){}, game_constants::SCENE_SPEED_DILATION_ANIMATION_NAME);
     events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_CARDS_LIBRARY_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
 }
@@ -415,7 +415,7 @@ void GuiObjectManager::OnStoryCardsButtonPressed()
 
 void GuiObjectManager::OnCoinReward(const events::CoinRewardEvent& event)
 {
-    ProgressionDataRepository::GetInstance().CurrencyCoins().SetValue(ProgressionDataRepository::GetInstance().CurrencyCoins().GetValue() + event.mCoinAmount);
+    DataRepository::GetInstance().CurrencyCoins().SetValue(DataRepository::GetInstance().CurrencyCoins().GetValue() + event.mCoinAmount);
     AnimateStatParticlesToGui(event.mAnimationOriginPosition, StatParticleType::COINS, event.mCoinAmount);
 }
 
@@ -429,7 +429,7 @@ void GuiObjectManager::OnHealthRefillReward(const events::HealthRefillRewardEven
         CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, 1.0f, 0.5f), [=](){});
     }
     
-    ProgressionDataRepository::GetInstance().StoryCurrentHealth().SetValue(ProgressionDataRepository::GetInstance().StoryCurrentHealth().GetValue() + event.mHealthAmount);
+    DataRepository::GetInstance().StoryCurrentHealth().SetValue(DataRepository::GetInstance().StoryCurrentHealth().GetValue() + event.mHealthAmount);
     AnimateStatParticlesToGui(event.mAnimationOriginPosition, StatParticleType::HEALTH, event.mHealthAmount);
 }
 
@@ -442,11 +442,11 @@ void GuiObjectManager::OnMaxHealthGainReward(const events::MaxHealthGainRewardEv
         sceneObject->mInvisible = false;
         CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, 1.0f, 0.5f), [=]()
         {
-            ProgressionDataRepository::GetInstance().StoryCurrentHealth().SetDisplayedValue(ProgressionDataRepository::GetInstance().StoryCurrentHealth().GetValue());
+            DataRepository::GetInstance().StoryCurrentHealth().SetDisplayedValue(DataRepository::GetInstance().StoryCurrentHealth().GetValue());
         });
     }
-    ProgressionDataRepository::GetInstance().SetStoryMaxHealth(ProgressionDataRepository::GetInstance().GetStoryMaxHealth() + event.mMaxHealthGainAmount);
-    ProgressionDataRepository::GetInstance().StoryCurrentHealth().SetValue(ProgressionDataRepository::GetInstance().StoryCurrentHealth().GetValue() + event.mMaxHealthGainAmount);
+    DataRepository::GetInstance().SetStoryMaxHealth(DataRepository::GetInstance().GetStoryMaxHealth() + event.mMaxHealthGainAmount);
+    DataRepository::GetInstance().StoryCurrentHealth().SetValue(DataRepository::GetInstance().StoryCurrentHealth().GetValue() + event.mMaxHealthGainAmount);
     
     AnimateStatGainParticles(mHealthStatContainer->GetSceneObjects().front()->mPosition, StatGainParticleType::MAX_HEALTH);
 }
@@ -455,10 +455,10 @@ void GuiObjectManager::OnMaxHealthGainReward(const events::MaxHealthGainRewardEv
 
 void GuiObjectManager::OnExtraDamageReward(const events::ExtraDamageRewardEvent&)
 {
-    auto existingDamageModifierIter = ProgressionDataRepository::GetInstance().GetStoryPlayerCardStatModifiers().find(CardStatType::DAMAGE);
-    auto modifierValue = existingDamageModifierIter == ProgressionDataRepository::GetInstance().GetStoryPlayerCardStatModifiers().cend() ? 1 : existingDamageModifierIter->second + 1;
+    auto existingDamageModifierIter = DataRepository::GetInstance().GetStoryPlayerCardStatModifiers().find(CardStatType::DAMAGE);
+    auto modifierValue = existingDamageModifierIter == DataRepository::GetInstance().GetStoryPlayerCardStatModifiers().cend() ? 1 : existingDamageModifierIter->second + 1;
     
-    ProgressionDataRepository::GetInstance().SetStoryPlayerCardStatModifier(CardStatType::DAMAGE, modifierValue);
+    DataRepository::GetInstance().SetStoryPlayerCardStatModifier(CardStatType::DAMAGE, modifierValue);
     
     AnimateStatGainParticles(EXTRA_DAMAGE_WEIGHT_PARTICLE_ORIGIN_POSITION, StatGainParticleType::DAMAGE);
 }
@@ -467,7 +467,7 @@ void GuiObjectManager::OnExtraDamageReward(const events::ExtraDamageRewardEvent&
 
 void GuiObjectManager::OnExtraWeightReward(const events::ExtraWeightRewardEvent&)
 {
-    ProgressionDataRepository::GetInstance().SetNextBattleBotPlayerInitWeight(ProgressionDataRepository::GetInstance().GetNextBattleBotPlayerInitWeight() + 1);
+    DataRepository::GetInstance().SetNextBattleBotPlayerInitWeight(DataRepository::GetInstance().GetNextBattleBotPlayerInitWeight() + 1);
     AnimateStatGainParticles(EXTRA_DAMAGE_WEIGHT_PARTICLE_ORIGIN_POSITION, StatGainParticleType::WEIGHT);
 }
 

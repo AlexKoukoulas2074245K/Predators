@@ -18,7 +18,7 @@
 #include <game/events/EventSystem.h>
 #include <game/GameConstants.h>
 #include <game/GuiObjectManager.h>
-#include <game/ProgressionDataRepository.h>
+#include <game/DataRepository.h>
 #include <game/scenelogicmanagers/StoryMapSceneLogicManager.h>
 #include <thread>
 
@@ -94,12 +94,12 @@ void StoryMapSceneLogicManager::VInitSceneCamera(std::shared_ptr<scene::Scene>)
 
 void StoryMapSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 {
-    if (ProgressionDataRepository::GetInstance().GetStoryMapGenerationSeed() == 0)
+    if (DataRepository::GetInstance().GetStoryMapGenerationSeed() == 0)
     {
         events::EventSystem::GetInstance().DispatchEvent<events::LoadingProgressPrefixTextOverrideEvent>("Generating New Story: ");
     }
     
-    const auto& currentMapCoord = ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeCoord();
+    const auto& currentMapCoord = DataRepository::GetInstance().GetCurrentStoryMapNodeCoord();
     std::thread mapGenerationThread = std::thread([=]
     {
         mStoryMap = std::make_unique<StoryMap>(scene, game_constants::STORY_NODE_MAP_DIMENSIONS, MapCoord(currentMapCoord.x, currentMapCoord.y));
@@ -116,8 +116,8 @@ void StoryMapSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     
     ResetSwipeData();
     
-    ProgressionDataRepository::GetInstance().SetCurrentStoryMapSceneType(StoryMapSceneType::STORY_MAP);
-    ProgressionDataRepository::GetInstance().FlushStateToFile();
+    DataRepository::GetInstance().SetCurrentStoryMapSceneType(StoryMapSceneType::STORY_MAP);
+    DataRepository::GetInstance().FlushStateToFile();
     
     mExcludedSceneObjectsFromFrustumCulling.clear();
     
@@ -131,7 +131,7 @@ void StoryMapSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 
 void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene::Scene> scene)
 {
-    const auto& currentMapCoord = ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeCoord();
+    const auto& currentMapCoord = DataRepository::GetInstance().GetCurrentStoryMapNodeCoord();
     
     if (!mStoryMap->HasCreatedSceneObjects())
     {
@@ -155,7 +155,7 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
         // First time entering map initialisation
         if (currentMapCoord.x == game_constants::STORY_MAP_INIT_COORD.x && currentMapCoord.y == game_constants::STORY_MAP_INIT_COORD.y)
         {
-            mGuiManager->ForceSetStoryHealthValue(ProgressionDataRepository::GetInstance().StoryCurrentHealth().GetValue());
+            mGuiManager->ForceSetStoryHealthValue(DataRepository::GetInstance().StoryCurrentHealth().GetValue());
             
             mMapUpdateState = MapUpdateState::FRESH_MAP_ANIMATION;
             SetMapPositionTo(mStoryMap->GetMapData().at(MapCoord(game_constants::STORY_MAP_BOSS_COORD.x, game_constants::STORY_MAP_BOSS_COORD.y)).mPosition);
@@ -204,7 +204,7 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
             auto guiInteractionResult = mGuiManager->Update(dtMillis);
             bool interactedWithGui = guiInteractionResult == GuiUpdateInteractionResult::CLICKED_GUI_BUTTONS;
             
-            const auto& currentCoord = MapCoord(ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeCoord().x, ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeCoord().y);
+            const auto& currentCoord = MapCoord(DataRepository::GetInstance().GetCurrentStoryMapNodeCoord().x, DataRepository::GetInstance().GetCurrentStoryMapNodeCoord().y);
             const auto& currentMapNode = mStoryMap->GetMapData().at(currentCoord);
                 
             const auto& inputStateManager = CoreSystemsEngine::GetInstance().GetInputStateManager();
@@ -287,8 +287,8 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
                     ResetSelectedMapNode();
 
                     // Setup data for moving to target node
-                    ProgressionDataRepository::GetInstance().SetSelectedStoryMapNodePosition(mTappedMapNodeData->mPosition);
-                    ProgressionDataRepository::GetInstance().SetSelectedStoryMapNodeData(&mStoryMap->GetMapData().at(targetMapCoord));
+                    DataRepository::GetInstance().SetSelectedStoryMapNodePosition(mTappedMapNodeData->mPosition);
+                    DataRepository::GetInstance().SetSelectedStoryMapNodeData(&mStoryMap->GetMapData().at(targetMapCoord));
 
                     mMapUpdateState = MapUpdateState::MOVING_TO_NODE;
                     mCameraTargetPos = mTappedMapNodeData->mPosition;

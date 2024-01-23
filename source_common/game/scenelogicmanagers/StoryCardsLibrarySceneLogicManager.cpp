@@ -18,7 +18,7 @@
 #include <game/CardUtils.h>
 #include <game/GameSceneTransitionManager.h>
 #include <game/GuiObjectManager.h>
-#include <game/ProgressionDataRepository.h>
+#include <game/DataRepository.h>
 #include <game/scenelogicmanagers/StoryCardsLibrarySceneLogicManager.h>
 
 ///------------------------------------------------------------------------------------------------
@@ -114,7 +114,7 @@ void StoryCardsLibrarySceneLogicManager::VInitScene(std::shared_ptr<scene::Scene
     mCoinAnimationValue = 0.0f;
     mAnimatingCoinValue = false;
     
-    switch (ProgressionDataRepository::GetInstance().GetCurrentCardLibraryBehaviorType())
+    switch (DataRepository::GetInstance().GetCurrentCardLibraryBehaviorType())
     {
         case CardLibraryBehaviorType::NORMAL_BROWSING:
         {
@@ -189,7 +189,7 @@ void StoryCardsLibrarySceneLogicManager::VInitScene(std::shared_ptr<scene::Scene
         MIN_CONTAINER_ENTRIES_TO_ANIMATE
     );
     
-    for (const auto& cardId: ProgressionDataRepository::GetInstance().GetCurrentStoryPlayerDeck())
+    for (const auto& cardId: DataRepository::GetInstance().GetCurrentStoryPlayerDeck())
     {
         CardData cardData = CardDataRepository::GetInstance().GetCardData(cardId, game_constants::LOCAL_PLAYER_INDEX);
         
@@ -274,7 +274,7 @@ void StoryCardsLibrarySceneLogicManager::VUpdate(const float dtMillis, std::shar
                         sToolTipIndex = cardHistoryContainerUpdateResult.mInteractedElementId;
                         auto interactedElementEntry = mCardContainer->GetItems()[cardHistoryContainerUpdateResult.mInteractedElementId];
                         
-                        switch (ProgressionDataRepository::GetInstance().GetCurrentCardLibraryBehaviorType())
+                        switch (DataRepository::GetInstance().GetCurrentCardLibraryBehaviorType())
                         {
                             case CardLibraryBehaviorType::NORMAL_BROWSING:
                             {
@@ -351,7 +351,7 @@ void StoryCardsLibrarySceneLogicManager::VUpdate(const float dtMillis, std::shar
             
             if (mAnimatingCoinValue)
             {
-                ProgressionDataRepository::GetInstance().CurrencyCoins().SetDisplayedValue(static_cast<long long>(mCoinAnimationValue));
+                DataRepository::GetInstance().CurrencyCoins().SetDisplayedValue(static_cast<long long>(mCoinAnimationValue));
             }
             
             auto guiObjectManager = mGameSceneTransitionManager->GetSceneLogicManagerResponsibleForScene(mPreviousScene)->VGetGuiObjectManager();
@@ -517,13 +517,13 @@ void StoryCardsLibrarySceneLogicManager::DeleteCard()
     cardSceneObject->mShaderFloatUniformValues[CARD_ORIGIN_Y_UNIFORM_NAME] = cardSceneObject->mPosition.y;
     cardSceneObject->mShaderFloatUniformValues[DISSOLVE_MAGNITUDE_UNIFORM_NAME] = math::RandomFloat(CARD_DISSOLVE_EFFECT_MAG_RANGE.x, CARD_DISSOLVE_EFFECT_MAG_RANGE.y);
     
-    auto playerDeck = ProgressionDataRepository::GetInstance().GetCurrentStoryPlayerDeck();
+    auto playerDeck = DataRepository::GetInstance().GetCurrentStoryPlayerDeck();
     playerDeck.erase(playerDeck.begin() + mSelectedCardIndex);
-    ProgressionDataRepository::GetInstance().SetCurrentStoryPlayerDeck(playerDeck);
+    DataRepository::GetInstance().SetCurrentStoryPlayerDeck(playerDeck);
     
-    ProgressionDataRepository::GetInstance().AddShopBoughtProductCoordinates(CARD_DELETION_PRODUCT_COORDS);
+    DataRepository::GetInstance().AddShopBoughtProductCoordinates(CARD_DELETION_PRODUCT_COORDS);
     
-    auto& storyCurrencyCoins = ProgressionDataRepository::GetInstance().CurrencyCoins();
+    auto& storyCurrencyCoins = DataRepository::GetInstance().CurrencyCoins();
     storyCurrencyCoins.SetValue(storyCurrencyCoins.GetValue() - CARD_DELETION_SERVICE_PRICE);
     
     mCoinAnimationValue = storyCurrencyCoins.GetDisplayedValue();
@@ -531,7 +531,7 @@ void StoryCardsLibrarySceneLogicManager::DeleteCard()
     
     CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(mCoinAnimationValue, static_cast<float>(storyCurrencyCoins.GetValue()), ANIMATED_COIN_VALUE_DURATION_SECS), [=](){ mAnimatingCoinValue = false; });
     
-    ProgressionDataRepository::GetInstance().FlushStateToFile();
+    DataRepository::GetInstance().FlushStateToFile();
     
     mSceneState = SceneState::DISSOLVING_DELETED_CARD;
 }

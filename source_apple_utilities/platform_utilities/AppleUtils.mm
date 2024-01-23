@@ -45,12 +45,27 @@ std::string GetPersistentDataDirectoryPath()
 std::string GetDeviceId()
 {
 #if defined(MACOS)
-    NSString* deviceId = [[NSHost currentHost] localizedName];
+    NSOperatingSystemVersion version = [[NSProcessInfo processInfo] operatingSystemVersion];
+    NSString* deviceId = [NSString stringWithFormat:@"%@ %ld.%ld.%ld", [[NSHost currentHost] localizedName], (long)version.majorVersion, (long)version.minorVersion, (long)version.patchVersion];
 #else
-    NSString *deviceId = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
+    NSString* deviceId = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
 #endif
     
     return std::string([deviceId UTF8String]);
+}
+
+///-----------------------------------------------------------------------------------------------
+
+std::string GetDeviceName()
+{
+#if defined(MACOS)
+    return "iMac/MacBook";
+#else
+    UIDevice *device = [UIDevice currentDevice];
+    return std::string([device.name UTF8String]);
+#endif
+    
+    return "Unknown Device";
 }
 
 ///-----------------------------------------------------------------------------------------------

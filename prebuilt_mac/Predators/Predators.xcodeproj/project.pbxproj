@@ -26,6 +26,7 @@
 		3800CC997FE9DCC2CADAF5E2 /* TypeTraits.h in Sources */ = {isa = PBXBuildFile; fileRef = 6E2183A368D71198F98D6738 /* TypeTraits.h */; };
 		3D0B74E401CD9DB2D3AF3061 /* RenderingUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 59B053AEBDD62B4FCAB8E05D /* RenderingUtils.cpp */; };
 		3E3B65024B721F5CCC0D71E0 /* Animations.h in Sources */ = {isa = PBXBuildFile; fileRef = 82DFED0E0B1AB607780AED60 /* Animations.h */; };
+		41A2979384DB0E1648E87DC2 /* CloudDataConfirmationSceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5BD45E193E73BAA2C5DD3337 /* CloudDataConfirmationSceneLogicManager.cpp */; };
 		45963ED9A5DA3C4EB9144646 /* TextureResource.h in Sources */ = {isa = PBXBuildFile; fileRef = 989BFF482B72A00F213431FE /* TextureResource.h */; };
 		4E9ADD55CB0B5CA8962F347E /* StringUtils.h in Sources */ = {isa = PBXBuildFile; fileRef = EF61AB7D638A80B4ABD5D5B7 /* StringUtils.h */; };
 		5285724978640648FFD94960 /* TextureResource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93D83DB41AD868D09B2A3C94 /* TextureResource.cpp */; };
@@ -34,6 +35,7 @@
 		590BC49901179FB522AD2223 /* OSMessageBox.h in Sources */ = {isa = PBXBuildFile; fileRef = EEC2E35013E2E8B9B7A912C6 /* OSMessageBox.h */; };
 		5BEFD96D266F53B603C278C1 /* TypeTraits.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 988043F06556266668BE5677 /* TypeTraits.cpp */; };
 		63011B7BE17965C680A05EAD /* BaseDataFileSerializer.h in Sources */ = {isa = PBXBuildFile; fileRef = 30D02CEC6861EBD7441E2004 /* BaseDataFileSerializer.h */; };
+		6A2CEF823BB7D7D42F2CBDE3 /* CloudDataConfirmationSceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 0A90C5CE1FAAD720E2DE0541 /* CloudDataConfirmationSceneLogicManager.h */; };
 		6B29A2EA7B3D661771AB8A2D /* RenderingUtils.h in Sources */ = {isa = PBXBuildFile; fileRef = 8AE4C68818CCB619974358E0 /* RenderingUtils.h */; };
 		6E1A780876A016C76FFF66C6 /* OBJMeshLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 06291EA0D3FF12CB3058DEF2 /* OBJMeshLoader.cpp */; };
 		71319CF262B3FEA0241CE51E /* RendererPlatformImpl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 68CBCF02480A4F7771578514 /* RendererPlatformImpl.cpp */; };
@@ -126,7 +128,7 @@
 		928B0CF42B5C3C850025DF3F /* GuiObjectManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 928B0BC22B5C3C850025DF3F /* GuiObjectManager.cpp */; };
 		928B0CF52B5C3C850025DF3F /* WheelOfFortuneController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 928B0BC52B5C3C850025DF3F /* WheelOfFortuneController.cpp */; };
 		928B0CF62B5C3C850025DF3F /* EventSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 928B0BCA2B5C3C850025DF3F /* EventSystem.cpp */; };
-		928B0CF72B5C3C850025DF3F /* ProgressionDataRepository.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 928B0BCC2B5C3C850025DF3F /* ProgressionDataRepository.cpp */; };
+		928B0CF72B5C3C850025DF3F /* DataRepository.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 928B0BCC2B5C3C850025DF3F /* DataRepository.cpp */; };
 		928B0CF82B5C3C850025DF3F /* Game.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 928B0BCF2B5C3C850025DF3F /* Game.cpp */; };
 		928B0D132B5C3C850025DF3F /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 928B0C1A2B5C3C850025DF3F /* main.cpp */; };
 		928B0D1F2B5C3E120025DF3F /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 928B0D1E2B5C3E120025DF3F /* OpenGL.framework */; };
@@ -174,6 +176,7 @@
 		F7A5A5A1C07E56B0E105A3E2 /* CoreSystemsEngine.h in Sources */ = {isa = PBXBuildFile; fileRef = 1B15A1EEB522F75EE7E24E55 /* CoreSystemsEngine.h */; };
 		F9DA16800D685DE43C29BCDE /* Animations.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4ADBD10E11C136014CDB469 /* Animations.cpp */; };
 		FC7CB5DD2DD48F46BC3CAF9D /* MathUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 393520815AD90C67A6A6989C /* MathUtils.cpp */; };
+		FE081503D7B9E0EE6A0752EC /* Date.h in Sources */ = {isa = PBXBuildFile; fileRef = E20949AA76405DC09B2C07EC /* Date.h */; };
 		FF10C06D59F9228C0A2C9E43 /* ShaderLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 255CBE3395586957104E385D /* ShaderLoader.cpp */; };
 /* End PBXBuildFile section */
 
@@ -201,6 +204,7 @@
 		0724B463AFC06A5A52F1047E /* OpenGL.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = OpenGL.h; sourceTree = "<group>"; };
 		08AAC0562233A3F34613E310 /* DataFileResource.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = DataFileResource.h; sourceTree = "<group>"; };
 		0A05CE2983C7CEA1D2A25585 /* BaseDataFileDeserializer.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = BaseDataFileDeserializer.cpp; sourceTree = "<group>"; };
+		0A90C5CE1FAAD720E2DE0541 /* CloudDataConfirmationSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = CloudDataConfirmationSceneLogicManager.h; sourceTree = "<group>"; };
 		0B7F76FD2D5492C5AB3ABFFD /* CloudKitUtils.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = CloudKitUtils.h; sourceTree = "<group>"; };
 		0D09AB023B7A329D725F2F2F /* FileUtils.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = FileUtils.h; sourceTree = "<group>"; };
 		13FDFD19955883B3085E4725 /* ShaderResource.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = ShaderResource.h; sourceTree = "<group>"; };
@@ -218,6 +222,7 @@
 		53CDE03B92A8F220738E44FE /* ImageSurfaceResource.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = ImageSurfaceResource.cpp; sourceTree = "<group>"; };
 		543F0360AEBB87C61E32D84B /* ThreadSafeQueue.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = ThreadSafeQueue.h; sourceTree = "<group>"; };
 		59B053AEBDD62B4FCAB8E05D /* RenderingUtils.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = RenderingUtils.cpp; sourceTree = "<group>"; };
+		5BD45E193E73BAA2C5DD3337 /* CloudDataConfirmationSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = CloudDataConfirmationSceneLogicManager.cpp; sourceTree = "<group>"; };
 		642B84557417F85C19410FDE /* ShaderLoader.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = ShaderLoader.h; sourceTree = "<group>"; };
 		6544FC0C6E5993C9E3957773 /* Scene.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = Scene.cpp; sourceTree = "<group>"; };
 		659D24C3A310C59893EE9475 /* Scene.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = Scene.h; sourceTree = "<group>"; };
@@ -281,7 +286,7 @@
 		928B0B512B5C3C850025DF3F /* imgui_demo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_demo.cpp; sourceTree = "<group>"; };
 		928B0B522B5C3C850025DF3F /* imgui_draw.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_draw.cpp; sourceTree = "<group>"; };
 		928B0B542B5C3C850025DF3F /* AnimatedButton.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AnimatedButton.cpp; sourceTree = "<group>"; };
-		928B0B552B5C3C850025DF3F /* ProgressionDataRepository.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProgressionDataRepository.h; sourceTree = "<group>"; };
+		928B0B552B5C3C850025DF3F /* DataRepository.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataRepository.h; sourceTree = "<group>"; };
 		928B0B562B5C3C850025DF3F /* GameSceneTransitionManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GameSceneTransitionManager.cpp; sourceTree = "<group>"; };
 		928B0B572B5C3C850025DF3F /* AnimatedStatContainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnimatedStatContainer.h; sourceTree = "<group>"; };
 		928B0B582B5C3C850025DF3F /* AnimatedStatContainer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AnimatedStatContainer.cpp; sourceTree = "<group>"; };
@@ -396,7 +401,7 @@
 		928B0BC92B5C3C850025DF3F /* Events.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Events.h; sourceTree = "<group>"; };
 		928B0BCA2B5C3C850025DF3F /* EventSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EventSystem.cpp; sourceTree = "<group>"; };
 		928B0BCB2B5C3C850025DF3F /* SwipeableContainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SwipeableContainer.h; sourceTree = "<group>"; };
-		928B0BCC2B5C3C850025DF3F /* ProgressionDataRepository.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ProgressionDataRepository.cpp; sourceTree = "<group>"; };
+		928B0BCC2B5C3C850025DF3F /* DataRepository.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DataRepository.cpp; sourceTree = "<group>"; };
 		928B0BCD2B5C3C850025DF3F /* AnimatedButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnimatedButton.h; sourceTree = "<group>"; };
 		928B0BCE2B5C3C850025DF3F /* GameSceneTransitionTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameSceneTransitionTypes.h; sourceTree = "<group>"; };
 		928B0BCF2B5C3C850025DF3F /* Game.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Game.cpp; sourceTree = "<group>"; };
@@ -432,6 +437,7 @@
 		DDD0E1D0B63F40D725F02A35 /* MeshResource.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = MeshResource.cpp; sourceTree = "<group>"; };
 		E0599E67CDFA7350C55C73A5 /* IRenderer.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = IRenderer.h; sourceTree = "<group>"; };
 		E0D05FD28DC001514531A214 /* TextureLoader.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = TextureLoader.cpp; sourceTree = "<group>"; };
+		E20949AA76405DC09B2C07EC /* Date.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = Date.h; sourceTree = "<group>"; };
 		E9824F6D620FAB012DF0BC78 /* AnimationManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = AnimationManager.cpp; sourceTree = "<group>"; };
 		EA3B9899242A079FE63DCD1E /* Camera.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = Camera.cpp; sourceTree = "<group>"; };
 		EEC2E35013E2E8B9B7A912C6 /* OSMessageBox.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = OSMessageBox.h; sourceTree = "<group>"; };
@@ -508,6 +514,7 @@
 				EEC2E35013E2E8B9B7A912C6 /* OSMessageBox.h */,
 				543F0360AEBB87C61E32D84B /* ThreadSafeQueue.h */,
 				2096C38A74EAF730ECCA5E36 /* MathUtils.h */,
+				E20949AA76405DC09B2C07EC /* Date.h */,
 			);
 			path = utils;
 			sourceTree = "<group>";
@@ -732,7 +739,7 @@
 			isa = PBXGroup;
 			children = (
 				928B0B542B5C3C850025DF3F /* AnimatedButton.cpp */,
-				928B0B552B5C3C850025DF3F /* ProgressionDataRepository.h */,
+				928B0B552B5C3C850025DF3F /* DataRepository.h */,
 				928B0B562B5C3C850025DF3F /* GameSceneTransitionManager.cpp */,
 				928B0B572B5C3C850025DF3F /* AnimatedStatContainer.h */,
 				928B0B582B5C3C850025DF3F /* AnimatedStatContainer.cpp */,
@@ -760,7 +767,7 @@
 				928B0BC62B5C3C850025DF3F /* GuiObjectManager.h */,
 				928B0BC72B5C3C850025DF3F /* events */,
 				928B0BCB2B5C3C850025DF3F /* SwipeableContainer.h */,
-				928B0BCC2B5C3C850025DF3F /* ProgressionDataRepository.cpp */,
+				928B0BCC2B5C3C850025DF3F /* DataRepository.cpp */,
 				928B0BCD2B5C3C850025DF3F /* AnimatedButton.h */,
 				928B0BCE2B5C3C850025DF3F /* GameSceneTransitionTypes.h */,
 				928B0BCF2B5C3C850025DF3F /* Game.cpp */,
@@ -851,6 +858,8 @@
 				928B0BA52B5C3C850025DF3F /* LoadingSceneLogicManager.cpp */,
 				928B0BA62B5C3C850025DF3F /* SettingsSceneLogicManager.cpp */,
 				928B0BA72B5C3C850025DF3F /* BattleSceneLogicManager.cpp */,
+				5BD45E193E73BAA2C5DD3337 /* CloudDataConfirmationSceneLogicManager.cpp */,
+				0A90C5CE1FAAD720E2DE0541 /* CloudDataConfirmationSceneLogicManager.h */,
 			);
 			path = scenelogicmanagers;
 			sourceTree = "<group>";
@@ -1101,7 +1110,7 @@
 			files = (
 				928B0CF22B5C3C850025DF3F /* GameRuleEngine.cpp in Sources */,
 				928B0CDA2B5C3C850025DF3F /* BattleInitialSetupAndAnimationGameAction.cpp in Sources */,
-				928B0CF72B5C3C850025DF3F /* ProgressionDataRepository.cpp in Sources */,
+				928B0CF72B5C3C850025DF3F /* DataRepository.cpp in Sources */,
 				928B0CD82B5C3C850025DF3F /* TrapTriggeredAnimationGameAction.cpp in Sources */,
 				928B0CE42B5C3C850025DF3F /* MainMenuSceneLogicManager.cpp in Sources */,
 				928B0CE52B5C3C850025DF3F /* WheelOfFortuneSceneLogicManager.cpp in Sources */,
@@ -1244,6 +1253,9 @@
 				A24C468FFD129BCDF0B2E5B2 /* InputStateManagerPlatformImpl.cpp in Sources */,
 				7B9789451DEA62BACC400C76 /* CloudKitUtils.h in Sources */,
 				DF43128086ED7921D6D89992 /* CloudKitUtils.mm in Sources */,
+				41A2979384DB0E1648E87DC2 /* CloudDataConfirmationSceneLogicManager.cpp in Sources */,
+				6A2CEF823BB7D7D42F2CBDE3 /* CloudDataConfirmationSceneLogicManager.h in Sources */,
+				FE081503D7B9E0EE6A0752EC /* Date.h in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

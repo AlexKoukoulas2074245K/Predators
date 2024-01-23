@@ -12,7 +12,7 @@
 
 #include <game/scenelogicmanagers/ISceneLogicManager.h>
 #include <game/events/EventSystem.h>
-#include <game/ProgressionDataRepository.h>
+#include <game/DataRepository.h>
 #include <game/SwipeableContainer.h>
 #include <engine/resloading/ResourceLoadingService.h>
 #include <engine/scene/SceneObject.h>

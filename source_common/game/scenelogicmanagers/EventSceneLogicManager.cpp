@@ -16,7 +16,7 @@
 #include <game/Cards.h>
 #include <game/events/EventSystem.h>
 #include <game/GuiObjectManager.h>
-#include <game/ProgressionDataRepository.h>
+#include <game/DataRepository.h>
 #include <game/scenelogicmanagers/EventSceneLogicManager.h>
 
 ///------------------------------------------------------------------------------------------------
@@ -86,9 +86,9 @@ void EventSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     
     RegisterForEvents();
     SelectRandomStoryEvent();
-    CreateEventScreen(ProgressionDataRepository::GetInstance().GetCurrentEventScreenIndex());
+    CreateEventScreen(DataRepository::GetInstance().GetCurrentEventScreenIndex());
     
-    ProgressionDataRepository::GetInstance().SetCurrentStoryMapSceneType(StoryMapSceneType::EVENT);
+    DataRepository::GetInstance().SetCurrentStoryMapSceneType(StoryMapSceneType::EVENT);
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -105,7 +105,7 @@ void EventSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene
         return;
     }
     
-    auto& progressionHealth = ProgressionDataRepository::GetInstance().StoryCurrentHealth();
+    auto& progressionHealth = DataRepository::GetInstance().StoryCurrentHealth();
     if (progressionHealth.GetDisplayedValue() <= 0)
     {
         events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(DEFEAT_SCENE_NAME, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
@@ -154,7 +154,7 @@ void EventSceneLogicManager::OnWindowResize(const events::WindowResizeEvent&)
 
 void EventSceneLogicManager::SelectRandomStoryEvent()
 {
-    auto currentNodeSeed = ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeSeed();
+    auto currentNodeSeed = DataRepository::GetInstance().GetCurrentStoryMapNodeSeed();
     math::SetControlSeed(currentNodeSeed);
     
     mRegisteredStoryEvents.clear();
@@ -162,7 +162,7 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
     ///------------------------------------------------------------------------------------------------
     /// Gold Coin cart event
     {
-        auto coinsToGain = math::ControlledRandomInt(30, 100) + 20 * ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeCoord().x;
+        auto coinsToGain = math::ControlledRandomInt(30, 100) + 20 * DataRepository::GetInstance().GetCurrentStoryMapNodeCoord().x;
         mRegisteredStoryEvents.emplace_back
         (
             StoryRandomEventData
@@ -208,7 +208,7 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
                     {
                         if (failedJump)
                         {
-                            auto& progressionHealth = ProgressionDataRepository::GetInstance().StoryCurrentHealth();
+                            auto& progressionHealth = DataRepository::GetInstance().StoryCurrentHealth();
                             progressionHealth.SetValue(progressionHealth.GetValue() - randomHpLoss);
                             progressionHealth.SetDisplayedValue(progressionHealth.GetDisplayedValue() - randomHpLoss);
                             
@@ -217,7 +217,7 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
                     }),
                     StoryRandomEventButtonData("Go down and around  (100% -" + std::to_string(guaranteedHpLoss) + "*)", 4, [=]()
                     {
-                        auto& progressionHealth = ProgressionDataRepository::GetInstance().StoryCurrentHealth();
+                        auto& progressionHealth = DataRepository::GetInstance().StoryCurrentHealth();
                         progressionHealth.SetValue(progressionHealth.GetValue() - guaranteedHpLoss);
                         progressionHealth.SetDisplayedValue(progressionHealth.GetDisplayedValue() - guaranteedHpLoss);
                         
@@ -261,7 +261,7 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
                     {
                         if (failedMaxDrink)
                         {
-                            auto& progressionHealth = ProgressionDataRepository::GetInstance().StoryCurrentHealth();
+                            auto& progressionHealth = DataRepository::GetInstance().StoryCurrentHealth();
                             progressionHealth.SetValue(progressionHealth.GetValue() - randomHpLoss);
                             progressionHealth.SetDisplayedValue(progressionHealth.GetDisplayedValue() - randomHpLoss);
                             
@@ -269,13 +269,13 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
                         }
                         else
                         {
-                            events::EventSystem::GetInstance().DispatchEvent<events::HealthRefillRewardEvent>(ProgressionDataRepository::GetInstance().GetStoryMaxHealth() - ProgressionDataRepository::GetInstance().StoryCurrentHealth().GetValue(), mScene->FindSceneObject(EVENT_PORTRAIT_SCENE_OBJECT_NAME)->mPosition);
+                            events::EventSystem::GetInstance().DispatchEvent<events::HealthRefillRewardEvent>(DataRepository::GetInstance().GetStoryMaxHealth() - DataRepository::GetInstance().StoryCurrentHealth().GetValue(), mScene->FindSceneObject(EVENT_PORTRAIT_SCENE_OBJECT_NAME)->mPosition);
                         }
                     }),
                     StoryRandomEventButtonData("Just a sip  (100% +" + std::to_string(guaranteedHpGain) + "*)", 4, [=]()
                     {
-                        auto& storyCurrentHealth = ProgressionDataRepository::GetInstance().StoryCurrentHealth();
-                        auto healthRestored = math::Min(ProgressionDataRepository::GetInstance().GetStoryMaxHealth(), storyCurrentHealth.GetValue() + guaranteedHpGain) - storyCurrentHealth.GetValue();
+                        auto& storyCurrentHealth = DataRepository::GetInstance().StoryCurrentHealth();
+                        auto healthRestored = math::Min(DataRepository::GetInstance().GetStoryMaxHealth(), storyCurrentHealth.GetValue() + guaranteedHpGain) - storyCurrentHealth.GetValue();
                         events::EventSystem::GetInstance().DispatchEvent<events::HealthRefillRewardEvent>(healthRestored, mScene->FindSceneObject(EVENT_PORTRAIT_SCENE_OBJECT_NAME)->mPosition);
                     })
                 }),
@@ -291,12 +291,12 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
                 {
                     StoryRandomEventButtonData("Ok", 5)
                 }),
-            }, [](){ return ProgressionDataRepository::GetInstance().StoryCurrentHealth().GetValue() < 0.9f * ProgressionDataRepository::GetInstance().GetStoryMaxHealth(); })
+            }, [](){ return DataRepository::GetInstance().StoryCurrentHealth().GetValue() < 0.9f * DataRepository::GetInstance().GetStoryMaxHealth(); })
         );
     }
     
     auto eventIndexSelectionRandInt = math::ControlledRandomInt(0, static_cast<int>(mRegisteredStoryEvents.size()) - 1);
-    mCurrentEventIndex = ProgressionDataRepository::GetInstance().GetCurrentEventIndex();
+    mCurrentEventIndex = DataRepository::GetInstance().GetCurrentEventIndex();
     if (mCurrentEventIndex == -1)
     {
         mCurrentEventIndex = eventIndexSelectionRandInt;
@@ -304,7 +304,7 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
         {
             mCurrentEventIndex = (mCurrentEventIndex + 1) % mRegisteredStoryEvents.size();
         }
-        ProgressionDataRepository::GetInstance().SetCurrentEventIndex(mCurrentEventIndex);
+        DataRepository::GetInstance().SetCurrentEventIndex(mCurrentEventIndex);
     }
 }
 
@@ -415,8 +415,8 @@ void EventSceneLogicManager::CreateEventScreen(const int screenIndex)
                 {
                     screenButton.mOnClickCallback();
                 }
-                ProgressionDataRepository::GetInstance().SetCurrentEventScreenIndex(screenButton.mNextScreenIndex);
-                ProgressionDataRepository::GetInstance().FlushStateToFile();
+                DataRepository::GetInstance().SetCurrentEventScreenIndex(screenButton.mNextScreenIndex);
+                DataRepository::GetInstance().FlushStateToFile();
                 TransitionToEventScreen(screenButton.mNextScreenIndex);
             },
             *mScene,

@@ -14,7 +14,7 @@
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/PlayCardGameAction.h>
 #include <game/gameactions/PlayerActionGenerationEngine.h>
-#include <game/ProgressionDataRepository.h>
+#include <game/DataRepository.h>
 #include <memory>
 #include <set>
 
@@ -52,7 +52,7 @@ protected:
 protected:
     GameActionTests()
     {
-        ProgressionDataRepository::GetInstance().ResetStoryData();
+        DataRepository::GetInstance().ResetStoryData();
         CardDataRepository::GetInstance().LoadCardData(false);
     }
     

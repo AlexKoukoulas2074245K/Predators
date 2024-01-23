@@ -45,16 +45,16 @@ void HeroCardEntryGameAction::VSetNewGameState()
 {
     auto& activePlayerState = mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX];
     
-    assert(!ProgressionDataRepository::GetInstance().GetNextStoryOpponentTexturePath().empty());
+    assert(!DataRepository::GetInstance().GetNextStoryOpponentTexturePath().empty());
     
     CardData heroCardData;
     heroCardData.mCardFamily = game_constants::DEMONS_GENERIC_FAMILY_NAME;
     heroCardData.mCardId = 0; // to be filled by CardDataRepository
-    heroCardData.mCardName = ProgressionDataRepository::GetInstance().GetNextStoryOpponentName();
-    heroCardData.mCardDamage = ProgressionDataRepository::GetInstance().GetNextStoryOpponentDamage();
-    heroCardData.mCardWeight = ProgressionDataRepository::GetInstance().GetNextBattleTopPlayerWeightLimit();
+    heroCardData.mCardName = DataRepository::GetInstance().GetNextStoryOpponentName();
+    heroCardData.mCardDamage = DataRepository::GetInstance().GetNextStoryOpponentDamage();
+    heroCardData.mCardWeight = DataRepository::GetInstance().GetNextBattleTopPlayerWeightLimit();
     heroCardData.mCardShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + game_constants::DEFAULT_SHADER_NAME);
-    heroCardData.mCardTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(ProgressionDataRepository::GetInstance().GetNextStoryOpponentTexturePath());
+    heroCardData.mCardTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(DataRepository::GetInstance().GetNextStoryOpponentTexturePath());
     
     mHeroCardId = CardDataRepository::GetInstance().InsertDynamicCardData(heroCardData);
     

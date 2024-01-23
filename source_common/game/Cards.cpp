@@ -14,7 +14,7 @@
 #include <engine/utils/OSMessageBox.h>
 #include <game/Cards.h>
 #include <game/GameConstants.h>
-#include <game/ProgressionDataRepository.h>
+#include <game/DataRepository.h>
 #include <nlohmann/json.hpp>
 
 ///------------------------------------------------------------------------------------------------
@@ -114,14 +114,14 @@ std::vector<int> CardDataRepository::GetStoryUnlockedCardRewardsPool() const
     auto allStoryDeckFamilyCards = GetCardIdsByFamily(guessedStoryDeckFamilyName);
     std::sort(allStoryDeckFamilyCards.begin(), allStoryDeckFamilyCards.end());
     
-    auto unlockedCards = ProgressionDataRepository::GetInstance().GetUnlockedCardIds();
+    auto unlockedCards = DataRepository::GetInstance().GetUnlockedCardIds();
     std::sort(unlockedCards.begin(), unlockedCards.end());
     
     // Find unlocked cards for the current story deck's family
     std::vector<int> familyUnlockedCards;
     std::set_intersection(allStoryDeckFamilyCards.begin(), allStoryDeckFamilyCards.end(), unlockedCards.begin(), unlockedCards.end(), std::back_inserter(familyUnlockedCards));
     
-    auto currentStoryDeck = ProgressionDataRepository::GetInstance().GetCurrentStoryPlayerDeck();
+    auto currentStoryDeck = DataRepository::GetInstance().GetCurrentStoryPlayerDeck();
     std::sort(currentStoryDeck.begin(), currentStoryDeck.end());
     
     // Final reward card pool is unlocked family cards minus any card on the current story deck
@@ -147,11 +147,11 @@ CardData CardDataRepository::GetCardData(const int cardId, const size_t forPlaye
     {
         CardData cardData = findIter->second;
         
-        if (!ProgressionDataRepository::GetInstance().GetQuickPlayData())
+        if (!DataRepository::GetInstance().GetQuickPlayData())
         {
             if (forPlayerIndex == game_constants::LOCAL_PLAYER_INDEX)
             {
-                const auto& storyCardStatModifiers = ProgressionDataRepository::GetInstance().GetStoryPlayerCardStatModifiers();
+                const auto& storyCardStatModifiers = DataRepository::GetInstance().GetStoryPlayerCardStatModifiers();
                 if (storyCardStatModifiers.count(CardStatType::DAMAGE))
                 {
                     cardData.mCardDamage += storyCardStatModifiers.at(CardStatType::DAMAGE);
@@ -181,7 +181,7 @@ const std::unordered_set<strutils::StringId, strutils::StringIdHasher>& CardData
 
 strutils::StringId CardDataRepository::GuessCurrentStoryDeckFamily() const
 {
-    auto currentStoryDeck = ProgressionDataRepository::GetInstance().GetCurrentStoryPlayerDeck();
+    auto currentStoryDeck = DataRepository::GetInstance().GetCurrentStoryPlayerDeck();
     std::sort(currentStoryDeck.begin(), currentStoryDeck.end());
     
     for (const auto& cardFamily: mCardFamilies)

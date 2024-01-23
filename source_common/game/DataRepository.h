@@ -1,12 +1,12 @@
 ///------------------------------------------------------------------------------------------------
-///  ProgressionDataRepository.h                                                                                          
+///  DataRepository.h                                                                                          
 ///  Predators                                                                                            
 ///                                                                                                
 ///  Created by Alex Koukoulas on 08/12/2023                                                       
 ///------------------------------------------------------------------------------------------------
 
-#ifndef ProgressionDataRepository_h
-#define ProgressionDataRepository_h
+#ifndef DataRepository_h
+#define DataRepository_h
 
 ///------------------------------------------------------------------------------------------------
 
@@ -68,18 +68,19 @@ class StoryDeserializer;
 class StorySerializer;
 class PersistentAccountDataSerializer;
 class PersistentAccountDataDeserializer;
-class ProgressionDataRepository final
+class DataRepository final
 {
 public:
-    static ProgressionDataRepository& GetInstance();
-    ~ProgressionDataRepository() = default;
+    static DataRepository& GetInstance();
+    ~DataRepository() = default;
     
-    ProgressionDataRepository(const ProgressionDataRepository&) = delete;
-    ProgressionDataRepository(ProgressionDataRepository&&) = delete;
-    const ProgressionDataRepository& operator = (const ProgressionDataRepository&) = delete;
-    ProgressionDataRepository& operator = (ProgressionDataRepository&&) = delete;
+    DataRepository(const DataRepository&) = delete;
+    DataRepository(DataRepository&&) = delete;
+    const DataRepository& operator = (const DataRepository&) = delete;
+    DataRepository& operator = (DataRepository&&) = delete;
     
     void ResetStoryData();
+    void ReloadProgressionDataFromFile();
     void FlushStateToFile();
     
     const std::unordered_map<CardStatType, int>& GetStoryPlayerCardStatModifiers() const;
@@ -177,11 +178,14 @@ public:
     const std::string& GetNextStoryOpponentName() const;
     void SetNextStoryOpponentName(const std::string& nextStoryOpponentName);
     
+    const std::string& GetCloudDataDeviceNameAndTime() const;
+    void SetCloudDataDeviceNameAndTime(const std::string& cloudDataDeviceNameAndTime);
+    
     const bool& IsCurrentlyPlayingStoryMode() const;
     void SetIsCurrentlyPlayingStoryMode(const bool isCurrentlyPlayingStoryMode);
     
 private:
-    ProgressionDataRepository();
+    DataRepository();
     
 private:
     std::unordered_map<CardStatType, int> mStoryPlayerCardStatModifiers;
@@ -201,6 +205,7 @@ private:
     std::vector<std::pair<int, int>> mCurrentShopBoughtProductCoordinates;
     std::string mNextStoryOpponentTexturePath;
     std::string mNextStoryOpponentName;
+    std::string mCloudDataDeviceAndTime;
     glm::vec3 mSelectedStoryMapNodePosition = {};
     glm::ivec2 mCurrentStoryMapNodeCoord = game_constants::STORY_MAP_INIT_COORD;
     StoryMap::NodeType mCurrentStoryMapNodeType = StoryMap::NodeType::NORMAL_ENCOUNTER;
@@ -225,4 +230,4 @@ private:
 
 ///------------------------------------------------------------------------------------------------
 
-#endif /* ProgressionDataRepository_h */
+#endif /* DataRepository_h */

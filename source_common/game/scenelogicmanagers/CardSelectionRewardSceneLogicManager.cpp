@@ -19,7 +19,7 @@
 #include <game/GuiObjectManager.h>
 #include <game/events/EventSystem.h>
 #include <game/GameSceneTransitionManager.h>
-#include <game/ProgressionDataRepository.h>
+#include <game/DataRepository.h>
 #include <game/scenelogicmanagers/CardSelectionRewardSceneLogicManager.h>
 
 ///------------------------------------------------------------------------------------------------
@@ -110,8 +110,8 @@ void CardSelectionRewardSceneLogicManager::VInitScene(std::shared_ptr<scene::Sce
         SKIP_BUTTON_SCENE_OBJECT_NAME,
         [=]()
         {
-            ProgressionDataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::BATTLE);
-            ProgressionDataRepository::GetInstance().FlushStateToFile();
+            DataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::BATTLE);
+            DataRepository::GetInstance().FlushStateToFile();
             events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_MAP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
         },
         *scene,
@@ -147,11 +147,11 @@ void CardSelectionRewardSceneLogicManager::VUpdate(const float dtMillis, std::sh
             mInitialSurfacingDelaySecs -= dtMillis/1000.0f;
             if (mInitialSurfacingDelaySecs <= 0.0f)
             {
-                if (!ProgressionDataRepository::GetInstance().GetNextStoryOpponentName().empty())
+                if (!DataRepository::GetInstance().GetNextStoryOpponentName().empty())
                 {
-                    ProgressionDataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::CARD_SELECTION);
-                    ProgressionDataRepository::GetInstance().SetCurrentStoryMapNodeSeed(math::GetControlSeed());
-                    ProgressionDataRepository::GetInstance().FlushStateToFile();
+                    DataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::CARD_SELECTION);
+                    DataRepository::GetInstance().SetCurrentStoryMapNodeSeed(math::GetControlSeed());
+                    DataRepository::GetInstance().FlushStateToFile();
                 }
                 
                 for (auto sceneObject: scene->GetSceneObjects())
@@ -436,11 +436,11 @@ void CardSelectionRewardSceneLogicManager::OnConfirmationButtonPressed()
     {
         if (cardReward->mState == CardSoState::HIGHLIGHTED)
         {
-            auto currentPlayerDeck = ProgressionDataRepository::GetInstance().GetCurrentStoryPlayerDeck();
+            auto currentPlayerDeck = DataRepository::GetInstance().GetCurrentStoryPlayerDeck();
             currentPlayerDeck.push_back(cardReward->mCardData.mCardId);
-            ProgressionDataRepository::GetInstance().SetCurrentStoryPlayerDeck(currentPlayerDeck);
-            ProgressionDataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::BATTLE);
-            ProgressionDataRepository::GetInstance().FlushStateToFile();
+            DataRepository::GetInstance().SetCurrentStoryPlayerDeck(currentPlayerDeck);
+            DataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::BATTLE);
+            DataRepository::GetInstance().FlushStateToFile();
             mSceneState = SceneState::CARD_SELECTION_CONFIRMATION_ANIMATION;
             
             auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();

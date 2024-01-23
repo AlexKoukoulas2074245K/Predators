@@ -18,7 +18,6 @@
 ///------------------------------------------------------------------------------------------------
 
 static const strutils::StringId OVERLAY_DARKENING_ANIMATION_NAME = strutils::StringId("overlay_darkening_animation");
-static const strutils::StringId LOADING_SCENE_NAME = strutils::StringId("loading_scene");
 
 static const std::string OVERLAY_TEXTURE_FILE_NAME = "overlay.png";
 
@@ -61,12 +60,12 @@ void GameSceneTransitionManager::Update(const float dtMillis)
     auto outstandingLoadingJobCount = CoreSystemsEngine::GetInstance().GetResourceLoadingService().GetOustandingLoadingJobCount();
     auto activeScene = sceneManager.FindScene(mActiveSceneStack.top().mActiveSceneName);
     
-    if (activeScene->GetName() == LOADING_SCENE_NAME)
+    if (activeScene->GetName() == game_constants::LOADING_SCENE_NAME)
     {
         mLoadingScreenMinDelaySecs -= mLoadingScreenMinDelaySecs < 0.0f ? 0.0f : dtMillis/1000.0f;
     }
     
-    if (activeScene->GetName() == LOADING_SCENE_NAME && outstandingLoadingJobCount == 0 && mLoadingScreenMinDelaySecs <= 0.0f)
+    if (activeScene->GetName() == game_constants::LOADING_SCENE_NAME && outstandingLoadingJobCount == 0 && mLoadingScreenMinDelaySecs <= 0.0f)
     {
         CoreSystemsEngine::GetInstance().GetResourceLoadingService().SetAsyncLoading(false);
         
@@ -74,7 +73,7 @@ void GameSceneTransitionManager::Update(const float dtMillis)
         {
             CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, 0.0f, LOADING_SCENE_FADE_IN_OUT_DURATION_SECS), [=]()
             {
-                CoreSystemsEngine::GetInstance().GetSceneManager().RemoveScene(LOADING_SCENE_NAME);
+                CoreSystemsEngine::GetInstance().GetSceneManager().RemoveScene(game_constants::LOADING_SCENE_NAME);
             });
         }
         
@@ -85,7 +84,7 @@ void GameSceneTransitionManager::Update(const float dtMillis)
         
         return;
     }
-    else if (activeScene->GetName() == LOADING_SCENE_NAME && mLoadingScreenMinDelaySecs > 0.0f)
+    else if (activeScene->GetName() == game_constants::LOADING_SCENE_NAME && mLoadingScreenMinDelaySecs > 0.0f)
     {
         for (auto sceneObject: activeScene->GetSceneObjects())
         {
@@ -220,7 +219,7 @@ void GameSceneTransitionManager::ChangeToScene
         if (sceneChangeType == SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING)
         {
             // We first do a (recursive) call to the ChangeToScene to load the loading scene
-            ChangeToScene(LOADING_SCENE_NAME, SceneChangeType::CONCRETE_SCENE_SYNC_LOADING, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+            ChangeToScene(game_constants::LOADING_SCENE_NAME, SceneChangeType::CONCRETE_SCENE_SYNC_LOADING, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
             
             // Enable async resource loading
             CoreSystemsEngine::GetInstance().GetResourceLoadingService().SetAsyncLoading(true);

@@ -50,6 +50,7 @@ void BaseDataFileSerializer::FlushStateToFile()
     mState["timestamp"] = secsSinceEpoch;
 #if defined(MACOS) || defined(MOBILE_FLOW)
     mState["device_id"] = apple_utils::GetDeviceId();
+    mState["device_name"] = apple_utils::GetDeviceName();
 #elif defined(WINDOWS)
 #endif
     

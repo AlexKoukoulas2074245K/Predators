@@ -15,7 +15,7 @@
 #include <game/AnimatedButton.h>
 #include <game/Cards.h>
 #include <game/events/EventSystem.h>
-#include <game/ProgressionDataRepository.h>
+#include <game/DataRepository.h>
 #include <game/scenelogicmanagers/VisitMapNodeSceneLogicManager.h>
 #include <SDL_events.h>
 
@@ -88,11 +88,11 @@ void VisitMapNodeSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> sce
     
     mAnimatedButtons.clear();
     
-    auto& targetNodePosition = ProgressionDataRepository::GetInstance().GetSelectedStoryMapNodePosition();
+    auto& targetNodePosition = DataRepository::GetInstance().GetSelectedStoryMapNodePosition();
     auto& previousSceneCameraPosition = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(mPreviousScene)->GetCamera().GetPosition();
     
     // Don't visit Tent node
-    if (ProgressionDataRepository::GetInstance().GetSelectedStoryMapNodeData()->mCoords != ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeCoord())
+    if (DataRepository::GetInstance().GetSelectedStoryMapNodeData()->mCoords != DataRepository::GetInstance().GetCurrentStoryMapNodeCoord())
     {
         auto visitButtonPosition = targetNodePosition;
         visitButtonPosition.x += (targetNodePosition.x < previousSceneCameraPosition.x ? VISIT_BUTTON_HOR_DISTANCE_FROM_NODE : -1.5f * VISIT_BUTTON_HOR_DISTANCE_FROM_NODE);
@@ -140,7 +140,7 @@ void VisitMapNodeSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> sce
     scene::TextSceneObjectData textDataNodeDescription;
     textDataNodeDescription.mFontName = game_constants::DEFAULT_FONT_NAME;
     
-    const auto effectiveNodeType = ProgressionDataRepository::GetInstance().GetSelectedStoryMapNodeData()->mCoords == ProgressionDataRepository::GetInstance().GetCurrentStoryMapNodeCoord() ? StoryMap::NodeType::STARTING_LOCATION : ProgressionDataRepository::GetInstance().GetSelectedStoryMapNodeData()->mNodeType;
+    const auto effectiveNodeType = DataRepository::GetInstance().GetSelectedStoryMapNodeData()->mCoords == DataRepository::GetInstance().GetCurrentStoryMapNodeCoord() ? StoryMap::NodeType::STARTING_LOCATION : DataRepository::GetInstance().GetSelectedStoryMapNodeData()->mNodeType;
     switch(effectiveNodeType)
     {
         case StoryMap::NodeType::NORMAL_ENCOUNTER:
@@ -261,14 +261,14 @@ std::shared_ptr<GuiObjectManager> VisitMapNodeSceneLogicManager::VGetGuiObjectMa
 
 void VisitMapNodeSceneLogicManager::InitializeNodeVisitData()
 {
-    auto* selectedNodeData = ProgressionDataRepository::GetInstance().GetSelectedStoryMapNodeData();
+    auto* selectedNodeData = DataRepository::GetInstance().GetSelectedStoryMapNodeData();
     
     assert(selectedNodeData);
     assert(selectedNodeData->mNodeRandomSeed != 0);
     
-    ProgressionDataRepository::GetInstance().SetCurrentStoryMapNodeSeed(selectedNodeData->mNodeRandomSeed);
-    ProgressionDataRepository::GetInstance().SetCurrentStoryMapNodeCoord(selectedNodeData->mCoords);
-    ProgressionDataRepository::GetInstance().SetCurrentStoryMapNodeType(selectedNodeData->mNodeType);
+    DataRepository::GetInstance().SetCurrentStoryMapNodeSeed(selectedNodeData->mNodeRandomSeed);
+    DataRepository::GetInstance().SetCurrentStoryMapNodeCoord(selectedNodeData->mCoords);
+    DataRepository::GetInstance().SetCurrentStoryMapNodeType(selectedNodeData->mNodeType);
     
     std::vector<int> opponentDeckBuilder;
     
@@ -276,14 +276,14 @@ void VisitMapNodeSceneLogicManager::InitializeNodeVisitData()
     {
         case StoryMap::NodeType::EVENT:
         {
-            ProgressionDataRepository::GetInstance().SetCurrentEventIndex(-1);
-            ProgressionDataRepository::GetInstance().SetCurrentEventScreenIndex(0);
+            DataRepository::GetInstance().SetCurrentEventIndex(-1);
+            DataRepository::GetInstance().SetCurrentEventScreenIndex(0);
             events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::EVENT_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
         } break;
         
         case StoryMap::NodeType::SHOP:
         {
-            ProgressionDataRepository::GetInstance().ClearShopBoughtProductCoordinates();
+            DataRepository::GetInstance().ClearShopBoughtProductCoordinates();
             events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::SHOP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
         } break;
             
@@ -306,8 +306,8 @@ void VisitMapNodeSceneLogicManager::InitializeNodeVisitData()
             opponentDeckBuilder.insert(opponentDeckBuilder.end(), normalCards.begin(), normalCards.end());
             
             // Populate opponent deck and battle control type
-            ProgressionDataRepository::GetInstance().SetNextTopPlayerDeck(opponentDeckBuilder);
-            ProgressionDataRepository::GetInstance().SetNextBattleControlType(BattleControlType::AI_TOP_ONLY);
+            DataRepository::GetInstance().SetNextTopPlayerDeck(opponentDeckBuilder);
+            DataRepository::GetInstance().SetNextBattleControlType(BattleControlType::AI_TOP_ONLY);
             
             // Populate opponent hero card name & texture
             auto storyMapScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::STORY_MAP_SCENE);
@@ -317,20 +317,20 @@ void VisitMapNodeSceneLogicManager::InitializeNodeVisitData()
             auto nodeWeightTextSceneObject = storyMapScene->FindSceneObject(strutils::StringId(MapCoord(selectedNodeData->mCoords.x, selectedNodeData->mCoords.y).ToString() + game_constants::STORY_MAP_NODE_WEIGHT_TEXT_SO_NAME_POST_FIX));
             auto nodeNameTextSceneObject = storyMapScene->FindSceneObject(strutils::StringId(MapCoord(selectedNodeData->mCoords.x, selectedNodeData->mCoords.y).ToString() + game_constants::STORY_MAP_NODE_TEXT_SO_NAME_POST_FIX));
             
-            ProgressionDataRepository::GetInstance().SetNextStoryOpponentTexturePath(CoreSystemsEngine::GetInstance().GetResourceLoadingService().GetResourcePath(nodePortraitSceneObject->mTextureResourceId));
-            ProgressionDataRepository::GetInstance().SetNextStoryOpponentName(std::get<scene::TextSceneObjectData>(nodeNameTextSceneObject->mSceneObjectTypeData).mText);
-            ProgressionDataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::BATTLE);
+            DataRepository::GetInstance().SetNextStoryOpponentTexturePath(CoreSystemsEngine::GetInstance().GetResourceLoadingService().GetResourcePath(nodePortraitSceneObject->mTextureResourceId));
+            DataRepository::GetInstance().SetNextStoryOpponentName(std::get<scene::TextSceneObjectData>(nodeNameTextSceneObject->mSceneObjectTypeData).mText);
+            DataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::BATTLE);
             
             // Populate opponent stats
-            ProgressionDataRepository::GetInstance().SetNextStoryOpponentDamage(std::stoi(std::get<scene::TextSceneObjectData>(nodeDamageTextSceneObject->mSceneObjectTypeData).mText));
-            ProgressionDataRepository::GetInstance().SetNextBattleTopPlayerHealth(std::stoi(std::get<scene::TextSceneObjectData>(nodeHealthTextSceneObject->mSceneObjectTypeData).mText));
-            ProgressionDataRepository::GetInstance().SetNextBattleTopPlayerInitWeight(std::stoi(std::get<scene::TextSceneObjectData>(nodeWeightTextSceneObject->mSceneObjectTypeData).mText) - 1);
-            ProgressionDataRepository::GetInstance().SetNextBattleTopPlayerWeightLimit(std::stoi(std::get<scene::TextSceneObjectData>(nodeWeightTextSceneObject->mSceneObjectTypeData).mText));
+            DataRepository::GetInstance().SetNextStoryOpponentDamage(std::stoi(std::get<scene::TextSceneObjectData>(nodeDamageTextSceneObject->mSceneObjectTypeData).mText));
+            DataRepository::GetInstance().SetNextBattleTopPlayerHealth(std::stoi(std::get<scene::TextSceneObjectData>(nodeHealthTextSceneObject->mSceneObjectTypeData).mText));
+            DataRepository::GetInstance().SetNextBattleTopPlayerInitWeight(std::stoi(std::get<scene::TextSceneObjectData>(nodeWeightTextSceneObject->mSceneObjectTypeData).mText) - 1);
+            DataRepository::GetInstance().SetNextBattleTopPlayerWeightLimit(std::stoi(std::get<scene::TextSceneObjectData>(nodeWeightTextSceneObject->mSceneObjectTypeData).mText));
             
             // Populate local player stats
-            ProgressionDataRepository::GetInstance().SetNextBotPlayerDeck(ProgressionDataRepository::GetInstance().GetCurrentStoryPlayerDeck());
-            ProgressionDataRepository::GetInstance().SetNextBattleBotPlayerHealth(ProgressionDataRepository::GetInstance().StoryCurrentHealth().GetValue());
-            ProgressionDataRepository::GetInstance().SetNextBattleBotPlayerWeightLimit(game_constants::BOT_PLAYER_DEFAULT_WEIGHT_LIMIT);
+            DataRepository::GetInstance().SetNextBotPlayerDeck(DataRepository::GetInstance().GetCurrentStoryPlayerDeck());
+            DataRepository::GetInstance().SetNextBattleBotPlayerHealth(DataRepository::GetInstance().StoryCurrentHealth().GetValue());
+            DataRepository::GetInstance().SetNextBattleBotPlayerWeightLimit(game_constants::BOT_PLAYER_DEFAULT_WEIGHT_LIMIT);
             
             events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::BATTLE_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
         } break;
@@ -341,7 +341,7 @@ void VisitMapNodeSceneLogicManager::InitializeNodeVisitData()
         } break;
     }
     
-    ProgressionDataRepository::GetInstance().FlushStateToFile();
+    DataRepository::GetInstance().FlushStateToFile();
 }
 
 ///------------------------------------------------------------------------------------------------

@@ -16,7 +16,7 @@
 #include <game/events/EventSystem.h>
 #include <game/GameSceneTransitionManager.h>
 #include <game/scenelogicmanagers/WheelOfFortuneSceneLogicManager.h>
-#include <game/ProgressionDataRepository.h>
+#include <game/DataRepository.h>
 #include <game/WheelOfFortuneController.h>
 
 ///------------------------------------------------------------------------------------------------
@@ -96,11 +96,11 @@ void WheelOfFortuneSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> s
 {
     mScene = scene;
     
-    if (!ProgressionDataRepository::GetInstance().GetNextStoryOpponentName().empty())
+    if (!DataRepository::GetInstance().GetNextStoryOpponentName().empty())
     {
-        ProgressionDataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::WHEEL);
-        ProgressionDataRepository::GetInstance().SetCurrentStoryMapNodeSeed(math::GetControlSeed());
-        ProgressionDataRepository::GetInstance().FlushStateToFile();
+        DataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::WHEEL);
+        DataRepository::GetInstance().SetCurrentStoryMapNodeSeed(math::GetControlSeed());
+        DataRepository::GetInstance().FlushStateToFile();
     }
     
     mWheelController = std::make_unique<WheelOfFortuneController>(*scene, WHEEL_REWARDS, [=](const int itemIndex, const std::shared_ptr<scene::SceneObject> itemSceneObject){ OnWheelItemSelected(itemIndex, itemSceneObject); });
@@ -222,7 +222,7 @@ void WheelOfFortuneSceneLogicManager::OnWheelItemSelected(const int itemIndex, c
     }
     else if (WHEEL_REWARDS.at(itemIndex) == REWARD_REFILL_HP_TEXTURE)
     {
-        events::EventSystem::GetInstance().DispatchEvent<events::HealthRefillRewardEvent>(ProgressionDataRepository::GetInstance().GetStoryMaxHealth() - ProgressionDataRepository::GetInstance().StoryCurrentHealth().GetValue(), REWARD_ORIGIN_POSITION);
+        events::EventSystem::GetInstance().DispatchEvent<events::HealthRefillRewardEvent>(DataRepository::GetInstance().GetStoryMaxHealth() - DataRepository::GetInstance().StoryCurrentHealth().GetValue(), REWARD_ORIGIN_POSITION);
     }
     else if (WHEEL_REWARDS.at(itemIndex) == REWARD_EXTRA_DAMAGE_TEXTURE)
     {
@@ -233,11 +233,11 @@ void WheelOfFortuneSceneLogicManager::OnWheelItemSelected(const int itemIndex, c
         events::EventSystem::GetInstance().DispatchEvent<events::ExtraWeightRewardEvent>();
     }
     
-    if (!ProgressionDataRepository::GetInstance().GetNextStoryOpponentName().empty())
+    if (!DataRepository::GetInstance().GetNextStoryOpponentName().empty())
     {
-        ProgressionDataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::CARD_SELECTION);
-        ProgressionDataRepository::GetInstance().SetCurrentStoryMapNodeSeed(math::GetControlSeed());
-        ProgressionDataRepository::GetInstance().FlushStateToFile();
+        DataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::CARD_SELECTION);
+        DataRepository::GetInstance().SetCurrentStoryMapNodeSeed(math::GetControlSeed());
+        DataRepository::GetInstance().FlushStateToFile();
     }
     
     mContinueButton = std::make_unique<AnimatedButton>
@@ -255,8 +255,8 @@ void WheelOfFortuneSceneLogicManager::OnWheelItemSelected(const int itemIndex, c
                 guiObjectManager->StopRewardAnimation();
             }
             
-            ProgressionDataRepository::GetInstance().StoryCurrentHealth().SetDisplayedValue(ProgressionDataRepository::GetInstance().StoryCurrentHealth().GetValue());
-            guiObjectManager->ForceSetStoryHealthValue(ProgressionDataRepository::GetInstance().StoryCurrentHealth().GetValue());
+            DataRepository::GetInstance().StoryCurrentHealth().SetDisplayedValue(DataRepository::GetInstance().StoryCurrentHealth().GetValue());
+            guiObjectManager->ForceSetStoryHealthValue(DataRepository::GetInstance().StoryCurrentHealth().GetValue());
             
             events::EventSystem::GetInstance().DispatchEvent<events::PopSceneModalEvent>();
         },
