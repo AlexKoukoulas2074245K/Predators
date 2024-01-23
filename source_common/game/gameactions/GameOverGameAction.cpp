@@ -115,7 +115,7 @@ ActionAnimationUpdateResult GameOverGameAction::VUpdateAnimation(const float dtM
                     if (mExplosionCounter++ <= MAX_EXPLOSIONS)
                     {
                         auto particleEmitterPosition = cardSoWrapper->mSceneObject->mPosition;
-                        particleEmitterPosition.x += math::RandomFloat(-0.01f, 0.01f);
+                        particleEmitterPosition.x += math::RandomFloat(-0.02f, 0.01f);
                         particleEmitterPosition.y += math::RandomFloat(-0.01f, 0.01f);
                         particleEmitterPosition.z += math::RandomFloat(1.0f, 3.0f);
                         

@@ -250,11 +250,8 @@ void WheelOfFortuneSceneLogicManager::OnWheelItemSelected(const int itemIndex, c
         [=]()
         {
             auto guiObjectManager = mGameSceneTransitionManager->GetSceneLogicManagerResponsibleForScene(mPreviousScene)->VGetGuiObjectManager();
-            if (guiObjectManager)
-            {
-                guiObjectManager->StopRewardAnimation();
-            }
-            
+            guiObjectManager->StopRewardAnimation();
+            guiObjectManager->ResetDisplayedCurrencyCoins();
             DataRepository::GetInstance().StoryCurrentHealth().SetDisplayedValue(DataRepository::GetInstance().StoryCurrentHealth().GetValue());
             guiObjectManager->ForceSetStoryHealthValue(DataRepository::GetInstance().StoryCurrentHealth().GetValue());
             

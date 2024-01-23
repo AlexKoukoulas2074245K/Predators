@@ -129,13 +129,7 @@ void CardSelectionRewardSceneLogicManager::VInitScene(std::shared_ptr<scene::Sce
         sceneObject->mInvisible = true;
         sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
     }
-    
-    auto guiObjectManager = mGameSceneTransitionManager->GetSceneLogicManagerResponsibleForScene(mPreviousScene)->VGetGuiObjectManager();
-    if (guiObjectManager)
-    {
-        guiObjectManager->ResetDisplayedCurrencyCoins();
-    }
-    
+
     RegisterForEvents();
 }
 
@@ -158,6 +152,14 @@ void CardSelectionRewardSceneLogicManager::VUpdate(const float dtMillis, std::sh
                     DataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::CARD_SELECTION);
                     DataRepository::GetInstance().SetCurrentStoryMapNodeSeed(math::GetControlSeed());
                     DataRepository::GetInstance().FlushStateToFile();
+                }
+                
+                auto guiObjectManager = mGameSceneTransitionManager->GetSceneLogicManagerResponsibleForScene(mPreviousScene)->VGetGuiObjectManager();
+                if (guiObjectManager)
+                {
+                    guiObjectManager->ResetDisplayedCurrencyCoins();
+                    DataRepository::GetInstance().StoryCurrentHealth().SetDisplayedValue(DataRepository::GetInstance().StoryCurrentHealth().GetValue());
+                    guiObjectManager->ForceSetStoryHealthValue(DataRepository::GetInstance().StoryCurrentHealth().GetValue());
                 }
                 
                 for (auto sceneObject: scene->GetSceneObjects())
