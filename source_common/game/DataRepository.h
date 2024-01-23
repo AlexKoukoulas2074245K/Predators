@@ -116,6 +116,9 @@ public:
     const std::vector<int>& GetNextBotPlayerDeck() const;
     void SetNextBotPlayerDeck(const std::vector<int>& deck);
     
+    const int& GetGamesFinishedCount() const;
+    void SetGamesFinishedCount(const int gamesFinishedCount);
+    
     const int& GetStoryMaxHealth() const;
     void SetStoryMaxHealth(const int storyMaxHealth);
     
@@ -214,6 +217,7 @@ private:
     const StoryMap::NodeData* mSelectedStoryMapNodeData = nullptr;
     ValueWithDelayedDisplay<int> mStoryCurrentHealth;
     ValueWithDelayedDisplay<long long> mCurrencyCoins;
+    int mGamesFinishedCount = 0;
     int mStoryMaxHealth = 0;
     int mStoryMapGenerationSeed = 0;
     int mCurrentStoryMapNodeSeed = 0;

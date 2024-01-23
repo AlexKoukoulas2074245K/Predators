@@ -16,18 +16,23 @@
 PersistentAccountDataDeserializer::PersistentAccountDataDeserializer(DataRepository& dataRepository)
     : serial::BaseDataFileDeserializer("persistent", serial::DataFileType::PERSISTENCE_FILE_TYPE, serial::WarnOnFileNotFoundBehavior::DO_NOT_WARN, serial::CheckSumValidationBehavior::VALIDATE_CHECKSUM)
 {
-    const auto& storyJson = GetState();
+    const auto& persistentDataJson = GetState();
     
-    if (storyJson.count("currency_coins"))
+    if (persistentDataJson.count("currency_coins"))
     {
-        auto currency = storyJson["currency_coins"].get<long long>();
+        auto currency = persistentDataJson["currency_coins"].get<long long>();
         dataRepository.CurrencyCoins().SetDisplayedValue(currency);
         dataRepository.CurrencyCoins().SetValue(currency);
     }
     
-    if (storyJson.count("unlocked_card_ids"))
+    if (persistentDataJson.count("games_finished_count"))
     {
-        dataRepository.SetUnlockedCardIds(storyJson["unlocked_card_ids"].get<std::vector<int>>());
+        dataRepository.SetGamesFinishedCount(persistentDataJson["games_finished_count"].get<int>());
+    }
+    
+    if (persistentDataJson.count("unlocked_card_ids"))
+    {
+        dataRepository.SetUnlockedCardIds(persistentDataJson["unlocked_card_ids"].get<std::vector<int>>());
     }
 }
 

@@ -18,6 +18,7 @@
 #include <engine/scene/SceneManager.h>
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
+#include <engine/utils/FileUtils.h>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -54,7 +55,10 @@ void HeroCardEntryGameAction::VSetNewGameState()
     heroCardData.mCardDamage = DataRepository::GetInstance().GetNextStoryOpponentDamage();
     heroCardData.mCardWeight = DataRepository::GetInstance().GetNextBattleTopPlayerWeightLimit();
     heroCardData.mCardShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + game_constants::DEFAULT_SHADER_NAME);
-    heroCardData.mCardTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(DataRepository::GetInstance().GetNextStoryOpponentTexturePath());
+    
+    // "Localize" dynamically created hero card texture. This path could have come from an iPhone app.
+    auto heroCardTextureFileName = fileutils::GetFileName(DataRepository::GetInstance().GetNextStoryOpponentTexturePath());
+    heroCardData.mCardTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "story_cards/" + heroCardTextureFileName);
     
     mHeroCardId = CardDataRepository::GetInstance().InsertDynamicCardData(heroCardData);
     

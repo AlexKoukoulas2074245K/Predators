@@ -210,6 +210,21 @@ void DataRepository::SetCurrentCardLibraryBehaviorType(const CardLibraryBehavior
 
 ///------------------------------------------------------------------------------------------------
 
+const int& DataRepository::GetGamesFinishedCount() const
+{
+    return mGamesFinishedCount;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void DataRepository::SetGamesFinishedCount(const int gamesFinishedCount)
+{
+    mGamesFinishedCount = gamesFinishedCount;
+    mPersistentDataSerializer->GetState()["games_finished_count"] = mGamesFinishedCount;
+}
+
+///------------------------------------------------------------------------------------------------
+
 const int& DataRepository::GetCurrentEventScreenIndex() const
 {
     return mCurrentEventScreenIndex;
