@@ -35,8 +35,8 @@ static const std::string COIN_STACK_TEXTURE_FILE_NAME = "coin_stack.png";
 static const std::string HEALTH_CRYSTAL_TEXTURE_FILE_NAME = "health_crystal.png";
 static const std::string HEALTH_CRYSTAL_SCENE_OBJECT_NAME_PREFIX = "health_crystal_";
 
-static const glm::vec2 MAP_SWIPE_X_BOUNDS = {-0.78f, 0.78f};
-static const glm::vec2 MAP_SWIPE_Y_BOUNDS = {-0.78f, 0.78f};
+static const glm::vec2 MAP_SWIPE_X_BOUNDS = {-0.975f, 0.975f};
+static const glm::vec2 MAP_SWIPE_Y_BOUNDS = {-0.975f, 0.975f};
 
 static const float DISTANCE_TO_TARGET_NODE_THRESHOLD = 0.01f;
 static const float CAMERA_NOT_MOVED_THRESHOLD = 0.0001f;

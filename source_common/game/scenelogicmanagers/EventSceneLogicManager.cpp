@@ -162,7 +162,7 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
     ///------------------------------------------------------------------------------------------------
     /// Gold Coin cart event
     {
-        auto coinsToGain = math::ControlledRandomInt(30, 100) + 20 * DataRepository::GetInstance().GetCurrentStoryMapNodeCoord().x;
+        auto coinsToGain = math::ControlledRandomInt(15, 30) + 10 * DataRepository::GetInstance().GetCurrentStoryMapNodeCoord().x;
         mRegisteredStoryEvents.emplace_back
         (
             StoryRandomEventData
