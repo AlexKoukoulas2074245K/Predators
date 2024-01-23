@@ -43,7 +43,7 @@ static const glm::vec3 CARD_HIGHLIGHTER_SCALE = glm::vec3(0.08f, 0.13f, 1.0f) * 
 static const glm::vec3 CARD_REWARD_EXPANDED_SCALE = 1.25f * CARD_REWARD_DEFAULT_SCALE;
 static const glm::vec3 CARD_TOOLTIP_POSITION_OFFSET = {0.0f, 0.1f, 0.0f};
 static const glm::vec3 CARD_TOOLTIP_BASE_SCALE = {0.274f, 0.274f, 1/10.0f};
-static const glm::vec3 SKIP_BUTTON_POSITION = {0.0f, -0.1f, 23.1f};
+static const glm::vec3 SKIP_BUTTON_POSITION = {0.0f, -0.186f, 23.1f};
 
 static const glm::vec2 CARD_BOUGHT_ANIMATION_MIN_MAX_OFFSETS = {-0.15f, 0.15f};
 
@@ -128,6 +128,12 @@ void CardSelectionRewardSceneLogicManager::VInitScene(std::shared_ptr<scene::Sce
         
         sceneObject->mInvisible = true;
         sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+    }
+    
+    auto guiObjectManager = mGameSceneTransitionManager->GetSceneLogicManagerResponsibleForScene(mPreviousScene)->VGetGuiObjectManager();
+    if (guiObjectManager)
+    {
+        guiObjectManager->ResetDisplayedCurrencyCoins();
     }
     
     RegisterForEvents();

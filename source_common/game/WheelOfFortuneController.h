@@ -38,6 +38,7 @@ private:
     {
         INITIAL_SLOW_ROTATION,
         SPINNING,
+        ROTATING_TO_SELECTED_ITEM,
         FINISHED
     };
     

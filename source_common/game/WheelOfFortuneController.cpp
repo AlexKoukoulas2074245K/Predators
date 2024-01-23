@@ -5,8 +5,10 @@
 ///  Created by Alex Koukoulas on 08/01/2024                                                       
 ///------------------------------------------------------------------------------------------------
 
-#include <game/WheelOfFortuneController.h>
 #include <engine/utils/Logging.h>
+#include <engine/rendering/AnimationManager.h>
+#include <game/WheelOfFortuneController.h>
+
 
 ///------------------------------------------------------------------------------------------------
 
@@ -25,9 +27,10 @@ static const glm::vec3 WHEEL_BASE_SCALE = {0.35f, 0.35f, 0.35f};
 
 static const glm::vec2 WHEEL_ROTATION_MULTIPLIER_RANDOM_RANGE = {800.0f, 1200.0f};
 static const float WHEEL_SPIN_ROTATION_DAMPING = 0.98f;
-static const float WHEEL_MIN_ROTATION_SPEED = 0.00008f;
+static const float WHEEL_MIN_ROTATION_SPEED = 0.0001f;
 static const float WHEEL_INITIAL_SLOW_ROTATION_SPEED = 0.0002f;
 static const float WHEEL_SPEED_DELTA_MILLIS = 16.6666f;
+static const float WHEEL_ROTATION_TO_SELECTED_TARGET_ANIMATION_DURATION_SECS = 1.0f;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -100,9 +103,29 @@ void WheelOfFortuneController::Update(const float)
                 auto sliceIndexFloat = (mWheelRotation + math::PI/12)/(-math::PI/6);
                 auto itemIndex = static_cast<int>(sliceIndexFloat < 0.0f ? 0 : (mItems.size() - 1) - static_cast<int>(sliceIndexFloat));
                 
-                mOnItemSelectedCallback(itemIndex, mScene.FindSceneObject(strutils::StringId(WHEEL_ITEM_SCENE_OBJECT_NAME_PREFIX + std::to_string(itemIndex))));
+                // Calculate rotation to target
+                auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+                auto targetRotation = -mScene.FindSceneObject(strutils::StringId(WHEEL_ITEM_SCENE_OBJECT_NAME_PREFIX + std::to_string(itemIndex)))->mRotation.z;
+                if (targetRotation > math::PI)
+                {
+                    targetRotation -= 2.0f * math::PI;
+                }
                 
-                mState = WheelState::FINISHED;
+                // Tween wheel to rotation target
+                animationManager.StartAnimation(std::make_unique<rendering::TweenValueAnimation>
+                (
+                    mWheelRotation,
+                    mWheelRotation + targetRotation,
+                    WHEEL_ROTATION_TO_SELECTED_TARGET_ANIMATION_DURATION_SECS,
+                    animation_flags::NONE, 0.0f,
+                    math::ElasticFunction,
+                    math::TweeningMode::EASE_IN), [=]()
+                {
+                    mOnItemSelectedCallback(itemIndex, mScene.FindSceneObject(strutils::StringId(WHEEL_ITEM_SCENE_OBJECT_NAME_PREFIX + std::to_string(itemIndex))));
+                    mState = WheelState::FINISHED;
+                });
+                
+                mState = WheelState::ROTATING_TO_SELECTED_ITEM;
             }
         } break;
             

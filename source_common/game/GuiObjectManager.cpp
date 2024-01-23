@@ -217,6 +217,14 @@ void GuiObjectManager::OnWindowResize()
 
 ///------------------------------------------------------------------------------------------------
 
+void GuiObjectManager::ResetDisplayedCurrencyCoins()
+{
+    DataRepository::GetInstance().CurrencyCoins().SetDisplayedValue(DataRepository::GetInstance().CurrencyCoins().GetValue());
+    SetCoinValueText();
+}
+
+///------------------------------------------------------------------------------------------------
+
 void GuiObjectManager::ForceSetStoryHealthValue(const int storyHealthValue)
 {
     mHealthStatContainer->ForceSetDisplayedValue(storyHealthValue);

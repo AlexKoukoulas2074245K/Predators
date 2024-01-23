@@ -31,6 +31,7 @@ void QueryPlayerProgress(std::function<void(QueryResultData)> onQueryCompleteCal
     CKDatabase* privateDatabase = [customContainer privateCloudDatabase];
     
     CKQuery* query = [[CKQuery alloc] initWithRecordType:@"PlayerProgress" predicate:[NSPredicate predicateWithValue:YES]];
+    query.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"modificationDate" ascending:NO]];
     
     [privateDatabase performQuery:query inZoneWithID:nil completionHandler:^(NSArray *results, NSError *error) {
         QueryResultData resultData;
