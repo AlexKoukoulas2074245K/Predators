@@ -184,6 +184,8 @@ public:
     const bool& IsCurrentlyPlayingStoryMode() const;
     void SetIsCurrentlyPlayingStoryMode(const bool isCurrentlyPlayingStoryMode);
     
+    const bool& ForeignProgressionDataFound() const;
+    void SetForeignProgressionDataFound(const bool foreignProgressionDataFound);
 private:
     DataRepository();
     
@@ -226,6 +228,7 @@ private:
     int mNextStoryOpponentDamage = 0;
     int mCurrentStorySecondsPlayed = 0;
     bool mIsCurrentlyPlayingStoryMode = false;
+    bool mForeignProgressionDataFound = false;
 };
 
 ///------------------------------------------------------------------------------------------------

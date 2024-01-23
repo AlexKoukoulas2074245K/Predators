@@ -615,3 +615,17 @@ void DataRepository::SetIsCurrentlyPlayingStoryMode(const bool isCurrentlyPlayin
 }
 
 ///------------------------------------------------------------------------------------------------
+
+const bool& DataRepository::ForeignProgressionDataFound() const
+{
+    return mForeignProgressionDataFound;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void DataRepository::SetForeignProgressionDataFound(const bool foreignProgressionDataFound)
+{
+    mForeignProgressionDataFound = foreignProgressionDataFound;
+}
+
+///------------------------------------------------------------------------------------------------

@@ -64,7 +64,6 @@
 ///------------------------------------------------------------------------------------------------
 
 static const strutils::StringId MAIN_MENU_SCENE = strutils::StringId("main_menu_scene");
-static bool sForeignProgressionFileFound = false;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -109,7 +108,7 @@ void OnCloudQueryCompleted(cloudkit_utils::QueryResultData resultData)
                 using namespace date;
                 std::stringstream s;
                 s << std::chrono::system_clock::time_point(std::chrono::seconds(dataFileDeserializer.GetState().at("timestamp").get<long>()));
-                sForeignProgressionFileFound = true;
+                DataRepository::GetInstance().SetForeignProgressionDataFound(true);
                 DataRepository::GetInstance().SetCloudDataDeviceNameAndTime("(From " + dataFileDeserializer.GetState().at("device_name").get<std::string>() + " at " + strutils::StringSplit(s.str(), '.')[0] + ")");
             }
         }
@@ -207,13 +206,13 @@ void Game::Update(const float dtMillis)
     
     if
     (
-        sForeignProgressionFileFound &&
+        DataRepository::GetInstance().ForeignProgressionDataFound() &&
         mGameSceneTransitionManager->GetActiveSceneStack().top().mActiveSceneName == MAIN_MENU_SCENE &&
         !CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::LOADING_SCENE_NAME)
     )
     {
         mGameSceneTransitionManager->ChangeToScene(game_constants::CLOUD_DATA_CONFIRMATION_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
-        sForeignProgressionFileFound = false;
+        DataRepository::GetInstance().SetForeignProgressionDataFound(false);
     }
 #endif
 //    auto& systemsEngine = CoreSystemsEngine::GetInstance();

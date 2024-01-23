@@ -113,7 +113,7 @@ static const float SELECTABLE_NODE_BOUNCE_SPEED_Y = 0.000005f;
 static const float PORTRAIT_BOUNCE_NOISE_FACTOR = 0.2f;
 static const float INACTIVE_NODE_TEXT_ALPHA = 0.5f;
 static const float ELITE_STAT_FACTOR = 1.5f;
-static const float BOSS_STAT_FACTOR = 2.0f;
+static const float BOSS_STAT_FACTOR = 1.8f;
 
 static const int MAP_PATH_SEGMENTS_FACTOR = 30;
 static const int MAP_GENERATION_PASSES = 8;

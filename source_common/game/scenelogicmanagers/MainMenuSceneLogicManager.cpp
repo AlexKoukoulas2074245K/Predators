@@ -169,7 +169,7 @@ void MainMenuSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 
 void MainMenuSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene::Scene> scene)
 {
-    if (mTransitioningToSubScene)
+    if (mTransitioningToSubScene || DataRepository::GetInstance().ForeignProgressionDataFound())
     {
         return;
     }
