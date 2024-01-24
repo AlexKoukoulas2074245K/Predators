@@ -37,6 +37,7 @@
 #include <game/gameactions/GameActionFactory.h>
 #include <game/scenelogicmanagers/BattleSceneLogicManager.h>
 #include <game/scenelogicmanagers/CloudDataConfirmationSceneLogicManager.h>
+#include <game/scenelogicmanagers/CardPackRewardSceneLogicManager.h>
 #include <game/scenelogicmanagers/CardSelectionRewardSceneLogicManager.h>
 #include <game/scenelogicmanagers/DefeatSceneLogicManager.h>
 #include <game/scenelogicmanagers/EventSceneLogicManager.h>
@@ -168,6 +169,7 @@ void Game::Init()
     
     mGameSceneTransitionManager = std::make_unique<GameSceneTransitionManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<BattleSceneLogicManager>();
+    mGameSceneTransitionManager->RegisterSceneLogicManager<CardPackRewardSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<CardSelectionRewardSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<CloudDataConfirmationSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<DefeatSceneLogicManager>();
@@ -215,6 +217,14 @@ void Game::Update(const float dtMillis)
         DataRepository::GetInstance().SetForeignProgressionDataFound(false);
     }
 #endif
+    
+    static bool shownPackReward = false;
+    if (!shownPackReward && mGameSceneTransitionManager->GetActiveSceneStack().top().mActiveSceneName == MAIN_MENU_SCENE &&
+        !CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::LOADING_SCENE_NAME))
+    {
+        mGameSceneTransitionManager->ChangeToScene(game_constants::CARD_PACK_REWARD_SCENE_NAME, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+        shownPackReward = true;
+    }
 //    auto& systemsEngine = CoreSystemsEngine::GetInstance();
 //    auto scene = systemsEngine.GetSceneManager().FindScene(game_constants::MAIN_MENU_SCENE);
 //
@@ -433,6 +443,13 @@ void Game::CreateDebugWidgets()
         ImGui::Text("%s: [%s]", typeid(*sceneLogicManager).name(), initStatusStr.str().c_str());
     }
     ImGui::End();
+    
+    // Playground testing different features
+//    ImGui::Begin("Playground", nullptr, GLOBAL_IMGUI_WINDOW_FLAGS);
+//    ImGui::SliderFloat("Gravity", &PACK_VERTEX_GRAVITY.y, -6.0f, -0.1f);
+//    ImGui::SliderFloat("Velocity Mag", &PACK_EXPLOSION_VELOCITY_MAG, 100.0f, 10000.0f);
+//    ImGui::SliderFloat("Noise Mag", &PACK_EXPLOSION_NOISE_MAG, 5.0f, 500.0f);
+//    ImGui::End();
     
     // Battle specific ImGui windows
     auto* activeSceneLogicManager = mGameSceneTransitionManager->GetActiveSceneLogicManager();

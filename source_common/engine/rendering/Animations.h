@@ -29,6 +29,7 @@ namespace animation_flags
     static constexpr uint8_t IGNORE_X_COMPONENT   = 0x2;
     static constexpr uint8_t IGNORE_Y_COMPONENT   = 0x4;
     static constexpr uint8_t ANIMATE_CONTINUOUSLY = 0x8;
+    static constexpr uint8_t IGNORE_SCALE         = 0x10;
 }
 
 ///------------------------------------------------------------------------------------------------

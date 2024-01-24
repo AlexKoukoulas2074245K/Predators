@@ -97,7 +97,10 @@ AnimationUpdateResult TweenPositionScaleAnimation::VUpdate(const float dtMillis)
     mSceneObjectTarget->mPosition.x = IS_FLAG_SET(animation_flags::IGNORE_X_COMPONENT) ? x : mSceneObjectTarget->mPosition.x;
     mSceneObjectTarget->mPosition.y = IS_FLAG_SET(animation_flags::IGNORE_Y_COMPONENT) ? y : mSceneObjectTarget->mPosition.y;
     
-    mSceneObjectTarget->mScale = math::Lerp(mInitScale, mTargetScale, math::TweenValue(mAnimationT, mTweeningFunc, mTweeningMode));
+    if (!IS_FLAG_SET(animation_flags::IGNORE_SCALE))
+    {
+        mSceneObjectTarget->mScale = math::Lerp(mInitScale, mTargetScale, math::TweenValue(mAnimationT, mTweeningFunc, mTweeningMode));
+    }
     
     return animationUpdateResult;
 }

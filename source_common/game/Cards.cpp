@@ -22,15 +22,15 @@
 static const std::vector<int> FRESH_ACCOUNT_UNLOCKED_CARDS =
 {
     // All family story starting cards
-    17, 14, 3, 16, 4, 15, 8, 9, 7, 10, 2, 12,
+    17, 16, 5, 18, 4, 15, 8, 9, 7, 10, 2, 12,
     
     // Rest of available cards
-    0, 13, 6, 1, 11, 5, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28
+    6, 22, 24, 27, 28
 };
 
 static const std::unordered_map<strutils::StringId, std::vector<int>, strutils::StringIdHasher> FAMILY_STORY_STARTING_CARDS =
 {
-    { game_constants::DINOSAURS_FAMILY_NAME, {17, 14, 3, 16}},
+    { game_constants::DINOSAURS_FAMILY_NAME, {17, 16, 5, 18}},
     { game_constants::RODENTS_FAMILY_NAME, {4, 15, 8, 9}},
     { game_constants::INSECTS_FAMILY_NAME, {7, 10, 2, 12}},
 };
@@ -136,6 +136,28 @@ std::vector<int> CardDataRepository::GetStoryUnlockedCardRewardsPool() const
     };
     
     return finalRewardCardPool;
+}
+
+///------------------------------------------------------------------------------------------------
+
+std::vector<int> CardDataRepository::GetCardPackLockedCardRewardsPool() const
+{
+    std::vector<int> baseCardPool;
+    for (const auto& familyCardEntry: FAMILY_STORY_STARTING_CARDS)
+    {
+        auto allFamilyCards = GetCardIdsByFamily(familyCardEntry.first);
+        baseCardPool.insert(baseCardPool.end(), allFamilyCards.begin(), allFamilyCards.end());
+    }
+    
+    std::vector<int> finalCardPool;
+    auto unlockedCards = DataRepository::GetInstance().GetUnlockedCardIds();
+    
+    std::sort(baseCardPool.begin(), baseCardPool.end());
+    std::sort(unlockedCards.begin(), unlockedCards.end());
+    
+    std::set_difference(baseCardPool.begin(), baseCardPool.end(), unlockedCards.begin(), unlockedCards.end(), std::back_inserter(finalCardPool));
+    
+    return finalCardPool;
 }
 
 ///------------------------------------------------------------------------------------------------

@@ -45,6 +45,8 @@
 		7B9789451DEA62BACC400C76 /* CloudKitUtils.h in Sources */ = {isa = PBXBuildFile; fileRef = 0B7F76FD2D5492C5AB3ABFFD /* CloudKitUtils.h */; };
 		7CA340B584BA7BDBF8857C4C /* OBJMeshLoader.h in Sources */ = {isa = PBXBuildFile; fileRef = 46BB489973B1ACFF46F552DB /* OBJMeshLoader.h */; };
 		851FBE54CFC3F1C7F292AD3D /* AnimationManager.h in Sources */ = {isa = PBXBuildFile; fileRef = F2FC1889E08EEFD36C0B6476 /* AnimationManager.h */; };
+		852CA5BF9F18EE7D8BC07F41 /* CardPackRewardSceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0329997E00487B8402D75893 /* CardPackRewardSceneLogicManager.cpp */; };
+		8B1E14201860F88101ECDA69 /* CardPackRewardSceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 57036803010C5B02CAA45959 /* CardPackRewardSceneLogicManager.h */; };
 		8C096F9D043616750BC963F8 /* TextureLoader.h in Sources */ = {isa = PBXBuildFile; fileRef = 05D038A4FFCF3C5AA2E85A75 /* TextureLoader.h */; };
 		9233DAB22B5E760200C55555 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9233DAB12B5E760200C55555 /* CloudKit.framework */; };
 		928B07DB2B5C385E0025DF3F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 928B07DA2B5C385E0025DF3F /* Assets.xcassets */; };
@@ -197,6 +199,7 @@
 
 /* Begin PBXFileReference section */
 		0106479588E4C78D4F938113 /* DataFileLoader.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = DataFileLoader.cpp; sourceTree = "<group>"; };
+		0329997E00487B8402D75893 /* CardPackRewardSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = CardPackRewardSceneLogicManager.cpp; path = CardPackRewardSceneLogicManager.cpp; sourceTree = "<group>"; };
 		051E00BF71689A5C0A9F91D2 /* glew.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = glew.h; sourceTree = "<group>"; };
 		052939A977343440F86F0858 /* ResourceLoadingService.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = ResourceLoadingService.cpp; sourceTree = "<group>"; };
 		05D038A4FFCF3C5AA2E85A75 /* TextureLoader.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = TextureLoader.h; sourceTree = "<group>"; };
@@ -221,6 +224,7 @@
 		46BB489973B1ACFF46F552DB /* OBJMeshLoader.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = OBJMeshLoader.h; sourceTree = "<group>"; };
 		53CDE03B92A8F220738E44FE /* ImageSurfaceResource.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = ImageSurfaceResource.cpp; sourceTree = "<group>"; };
 		543F0360AEBB87C61E32D84B /* ThreadSafeQueue.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = ThreadSafeQueue.h; sourceTree = "<group>"; };
+		57036803010C5B02CAA45959 /* CardPackRewardSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = CardPackRewardSceneLogicManager.h; path = CardPackRewardSceneLogicManager.h; sourceTree = "<group>"; };
 		59B053AEBDD62B4FCAB8E05D /* RenderingUtils.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = RenderingUtils.cpp; sourceTree = "<group>"; };
 		5BD45E193E73BAA2C5DD3337 /* CloudDataConfirmationSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = CloudDataConfirmationSceneLogicManager.cpp; sourceTree = "<group>"; };
 		642B84557417F85C19410FDE /* ShaderLoader.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = ShaderLoader.h; sourceTree = "<group>"; };
@@ -860,6 +864,8 @@
 				928B0BA72B5C3C850025DF3F /* BattleSceneLogicManager.cpp */,
 				5BD45E193E73BAA2C5DD3337 /* CloudDataConfirmationSceneLogicManager.cpp */,
 				0A90C5CE1FAAD720E2DE0541 /* CloudDataConfirmationSceneLogicManager.h */,
+				0329997E00487B8402D75893 /* CardPackRewardSceneLogicManager.cpp */,
+				57036803010C5B02CAA45959 /* CardPackRewardSceneLogicManager.h */,
 			);
 			path = scenelogicmanagers;
 			sourceTree = "<group>";
@@ -1256,6 +1262,8 @@
 				41A2979384DB0E1648E87DC2 /* CloudDataConfirmationSceneLogicManager.cpp in Sources */,
 				6A2CEF823BB7D7D42F2CBDE3 /* CloudDataConfirmationSceneLogicManager.h in Sources */,
 				FE081503D7B9E0EE6A0752EC /* Date.h in Sources */,
+				852CA5BF9F18EE7D8BC07F41 /* CardPackRewardSceneLogicManager.cpp in Sources */,
+				8B1E14201860F88101ECDA69 /* CardPackRewardSceneLogicManager.h in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
