@@ -43,6 +43,7 @@ private:
     void DeleteCard();
     void DeselectCard();
     void ToggleGoldenCheckbox();
+    void SetGoldenCheckboxValue(const bool checkboxValue);
     
 private:
     enum class SceneState

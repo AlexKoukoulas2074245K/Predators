@@ -112,7 +112,7 @@ const std::unordered_map<CardStatType, int>& DataRepository::GetStoryPlayerCardS
 
 ///------------------------------------------------------------------------------------------------
 
-void DataRepository::SetStoryPlayerCardStatModifier(const CardStatType statType, int statModifier)
+void DataRepository::SetStoryPlayerCardStatModifier(const CardStatType statType, const int statModifier)
 {
     mStoryPlayerCardStatModifiers[statType] = statModifier;
     
@@ -122,6 +122,35 @@ void DataRepository::SetStoryPlayerCardStatModifier(const CardStatType statType,
         storyPlayerCardStatModifiersJson[std::to_string(static_cast<int>(cardStatModifierEntry.first))] = cardStatModifierEntry.second;
     }
     mStoryDataSerializer->GetState()["story_player_card_stat_modifiers"] = storyPlayerCardStatModifiersJson;
+}
+
+///------------------------------------------------------------------------------------------------
+
+const std::unordered_map<int, bool>& DataRepository::GetGoldenCardIdMap() const
+{
+    return mGoldenCardIdMap;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void DataRepository::SetGoldenCardMapEntry(const int cardId, const bool goldenCardEnabled)
+{
+    mGoldenCardIdMap[cardId] = goldenCardEnabled;
+    
+    nlohmann::json goldenCardIdMapJson;
+    for (auto& goldenCardIddMapEntry: mGoldenCardIdMap)
+    {
+        goldenCardIdMapJson[std::to_string(goldenCardIddMapEntry.first)] = goldenCardIddMapEntry.second;
+    }
+    mPersistentDataSerializer->GetState()["golden_card_id_map"] = goldenCardIdMapJson;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void DataRepository::ClearGoldenCardIdMap()
+{
+    mGoldenCardIdMap.clear();
+    mPersistentDataSerializer->GetState()["golden_card_id_map"].clear();
 }
 
 ///------------------------------------------------------------------------------------------------

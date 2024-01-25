@@ -39,6 +39,14 @@ PersistentAccountDataDeserializer::PersistentAccountDataDeserializer(DataReposit
     {
         dataRepository.SetUnlockedCardIds(persistentDataJson["unlocked_card_ids"].get<std::vector<int>>());
     }
+    
+    if (persistentDataJson.count("golden_card_id_map") && !persistentDataJson["golden_card_id_map"].is_null())
+    {
+        for (auto entryIter = persistentDataJson["golden_card_id_map"].begin(); entryIter != persistentDataJson["golden_card_id_map"].end(); ++entryIter)
+        {
+            dataRepository.SetGoldenCardMapEntry(std::stoi(entryIter.key()), entryIter.value().get<bool>());
+        }
+    }
 }
 
 ///------------------------------------------------------------------------------------------------

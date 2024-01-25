@@ -449,8 +449,9 @@ void Game::CreateDebugWidgets()
     
     // Manipulating Persistent Data
     ImGui::Begin("Persistent Data", nullptr, GLOBAL_IMGUI_WINDOW_FLAGS);
-    if (ImGui::Button("Clear Unlocked Cards"))
+    if (ImGui::Button("Clear Unlocked & Golden Cards"))
     {
+        DataRepository::GetInstance().ClearGoldenCardIdMap();
         DataRepository::GetInstance().SetUnlockedCardIds(CardDataRepository::GetInstance().GetFreshAccountUnlockedCardIds());
         DataRepository::GetInstance().FlushStateToFile();
     }

@@ -208,8 +208,10 @@ void CardLibrarySceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scen
     for (const auto& cardId: cards)
     {
         CardData cardData = CardDataRepository::GetInstance().GetCardData(cardId, game_constants::LOCAL_PLAYER_INDEX);
+        const auto& cardIdToGoldenCardEnabledMap = DataRepository::GetInstance().GetGoldenCardIdMap();
+        bool isGoldenCard = cardIdToGoldenCardEnabledMap.count(cardId) && cardIdToGoldenCardEnabledMap.at(cardId);
         
-        auto cardSoWrapper = card_utils::CreateCardSoWrapper(&cardData, glm::vec3(), "", CardOrientation::FRONT_FACE, CardRarity::NORMAL, false, false, true, {}, {}, *scene);
+        auto cardSoWrapper = card_utils::CreateCardSoWrapper(&cardData, glm::vec3(), "", CardOrientation::FRONT_FACE, isGoldenCard ? CardRarity::GOLDEN : CardRarity::NORMAL, false, false, true, {}, {}, *scene);
         cardSoWrapper->mSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CARD_ENTRY_SHADER);
         cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MIN_Y_UNIFORM_NAME] = CARD_ENTRY_CUTOFF_VALUES.s;
         cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MAX_Y_UNIFORM_NAME] = CARD_ENTRY_CUTOFF_VALUES.t;
@@ -563,17 +565,23 @@ void CardLibrarySceneLogicManager::SelectCard()
     
     if (DataRepository::GetInstance().GetCurrentCardLibraryBehaviorType() == CardLibraryBehaviorType::CARD_LIBRARY)
     {
-        // Fade in golden checkbox
-        auto goldenCheckBoxSceneObject = mScene->FindSceneObject(GOLDEN_CHECKBOX_SCENE_OBJECT_NAME);
-        goldenCheckBoxSceneObject->mInvisible = false;
-        animationManager.StopAllAnimationsPlayingForSceneObject(goldenCheckBoxSceneObject->mName);
-        animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(goldenCheckBoxSceneObject, 1.0f, SELECTED_CARD_ANIMATION_DURATION_SECS), [=](){});
-        
-        // Fade in golden text
-        auto goldenCheckBoxTextSceneObject = mScene->FindSceneObject(GOLDEN_CHECKBOX_TEXT_SCENE_OBJECT_NAME);
-        goldenCheckBoxTextSceneObject->mInvisible = false;
-        animationManager.StopAllAnimationsPlayingForSceneObject(goldenCheckBoxTextSceneObject->mName);
-        animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(goldenCheckBoxTextSceneObject, 1.0f, SELECTED_CARD_ANIMATION_DURATION_SECS), [=](){});
+        const auto& goldenCardIds = DataRepository::GetInstance().GetGoldenCardIdMap();
+        if (goldenCardIds.count(card->mCardData.mCardId))
+        {
+            // Fade in golden checkbox
+            auto goldenCheckBoxSceneObject = mScene->FindSceneObject(GOLDEN_CHECKBOX_SCENE_OBJECT_NAME);
+            goldenCheckBoxSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + (goldenCardIds.at(card->mCardData.mCardId) ? GOLDEN_CHECKBOX_FILLED_TEXTURE_FILE_NAME : GOLDEN_CHECKBOX_EMPTY_TEXTURE_FILE_NAME));
+                                                                                                                                      
+            goldenCheckBoxSceneObject->mInvisible = false;
+            animationManager.StopAllAnimationsPlayingForSceneObject(goldenCheckBoxSceneObject->mName);
+            animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(goldenCheckBoxSceneObject, 1.0f, SELECTED_CARD_ANIMATION_DURATION_SECS), [=](){});
+            
+            // Fade in golden text
+            auto goldenCheckBoxTextSceneObject = mScene->FindSceneObject(GOLDEN_CHECKBOX_TEXT_SCENE_OBJECT_NAME);
+            goldenCheckBoxTextSceneObject->mInvisible = false;
+            animationManager.StopAllAnimationsPlayingForSceneObject(goldenCheckBoxTextSceneObject->mName);
+            animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(goldenCheckBoxTextSceneObject, 1.0f, SELECTED_CARD_ANIMATION_DURATION_SECS), [=](){});
+        }
         
         mSceneState = SceneState::SELECTED_CARD_IN_CARD_LIBRARY;
     }
@@ -674,16 +682,24 @@ void CardLibrarySceneLogicManager::DeselectCard()
 
 void CardLibrarySceneLogicManager::ToggleGoldenCheckbox()
 {
+    auto goldenCheckBoxSceneObject = mScene->FindSceneObject(GOLDEN_CHECKBOX_SCENE_OBJECT_NAME);
+
+    SetGoldenCheckboxValue(goldenCheckBoxSceneObject->mTextureResourceId == CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + GOLDEN_CHECKBOX_FILLED_TEXTURE_FILE_NAME) ? false : true);
+}
+
+///------------------------------------------------------------------------------------------------
+
+void CardLibrarySceneLogicManager::SetGoldenCheckboxValue(const bool checkboxValue)
+{
     resources::ResourceId goldenCheckboxFilledTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + GOLDEN_CHECKBOX_FILLED_TEXTURE_FILE_NAME);
     resources::ResourceId goldenCheckboxEmptyTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + GOLDEN_CHECKBOX_EMPTY_TEXTURE_FILE_NAME);
     
     auto selectedCard = mCardContainer->GetItems()[mSelectedCardIndex].mCardSoWrapper;
     auto goldenCheckBoxSceneObject = mScene->FindSceneObject(GOLDEN_CHECKBOX_SCENE_OBJECT_NAME);
-    auto isNewCardGolden = goldenCheckBoxSceneObject->mTextureResourceId == goldenCheckboxEmptyTextureResourceId;
     
-    goldenCheckBoxSceneObject->mTextureResourceId = isNewCardGolden ? goldenCheckboxFilledTextureResourceId : goldenCheckboxEmptyTextureResourceId;
+    goldenCheckBoxSceneObject->mTextureResourceId = checkboxValue ? goldenCheckboxFilledTextureResourceId : goldenCheckboxEmptyTextureResourceId;
     
-    auto cardSoWrapper = card_utils::CreateCardSoWrapper(&selectedCard->mCardData, glm::vec3(), "", CardOrientation::FRONT_FACE, isNewCardGolden ? CardRarity::GOLDEN : CardRarity::NORMAL, false, false, true, {}, {}, *mScene);
+    auto cardSoWrapper = card_utils::CreateCardSoWrapper(&selectedCard->mCardData, glm::vec3(), "", CardOrientation::FRONT_FACE, checkboxValue ? CardRarity::GOLDEN : CardRarity::NORMAL, false, false, true, {}, {}, *mScene);
     cardSoWrapper->mSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CARD_ENTRY_SHADER);
     cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MIN_Y_UNIFORM_NAME] = CARD_ENTRY_CUTOFF_VALUES.s;
     cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MAX_Y_UNIFORM_NAME] = CARD_ENTRY_CUTOFF_VALUES.t;
@@ -694,6 +710,9 @@ void CardLibrarySceneLogicManager::ToggleGoldenCheckbox()
     cardEntry.mCardSoWrapper = cardSoWrapper;
     cardEntry.mSceneObjects.emplace_back(cardSoWrapper->mSceneObject);
     mCardContainer->ReplaceItemAtIndexWithNewItem(std::move(cardEntry), mSelectedCardIndex);
+    
+    DataRepository::GetInstance().SetGoldenCardMapEntry(selectedCard->mCardData.mCardId, checkboxValue);
+    DataRepository::GetInstance().FlushStateToFile();
 }
 
 ///------------------------------------------------------------------------------------------------

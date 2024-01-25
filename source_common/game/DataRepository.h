@@ -85,7 +85,11 @@ public:
     void FlushStateToFile();
     
     const std::unordered_map<CardStatType, int>& GetStoryPlayerCardStatModifiers() const;
-    void SetStoryPlayerCardStatModifier(const CardStatType statType, int statModifier);
+    void SetStoryPlayerCardStatModifier(const CardStatType statType, const int statModifier);
+    
+    const std::unordered_map<int, bool>& GetGoldenCardIdMap() const;
+    void SetGoldenCardMapEntry(const int cardId, const bool goldenCardEnabled);
+    void ClearGoldenCardIdMap();
     
     QuickPlayData* GetQuickPlayData() const;
     void SetQuickPlayData(std::unique_ptr<QuickPlayData> quickPlayData);
@@ -198,6 +202,7 @@ private:
     
 private:
     std::unordered_map<CardStatType, int> mStoryPlayerCardStatModifiers;
+    std::unordered_map<int, bool> mGoldenCardIdMap;
     std::unique_ptr<PersistentAccountDataDeserializer> mPersistentDataDeserializer;
     std::unique_ptr<PersistentAccountDataSerializer> mPersistentDataSerializer;
     std::unique_ptr<StoryDeserializer> mStoryDataDeserializer;

@@ -72,7 +72,9 @@ static const float STAGGERED_ITEM_ALPHA_DELAY_SECS = 0.1f;
 static const float CARD_REWARD_SURFACE_DELAY_SECS = 0.5f;
 static const float CONTINUE_BUTTON_SNAP_TO_EDGE_FACTOR = 950000.0f;
 static const float CARD_HIGHLIGHT_ANIMATION_DURATION_SECS = 0.5f;
+static const float GOLDEN_CARD_CHANCE_ON_NORMAL_PACK = 0.5f;
 
+static constexpr int PACK_CARD_REWARD_COUNT = 3;
 static constexpr int PACK_MAX_SHAKE_STEPS = 100;
 
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
@@ -532,8 +534,9 @@ void CardPackRewardSceneLogicManager::CreateCardRewards(std::shared_ptr<scene::S
     
     auto cardRewardPool = CardDataRepository::GetInstance().GetCardPackLockedCardRewardsPool();
     auto unlockedCardIds = DataRepository::GetInstance().GetUnlockedCardIds();
+    auto unlockedGoldenCardIds = DataRepository::GetInstance().GetGoldenCardIdMap();
     
-    while (cardRewardPool.size() < 3)
+    while (cardRewardPool.size() < PACK_CARD_REWARD_COUNT)
     {
         auto randomUnlockedCardIndex = math::ControlledRandomInt() % unlockedCardIds.size();
         
@@ -545,12 +548,13 @@ void CardPackRewardSceneLogicManager::CreateCardRewards(std::shared_ptr<scene::S
         cardRewardPool.push_back(unlockedCardIds[randomUnlockedCardIndex]);
     }
     
-    for (size_t i = 0; i < 3; ++i)
+    for (size_t i = 0; i < PACK_CARD_REWARD_COUNT; ++i)
     {
         auto randomCardIndex = math::ControlledRandomInt() % cardRewardPool.size();
         auto cardData = CardDataRepository::GetInstance().GetCardData(cardRewardPool[randomCardIndex], game_constants::LOCAL_PLAYER_INDEX);
+        bool isGolden = math::ControlledRandomFloat() < GOLDEN_CARD_CHANCE_ON_NORMAL_PACK;
         
-        mCardRewards.push_back(card_utils::CreateCardSoWrapper(&cardData, glm::vec3(-0.2f + 0.17 * i, -0.0f, 23.2f), CARD_REWARD_SCENE_OBJECT_NAME_PREFIX + std::to_string(i), CardOrientation::FRONT_FACE, CardRarity::NORMAL, false, false, true, {}, {}, *scene));
+        mCardRewards.push_back(card_utils::CreateCardSoWrapper(&cardData, glm::vec3(-0.2f + 0.17 * i, -0.0f, 23.2f), CARD_REWARD_SCENE_OBJECT_NAME_PREFIX + std::to_string(i), CardOrientation::FRONT_FACE, isGolden ? CardRarity::GOLDEN : CardRarity::NORMAL, false, false, true, {}, {}, *scene));
         mCardRewards.back()->mSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
         mCardRewards.back()->mSceneObject->mScale = CARD_REWARD_INIT_SCALE;
         mCardRewards.back()->mSceneObject->mShaderBoolUniformValues[DARKEN_UNIFORM_NAME] = false;
@@ -579,11 +583,18 @@ void CardPackRewardSceneLogicManager::CreateCardRewards(std::shared_ptr<scene::S
         {
             unlockedCardIds.push_back(cardData.mCardId);
         }
+        
+        if (isGolden && !unlockedGoldenCardIds.count(cardData.mCardId))
+        {
+            DataRepository::GetInstance().SetGoldenCardMapEntry(cardData.mCardId, true);
+        }
+        
         cardRewardPool.erase(cardRewardPool.begin() + randomCardIndex);
     }
     
     DataRepository::GetInstance().SetUnlockedCardIds(unlockedCardIds);
     DataRepository::GetInstance().SetNextCardPackSeed(math::GetControlSeed());
+    DataRepository::GetInstance().FlushStateToFile();
 }
 
 ///------------------------------------------------------------------------------------------------
