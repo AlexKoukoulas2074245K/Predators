@@ -79,7 +79,7 @@ TweenPositionScaleAnimation::TweenPositionScaleAnimation(std::shared_ptr<scene::
     , mInitPosition(mSceneObjectTarget->mPosition)
     , mTargetPosition(targetPosition)
     , mInitScale(mSceneObjectTarget->mScale)
-    , mTargetScale(glm::vec3(mInitScale.x * (targetScale.x/mSceneObjectTarget->mScale.x), mInitScale.y * (targetScale.y/mSceneObjectTarget->mScale.y), mInitScale.z))
+    , mTargetScale(glm::vec3(mInitScale.x * (targetScale.x/mSceneObjectTarget->mScale.x), mInitScale.y * (targetScale.y/mSceneObjectTarget->mScale.y), mInitScale.z * (targetScale.z/mSceneObjectTarget->mScale.z)))
 {
     assert(!IS_FLAG_SET(animation_flags::ANIMATE_CONTINUOUSLY));
 }

@@ -25,6 +25,11 @@ PersistentAccountDataDeserializer::PersistentAccountDataDeserializer(DataReposit
         dataRepository.CurrencyCoins().SetValue(currency);
     }
     
+    if (persistentDataJson.count("next_card_pack_seed"))
+    {
+        dataRepository.SetNextCardPackSeed(persistentDataJson["next_card_pack_seed"].get<int>());
+    }
+    
     if (persistentDataJson.count("games_finished_count"))
     {
         dataRepository.SetGamesFinishedCount(persistentDataJson["games_finished_count"].get<int>());

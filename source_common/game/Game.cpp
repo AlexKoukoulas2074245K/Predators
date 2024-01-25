@@ -213,7 +213,7 @@ void Game::Update(const float dtMillis)
         !CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::LOADING_SCENE_NAME)
     )
     {
-        mGameSceneTransitionManager->ChangeToScene(game_constants::CLOUD_DATA_CONFIRMATION_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+        //mGameSceneTransitionManager->ChangeToScene(game_constants::CLOUD_DATA_CONFIRMATION_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
         DataRepository::GetInstance().SetForeignProgressionDataFound(false);
     }
 #endif
@@ -444,12 +444,19 @@ void Game::CreateDebugWidgets()
     }
     ImGui::End();
     
-    // Playground testing different features
-//    ImGui::Begin("Playground", nullptr, GLOBAL_IMGUI_WINDOW_FLAGS);
-//    ImGui::SliderFloat("Gravity", &PACK_VERTEX_GRAVITY.y, -6.0f, -0.1f);
-//    ImGui::SliderFloat("Velocity Mag", &PACK_EXPLOSION_VELOCITY_MAG, 100.0f, 10000.0f);
-//    ImGui::SliderFloat("Noise Mag", &PACK_EXPLOSION_NOISE_MAG, 5.0f, 500.0f);
-//    ImGui::End();
+    // Manipulating Persistent Data
+    ImGui::Begin("Persistent Data", nullptr, GLOBAL_IMGUI_WINDOW_FLAGS);
+    if (ImGui::Button("Clear Unlocked Cards"))
+    {
+        DataRepository::GetInstance().SetUnlockedCardIds(CardDataRepository::GetInstance().GetFreshAccountUnlockedCardIds());
+        DataRepository::GetInstance().FlushStateToFile();
+    }
+    if (ImGui::Button("Reset Coins"))
+    {
+        DataRepository::GetInstance().CurrencyCoins().SetValue(0);
+        DataRepository::GetInstance().FlushStateToFile();
+    }
+    ImGui::End();
     
     // Battle specific ImGui windows
     auto* activeSceneLogicManager = mGameSceneTransitionManager->GetActiveSceneLogicManager();

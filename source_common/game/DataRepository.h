@@ -128,6 +128,9 @@ public:
     const int& GetCurrentStoryMapNodeSeed() const;
     void SetCurrentStoryMapNodeSeed(const int currentStoryMapNodeSeed);
     
+    const int& GetNextCardPackSeed() const;
+    void SetNextCardPackSeed(const int nextCardPackSeed);
+    
     StoryMap::NodeType GetCurrentStoryMapNodeType() const;
     void SetCurrentStoryMapNodeType(const StoryMap::NodeType currentStoryMapNodeType);
     
@@ -221,6 +224,7 @@ private:
     int mStoryMaxHealth = 0;
     int mStoryMapGenerationSeed = 0;
     int mCurrentStoryMapNodeSeed = 0;
+    int mNextCardPackSeed = 0;
     int mCurrentEventScreenIndex = 0;
     int mCurrentEventIndex = 0;
     int mNextBattleTopPlayerHealth = 0;

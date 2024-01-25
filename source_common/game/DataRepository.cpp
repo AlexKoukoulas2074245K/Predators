@@ -32,6 +32,8 @@ DataRepository::DataRepository()
     // Persistent Account data initialization
     mUnlockedCardIds = CardDataRepository::GetInstance().GetFreshAccountUnlockedCardIds();
     mCurrencyCoins = ValueWithDelayedDisplay<long long>(0, 0, [=](const long long& newValue) { mPersistentDataSerializer->GetState()["currency_coins"] = newValue; });
+    mNextCardPackSeed = math::RandomInt();
+    
     ResetStoryData();
     
     mPersistentDataDeserializer = std::make_unique<PersistentAccountDataDeserializer>(*this);
@@ -265,6 +267,7 @@ const std::vector<int>& DataRepository::GetUnlockedCardIds() const
 void DataRepository::SetUnlockedCardIds(const std::vector<int>& unlockedCardIds)
 {
     mUnlockedCardIds = unlockedCardIds;
+    std::sort(mUnlockedCardIds.begin(), mUnlockedCardIds.end());
     mPersistentDataSerializer->GetState()["unlocked_card_ids"] = mUnlockedCardIds;
 }
 
@@ -356,6 +359,21 @@ void DataRepository::SetCurrentStoryMapNodeSeed(const int currentStoryMapNodeSee
 {
     mCurrentStoryMapNodeSeed = currentStoryMapNodeSeed;
     mStoryDataSerializer->GetState()["current_story_map_node_seed"] = currentStoryMapNodeSeed;
+}
+
+///------------------------------------------------------------------------------------------------
+
+const int& DataRepository::GetNextCardPackSeed() const
+{
+    return mNextCardPackSeed;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void DataRepository::SetNextCardPackSeed(const int nextCardPackSeed)
+{
+    mNextCardPackSeed = nextCardPackSeed;
+    mPersistentDataSerializer->GetState()["next_card_pack_seed"] = mNextCardPackSeed;
 }
 
 ///------------------------------------------------------------------------------------------------

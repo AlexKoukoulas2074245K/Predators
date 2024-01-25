@@ -17,6 +17,7 @@
 ///------------------------------------------------------------------------------------------------
 
 class AnimatedButton;
+class CardTooltipController;
 class CardPackRewardSceneLogicManager final: public ISceneLogicManager, public events::IListener
 {
 public:
@@ -38,16 +39,26 @@ private:
     void PreparePackVertexVelocities(std::shared_ptr<scene::Scene> scene);
     void CardPackShakeStep(std::shared_ptr<scene::Scene> scene);
     void CreateCardRewards(std::shared_ptr<scene::Scene> scene);
+    void CreateCardTooltip(const glm::vec3& cardOriginPostion, const std::string& tooltipText, const size_t cardIndex, std::shared_ptr<scene::Scene> scene);
+    void DestroyCardTooltip(std::shared_ptr<scene::Scene> scene);
     
 private:
     enum class SceneState
     {
         PENDING_PACK_OPENING,
+        PACK_ROTATING,
         PACK_SHAKING,
-        PACK_EXPLODING
+        PACK_EXPLODING,
+        CARD_REWARDS_INSPECTION,
+        CARD_SELECTED,
+        LEAVING_SCENE
     };
     
     std::unique_ptr<AnimatedButton> mOpenButton;
+    std::unique_ptr<AnimatedButton> mContinueButton;
+    std::unique_ptr<CardTooltipController> mCardTooltipController;
+    std::vector<std::shared_ptr<CardSoWrapper>> mCardRewards;
+    std::vector<std::shared_ptr<scene::SceneObject>> mCardRewardFamilyStamps;
     std::vector<glm::vec3> mCardPackVertexVelocities;
     SceneState mSceneState;
     int mCardPackShakeStepsRemaining;
