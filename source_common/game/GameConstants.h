@@ -26,6 +26,9 @@ namespace game_constants
     inline const std::string CARD_LOCATION_MASK_TEXTURE_NAME =  "card_location_mask.png";
     inline const std::string GOLDEN_CARD_FLAKES_MASK_TEXTURE_FILE_NAME = "golden_card_flakes_mask.png";
     inline const std::string GOLDEN_SPELL_CARD_FLAKES_MASK_TEXTURE_FILE_NAME = "golden_spell_card_flakes_mask.png";
+    inline const std::string GOLDEN_CARD_TEXTURE_FILE_NAME = "card_frame_golden.png";
+    inline const std::string CARD_FRAME_NORMAL_TEXTURE_FILE_NAME = "card_frame_normal.png";
+    inline const std::string CARD_FRAME_SPELL_TEXTURE_FILE_NAME = "card_frame_spell.png";
 
     // SO Name Prefixes/Postfixes
     inline const std::string TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX = "top_player_held_card_";
@@ -111,7 +114,7 @@ namespace game_constants
     inline const strutils::StringId EVENT_SCENE = strutils::StringId("event_scene");
     inline const strutils::StringId SHOP_SCENE = strutils::StringId("shop_scene");
     inline const strutils::StringId SETTINGS_SCENE = strutils::StringId("settings_scene");
-    inline const strutils::StringId STORY_CARDS_LIBRARY_SCENE = strutils::StringId("story_cards_library_scene");
+    inline const strutils::StringId CARD_LIBRARY_SCENE = strutils::StringId("card_library_scene");
     inline const strutils::StringId WHEEL_OF_FORTUNE_SCENE = strutils::StringId("wheel_of_fortune_scene");
     inline const strutils::StringId CLOUD_DATA_CONFIRMATION_SCENE = strutils::StringId("cloud_data_confirmation_scene");
     inline const strutils::StringId LOADING_SCENE_NAME = strutils::StringId("loading_scene");

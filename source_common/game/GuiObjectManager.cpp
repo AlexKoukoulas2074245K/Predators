@@ -414,9 +414,9 @@ void GuiObjectManager::OnSettingsButtonPressed()
 
 void GuiObjectManager::OnStoryCardsButtonPressed()
 {
-    DataRepository::GetInstance().SetCurrentCardLibraryBehaviorType(CardLibraryBehaviorType::NORMAL_BROWSING);
+    DataRepository::GetInstance().SetCurrentCardLibraryBehaviorType(CardLibraryBehaviorType::STORY_CARDS);
     CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(mScene->GetUpdateTimeSpeedFactor(), 0.0f, game_constants::SCENE_SPEED_DILATION_ANIMATION_DURATION_SECS), [](){}, game_constants::SCENE_SPEED_DILATION_ANIMATION_NAME);
-    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_CARDS_LIBRARY_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::CARD_LIBRARY_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
 }
 
 ///------------------------------------------------------------------------------------------------

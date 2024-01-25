@@ -49,8 +49,9 @@ enum class BattleSubSceneType
 
 enum class CardLibraryBehaviorType
 {
-    NORMAL_BROWSING,
-    BROWSING_FOR_DELETION
+    STORY_CARDS,
+    BROWSING_FOR_DELETION,
+    CARD_LIBRARY
 };
 
 ///------------------------------------------------------------------------------------------------

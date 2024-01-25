@@ -1,12 +1,12 @@
 ///------------------------------------------------------------------------------------------------
-///  StoryCardsLibrarySceneLogicManager.h
+///  CardLibrarySceneLogicManager.h
 ///  Predators                                                                                            
 ///                                                                                                
 ///  Created by Alex Koukoulas on 13/01/2024
 ///------------------------------------------------------------------------------------------------
 
-#ifndef StoryCardsLibrarySceneLogicManager_h
-#define StoryCardsLibrarySceneLogicManager_h
+#ifndef CardLibrarySceneLogicManager_h
+#define CardLibrarySceneLogicManager_h
 
 ///------------------------------------------------------------------------------------------------
 
@@ -21,11 +21,11 @@
 
 class AnimatedButton;
 class CardTooltipController;
-class StoryCardsLibrarySceneLogicManager final: public ISceneLogicManager, public events::IListener
+class CardLibrarySceneLogicManager final: public ISceneLogicManager, public events::IListener
 {
 public:
-    StoryCardsLibrarySceneLogicManager();
-    ~StoryCardsLibrarySceneLogicManager();
+    CardLibrarySceneLogicManager();
+    ~CardLibrarySceneLogicManager();
     
     const std::vector<strutils::StringId>& VGetApplicableSceneNames() const override;
     
@@ -42,12 +42,14 @@ private:
     void SelectCard();
     void DeleteCard();
     void DeselectCard();
+    void ToggleGoldenCheckbox();
     
 private:
     enum class SceneState
     {
         BROWSING_CARDS,
         SELECTED_CARD_FOR_DELETION,
+        SELECTED_CARD_IN_CARD_LIBRARY,
         DISSOLVING_DELETED_CARD
     };
     
@@ -71,4 +73,4 @@ private:
 
 ///------------------------------------------------------------------------------------------------
 
-#endif /* StoryCardsLibrarySceneLogicManager_h */
+#endif /* CardLibrarySceneLogicManager_h */

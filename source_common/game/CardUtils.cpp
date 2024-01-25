@@ -18,10 +18,7 @@ namespace card_utils
 
 ///------------------------------------------------------------------------------------------------
 
-static const std::string CARD_FRAME_NORMAL_TEXTURE_FILE_NAME = "card_frame_normal.png";
-static const std::string CARD_FRAME_SPELL_TEXTURE_FILE_NAME = "card_frame_spell.png";
 static const std::string CARD_BACK_TEXTURE_FILE_NAME = "card_back.png";
-static const std::string GOLDEN_CARD_TEXTURE_FILE_NAME = "card_frame_golden.png";
 static const std::string DORMANT_CARD_MASK_TEXTURE_FILE_NAME = "card_dormant_mask.png";
 static const std::string POISON_CRYSTAL_TEXTURE_FILE_NAME = "poison_crystal.png";
 static const std::string DIG_ICON_TEXTURE_FILE_NAME = "dig_icon.png";
@@ -151,11 +148,11 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
         cardComponents.push_back(scene.CreateSceneObject(sceneObjectName));
         if (cardRarity == CardRarity::GOLDEN)
         {
-            cardComponents.back()->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + GOLDEN_CARD_TEXTURE_FILE_NAME);
+            cardComponents.back()->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + game_constants::GOLDEN_CARD_TEXTURE_FILE_NAME);
         }
         else
         {
-            cardComponents.back()->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + (cardData->IsSpell() ? CARD_FRAME_SPELL_TEXTURE_FILE_NAME : CARD_FRAME_NORMAL_TEXTURE_FILE_NAME));
+            cardComponents.back()->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + (cardData->IsSpell() ? game_constants::CARD_FRAME_SPELL_TEXTURE_FILE_NAME : game_constants::CARD_FRAME_NORMAL_TEXTURE_FILE_NAME));
         }
         
         cardComponents.back()->mScale.x = cardComponents.back()->mScale.y = game_constants::IN_GAME_CARD_BASE_SCALE;

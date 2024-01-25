@@ -1,5 +1,5 @@
 ///------------------------------------------------------------------------------------------------
-///  StoryCardsLibrarySceneLogicManager.cpp
+///  CardLibrarySceneLogicManager.cpp
 ///  Predators                                                                                            
 ///                                                                                                
 ///  Created by Alex Koukoulas on 13/01/2024
@@ -19,17 +19,22 @@
 #include <game/GameSceneTransitionManager.h>
 #include <game/GuiObjectManager.h>
 #include <game/DataRepository.h>
-#include <game/scenelogicmanagers/StoryCardsLibrarySceneLogicManager.h>
+#include <game/scenelogicmanagers/CardLibrarySceneLogicManager.h>
 
 ///------------------------------------------------------------------------------------------------
 
 static const std::string CARD_ENTRY_SHADER = "card_library_entry.vs";
-static const std::string TITLE_NORMAL_BROWSING = "Story Card Library";
+static const std::string TITLE_STORY_CARDS = "Story Card Deck";
 static const std::string TITLE_BROWSING_FOR_DELETION = "Select Card To Delete";
+static const std::string TITLE_CARD_LIBRARY = "Card Library";
 static const std::string DISSOLVE_SHADER_FILE_NAME = "card_dissolve.vs";
 static const std::string DISSOLVE_TEXTURE_FILE_NAME = "dissolve.png";
+static const std::string GOLDEN_CHECKBOX_FILLED_TEXTURE_FILE_NAME = "golden_checkbox_filled.png";
+static const std::string GOLDEN_CHECKBOX_EMPTY_TEXTURE_FILE_NAME = "golden_checkbox_empty.png";
 
 static const strutils::StringId BACK_BUTTON_NAME = strutils::StringId("back_button");
+static const strutils::StringId GOLDEN_CHECKBOX_TEXT_SCENE_OBJECT_NAME = strutils::StringId("golden_checkbox_text");
+static const strutils::StringId GOLDEN_CHECKBOX_SCENE_OBJECT_NAME = strutils::StringId("golden_checkbox");
 static const strutils::StringId STORY_CARDS_TITLE_SCENE_OBJECT_NAME = strutils::StringId("story_cards_title");
 static const strutils::StringId CARD_CONTAINER_SCENE_OBJECT_NAME = strutils::StringId("card_container");
 static const strutils::StringId CARD_DELETION_OVERLAY_SCENE_OBJECT_NAME = strutils::StringId("card_deletion_overlay");
@@ -42,12 +47,16 @@ static const strutils::StringId CARD_ORIGIN_Y_UNIFORM_NAME = strutils::StringId(
 
 static const glm::vec3 BUTTON_SCALE = {0.0004f, 0.0004f, 0.0004f};
 static const glm::vec3 DELETE_CARD_BUTTON_POSITION = {-0.225f, 0.05f, 23.9f};
+static const glm::vec3 GOLDEN_CHECKBOX_TEXT_POSITION = {-0.26f, 0.05f, 23.9f};
+static const glm::vec3 GOLDEN_CHECKBOX_POSITION = {-0.125f, 0.037f, 23.9f};
 static const glm::vec3 BACK_BUTTON_POSITION = {0.0f, -0.1f, 23.2f};
 static const glm::vec3 CANCEL_BUTTON_POSITION = {-0.231f, -0.05f, 23.9f};
 static const glm::vec3 CARD_ENTRY_SCALE = glm::vec3(-0.273f, 0.2512f, 2.0f);
 static const glm::vec3 CONTAINER_ITEM_ENTRY_SCALE = glm::vec3(0.124f, 0.212f, 2.0f);
 static const glm::vec3 CARD_TOOLTIP_POSITION_OFFSET = {0.0f, 0.1f, 0.0f};
 static const glm::vec3 CARD_TOOLTIP_BASE_SCALE = {0.274f, 0.274f, 1/10.0f};
+static const glm::vec3 GOLDEN_CHECKBOX_TEXT_SCALE = {0.0004f, 0.0004f, 0.0004f};
+static const glm::vec3 GOLDEN_CHECKBOX_SCALE = {0.1f, 0.1f, 0.1f};
 static const glm::vec3 SELECTED_CARD_TARGET_POSITION = {0.0f, 0.0f, 26.5f};
 
 static const glm::vec2 CARD_ENTRY_CUTOFF_VALUES = {-0.208f, 0.158f};
@@ -74,7 +83,7 @@ static constexpr int CARD_DELETION_SERVICE_PRICE = 100;
 
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
 {
-    game_constants::STORY_CARDS_LIBRARY_SCENE
+    game_constants::CARD_LIBRARY_SCENE
 };
 
 static const std::unordered_set<strutils::StringId, strutils::StringIdHasher> STATIC_SCENE_ELEMENTS =
@@ -84,28 +93,28 @@ static const std::unordered_set<strutils::StringId, strutils::StringIdHasher> ST
 
 ///------------------------------------------------------------------------------------------------
 
-const std::vector<strutils::StringId>& StoryCardsLibrarySceneLogicManager::VGetApplicableSceneNames() const
+const std::vector<strutils::StringId>& CardLibrarySceneLogicManager::VGetApplicableSceneNames() const
 {
     return APPLICABLE_SCENE_NAMES;
 }
 
 ///------------------------------------------------------------------------------------------------
 
-StoryCardsLibrarySceneLogicManager::StoryCardsLibrarySceneLogicManager(){}
+CardLibrarySceneLogicManager::CardLibrarySceneLogicManager(){}
 
 ///------------------------------------------------------------------------------------------------
 
-StoryCardsLibrarySceneLogicManager::~StoryCardsLibrarySceneLogicManager(){}
+CardLibrarySceneLogicManager::~CardLibrarySceneLogicManager(){}
 
 ///------------------------------------------------------------------------------------------------
 
-void StoryCardsLibrarySceneLogicManager::VInitSceneCamera(std::shared_ptr<scene::Scene>)
+void CardLibrarySceneLogicManager::VInitSceneCamera(std::shared_ptr<scene::Scene>)
 {
 }
 
 ///------------------------------------------------------------------------------------------------
 
-void StoryCardsLibrarySceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
+void CardLibrarySceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 {
     mScene = scene;
     CardDataRepository::GetInstance().LoadCardData(true);
@@ -116,15 +125,20 @@ void StoryCardsLibrarySceneLogicManager::VInitScene(std::shared_ptr<scene::Scene
     
     switch (DataRepository::GetInstance().GetCurrentCardLibraryBehaviorType())
     {
-        case CardLibraryBehaviorType::NORMAL_BROWSING:
+        case CardLibraryBehaviorType::STORY_CARDS:
         {
-            std::get<scene::TextSceneObjectData>(mScene->FindSceneObject(STORY_CARDS_TITLE_SCENE_OBJECT_NAME)->mSceneObjectTypeData).mText = TITLE_NORMAL_BROWSING;
+            std::get<scene::TextSceneObjectData>(mScene->FindSceneObject(STORY_CARDS_TITLE_SCENE_OBJECT_NAME)->mSceneObjectTypeData).mText = TITLE_STORY_CARDS;
         } break;
             
         case CardLibraryBehaviorType::BROWSING_FOR_DELETION:
         {
             std::get<scene::TextSceneObjectData>(mScene->FindSceneObject(STORY_CARDS_TITLE_SCENE_OBJECT_NAME)->mSceneObjectTypeData).mText = TITLE_BROWSING_FOR_DELETION;
         } break;
+            
+        case CardLibraryBehaviorType::CARD_LIBRARY:
+        {
+            std::get<scene::TextSceneObjectData>(mScene->FindSceneObject(STORY_CARDS_TITLE_SCENE_OBJECT_NAME)->mSceneObjectTypeData).mText = TITLE_CARD_LIBRARY;
+        }
     }
     
     mAnimatedButtons.clear();
@@ -166,7 +180,7 @@ void StoryCardsLibrarySceneLogicManager::VInitScene(std::shared_ptr<scene::Scene
         CANCEL_BUTTON_POSITION,
         BUTTON_SCALE,
         game_constants::DEFAULT_FONT_NAME,
-        "Cancel",
+        DataRepository::GetInstance().GetCurrentCardLibraryBehaviorType() == CardLibraryBehaviorType::BROWSING_FOR_DELETION ? "Cancel" : "Back",
         CANCEL_BUTTON_SCENE_OBJECT_NAME,
         [=]()
         {
@@ -189,7 +203,9 @@ void StoryCardsLibrarySceneLogicManager::VInitScene(std::shared_ptr<scene::Scene
         MIN_CONTAINER_ENTRIES_TO_ANIMATE
     );
     
-    for (const auto& cardId: DataRepository::GetInstance().GetCurrentStoryPlayerDeck())
+    auto cards = DataRepository::GetInstance().GetCurrentCardLibraryBehaviorType() == CardLibraryBehaviorType::CARD_LIBRARY ? DataRepository::GetInstance().GetUnlockedCardIds() : DataRepository::GetInstance().GetCurrentStoryPlayerDeck();
+    
+    for (const auto& cardId: cards)
     {
         CardData cardData = CardDataRepository::GetInstance().GetCardData(cardId, game_constants::LOCAL_PLAYER_INDEX);
         
@@ -206,6 +222,24 @@ void StoryCardsLibrarySceneLogicManager::VInitScene(std::shared_ptr<scene::Scene
         mCardContainer->AddItem(std::move(cardEntry), EntryAdditionStrategy::ADD_ON_THE_BACK);
     }
     
+    auto goldenCheckboxSceneObject = scene->CreateSceneObject(GOLDEN_CHECKBOX_SCENE_OBJECT_NAME);
+    goldenCheckboxSceneObject->mPosition = GOLDEN_CHECKBOX_POSITION;
+    goldenCheckboxSceneObject->mScale = GOLDEN_CHECKBOX_SCALE;
+    goldenCheckboxSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + GOLDEN_CHECKBOX_EMPTY_TEXTURE_FILE_NAME);
+    goldenCheckboxSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+    goldenCheckboxSceneObject->mInvisible = true;
+    
+    scene::TextSceneObjectData goldenCheckboxTextData;
+    goldenCheckboxTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
+    goldenCheckboxTextData.mText = "Golden";
+    
+    auto goldenCheckboxTextSceneObject = scene->CreateSceneObject(GOLDEN_CHECKBOX_TEXT_SCENE_OBJECT_NAME);
+    goldenCheckboxTextSceneObject->mSceneObjectTypeData = std::move(goldenCheckboxTextData);
+    goldenCheckboxTextSceneObject->mPosition = GOLDEN_CHECKBOX_TEXT_POSITION;
+    goldenCheckboxTextSceneObject->mScale = GOLDEN_CHECKBOX_TEXT_SCALE;
+    goldenCheckboxTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+    goldenCheckboxTextSceneObject->mInvisible = true;
+                                                   
     size_t sceneObjectIndex = 0;
     for (auto sceneObject: scene->GetSceneObjects())
     {
@@ -218,7 +252,9 @@ void StoryCardsLibrarySceneLogicManager::VInitScene(std::shared_ptr<scene::Scene
         (
             sceneObject->mName == CARD_DELETION_OVERLAY_SCENE_OBJECT_NAME ||
             sceneObject->mName == DELETE_CARD_BUTTON_SCENE_OBJECT_NAME ||
-            sceneObject->mName == CANCEL_BUTTON_SCENE_OBJECT_NAME
+            sceneObject->mName == CANCEL_BUTTON_SCENE_OBJECT_NAME ||
+            sceneObject->mName == GOLDEN_CHECKBOX_TEXT_SCENE_OBJECT_NAME ||
+            sceneObject->mName == GOLDEN_CHECKBOX_SCENE_OBJECT_NAME
         )
         {
             continue;
@@ -229,18 +265,26 @@ void StoryCardsLibrarySceneLogicManager::VInitScene(std::shared_ptr<scene::Scene
         CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, 1.0f, ITEMS_FADE_IN_OUT_DURATION_SECS, animation_flags::NONE, sceneObjectIndex++ * STAGGERED_ITEM_ALPHA_DELAY_SECS), [=](){});
     }
     
-    events::EventSystem::GetInstance().RegisterForEvent<events::WindowResizeEvent>(this, &StoryCardsLibrarySceneLogicManager::OnWindowResize);
+    events::EventSystem::GetInstance().RegisterForEvent<events::WindowResizeEvent>(this, &CardLibrarySceneLogicManager::OnWindowResize);
     mTransitioning = false;
     mSceneState = SceneState::BROWSING_CARDS;
 }
 
 ///------------------------------------------------------------------------------------------------
 
-void StoryCardsLibrarySceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene::Scene>)
+void CardLibrarySceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene::Scene>)
 {
+    static float time = 0.0f;
+    time += dtMillis * 0.001f;
+    
     if (mTransitioning)
     {
         return;
+    }
+    
+    for (auto& cardContainerItem: mCardContainer->GetItems())
+    {
+        cardContainerItem.mSceneObjects.front()->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
     }
     
     switch (mSceneState)
@@ -276,7 +320,7 @@ void StoryCardsLibrarySceneLogicManager::VUpdate(const float dtMillis, std::shar
                         
                         switch (DataRepository::GetInstance().GetCurrentCardLibraryBehaviorType())
                         {
-                            case CardLibraryBehaviorType::NORMAL_BROWSING:
+                            case CardLibraryBehaviorType::STORY_CARDS:
                             {
                                 auto cardData = CardDataRepository::GetInstance().GetCardData(interactedElementEntry.mCardSoWrapper->mCardData.mCardId, game_constants::LOCAL_PLAYER_INDEX);
                                 
@@ -289,7 +333,8 @@ void StoryCardsLibrarySceneLogicManager::VUpdate(const float dtMillis, std::shar
                                     CreateCardTooltip(interactedElementEntry.mSceneObjects.front()->mPosition, cardData.mCardEffectTooltip);
                                 }
                             } break;
-                                
+                            
+                            case CardLibraryBehaviorType::CARD_LIBRARY:
                             case CardLibraryBehaviorType::BROWSING_FOR_DELETION:
                             {
                                 mSelectedCardIndex = cardHistoryContainerUpdateResult.mInteractedElementId;
@@ -323,6 +368,38 @@ void StoryCardsLibrarySceneLogicManager::VUpdate(const float dtMillis, std::shar
             
         case SceneState::SELECTED_CARD_FOR_DELETION:
         {
+            for (auto& animatedButton: mAnimatedButtons)
+            {
+                if (animatedButton->GetSceneObject()->mName == BACK_BUTTON_NAME)
+                {
+                    continue;
+                }
+                
+                animatedButton->Update(dtMillis);
+            }
+        } break;
+            
+        case SceneState::SELECTED_CARD_IN_CARD_LIBRARY:
+        {
+            const auto& inputStateManager = CoreSystemsEngine::GetInstance().GetInputStateManager();
+            
+            if (inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON))
+            {
+                auto worldTouchPos = inputStateManager.VGetPointingPosInWorldSpace(mScene->GetCamera().GetViewMatrix(), mScene->GetCamera().GetProjMatrix());
+            
+                auto goldenCheckboxSceneObjectRect = scene_object_utils::GetSceneObjectBoundingRect(*mScene->FindSceneObject(GOLDEN_CHECKBOX_SCENE_OBJECT_NAME));
+                auto goldenCheckboxTextSceneObjectRect = scene_object_utils::GetSceneObjectBoundingRect(*mScene->FindSceneObject(GOLDEN_CHECKBOX_TEXT_SCENE_OBJECT_NAME));
+                
+                if
+                (
+                    math::IsPointInsideRectangle(goldenCheckboxSceneObjectRect.bottomLeft, goldenCheckboxSceneObjectRect.topRight, worldTouchPos) ||
+                    math::IsPointInsideRectangle(goldenCheckboxTextSceneObjectRect.bottomLeft, goldenCheckboxTextSceneObjectRect.topRight, worldTouchPos)
+                )
+                {
+                    ToggleGoldenCheckbox();
+                }
+                    
+            }
             for (auto& animatedButton: mAnimatedButtons)
             {
                 if (animatedButton->GetSceneObject()->mName == BACK_BUTTON_NAME)
@@ -371,7 +448,7 @@ void StoryCardsLibrarySceneLogicManager::VUpdate(const float dtMillis, std::shar
 
 ///------------------------------------------------------------------------------------------------
 
-void StoryCardsLibrarySceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene> scene)
+void CardLibrarySceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene> scene)
 {
     DestroyCardTooltip();
     
@@ -407,21 +484,21 @@ void StoryCardsLibrarySceneLogicManager::VDestroyScene(std::shared_ptr<scene::Sc
 
 ///------------------------------------------------------------------------------------------------
 
-std::shared_ptr<GuiObjectManager> StoryCardsLibrarySceneLogicManager::VGetGuiObjectManager()
+std::shared_ptr<GuiObjectManager> CardLibrarySceneLogicManager::VGetGuiObjectManager()
 {
     return nullptr;
 }
 
 ///------------------------------------------------------------------------------------------------
 
-void StoryCardsLibrarySceneLogicManager::OnWindowResize(const events::WindowResizeEvent&)
+void CardLibrarySceneLogicManager::OnWindowResize(const events::WindowResizeEvent&)
 {
     mScene->RecalculatePositionOfEdgeSnappingSceneObjects();
 }
 
 ///------------------------------------------------------------------------------------------------
 
-void StoryCardsLibrarySceneLogicManager::CreateCardTooltip(const glm::vec3& cardOriginPostion, const std::string& tooltipText)
+void CardLibrarySceneLogicManager::CreateCardTooltip(const glm::vec3& cardOriginPostion, const std::string& tooltipText)
 {
     bool shouldBeHorFlipped = cardOriginPostion.x > 0.0f;
     bool shouldBeVerFlipped = cardOriginPostion.y > 0.0f;
@@ -440,7 +517,7 @@ void StoryCardsLibrarySceneLogicManager::CreateCardTooltip(const glm::vec3& card
 
 ///------------------------------------------------------------------------------------------------
 
-void StoryCardsLibrarySceneLogicManager::DestroyCardTooltip()
+void CardLibrarySceneLogicManager::DestroyCardTooltip()
 {
     if (mCardTooltipController)
     {
@@ -455,18 +532,12 @@ void StoryCardsLibrarySceneLogicManager::DestroyCardTooltip()
 
 ///------------------------------------------------------------------------------------------------
 
-void StoryCardsLibrarySceneLogicManager::SelectCard()
+void CardLibrarySceneLogicManager::SelectCard()
 {
     auto card = mCardContainer->GetItems()[mSelectedCardIndex].mCardSoWrapper;
     auto cardSceneObject = mCardContainer->GetItems()[mSelectedCardIndex].mSceneObjects.front();
     
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
-   
-    // Fade in delete button
-    auto deleteCardButtonSceneObject = mScene->FindSceneObject(DELETE_CARD_BUTTON_SCENE_OBJECT_NAME);
-    deleteCardButtonSceneObject->mInvisible = false;
-    animationManager.StopAllAnimationsPlayingForSceneObject(deleteCardButtonSceneObject->mName);
-    animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(deleteCardButtonSceneObject, 1.0f, SELECTED_CARD_ANIMATION_DURATION_SECS), [=](){});
 
     // Fade in cancel button
     auto cancelButtonSceneObject = mScene->FindSceneObject(CANCEL_BUTTON_SCENE_OBJECT_NAME);
@@ -490,12 +561,37 @@ void StoryCardsLibrarySceneLogicManager::SelectCard()
         }
     });
     
-    mSceneState = SceneState::SELECTED_CARD_FOR_DELETION;
+    if (DataRepository::GetInstance().GetCurrentCardLibraryBehaviorType() == CardLibraryBehaviorType::CARD_LIBRARY)
+    {
+        // Fade in golden checkbox
+        auto goldenCheckBoxSceneObject = mScene->FindSceneObject(GOLDEN_CHECKBOX_SCENE_OBJECT_NAME);
+        goldenCheckBoxSceneObject->mInvisible = false;
+        animationManager.StopAllAnimationsPlayingForSceneObject(goldenCheckBoxSceneObject->mName);
+        animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(goldenCheckBoxSceneObject, 1.0f, SELECTED_CARD_ANIMATION_DURATION_SECS), [=](){});
+        
+        // Fade in golden text
+        auto goldenCheckBoxTextSceneObject = mScene->FindSceneObject(GOLDEN_CHECKBOX_TEXT_SCENE_OBJECT_NAME);
+        goldenCheckBoxTextSceneObject->mInvisible = false;
+        animationManager.StopAllAnimationsPlayingForSceneObject(goldenCheckBoxTextSceneObject->mName);
+        animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(goldenCheckBoxTextSceneObject, 1.0f, SELECTED_CARD_ANIMATION_DURATION_SECS), [=](){});
+        
+        mSceneState = SceneState::SELECTED_CARD_IN_CARD_LIBRARY;
+    }
+    else if (DataRepository::GetInstance().GetCurrentCardLibraryBehaviorType() == CardLibraryBehaviorType::BROWSING_FOR_DELETION)
+    {
+        // Fade in delete button
+        auto deleteCardButtonSceneObject = mScene->FindSceneObject(DELETE_CARD_BUTTON_SCENE_OBJECT_NAME);
+        deleteCardButtonSceneObject->mInvisible = false;
+        animationManager.StopAllAnimationsPlayingForSceneObject(deleteCardButtonSceneObject->mName);
+        animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(deleteCardButtonSceneObject, 1.0f, SELECTED_CARD_ANIMATION_DURATION_SECS), [=](){});
+        
+        mSceneState = SceneState::SELECTED_CARD_FOR_DELETION;
+    }
 }
 
 ///------------------------------------------------------------------------------------------------
 
-void StoryCardsLibrarySceneLogicManager::DeleteCard()
+void CardLibrarySceneLogicManager::DeleteCard()
 {
     auto cardSceneObject = mCardContainer->GetItems()[mSelectedCardIndex].mSceneObjects.front();
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
@@ -538,7 +634,7 @@ void StoryCardsLibrarySceneLogicManager::DeleteCard()
 
 ///------------------------------------------------------------------------------------------------
 
-void StoryCardsLibrarySceneLogicManager::DeselectCard()
+void CardLibrarySceneLogicManager::DeselectCard()
 {
     DestroyCardTooltip();
     
@@ -550,6 +646,14 @@ void StoryCardsLibrarySceneLogicManager::DeselectCard()
     // Fade out delete card button
     auto deleteCardButtonSceneObject = mScene->FindSceneObject(DELETE_CARD_BUTTON_SCENE_OBJECT_NAME);
     animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(deleteCardButtonSceneObject, 0.0f, SELECTED_CARD_ANIMATION_DURATION_SECS), [=](){ deleteCardButtonSceneObject->mInvisible = true; });
+    
+    // Fade out golden checkbox
+    auto goldenCheckboxSceneObject = mScene->FindSceneObject(GOLDEN_CHECKBOX_SCENE_OBJECT_NAME);
+    animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(goldenCheckboxSceneObject, 0.0f, SELECTED_CARD_ANIMATION_DURATION_SECS), [=](){ goldenCheckboxSceneObject->mInvisible = true; });
+    
+    // Fade out golden text checkbox
+    auto goldenTextCheckboxSceneObject = mScene->FindSceneObject(GOLDEN_CHECKBOX_TEXT_SCENE_OBJECT_NAME);
+    animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(goldenTextCheckboxSceneObject, 0.0f, SELECTED_CARD_ANIMATION_DURATION_SECS), [=](){ goldenTextCheckboxSceneObject->mInvisible = true; });
     
     // Fade out cancel button
     auto cancelButtonSceneObject = mScene->FindSceneObject(CANCEL_BUTTON_SCENE_OBJECT_NAME);
@@ -564,6 +668,32 @@ void StoryCardsLibrarySceneLogicManager::DeselectCard()
     
     mSelectedCardIndex = -1;
     mCardContainer->ResetSwipeData();
+}
+
+///------------------------------------------------------------------------------------------------
+
+void CardLibrarySceneLogicManager::ToggleGoldenCheckbox()
+{
+    resources::ResourceId goldenCheckboxFilledTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + GOLDEN_CHECKBOX_FILLED_TEXTURE_FILE_NAME);
+    resources::ResourceId goldenCheckboxEmptyTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + GOLDEN_CHECKBOX_EMPTY_TEXTURE_FILE_NAME);
+    
+    auto selectedCard = mCardContainer->GetItems()[mSelectedCardIndex].mCardSoWrapper;
+    auto goldenCheckBoxSceneObject = mScene->FindSceneObject(GOLDEN_CHECKBOX_SCENE_OBJECT_NAME);
+    auto isNewCardGolden = goldenCheckBoxSceneObject->mTextureResourceId == goldenCheckboxEmptyTextureResourceId;
+    
+    goldenCheckBoxSceneObject->mTextureResourceId = isNewCardGolden ? goldenCheckboxFilledTextureResourceId : goldenCheckboxEmptyTextureResourceId;
+    
+    auto cardSoWrapper = card_utils::CreateCardSoWrapper(&selectedCard->mCardData, glm::vec3(), "", CardOrientation::FRONT_FACE, isNewCardGolden ? CardRarity::GOLDEN : CardRarity::NORMAL, false, false, true, {}, {}, *mScene);
+    cardSoWrapper->mSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CARD_ENTRY_SHADER);
+    cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MIN_Y_UNIFORM_NAME] = CARD_ENTRY_CUTOFF_VALUES.s;
+    cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MAX_Y_UNIFORM_NAME] = CARD_ENTRY_CUTOFF_VALUES.t;
+    cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
+    cardSoWrapper->mSceneObject->mScale = CARD_ENTRY_SCALE;
+    
+    CardEntry cardEntry;
+    cardEntry.mCardSoWrapper = cardSoWrapper;
+    cardEntry.mSceneObjects.emplace_back(cardSoWrapper->mSceneObject);
+    mCardContainer->ReplaceItemAtIndexWithNewItem(std::move(cardEntry), mSelectedCardIndex);
 }
 
 ///------------------------------------------------------------------------------------------------

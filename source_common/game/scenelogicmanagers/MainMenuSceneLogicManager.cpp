@@ -272,7 +272,11 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                 game_constants::DEFAULT_FONT_NAME,
                 "Card Library",
                 CARD_LIBRARY_BUTTON_NAME,
-                [=](){ },
+                [=]()
+                {
+                    DataRepository::GetInstance().SetCurrentCardLibraryBehaviorType(CardLibraryBehaviorType::CARD_LIBRARY);
+                    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::CARD_LIBRARY_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+                },
                 *scene
             ));
             

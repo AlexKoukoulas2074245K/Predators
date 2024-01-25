@@ -61,7 +61,7 @@ void DataRepository::ResetStoryData()
     mSelectedStoryMapNodePosition = {};
     mCurrentStoryMapNodeCoord = game_constants::STORY_MAP_INIT_COORD;
     mCurrentStoryMapNodeType = StoryMap::NodeType::NORMAL_ENCOUNTER;
-    mCurrentCardLibraryBehaviorType = CardLibraryBehaviorType::NORMAL_BROWSING;
+    mCurrentCardLibraryBehaviorType = CardLibraryBehaviorType::CARD_LIBRARY;
     mSelectedStoryMapNodeData = nullptr;
     
     mStoryMaxHealth = game_constants::STORY_DEFAULT_MAX_HEALTH;

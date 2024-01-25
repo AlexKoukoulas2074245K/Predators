@@ -120,6 +120,24 @@ public:
         ResetSwipeData();
     }
     
+    void ReplaceItemAtIndexWithNewItem(ContainerEntryT&& item, int index)
+    {
+        for (auto j = 0U; j < item.mSceneObjects.size(); ++j)
+        {
+            auto& sceneObject = item.mSceneObjects[j];
+            sceneObject->mPosition = mItems[index].mSceneObjects[j]->mPosition;
+            sceneObject->mScale = mItems[index].mSceneObjects[j]->mScale;
+            sceneObject->mName = strutils::StringId(mContainerName.GetString() + "_" + std::to_string(index) + "_" + std::to_string(j));
+        }
+        
+        for (auto sceneObject: mItems[index].mSceneObjects)
+        {
+            mScene.RemoveSceneObject(sceneObject->mName);
+        }
+        
+        mItems[index] = item;
+    }
+    
     void ResetItemPositions()
     {
         for (int i = 0; i < static_cast<int>(mItems.size()); ++i)

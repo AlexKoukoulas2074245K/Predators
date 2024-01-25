@@ -105,7 +105,7 @@
 		928B0CDB2B5C3C850025DF3F /* PoisonStackApplicationGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 928B0B892B5C3C850025DF3F /* PoisonStackApplicationGameAction.cpp */; };
 		928B0CDC2B5C3C850025DF3F /* Cards.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 928B0B8D2B5C3C850025DF3F /* Cards.cpp */; };
 		928B0CDD2B5C3C850025DF3F /* CardSelectionRewardSceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 928B0B902B5C3C850025DF3F /* CardSelectionRewardSceneLogicManager.cpp */; };
-		928B0CDE2B5C3C850025DF3F /* StoryCardsLibrarySceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 928B0B932B5C3C850025DF3F /* StoryCardsLibrarySceneLogicManager.cpp */; };
+		928B0CDE2B5C3C850025DF3F /* CardLibrarySceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 928B0B932B5C3C850025DF3F /* CardLibrarySceneLogicManager.cpp */; };
 		928B0CDF2B5C3C850025DF3F /* DefeatSceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 928B0B942B5C3C850025DF3F /* DefeatSceneLogicManager.cpp */; };
 		928B0CE02B5C3C850025DF3F /* EventSceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 928B0B962B5C3C850025DF3F /* EventSceneLogicManager.cpp */; };
 		928B0CE12B5C3C850025DF3F /* StoryMapSceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 928B0B992B5C3C850025DF3F /* StoryMapSceneLogicManager.cpp */; };
@@ -199,7 +199,7 @@
 
 /* Begin PBXFileReference section */
 		0106479588E4C78D4F938113 /* DataFileLoader.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = DataFileLoader.cpp; sourceTree = "<group>"; };
-		0329997E00487B8402D75893 /* CardPackRewardSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = CardPackRewardSceneLogicManager.cpp; path = CardPackRewardSceneLogicManager.cpp; sourceTree = "<group>"; };
+		0329997E00487B8402D75893 /* CardPackRewardSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = CardPackRewardSceneLogicManager.cpp; sourceTree = "<group>"; };
 		051E00BF71689A5C0A9F91D2 /* glew.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = glew.h; sourceTree = "<group>"; };
 		052939A977343440F86F0858 /* ResourceLoadingService.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = ResourceLoadingService.cpp; sourceTree = "<group>"; };
 		05D038A4FFCF3C5AA2E85A75 /* TextureLoader.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = TextureLoader.h; sourceTree = "<group>"; };
@@ -224,7 +224,7 @@
 		46BB489973B1ACFF46F552DB /* OBJMeshLoader.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = OBJMeshLoader.h; sourceTree = "<group>"; };
 		53CDE03B92A8F220738E44FE /* ImageSurfaceResource.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = ImageSurfaceResource.cpp; sourceTree = "<group>"; };
 		543F0360AEBB87C61E32D84B /* ThreadSafeQueue.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = ThreadSafeQueue.h; sourceTree = "<group>"; };
-		57036803010C5B02CAA45959 /* CardPackRewardSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = CardPackRewardSceneLogicManager.h; path = CardPackRewardSceneLogicManager.h; sourceTree = "<group>"; };
+		57036803010C5B02CAA45959 /* CardPackRewardSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = CardPackRewardSceneLogicManager.h; sourceTree = "<group>"; };
 		59B053AEBDD62B4FCAB8E05D /* RenderingUtils.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = RenderingUtils.cpp; sourceTree = "<group>"; };
 		5BD45E193E73BAA2C5DD3337 /* CloudDataConfirmationSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = CloudDataConfirmationSceneLogicManager.cpp; sourceTree = "<group>"; };
 		642B84557417F85C19410FDE /* ShaderLoader.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = ShaderLoader.h; sourceTree = "<group>"; };
@@ -348,9 +348,9 @@
 		928B0B8D2B5C3C850025DF3F /* Cards.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Cards.cpp; sourceTree = "<group>"; };
 		928B0B8F2B5C3C850025DF3F /* CardSelectionRewardSceneLogicManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CardSelectionRewardSceneLogicManager.h; sourceTree = "<group>"; };
 		928B0B902B5C3C850025DF3F /* CardSelectionRewardSceneLogicManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CardSelectionRewardSceneLogicManager.cpp; sourceTree = "<group>"; };
-		928B0B912B5C3C850025DF3F /* StoryCardsLibrarySceneLogicManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StoryCardsLibrarySceneLogicManager.h; sourceTree = "<group>"; };
+		928B0B912B5C3C850025DF3F /* CardLibrarySceneLogicManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CardLibrarySceneLogicManager.h; sourceTree = "<group>"; };
 		928B0B922B5C3C850025DF3F /* BattleSceneLogicManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BattleSceneLogicManager.h; sourceTree = "<group>"; };
-		928B0B932B5C3C850025DF3F /* StoryCardsLibrarySceneLogicManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StoryCardsLibrarySceneLogicManager.cpp; sourceTree = "<group>"; };
+		928B0B932B5C3C850025DF3F /* CardLibrarySceneLogicManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CardLibrarySceneLogicManager.cpp; sourceTree = "<group>"; };
 		928B0B942B5C3C850025DF3F /* DefeatSceneLogicManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DefeatSceneLogicManager.cpp; sourceTree = "<group>"; };
 		928B0B952B5C3C850025DF3F /* VisitMapNodeSceneLogicManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VisitMapNodeSceneLogicManager.h; sourceTree = "<group>"; };
 		928B0B962B5C3C850025DF3F /* EventSceneLogicManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EventSceneLogicManager.cpp; sourceTree = "<group>"; };
@@ -839,9 +839,9 @@
 			children = (
 				928B0B8F2B5C3C850025DF3F /* CardSelectionRewardSceneLogicManager.h */,
 				928B0B902B5C3C850025DF3F /* CardSelectionRewardSceneLogicManager.cpp */,
-				928B0B912B5C3C850025DF3F /* StoryCardsLibrarySceneLogicManager.h */,
+				928B0B912B5C3C850025DF3F /* CardLibrarySceneLogicManager.h */,
 				928B0B922B5C3C850025DF3F /* BattleSceneLogicManager.h */,
-				928B0B932B5C3C850025DF3F /* StoryCardsLibrarySceneLogicManager.cpp */,
+				928B0B932B5C3C850025DF3F /* CardLibrarySceneLogicManager.cpp */,
 				928B0B942B5C3C850025DF3F /* DefeatSceneLogicManager.cpp */,
 				928B0B952B5C3C850025DF3F /* VisitMapNodeSceneLogicManager.h */,
 				928B0B962B5C3C850025DF3F /* EventSceneLogicManager.cpp */,
@@ -1166,7 +1166,7 @@
 				928B0CE22B5C3C850025DF3F /* VisitMapNodeSceneLogicManager.cpp in Sources */,
 				928B0CC22B5C3C850025DF3F /* AnimatedButton.cpp in Sources */,
 				928B0CCB2B5C3C850025DF3F /* InsectDuplicationGameAction.cpp in Sources */,
-				928B0CDE2B5C3C850025DF3F /* StoryCardsLibrarySceneLogicManager.cpp in Sources */,
+				928B0CDE2B5C3C850025DF3F /* CardLibrarySceneLogicManager.cpp in Sources */,
 				928B0CCA2B5C3C850025DF3F /* CardBuffedDebuffedAnimationGameAction.cpp in Sources */,
 				928B0CD62B5C3C850025DF3F /* GameActionEngine.cpp in Sources */,
 				928B0CC92B5C3C850025DF3F /* HeroCardEntryGameAction.cpp in Sources */,

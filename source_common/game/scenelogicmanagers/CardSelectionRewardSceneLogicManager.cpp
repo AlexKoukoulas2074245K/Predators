@@ -357,7 +357,7 @@ void CardSelectionRewardSceneLogicManager::OnWindowResize(const events::WindowRe
 
 void CardSelectionRewardSceneLogicManager::OnSceneChange(const events::SceneChangeEvent& event)
 {
-    if (event.mNewSceneName == game_constants::SETTINGS_SCENE || event.mNewSceneName == game_constants::STORY_CARDS_LIBRARY_SCENE)
+    if (event.mNewSceneName == game_constants::SETTINGS_SCENE || event.mNewSceneName == game_constants::CARD_LIBRARY_SCENE)
     {
         CoreSystemsEngine::GetInstance().GetAnimationManager().StopAnimation(CARD_SELECTION_ANIMATION_NAME);
         auto scene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(CARD_SELECTION_REWARD_SCENE_NAME);
