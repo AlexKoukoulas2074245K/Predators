@@ -25,6 +25,7 @@ static const std::string DECK_ENTRY_MASK_TEXTURE_FILE_NAME = "trap_mask.png";
 
 static const strutils::StringId BOARD_SCENE_OBJECT_NAME = strutils::StringId("board");
 static const strutils::StringId STORY_MODE_BUTTON_NAME = strutils::StringId("story_mode_button");
+static const strutils::StringId CARD_LIBRARY_BUTTON_NAME = strutils::StringId("card_library_button");
 static const strutils::StringId CONTINUE_STORY_BUTTON_NAME = strutils::StringId("continue_story_button");
 static const strutils::StringId NEW_STORY_BUTTON_NAME = strutils::StringId("new_story_button");
 static const strutils::StringId QUICK_BATTLE_BUTTON_NAME = strutils::StringId("quick_battle_button");
@@ -58,8 +59,9 @@ static const glm::vec3 STORY_MODE_BUTTON_POSITION = {-0.109f, 0.09f, 0.1f};
 static const glm::vec3 CONTINUE_STORY_BUTTON_POSITION = {-0.142f, 0.09f, 0.1f};
 static const glm::vec3 NO_PROGRESS_NEW_STORY_BUTTON_POSITION = {-0.091f, 0.06f, 0.1f};
 static const glm::vec3 NEW_STORY_BUTTON_POSITION = {-0.091f, 0.00f, 0.1f};
-static const glm::vec3 QUICK_BATTLE_BUTTON_POSITION = {-0.109f, -0.003f, 0.1f};
-static const glm::vec3 QUIT_BUTTON_POSITION = {-0.033f, -0.093f, 0.1f};
+static const glm::vec3 CARD_LIBRARY_BUTTON_POSITION = {-0.125f, 0.016f, 0.1f};
+static const glm::vec3 QUICK_BATTLE_BUTTON_POSITION = {-0.109f, -0.055f, 0.1f};
+static const glm::vec3 QUIT_BUTTON_POSITION = {-0.033f, -0.130f, 0.1f};
 static const glm::vec3 NORMAL_BATTLE_MODE_BUTTON_POSITION = {-0.254f, 0.086f, 0.1f};
 static const glm::vec3 AI_DEMO_BATTLE_MODE_BUTTON_POSITION = {-0.07f, 0.086f, 0.1f};
 static const glm::vec3 REPLAY_BATTLE_MODE_BUTTON_POSITION = {0.136f, 0.086f, 0.1f};
@@ -260,6 +262,17 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                 "Story Mode",
                 STORY_MODE_BUTTON_NAME,
                 [=](){ TransitionToSubScene(SubSceneType::STORY_MODE, scene); },
+                *scene
+            ));
+            
+            mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
+            (
+                CARD_LIBRARY_BUTTON_POSITION,
+                BUTTON_SCALE,
+                game_constants::DEFAULT_FONT_NAME,
+                "Card Library",
+                CARD_LIBRARY_BUTTON_NAME,
+                [=](){ },
                 *scene
             ));
             

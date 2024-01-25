@@ -50,7 +50,6 @@ private:
         PACK_SHAKING,
         PACK_EXPLODING,
         CARD_REWARDS_INSPECTION,
-        CARD_SELECTED,
         LEAVING_SCENE
     };
     

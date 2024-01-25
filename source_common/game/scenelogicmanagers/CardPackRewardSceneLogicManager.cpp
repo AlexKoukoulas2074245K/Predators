@@ -263,12 +263,14 @@ void CardPackRewardSceneLogicManager::VUpdate(const float dtMillis, std::shared_
             
             auto worldTouchPos = inputStateManager.VGetPointingPosInWorldSpace(scene->GetCamera().GetViewMatrix(), scene->GetCamera().GetProjMatrix());
             
+            bool createdTooltipThisFrame = false;
             for (auto i = 0U; i < mCardRewards.size(); ++i)
             {
                 auto cardSoWrapper = mCardRewards[i];
                 auto sceneObjectRect = scene_object_utils::GetSceneObjectBoundingRect(*cardSoWrapper->mSceneObject);
-                
                 bool cursorInSceneObject = math::IsPointInsideRectangle(sceneObjectRect.bottomLeft, sceneObjectRect.topRight, worldTouchPos);
+                
+#if defined(MOBILE_FLOW)
                 if (cursorInSceneObject && inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON))
                 {
                     if (cardSoWrapper->mState == CardSoState::IDLE)
@@ -281,61 +283,60 @@ void CardPackRewardSceneLogicManager::VUpdate(const float dtMillis, std::shared_
                     
                     if (cardSoWrapper->mCardData.IsSpell())
                     {
+                        DestroyCardTooltip(scene);
                         CreateCardTooltip(cardSoWrapper->mSceneObject->mPosition, cardSoWrapper->mCardData.mCardEffectTooltip, i, scene);
+                        createdTooltipThisFrame = true;
                     }
-                    
-                    mSceneState = SceneState::CARD_SELECTED;
                 }
-                
-#if !defined(MOBILE_FLOW)
-                if (cursorInSceneObject && cardSoWrapper->mState == CardSoState::IDLE)
+                else if (!cursorInSceneObject && inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON))
+                {
+                    if (cardSoWrapper->mState == CardSoState::HIGHLIGHTED)
+                    {
+                        if (!createdTooltipThisFrame)
+                        {
+                            DestroyCardTooltip(scene);
+                        }
+                        
+                        cardSoWrapper->mState = CardSoState::IDLE;
+                        
+                        std::vector<std::shared_ptr<scene::SceneObject>> cardSceneObjectGroup = {cardSoWrapper->mSceneObject, mCardRewardFamilyStamps[i]};
+                        animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleGroupAnimation>(cardSceneObjectGroup, cardSoWrapper->mSceneObject->mPosition, CARD_REWARD_DEFAULT_SCALE, CARD_HIGHLIGHT_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::ElasticFunction, math::TweeningMode::EASE_IN), [=](){}, CARD_SELECTION_ANIMATION_NAME);
+                    }
+                }
+#else
+                if (cursorInSceneObject && cardSoWrapper->mState == CardSoState::IDLE && cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] >= 1.0f)
                 {
                     cardSoWrapper->mState = CardSoState::HIGHLIGHTED;
                     std::vector<std::shared_ptr<scene::SceneObject>> cardSceneObjectGroup = {cardSoWrapper->mSceneObject, mCardRewardFamilyStamps[i]};
                     animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleGroupAnimation>(cardSceneObjectGroup, cardSoWrapper->mSceneObject->mPosition, CARD_REWARD_EXPANDED_SCALE, CARD_HIGHLIGHT_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::ElasticFunction, math::TweeningMode::EASE_IN), [=](){}, CARD_SELECTION_ANIMATION_NAME);
+                    
+                    if (cardSoWrapper->mCardData.IsSpell())
+                    {
+                        DestroyCardTooltip(scene);
+                        CreateCardTooltip(cardSoWrapper->mSceneObject->mPosition, cardSoWrapper->mCardData.mCardEffectTooltip, i, scene);
+                        createdTooltipThisFrame = true;
+                    }
                 }
                 else if (!cursorInSceneObject && cardSoWrapper->mState == CardSoState::HIGHLIGHTED)
                 {
+                    if (!createdTooltipThisFrame)
+                    {
+                        DestroyCardTooltip(scene);
+                    }
+                    
                     cardSoWrapper->mState = CardSoState::IDLE;
+            
                     std::vector<std::shared_ptr<scene::SceneObject>> cardSceneObjectGroup = {cardSoWrapper->mSceneObject, mCardRewardFamilyStamps[i]};
                     animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleGroupAnimation>(cardSceneObjectGroup, cardSoWrapper->mSceneObject->mPosition, CARD_REWARD_DEFAULT_SCALE, CARD_HIGHLIGHT_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::ElasticFunction, math::TweeningMode::EASE_IN), [=](){}, CARD_SELECTION_ANIMATION_NAME);
                 }
 #endif
-                
-                mContinueButton->Update(dtMillis);
             }
-        } break;
-        
-        case SceneState::CARD_SELECTED:
-        {
+            
             mContinueButton->Update(dtMillis);
             
             if (mCardTooltipController)
             {
                 mCardTooltipController->Update(dtMillis);
-            }
-            
-            auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
-            auto& inputStateManager = CoreSystemsEngine::GetInstance().GetInputStateManager();
-            auto worldTouchPos = inputStateManager.VGetPointingPosInWorldSpace(scene->GetCamera().GetViewMatrix(), scene->GetCamera().GetProjMatrix());
-            
-            auto sceneObjectRect = scene_object_utils::GetSceneObjectBoundingRect(*mContinueButton->GetSceneObject());
-            bool cursorInConfirmationButton = math::IsPointInsideRectangle(sceneObjectRect.bottomLeft, sceneObjectRect.topRight, worldTouchPos);
-            
-            if (!cursorInConfirmationButton && inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON))
-            {
-                // Confirmation button was not pressed at this point
-                for (auto i = 0U; i < mCardRewards.size(); ++i)
-                {
-#if defined(MOBILE_FLOW)
-                    mCardRewards[i]->mState = CardSoState::IDLE;
-                    std::vector<std::shared_ptr<scene::SceneObject>> cardSceneObjectGroup = {mCardRewards[i]->mSceneObject, mCardRewardFamilyStamps[i]};
-                    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleGroupAnimation>(cardSceneObjectGroup, mCardRewards[i]->mSceneObject->mPosition, CARD_REWARD_DEFAULT_SCALE, CARD_HIGHLIGHT_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::ElasticFunction, math::TweeningMode::EASE_IN), [=](){}, CARD_SELECTION_ANIMATION_NAME);
-#endif
-                }
-                
-                DestroyCardTooltip(scene);
-                mSceneState = SceneState::CARD_REWARDS_INSPECTION;
             }
         } break;
             
