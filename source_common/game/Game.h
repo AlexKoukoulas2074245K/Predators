@@ -29,6 +29,10 @@ public:
     void OnOneSecondElapsed();
     void CreateDebugWidgets();
     
+private:
+    void CheckForEmptyProgression();
+    
+private:
     std::unique_ptr<GameSceneTransitionManager> mGameSceneTransitionManager;
     std::unique_ptr<events::IListener> mSceneChangeEventListener;
     std::unique_ptr<events::IListener> mPopModalSceneEventListener;

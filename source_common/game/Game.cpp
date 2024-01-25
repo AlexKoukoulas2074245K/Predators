@@ -65,6 +65,7 @@
 ///------------------------------------------------------------------------------------------------
 
 static const strutils::StringId MAIN_MENU_SCENE = strutils::StringId("main_menu_scene");
+static bool sEmptyProgression = false;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -104,7 +105,7 @@ void OnCloudQueryCompleted(cloudkit_utils::QueryResultData resultData)
         )
         {
             auto deviceId = dataFileDeserializer.GetState().at("device_id").get<std::string>();
-            if (deviceId != localDeviceId)
+            if (deviceId != localDeviceId || sEmptyProgression)
             {
                 using namespace date;
                 std::stringstream s;
@@ -133,6 +134,8 @@ Game::Game(const int argc, char** argv)
     {
         logging::Log(logging::LogType::INFO, "Initializing from CWD : %s", argv[0]);
     }
+    
+    CheckForEmptyProgression();
 #if defined(MACOS) || defined(MOBILE_FLOW)
     cloudkit_utils::QueryPlayerProgress([=](cloudkit_utils::QueryResultData resultData){ OnCloudQueryCompleted(resultData); });
     apple_utils::SetAssetFolder();
@@ -213,18 +216,18 @@ void Game::Update(const float dtMillis)
         !CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::LOADING_SCENE_NAME)
     )
     {
-        //mGameSceneTransitionManager->ChangeToScene(game_constants::CLOUD_DATA_CONFIRMATION_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+        mGameSceneTransitionManager->ChangeToScene(game_constants::CLOUD_DATA_CONFIRMATION_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
         DataRepository::GetInstance().SetForeignProgressionDataFound(false);
     }
 #endif
     
-    static bool shownPackReward = false;
-    if (!shownPackReward && mGameSceneTransitionManager->GetActiveSceneStack().top().mActiveSceneName == MAIN_MENU_SCENE &&
-        !CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::LOADING_SCENE_NAME))
-    {
-        mGameSceneTransitionManager->ChangeToScene(game_constants::CARD_PACK_REWARD_SCENE_NAME, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
-        shownPackReward = true;
-    }
+//    static bool shownPackReward = false;
+//    if (!shownPackReward && mGameSceneTransitionManager->GetActiveSceneStack().top().mActiveSceneName == MAIN_MENU_SCENE &&
+//        !CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::LOADING_SCENE_NAME))
+//    {
+//        mGameSceneTransitionManager->ChangeToScene(game_constants::CARD_PACK_REWARD_SCENE_NAME, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+//        shownPackReward = true;
+//    }
 //    auto& systemsEngine = CoreSystemsEngine::GetInstance();
 //    auto scene = systemsEngine.GetSceneManager().FindScene(game_constants::MAIN_MENU_SCENE);
 //
@@ -591,5 +594,13 @@ void Game::CreateDebugWidgets()
 {
 }
 #endif
+
+///------------------------------------------------------------------------------------------------
+
+void Game::CheckForEmptyProgression()
+{
+    serial::BaseDataFileDeserializer persistentDataFileChecker("persistent", serial::DataFileType::PERSISTENCE_FILE_TYPE, serial::WarnOnFileNotFoundBehavior::DO_NOT_WARN, serial::CheckSumValidationBehavior::VALIDATE_CHECKSUM);
+    sEmptyProgression = persistentDataFileChecker.GetState().empty();
+}
 
 ///------------------------------------------------------------------------------------------------
