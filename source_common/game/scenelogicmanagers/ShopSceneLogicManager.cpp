@@ -168,6 +168,22 @@ void ShopSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 
 void ShopSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene::Scene>)
 {
+    static float time = 0.0f;
+    time += dtMillis * 0.001f;
+    
+    for (auto shelfIndex = 0U; shelfIndex < mProducts.size(); ++shelfIndex)
+    {
+        for (auto shelfItemIndex = 0U; shelfItemIndex < mProducts[shelfIndex].size(); ++shelfItemIndex)
+        {
+            if (mProducts[shelfIndex][shelfItemIndex] == nullptr)
+            {
+                continue;
+            }
+            
+            mProducts[shelfIndex][shelfIndex]->mSceneObjects.front()->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
+        }
+    }
+    
     switch (mSceneState)
     {
         case SceneState::CREATING_DYNAMIC_OBJECTS:
@@ -571,7 +587,10 @@ void ShopSceneLogicManager::CreateProducts()
             {
                 auto cardId = std::get<int>(productDefinition.mProductTexturePathOrCardId);
                 auto cardData = CardDataRepository::GetInstance().GetCardData(cardId, game_constants::LOCAL_PLAYER_INDEX);
-                auto cardSoWrapper = card_utils::CreateCardSoWrapper(&cardData, glm::vec3(), PRODUCT_NAME_PREFIX + std::to_string(shelfIndex) + "_" + std::to_string(shelfItemIndex), CardOrientation::FRONT_FACE, CardRarity::NORMAL, false, false, true, {}, {}, *mScene);
+                const auto& cardIdToGoldenCardEnabledMap = DataRepository::GetInstance().GetGoldenCardIdMap();
+                bool isGoldenCard = cardIdToGoldenCardEnabledMap.count(cardId) && cardIdToGoldenCardEnabledMap.at(cardId);
+                
+                auto cardSoWrapper = card_utils::CreateCardSoWrapper(&cardData, glm::vec3(), PRODUCT_NAME_PREFIX + std::to_string(shelfIndex) + "_" + std::to_string(shelfItemIndex), CardOrientation::FRONT_FACE, isGoldenCard ? CardRarity::GOLDEN : CardRarity::NORMAL, false, false, true, {}, {}, *mScene);
 
                 cardSoWrapper->mSceneObject->mPosition = SHELF_ITEM_TARGET_BASE_POSITIONS[shelfIndex] + PRODUCT_POSITION_OFFSET;
                 cardSoWrapper->mSceneObject->mScale = CARD_PRODUCT_SCALE;

@@ -140,6 +140,11 @@ void CardSelectionRewardSceneLogicManager::VUpdate(const float dtMillis, std::sh
     static float time = 0.0f;
     time += dtMillis * 0.001f;
     
+    for (auto& cardReward: mCardRewards)
+    {
+        cardReward->mSceneObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
+    }
+    
     switch (mSceneState)
     {
         case SceneState::PENDING_PRESENTATION:
@@ -394,7 +399,11 @@ void CardSelectionRewardSceneLogicManager::CreateCardRewards(std::shared_ptr<sce
     {
         auto randomCardIndex = math::ControlledRandomInt() % cardRewardsPool.size();
         auto cardData = CardDataRepository::GetInstance().GetCardData(cardRewardsPool[randomCardIndex], game_constants::LOCAL_PLAYER_INDEX);
-        mCardRewards.push_back(card_utils::CreateCardSoWrapper(&cardData, glm::vec3(-0.2f + 0.17 * i, -0.0f, 23.2f), CARD_REWARD_SCENE_OBJECT_NAME_PREFIX + std::to_string(i), CardOrientation::FRONT_FACE, CardRarity::NORMAL, false, false, true, {}, {}, *scene));
+        
+        const auto& cardIdToGoldenCardEnabledMap = DataRepository::GetInstance().GetGoldenCardIdMap();
+        bool isGoldenCard = cardIdToGoldenCardEnabledMap.count(cardRewardsPool[randomCardIndex]) && cardIdToGoldenCardEnabledMap.at(cardRewardsPool[randomCardIndex]);
+        
+        mCardRewards.push_back(card_utils::CreateCardSoWrapper(&cardData, glm::vec3(-0.2f + 0.17 * i, -0.0f, 23.2f), CARD_REWARD_SCENE_OBJECT_NAME_PREFIX + std::to_string(i), CardOrientation::FRONT_FACE, isGoldenCard ? CardRarity::GOLDEN : CardRarity::NORMAL, false, false, true, {}, {}, *scene));
         mCardRewards.back()->mSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
         mCardRewards.back()->mSceneObject->mScale = CARD_REWARD_DEFAULT_SCALE;
         mCardRewards.back()->mSceneObject->mShaderBoolUniformValues[DARKEN_UNIFORM_NAME] = false;

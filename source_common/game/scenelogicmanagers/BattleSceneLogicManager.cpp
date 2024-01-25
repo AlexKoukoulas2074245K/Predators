@@ -305,6 +305,14 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
         }
     }
     
+    for (const auto& goldenCardEntry: DataRepository::GetInstance().GetGoldenCardIdMap())
+    {
+        if (goldenCardEntry.second)
+        {
+            mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mGoldenCardIds.push_back(goldenCardEntry.first);
+        }
+    }
+        
     CardDataRepository::GetInstance().CleanDeckFromTempIds(mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards);
     CardDataRepository::GetInstance().CleanDeckFromTempIds(mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards);
     
