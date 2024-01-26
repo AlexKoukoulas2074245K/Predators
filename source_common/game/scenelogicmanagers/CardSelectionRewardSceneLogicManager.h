@@ -58,6 +58,7 @@ private:
     std::unique_ptr<CardTooltipController> mCardTooltipController;
     SceneState mSceneState;
     float mInitialSurfacingDelaySecs;
+    float mGoldenCardLightPosX;
 };
 
 ///------------------------------------------------------------------------------------------------

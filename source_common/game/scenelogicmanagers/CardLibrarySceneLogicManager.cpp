@@ -211,7 +211,7 @@ void CardLibrarySceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scen
         const auto& cardIdToGoldenCardEnabledMap = DataRepository::GetInstance().GetGoldenCardIdMap();
         bool isGoldenCard = cardIdToGoldenCardEnabledMap.count(cardId) && cardIdToGoldenCardEnabledMap.at(cardId);
         
-        auto cardSoWrapper = card_utils::CreateCardSoWrapper(&cardData, glm::vec3(), "", CardOrientation::FRONT_FACE, isGoldenCard ? CardRarity::GOLDEN : CardRarity::NORMAL, false, false, true, {}, {}, *scene);
+        auto cardSoWrapper = card_utils::CreateCardSoWrapper(&cardData, glm::vec3(), "", CardOrientation::FRONT_FACE, isGoldenCard ? CardRarity::GOLDEN : CardRarity::NORMAL, true, false, true, {}, {}, *scene);
         cardSoWrapper->mSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CARD_ENTRY_SHADER);
         cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MIN_Y_UNIFORM_NAME] = CARD_ENTRY_CUTOFF_VALUES.s;
         cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MAX_Y_UNIFORM_NAME] = CARD_ENTRY_CUTOFF_VALUES.t;
@@ -538,6 +538,7 @@ void CardLibrarySceneLogicManager::SelectCard()
 {
     auto card = mCardContainer->GetItems()[mSelectedCardIndex].mCardSoWrapper;
     auto cardSceneObject = mCardContainer->GetItems()[mSelectedCardIndex].mSceneObjects.front();
+    const auto& goldenCardIds = DataRepository::GetInstance().GetGoldenCardIdMap();
     
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
 
@@ -561,11 +562,13 @@ void CardLibrarySceneLogicManager::SelectCard()
         {
             CreateCardTooltip(SELECTED_CARD_TARGET_POSITION, card->mCardData.mCardEffectTooltip);
         }
+        
+        card->mSceneObject->mShaderFloatUniformValues[game_constants::LIGHT_POS_X_UNIFORM_NAME] = game_constants::GOLDEN_CARD_LIGHT_POS_MIN_MAX_X.s;
+        CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(card->mSceneObject->mShaderFloatUniformValues[game_constants::LIGHT_POS_X_UNIFORM_NAME], game_constants::GOLDEN_CARD_LIGHT_POS_MIN_MAX_X.t, 1.0f), [](){});
     });
     
     if (DataRepository::GetInstance().GetCurrentCardLibraryBehaviorType() == CardLibraryBehaviorType::CARD_LIBRARY)
     {
-        const auto& goldenCardIds = DataRepository::GetInstance().GetGoldenCardIdMap();
         if (goldenCardIds.count(card->mCardData.mCardId))
         {
             // Fade in golden checkbox
@@ -699,11 +702,12 @@ void CardLibrarySceneLogicManager::SetGoldenCheckboxValue(const bool checkboxVal
     
     goldenCheckBoxSceneObject->mTextureResourceId = checkboxValue ? goldenCheckboxFilledTextureResourceId : goldenCheckboxEmptyTextureResourceId;
     
-    auto cardSoWrapper = card_utils::CreateCardSoWrapper(&selectedCard->mCardData, glm::vec3(), "", CardOrientation::FRONT_FACE, checkboxValue ? CardRarity::GOLDEN : CardRarity::NORMAL, false, false, true, {}, {}, *mScene);
+    auto cardSoWrapper = card_utils::CreateCardSoWrapper(&selectedCard->mCardData, glm::vec3(), "", CardOrientation::FRONT_FACE, checkboxValue ? CardRarity::GOLDEN : CardRarity::NORMAL, true, false, true, {}, {}, *mScene);
     cardSoWrapper->mSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CARD_ENTRY_SHADER);
     cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MIN_Y_UNIFORM_NAME] = CARD_ENTRY_CUTOFF_VALUES.s;
     cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MAX_Y_UNIFORM_NAME] = CARD_ENTRY_CUTOFF_VALUES.t;
     cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
+    cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::LIGHT_POS_X_UNIFORM_NAME] = game_constants::GOLDEN_CARD_LIGHT_POS_MIN_MAX_X.s;
     cardSoWrapper->mSceneObject->mScale = CARD_ENTRY_SCALE;
     
     CardEntry cardEntry;
@@ -712,6 +716,9 @@ void CardLibrarySceneLogicManager::SetGoldenCheckboxValue(const bool checkboxVal
     mCardContainer->ReplaceItemAtIndexWithNewItem(std::move(cardEntry), mSelectedCardIndex);
     
     DataRepository::GetInstance().SetGoldenCardMapEntry(selectedCard->mCardData.mCardId, checkboxValue);
+    
+    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(mCardContainer->GetItems()[mSelectedCardIndex].mSceneObjects.front()->mShaderFloatUniformValues[game_constants::LIGHT_POS_X_UNIFORM_NAME], game_constants::GOLDEN_CARD_LIGHT_POS_MIN_MAX_X.t, 1.0f), [](){});
+    
     DataRepository::GetInstance().FlushStateToFile();
 }
 

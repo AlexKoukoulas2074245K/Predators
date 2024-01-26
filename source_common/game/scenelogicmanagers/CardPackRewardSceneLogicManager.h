@@ -60,6 +60,7 @@ private:
     std::vector<std::shared_ptr<scene::SceneObject>> mCardRewardFamilyStamps;
     std::vector<glm::vec3> mCardPackVertexVelocities;
     SceneState mSceneState;
+    float mGoldenCardLightPosX;
     int mCardPackShakeStepsRemaining;
 };
 

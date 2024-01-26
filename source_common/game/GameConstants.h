@@ -201,6 +201,8 @@ namespace game_constants
     inline const glm::vec3 GAME_BOARD_INIT_POSITION = {-0.039f, 0.011f, 0.0f };
     inline const glm::vec3 GAME_BOARD_INIT_ROTATION = {0.0f, 0.0f, 3.14f };
 
+    inline const glm::vec2 GOLDEN_CARD_LIGHT_POS_MIN_MAX_X = {-0.5f, 0.5f};
+
     inline const glm::ivec2 STORY_MAP_INIT_COORD = {0, 3};
     inline const glm::ivec2 STORY_MAP_BOSS_COORD = {10, 3};
     inline const glm::ivec2 STORY_NODE_MAP_DIMENSIONS = {11, 7};

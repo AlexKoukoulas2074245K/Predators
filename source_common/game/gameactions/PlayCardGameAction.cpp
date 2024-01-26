@@ -95,12 +95,6 @@ void PlayCardGameAction::VSetNewGameState()
     activePlayerState.mPlayerHeldCards.erase(activePlayerState.mPlayerHeldCards.begin() + lastPlayedCardIndex);
     activePlayerState.mPlayerCurrentWeightAmmo -= cardWeight;
     
-    // Golden card animation
-    if (card_utils::GetCardRarity(cardId, mBoardState->GetActivePlayerIndex(), *mBoardState) == CardRarity::GOLDEN)
-    {
-        mGameActionEngine->AddGameAction(GOLDEN_CARD_PLAYED_EFFECT_GAME_ACTION_NAME);
-    }
-    
     // Card-specific particle animation
     if (!cardData.mParticleEffect.isEmpty())
     {

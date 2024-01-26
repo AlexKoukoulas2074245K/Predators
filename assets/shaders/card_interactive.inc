@@ -28,7 +28,7 @@ vec4 calculate_golden_card_color(vec4 color, float time, vec2 uv, float light_po
     float light_dist = abs(light_pos.x - frag_unprojected_pos.x);
     vec3 lighting = vec3(0.0f);
     
-    if (light_dist <= 0.445f && !held_card)
+    if (light_dist <= 0.445f)
     {
         float diff_intensity = 0.3f * fft;
         float spec_intensity = 0.5f * fft;
