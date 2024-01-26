@@ -25,6 +25,7 @@
 
 ///------------------------------------------------------------------------------------------------
 
+static const strutils::StringId TITLE_SCENE_OBJECT_NAME = strutils::StringId("card_pack_title");
 static const strutils::StringId OPEN_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("open_button");
 static const strutils::StringId CARD_PACK_OPENING_EFFECT_PARTICLE_NAME = strutils::StringId("card_pack_opening_sparkes");
 static const strutils::StringId CARD_PACK_OPENING_EFFECT_PARTICLE_EMITTER_NAME = strutils::StringId("card_pack_opening_effect_emitter");
@@ -34,8 +35,8 @@ static const strutils::StringId CARD_SELECTION_ANIMATION_NAME = strutils::String
 static const strutils::StringId CARD_PACK_REWARD_SCENE_OBJECT_NAME = strutils::StringId("card_pack_reward");
 
 static const std::string CARD_PACK_REWARD_MESH_FILE_NAME = "card_pack_dynamic.obj";
-//static const std::string GOLDEN_CARD_PACK_SHADER_FILE_NAME = "card_pack_golden.vs";
-//static const std::string CARD_PACK_REWARD_TEXTURE_FILE_NAME = "card_pack_golden.png";
+static const std::string GOLDEN_CARD_PACK_SHADER_FILE_NAME = "card_pack_golden.vs";
+static const std::string GOLDEN_CARD_PACK_TEXTURE_FILE_NAME = "card_pack_golden.png";
 static const std::string NORMAL_CARD_PACK_SHADER_FILE_NAME = "basic.vs";
 static const std::string NORMAL_CARD_PACK_TEXTURE_FILE_NAME = "card_pack_normal.png";
 static const std::string CARD_REWARD_SCENE_OBJECT_NAME_PREFIX = "card_reward_";
@@ -87,6 +88,12 @@ static const std::unordered_set<strutils::StringId, strutils::StringIdHasher> ST
     game_constants::OVERLAY_SCENE_OBJECT_NAME
 };
 
+static const std::unordered_map<CardPackType, std::string> CARD_PACK_TYPE_TO_TITLE_TEXT =
+{
+    { CardPackType::NORMAL, "Card Pack Reward!" },
+    { CardPackType::GOLDEN, "Golden Pack Reward!" },
+};
+
 static const std::unordered_map<strutils::StringId, std::string, strutils::StringIdHasher> CARD_FAMILY_NAMES_TO_TEXTURES =
 {
     { game_constants::INSECTS_FAMILY_NAME, "insect_duplication.png" },
@@ -123,20 +130,24 @@ void CardPackRewardSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> s
     mCardPackShakeStepsRemaining = PACK_MAX_SHAKE_STEPS;
     mGoldenCardLightPosX = game_constants::GOLDEN_CARD_LIGHT_POS_MIN_MAX_X.s;
     
+    mCardPackType = DataRepository::GetInstance().PopFrontPendingCardPack();
+    
     auto cardPackReward = scene->CreateSceneObject(CARD_PACK_REWARD_SCENE_OBJECT_NAME);
     cardPackReward->mPosition = CARD_PACK_INIT_POSITION;
     cardPackReward->mScale = CARD_PACK_INIT_SCALE/10.0f;
     
     CoreSystemsEngine::GetInstance().GetResourceLoadingService().UnloadResource(resources::ResourceLoadingService::RES_MESHES_ROOT + CARD_PACK_REWARD_MESH_FILE_NAME);
     cardPackReward->mMeshResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_MESHES_ROOT + CARD_PACK_REWARD_MESH_FILE_NAME);
-    cardPackReward->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + NORMAL_CARD_PACK_TEXTURE_FILE_NAME);
-    cardPackReward->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + NORMAL_CARD_PACK_SHADER_FILE_NAME);
+    cardPackReward->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + (mCardPackType == CardPackType::NORMAL ? NORMAL_CARD_PACK_TEXTURE_FILE_NAME : GOLDEN_CARD_PACK_TEXTURE_FILE_NAME));
+    cardPackReward->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + (mCardPackType == CardPackType::NORMAL ? NORMAL_CARD_PACK_SHADER_FILE_NAME : GOLDEN_CARD_PACK_SHADER_FILE_NAME));
     cardPackReward->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
     
     mCardTooltipController = nullptr;
     mCardRewards.clear();
     mCardRewardFamilyStamps.clear();
     CreateCardRewards(scene);
+    
+    std::get<scene::TextSceneObjectData>(scene->FindSceneObject(TITLE_SCENE_OBJECT_NAME)->mSceneObjectTypeData).mText = CARD_PACK_TYPE_TO_TITLE_TEXT.at(mCardPackType);
     
     mContinueButton = std::make_unique<AnimatedButton>
     (
@@ -390,6 +401,11 @@ void CardPackRewardSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene
         CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, 0.0f, SUBSCENE_ITEM_FADE_IN_OUT_DURATION_SECS), [=]()
         {
             sceneObject->mInvisible = true;
+            
+            if (sceneObject->mName != TITLE_SCENE_OBJECT_NAME)
+            {
+                scene->RemoveSceneObject(sceneObject->mName);
+            }
         });
     }
     
@@ -562,7 +578,7 @@ void CardPackRewardSceneLogicManager::CreateCardRewards(std::shared_ptr<scene::S
     {
         auto randomCardIndex = math::ControlledRandomInt() % cardRewardPool.size();
         auto cardData = CardDataRepository::GetInstance().GetCardData(cardRewardPool[randomCardIndex], game_constants::LOCAL_PLAYER_INDEX);
-        bool isGolden = math::ControlledRandomFloat() < GOLDEN_CARD_CHANCE_ON_NORMAL_PACK;
+        bool isGolden = mCardPackType == CardPackType::NORMAL ? (math::ControlledRandomFloat() < GOLDEN_CARD_CHANCE_ON_NORMAL_PACK) : true;
         
         mCardRewards.push_back(card_utils::CreateCardSoWrapper(&cardData, glm::vec3(-0.2f + 0.17 * i, -0.0f, 23.2f), CARD_REWARD_SCENE_OBJECT_NAME_PREFIX + std::to_string(i), CardOrientation::FRONT_FACE, isGolden ? CardRarity::GOLDEN : CardRarity::NORMAL, true, false, true, {}, {}, *scene));
         mCardRewards.back()->mSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;

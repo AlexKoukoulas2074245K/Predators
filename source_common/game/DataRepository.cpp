@@ -5,6 +5,7 @@
 ///  Created by Alex Koukoulas on 08/12/2023                                                       
 ///------------------------------------------------------------------------------------------------
 
+#include <engine/utils/Logging.h>
 #include <game/Cards.h>
 #include <game/DataRepository.h>
 #include <game/utils/StoryDeserializer.h>
@@ -151,6 +152,60 @@ void DataRepository::ClearGoldenCardIdMap()
 {
     mGoldenCardIdMap.clear();
     mPersistentDataSerializer->GetState()["golden_card_id_map"].clear();
+}
+
+///------------------------------------------------------------------------------------------------
+
+const std::vector<CardPackType>& DataRepository::GetPendingCardPacks() const
+{
+    return mPendingCardPacks;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void DataRepository::AddPendingCardPack(const CardPackType cardPackType)
+{
+    if (cardPackType != CardPackType::NONE)
+    {
+        mPendingCardPacks.push_back(cardPackType);
+        
+        nlohmann::json pendingCardPacksJson;
+        for (auto pendingCardPack: mPendingCardPacks)
+        {
+            pendingCardPacksJson.push_back(std::to_string(static_cast<int>(pendingCardPack)));
+        }
+        
+        mPersistentDataSerializer->GetState()["pending_card_packs"] = pendingCardPacksJson;
+    }
+    else
+    {
+        logging::Log(logging::LogType::WARNING, "Ignoring attempted addition of NONE card pack type");
+    }
+}
+
+///------------------------------------------------------------------------------------------------
+
+CardPackType DataRepository::PopFrontPendingCardPack()
+{
+    if (!mPendingCardPacks.empty())
+    {
+        auto cardPackTypeFront = mPendingCardPacks.front();
+        mPendingCardPacks.erase(mPendingCardPacks.begin());
+        
+        nlohmann::json pendingCardPacksJson;
+        for (auto pendingCardPack: mPendingCardPacks)
+        {
+            pendingCardPacksJson.push_back(std::to_string(static_cast<int>(pendingCardPack)));
+        }
+        
+        mPersistentDataSerializer->GetState()["pending_card_packs"] = pendingCardPacksJson;
+        return cardPackTypeFront;
+    }
+    else
+    {
+        logging::Log(logging::LogType::WARNING, "Attempted to pop pending card pack but vector is empty");
+        return CardPackType::NONE;
+    }
 }
 
 ///------------------------------------------------------------------------------------------------

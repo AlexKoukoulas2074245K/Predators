@@ -10,6 +10,7 @@
 
 ///------------------------------------------------------------------------------------------------
 
+#include <game/DataRepository.h>
 #include <game/events/EventSystem.h>
 #include <game/scenelogicmanagers/ISceneLogicManager.h>
 #include <memory>
@@ -59,6 +60,7 @@ private:
     std::vector<std::shared_ptr<CardSoWrapper>> mCardRewards;
     std::vector<std::shared_ptr<scene::SceneObject>> mCardRewardFamilyStamps;
     std::vector<glm::vec3> mCardPackVertexVelocities;
+    CardPackType mCardPackType;
     SceneState mSceneState;
     float mGoldenCardLightPosX;
     int mCardPackShakeStepsRemaining;

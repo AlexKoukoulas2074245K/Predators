@@ -563,8 +563,9 @@ void CardLibrarySceneLogicManager::SelectCard()
             CreateCardTooltip(SELECTED_CARD_TARGET_POSITION, card->mCardData.mCardEffectTooltip);
         }
         
+        CoreSystemsEngine::GetInstance().GetAnimationManager().StopAnimation(game_constants::GOLDEN_CARD_LIGHT_RAY_ANIMATION_NAME);
         card->mSceneObject->mShaderFloatUniformValues[game_constants::LIGHT_POS_X_UNIFORM_NAME] = game_constants::GOLDEN_CARD_LIGHT_POS_MIN_MAX_X.s;
-        CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(card->mSceneObject->mShaderFloatUniformValues[game_constants::LIGHT_POS_X_UNIFORM_NAME], game_constants::GOLDEN_CARD_LIGHT_POS_MIN_MAX_X.t, 1.0f), [](){});
+        CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(card->mSceneObject->mShaderFloatUniformValues[game_constants::LIGHT_POS_X_UNIFORM_NAME], game_constants::GOLDEN_CARD_LIGHT_POS_MIN_MAX_X.t, 1.0f), [](){}, game_constants::GOLDEN_CARD_LIGHT_RAY_ANIMATION_NAME);
     });
     
     if (DataRepository::GetInstance().GetCurrentCardLibraryBehaviorType() == CardLibraryBehaviorType::CARD_LIBRARY)
@@ -700,6 +701,8 @@ void CardLibrarySceneLogicManager::SetGoldenCheckboxValue(const bool checkboxVal
     auto selectedCard = mCardContainer->GetItems()[mSelectedCardIndex].mCardSoWrapper;
     auto goldenCheckBoxSceneObject = mScene->FindSceneObject(GOLDEN_CHECKBOX_SCENE_OBJECT_NAME);
     
+    CoreSystemsEngine::GetInstance().GetAnimationManager().StopAnimation(game_constants::GOLDEN_CARD_LIGHT_RAY_ANIMATION_NAME);
+    
     goldenCheckBoxSceneObject->mTextureResourceId = checkboxValue ? goldenCheckboxFilledTextureResourceId : goldenCheckboxEmptyTextureResourceId;
     
     auto cardSoWrapper = card_utils::CreateCardSoWrapper(&selectedCard->mCardData, glm::vec3(), "", CardOrientation::FRONT_FACE, checkboxValue ? CardRarity::GOLDEN : CardRarity::NORMAL, true, false, true, {}, {}, *mScene);
@@ -717,7 +720,7 @@ void CardLibrarySceneLogicManager::SetGoldenCheckboxValue(const bool checkboxVal
     
     DataRepository::GetInstance().SetGoldenCardMapEntry(selectedCard->mCardData.mCardId, checkboxValue);
     
-    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(mCardContainer->GetItems()[mSelectedCardIndex].mSceneObjects.front()->mShaderFloatUniformValues[game_constants::LIGHT_POS_X_UNIFORM_NAME], game_constants::GOLDEN_CARD_LIGHT_POS_MIN_MAX_X.t, 1.0f), [](){});
+    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(mCardContainer->GetItems()[mSelectedCardIndex].mSceneObjects.front()->mShaderFloatUniformValues[game_constants::LIGHT_POS_X_UNIFORM_NAME], game_constants::GOLDEN_CARD_LIGHT_POS_MIN_MAX_X.t, 1.0f), [](){}, game_constants::GOLDEN_CARD_LIGHT_RAY_ANIMATION_NAME);
     
     DataRepository::GetInstance().FlushStateToFile();
 }

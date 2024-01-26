@@ -56,6 +56,15 @@ enum class CardLibraryBehaviorType
 
 ///------------------------------------------------------------------------------------------------
 
+enum class CardPackType
+{
+    NONE,
+    NORMAL,
+    GOLDEN
+};
+
+///------------------------------------------------------------------------------------------------
+
 struct QuickPlayData
 {
     BattleControlType mBattleControlType;
@@ -90,6 +99,10 @@ public:
     const std::unordered_map<int, bool>& GetGoldenCardIdMap() const;
     void SetGoldenCardMapEntry(const int cardId, const bool goldenCardEnabled);
     void ClearGoldenCardIdMap();
+    
+    const std::vector<CardPackType>& GetPendingCardPacks() const;
+    void AddPendingCardPack(const CardPackType cardPackType);
+    CardPackType PopFrontPendingCardPack();
     
     QuickPlayData* GetQuickPlayData() const;
     void SetQuickPlayData(std::unique_ptr<QuickPlayData> quickPlayData);
@@ -217,6 +230,7 @@ private:
     std::vector<int> mNextTopPlayerDeck;
     std::vector<int> mNextBotPlayerDeck;
     std::vector<std::pair<int, int>> mCurrentShopBoughtProductCoordinates;
+    std::vector<CardPackType> mPendingCardPacks;
     std::string mNextStoryOpponentTexturePath;
     std::string mNextStoryOpponentName;
     std::string mCloudDataDeviceAndTime;

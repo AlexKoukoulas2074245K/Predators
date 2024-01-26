@@ -47,6 +47,14 @@ PersistentAccountDataDeserializer::PersistentAccountDataDeserializer(DataReposit
             dataRepository.SetGoldenCardMapEntry(std::stoi(entryIter.key()), entryIter.value().get<bool>());
         }
     }
+    
+    if (persistentDataJson.count("pending_card_packs") && !persistentDataJson["pending_card_packs"].is_null())
+    {
+        for (auto entryIter = persistentDataJson["pending_card_packs"].begin(); entryIter != persistentDataJson["pending_card_packs"].end(); ++entryIter)
+        {
+            dataRepository.AddPendingCardPack(static_cast<CardPackType>(std::stoi(entryIter.value().get<std::string>())));
+        }
+    }
 }
 
 ///------------------------------------------------------------------------------------------------

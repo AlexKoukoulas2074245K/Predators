@@ -206,6 +206,7 @@ void Game::Init()
 
 void Game::Update(const float dtMillis)
 {
+    // Cloud Data
 #if defined(MACOS) || defined(MOBILE_FLOW)
     cloudkit_utils::CheckForCloudSaving();
     
@@ -221,72 +222,18 @@ void Game::Update(const float dtMillis)
     }
 #endif
     
-//    static bool shownPackReward = false;
-//    if (!shownPackReward && mGameSceneTransitionManager->GetActiveSceneStack().top().mActiveSceneName == MAIN_MENU_SCENE &&
-//        !CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::LOADING_SCENE_NAME))
-//    {
-//        mGameSceneTransitionManager->ChangeToScene(game_constants::CARD_PACK_REWARD_SCENE_NAME, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
-//        shownPackReward = true;
-//    }
-//    auto& systemsEngine = CoreSystemsEngine::GetInstance();
-//    auto scene = systemsEngine.GetSceneManager().FindScene(game_constants::MAIN_MENU_SCENE);
-//
-//    if (systemsEngine.GetInputStateManager().VButtonTapped(input::Button::MAIN_BUTTON))
-//    {
-//        auto touchPos = systemsEngine.GetInputStateManager().VGetPointingPosInWorldSpace(scene->GetCamera().GetViewMatrix(), scene->GetCamera().GetProjMatrix());
-//        auto& systemsEngine = CoreSystemsEngine::GetInstance();
-//        //auto scene = systemsEngine.GetSceneManager().FindScene(game_constants::M);
-//
-//        //auto targetPosition = game_constants::HEALTH_CRYSTAL_TOP_POSITION;
-//        static bool large = false;
-//        large = !large;
-//
-//        auto animatedNodePathParticleEmitterSceneObject = systemsEngine.GetParticleManager().CreateParticleEmitterAtPosition(large ? strutils::StringId("health_gain_large") :  strutils::StringId("health_gain_small"), glm::vec3(touchPos.x, touchPos.y, 0.1f), *systemsEngine.GetSceneManager().FindScene(game_constants::MAIN_MENU_SCENE), large ? strutils::StringId("test_large") : strutils::StringId("test_small"), [=](float dtMillis, scene::ParticleEmitterObjectData& particleEmitterData)
-//        {
-//            auto& particleManager = CoreSystemsEngine::GetInstance().GetParticleManager();
-//            auto scene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::MAIN_MENU_SCENE);
-//
-//            auto targetRespawnSecs = 0.2f;
-//            auto particleEmitterSceneObject = scene->FindSceneObject(strutils::StringId("test_large"));
-//
-//            static float timeAccum = 0.0f;
-//            timeAccum += dtMillis/1000.0f;
-//
-//            if (timeAccum > targetRespawnSecs)
-//            {
-//                timeAccum = 0.0f;
-//                auto newParticleIndex = particleManager.SpawnParticleAtFirstAvailableSlot(*particleEmitterSceneObject);
-//
-//                particleEmitterData.mParticleLifetimeSecs[newParticleIndex] = math::RandomFloat(0.01f, 0.1f);
-//                particleEmitterData.mParticleVelocities[newParticleIndex].y = 0.0001f;
-//                particleEmitterData.mParticleAngles[newParticleIndex] = 1.0f;
-//            }
-//
-//            for (auto i = 0U; i < particleEmitterData.mParticleCount; ++i)
-//            {
-//                if (particleEmitterData.mParticleLifetimeSecs[i] <= 0.0f)
-//                {
-//                    continue;
-//                }
-//
-//                if (particleEmitterData.mParticleAngles[i] > 0.0f)
-//                {
-//                    particleEmitterData.mParticleLifetimeSecs[i] += dtMillis * 0.001f;
-//                    if (particleEmitterData.mParticleLifetimeSecs[i] > 1.0f)
-//                    {
-//                        particleEmitterData.mParticleAngles[i] = -1.0f;
-//                    }
-//                }
-//                else
-//                {
-//                    particleEmitterData.mParticleLifetimeSecs[i] = math::Max(0.01f, particleEmitterData.mParticleLifetimeSecs[i] - dtMillis * 0.001f);
-//                }
-//
-//                particleEmitterData.mParticlePositions[i] += particleEmitterData.mParticleVelocities[i] * dtMillis;
-//            }
-//        });
-//    }
+    // Pending Card Packs
+    auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
+    auto cardPackRewardScene = sceneManager.FindScene(game_constants::CARD_PACK_REWARD_SCENE_NAME);
     
+    if (!DataRepository::GetInstance().GetPendingCardPacks().empty() &&
+        mGameSceneTransitionManager->GetActiveSceneStack().top().mActiveSceneName == MAIN_MENU_SCENE &&
+        (!cardPackRewardScene || !cardPackRewardScene->FindSceneObject(game_constants::OVERLAY_SCENE_OBJECT_NAME)) &&
+        !CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::LOADING_SCENE_NAME))
+    {
+        mGameSceneTransitionManager->ChangeToScene(game_constants::CARD_PACK_REWARD_SCENE_NAME, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+    }
+
     mGameSceneTransitionManager->Update(dtMillis);
 }
 
@@ -455,9 +402,51 @@ void Game::CreateDebugWidgets()
         DataRepository::GetInstance().SetUnlockedCardIds(CardDataRepository::GetInstance().GetFreshAccountUnlockedCardIds());
         DataRepository::GetInstance().FlushStateToFile();
     }
+    
     if (ImGui::Button("Reset Coins"))
     {
         DataRepository::GetInstance().CurrencyCoins().SetValue(0);
+        DataRepository::GetInstance().FlushStateToFile();
+    }
+    
+    static size_t cardPackIndex = 0;
+    static std::vector<std::pair<std::string, CardPackType>> cardPackNamesAndTypes =
+    {
+        { "None", CardPackType::NONE },
+        { "Normal", CardPackType::NORMAL },
+        { "Golden", CardPackType::GOLDEN }
+    };
+    
+    if (ImGui::BeginCombo(" ", cardPackNamesAndTypes.at(cardPackIndex).first.c_str()))
+    {
+        for (size_t n = 0U; n < cardPackNamesAndTypes.size(); n++)
+        {
+            const bool isSelected = (cardPackIndex == n);
+            if (ImGui::Selectable(cardPackNamesAndTypes.at(n).first.c_str(), isSelected))
+            {
+                cardPackIndex = n;
+            }
+            if (isSelected)
+            {
+                ImGui::SetItemDefaultFocus();
+            }
+        }
+        ImGui::EndCombo();
+    }
+    
+    ImGui::SameLine();
+    if (ImGui::Button("Add Pack"))
+    {
+        DataRepository::GetInstance().AddPendingCardPack(cardPackNamesAndTypes.at(cardPackIndex).second);
+        DataRepository::GetInstance().FlushStateToFile();
+    }
+    
+    if (ImGui::Button("Clear Pending Card Packs"))
+    {
+        while (!DataRepository::GetInstance().GetPendingCardPacks().empty())
+        {
+            DataRepository::GetInstance().PopFrontPendingCardPack();
+        }
         DataRepository::GetInstance().FlushStateToFile();
     }
     ImGui::End();
