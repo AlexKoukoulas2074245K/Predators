@@ -40,19 +40,32 @@ PersistentAccountDataDeserializer::PersistentAccountDataDeserializer(DataReposit
         dataRepository.SetUnlockedCardIds(persistentDataJson["unlocked_card_ids"].get<std::vector<int>>());
     }
     
-    if (persistentDataJson.count("golden_card_id_map") && !persistentDataJson["golden_card_id_map"].is_null())
+    if (persistentDataJson.count("golden_card_id_map"))
     {
-        for (auto entryIter = persistentDataJson["golden_card_id_map"].begin(); entryIter != persistentDataJson["golden_card_id_map"].end(); ++entryIter)
+        dataRepository.ClearGoldenCardIdMap();
+        
+        if (!persistentDataJson["golden_card_id_map"].is_null())
         {
-            dataRepository.SetGoldenCardMapEntry(std::stoi(entryIter.key()), entryIter.value().get<bool>());
+            for (auto entryIter = persistentDataJson["golden_card_id_map"].begin(); entryIter != persistentDataJson["golden_card_id_map"].end(); ++entryIter)
+            {
+                dataRepository.SetGoldenCardMapEntry(std::stoi(entryIter.key()), entryIter.value().get<bool>());
+            }
         }
     }
     
-    if (persistentDataJson.count("pending_card_packs") && !persistentDataJson["pending_card_packs"].is_null())
+    if (persistentDataJson.count("pending_card_packs"))
     {
-        for (auto entryIter = persistentDataJson["pending_card_packs"].begin(); entryIter != persistentDataJson["pending_card_packs"].end(); ++entryIter)
+        while (!dataRepository.GetPendingCardPacks().empty())
         {
-            dataRepository.AddPendingCardPack(static_cast<CardPackType>(std::stoi(entryIter.value().get<std::string>())));
+            dataRepository.PopFrontPendingCardPack();
+        }
+        
+        if (!persistentDataJson["pending_card_packs"].is_null())
+        {
+            for (auto entryIter = persistentDataJson["pending_card_packs"].begin(); entryIter != persistentDataJson["pending_card_packs"].end(); ++entryIter)
+            {
+                dataRepository.AddPendingCardPack(static_cast<CardPackType>(std::stoi(entryIter.value().get<std::string>())));
+            }
         }
     }
 }

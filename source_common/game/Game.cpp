@@ -206,30 +206,35 @@ void Game::Init()
 
 void Game::Update(const float dtMillis)
 {
-    // Cloud Data
+    // Poll cloud Data
 #if defined(MACOS) || defined(MOBILE_FLOW)
     cloudkit_utils::CheckForCloudSaving();
+#endif
+    
+    // Pending Card Packs
+    auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+    auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
+    auto cardPackRewardScene = sceneManager.FindScene(game_constants::CARD_PACK_REWARD_SCENE_NAME);
     
     if
     (
         DataRepository::GetInstance().ForeignProgressionDataFound() &&
         mGameSceneTransitionManager->GetActiveSceneStack().top().mActiveSceneName == MAIN_MENU_SCENE &&
-        !CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::LOADING_SCENE_NAME)
+        !sceneManager.FindScene(game_constants::LOADING_SCENE_NAME) &&
+        !animationManager.IsAnimationPlaying(game_constants::OVERLAY_DARKENING_ANIMATION_NAME)
     )
     {
         mGameSceneTransitionManager->ChangeToScene(game_constants::CLOUD_DATA_CONFIRMATION_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
         DataRepository::GetInstance().SetForeignProgressionDataFound(false);
     }
-#endif
-    
-    // Pending Card Packs
-    auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
-    auto cardPackRewardScene = sceneManager.FindScene(game_constants::CARD_PACK_REWARD_SCENE_NAME);
-    
-    if (!DataRepository::GetInstance().GetPendingCardPacks().empty() &&
+    else if
+    (
+        !DataRepository::GetInstance().GetPendingCardPacks().empty() &&
         mGameSceneTransitionManager->GetActiveSceneStack().top().mActiveSceneName == MAIN_MENU_SCENE &&
         (!cardPackRewardScene || !cardPackRewardScene->FindSceneObject(game_constants::OVERLAY_SCENE_OBJECT_NAME)) &&
-        !CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::LOADING_SCENE_NAME))
+        !sceneManager.FindScene(game_constants::LOADING_SCENE_NAME) &&
+        !animationManager.IsAnimationPlaying(game_constants::OVERLAY_DARKENING_ANIMATION_NAME)
+    )
     {
         mGameSceneTransitionManager->ChangeToScene(game_constants::CARD_PACK_REWARD_SCENE_NAME, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
     }

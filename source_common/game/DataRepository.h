@@ -95,6 +95,7 @@ public:
     
     const std::unordered_map<CardStatType, int>& GetStoryPlayerCardStatModifiers() const;
     void SetStoryPlayerCardStatModifier(const CardStatType statType, const int statModifier);
+    void ClearStoryPlayerCardStatModifiers();
     
     const std::unordered_map<int, bool>& GetGoldenCardIdMap() const;
     void SetGoldenCardMapEntry(const int cardId, const bool goldenCardEnabled);

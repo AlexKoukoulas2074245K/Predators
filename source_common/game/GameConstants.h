@@ -74,6 +74,7 @@ namespace game_constants
     inline const strutils::StringId GOLDEN_CARD_LIGHT_RAY_ANIMATION_NAME = strutils::StringId("golden_card_light_ray_animation");
     inline const strutils::StringId SCENE_SPEED_DILATION_ANIMATION_NAME = strutils::StringId("scene_speed_dilation_animation");
     inline const strutils::StringId STAT_PARTICLE_FLYING_ANIMATION_NAME = strutils::StringId("coin_flying_animation");
+    inline const strutils::StringId OVERLAY_DARKENING_ANIMATION_NAME = strutils::StringId("overlay_darkening_animation");
 
     // Fonts
     inline const strutils::StringId DEFAULT_FONT_NAME = strutils::StringId("font");

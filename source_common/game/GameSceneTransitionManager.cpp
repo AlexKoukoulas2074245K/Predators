@@ -17,8 +17,6 @@
 
 ///------------------------------------------------------------------------------------------------
 
-static const strutils::StringId OVERLAY_DARKENING_ANIMATION_NAME = strutils::StringId("overlay_darkening_animation");
-
 static const std::string OVERLAY_TEXTURE_FILE_NAME = "overlay.png";
 
 static const float LOADING_SCENE_FADE_IN_OUT_DURATION_SECS = 0.5f;
@@ -52,7 +50,7 @@ void GameSceneTransitionManager::Update(const float dtMillis)
     assert(!mActiveSceneStack.empty());
     auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
     
-    if (CoreSystemsEngine::GetInstance().GetAnimationManager().IsAnimationPlaying(OVERLAY_DARKENING_ANIMATION_NAME))
+    if (CoreSystemsEngine::GetInstance().GetAnimationManager().IsAnimationPlaying(game_constants::OVERLAY_DARKENING_ANIMATION_NAME))
     {
         return;
     }
@@ -210,7 +208,7 @@ void GameSceneTransitionManager::ChangeToScene
                 
                 mActiveSceneStack.push({nextActiveSceneLogicManager, newSceneNameCopy, true});
                 InitializeActiveSceneLogicManager(sceneChangeType);
-            }, OVERLAY_DARKENING_ANIMATION_NAME);
+            }, game_constants::OVERLAY_DARKENING_ANIMATION_NAME);
         }
     }
     // Non modal scene

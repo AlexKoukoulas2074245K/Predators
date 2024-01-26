@@ -127,6 +127,14 @@ void DataRepository::SetStoryPlayerCardStatModifier(const CardStatType statType,
 
 ///------------------------------------------------------------------------------------------------
 
+void DataRepository::ClearStoryPlayerCardStatModifiers()
+{
+    mStoryPlayerCardStatModifiers.clear();
+    mStoryDataSerializer->GetState()["story_player_card_stat_modifiers"].clear();
+}
+
+///------------------------------------------------------------------------------------------------
+
 const std::unordered_map<int, bool>& DataRepository::GetGoldenCardIdMap() const
 {
     return mGoldenCardIdMap;

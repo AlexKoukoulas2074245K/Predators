@@ -20,9 +20,14 @@ StoryDeserializer::StoryDeserializer(DataRepository& dataRepository)
     
     if (storyJson.count("story_player_card_stat_modifiers"))
     {
-        for (auto entryIter = storyJson["story_player_card_stat_modifiers"].begin(); entryIter != storyJson["story_player_card_stat_modifiers"].end(); ++entryIter)
+        dataRepository.ClearStoryPlayerCardStatModifiers();
+        
+        if (!storyJson["story_player_card_stat_modifiers"].is_null())
         {
-            dataRepository.SetStoryPlayerCardStatModifier(static_cast<CardStatType>(std::stoi(entryIter.key())), entryIter.value().get<int>());
+            for (auto entryIter = storyJson["story_player_card_stat_modifiers"].begin(); entryIter != storyJson["story_player_card_stat_modifiers"].end(); ++entryIter)
+            {
+                dataRepository.SetStoryPlayerCardStatModifier(static_cast<CardStatType>(std::stoi(entryIter.key())), entryIter.value().get<int>());
+            }
         }
     }
     
