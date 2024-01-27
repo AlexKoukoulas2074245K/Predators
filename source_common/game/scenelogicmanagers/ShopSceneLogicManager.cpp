@@ -180,7 +180,7 @@ void ShopSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene:
                 continue;
             }
             
-            mProducts[shelfIndex][shelfIndex]->mSceneObjects.front()->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
+            mProducts[shelfIndex][shelfItemIndex]->mSceneObjects.front()->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
         }
     }
     
