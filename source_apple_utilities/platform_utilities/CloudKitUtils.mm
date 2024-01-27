@@ -37,7 +37,6 @@ void QueryPlayerProgress(std::function<void(QueryResultData)> onQueryCompleteCal
         QueryResultData resultData;
         if (error)
         {
-            currentProgressRecord = [[CKRecord alloc] initWithRecordType:@"PlayerProgress"];
             NSLog(@"Error querying progress: %@", error);
         }
         else
@@ -73,6 +72,11 @@ void QueryPlayerProgress(std::function<void(QueryResultData)> onQueryCompleteCal
 
 void SavePlayerProgress()
 {
+    if (!currentProgressRecord)
+    {
+        return;
+    }
+    
     auto persistentDataFileReaderLambda = [](const std::string& persistentFileNameWithoutExtension)
     {
         std::string dataFileExtension = ".json";

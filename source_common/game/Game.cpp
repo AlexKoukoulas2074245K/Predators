@@ -35,6 +35,7 @@
 #include <game/gameactions/BaseGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/GameActionFactory.h>
+#include <game/ProductIds.h>
 #include <game/scenelogicmanagers/BattleSceneLogicManager.h>
 #include <game/scenelogicmanagers/CloudDataConfirmationSceneLogicManager.h>
 #include <game/scenelogicmanagers/CardPackRewardSceneLogicManager.h>
@@ -139,6 +140,7 @@ Game::Game(const int argc, char** argv)
 #if defined(MACOS) || defined(MOBILE_FLOW)
     cloudkit_utils::QueryPlayerProgress([=](cloudkit_utils::QueryResultData resultData){ OnCloudQueryCompleted(resultData); });
     apple_utils::SetAssetFolder();
+    apple_utils::LoadStoreProducts({ product_ids::NORMAL_CARD_PACK, product_ids::GOLDEN_CARD_PACK });
 #endif
     CoreSystemsEngine::GetInstance().Start([&](){ Init(); }, [&](const float dtMillis){ Update(dtMillis); }, [&](){ ApplicationMovedToBackground(); }, [&](){ WindowResize(); }, [&](){ CreateDebugWidgets(); }, [&](){ OnOneSecondElapsed(); });
 }
@@ -210,6 +212,16 @@ void Game::Update(const float dtMillis)
 #if defined(MACOS) || defined(MOBILE_FLOW)
     cloudkit_utils::CheckForCloudSaving();
 #endif
+    
+    static bool donePurchase = false;
+    if (!donePurchase && apple_utils::HasLoadedProducts())
+    {
+        apple_utils::InitiateProductPurchase(product_ids::GOLDEN_CARD_PACK, [](apple_utils::PurchaseResultData purchaseResultData)
+        {
+            logging::Log(logging::LogType::INFO, "Purchase finished for product: %s, with transaction id: %s, and outcome %s", purchaseResultData.mProductId.c_str(), purchaseResultData.mTransactionId.c_str(), purchaseResultData.mWasSuccessful ? "successful": "unsuccessful");
+        });
+        donePurchase = true;
+    }
     
     // Pending Card Packs
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();

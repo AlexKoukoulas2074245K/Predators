@@ -10,9 +10,11 @@
 
 ///-----------------------------------------------------------------------------------------------
 
+#include <functional>
 #include <stdarg.h>
-#include <stdio.h>  
+#include <stdio.h>
 #include <string>
+#include <vector>
 
 ///-----------------------------------------------------------------------------------------------
 
@@ -21,11 +23,23 @@ namespace apple_utils
 
 ///-----------------------------------------------------------------------------------------------
 
+struct PurchaseResultData
+{
+    std::string mTransactionId;
+    std::string mProductId;
+    bool mWasSuccessful;
+};
+
+///-----------------------------------------------------------------------------------------------
+
 bool IsConnectedToTheInternet();
 std::string GetPersistentDataDirectoryPath();
 std::string GetDeviceId();
 std::string GetDeviceName();
 void SetAssetFolder();
+bool HasLoadedProducts();
+void LoadStoreProducts(const std::vector<std::string>& productIdsToLoad);
+void InitiateProductPurchase(const std::string& productId, std::function<void(PurchaseResultData)> onPurchaseFinishedCallback);
 
 ///-----------------------------------------------------------------------------------------------
 
