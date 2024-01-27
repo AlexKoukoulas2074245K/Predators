@@ -30,9 +30,14 @@
 
 static const strutils::StringId USE_CLOUD_DATA_BUTTON_NAME = strutils::StringId("use_cloud_data_button");
 static const strutils::StringId USE_LOCAL_DATA_BUTTON_NAME = strutils::StringId("use_local_data_button");
-static const strutils::StringId CLOUD_DATA_DEVICE_NAME_AND_TIME_TEXT_SCENE_OBJECT_NAME = strutils::StringId("cloud_data_confirmation_text_1");
+static const strutils::StringId OPTIONAL_CLOUD_DATA_DEVICE_NAME_AND_TIME_TEXT_SCENE_OBJECT_NAME = strutils::StringId("cloud_data_optional_text_1");
+static const strutils::StringId MANDATORY_CLOUD_DATA_DEVICE_NAME_AND_TIME_TEXT_SCENE_OBJECT_NAME = strutils::StringId("cloud_data_mandatory_text_1");
+
+static const std::string OPTIONAL_CLOUD_DATA_TEXT_SCENE_OBJECT_NAME_PREFIX = "cloud_data_optional_";
+static const std::string MANDATORY_CLOUD_DATA_TEXT_SCENE_OBJECT_NAME_PREFIX = "cloud_data_mandatory_";
 
 static const glm::vec3 BUTTON_SCALE = {0.00045, 0.00045, 0.00045};
+static const glm::vec3 OK_BUTTON_POSITION = {-0.033f, -0.1f, 23.1};
 static const glm::vec3 USE_CLOUD_DATA_BUTTON_POSITION = {-0.131f, -0.09f, 23.1f};
 static const glm::vec3 USE_LOCAL_DATA_BUTTON_POSITION = {-0.151f, -0.175f, 23.1f};
 
@@ -72,8 +77,9 @@ void CloudDataConfirmationSceneLogicManager::VInitScene(std::shared_ptr<scene::S
     mTransitioningToSubScene = false;
     
     // Update cloud data text and re-orient
+    auto cloudDataUsageType = DataRepository::GetInstance().GetForeignProgressionDataFound();
     auto cloudDataText = DataRepository::GetInstance().GetCloudDataDeviceNameAndTime();
-    auto cloudDataTextSceneObject = scene->FindSceneObject(CLOUD_DATA_DEVICE_NAME_AND_TIME_TEXT_SCENE_OBJECT_NAME);
+    auto cloudDataTextSceneObject = scene->FindSceneObject(cloudDataUsageType == ForeignCloudDataFoundType::OPTIONAL ? OPTIONAL_CLOUD_DATA_DEVICE_NAME_AND_TIME_TEXT_SCENE_OBJECT_NAME : MANDATORY_CLOUD_DATA_DEVICE_NAME_AND_TIME_TEXT_SCENE_OBJECT_NAME);
     std::get<scene::TextSceneObjectData>(cloudDataTextSceneObject->mSceneObjectTypeData).mText = cloudDataText;
     auto boundingRect = scene_object_utils::GetSceneObjectBoundingRect(*cloudDataTextSceneObject);
     auto textLength = boundingRect.topRight.x - boundingRect.bottomLeft.x;
@@ -81,10 +87,10 @@ void CloudDataConfirmationSceneLogicManager::VInitScene(std::shared_ptr<scene::S
     
     mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
     (
-        USE_CLOUD_DATA_BUTTON_POSITION,
+        cloudDataUsageType == ForeignCloudDataFoundType::OPTIONAL ? USE_CLOUD_DATA_BUTTON_POSITION : OK_BUTTON_POSITION,
         BUTTON_SCALE,
         game_constants::DEFAULT_FONT_NAME,
-        "Use Cloud Data",
+        cloudDataUsageType == ForeignCloudDataFoundType::OPTIONAL ? "Use Cloud Data" : "Ok",
         USE_CLOUD_DATA_BUTTON_NAME,
         [=]()
         {
@@ -95,20 +101,23 @@ void CloudDataConfirmationSceneLogicManager::VInitScene(std::shared_ptr<scene::S
         *scene
     ));
     
-    mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
-    (
-        USE_LOCAL_DATA_BUTTON_POSITION,
-        BUTTON_SCALE,
-        game_constants::DEFAULT_FONT_NAME,
-        "Keep Local Data",
-        USE_LOCAL_DATA_BUTTON_NAME,
-        [=]()
-        {
-            events::EventSystem::GetInstance().DispatchEvent<events::PopSceneModalEvent>();
-            mTransitioningToSubScene = true;
-        },
-        *scene
-    ));
+    if (cloudDataUsageType == ForeignCloudDataFoundType::OPTIONAL)
+    {
+        mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
+        (
+            USE_LOCAL_DATA_BUTTON_POSITION,
+            BUTTON_SCALE,
+            game_constants::DEFAULT_FONT_NAME,
+            "Keep Local Data",
+            USE_LOCAL_DATA_BUTTON_NAME,
+            [=]()
+            {
+                events::EventSystem::GetInstance().DispatchEvent<events::PopSceneModalEvent>();
+                mTransitioningToSubScene = true;
+            },
+            *scene
+        ));
+    }
     
     size_t sceneObjectIndex = 0;
     for (auto sceneObject: scene->GetSceneObjects())
@@ -118,11 +127,23 @@ void CloudDataConfirmationSceneLogicManager::VInitScene(std::shared_ptr<scene::S
             continue;
         }
         
+        if (cloudDataUsageType == ForeignCloudDataFoundType::OPTIONAL && strutils::StringStartsWith(sceneObject->mName.GetString(), MANDATORY_CLOUD_DATA_TEXT_SCENE_OBJECT_NAME_PREFIX))
+        {
+            sceneObject->mInvisible = true;
+        }
+        else if (cloudDataUsageType == ForeignCloudDataFoundType::MANDATORY && strutils::StringStartsWith(sceneObject->mName.GetString(), OPTIONAL_CLOUD_DATA_TEXT_SCENE_OBJECT_NAME_PREFIX))
+        {
+            sceneObject->mInvisible = true;
+        }
+        
+        sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
         CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, 1.0f, SUBSCENE_ITEM_FADE_IN_OUT_DURATION_SECS, animation_flags::NONE, sceneObjectIndex++ * STAGGERED_ITEM_ALPHA_DELAY_SECS), [=]()
         {
             mTransitioningToSubScene = false;
         });
     }
+    
+    DataRepository::GetInstance().SetForeignProgressionDataFound(ForeignCloudDataFoundType::NONE);
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -199,6 +220,7 @@ void CloudDataConfirmationSceneLogicManager::OnUseCloudDataButtonPressed()
     checkAndReplacePersistentDataFile("last_battle");
     
     DataRepository::GetInstance().ReloadProgressionDataFromFile();
+    DataRepository::GetInstance().FlushStateToFile();
 #endif
 }
 

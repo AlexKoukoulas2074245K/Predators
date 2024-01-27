@@ -31,7 +31,6 @@ struct QueryResultData
 };
 void QueryPlayerProgress(std::function<void(QueryResultData)> onQueryCompleteCallback);
 void SavePlayerProgress();
-void CheckForCloudSaving();
 
 ///-----------------------------------------------------------------------------------------------
 

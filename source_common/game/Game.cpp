@@ -17,7 +17,6 @@
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
 #include <engine/utils/BaseDataFileDeserializer.h>
-#include <engine/utils/Date.h>
 #include <engine/utils/Logging.h>
 #include <engine/utils/FileUtils.h>
 #include <engine/utils/MathUtils.h>
@@ -66,66 +65,6 @@
 ///------------------------------------------------------------------------------------------------
 
 static const strutils::StringId MAIN_MENU_SCENE = strutils::StringId("main_menu_scene");
-static bool sEmptyProgression = false;
-
-///------------------------------------------------------------------------------------------------
-
-#if defined(MACOS) || defined(MOBILE_FLOW)
-void OnCloudQueryCompleted(cloudkit_utils::QueryResultData resultData)
-{
-    if (!resultData.mSuccessfullyQueriedAtLeastOneFileField)
-    {
-        return;
-    }
-    
-    auto writeDataStringToTempFile = [](const std::string& tempFileNameWithoutExtension, const std::string& data)
-    {
-        if (!data.empty())
-        {
-            std::string dataFileExtension = ".json";
-            
-            auto filePath = apple_utils::GetPersistentDataDirectoryPath() + tempFileNameWithoutExtension + dataFileExtension;
-            std::remove(filePath.c_str());
-            
-            std::ofstream file(filePath);
-            file << data;
-            
-            file.close();
-        }
-    };
-    
-    auto localDeviceId = apple_utils::GetDeviceId();
-    
-    auto checkForDeviceIdInconsistency = [=](const std::string& targetDataFileNameWithoutExtension, const serial::BaseDataFileDeserializer& dataFileDeserializer)
-    {
-        if
-        (
-            dataFileDeserializer.GetState().count("device_id") &&
-            dataFileDeserializer.GetState().count("device_name") &&
-            dataFileDeserializer.GetState().count("timestamp")
-        )
-        {
-            auto deviceId = dataFileDeserializer.GetState().at("device_id").get<std::string>();
-            if (deviceId != localDeviceId || sEmptyProgression)
-            {
-                using namespace date;
-                std::stringstream s;
-                s << std::chrono::system_clock::time_point(std::chrono::seconds(dataFileDeserializer.GetState().at("timestamp").get<long>()));
-                DataRepository::GetInstance().SetForeignProgressionDataFound(true);
-                DataRepository::GetInstance().SetCloudDataDeviceNameAndTime("(From " + dataFileDeserializer.GetState().at("device_name").get<std::string>() + " at " + strutils::StringSplit(s.str(), '.')[0] + ")");
-            }
-        }
-    };
-    
-    writeDataStringToTempFile("cloud_persistent", resultData.mPersistentProgressRawString);
-    writeDataStringToTempFile("cloud_story", resultData.mStoryProgressRawString);
-    writeDataStringToTempFile("cloud_last_battle", resultData.mLastBattleRawString);
-    
-    checkForDeviceIdInconsistency("persistent", serial::BaseDataFileDeserializer("cloud_persistent", serial::DataFileType::PERSISTENCE_FILE_TYPE, serial::WarnOnFileNotFoundBehavior::WARN, serial::CheckSumValidationBehavior::VALIDATE_CHECKSUM));
-    checkForDeviceIdInconsistency("story", serial::BaseDataFileDeserializer("cloud_story", serial::DataFileType::PERSISTENCE_FILE_TYPE, serial::WarnOnFileNotFoundBehavior::WARN, serial::CheckSumValidationBehavior::VALIDATE_CHECKSUM));
-    checkForDeviceIdInconsistency("last_battle", serial::BaseDataFileDeserializer("cloud_last_battle", serial::DataFileType::PERSISTENCE_FILE_TYPE, serial::WarnOnFileNotFoundBehavior::WARN, serial::CheckSumValidationBehavior::VALIDATE_CHECKSUM));
-}
-#endif
 
 ///------------------------------------------------------------------------------------------------
 
@@ -136,11 +75,8 @@ Game::Game(const int argc, char** argv)
         logging::Log(logging::LogType::INFO, "Initializing from CWD : %s", argv[0]);
     }
     
-    CheckForEmptyProgression();
 #if defined(MACOS) || defined(MOBILE_FLOW)
-    cloudkit_utils::QueryPlayerProgress([=](cloudkit_utils::QueryResultData resultData){ OnCloudQueryCompleted(resultData); });
     apple_utils::SetAssetFolder();
-    apple_utils::LoadStoreProducts({ product_ids::NORMAL_CARD_PACK, product_ids::GOLDEN_CARD_PACK });
 #endif
     CoreSystemsEngine::GetInstance().Start([&](){ Init(); }, [&](const float dtMillis){ Update(dtMillis); }, [&](){ ApplicationMovedToBackground(); }, [&](){ WindowResize(); }, [&](){ CreateDebugWidgets(); }, [&](){ OnOneSecondElapsed(); });
 }
@@ -207,20 +143,22 @@ void Game::Init()
 ///------------------------------------------------------------------------------------------------
 
 void Game::Update(const float dtMillis)
-{
-    // Poll cloud Data
-#if defined(MACOS) || defined(MOBILE_FLOW)
-    cloudkit_utils::CheckForCloudSaving();
-#endif
-    
-    static bool donePurchase = false;
-    if (!donePurchase && apple_utils::HasLoadedProducts())
+{    
+    static bool doneFakePurchase = true;
+    if (!doneFakePurchase && apple_utils::HasLoadedProducts())
     {
         apple_utils::InitiateProductPurchase(product_ids::GOLDEN_CARD_PACK, [](apple_utils::PurchaseResultData purchaseResultData)
         {
+            if (purchaseResultData.mWasSuccessful)
+            {
+                auto successfulTransactionIds = DataRepository::GetInstance().GetSuccessfulTransactionIds();
+                successfulTransactionIds.push_back(purchaseResultData.mTransactionId);
+                DataRepository::GetInstance().SetSuccessfulTransactionIds(successfulTransactionIds);
+                DataRepository::GetInstance().FlushStateToFile();
+            }
             logging::Log(logging::LogType::INFO, "Purchase finished for product: %s, with transaction id: %s, and outcome %s", purchaseResultData.mProductId.c_str(), purchaseResultData.mTransactionId.c_str(), purchaseResultData.mWasSuccessful ? "successful": "unsuccessful");
         });
-        donePurchase = true;
+        doneFakePurchase = true;
     }
     
     // Pending Card Packs
@@ -230,14 +168,13 @@ void Game::Update(const float dtMillis)
     
     if
     (
-        DataRepository::GetInstance().ForeignProgressionDataFound() &&
+        DataRepository::GetInstance().GetForeignProgressionDataFound() != ForeignCloudDataFoundType::NONE &&
         mGameSceneTransitionManager->GetActiveSceneStack().top().mActiveSceneName == MAIN_MENU_SCENE &&
         !sceneManager.FindScene(game_constants::LOADING_SCENE_NAME) &&
         !animationManager.IsAnimationPlaying(game_constants::OVERLAY_DARKENING_ANIMATION_NAME)
     )
     {
         mGameSceneTransitionManager->ChangeToScene(game_constants::CLOUD_DATA_CONFIRMATION_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
-        DataRepository::GetInstance().SetForeignProgressionDataFound(false);
     }
     else if
     (
@@ -417,6 +354,12 @@ void Game::CreateDebugWidgets()
     {
         DataRepository::GetInstance().ClearGoldenCardIdMap();
         DataRepository::GetInstance().SetUnlockedCardIds(CardDataRepository::GetInstance().GetFreshAccountUnlockedCardIds());
+        DataRepository::GetInstance().FlushStateToFile();
+    }
+    
+    if (ImGui::Button("Clear Transaction IDs"))
+    {
+        DataRepository::GetInstance().SetSuccessfulTransactionIds({});
         DataRepository::GetInstance().FlushStateToFile();
     }
     
@@ -601,13 +544,5 @@ void Game::CreateDebugWidgets()
 {
 }
 #endif
-
-///------------------------------------------------------------------------------------------------
-
-void Game::CheckForEmptyProgression()
-{
-    serial::BaseDataFileDeserializer persistentDataFileChecker("persistent", serial::DataFileType::PERSISTENCE_FILE_TYPE, serial::WarnOnFileNotFoundBehavior::DO_NOT_WARN, serial::CheckSumValidationBehavior::VALIDATE_CHECKSUM);
-    sEmptyProgression = persistentDataFileChecker.GetState().empty();
-}
 
 ///------------------------------------------------------------------------------------------------

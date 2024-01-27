@@ -10,6 +10,7 @@
 #include <fstream>
 #include <sstream>
 #include <chrono>
+#include <nlohmann/json.hpp>
 #import <CloudKit/CloudKit.h>
 
 ///-----------------------------------------------------------------------------------------------
@@ -20,7 +21,7 @@ namespace cloudkit_utils
 ///-----------------------------------------------------------------------------------------------
 
 CKRecord* currentProgressRecord = nil;
-std::unique_ptr<std::chrono::system_clock::time_point> sTimePointToSaveNext = nullptr;
+bool saveInProgress = false;
 
 ///-----------------------------------------------------------------------------------------------
 
@@ -74,6 +75,7 @@ void SavePlayerProgress()
 {
     if (!currentProgressRecord)
     {
+        QueryPlayerProgress([](QueryResultData){});
         return;
     }
     
@@ -101,40 +103,89 @@ void SavePlayerProgress()
     currentProgressRecord[@"story"] = storyData;
     currentProgressRecord[@"last_battle"] = lastBattleData;
     
-    // Batch all cloud writes in 1-second blocks
-    if (sTimePointToSaveNext)
+    // Batch cloud writes
+    if (saveInProgress)
     {
         return;
     }
     
-    sTimePointToSaveNext = std::make_unique<std::chrono::system_clock::time_point>(std::chrono::system_clock::now());
-    (*sTimePointToSaveNext) += std::chrono::milliseconds(1000);
-}
-
-///-----------------------------------------------------------------------------------------------
-
-void CheckForCloudSaving()
-{
-    if (sTimePointToSaveNext)
-    {
-        if (std::chrono::system_clock::now() > *sTimePointToSaveNext)
+    // Recheck and only save if we are ahead or equal in seen transactions
+    NSString* containerIdentifier = @"iCloud.com.alexkoukoulas2074245k.Predators";
+    CKContainer* customContainer = [CKContainer containerWithIdentifier:containerIdentifier];
+    CKDatabase* privateDatabase = [customContainer privateCloudDatabase];
+    
+    CKQuery* query = [[CKQuery alloc] initWithRecordType:@"PlayerProgress" predicate:[NSPredicate predicateWithValue:YES]];
+    query.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"modificationDate" ascending:NO]];
+    
+    [privateDatabase performQuery:query inZoneWithID:nil completionHandler:^(NSArray *results, NSError *error) {
+        saveInProgress = false;
+        QueryResultData resultData;
+        if (error)
         {
-            NSString* containerIdentifier = @"iCloud.com.alexkoukoulas2074245k.Predators";
-            CKContainer* customContainer = [CKContainer containerWithIdentifier:containerIdentifier];
-            CKDatabase* privateDatabase = [customContainer privateCloudDatabase];
-            
-            [privateDatabase saveRecord:currentProgressRecord completionHandler:^(CKRecord *record, NSError *error) {
-                if (error) {
-                    NSLog(@"Error saving progress: %@", error);
-                } else {
-                    NSLog(@"Progress saved successfully");
-                    currentProgressRecord = record;
-                }
-            }];
-            
-            sTimePointToSaveNext = nullptr;
+            NSLog(@"Error querying progress: %@", error);
         }
-    }
+        else
+        {
+            bool canSave = false;
+            if (results.count == 0)
+            {
+                canSave = true;
+            }
+            if (results.count > 0)
+            {
+                NSString* cloudPersistentData = [[NSString alloc] initWithData:results.firstObject[@"persistent"] encoding:NSUTF8StringEncoding];
+                std::string cloudPersistentDataString([cloudPersistentData UTF8String]);
+                
+                NSString* localPersistentData = [[NSString alloc] initWithData:currentProgressRecord[@"persistent"] encoding:NSUTF8StringEncoding];
+                std::string localPersistentDataString([localPersistentData UTF8String]);
+                
+                auto populateSuccessfulTransactionIds = [](const std::string& dataString, std::vector<std::string>& transactionIds)
+                {
+                    std::string pattern = "successful_transaction_ids\":";
+                    std::stringstream extractedString;
+                    
+                    auto pos = dataString.find(pattern);
+                    if (pos == dataString.npos)
+                    {
+                        return;
+                    }
+                    
+                    pos += pattern.size();
+                    do
+                    {
+                        extractedString << dataString.at(pos);
+                    } while(dataString.at(pos++) != ']');
+                    
+                    auto test = extractedString.str();
+                    auto parsedJson = nlohmann::json::parse(extractedString.str());
+                    transactionIds = parsedJson.get<std::vector<std::string>>();
+                };
+                
+                std::vector<std::string> cloudSuccessfulTransactionIds;
+                std::vector<std::string> localSuccessfulTransactionIds;
+                
+                populateSuccessfulTransactionIds(cloudPersistentDataString, cloudSuccessfulTransactionIds);
+                populateSuccessfulTransactionIds(localPersistentDataString, localSuccessfulTransactionIds);
+                
+                // If local progression transaction ids are behind cloud then we do not save.
+                canSave = localSuccessfulTransactionIds.size() >= cloudSuccessfulTransactionIds.size();
+            }
+            
+            if (canSave)
+            {
+                [privateDatabase saveRecord:currentProgressRecord completionHandler:^(CKRecord *record, NSError *error) {
+                    if (error) {
+                        NSLog(@"Error saving progress: %@", error);
+                    } else {
+                        NSLog(@"Cloud progress saved successfully");
+                        currentProgressRecord = record;
+                    }
+                }];
+            }
+        }
+    }];
+    
+    saveInProgress = true;
 }
 
 ///-----------------------------------------------------------------------------------------------

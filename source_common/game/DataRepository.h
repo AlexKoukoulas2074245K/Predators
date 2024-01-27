@@ -65,6 +65,15 @@ enum class CardPackType
 
 ///------------------------------------------------------------------------------------------------
 
+enum class ForeignCloudDataFoundType
+{
+    NONE,
+    OPTIONAL,
+    MANDATORY
+};
+
+///------------------------------------------------------------------------------------------------
+
 struct QuickPlayData
 {
     BattleControlType mBattleControlType;
@@ -134,6 +143,9 @@ public:
     
     const std::vector<int>& GetNextBotPlayerDeck() const;
     void SetNextBotPlayerDeck(const std::vector<int>& deck);
+    
+    const std::vector<std::string>& GetSuccessfulTransactionIds() const;
+    void SetSuccessfulTransactionIds(const std::vector<std::string>& successfulTransactionIds);
     
     const int& GetGamesFinishedCount() const;
     void SetGamesFinishedCount(const int gamesFinishedCount);
@@ -209,8 +221,9 @@ public:
     const bool& IsCurrentlyPlayingStoryMode() const;
     void SetIsCurrentlyPlayingStoryMode(const bool isCurrentlyPlayingStoryMode);
     
-    const bool& ForeignProgressionDataFound() const;
-    void SetForeignProgressionDataFound(const bool foreignProgressionDataFound);
+    ForeignCloudDataFoundType GetForeignProgressionDataFound() const;
+    void SetForeignProgressionDataFound(const ForeignCloudDataFoundType foreignProgressionDataFound);
+    
 private:
     DataRepository();
     
@@ -226,10 +239,12 @@ private:
     StoryMapSceneType mCurrentStoryMapSceneType;
     BattleSubSceneType mCurrentBattleSubSceneType;
     CardLibraryBehaviorType mCurrentCardLibraryBehaviorType;
+    ForeignCloudDataFoundType mForeignProgressionDataFound = ForeignCloudDataFoundType::NONE;
     std::vector<int> mUnlockedCardIds;
     std::vector<int> mCurrentStoryPlayerDeck;
     std::vector<int> mNextTopPlayerDeck;
     std::vector<int> mNextBotPlayerDeck;
+    std::vector<std::string> mSuccessfulTransactionIds;
     std::vector<std::pair<int, int>> mCurrentShopBoughtProductCoordinates;
     std::vector<CardPackType> mPendingCardPacks;
     std::string mNextStoryOpponentTexturePath;
@@ -257,7 +272,6 @@ private:
     int mNextStoryOpponentDamage = 0;
     int mCurrentStorySecondsPlayed = 0;
     bool mIsCurrentlyPlayingStoryMode = false;
-    bool mForeignProgressionDataFound = false;
 };
 
 ///------------------------------------------------------------------------------------------------

@@ -410,6 +410,21 @@ void DataRepository::SetNextBotPlayerDeck(const std::vector<int>& deck)
 
 ///------------------------------------------------------------------------------------------------
 
+const std::vector<std::string>& DataRepository::GetSuccessfulTransactionIds() const
+{
+    return mSuccessfulTransactionIds;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void DataRepository::SetSuccessfulTransactionIds(const std::vector<std::string>& successfulTransactionIds)
+{
+    mSuccessfulTransactionIds = successfulTransactionIds;
+    mPersistentDataSerializer->GetState()["successful_transaction_ids"] = mSuccessfulTransactionIds;
+}
+
+///------------------------------------------------------------------------------------------------
+
 const int& DataRepository::GetStoryMaxHealth() const
 {
     return mStoryMaxHealth;
@@ -741,14 +756,14 @@ void DataRepository::SetIsCurrentlyPlayingStoryMode(const bool isCurrentlyPlayin
 
 ///------------------------------------------------------------------------------------------------
 
-const bool& DataRepository::ForeignProgressionDataFound() const
+ForeignCloudDataFoundType DataRepository::GetForeignProgressionDataFound() const
 {
     return mForeignProgressionDataFound;
 }
 
 ///------------------------------------------------------------------------------------------------
 
-void DataRepository::SetForeignProgressionDataFound(const bool foreignProgressionDataFound)
+void DataRepository::SetForeignProgressionDataFound(const ForeignCloudDataFoundType foreignProgressionDataFound)
 {
     mForeignProgressionDataFound = foreignProgressionDataFound;
 }

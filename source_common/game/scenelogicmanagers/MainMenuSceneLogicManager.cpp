@@ -8,14 +8,24 @@
 #include <engine/CoreSystemsEngine.h>
 #include <engine/utils/PlatformMacros.h>
 #include <engine/rendering/AnimationManager.h>
+#include <engine/utils/BaseDataFileDeserializer.h>
+#include <engine/utils/Date.h>
 #include <engine/utils/Logging.h>
 #include <engine/scene/SceneManager.h>
+#include <fstream>
 #include <game/AnimatedButton.h>
 #include <game/Cards.h>
 #include <game/events/EventSystem.h>
 #include <game/scenelogicmanagers/MainMenuSceneLogicManager.h>
 #include <game/DataRepository.h>
+#include <game/ProductIds.h>
 #include <SDL_events.h>
+#if defined(MACOS) || defined(MOBILE_FLOW)
+#include <platform_utilities/AppleUtils.h>
+#include <platform_utilities/CloudKitUtils.h>
+#elif defined(WINDOWS)
+#include <platform_utilities/WindowsUtils.h>
+#endif
 
 ///------------------------------------------------------------------------------------------------
 
@@ -130,6 +140,104 @@ static const std::unordered_map<StoryMapSceneType, strutils::StringId> STORY_MAP
 
 ///------------------------------------------------------------------------------------------------
 
+static bool sEmptyProgression = false;
+void CheckForEmptyProgression()
+{
+    serial::BaseDataFileDeserializer persistentDataFileChecker("persistent", serial::DataFileType::PERSISTENCE_FILE_TYPE, serial::WarnOnFileNotFoundBehavior::DO_NOT_WARN, serial::CheckSumValidationBehavior::VALIDATE_CHECKSUM);
+    sEmptyProgression = persistentDataFileChecker.GetState().empty();
+}
+
+///------------------------------------------------------------------------------------------------
+
+#if defined(MACOS) || defined(MOBILE_FLOW)
+void OnCloudQueryCompleted(cloudkit_utils::QueryResultData resultData)
+{
+    if (!resultData.mSuccessfullyQueriedAtLeastOneFileField)
+    {
+        return;
+    }
+    
+    auto writeDataStringToTempFile = [](const std::string& tempFileNameWithoutExtension, const std::string& data)
+    {
+        if (!data.empty())
+        {
+            std::string dataFileExtension = ".json";
+            
+            auto filePath = apple_utils::GetPersistentDataDirectoryPath() + tempFileNameWithoutExtension + dataFileExtension;
+            std::remove(filePath.c_str());
+            
+            std::ofstream file(filePath);
+            file << data;
+            
+            file.close();
+        }
+    };
+    
+    auto localDeviceId = apple_utils::GetDeviceId();
+    
+    auto checkForDeviceIdInconsistency = [=](const std::string& targetDataFileNameWithoutExtension, const serial::BaseDataFileDeserializer& dataFileDeserializer)
+    {
+        if
+        (
+            targetDataFileNameWithoutExtension == "persistent" &&
+            dataFileDeserializer.GetState().count("device_id") &&
+            dataFileDeserializer.GetState().count("device_name") &&
+            dataFileDeserializer.GetState().count("timestamp")
+        )
+        {
+            auto deviceId = dataFileDeserializer.GetState().at("device_id").get<std::string>();
+            
+            using namespace date;
+            std::stringstream s;
+            s << std::chrono::system_clock::time_point(std::chrono::seconds(dataFileDeserializer.GetState().at("timestamp").get<long>()));
+            
+            const auto& localSuccessfulTransactions = DataRepository::GetInstance().GetSuccessfulTransactionIds();
+            std::vector<std::string> cloudSuccessfulTransactions;
+            if (dataFileDeserializer.GetState().count("successful_transaction_ids"))
+            {
+                cloudSuccessfulTransactions = dataFileDeserializer.GetState()["successful_transaction_ids"].get<std::vector<std::string>>();
+            }
+            
+            // If local progression is ahead in terms of transactions we decline the cloud data
+            if (localSuccessfulTransactions.size() > cloudSuccessfulTransactions.size())
+            {
+                DataRepository::GetInstance().SetForeignProgressionDataFound(ForeignCloudDataFoundType::NONE);
+            }
+            // If cloud progression is ahead in terms of transactions we mandate the cloud data
+            else if (localSuccessfulTransactions.size() < cloudSuccessfulTransactions.size())
+            {
+                DataRepository::GetInstance().SetForeignProgressionDataFound(ForeignCloudDataFoundType::MANDATORY);
+            }
+            // Otherwise if the transaction vectors are the same let the user choose
+            else
+            {
+                if (deviceId != localDeviceId)
+                {
+                    DataRepository::GetInstance().SetForeignProgressionDataFound(ForeignCloudDataFoundType::OPTIONAL);
+                }
+                else
+                {
+                    DataRepository::GetInstance().SetForeignProgressionDataFound(ForeignCloudDataFoundType::NONE);
+                }
+            }
+            
+            DataRepository::GetInstance().SetCloudDataDeviceNameAndTime("(From " + dataFileDeserializer.GetState().at("device_name").get<std::string>() + " at " + strutils::StringSplit(s.str(), '.')[0] + ")");
+            
+        }
+    };
+    
+    writeDataStringToTempFile("cloud_persistent", resultData.mPersistentProgressRawString);
+    writeDataStringToTempFile("cloud_story", resultData.mStoryProgressRawString);
+    writeDataStringToTempFile("cloud_last_battle", resultData.mLastBattleRawString);
+    
+    checkForDeviceIdInconsistency("persistent", serial::BaseDataFileDeserializer("cloud_persistent", serial::DataFileType::PERSISTENCE_FILE_TYPE, serial::WarnOnFileNotFoundBehavior::WARN, serial::CheckSumValidationBehavior::VALIDATE_CHECKSUM));
+    checkForDeviceIdInconsistency("story", serial::BaseDataFileDeserializer("cloud_story", serial::DataFileType::PERSISTENCE_FILE_TYPE, serial::WarnOnFileNotFoundBehavior::WARN, serial::CheckSumValidationBehavior::VALIDATE_CHECKSUM));
+    checkForDeviceIdInconsistency("last_battle", serial::BaseDataFileDeserializer("cloud_last_battle", serial::DataFileType::PERSISTENCE_FILE_TYPE, serial::WarnOnFileNotFoundBehavior::WARN, serial::CheckSumValidationBehavior::VALIDATE_CHECKSUM));
+}
+#endif
+
+///------------------------------------------------------------------------------------------------
+
 const std::vector<strutils::StringId>& MainMenuSceneLogicManager::VGetApplicableSceneNames() const
 {
     return APPLICABLE_SCENE_NAMES;
@@ -153,6 +261,12 @@ void MainMenuSceneLogicManager::VInitSceneCamera(std::shared_ptr<scene::Scene>)
 
 void MainMenuSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 {
+    CheckForEmptyProgression();
+#if defined(MACOS) || defined(MOBILE_FLOW)
+    cloudkit_utils::QueryPlayerProgress([=](cloudkit_utils::QueryResultData resultData){ OnCloudQueryCompleted(resultData); });
+    apple_utils::LoadStoreProducts({ product_ids::NORMAL_CARD_PACK, product_ids::GOLDEN_CARD_PACK });
+#endif
+    
     DataRepository::GetInstance().SetQuickPlayData(nullptr);
     DataRepository::GetInstance().SetIsCurrentlyPlayingStoryMode(false);
     
@@ -171,7 +285,7 @@ void MainMenuSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 
 void MainMenuSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene::Scene> scene)
 {
-    if (mTransitioningToSubScene || DataRepository::GetInstance().ForeignProgressionDataFound())
+    if (mTransitioningToSubScene || DataRepository::GetInstance().GetForeignProgressionDataFound() != ForeignCloudDataFoundType::NONE)
     {
         return;
     }
