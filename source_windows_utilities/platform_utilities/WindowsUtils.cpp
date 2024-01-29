@@ -27,7 +27,7 @@ std::string GetPersistentDataDirectoryPath()
 {
 #define _CRT_SECURE_NO_WARNINGS
     auto appDataLocation = getenv("APPDATA");
-    return std::string(appDataLocation) + "/PredatorsSave/";
+    return std::string(appDataLocation) + "/RealmofBeasts/";
 }
 
 ///-----------------------------------------------------------------------------------------------

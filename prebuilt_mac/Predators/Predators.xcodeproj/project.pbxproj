@@ -210,7 +210,7 @@
 		08AAC0562233A3F34613E310 /* DataFileResource.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = DataFileResource.h; sourceTree = "<group>"; };
 		0A05CE2983C7CEA1D2A25585 /* BaseDataFileDeserializer.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = BaseDataFileDeserializer.cpp; sourceTree = "<group>"; };
 		0A90C5CE1FAAD720E2DE0541 /* CloudDataConfirmationSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = CloudDataConfirmationSceneLogicManager.h; sourceTree = "<group>"; };
-		0B76483234DBB09CE4B67D37 /* ProductIds.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ProductIds.h; path = ProductIds.h; sourceTree = "<group>"; };
+		0B76483234DBB09CE4B67D37 /* ProductIds.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = ProductIds.h; sourceTree = "<group>"; };
 		0B7F76FD2D5492C5AB3ABFFD /* CloudKitUtils.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = CloudKitUtils.h; sourceTree = "<group>"; };
 		0D09AB023B7A329D725F2F2F /* FileUtils.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = FileUtils.h; sourceTree = "<group>"; };
 		13FDFD19955883B3085E4725 /* ShaderResource.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = ShaderResource.h; sourceTree = "<group>"; };
@@ -1412,7 +1412,7 @@
 					"/Users/Code/Predators/lib/glm/**",
 					"/Users/Code/Predators/lib/googletest/**",
 				);
-				INFOPLIST_KEY_CFBundleDisplayName = Predators;
+				INFOPLIST_KEY_CFBundleDisplayName = "Realm of Beasts";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.card-games";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainNibFile = MainMenu;
@@ -1460,7 +1460,7 @@
 					"/Users/Code/Predators/lib/glm/**",
 					"/Users/Code/Predators/lib/googletest/**",
 				);
-				INFOPLIST_KEY_CFBundleDisplayName = Predators;
+				INFOPLIST_KEY_CFBundleDisplayName = "Realm of Beasts";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.card-games";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainNibFile = MainMenu;

@@ -602,6 +602,7 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
             DeckSelected(0, false);
         } break;
             
+        // TODO: clean up and remove
         case SubSceneType::QUICK_BATTLE:
         {
             mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
