@@ -419,7 +419,7 @@ void CardSelectionRewardSceneLogicManager::CreateCardRewards(std::shared_ptr<sce
     }
     
     // Start a light ray in case of golden cards
-    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(mGoldenCardLightPosX, game_constants::GOLDEN_CARD_LIGHT_POS_MIN_MAX_X.t, 2.0f, animation_flags::NONE, CARD_REWARD_SURFACE_DELAY_SECS + mCardRewards.size() * CARD_REWARD_SURFACE_DELAY_SECS), [](){});
+    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(mGoldenCardLightPosX, game_constants::GOLDEN_CARD_LIGHT_POS_MIN_MAX_X.t, 1.0f, animation_flags::NONE, CARD_REWARD_SURFACE_DELAY_SECS + mCardRewards.size() * CARD_REWARD_SURFACE_DELAY_SECS), [](){});
 }
 
 ///------------------------------------------------------------------------------------------------

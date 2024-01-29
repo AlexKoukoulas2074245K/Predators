@@ -44,7 +44,7 @@ static const float CAMERA_MOVING_TO_NODE_SPEED = 0.0005f;
 static const float SELECTED_NODE_Z_OFFSET = 23.3f;
 static const float FRESH_MAP_ANIMATION_TARGET_Y_OFFSET = -0.19f;
 static const float SWIPE_VELOCITY_DAMPING = 0.8f;
-static const float SWIPE_VELOCITY_INTEGRATION_SPEED = 0.05f;
+static const float SWIPE_VELOCITY_INTEGRATION_SPEED = 0.08f;
 static const float SWIPE_VELOCITY_MIN_MAGNITUDE_TO_START_MOVING = 0.0001f;
 static const float MAX_CAMERA_DISTANCE_TO_REGISTER_NODE_TAP = 0.01f;
 

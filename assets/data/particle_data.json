@@ -170,7 +170,7 @@
         {
             "name": "coin_gain_small",
             "texture": "coin.png",
-            "particle_count": 512,
+            "particle_count": 1024,
             "prefilled": false,
             "continuous_generation": false,
             "enlarge_over_time": false,
@@ -185,7 +185,7 @@
         {
             "name": "coin_gain_large",
             "texture": "coin.png",
-            "particle_count": 512,
+            "particle_count": 1024,
             "prefilled": false,
             "continuous_generation": false,
             "enlarge_over_time": false,

@@ -75,7 +75,8 @@ static const float HEALTH_CRYSTAL_BASE_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 1.0f;
 static const float HEALTH_CRYSTAL_VALUE_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 260.0f;
 static const float HEALTH_CRYSTAL_CONTAINER_CUSTOM_SCALE_FACTOR = 2.0f;
 static const float BATTLE_SCENE_SCALE_FACTOR = 0.5f;
-static const float STAT_PARTICLE_ANIMATION_DURATION_SECS = 0.75f;
+static const float STAT_PARTICLE_ANIMATION_DURATION_MAX_SECS = 0.65f;
+static const float STAT_PARTICLE_ANIMATION_DURATION_MIN_SECS = 0.85f;
 static const float STAT_GAIN_PARTICLE_RESPAWN_SECS = 0.2f;
 static const float STAT_GAIN_ANIMATION_DURATION_SECS = 2.0f;
 static const float STAT_GAIN_PARTICLE_LIFETIME_SPEED = 0.002f;
@@ -281,48 +282,65 @@ void GuiObjectManager::AnimateStatParticlesToGui(const glm::vec3& originPosition
         static float timeAccum = 0.0f;
         timeAccum += dtMillis/1000.0f;
 
-        if (timeAccum > targetRespawnSecs && static_cast<int>(particleEmitterData.mTotalParticlesSpawned) < statAmount)
+        if (timeAccum > targetRespawnSecs)
         {
             timeAccum = 0.0f;
-            int particleIndex = particleManager.SpawnParticleAtFirstAvailableSlot(particleEmitterSceneObject);
             
-            particleEmitterData.mParticlePositions[particleIndex] = originPosition + STAT_PARTICLE_INIT_POSITION_OFFSET;
-            
-            glm::vec3 midPosition = (particleEmitterData.mParticlePositions[particleIndex] + targetPosition)/2.0f;
-            midPosition.y += forBattleScene ?
-                math::RandomFloat(STAT_FLYING_PARTICLE_MIN_MAX_Y_OFFSET.s, STAT_FLYING_PARTICLE_MIN_MAX_Y_OFFSET.t) :
-                math::RandomFloat(2.0f * STAT_FLYING_PARTICLE_MIN_MAX_Y_OFFSET.s, 2.0f * STAT_FLYING_PARTICLE_MIN_MAX_Y_OFFSET.t);
-            midPosition.z = (particleEmitterData.mParticlePositions[particleIndex].z + targetPosition.z)/2.0f + math::RandomFloat(STAT_FLYING_PARTYCLE_MIN_MAX_Z_OFFSET.s, STAT_FLYING_PARTYCLE_MIN_MAX_Z_OFFSET.t);
-            
-            math::BezierCurve curve({particleEmitterData.mParticlePositions[particleIndex], midPosition, targetPosition});
-            
-            animationManager.StartAnimation(std::make_unique<rendering::BezierCurveAnimation>(particleEmitterData.mParticlePositions[particleIndex], curve, STAT_PARTICLE_ANIMATION_DURATION_SECS), [=]()
+            auto particlesToSpawn = 1;
+            if (statAmount > 100)
             {
-                std::get<scene::ParticleEmitterObjectData>(mScene->FindSceneObject(PARTICLE_EMITTER_SCENE_OBJECT_NAME)->mSceneObjectTypeData).mParticleLifetimeSecs[particleIndex] = 0.0f;
-                
-                switch (statParticleType)
+                particlesToSpawn = 5;
+            }
+            if (statAmount > 1000)
+            {
+                particlesToSpawn = 10;
+            }
+            
+            for (auto i = 0; i < particlesToSpawn; ++i)
+            {
+                if (static_cast<int>(particleEmitterData.mTotalParticlesSpawned) < statAmount)
                 {
-                    case StatParticleType::COINS:
+                    int particleIndex = particleManager.SpawnParticleAtFirstAvailableSlot(particleEmitterSceneObject);
+                    
+                    particleEmitterData.mParticlePositions[particleIndex] = originPosition + STAT_PARTICLE_INIT_POSITION_OFFSET;
+                    
+                    glm::vec3 midPosition = (particleEmitterData.mParticlePositions[particleIndex] + targetPosition)/2.0f;
+                    midPosition.y += forBattleScene ?
+                    math::RandomFloat(STAT_FLYING_PARTICLE_MIN_MAX_Y_OFFSET.s, STAT_FLYING_PARTICLE_MIN_MAX_Y_OFFSET.t) :
+                    math::RandomFloat(2.0f * STAT_FLYING_PARTICLE_MIN_MAX_Y_OFFSET.s, 2.0f * STAT_FLYING_PARTICLE_MIN_MAX_Y_OFFSET.t);
+                    midPosition.z = (particleEmitterData.mParticlePositions[particleIndex].z + targetPosition.z)/2.0f + math::RandomFloat(STAT_FLYING_PARTYCLE_MIN_MAX_Z_OFFSET.s, STAT_FLYING_PARTYCLE_MIN_MAX_Z_OFFSET.t);
+                    
+                    math::BezierCurve curve({particleEmitterData.mParticlePositions[particleIndex], midPosition, targetPosition});
+                    
+                    animationManager.StartAnimation(std::make_unique<rendering::BezierCurveAnimation>(particleEmitterData.mParticlePositions[particleIndex], curve, math::RandomFloat(STAT_PARTICLE_ANIMATION_DURATION_MIN_SECS, STAT_PARTICLE_ANIMATION_DURATION_MAX_SECS)), [=]()
                     {
-                        // Animation only coin change
-                        auto& coins = DataRepository::GetInstance().CurrencyCoins();
-                        coins.SetDisplayedValue(coins.GetDisplayedValue() + 1);
-                    } break;
+                        std::get<scene::ParticleEmitterObjectData>(mScene->FindSceneObject(PARTICLE_EMITTER_SCENE_OBJECT_NAME)->mSceneObjectTypeData).mParticleLifetimeSecs[particleIndex] = 0.0f;
                         
-                    case StatParticleType::HEALTH:
-                    {
-                        // Animation only health change
-                        auto& health = DataRepository::GetInstance().StoryCurrentHealth();
-                        health.SetDisplayedValue(health.GetDisplayedValue() + 1);
-                    } break;
+                        switch (statParticleType)
+                        {
+                            case StatParticleType::COINS:
+                            {
+                                // Animation only coin change
+                                auto& coins = DataRepository::GetInstance().CurrencyCoins();
+                                coins.SetDisplayedValue(coins.GetDisplayedValue() + 1);
+                            } break;
+                                
+                            case StatParticleType::HEALTH:
+                            {
+                                // Animation only health change
+                                auto& health = DataRepository::GetInstance().StoryCurrentHealth();
+                                health.SetDisplayedValue(health.GetDisplayedValue() + 1);
+                            } break;
+                        }
+                        
+                        if (CoreSystemsEngine::GetInstance().GetAnimationManager().GetAnimationCountPlayingWithName(game_constants::STAT_PARTICLE_FLYING_ANIMATION_NAME) == 1)
+                        {
+                            events::EventSystem::GetInstance().DispatchEvent<events::GuiRewardAnimationFinishedEvent>();
+                        }
+                        
+                    }, game_constants::STAT_PARTICLE_FLYING_ANIMATION_NAME);
                 }
-
-                if (CoreSystemsEngine::GetInstance().GetAnimationManager().GetAnimationCountPlayingWithName(game_constants::STAT_PARTICLE_FLYING_ANIMATION_NAME) == 1)
-                {
-                    events::EventSystem::GetInstance().DispatchEvent<events::GuiRewardAnimationFinishedEvent>();
-                }
-                
-            }, game_constants::STAT_PARTICLE_FLYING_ANIMATION_NAME);
+            }
         }
     });
 }

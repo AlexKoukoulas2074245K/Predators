@@ -39,8 +39,8 @@ static const float ATTACKING_CARD_PARTICLE_EMITTER_Z = 0.01f;
 static const float ATTACKING_CARD_SHORT_ANIMATION_DURATION = 0.25f;
 static const float ATTACKING_CARD_LONG_ANIMATION_DURATION = 0.4f;
 static const float ATTACKING_CARD_ANIMATION_ELEVATED_Z = 20.0f;
-static const float ATTACKING_CARD_CAMERA_SHAKE_MAX_DURATION = 2.0f;
-static const float ATTACKING_CARD_CAMERA_SHAKE_MAX_STRENGTH = 0.045f;
+static const float ATTACKING_CARD_CAMERA_SHAKE_MAX_DURATION = 1.5f;
+static const float ATTACKING_CARD_CAMERA_SHAKE_MAX_STRENGTH = 0.037f;
 
 ///------------------------------------------------------------------------------------------------
 
