@@ -63,6 +63,7 @@ void DataRepository::ResetStoryData()
     mCurrentStoryMapNodeCoord = game_constants::STORY_MAP_INIT_COORD;
     mCurrentStoryMapNodeType = StoryMap::NodeType::NORMAL_ENCOUNTER;
     mCurrentCardLibraryBehaviorType = CardLibraryBehaviorType::CARD_LIBRARY;
+    mCurrentShopBehaviorType = ShopBehaviorType::STORY_SHOP;
     mSelectedStoryMapNodeData = nullptr;
     
     mStoryMaxHealth = game_constants::STORY_DEFAULT_MAX_HEALTH;
@@ -300,6 +301,21 @@ CardLibraryBehaviorType DataRepository::GetCurrentCardLibraryBehaviorType() cons
 void DataRepository::SetCurrentCardLibraryBehaviorType(const CardLibraryBehaviorType currentCardLibraryBehaviorType)
 {
     mCurrentCardLibraryBehaviorType = currentCardLibraryBehaviorType;
+}
+
+///------------------------------------------------------------------------------------------------
+
+ShopBehaviorType DataRepository::GetCurrentShopBehaviorType() const
+{
+    return mCurrentShopBehaviorType;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void DataRepository::SetCurrentShopBehaviorType(const ShopBehaviorType currentShopBehaviorType)
+{
+    mCurrentShopBehaviorType = currentShopBehaviorType;
+    mStoryDataSerializer->GetState()["current_shop_type"] = static_cast<int>(mCurrentShopBehaviorType);
 }
 
 ///------------------------------------------------------------------------------------------------

@@ -147,7 +147,7 @@ void Game::Update(const float dtMillis)
     static bool doneFakePurchase = true;
     if (!doneFakePurchase && apple_utils::HasLoadedProducts())
     {
-        apple_utils::InitiateProductPurchase(product_ids::GOLDEN_CARD_PACK, [](apple_utils::PurchaseResultData purchaseResultData)
+        apple_utils::InitiateProductPurchase(product_ids::COINS_M, [](apple_utils::PurchaseResultData purchaseResultData)
         {
             if (purchaseResultData.mWasSuccessful)
             {

@@ -754,7 +754,7 @@ StoryMap::NodeType StoryMap::SelectNodeTypeForCoord(const MapCoord& mapCoord) co
     {
         return NodeType::BOSS_ENCOUNTER;
     }
-    else if (mapCoord.mCol == mMapDimensions.x - 2)
+    else if (mapCoord.mCol == mMapDimensions.x - 10)
     {
         return NodeType::SHOP;
     }

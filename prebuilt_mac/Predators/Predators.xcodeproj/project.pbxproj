@@ -50,7 +50,7 @@
 		8C096F9D043616750BC963F8 /* TextureLoader.h in Sources */ = {isa = PBXBuildFile; fileRef = 05D038A4FFCF3C5AA2E85A75 /* TextureLoader.h */; };
 		9233DAB22B5E760200C55555 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9233DAB12B5E760200C55555 /* CloudKit.framework */; };
 		928B07DB2B5C385E0025DF3F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 928B07DA2B5C385E0025DF3F /* Assets.xcassets */; };
-		928B0C3A2B5C3C850025DF3F /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 928B0A862B5C3C840025DF3F /* Reachability.m */; };
+		928B0C3A2B5C3C850025DF3F /* PredatorsReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 928B0A862B5C3C840025DF3F /* PredatorsReachability.m */; };
 		928B0C3B2B5C3C850025DF3F /* Dummy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 928B0A882B5C3C840025DF3F /* Dummy.cpp */; };
 		928B0C3C2B5C3C850025DF3F /* AppleUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 928B0A892B5C3C840025DF3F /* AppleUtils.mm */; };
 		928B0C3E2B5C3C850025DF3F /* imgui_freetype.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 928B0A932B5C3C840025DF3F /* imgui_freetype.cpp */; };
@@ -251,8 +251,8 @@
 		928B07E12B5C385E0025DF3F /* Predators.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Predators.entitlements; sourceTree = "<group>"; };
 		928B0A7E2B5C3C840025DF3F /* RendererPlatformImpl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RendererPlatformImpl.h; sourceTree = "<group>"; };
 		928B0A812B5C3C840025DF3F /* InputStateManagerPlatformImpl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InputStateManagerPlatformImpl.h; sourceTree = "<group>"; };
-		928B0A862B5C3C840025DF3F /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
-		928B0A872B5C3C840025DF3F /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
+		928B0A862B5C3C840025DF3F /* PredatorsReachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PredatorsReachability.m; sourceTree = "<group>"; };
+		928B0A872B5C3C840025DF3F /* PredatorsReachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PredatorsReachability.h; sourceTree = "<group>"; };
 		928B0A882B5C3C840025DF3F /* Dummy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Dummy.cpp; sourceTree = "<group>"; };
 		928B0A892B5C3C840025DF3F /* AppleUtils.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AppleUtils.mm; sourceTree = "<group>"; };
 		928B0A8A2B5C3C840025DF3F /* AppleUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppleUtils.h; sourceTree = "<group>"; };
@@ -614,8 +614,8 @@
 		928B0A852B5C3C840025DF3F /* platform_utilities */ = {
 			isa = PBXGroup;
 			children = (
-				928B0A862B5C3C840025DF3F /* Reachability.m */,
-				928B0A872B5C3C840025DF3F /* Reachability.h */,
+				928B0A862B5C3C840025DF3F /* PredatorsReachability.m */,
+				928B0A872B5C3C840025DF3F /* PredatorsReachability.h */,
 				928B0A882B5C3C840025DF3F /* Dummy.cpp */,
 				928B0A892B5C3C840025DF3F /* AppleUtils.mm */,
 				928B0A8A2B5C3C840025DF3F /* AppleUtils.h */,
@@ -1183,7 +1183,7 @@
 				928B0CC72B5C3C850025DF3F /* CardHistoryEntryAdditionGameAction.cpp in Sources */,
 				928B0CD22B5C3C850025DF3F /* GameActionFactory.cpp in Sources */,
 				928B0CF82B5C3C850025DF3F /* Game.cpp in Sources */,
-				928B0C3A2B5C3C850025DF3F /* Reachability.m in Sources */,
+				928B0C3A2B5C3C850025DF3F /* PredatorsReachability.m in Sources */,
 				928B0CD52B5C3C850025DF3F /* CardDestructionGameAction.cpp in Sources */,
 				928B0CD42B5C3C850025DF3F /* NextDinoDamageDoublingGameAction.cpp in Sources */,
 				928B0CE92B5C3C850025DF3F /* PersistentAccountDataSerializer.cpp in Sources */,

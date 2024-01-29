@@ -23,7 +23,14 @@
 #include <game/events/EventSystem.h>
 #include <game/GuiObjectManager.h>
 #include <game/DataRepository.h>
+#include <game/ProductIds.h>
 #include <game/scenelogicmanagers/ShopSceneLogicManager.h>
+#if defined(MACOS) || defined(MOBILE_FLOW)
+#include <platform_utilities/AppleUtils.h>
+#include <platform_utilities/CloudKitUtils.h>
+#elif defined(WINDOWS)
+#include <platform_utilities/WindowsUtils.h>
+#endif
 
 ///------------------------------------------------------------------------------------------------
 
@@ -33,6 +40,7 @@ static constexpr std::pair<int, int> COINS_TO_LIFE_RATE = std::make_pair(100, 30
 static constexpr std::pair<int, int> CARD_DELETION_PRODUCT_COORDS = std::make_pair(2, 2);
 
 static const strutils::StringId SELECTED_PRODUCT_OVERLAY_SCENE_OBJECT_NAME = strutils::StringId("selected_product_overlay");
+static const strutils::StringId SHELVES_SCENE_OBJECT_NAME = strutils::StringId("shelves");
 static const strutils::StringId CANT_BUY_PRODUCT_OVERLAY_SCENE_OBJECT_NAME = strutils::StringId("cant_buy_product_overlay");
 static const strutils::StringId CANT_BUY_PRODUCT_CONFIRMATION_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("cant_buy_product_confirmation_button");
 static const strutils::StringId CONTINUE_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("continue_button");
@@ -42,12 +50,16 @@ static const strutils::StringId SELECT_CARD_FOR_DELETION_BUTTON_SCENE_OBJECT_NAM
 static const strutils::StringId BUY_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("buy_button");
 static const strutils::StringId CANCEL_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("cancel_button");
 static const strutils::StringId DEFEAT_SCENE_NAME = strutils::StringId("defeat_scene");
+static const strutils::StringId COINS_S_PRODUCT_NAME = strutils::StringId("coins_s");
+static const strutils::StringId COINS_M_PRODUCT_NAME = strutils::StringId("coins_m");
+static const strutils::StringId COINS_L_PRODUCT_NAME = strutils::StringId("coins_l");
 static const strutils::StringId DAMAGE_GAIN_PRODUCT_NAME = strutils::StringId("damage_gain_+1");
 static const strutils::StringId WEIGHT_GAIN_PRODUCT_NAME = strutils::StringId("weight_gain_+1");
 static const strutils::StringId COINS_TO_LIFE_PRODUCT_NAME = strutils::StringId("coins_to_life");
 static const strutils::StringId LIFE_TO_COINS_PRODUCT_NAME = strutils::StringId("life_to_coins");
 static const strutils::StringId CARD_DELETION_PRODUCT_NAME = strutils::StringId("card_deletion");
-
+static const strutils::StringId GUI_HEALTH_CRYSTAL_BASE_SCENE_OBJECT_NAME = strutils::StringId("health_crystal_base");
+static const strutils::StringId GUI_HEALTH_CRYSTAL_VALUE_SCENE_OBJECT_NAME = strutils::StringId("health_crystal_value");
 static const strutils::StringId DISSOLVE_THRESHOLD_UNIFORM_NAME = strutils::StringId("dissolve_threshold");
 static const strutils::StringId DISSOLVE_MAGNITUDE_UNIFORM_NAME = strutils::StringId("dissolve_magnitude");
 static const strutils::StringId ORIGIN_X_UNIFORM_NAME = strutils::StringId("origin_x");
@@ -55,6 +67,8 @@ static const strutils::StringId ORIGIN_Y_UNIFORM_NAME = strutils::StringId("orig
 
 static const std::string DISSOLVE_SHADER_FILE_NAME = "generic_dissolve.vs";
 static const std::string DISSOLVE_TEXTURE_FILE_NAME = "dissolve.png";
+static const std::string SHELVES_STORY_SHOP_TEXTURE_FILE_NAME = "shelves_story_shop.png";
+static const std::string SHELVES_PERMA_SHOP_TEXTURE_FILE_NAME = "shelves_perma_shop.png";
 static const std::string BASIC_CUSTOM_COLOR_SHADER_FILE_NAME = "basic_custom_color.vs";
 static const std::string PRICE_TAG_TEXTURE_FILE_NAME_PREFIX = "shop_items/price_tag_digits_";
 static const std::string PRODUCT_NAME_PREFIX = "product_";
@@ -156,10 +170,20 @@ void ShopSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     DestroyCardTooltip();
     mGuiManager = std::make_shared<GuiObjectManager>(scene);
     
+    if (DataRepository::GetInstance().GetCurrentShopBehaviorType() == ShopBehaviorType::PERMA_SHOP)
+    {
+        scene->FindSceneObject(game_constants::GUI_SETTINGS_BUTTON_SCENE_OBJECT_NAME)->mInvisible = true;
+        scene->FindSceneObject(game_constants::GUI_STORY_CARDS_BUTTON_SCENE_OBJECT_NAME)->mInvisible = true;
+        scene->FindSceneObject(GUI_HEALTH_CRYSTAL_BASE_SCENE_OBJECT_NAME)->mInvisible = true;
+        scene->FindSceneObject(GUI_HEALTH_CRYSTAL_VALUE_SCENE_OBJECT_NAME)->mInvisible = true;
+    }
+    
     RegisterForEvents();
     
     math::SetControlSeed(DataRepository::GetInstance().GetCurrentStoryMapNodeSeed());
     DataRepository::GetInstance().SetCurrentStoryMapSceneType(StoryMapSceneType::SHOP);
+    
+    scene->FindSceneObject(SHELVES_SCENE_OBJECT_NAME)->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + (DataRepository::GetInstance().GetCurrentShopBehaviorType() == ShopBehaviorType::STORY_SHOP ? SHELVES_STORY_SHOP_TEXTURE_FILE_NAME : SHELVES_PERMA_SHOP_TEXTURE_FILE_NAME));
     
     mSceneState = SceneState::CREATING_DYNAMIC_OBJECTS;
 }
@@ -413,7 +437,7 @@ void ShopSceneLogicManager::CreateDynamicSceneObjects()
             {
                 mGuiManager->StopRewardAnimation();
             }
-            events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_MAP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
+            events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>((DataRepository::GetInstance().GetCurrentShopBehaviorType() == ShopBehaviorType::STORY_SHOP ? game_constants::STORY_MAP_SCENE : game_constants::MAIN_MENU_SCENE), SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
             mSceneState = SceneState::LEAVING_SHOP;
         },
         *mScene,
@@ -534,28 +558,38 @@ void ShopSceneLogicManager::CreateProducts()
         }
     }
     
-    // First Shelf
-    mProducts[0][0] = std::make_unique<ProductInstance>(DAMAGE_GAIN_PRODUCT_NAME);
-    mProducts[0][1] = std::make_unique<ProductInstance>(WEIGHT_GAIN_PRODUCT_NAME);
-    
-    // Second Shelf
-    const auto& cardRewardsPool = CardDataRepository::GetInstance().GetStoryUnlockedCardRewardsPool();
-    for (size_t col = 0; col < SHELF_ITEM_COUNT; ++col)
+    if (DataRepository::GetInstance().GetCurrentShopBehaviorType() == ShopBehaviorType::STORY_SHOP)
     {
-        auto randomCardIndex = static_cast<int>(math::ControlledRandomInt() % cardRewardsPool.size());
-        auto cardId = cardRewardsPool[randomCardIndex];
-        const auto& cardData = CardDataRepository::GetInstance().GetCardData(cardId, true);
-        auto productDefinitionName = strutils::StringId("card_" + std::to_string(cardId));
+        // First Shelf
+        mProducts[0][0] = std::make_unique<ProductInstance>(DAMAGE_GAIN_PRODUCT_NAME);
+        mProducts[0][1] = std::make_unique<ProductInstance>(WEIGHT_GAIN_PRODUCT_NAME);
         
-        auto cardPrice = cardData.IsSpell() ? 100 : 50;
-        mProductDefinitions.emplace(std::make_pair(productDefinitionName, ProductDefinition(productDefinitionName, cardId, cardData.mCardEffectTooltip, cardPrice, true)));
-        mProducts[1][col] = std::make_unique<ProductInstance>(productDefinitionName);
+        // Second Shelf
+        const auto& cardRewardsPool = CardDataRepository::GetInstance().GetStoryUnlockedCardRewardsPool();
+        for (size_t col = 0; col < SHELF_ITEM_COUNT; ++col)
+        {
+            auto randomCardIndex = static_cast<int>(math::ControlledRandomInt() % cardRewardsPool.size());
+            auto cardId = cardRewardsPool[randomCardIndex];
+            const auto& cardData = CardDataRepository::GetInstance().GetCardData(cardId, true);
+            auto productDefinitionName = strutils::StringId("card_" + std::to_string(cardId));
+            
+            auto cardPrice = cardData.IsSpell() ? 100 : 50;
+            mProductDefinitions.emplace(std::make_pair(productDefinitionName, ProductDefinition(productDefinitionName, cardId, cardData.mCardEffectTooltip, cardPrice, true)));
+            mProducts[1][col] = std::make_unique<ProductInstance>(productDefinitionName);
+        }
+        
+        // Third Shelf
+        mProducts[2][0] = std::make_unique<ProductInstance>(COINS_TO_LIFE_PRODUCT_NAME);
+        mProducts[2][1] = std::make_unique<ProductInstance>(LIFE_TO_COINS_PRODUCT_NAME);
+        mProducts[2][2] = std::make_unique<ProductInstance>(CARD_DELETION_PRODUCT_NAME);
     }
-    
-    // Third Shelf
-    mProducts[2][0] = std::make_unique<ProductInstance>(COINS_TO_LIFE_PRODUCT_NAME);
-    mProducts[2][1] = std::make_unique<ProductInstance>(LIFE_TO_COINS_PRODUCT_NAME);
-    mProducts[2][2] = std::make_unique<ProductInstance>(CARD_DELETION_PRODUCT_NAME);
+    else if (DataRepository::GetInstance().GetCurrentShopBehaviorType() == ShopBehaviorType::PERMA_SHOP)
+    {
+        // Second Shelf
+        mProducts[1][0] = std::make_unique<ProductInstance>(COINS_S_PRODUCT_NAME);
+        mProducts[1][1] = std::make_unique<ProductInstance>(COINS_M_PRODUCT_NAME);
+        mProducts[1][2] = std::make_unique<ProductInstance>(COINS_L_PRODUCT_NAME);
+    }
     
     for (int shelfIndex = 0; shelfIndex < SHELF_COUNT; ++shelfIndex)
     {
@@ -607,6 +641,7 @@ void ShopSceneLogicManager::CreateProducts()
                 priceTagSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + PRICE_TAG_TEXTURE_FILE_NAME_PREFIX + std::to_string(std::to_string(productDefinition.mPrice).size()) + ".png");
                 priceTagSceneObject->mPosition = SHELF_ITEM_TARGET_BASE_POSITIONS[shelfIndex] + PRODUCT_PRICE_TAG_POSITION_OFFSET;
                 priceTagSceneObject->mScale = PRICE_TAG_SCALE;
+                
                 priceTagSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
                 priceTagSceneObject->mSnapToEdgeBehavior = scene::SnapToEdgeBehavior::SNAP_TO_LEFT_EDGE;
                 priceTagSceneObject->mSnapToEdgeScaleOffsetFactor = 1.1f + 1.5f * shelfItemIndex;
@@ -614,7 +649,19 @@ void ShopSceneLogicManager::CreateProducts()
                 
                 scene::TextSceneObjectData priceTextData;
                 priceTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
-                priceTextData.mText = std::to_string(productDefinition.mPrice) + "$";
+                priceTextData.mText = "|" + std::to_string(productDefinition.mPrice);
+                
+                if
+                (
+                    product->mProductName == COINS_S_PRODUCT_NAME ||
+                    product->mProductName == COINS_M_PRODUCT_NAME ||
+                    product->mProductName == COINS_L_PRODUCT_NAME
+                )
+                {
+#if defined(MACOS) || defined(MOBILE_FLOW)
+                    priceTextData.mText = apple_utils::GetProductPrice(product->mProductName.GetString());
+#endif
+                }
                 
                 auto priceTextSceneObject = mScene->CreateSceneObject(strutils::StringId(PRODUCT_NAME_PREFIX + std::to_string(shelfIndex) + "_" + std::to_string(shelfItemIndex) + "_price_text"));
                 priceTextSceneObject->mPosition = SHELF_ITEM_TARGET_BASE_POSITIONS[shelfIndex] + PRODUCT_PRICE_TAG_TEXT_POSITION_OFFSET;
@@ -751,9 +798,14 @@ void ShopSceneLogicManager::SelectProduct(const size_t productShelfIndex, const 
         auto& product = mProducts[productShelfIndex][productShelfItemIndex];
         const auto& productDefinition = mProductDefinitions.at(product->mProductName);
         
-        if (!productDefinition.mDescription.empty())
+        if (product->mProductName != COINS_S_PRODUCT_NAME &&
+            product->mProductName != COINS_M_PRODUCT_NAME &&
+            product->mProductName != COINS_L_PRODUCT_NAME)
         {
-            CreateCardTooltip(SELECTED_PRODUCT_TARGET_POSITION, productDefinition.mDescription);
+            if (!productDefinition.mDescription.empty())
+            {
+                CreateCardTooltip(SELECTED_PRODUCT_TARGET_POSITION, productDefinition.mDescription);
+            }
         }
         
         product->mSceneObjects.front()->mShaderFloatUniformValues[game_constants::LIGHT_POS_X_UNIFORM_NAME] = game_constants::GOLDEN_CARD_LIGHT_POS_MIN_MAX_X.s;
@@ -1150,6 +1202,14 @@ void ShopSceneLogicManager::UpdateProductPriceTags()
             
             auto& product = mProducts[shelfIndex][shelfItemIndex];
             const auto& productDefinition = mProductDefinitions.at(product->mProductName);
+            
+            if (product->mProductName == COINS_S_PRODUCT_NAME ||
+                product->mProductName == COINS_M_PRODUCT_NAME ||
+                product->mProductName == COINS_L_PRODUCT_NAME)
+            {
+                product->mSceneObjects[2]->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = COIN_NORMAL_VALUE_TEXT_COLOR;
+                continue;
+            }
             
             if (productDefinition.mPrice > 0)
             {

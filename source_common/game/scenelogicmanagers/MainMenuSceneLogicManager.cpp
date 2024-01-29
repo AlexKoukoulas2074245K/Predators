@@ -36,6 +36,7 @@ static const std::string DECK_ENTRY_MASK_TEXTURE_FILE_NAME = "trap_mask.png";
 static const strutils::StringId BOARD_SCENE_OBJECT_NAME = strutils::StringId("board");
 static const strutils::StringId STORY_MODE_BUTTON_NAME = strutils::StringId("story_mode_button");
 static const strutils::StringId CARD_LIBRARY_BUTTON_NAME = strutils::StringId("card_library_button");
+static const strutils::StringId SHOP_BUTTON_NAME = strutils::StringId("shop_button");
 static const strutils::StringId CONTINUE_STORY_BUTTON_NAME = strutils::StringId("continue_story_button");
 static const strutils::StringId NEW_STORY_BUTTON_NAME = strutils::StringId("new_story_button");
 static const strutils::StringId QUICK_BATTLE_BUTTON_NAME = strutils::StringId("quick_battle_button");
@@ -69,9 +70,10 @@ static const glm::vec3 STORY_MODE_BUTTON_POSITION = {-0.109f, 0.09f, 0.1f};
 static const glm::vec3 CONTINUE_STORY_BUTTON_POSITION = {-0.142f, 0.09f, 0.1f};
 static const glm::vec3 NO_PROGRESS_NEW_STORY_BUTTON_POSITION = {-0.091f, 0.06f, 0.1f};
 static const glm::vec3 NEW_STORY_BUTTON_POSITION = {-0.091f, 0.00f, 0.1f};
-static const glm::vec3 CARD_LIBRARY_BUTTON_POSITION = {-0.125f, 0.016f, 0.1f};
-static const glm::vec3 QUICK_BATTLE_BUTTON_POSITION = {-0.109f, -0.055f, 0.1f};
-static const glm::vec3 QUIT_BUTTON_POSITION = {-0.033f, -0.130f, 0.1f};
+static const glm::vec3 CARD_LIBRARY_BUTTON_POSITION = {-0.125f, 0.006f, 0.1f};
+static const glm::vec3 SHOP_BUTTON_POSITION = {-0.053f, -0.075f, 0.1f};
+//static const glm::vec3 QUICK_BATTLE_BUTTON_POSITION = {-0.109f, -0.055f, 0.1f};
+static const glm::vec3 QUIT_BUTTON_POSITION = {-0.045f, -0.160f, 0.1f};
 static const glm::vec3 NORMAL_BATTLE_MODE_BUTTON_POSITION = {-0.254f, 0.086f, 0.1f};
 static const glm::vec3 AI_DEMO_BATTLE_MODE_BUTTON_POSITION = {-0.07f, 0.086f, 0.1f};
 static const glm::vec3 REPLAY_BATTLE_MODE_BUTTON_POSITION = {0.136f, 0.086f, 0.1f};
@@ -264,7 +266,7 @@ void MainMenuSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     CheckForEmptyProgression();
 #if defined(MACOS) || defined(MOBILE_FLOW)
     cloudkit_utils::QueryPlayerProgress([=](cloudkit_utils::QueryResultData resultData){ OnCloudQueryCompleted(resultData); });
-    apple_utils::LoadStoreProducts({ product_ids::NORMAL_CARD_PACK, product_ids::GOLDEN_CARD_PACK });
+    apple_utils::LoadStoreProducts({ product_ids::COINS_S, product_ids::COINS_M, product_ids::COINS_L });
 #endif
     
     DataRepository::GetInstance().SetQuickPlayData(nullptr);
@@ -396,14 +398,26 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
             
             mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
             (
-                QUICK_BATTLE_BUTTON_POSITION,
+                SHOP_BUTTON_POSITION,
                 BUTTON_SCALE,
                 game_constants::DEFAULT_FONT_NAME,
-                "Quick Battle",
-                QUICK_BATTLE_BUTTON_NAME,
-                [=](){ TransitionToSubScene(SubSceneType::QUICK_BATTLE, scene); },
+                "Shop",
+                SHOP_BUTTON_NAME,
+                [=](){ DataRepository::GetInstance().SetCurrentShopBehaviorType(ShopBehaviorType::PERMA_SHOP);
+                       events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::SHOP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE); },
                 *scene
             ));
+            
+//            mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
+//            (
+//                QUICK_BATTLE_BUTTON_POSITION,
+//                BUTTON_SCALE,
+//                game_constants::DEFAULT_FONT_NAME,
+//                "Quick Battle",
+//                QUICK_BATTLE_BUTTON_NAME,
+//                [=](){ TransitionToSubScene(SubSceneType::QUICK_BATTLE, scene); },
+//                *scene
+//            ));
             
         #if defined(MOBILE_FLOW)
             (void)QUIT_BUTTON_NAME;
@@ -441,6 +455,7 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                     CONTINUE_STORY_BUTTON_NAME,
                     [=](){
                         DataRepository::GetInstance().SetIsCurrentlyPlayingStoryMode(true);
+                        DataRepository::GetInstance().SetCurrentShopBehaviorType(ShopBehaviorType::STORY_SHOP);
                         events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(STORY_MAP_SCENE_TYPE_TO_SCENE_NAME.at(DataRepository::GetInstance().GetCurrentStoryMapSceneType()), SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE); },
                     *scene
                 ));

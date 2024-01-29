@@ -49,7 +49,7 @@
         },
         {
             "name": "shelves",
-            "texture": "shelves_annotated.png",
+            "texture": "shelves_story_shop.png",
             "shader": "shop_shelves.vs",
             "scale": { "x": 0.48, "y": 0.48, "z": 0.5 },
             "position": { "x": -0.23, "y": -0.009, "z": 0.2 },

@@ -7,9 +7,11 @@
 
 #include <platform_utilities/AppleUtils.h>
 #import <Foundation/Foundation.h>
-#import <platform_utilities/Reachability.h>
+#import <platform_utilities/PredatorsReachability.h>
 #include <engine/resloading/ResourceLoadingService.h>
 #include <engine/utils/PlatformMacros.h>
+#include <engine/utils/StringUtils.h>
+#include <codecvt>
 #import <StoreKit/StoreKit.h>
 #if __has_include(<UIKit/UIKit.h>)
 #import <UIKit/UIKit.h>
@@ -66,7 +68,7 @@ static NSArray* products = nil;
     products = response.products;
     for (SKProduct* product in products)
     {
-        NSLog(@"Product ID: %@, Title: %@, Price: %@, Description: %@", product.productIdentifier, product.localizedTitle, product.price, product.localizedDescription);
+        NSLog(@"Product ID: %@, Title: %@, Price: %@%@, Description: %@", product.productIdentifier, product.localizedTitle, product.priceLocale.currencySymbol, product.price, product.localizedDescription);
     }
 }
 
@@ -119,7 +121,7 @@ namespace apple_utils
 
 bool IsConnectedToTheInternet()
 {
-    return !([[Reachability reachabilityForInternetConnection] currentReachabilityStatus] == NotReachable);
+    return !([[PredatorsReachability reachabilityForInternetConnection] currentReachabilityStatus] == NotReachable);
 }
 
 ///-----------------------------------------------------------------------------------------------
@@ -202,6 +204,39 @@ void LoadStoreProducts(const std::vector<std::string>& productIdsToLoad)
     }
     
     [purchaseManager requestProductInformationWithProductIdentifiers:productIdSet];
+}
+
+///-----------------------------------------------------------------------------------------------
+
+std::string GetProductPrice(const std::string& productId)
+{
+    if (purchaseManager && products)
+    {
+        NSString* nsStringProductId = [NSString stringWithUTF8String:productId.c_str()];
+        for (SKProduct* product in products)
+        {
+            if ([product.productIdentifier isEqualToString:nsStringProductId])
+            {
+                NSNumberFormatter *formatter = [NSNumberFormatter new];
+                [formatter setNumberStyle:NSNumberFormatterCurrencyStyle];
+                [formatter setLocale:product.priceLocale];
+                NSString* cost = [formatter stringFromNumber:product.price];
+                
+                std::string cppString([cost UTF8String]);
+                cppString = " " + cppString;
+                
+                // Euro
+                strutils::StringReplaceAllOccurences("\xe2\x82\xac", "\x80", cppString);
+                
+                // ANSI currencies. Just need to strip \xc2
+                strutils::StringReplaceAllOccurences("\xc2", "", cppString);
+                
+                return cppString;
+            }
+        }
+    }
+    
+    return "";
 }
 
 ///-----------------------------------------------------------------------------------------------

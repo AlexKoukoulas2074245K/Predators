@@ -56,6 +56,14 @@ enum class CardLibraryBehaviorType
 
 ///------------------------------------------------------------------------------------------------
 
+enum class ShopBehaviorType
+{
+    STORY_SHOP,
+    PERMA_SHOP
+};
+
+///------------------------------------------------------------------------------------------------
+
 enum class CardPackType
 {
     NONE,
@@ -131,6 +139,9 @@ public:
     
     CardLibraryBehaviorType GetCurrentCardLibraryBehaviorType() const;
     void SetCurrentCardLibraryBehaviorType(const CardLibraryBehaviorType currentCardLibraryBehaviorType);
+    
+    ShopBehaviorType GetCurrentShopBehaviorType() const;
+    void SetCurrentShopBehaviorType(const ShopBehaviorType currentShopBehaviorType);
     
     const std::vector<int>& GetUnlockedCardIds() const;
     void SetUnlockedCardIds(const std::vector<int>& unlockedCardIds);
@@ -239,6 +250,7 @@ private:
     StoryMapSceneType mCurrentStoryMapSceneType;
     BattleSubSceneType mCurrentBattleSubSceneType;
     CardLibraryBehaviorType mCurrentCardLibraryBehaviorType;
+    ShopBehaviorType mCurrentShopBehaviorType;
     ForeignCloudDataFoundType mForeignProgressionDataFound = ForeignCloudDataFoundType::NONE;
     std::vector<int> mUnlockedCardIds;
     std::vector<int> mCurrentStoryPlayerDeck;

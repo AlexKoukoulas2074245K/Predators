@@ -39,6 +39,7 @@ std::string GetDeviceName();
 void SetAssetFolder();
 bool HasLoadedProducts();
 void LoadStoreProducts(const std::vector<std::string>& productIdsToLoad);
+std::string GetProductPrice(const std::string& productId);
 void InitiateProductPurchase(const std::string& productId, std::function<void(PurchaseResultData)> onPurchaseFinishedCallback);
 
 ///-----------------------------------------------------------------------------------------------

@@ -17,8 +17,9 @@
 namespace product_ids
 {
 
-inline const std::string NORMAL_CARD_PACK = "normal_card_pack";
-inline const std::string GOLDEN_CARD_PACK = "golden_card_pack";
+inline const std::string COINS_S  = "coins_s";
+inline const std::string COINS_M  = "coins_m";
+inline const std::string COINS_L = "coins_l";
 
 ///------------------------------------------------------------------------------------------------
 
