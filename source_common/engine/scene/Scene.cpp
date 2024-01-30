@@ -81,6 +81,7 @@ void Scene::RecalculatePositionOfEdgeSnappingSceneObject(std::shared_ptr<SceneOb
     }
     
     auto sceneObjectMeshDimensions = CoreSystemsEngine::GetInstance().GetResourceLoadingService().GetResource<resources::MeshResource>(sceneObject->mMeshResourceId).GetDimensions();
+    sceneObjectMeshDimensions.z = 0.0f;
     
     int breachedSideIndex = 0;
     

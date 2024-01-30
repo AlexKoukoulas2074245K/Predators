@@ -33,19 +33,19 @@
         },
         {
             "name": "coins_s",
-            "price": 123,
+            "price": 1000,
             "texture_path": "shop_items/coins_s.png",
             "description": "Get an extra$  1000 coins!"
         },
         {
             "name": "coins_m",
-            "price": 123,
+            "price": 5500,
             "texture_path": "shop_items/coins_m.png",
             "description": "Get an extra$  5500 coins!"
         },
         {
             "name": "coins_l",
-            "price": 123,
+            "price": 11500,
             "texture_path": "shop_items/coins_l.png",
             "description": "Get an extra$  11500 coins!"
         },

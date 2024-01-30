@@ -750,6 +750,20 @@ void DataRepository::SetCloudDataDeviceNameAndTime(const std::string& cloudDataD
 
 ///------------------------------------------------------------------------------------------------
 
+const std::string& DataRepository::GetPermaShopProductNameToPurchase() const
+{
+    return mPermaShopProductNameToPurchase;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void DataRepository::SetPermaShopProductNameToPurchase(const std::string& permaShopProductNameToPurchase)
+{
+    mPermaShopProductNameToPurchase = permaShopProductNameToPurchase;
+}
+
+///------------------------------------------------------------------------------------------------
+
 void DataRepository::SetNextStoryOpponentName(const std::string& nextStoryOpponentName)
 {
     mNextStoryOpponentName = nextStoryOpponentName;

@@ -169,9 +169,11 @@ void OnCloudQueryCompleted(cloudkit_utils::QueryResultData resultData)
             std::remove(filePath.c_str());
             
             std::ofstream file(filePath);
-            file << data;
-            
-            file.close();
+            if (file.is_open())
+            {
+                file << data;
+                file.close();
+            }
         }
     };
     
@@ -232,9 +234,9 @@ void OnCloudQueryCompleted(cloudkit_utils::QueryResultData resultData)
     writeDataStringToTempFile("cloud_story", resultData.mStoryProgressRawString);
     writeDataStringToTempFile("cloud_last_battle", resultData.mLastBattleRawString);
     
-    checkForDeviceIdInconsistency("persistent", serial::BaseDataFileDeserializer("cloud_persistent", serial::DataFileType::PERSISTENCE_FILE_TYPE, serial::WarnOnFileNotFoundBehavior::WARN, serial::CheckSumValidationBehavior::VALIDATE_CHECKSUM));
-    checkForDeviceIdInconsistency("story", serial::BaseDataFileDeserializer("cloud_story", serial::DataFileType::PERSISTENCE_FILE_TYPE, serial::WarnOnFileNotFoundBehavior::WARN, serial::CheckSumValidationBehavior::VALIDATE_CHECKSUM));
-    checkForDeviceIdInconsistency("last_battle", serial::BaseDataFileDeserializer("cloud_last_battle", serial::DataFileType::PERSISTENCE_FILE_TYPE, serial::WarnOnFileNotFoundBehavior::WARN, serial::CheckSumValidationBehavior::VALIDATE_CHECKSUM));
+    checkForDeviceIdInconsistency("persistent", serial::BaseDataFileDeserializer("cloud_persistent", serial::DataFileType::PERSISTENCE_FILE_TYPE, serial::WarnOnFileNotFoundBehavior::DO_NOT_WARN, serial::CheckSumValidationBehavior::VALIDATE_CHECKSUM));
+    checkForDeviceIdInconsistency("story", serial::BaseDataFileDeserializer("cloud_story", serial::DataFileType::PERSISTENCE_FILE_TYPE, serial::WarnOnFileNotFoundBehavior::DO_NOT_WARN, serial::CheckSumValidationBehavior::VALIDATE_CHECKSUM));
+    checkForDeviceIdInconsistency("last_battle", serial::BaseDataFileDeserializer("cloud_last_battle", serial::DataFileType::PERSISTENCE_FILE_TYPE, serial::WarnOnFileNotFoundBehavior::DO_NOT_WARN, serial::CheckSumValidationBehavior::VALIDATE_CHECKSUM));
 }
 #endif
 

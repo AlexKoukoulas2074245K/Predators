@@ -33,6 +33,7 @@
 		5285724978640648FFD94960 /* TextureResource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93D83DB41AD868D09B2A3C94 /* TextureResource.cpp */; };
 		532521F009DF925259026C23 /* SerializationDefinitions.h in Sources */ = {isa = PBXBuildFile; fileRef = F05BCACB9D0D7193765BB311 /* SerializationDefinitions.h */; };
 		55B88F03ED55A2709BD2B704 /* SceneObjectUtils.h in Sources */ = {isa = PBXBuildFile; fileRef = FB0E9FCA60AD270C9B09FA51 /* SceneObjectUtils.h */; };
+		56FE158897FF886F6757E9DC /* PurchasingProductSceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 015DEBE74E403FDB72EDA711 /* PurchasingProductSceneLogicManager.h */; };
 		590BC49901179FB522AD2223 /* OSMessageBox.h in Sources */ = {isa = PBXBuildFile; fileRef = EEC2E35013E2E8B9B7A912C6 /* OSMessageBox.h */; };
 		5BEFD96D266F53B603C278C1 /* TypeTraits.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 988043F06556266668BE5677 /* TypeTraits.cpp */; };
 		63011B7BE17965C680A05EAD /* BaseDataFileSerializer.h in Sources */ = {isa = PBXBuildFile; fileRef = 30D02CEC6861EBD7441E2004 /* BaseDataFileSerializer.h */; };
@@ -156,6 +157,7 @@
 		A7B97E4491771F3812AD0124 /* ParticleManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 14207B709EC0713AAB9C29C8 /* ParticleManager.cpp */; };
 		AAA8A34F66EA89F3E094E376 /* ProductIds.h in Sources */ = {isa = PBXBuildFile; fileRef = 0B76483234DBB09CE4B67D37 /* ProductIds.h */; };
 		AEBAABE4C4BC0F6D887BFBCB /* ImageSurfaceLoader.h in Sources */ = {isa = PBXBuildFile; fileRef = D979EC9B74F12857F47E4007 /* ImageSurfaceLoader.h */; };
+		BA2C1928AE63ABB11CDC9B7B /* PurchasingProductSceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 47EB8F34B93CBDF0240A8C13 /* PurchasingProductSceneLogicManager.cpp */; };
 		BC81826A579566F5CA5790E9 /* BaseDataFileDeserializer.h in Sources */ = {isa = PBXBuildFile; fileRef = 8D6E209DDF4F577F8C87C6A0 /* BaseDataFileDeserializer.h */; };
 		BD43AFA7713BE8684E4A8ACA /* ShaderLoader.h in Sources */ = {isa = PBXBuildFile; fileRef = 642B84557417F85C19410FDE /* ShaderLoader.h */; };
 		BE9038402F304B01BC7CAAB8 /* DataFileResource.h in Sources */ = {isa = PBXBuildFile; fileRef = 08AAC0562233A3F34613E310 /* DataFileResource.h */; };
@@ -203,6 +205,7 @@
 
 /* Begin PBXFileReference section */
 		0106479588E4C78D4F938113 /* DataFileLoader.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = DataFileLoader.cpp; sourceTree = "<group>"; };
+		015DEBE74E403FDB72EDA711 /* PurchasingProductSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = PurchasingProductSceneLogicManager.h; path = PurchasingProductSceneLogicManager.h; sourceTree = "<group>"; };
 		0329997E00487B8402D75893 /* CardPackRewardSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = CardPackRewardSceneLogicManager.cpp; sourceTree = "<group>"; };
 		051E00BF71689A5C0A9F91D2 /* glew.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = glew.h; sourceTree = "<group>"; };
 		052939A977343440F86F0858 /* ResourceLoadingService.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = ResourceLoadingService.cpp; sourceTree = "<group>"; };
@@ -227,6 +230,7 @@
 		431D52A0E0BD619E5CEDBCA7 /* DataFileResource.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = DataFileResource.cpp; sourceTree = "<group>"; };
 		43A25A1E55390D38AC6A5742 /* Logging.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = Logging.h; sourceTree = "<group>"; };
 		46BB489973B1ACFF46F552DB /* OBJMeshLoader.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = OBJMeshLoader.h; sourceTree = "<group>"; };
+		47EB8F34B93CBDF0240A8C13 /* PurchasingProductSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = PurchasingProductSceneLogicManager.cpp; path = PurchasingProductSceneLogicManager.cpp; sourceTree = "<group>"; };
 		53CDE03B92A8F220738E44FE /* ImageSurfaceResource.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = ImageSurfaceResource.cpp; sourceTree = "<group>"; };
 		543F0360AEBB87C61E32D84B /* ThreadSafeQueue.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = ThreadSafeQueue.h; sourceTree = "<group>"; };
 		57036803010C5B02CAA45959 /* CardPackRewardSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = CardPackRewardSceneLogicManager.h; sourceTree = "<group>"; };
@@ -878,6 +882,8 @@
 				57036803010C5B02CAA45959 /* CardPackRewardSceneLogicManager.h */,
 				C93CFFE8EE51C27FEBFD1AF9 /* DisconnectedSceneLogicManager.cpp */,
 				FD25FD8EEBEBAE44283103D9 /* DisconnectedSceneLogicManager.h */,
+				47EB8F34B93CBDF0240A8C13 /* PurchasingProductSceneLogicManager.cpp */,
+				015DEBE74E403FDB72EDA711 /* PurchasingProductSceneLogicManager.h */,
 			);
 			path = scenelogicmanagers;
 			sourceTree = "<group>";
@@ -1280,6 +1286,8 @@
 				AAA8A34F66EA89F3E094E376 /* ProductIds.h in Sources */,
 				221448B42DDAFB77429B0FC6 /* DisconnectedSceneLogicManager.cpp in Sources */,
 				D5A661D9EEA9810D1737FFCD /* DisconnectedSceneLogicManager.h in Sources */,
+				BA2C1928AE63ABB11CDC9B7B /* PurchasingProductSceneLogicManager.cpp in Sources */,
+				56FE158897FF886F6757E9DC /* PurchasingProductSceneLogicManager.h in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

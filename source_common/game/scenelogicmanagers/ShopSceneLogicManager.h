@@ -40,7 +40,8 @@ private:
     void RegisterForEvents();
     void OnWindowResize(const events::WindowResizeEvent& event);
     void OnCardDeletionAnimationFinished(const events::CardDeletionAnimationFinishedEvent&);
-    void OnGuiRewardAnimationFinished(const events::GuiRewardAnimationFinishedEvent& event);
+    void OnGuiRewardAnimationFinished(const events::GuiRewardAnimationFinishedEvent&);
+    void OnProductPurchaseEnded(const events::ProductPurchaseEndedEvent&);
     void CreateDynamicSceneObjects();
     void HandleAlreadyBoughtProducts();
     void FadeInDynamicSceneObjects();
@@ -99,6 +100,7 @@ private:
         CANT_BUY_PRODUCT_CONFIRMATION,
         BUYING_CARD_PRODUCT,
         BUYING_NON_CARD_PRODUCT,
+        BUYING_PERMA_SHOP_PRODUCT,
         FINISHING_PRODUCT_PURCHASE,
         LEAVING_SHOP
     };
@@ -115,6 +117,7 @@ private:
     bool mItemsFinishedFadingIn;
     float mCoinAnimationValue;
     bool mAnimatingCoinValue;
+    bool mWaitingForPermaCoinAnimation;
 };
 
 ///------------------------------------------------------------------------------------------------

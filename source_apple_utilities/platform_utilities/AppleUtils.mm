@@ -12,6 +12,7 @@
 #include <engine/utils/PlatformMacros.h>
 #include <engine/utils/StringUtils.h>
 #include <codecvt>
+#include <chrono>
 #import <StoreKit/StoreKit.h>
 #if __has_include(<UIKit/UIKit.h>)
 #import <UIKit/UIKit.h>
@@ -58,9 +59,16 @@ static NSArray* products = nil;
             SKPayment *payment = [SKPayment paymentWithProduct:product];
             SKPaymentQueue* paymentQueue = [SKPaymentQueue defaultQueue];
             [paymentQueue addPayment:payment];
+            return;
         }
     }
+    
+    // Product not found. Instantly confirm purchase with a transaction id of now's timestamp.
+    auto duration = std::chrono::system_clock::now().time_since_epoch();
+    auto secsSinceEpoch = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
+    purchaseFinishedCallback({ std::to_string(secsSinceEpoch), std::string([productId UTF8String]), true});
 }
+
 
 // Delegate method to handle product information response
 - (void)productsRequest:(SKProductsRequest *)request didReceiveResponse:(SKProductsResponse *)response

@@ -229,6 +229,9 @@ public:
     const std::string& GetCloudDataDeviceNameAndTime() const;
     void SetCloudDataDeviceNameAndTime(const std::string& cloudDataDeviceNameAndTime);
     
+    const std::string& GetPermaShopProductNameToPurchase() const;
+    void SetPermaShopProductNameToPurchase(const std::string& permaShopProductNameToPurchase);
+    
     const bool& IsCurrentlyPlayingStoryMode() const;
     void SetIsCurrentlyPlayingStoryMode(const bool isCurrentlyPlayingStoryMode);
     
@@ -262,6 +265,7 @@ private:
     std::string mNextStoryOpponentTexturePath;
     std::string mNextStoryOpponentName;
     std::string mCloudDataDeviceAndTime;
+    std::string mPermaShopProductNameToPurchase;
     glm::vec3 mSelectedStoryMapNodePosition = {};
     glm::ivec2 mCurrentStoryMapNodeCoord = game_constants::STORY_MAP_INIT_COORD;
     StoryMap::NodeType mCurrentStoryMapNodeType = StoryMap::NodeType::NORMAL_ENCOUNTER;

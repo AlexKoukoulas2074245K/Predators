@@ -21,6 +21,7 @@
 #include <game/CardTooltipController.h>
 #include <game/CardUtils.h>
 #include <game/events/EventSystem.h>
+#include <game/GameSceneTransitionManager.h>
 #include <game/GuiObjectManager.h>
 #include <game/DataRepository.h>
 #include <game/ProductIds.h>
@@ -39,6 +40,7 @@ static constexpr int SHELF_ITEM_COUNT = 5;
 static constexpr std::pair<int, int> COINS_TO_LIFE_RATE = std::make_pair(100, 30);
 static constexpr std::pair<int, int> CARD_DELETION_PRODUCT_COORDS = std::make_pair(2, 2);
 
+static const strutils::StringId PURCHASING_PRODUCT_SCENE = strutils::StringId("purchasing_product_scene");
 static const strutils::StringId SELECTED_PRODUCT_OVERLAY_SCENE_OBJECT_NAME = strutils::StringId("selected_product_overlay");
 static const strutils::StringId SHELVES_SCENE_OBJECT_NAME = strutils::StringId("shelves");
 static const strutils::StringId CANT_BUY_PRODUCT_OVERLAY_SCENE_OBJECT_NAME = strutils::StringId("cant_buy_product_overlay");
@@ -180,6 +182,8 @@ void ShopSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     mScene = scene;
     DestroyCardTooltip();
     mGuiManager = std::make_shared<GuiObjectManager>(scene);
+    mAnimatingCoinValue = false;
+    mWaitingForPermaCoinAnimation = false;
     
     if (DataRepository::GetInstance().GetCurrentShopBehaviorType() == ShopBehaviorType::PERMA_SHOP)
     {
@@ -236,6 +240,10 @@ void ShopSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene:
             CheckProductsFinishedFadingIn();
             
             mGuiManager->Update(dtMillis);
+            if (mAnimatingCoinValue)
+            {
+                DataRepository::GetInstance().CurrencyCoins().SetDisplayedValue(static_cast<long long>(mCoinAnimationValue));
+            }
             
             if (!mScene->FindSceneObject(SELECTED_PRODUCT_OVERLAY_SCENE_OBJECT_NAME)->mInvisible)
             {
@@ -356,6 +364,28 @@ void ShopSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene:
             }
         } break;
             
+        case SceneState::BUYING_PERMA_SHOP_PRODUCT:
+        {
+            if (mAnimatingCoinValue)
+            {
+                DataRepository::GetInstance().CurrencyCoins().SetDisplayedValue(static_cast<long long>(mCoinAnimationValue));
+            }
+            
+            if (mGameSceneTransitionManager->GetActiveSceneLogicManager())
+            {
+                CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(mCoinAnimationValue, static_cast<float>(DataRepository::GetInstance().CurrencyCoins().GetValue()), ANIMATED_COIN_VALUE_DURATION_SECS), [=](){ mAnimatingCoinValue = false; });
+                
+                mGuiManager->Update(dtMillis);
+                if (!mWaitingForPermaCoinAnimation)
+                {
+                    size_t productShelfIndex, productShelfItemIndex;
+                    FindHighlightedProduct(productShelfIndex, productShelfItemIndex);
+                    DeselectProduct(productShelfIndex, productShelfItemIndex);
+                    mSceneState = SceneState::BROWSING_SHOP;
+                }
+            }
+        } break;
+            
         case SceneState::FINISHING_PRODUCT_PURCHASE:
         {
             mGuiManager->Update(dtMillis);
@@ -399,12 +429,18 @@ void ShopSceneLogicManager::RegisterForEvents()
     eventSystem.RegisterForEvent<events::WindowResizeEvent>(this, &ShopSceneLogicManager::OnWindowResize);
     eventSystem.RegisterForEvent<events::CardDeletionAnimationFinishedEvent>(this, &ShopSceneLogicManager::OnCardDeletionAnimationFinished);
     eventSystem.RegisterForEvent<events::GuiRewardAnimationFinishedEvent>(this, &ShopSceneLogicManager::OnGuiRewardAnimationFinished);
+    eventSystem.RegisterForEvent<events::ProductPurchaseEndedEvent>(this, &ShopSceneLogicManager::OnProductPurchaseEnded);
 }
 
 ///------------------------------------------------------------------------------------------------
 
 void ShopSceneLogicManager::OnWindowResize(const events::WindowResizeEvent&)
 {
+    if (mGameSceneTransitionManager->GetActiveSceneLogicManager() != this)
+    {
+        return;
+    }
+    
     CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::SHOP_SCENE)->RecalculatePositionOfEdgeSnappingSceneObjects();
     
     // Realign gui
@@ -424,8 +460,57 @@ void ShopSceneLogicManager::OnCardDeletionAnimationFinished(const events::CardDe
 
 void ShopSceneLogicManager::OnGuiRewardAnimationFinished(const events::GuiRewardAnimationFinishedEvent&)
 {
-    HandleAlreadyBoughtProducts();
-    mSceneState = SceneState::FINISHING_PRODUCT_PURCHASE;
+    if (mSceneState == SceneState::BUYING_PERMA_SHOP_PRODUCT)
+    {
+        mWaitingForPermaCoinAnimation = false;
+    }
+    else
+    {
+        HandleAlreadyBoughtProducts();
+        mSceneState = SceneState::FINISHING_PRODUCT_PURCHASE;
+    }
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ShopSceneLogicManager::OnProductPurchaseEnded(const events::ProductPurchaseEndedEvent& event)
+{
+    size_t productShelfIndex, productShelfItemIndex;
+    FindHighlightedProduct(productShelfIndex, productShelfItemIndex);
+    auto& product = mProducts[productShelfIndex][productShelfItemIndex];
+    const auto& productDefinition = mProductDefinitions.at(product->mProductName);
+    
+    if (event.mWasSuccessful)
+    {
+        if (product->mProductName == COINS_S_PRODUCT_NAME)
+        {
+            events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(productDefinition.mPrice, product->mSceneObjects.front()->mPosition);
+        }
+        else if (product->mProductName == COINS_M_PRODUCT_NAME)
+        {
+            events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(productDefinition.mPrice, product->mSceneObjects.front()->mPosition);
+        }
+        else if (product->mProductName == COINS_L_PRODUCT_NAME)
+        {
+            events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(productDefinition.mPrice, product->mSceneObjects.front()->mPosition);
+        }
+        else if (product->mProductName == NORMAL_PACK_PRODUCT_NAME)
+        {
+            ChangeAndAnimateCoinValueReduction(productDefinition.mPrice);
+            DataRepository::GetInstance().AddPendingCardPack(CardPackType::NORMAL);
+        }
+        else if (product->mProductName == GOLDEN_PACK_PRODUCT_NAME)
+        {
+            ChangeAndAnimateCoinValueReduction(productDefinition.mPrice);
+            DataRepository::GetInstance().AddPendingCardPack(CardPackType::GOLDEN);
+        }
+        
+        DataRepository::GetInstance().FlushStateToFile();
+    }
+    else
+    {
+        mWaitingForPermaCoinAnimation = false;
+    }
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -672,7 +757,21 @@ void ShopSceneLogicManager::CreateProducts()
             if (productDefinition.mPrice > 0)
             {
                 auto priceTagSceneObject = mScene->CreateSceneObject(strutils::StringId(PRODUCT_NAME_PREFIX + std::to_string(shelfIndex) + "_" + std::to_string(shelfItemIndex) + "_tag"));
-                priceTagSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + PRICE_TAG_TEXTURE_FILE_NAME_PREFIX + std::to_string(std::to_string(productDefinition.mPrice).size()) + ".png");
+                
+                if
+                (
+                    product->mProductName == COINS_S_PRODUCT_NAME ||
+                    product->mProductName == COINS_M_PRODUCT_NAME ||
+                    product->mProductName == COINS_L_PRODUCT_NAME
+                )
+                {
+                    priceTagSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + PRICE_TAG_TEXTURE_FILE_NAME_PREFIX + "3.png");
+                }
+                else
+                {
+                    priceTagSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + PRICE_TAG_TEXTURE_FILE_NAME_PREFIX + std::to_string(std::to_string(productDefinition.mPrice).size()) + ".png");
+                }
+                
                 priceTagSceneObject->mPosition = SHELF_ITEM_TARGET_BASE_POSITIONS[shelfIndex] + PRODUCT_PRICE_TAG_POSITION_OFFSET;
                 priceTagSceneObject->mScale = PRICE_TAG_SCALE;
                 
@@ -998,7 +1097,7 @@ void ShopSceneLogicManager::OnBuyProductAttempt(const size_t productShelfIndex, 
     auto currentHealthValue = DataRepository::GetInstance().StoryCurrentHealth().GetValue();
     
     // Insufficient funds/health case
-    if (productDefinition.mPrice > currentCoinsValue ||
+    if ((productDefinition.mPrice > currentCoinsValue && product->mProductName != COINS_S_PRODUCT_NAME && product->mProductName != COINS_M_PRODUCT_NAME && product->mProductName != COINS_L_PRODUCT_NAME) ||
         (product->mProductName == COINS_TO_LIFE_PRODUCT_NAME && COINS_TO_LIFE_RATE.first > currentCoinsValue) ||
         (product->mProductName == LIFE_TO_COINS_PRODUCT_NAME && COINS_TO_LIFE_RATE.second >= currentHealthValue) ||
         (product->mProductName == COINS_TO_LIFE_PRODUCT_NAME && DataRepository::GetInstance().StoryCurrentHealth().GetValue() == DataRepository::GetInstance().GetStoryMaxHealth()) ||
@@ -1088,14 +1187,14 @@ void ShopSceneLogicManager::OnBuyProductAttempt(const size_t productShelfIndex, 
             events::EventSystem::GetInstance().DispatchEvent<events::HealthRefillRewardEvent>(healthRestored, product->mSceneObjects.front()->mPosition);
         }
         
-        if (productDefinition.mPrice > 0)
-        {
-            ChangeAndAnimateCoinValueReduction(productDefinition.mPrice);
-        }
-        
         // Story shop puchase completion
         if (DataRepository::GetInstance().GetCurrentShopBehaviorType() == ShopBehaviorType::STORY_SHOP)
         {
+            if (productDefinition.mPrice > 0)
+            {
+                ChangeAndAnimateCoinValueReduction(productDefinition.mPrice);
+            }
+            
             // Fade out tag and price scene objects
             for (auto i = 1U; i < product->mSceneObjects.size(); ++i)
             {
@@ -1150,10 +1249,21 @@ void ShopSceneLogicManager::OnBuyProductAttempt(const size_t productShelfIndex, 
         // Perma shop purchase completion
         else
         {
-            size_t productShelfIndex, productShelfItemIndex;
-            FindHighlightedProduct(productShelfIndex, productShelfItemIndex);
-            DeselectProduct(productShelfIndex, productShelfItemIndex);
-            mSceneState = SceneState::BROWSING_SHOP;
+            DestroyCardTooltip();
+            
+            // Fade out buy button
+            auto buyButtonSceneObject = mScene->FindSceneObject(BUY_BUTTON_SCENE_OBJECT_NAME);
+            animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(buyButtonSceneObject, 0.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){ buyButtonSceneObject->mInvisible = true; });
+            
+            // Fade out cancel button
+            auto cancelButtonSceneObject = mScene->FindSceneObject(CANCEL_BUTTON_SCENE_OBJECT_NAME);
+            animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(cancelButtonSceneObject, 0.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){ cancelButtonSceneObject->mInvisible = true; });
+            
+            DataRepository::GetInstance().SetPermaShopProductNameToPurchase(product->mProductName.GetString());            
+            events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(PURCHASING_PRODUCT_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+            
+            mWaitingForPermaCoinAnimation = product->mProductName == COINS_S_PRODUCT_NAME || product->mProductName == COINS_M_PRODUCT_NAME || product->mProductName == COINS_L_PRODUCT_NAME;
+            mSceneState = SceneState::BUYING_PERMA_SHOP_PRODUCT;
         }
     }
 }
@@ -1218,7 +1328,10 @@ void ShopSceneLogicManager::ChangeAndAnimateCoinValueReduction(long long coinVal
     mCoinAnimationValue = storyCurrencyCoins.GetDisplayedValue();
     mAnimatingCoinValue = true;
     
-    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(mCoinAnimationValue, static_cast<float>(storyCurrencyCoins.GetValue()), ANIMATED_COIN_VALUE_DURATION_SECS), [=](){ mAnimatingCoinValue = false; });
+    if (mSceneState != SceneState::BUYING_PERMA_SHOP_PRODUCT)
+    {
+        CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(mCoinAnimationValue, static_cast<float>(storyCurrencyCoins.GetValue()), ANIMATED_COIN_VALUE_DURATION_SECS), [=](){ mAnimatingCoinValue = false; });
+    }
 }
 
 ///------------------------------------------------------------------------------------------------

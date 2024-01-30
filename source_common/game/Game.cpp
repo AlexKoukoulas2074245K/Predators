@@ -45,6 +45,7 @@
 #include <game/scenelogicmanagers/EventSceneLogicManager.h>
 #include <game/scenelogicmanagers/LoadingSceneLogicManager.h>
 #include <game/scenelogicmanagers/MainMenuSceneLogicManager.h>
+#include <game/scenelogicmanagers/PurchasingProductSceneLogicManager.h>
 #include <game/scenelogicmanagers/SettingsSceneLogicManager.h>
 #include <game/scenelogicmanagers/ShopSceneLogicManager.h>
 #include <game/scenelogicmanagers/StoryMapSceneLogicManager.h>
@@ -120,6 +121,7 @@ void Game::Init()
     mGameSceneTransitionManager->RegisterSceneLogicManager<EventSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<LoadingSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<MainMenuSceneLogicManager>();
+    mGameSceneTransitionManager->RegisterSceneLogicManager<PurchasingProductSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<SettingsSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<ShopSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<StoryMapSceneLogicManager>();

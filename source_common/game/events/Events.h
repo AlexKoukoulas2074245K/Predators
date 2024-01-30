@@ -39,6 +39,19 @@ class LocalPlayerTurnStarted final
 
 ///------------------------------------------------------------------------------------------------
 
+class ProductPurchaseEndedEvent final
+{
+public:
+    ProductPurchaseEndedEvent(const bool wasSuccessful)
+        : mWasSuccessful(wasSuccessful)
+    {
+    }
+    
+    const bool mWasSuccessful;
+};
+
+///------------------------------------------------------------------------------------------------
+
 class EndOfTurnCardDestructionEvent final
 {
 public:
