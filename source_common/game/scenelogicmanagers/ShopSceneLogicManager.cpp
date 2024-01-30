@@ -50,6 +50,8 @@ static const strutils::StringId SELECT_CARD_FOR_DELETION_BUTTON_SCENE_OBJECT_NAM
 static const strutils::StringId BUY_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("buy_button");
 static const strutils::StringId CANCEL_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("cancel_button");
 static const strutils::StringId DEFEAT_SCENE_NAME = strutils::StringId("defeat_scene");
+static const strutils::StringId NORMAL_PACK_PRODUCT_NAME = strutils::StringId("normal_card_pack");
+static const strutils::StringId GOLDEN_PACK_PRODUCT_NAME = strutils::StringId("golden_card_pack");
 static const strutils::StringId COINS_S_PRODUCT_NAME = strutils::StringId("coins_s");
 static const strutils::StringId COINS_M_PRODUCT_NAME = strutils::StringId("coins_m");
 static const strutils::StringId COINS_L_PRODUCT_NAME = strutils::StringId("coins_l");
@@ -77,6 +79,12 @@ static const std::string CANT_BUY_PRODUCT_HEALTH_CASE_TEXT = "You don't have suf
 static const std::string CANT_BUY_PRODUCT_FULL_HEALTH_CASE_TEXT = "You're health is Full. No need";
 static const std::string CANT_BUY_PRODUCT_CASE_TEXT = "to buy this product!";
 static const std::string CANT_USE_SERVICE_CASE_TEXT = "to use this service!";
+static const std::string CARD_PACK_REWARD_MESH_FILE_NAME = "card_pack_dynamic.obj";
+static const std::string GOLDEN_CARD_PACK_SHADER_FILE_NAME = "card_pack_golden.vs";
+static const std::string GOLDEN_CARD_PACK_TEXTURE_FILE_NAME = "card_pack_golden.png";
+static const std::string NORMAL_CARD_PACK_SHADER_FILE_NAME = "basic.vs";
+static const std::string NORMAL_CARD_PACK_TEXTURE_FILE_NAME = "card_pack_normal.png";
+static const std::string FAMILY_STAMP_MASK_TEXTURE_FILE_NAME = "trap_mask.png";
 
 static const glm::vec3 BUTTON_SCALE = {0.0004f, 0.0004f, 0.0004f};
 static const glm::vec3 SELECT_CARD_FOR_DELETION_BUTTON_SCALE = {0.0003f, 0.0003f, 0.0003f};
@@ -88,10 +96,11 @@ static const glm::vec3 CANCEL_BUTTON_POSITION = {-0.25f, -0.05f, 6.0f};
 static const glm::vec3 COIN_RED_VALUE_TEXT_COLOR = {0.80f, 0.11f, 0.11f};
 static const glm::vec3 COIN_NORMAL_VALUE_TEXT_COLOR = {0.80f, 0.71f, 0.11f};
 static const glm::vec3 GENERIC_PRODUCT_SCALE = {0.125f, 0.125f, 0.125f};
+static const glm::vec3 CARD_PACK_PRODUCT_SCALE = {1/150.0f, 1/150.0f, 1/150.0f};
 static const glm::vec3 CARD_PRODUCT_SCALE = {-0.125f, 0.125f, 0.125f};
 static const glm::vec3 PRODUCT_POSITION_OFFSET = {0.0f, 0.0f, 0.4f};
-static const glm::vec3 PRODUCT_PRICE_TAG_POSITION_OFFSET = {0.0f, -0.0175f, 0.5f};
-static const glm::vec3 PRODUCT_PRICE_TAG_TEXT_POSITION_OFFSET = {0.0f, -0.0165f, 0.6f};
+static const glm::vec3 PRODUCT_PRICE_TAG_POSITION_OFFSET = {0.0f, -0.0175f, 1.5f};
+static const glm::vec3 PRODUCT_PRICE_TAG_TEXT_POSITION_OFFSET = {0.0f, -0.0165f, 1.6f};
 static const glm::vec3 PRICE_TAG_SCALE = {0.1f, 0.1f, 0.1};
 static const glm::vec3 PRICE_TAG_TEXT_SCALE = {0.000185f, 0.000185f, 0.000185f};
 static const glm::vec3 SELECTED_PRODUCT_TARGET_POSITION = {0.0f, 0.0f, 12.0f};
@@ -124,6 +133,7 @@ static const float CARD_BOUGHT_ANIMATION_DURATION_SECS = 1.0f;
 static const float CARD_BOUGHT_ANIMATION_MIN_ALPHA = 0.3f;
 static const float CARD_BOUGHT_ANIMATION_LIBRARY_ICON_PULSE_FACTOR = 1.25f;
 static const float CARD_BOUGHT_ANIMATION_LIBRARY_ICON_PULSE_DURATION_SECS = 0.1f;
+static const float CARD_PACK_PRODUCT_BOUNDING_RECT_MULTIPLIER = 12.0f;
 
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
 {
@@ -589,6 +599,11 @@ void ShopSceneLogicManager::CreateProducts()
         mProducts[1][0] = std::make_unique<ProductInstance>(COINS_S_PRODUCT_NAME);
         mProducts[1][2] = std::make_unique<ProductInstance>(COINS_M_PRODUCT_NAME);
         mProducts[1][4] = std::make_unique<ProductInstance>(COINS_L_PRODUCT_NAME);
+        
+        
+        // Thid Shelf
+        mProducts[2][1] = std::make_unique<ProductInstance>(NORMAL_PACK_PRODUCT_NAME);
+        mProducts[2][3] = std::make_unique<ProductInstance>(GOLDEN_PACK_PRODUCT_NAME);
     }
     
     for (int shelfIndex = 0; shelfIndex < SHELF_COUNT; ++shelfIndex)
@@ -603,8 +618,26 @@ void ShopSceneLogicManager::CreateProducts()
             auto& product = mProducts[shelfIndex][shelfItemIndex];
             const auto& productDefinition = mProductDefinitions.at(product->mProductName);
             
+            // Card Pack Product
+            if (product->mProductName == NORMAL_PACK_PRODUCT_NAME || product->mProductName == GOLDEN_PACK_PRODUCT_NAME)
+            {
+                CoreSystemsEngine::GetInstance().GetResourceLoadingService().UnloadResource(resources::ResourceLoadingService::RES_MESHES_ROOT + CARD_PACK_REWARD_MESH_FILE_NAME);
+                
+                auto shelfItemSceneObject = mScene->CreateSceneObject(strutils::StringId(PRODUCT_NAME_PREFIX + std::to_string(shelfIndex) + "_" + std::to_string(shelfItemIndex)));
+                shelfItemSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + std::get<std::string>(productDefinition.mProductTexturePathOrCardId));
+                shelfItemSceneObject->mMeshResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_MESHES_ROOT + CARD_PACK_REWARD_MESH_FILE_NAME);
+                shelfItemSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + (product->mProductName == NORMAL_PACK_PRODUCT_NAME ? NORMAL_CARD_PACK_SHADER_FILE_NAME : GOLDEN_CARD_PACK_SHADER_FILE_NAME));
+                shelfItemSceneObject->mPosition = SHELF_ITEM_TARGET_BASE_POSITIONS[shelfIndex] + PRODUCT_POSITION_OFFSET;
+                shelfItemSceneObject->mScale = CARD_PACK_PRODUCT_SCALE;
+                shelfItemSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+                shelfItemSceneObject->mBoundingRectMultiplier *= CARD_PACK_PRODUCT_BOUNDING_RECT_MULTIPLIER;
+                shelfItemSceneObject->mSnapToEdgeBehavior = scene::SnapToEdgeBehavior::SNAP_TO_LEFT_EDGE;
+                shelfItemSceneObject->mSnapToEdgeScaleOffsetFactor = 10.0f + 11.25f * shelfItemIndex;
+                
+                product->mSceneObjects.push_back(shelfItemSceneObject);
+            }
             // Generic Product
-            if (std::holds_alternative<std::string>(productDefinition.mProductTexturePathOrCardId))
+            else if (std::holds_alternative<std::string>(productDefinition.mProductTexturePathOrCardId))
             {
                 auto shelfItemSceneObject = mScene->CreateSceneObject(strutils::StringId(PRODUCT_NAME_PREFIX + std::to_string(shelfIndex) + "_" + std::to_string(shelfItemIndex)));
                 shelfItemSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + std::get<std::string>(productDefinition.mProductTexturePathOrCardId));
@@ -715,7 +748,13 @@ void ShopSceneLogicManager::HighlightProduct(const size_t productShelfIndex, con
     auto& product = mProducts[productShelfIndex][productShelfItemIndex];
     const auto& productDefinition = mProductDefinitions.at(product->mProductName);
     
-    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleGroupAnimation>(product->mSceneObjects, product->mSceneObjects[0]->mPosition, (std::holds_alternative<int>(productDefinition.mProductTexturePathOrCardId) ? CARD_PRODUCT_SCALE : GENERIC_PRODUCT_SCALE) * HIGHLIGHTED_PRODUCT_SCALE_FACTOR, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::ElasticFunction, math::TweeningMode::EASE_IN), [=](){});
+    auto highlightedScale = (std::holds_alternative<int>(productDefinition.mProductTexturePathOrCardId) ? CARD_PRODUCT_SCALE : GENERIC_PRODUCT_SCALE) * HIGHLIGHTED_PRODUCT_SCALE_FACTOR;
+    if (product->mProductName == NORMAL_PACK_PRODUCT_NAME || product->mProductName == GOLDEN_PACK_PRODUCT_NAME)
+    {
+        highlightedScale = CARD_PACK_PRODUCT_SCALE * HIGHLIGHTED_PRODUCT_SCALE_FACTOR;
+    }
+    
+    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleGroupAnimation>(product->mSceneObjects, product->mSceneObjects[0]->mPosition, highlightedScale, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::ElasticFunction, math::TweeningMode::EASE_IN), [=](){});
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -726,7 +765,13 @@ void ShopSceneLogicManager::DehighlightProduct(const size_t productShelfIndex, c
     auto& product = mProducts[productShelfIndex][productShelfItemIndex];
     const auto& productDefinition = mProductDefinitions.at(product->mProductName);
     
-    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleGroupAnimation>(product->mSceneObjects, product->mSceneObjects[0]->mPosition, (std::holds_alternative<int>(productDefinition.mProductTexturePathOrCardId) ? CARD_PRODUCT_SCALE : GENERIC_PRODUCT_SCALE), PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::ElasticFunction, math::TweeningMode::EASE_IN), [=](){});
+    auto dehighlightedScale = (std::holds_alternative<int>(productDefinition.mProductTexturePathOrCardId) ? CARD_PRODUCT_SCALE : GENERIC_PRODUCT_SCALE);
+    if (product->mProductName == NORMAL_PACK_PRODUCT_NAME || product->mProductName == GOLDEN_PACK_PRODUCT_NAME)
+    {
+        dehighlightedScale = CARD_PACK_PRODUCT_SCALE;
+    }
+    
+    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleGroupAnimation>(product->mSceneObjects, product->mSceneObjects[0]->mPosition, dehighlightedScale, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::ElasticFunction, math::TweeningMode::EASE_IN), [=](){});
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -792,7 +837,13 @@ void ShopSceneLogicManager::SelectProduct(const size_t productShelfIndex, const 
     
     // Animate product (and related scene objects to target position)
     mSelectedProductInitialPosition = product->mSceneObjects.front()->mPosition;
-    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleGroupAnimation>(product->mSceneObjects, SELECTED_PRODUCT_TARGET_POSITION, (std::holds_alternative<int>(productDefinition.mProductTexturePathOrCardId) ? CARD_PRODUCT_SCALE : GENERIC_PRODUCT_SCALE) * SELECTED_PRODUCT_SCALE_FACTOR, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=]()
+    
+    auto targetScale = (std::holds_alternative<int>(productDefinition.mProductTexturePathOrCardId) ? CARD_PRODUCT_SCALE : GENERIC_PRODUCT_SCALE) * SELECTED_PRODUCT_SCALE_FACTOR;
+    if (product->mProductName == NORMAL_PACK_PRODUCT_NAME || product->mProductName == GOLDEN_PACK_PRODUCT_NAME)
+    {
+        targetScale = CARD_PACK_PRODUCT_SCALE * SELECTED_PRODUCT_SCALE_FACTOR;
+    }
+    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleGroupAnimation>(product->mSceneObjects, SELECTED_PRODUCT_TARGET_POSITION, targetScale, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=]()
     {
         // Create card tooltip if necessary
         auto& product = mProducts[productShelfIndex][productShelfItemIndex];
@@ -852,7 +903,12 @@ void ShopSceneLogicManager::DeselectProduct(const size_t productShelfIndex, cons
     animationManager.StopAllAnimationsPlayingForSceneObject(selectedProductOverlaySceneObject->mName);
     animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(mScene->FindSceneObject(SELECTED_PRODUCT_OVERLAY_SCENE_OBJECT_NAME), 0.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){ selectedProductOverlaySceneObject->mInvisible = true; });
     
-    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleGroupAnimation>(product->mSceneObjects, mSelectedProductInitialPosition, (std::holds_alternative<int>(productDefinition.mProductTexturePathOrCardId) ? CARD_PRODUCT_SCALE : GENERIC_PRODUCT_SCALE), PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=]()
+    auto defaultScale = (std::holds_alternative<int>(productDefinition.mProductTexturePathOrCardId) ? CARD_PRODUCT_SCALE : GENERIC_PRODUCT_SCALE);
+    if (product->mProductName == NORMAL_PACK_PRODUCT_NAME || product->mProductName == GOLDEN_PACK_PRODUCT_NAME)
+    {
+        defaultScale = CARD_PACK_PRODUCT_SCALE;
+    }
+    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleGroupAnimation>(product->mSceneObjects, mSelectedProductInitialPosition, defaultScale, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=]()
     {
         for (auto shelfIndex = 0U; shelfIndex < mProducts.size(); ++shelfIndex)
         {

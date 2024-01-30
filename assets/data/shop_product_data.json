@@ -56,6 +56,20 @@
             "texture_path": "shop_items/coins_l.png",
             "description": "Get an extra$  11500 coins!",
             "is_single_use": false
+        },
+        {
+            "name": "normal_card_pack",
+            "price": 1000,
+            "texture_path": "card_pack_normal.png",
+            "description": "Contains 3 new$cards for your$card collection!",
+            "is_single_use": false
+        },
+        {
+            "name": "golden_card_pack",
+            "price": 6600,
+            "texture_path": "card_pack_golden.png",
+            "description": "Contains 3 new$GOLDEN cards for$your card collection!",
+            "is_single_use": false
         }
     ]
 }

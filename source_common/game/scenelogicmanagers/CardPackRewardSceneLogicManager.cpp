@@ -362,26 +362,6 @@ void CardPackRewardSceneLogicManager::VUpdate(const float dtMillis, std::shared_
             
         default: break;
     }
-    
-    if (CoreSystemsEngine::GetInstance().GetInputStateManager().VButtonTapped(input::Button::MIDDLE_BUTTON))
-    {
-        mOpenButton->GetSceneObject()->mInvisible = false;
-        mOpenButton->GetSceneObject()->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
-        
-        auto cardPackReward = scene->FindSceneObject(strutils::StringId(CARD_PACK_REWARD_SCENE_OBJECT_NAME));
-        cardPackReward->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
-        
-        mCardPackVertexVelocities.clear();
-        scene->RemoveSceneObject(CARD_PACK_OPENING_EFFECT_PARTICLE_EMITTER_NAME);
-        CoreSystemsEngine::GetInstance().GetResourceLoadingService().UnloadResource(resources::ResourceLoadingService::RES_MESHES_ROOT + CARD_PACK_REWARD_MESH_FILE_NAME);
-        cardPackReward->mMeshResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_MESHES_ROOT + CARD_PACK_REWARD_MESH_FILE_NAME);
-        cardPackReward->mScale = CARD_PACK_INIT_SCALE;
-        cardPackReward->mPosition = CARD_PACK_INIT_POSITION;
-        cardPackReward->mRotation.y = 0.0f;
-        cardPackReward->mInvisible = false;
-        mCardPackShakeStepsRemaining = PACK_MAX_SHAKE_STEPS;
-        mSceneState = SceneState::PENDING_PACK_OPENING;
-    }
 }
 
 ///------------------------------------------------------------------------------------------------

@@ -67,10 +67,7 @@ math::Rectangle GetSceneObjectBoundingRect(const scene::SceneObject& sceneObject
         boundingRect.topRight = glm::vec2(maxX, maxY);
     }
     else if (std::holds_alternative<scene::DefaultSceneObjectData>(sceneObject.mSceneObjectTypeData))
-    {
-                                                                                                     
-        assert(sceneObject.mMeshResourceId == CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_MESHES_ROOT + game_constants::DEFAULT_MESH_NAME));
-        
+    {                                                                                                
         boundingRect.bottomLeft = glm::vec2(sceneObject.mPosition.x - math::Abs((sceneObject.mScale.x * sceneObject.mBoundingRectMultiplier.x)/2), sceneObject.mPosition.y - math::Abs((sceneObject.mScale.y * sceneObject.mBoundingRectMultiplier.y)/2));
         boundingRect.topRight = glm::vec2(sceneObject.mPosition.x + math::Abs((sceneObject.mScale.x * sceneObject.mBoundingRectMultiplier.x)/2), sceneObject.mPosition.y + math::Abs((sceneObject.mScale.y * sceneObject.mBoundingRectMultiplier.y)/2));
     }
