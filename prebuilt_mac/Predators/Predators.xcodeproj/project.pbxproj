@@ -16,6 +16,7 @@
 		1AFC9A98EB4CEF5FA6491FA6 /* ResourceLoadingService.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 052939A977343440F86F0858 /* ResourceLoadingService.cpp */; };
 		1ECC3C6E351A36D1C71615E0 /* Logging.h in Sources */ = {isa = PBXBuildFile; fileRef = 43A25A1E55390D38AC6A5742 /* Logging.h */; };
 		216990DC394003275C5EA33D /* Fonts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BB8C2E3FACC90180DAAE4F40 /* Fonts.cpp */; };
+		221448B42DDAFB77429B0FC6 /* DisconnectedSceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C93CFFE8EE51C27FEBFD1AF9 /* DisconnectedSceneLogicManager.cpp */; };
 		2459A2AD382EE0AA9153A204 /* wglew.h in Sources */ = {isa = PBXBuildFile; fileRef = D64C3227BB47CA8611283D51 /* wglew.h */; };
 		249415978B8DA701343AE116 /* ThreadSafeQueue.h in Sources */ = {isa = PBXBuildFile; fileRef = 543F0360AEBB87C61E32D84B /* ThreadSafeQueue.h */; };
 		2AA2F6A7573CDD74098EFB98 /* CoreSystemsEnginePlatformImpl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6D3F63C77D9E3CBD37931ADE /* CoreSystemsEnginePlatformImpl.cpp */; };
@@ -168,6 +169,7 @@
 		CA9897BC57F466630194BFE8 /* MeshResource.h in Sources */ = {isa = PBXBuildFile; fileRef = 88B55A70915E2429F0F03C71 /* MeshResource.h */; };
 		CCE13A87F90CB8EB69073CD1 /* FileUtils.h in Sources */ = {isa = PBXBuildFile; fileRef = 0D09AB023B7A329D725F2F2F /* FileUtils.h */; };
 		D44276B3AAC7224FC2221FC6 /* ImageSurfaceResource.h in Sources */ = {isa = PBXBuildFile; fileRef = CAEF02928D06B177B1091C5F /* ImageSurfaceResource.h */; };
+		D5A661D9EEA9810D1737FFCD /* DisconnectedSceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = FD25FD8EEBEBAE44283103D9 /* DisconnectedSceneLogicManager.h */; };
 		D6C5F484EB7FB13F7EB6438F /* BaseDataFileDeserializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A05CE2983C7CEA1D2A25585 /* BaseDataFileDeserializer.cpp */; };
 		D7CE3ABE255F8D331D6B9B40 /* DataFileResource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 431D52A0E0BD619E5CEDBCA7 /* DataFileResource.cpp */; };
 		DF43128086ED7921D6D89992 /* CloudKitUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70F1FCAFCFC2229C3F093372 /* CloudKitUtils.mm */; };
@@ -437,6 +439,7 @@
 		B645F5160C1B36C70F708518 /* ImageSurfaceLoader.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = ImageSurfaceLoader.cpp; sourceTree = "<group>"; };
 		B83F90BE48846F5019309046 /* DataFileLoader.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = DataFileLoader.h; sourceTree = "<group>"; };
 		BB8C2E3FACC90180DAAE4F40 /* Fonts.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = Fonts.cpp; sourceTree = "<group>"; };
+		C93CFFE8EE51C27FEBFD1AF9 /* DisconnectedSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = DisconnectedSceneLogicManager.cpp; path = DisconnectedSceneLogicManager.cpp; sourceTree = "<group>"; };
 		CAEF02928D06B177B1091C5F /* ImageSurfaceResource.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = ImageSurfaceResource.h; sourceTree = "<group>"; };
 		CF33F7C72612B80A9AB49895 /* InputStateManagerPlatformImpl.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = InputStateManagerPlatformImpl.cpp; sourceTree = "<group>"; };
 		D099CB93E6198C3BE5F73FDE /* IInputStateManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = IInputStateManager.h; sourceTree = "<group>"; };
@@ -456,6 +459,7 @@
 		F3DCD97E5C6A637C6DD4BC0B /* Fonts.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = Fonts.h; sourceTree = "<group>"; };
 		FB0E9FCA60AD270C9B09FA51 /* SceneObjectUtils.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = SceneObjectUtils.h; sourceTree = "<group>"; };
 		FB79D70FA4FA614F184AFE40 /* SceneManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = SceneManager.cpp; sourceTree = "<group>"; };
+		FD25FD8EEBEBAE44283103D9 /* DisconnectedSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = DisconnectedSceneLogicManager.h; path = DisconnectedSceneLogicManager.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -872,6 +876,8 @@
 				0A90C5CE1FAAD720E2DE0541 /* CloudDataConfirmationSceneLogicManager.h */,
 				0329997E00487B8402D75893 /* CardPackRewardSceneLogicManager.cpp */,
 				57036803010C5B02CAA45959 /* CardPackRewardSceneLogicManager.h */,
+				C93CFFE8EE51C27FEBFD1AF9 /* DisconnectedSceneLogicManager.cpp */,
+				FD25FD8EEBEBAE44283103D9 /* DisconnectedSceneLogicManager.h */,
 			);
 			path = scenelogicmanagers;
 			sourceTree = "<group>";
@@ -1272,6 +1278,8 @@
 				852CA5BF9F18EE7D8BC07F41 /* CardPackRewardSceneLogicManager.cpp in Sources */,
 				8B1E14201860F88101ECDA69 /* CardPackRewardSceneLogicManager.h in Sources */,
 				AAA8A34F66EA89F3E094E376 /* ProductIds.h in Sources */,
+				221448B42DDAFB77429B0FC6 /* DisconnectedSceneLogicManager.cpp in Sources */,
+				D5A661D9EEA9810D1737FFCD /* DisconnectedSceneLogicManager.h in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -58,7 +58,7 @@ private:
     void DeckSelected(const int selectedDeckIndex, const bool forTopPlayer);
     void GoToPreviousSubScene(std::shared_ptr<scene::Scene> mainScene);
     void StartNewStory();
-    
+    bool IsDisconnected() const;
 private:
     std::vector<std::unique_ptr<AnimatedButton>> mAnimatedButtons;
     std::unique_ptr<SwipeableContainer<CardFamilyEntry>> mCardFamilyContainerTop;

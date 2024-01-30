@@ -403,8 +403,18 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                 game_constants::DEFAULT_FONT_NAME,
                 "Shop",
                 SHOP_BUTTON_NAME,
-                [=](){ DataRepository::GetInstance().SetCurrentShopBehaviorType(ShopBehaviorType::PERMA_SHOP);
-                       events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::SHOP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE); },
+                [=]()
+                {
+                    if (IsDisconnected())
+                    {
+                        events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::DISCONNECTED_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+                    }
+                    else
+                    {
+                        DataRepository::GetInstance().SetCurrentShopBehaviorType(ShopBehaviorType::PERMA_SHOP);
+                        events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::SHOP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
+                    }
+                },
                 *scene
             ));
             
@@ -885,6 +895,17 @@ void MainMenuSceneLogicManager::StartNewStory()
     DataRepository::GetInstance().SetIsCurrentlyPlayingStoryMode(true);
     events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_MAP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
     DataRepository::GetInstance().FlushStateToFile();
+}
+
+///------------------------------------------------------------------------------------------------
+
+bool MainMenuSceneLogicManager::IsDisconnected() const
+{
+#if defined(MACOS) || defined(MOBILE_FLOW)
+    return !apple_utils::IsConnectedToTheInternet();
+#else
+    return !window_utils::IsConnectedToTheInternet();
+#endif
 }
 
 ///------------------------------------------------------------------------------------------------

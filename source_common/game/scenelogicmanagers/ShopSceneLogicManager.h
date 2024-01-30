@@ -59,16 +59,16 @@ private:
     void AnimateBoughtCardToLibrary(const size_t productShelfIndex, const size_t productShelfItemIndex);
     void UpdateProductPriceTags();
     void CheckProductsFinishedFadingIn();
+    bool IsDisconnected() const;
     
 private:
     struct ProductDefinition
     {
-        ProductDefinition(const strutils::StringId& productName, const std::variant<int, std::string>& productTexturePathOrCardId, const std::string& description, const int price, const bool isSingleUse)
+        ProductDefinition(const strutils::StringId& productName, const std::variant<int, std::string>& productTexturePathOrCardId, const std::string& description, const int price)
             : mProductName(productName)
             , mProductTexturePathOrCardId(productTexturePathOrCardId)
             , mDescription(description)
             , mPrice(price)
-            , mIsSingleUse(isSingleUse)
         {
         }
         
@@ -76,8 +76,6 @@ private:
         const std::variant<int, std::string> mProductTexturePathOrCardId;
         const std::string mDescription;
         const int mPrice;
-        const bool mIsSingleUse;
-        
     };
     
     struct ProductInstance

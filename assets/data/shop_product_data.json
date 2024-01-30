@@ -5,71 +5,61 @@
             "name": "damage_gain_+1",
             "price": 500,
             "texture_path": "shop_items/damage_gain_icon.png",
-            "description": "Permanent +1$damage increase$for all normal$   cards",
-            "is_single_use": true
+            "description": "Permanent +1$damage increase$for all normal$   cards"
         },
         {
             "name": "weight_gain_+1",
             "price": 200,
             "texture_path": "shop_items/weight_gain_icon.png",
-            "description": "Permanent +1$starting weight for$all future story$    battles",
-            "is_single_use": true
+            "description": "Permanent +1$starting weight for$all future story$    battles"
         },
         {
             "name": "coins_to_life",
             "price": 0,
             "texture_path": "shop_items/coins_to_life_icon.png",
-            "description": "Convert 100$coins to 30 health$      points",
-            "is_single_use": true
+            "description": "Convert 100$coins to 30 health$      points"
         },
         {
             "name": "life_to_coins",
             "price": 0,
             "texture_path": "shop_items/life_to_coins_icon.png",
-            "description": "Convert 30$health points to 100$    coins$",
-            "is_single_use": true
+            "description": "Convert 30$health points to 100$    coins$"
         },
         {
             "name": "card_deletion",
             "price": 100,
             "texture_path": "shop_items/delete_card_icon.png",
-            "description": "Delete a card$from the story deck$for 100 coins",
-            "is_single_use": true
+            "description": "Delete a card$from the story deck$for 100 coins"
         },
         {
             "name": "coins_s",
             "price": 123,
             "texture_path": "shop_items/coins_s.png",
-            "description": "Get an extra$  1000 coins!",
-            "is_single_use": false
+            "description": "Get an extra$  1000 coins!"
         },
         {
             "name": "coins_m",
             "price": 123,
             "texture_path": "shop_items/coins_m.png",
-            "description": "Get an extra$  5500 coins!",
-            "is_single_use": false
+            "description": "Get an extra$  5500 coins!"
         },
         {
             "name": "coins_l",
             "price": 123,
             "texture_path": "shop_items/coins_l.png",
-            "description": "Get an extra$  11500 coins!",
-            "is_single_use": false
+            "description": "Get an extra$  11500 coins!"
         },
         {
             "name": "normal_card_pack",
             "price": 1000,
             "texture_path": "card_pack_normal.png",
-            "description": "Contains 3 new$cards for your$card collection!",
-            "is_single_use": false
+            "description": "Contains 3 new$cards for your card$     library!"
         },
         {
             "name": "golden_card_pack",
             "price": 6600,
             "texture_path": "card_pack_golden.png",
-            "description": "Contains 3 new$GOLDEN cards for$your card collection!",
-            "is_single_use": false
+            "description": "Contains 3 new$   GOLDEN cards$for your card$     library!"
         }
     ]
 }

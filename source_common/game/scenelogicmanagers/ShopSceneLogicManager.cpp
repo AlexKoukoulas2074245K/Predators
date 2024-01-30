@@ -74,6 +74,7 @@ static const std::string SHELVES_PERMA_SHOP_TEXTURE_FILE_NAME = "shelves_perma_s
 static const std::string BASIC_CUSTOM_COLOR_SHADER_FILE_NAME = "basic_custom_color.vs";
 static const std::string PRICE_TAG_TEXTURE_FILE_NAME_PREFIX = "shop_items/price_tag_digits_";
 static const std::string PRODUCT_NAME_PREFIX = "product_";
+static const std::string CANT_BUY_PRODUCT_DISCONNNECTED_CASE_TEXT = "You need to be online to be able";
 static const std::string CANT_BUY_PRODUCT_COIN_CASE_TEXT = "You don't have sufficient coins";
 static const std::string CANT_BUY_PRODUCT_HEALTH_CASE_TEXT = "You don't have sufficient health";
 static const std::string CANT_BUY_PRODUCT_FULL_HEALTH_CASE_TEXT = "You're health is Full. No need";
@@ -110,7 +111,7 @@ static const glm::vec3 SHELF_ITEM_TARGET_BASE_POSITIONS[SHELF_COUNT] =
     { 0.0f, 0.04f, 0.0f },
     { 0.0f, -0.09f, 0.0f }
 };
-static const glm::vec3 CARD_TOOLTIP_POSITION_OFFSET = {0.0f, 0.1f, 0.0f};
+static const glm::vec3 CARD_TOOLTIP_POSITION_OFFSET = {0.0f, 0.1f, 2.0f};
 static const glm::vec3 CARD_TOOLTIP_BASE_SCALE = {0.274f, 0.274f, 1/10.0f};
 
 static const glm::vec2 PRODUCT_GROUP_MIN_MAX_BOUNCE_SPEED = {0.0000015f, 0.0000045f};
@@ -584,7 +585,7 @@ void ShopSceneLogicManager::CreateProducts()
             auto productDefinitionName = strutils::StringId("card_" + std::to_string(cardId));
             
             auto cardPrice = cardData.IsSpell() ? 100 : 50;
-            mProductDefinitions.emplace(std::make_pair(productDefinitionName, ProductDefinition(productDefinitionName, cardId, cardData.mCardEffectTooltip, cardPrice, true)));
+            mProductDefinitions.emplace(std::make_pair(productDefinitionName, ProductDefinition(productDefinitionName, cardId, cardData.mCardEffectTooltip, cardPrice)));
             mProducts[1][col] = std::make_unique<ProductInstance>(productDefinitionName);
         }
         
@@ -980,9 +981,8 @@ void ShopSceneLogicManager::LoadProductData()
         int productPrice = shopDefinitionObject["price"].get<int>();
         std::string productTexturePath = shopDefinitionObject["texture_path"].get<std::string>();
         std::string productDescription = shopDefinitionObject["description"].get<std::string>();
-        bool isProductSingleUse = shopDefinitionObject["is_single_use"].get<bool>();
         
-        mProductDefinitions.emplace(std::make_pair(productName, ProductDefinition(productName, productTexturePath, productDescription, productPrice, isProductSingleUse)));
+        mProductDefinitions.emplace(std::make_pair(productName, ProductDefinition(productName, productTexturePath, productDescription, productPrice)));
     }
 }
 
@@ -1001,7 +1001,8 @@ void ShopSceneLogicManager::OnBuyProductAttempt(const size_t productShelfIndex, 
     if (productDefinition.mPrice > currentCoinsValue ||
         (product->mProductName == COINS_TO_LIFE_PRODUCT_NAME && COINS_TO_LIFE_RATE.first > currentCoinsValue) ||
         (product->mProductName == LIFE_TO_COINS_PRODUCT_NAME && COINS_TO_LIFE_RATE.second >= currentHealthValue) ||
-        (product->mProductName == COINS_TO_LIFE_PRODUCT_NAME && DataRepository::GetInstance().StoryCurrentHealth().GetValue() == DataRepository::GetInstance().GetStoryMaxHealth()))
+        (product->mProductName == COINS_TO_LIFE_PRODUCT_NAME && DataRepository::GetInstance().StoryCurrentHealth().GetValue() == DataRepository::GetInstance().GetStoryMaxHealth()) ||
+        (DataRepository::GetInstance().GetCurrentShopBehaviorType() == ShopBehaviorType::PERMA_SHOP && IsDisconnected()))
     {
         // Fade in can't buy product confirmation button
         auto cantBuyProductConfirmationButtonSceneObject = mScene->FindSceneObject(CANT_BUY_PRODUCT_CONFIRMATION_BUTTON_SCENE_OBJECT_NAME);
@@ -1014,6 +1015,11 @@ void ShopSceneLogicManager::OnBuyProductAttempt(const size_t productShelfIndex, 
         std::get<scene::TextSceneObjectData>(cantBuyProductText0SceneObject->mSceneObjectTypeData).mText = product->mProductName == LIFE_TO_COINS_PRODUCT_NAME ?
             CANT_BUY_PRODUCT_HEALTH_CASE_TEXT:
             CANT_BUY_PRODUCT_COIN_CASE_TEXT;
+        
+        if (DataRepository::GetInstance().GetCurrentShopBehaviorType() == ShopBehaviorType::PERMA_SHOP && IsDisconnected())
+        {
+            std::get<scene::TextSceneObjectData>(cantBuyProductText0SceneObject->mSceneObjectTypeData).mText = CANT_BUY_PRODUCT_DISCONNNECTED_CASE_TEXT;
+        }
         
         if (product->mProductName == COINS_TO_LIFE_PRODUCT_NAME && DataRepository::GetInstance().StoryCurrentHealth().GetValue() == DataRepository::GetInstance().GetStoryMaxHealth())
         {
@@ -1087,57 +1093,68 @@ void ShopSceneLogicManager::OnBuyProductAttempt(const size_t productShelfIndex, 
             ChangeAndAnimateCoinValueReduction(productDefinition.mPrice);
         }
         
-        // Fade out tag and price scene objects
-        for (auto i = 1U; i < product->mSceneObjects.size(); ++i)
+        // Story shop puchase completion
+        if (DataRepository::GetInstance().GetCurrentShopBehaviorType() == ShopBehaviorType::STORY_SHOP)
         {
-            animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(product->mSceneObjects[i], 0.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){ mProducts[productShelfIndex][productShelfItemIndex]->mSceneObjects[i]->mInvisible = true; });
-        }
+            // Fade out tag and price scene objects
+            for (auto i = 1U; i < product->mSceneObjects.size(); ++i)
+            {
+                animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(product->mSceneObjects[i], 0.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){ mProducts[productShelfIndex][productShelfItemIndex]->mSceneObjects[i]->mInvisible = true; });
+            }
         
-        if (std::holds_alternative<int>(productDefinition.mProductTexturePathOrCardId))
-        {
-            // Add card to player's deck
-            auto currentPlayerDeck = DataRepository::GetInstance().GetCurrentStoryPlayerDeck();
-            currentPlayerDeck.push_back(std::get<int>(productDefinition.mProductTexturePathOrCardId));
-            DataRepository::GetInstance().SetCurrentStoryPlayerDeck(currentPlayerDeck);
+            if (std::holds_alternative<int>(productDefinition.mProductTexturePathOrCardId))
+            {
+                // Add card to player's deck
+                auto currentPlayerDeck = DataRepository::GetInstance().GetCurrentStoryPlayerDeck();
+                currentPlayerDeck.push_back(std::get<int>(productDefinition.mProductTexturePathOrCardId));
+                DataRepository::GetInstance().SetCurrentStoryPlayerDeck(currentPlayerDeck);
+                
+                AnimateBoughtCardToLibrary(productShelfIndex, productShelfItemIndex);
+                
+                mSceneState = SceneState::BUYING_CARD_PRODUCT;
+            }
+            else
+            {
+                product->mSceneObjects.front()->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + DISSOLVE_SHADER_FILE_NAME);
+                product->mSceneObjects.front()->mEffectTextureResourceIds[0] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + DISSOLVE_TEXTURE_FILE_NAME);
+                product->mSceneObjects.front()->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] = 0.0f;
+                product->mSceneObjects.front()->mShaderFloatUniformValues[ORIGIN_X_UNIFORM_NAME] = product->mSceneObjects.front()->mPosition.x;
+                product->mSceneObjects.front()->mShaderFloatUniformValues[ORIGIN_Y_UNIFORM_NAME] = product->mSceneObjects.front()->mPosition.y;
+                product->mSceneObjects.front()->mShaderFloatUniformValues[DISSOLVE_MAGNITUDE_UNIFORM_NAME] = math::RandomFloat(CARD_DISSOLVE_EFFECT_MAG_RANGE.x, CARD_DISSOLVE_EFFECT_MAG_RANGE.y);
+                
+                mSceneState = SceneState::BUYING_NON_CARD_PRODUCT;
+            }
+        
+            DataRepository::GetInstance().AddShopBoughtProductCoordinates(std::make_pair(productShelfIndex, productShelfItemIndex));
+            DataRepository::GetInstance().FlushStateToFile();
             
-            AnimateBoughtCardToLibrary(productShelfIndex, productShelfItemIndex);
+            DestroyCardTooltip();
             
-            mSceneState = SceneState::BUYING_CARD_PRODUCT;
+            if (product->mProductName == CARD_DELETION_PRODUCT_NAME)
+            {
+                // Fade out select card for deletion button
+                auto selectCardForDeletionButtonSceneObject = mScene->FindSceneObject(SELECT_CARD_FOR_DELETION_BUTTON_SCENE_OBJECT_NAME);
+                animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(selectCardForDeletionButtonSceneObject, 0.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){ selectCardForDeletionButtonSceneObject->mInvisible = true; });
+            }
+            else
+            {
+                // Fade out buy button
+                auto buyButtonSceneObject = mScene->FindSceneObject(BUY_BUTTON_SCENE_OBJECT_NAME);
+                animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(buyButtonSceneObject, 0.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){ buyButtonSceneObject->mInvisible = true; });
+            }
+            
+            // Fade out cancel button
+            auto cancelButtonSceneObject = mScene->FindSceneObject(CANCEL_BUTTON_SCENE_OBJECT_NAME);
+            animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(cancelButtonSceneObject, 0.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){ cancelButtonSceneObject->mInvisible = true; });
         }
+        // Perma shop purchase completion
         else
         {
-            product->mSceneObjects.front()->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + DISSOLVE_SHADER_FILE_NAME);
-            product->mSceneObjects.front()->mEffectTextureResourceIds[0] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + DISSOLVE_TEXTURE_FILE_NAME);
-            product->mSceneObjects.front()->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] = 0.0f;
-            product->mSceneObjects.front()->mShaderFloatUniformValues[ORIGIN_X_UNIFORM_NAME] = product->mSceneObjects.front()->mPosition.x;
-            product->mSceneObjects.front()->mShaderFloatUniformValues[ORIGIN_Y_UNIFORM_NAME] = product->mSceneObjects.front()->mPosition.y;
-            product->mSceneObjects.front()->mShaderFloatUniformValues[DISSOLVE_MAGNITUDE_UNIFORM_NAME] = math::RandomFloat(CARD_DISSOLVE_EFFECT_MAG_RANGE.x, CARD_DISSOLVE_EFFECT_MAG_RANGE.y);
-            
-            mSceneState = SceneState::BUYING_NON_CARD_PRODUCT;
+            size_t productShelfIndex, productShelfItemIndex;
+            FindHighlightedProduct(productShelfIndex, productShelfItemIndex);
+            DeselectProduct(productShelfIndex, productShelfItemIndex);
+            mSceneState = SceneState::BROWSING_SHOP;
         }
-        
-        // Commit change to data repository and flush
-        DataRepository::GetInstance().AddShopBoughtProductCoordinates(std::make_pair(productShelfIndex, productShelfItemIndex));
-        DataRepository::GetInstance().FlushStateToFile();
-        
-        DestroyCardTooltip();
-        
-        if (product->mProductName == CARD_DELETION_PRODUCT_NAME)
-        {
-            // Fade out select card for deletion button
-            auto selectCardForDeletionButtonSceneObject = mScene->FindSceneObject(SELECT_CARD_FOR_DELETION_BUTTON_SCENE_OBJECT_NAME);
-            animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(selectCardForDeletionButtonSceneObject, 0.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){ selectCardForDeletionButtonSceneObject->mInvisible = true; });
-        }
-        else
-        {
-            // Fade out buy button
-            auto buyButtonSceneObject = mScene->FindSceneObject(BUY_BUTTON_SCENE_OBJECT_NAME);
-            animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(buyButtonSceneObject, 0.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){ buyButtonSceneObject->mInvisible = true; });
-        }
-        
-        // Fade out cancel button
-        auto cancelButtonSceneObject = mScene->FindSceneObject(CANCEL_BUTTON_SCENE_OBJECT_NAME);
-        animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(cancelButtonSceneObject, 0.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){ cancelButtonSceneObject->mInvisible = true; });
     }
 }
 
@@ -1304,3 +1321,12 @@ void ShopSceneLogicManager::CheckProductsFinishedFadingIn()
 }
 
 ///------------------------------------------------------------------------------------------------
+
+bool ShopSceneLogicManager::IsDisconnected() const
+{
+#if defined(MACOS) || defined(MOBILE_FLOW)
+    return !apple_utils::IsConnectedToTheInternet();
+#else
+    return !window_utils::IsConnectedToTheInternet();
+#endif
+}

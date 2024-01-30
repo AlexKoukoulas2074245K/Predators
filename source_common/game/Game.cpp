@@ -36,16 +36,17 @@
 #include <game/gameactions/GameActionFactory.h>
 #include <game/ProductIds.h>
 #include <game/scenelogicmanagers/BattleSceneLogicManager.h>
-#include <game/scenelogicmanagers/CloudDataConfirmationSceneLogicManager.h>
+#include <game/scenelogicmanagers/CardLibrarySceneLogicManager.h>
 #include <game/scenelogicmanagers/CardPackRewardSceneLogicManager.h>
 #include <game/scenelogicmanagers/CardSelectionRewardSceneLogicManager.h>
+#include <game/scenelogicmanagers/CloudDataConfirmationSceneLogicManager.h>
 #include <game/scenelogicmanagers/DefeatSceneLogicManager.h>
+#include <game/scenelogicmanagers/DisconnectedSceneLogicManager.h>
 #include <game/scenelogicmanagers/EventSceneLogicManager.h>
 #include <game/scenelogicmanagers/LoadingSceneLogicManager.h>
 #include <game/scenelogicmanagers/MainMenuSceneLogicManager.h>
 #include <game/scenelogicmanagers/SettingsSceneLogicManager.h>
 #include <game/scenelogicmanagers/ShopSceneLogicManager.h>
-#include <game/scenelogicmanagers/CardLibrarySceneLogicManager.h>
 #include <game/scenelogicmanagers/StoryMapSceneLogicManager.h>
 #include <game/scenelogicmanagers/VisitMapNodeSceneLogicManager.h>
 #include <game/scenelogicmanagers/WheelOfFortuneSceneLogicManager.h>
@@ -110,16 +111,17 @@ void Game::Init()
     
     mGameSceneTransitionManager = std::make_unique<GameSceneTransitionManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<BattleSceneLogicManager>();
+    mGameSceneTransitionManager->RegisterSceneLogicManager<CardLibrarySceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<CardPackRewardSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<CardSelectionRewardSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<CloudDataConfirmationSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<DefeatSceneLogicManager>();
+    mGameSceneTransitionManager->RegisterSceneLogicManager<DisconnectedSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<EventSceneLogicManager>();
-    mGameSceneTransitionManager->RegisterSceneLogicManager<SettingsSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<LoadingSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<MainMenuSceneLogicManager>();
+    mGameSceneTransitionManager->RegisterSceneLogicManager<SettingsSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<ShopSceneLogicManager>();
-    mGameSceneTransitionManager->RegisterSceneLogicManager<CardLibrarySceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<StoryMapSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<VisitMapNodeSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<WheelOfFortuneSceneLogicManager>();
