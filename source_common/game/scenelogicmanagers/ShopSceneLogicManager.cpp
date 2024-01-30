@@ -35,7 +35,7 @@
 ///------------------------------------------------------------------------------------------------
 
 static constexpr int SHELF_COUNT = 3;
-static constexpr int SHELF_ITEM_COUNT = 3;
+static constexpr int SHELF_ITEM_COUNT = 5;
 static constexpr std::pair<int, int> COINS_TO_LIFE_RATE = std::make_pair(100, 30);
 static constexpr std::pair<int, int> CARD_DELETION_PRODUCT_COORDS = std::make_pair(2, 2);
 
@@ -561,12 +561,12 @@ void ShopSceneLogicManager::CreateProducts()
     if (DataRepository::GetInstance().GetCurrentShopBehaviorType() == ShopBehaviorType::STORY_SHOP)
     {
         // First Shelf
-        mProducts[0][0] = std::make_unique<ProductInstance>(DAMAGE_GAIN_PRODUCT_NAME);
-        mProducts[0][1] = std::make_unique<ProductInstance>(WEIGHT_GAIN_PRODUCT_NAME);
+        mProducts[0][1] = std::make_unique<ProductInstance>(DAMAGE_GAIN_PRODUCT_NAME);
+        mProducts[0][3] = std::make_unique<ProductInstance>(WEIGHT_GAIN_PRODUCT_NAME);
         
         // Second Shelf
         const auto& cardRewardsPool = CardDataRepository::GetInstance().GetStoryUnlockedCardRewardsPool();
-        for (size_t col = 0; col < SHELF_ITEM_COUNT; ++col)
+        for (size_t col = 0; col < SHELF_ITEM_COUNT; col += 2)
         {
             auto randomCardIndex = static_cast<int>(math::ControlledRandomInt() % cardRewardsPool.size());
             auto cardId = cardRewardsPool[randomCardIndex];
@@ -580,15 +580,15 @@ void ShopSceneLogicManager::CreateProducts()
         
         // Third Shelf
         mProducts[2][0] = std::make_unique<ProductInstance>(COINS_TO_LIFE_PRODUCT_NAME);
-        mProducts[2][1] = std::make_unique<ProductInstance>(LIFE_TO_COINS_PRODUCT_NAME);
-        mProducts[2][2] = std::make_unique<ProductInstance>(CARD_DELETION_PRODUCT_NAME);
+        mProducts[2][2] = std::make_unique<ProductInstance>(LIFE_TO_COINS_PRODUCT_NAME);
+        mProducts[2][4] = std::make_unique<ProductInstance>(CARD_DELETION_PRODUCT_NAME);
     }
     else if (DataRepository::GetInstance().GetCurrentShopBehaviorType() == ShopBehaviorType::PERMA_SHOP)
     {
         // Second Shelf
         mProducts[1][0] = std::make_unique<ProductInstance>(COINS_S_PRODUCT_NAME);
-        mProducts[1][1] = std::make_unique<ProductInstance>(COINS_M_PRODUCT_NAME);
-        mProducts[1][2] = std::make_unique<ProductInstance>(COINS_L_PRODUCT_NAME);
+        mProducts[1][2] = std::make_unique<ProductInstance>(COINS_M_PRODUCT_NAME);
+        mProducts[1][4] = std::make_unique<ProductInstance>(COINS_L_PRODUCT_NAME);
     }
     
     for (int shelfIndex = 0; shelfIndex < SHELF_COUNT; ++shelfIndex)
@@ -612,7 +612,7 @@ void ShopSceneLogicManager::CreateProducts()
                 shelfItemSceneObject->mScale = GENERIC_PRODUCT_SCALE;
                 shelfItemSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
                 shelfItemSceneObject->mSnapToEdgeBehavior = scene::SnapToEdgeBehavior::SNAP_TO_LEFT_EDGE;
-                shelfItemSceneObject->mSnapToEdgeScaleOffsetFactor = 0.4f + 1.2f * shelfItemIndex;
+                shelfItemSceneObject->mSnapToEdgeScaleOffsetFactor = 0.4f + 0.6f * shelfItemIndex;
                 
                 product->mSceneObjects.push_back(shelfItemSceneObject);
             }
@@ -630,7 +630,7 @@ void ShopSceneLogicManager::CreateProducts()
                 cardSoWrapper->mSceneObject->mScale = CARD_PRODUCT_SCALE;
                 cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
                 cardSoWrapper->mSceneObject->mSnapToEdgeBehavior = scene::SnapToEdgeBehavior::SNAP_TO_LEFT_EDGE;
-                cardSoWrapper->mSceneObject->mSnapToEdgeScaleOffsetFactor = -0.4f - 1.2f * shelfItemIndex;
+                cardSoWrapper->mSceneObject->mSnapToEdgeScaleOffsetFactor = -0.4f - 0.6f * shelfItemIndex;
                 
                 product->mSceneObjects.push_back(cardSoWrapper->mSceneObject);
             }
@@ -644,7 +644,7 @@ void ShopSceneLogicManager::CreateProducts()
                 
                 priceTagSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
                 priceTagSceneObject->mSnapToEdgeBehavior = scene::SnapToEdgeBehavior::SNAP_TO_LEFT_EDGE;
-                priceTagSceneObject->mSnapToEdgeScaleOffsetFactor = 1.1f + 1.5f * shelfItemIndex;
+                priceTagSceneObject->mSnapToEdgeScaleOffsetFactor = 1.1f + 0.75f * shelfItemIndex;
                 product->mSceneObjects.push_back(priceTagSceneObject);
                 
                 scene::TextSceneObjectData priceTextData;
@@ -671,7 +671,7 @@ void ShopSceneLogicManager::CreateProducts()
                 priceTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
                 priceTextSceneObject->mScale = PRICE_TAG_TEXT_SCALE;
                 priceTextSceneObject->mSnapToEdgeBehavior = scene::SnapToEdgeBehavior::SNAP_TO_LEFT_EDGE;
-                priceTextSceneObject->mSnapToEdgeScaleOffsetFactor = 830.1f + 810.5f * shelfItemIndex;
+                priceTextSceneObject->mSnapToEdgeScaleOffsetFactor = 830.1f + 405.25f * shelfItemIndex;
                 product->mSceneObjects.push_back(priceTextSceneObject);
             }
             

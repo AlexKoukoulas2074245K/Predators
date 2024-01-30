@@ -221,15 +221,33 @@ std::string GetProductPrice(const std::string& productId)
                 [formatter setNumberStyle:NSNumberFormatterCurrencyStyle];
                 [formatter setLocale:product.priceLocale];
                 NSString* cost = [formatter stringFromNumber:product.price];
-                
                 std::string cppString([cost UTF8String]);
-                cppString = " " + cppString;
                 
                 // Euro
-                strutils::StringReplaceAllOccurences("\xe2\x82\xac", "\x80", cppString);
-                
+                if (strutils::StringContains(cppString, "\xe2\x82\xac"))
+                {
+                    strutils::StringReplaceAllOccurences("\xe2\x82\xac", "\x80", cppString);
+                }
                 // ANSI currencies. Just need to strip \xc2
-                strutils::StringReplaceAllOccurences("\xc2", "", cppString);
+                else if (strutils::StringContains(cppString, "\xc2"))
+                {
+                    strutils::StringReplaceAllOccurences("\xc2", "", cppString);
+                }
+                // Strip other undisplayable unicode/hex escape codes
+                else
+                {
+                    for (auto iter = cppString.begin(); iter != cppString.end();)
+                    {
+                        if (*iter < 0x20 || *iter > 0x7E)
+                        {
+                            iter = cppString.erase(iter);
+                        }
+                        else
+                        {
+                            iter++;
+                        }
+                    }
+                }
                 
                 return cppString;
             }
