@@ -80,7 +80,7 @@ Game::Game(const int argc, char** argv)
 #if defined(MACOS) || defined(MOBILE_FLOW)
     apple_utils::SetAssetFolder();
 #endif
-    CardDataRepository::GetInstance().LoadCardData(true);
+    CardDataRepository::GetInstance().LoadCardData(false);
     
     CoreSystemsEngine::GetInstance().Start([&](){ Init(); }, [&](const float dtMillis){ Update(dtMillis); }, [&](){ ApplicationMovedToBackground(); }, [&](){ WindowResize(); }, [&](){ CreateDebugWidgets(); }, [&](){ OnOneSecondElapsed(); });
 }

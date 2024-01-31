@@ -278,6 +278,8 @@ void CardDataRepository::ClearCardData()
 
 void CardDataRepository::LoadCardData(bool loadCardAssets)
 {
+    ClearCardData();
+    
     auto& resourceService = CoreSystemsEngine::GetInstance().GetResourceLoadingService();
     auto cardsDefinitionJsonResourceId = resourceService.LoadResource(resources::ResourceLoadingService::RES_DATA_ROOT + "card_data.json");
     const auto cardDataJson =  nlohmann::json::parse(resourceService.GetResource<resources::DataFileResource>(cardsDefinitionJsonResourceId).GetContents());
