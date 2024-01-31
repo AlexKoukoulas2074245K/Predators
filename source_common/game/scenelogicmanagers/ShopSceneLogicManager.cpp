@@ -37,6 +37,9 @@
 
 static constexpr int SHELF_COUNT = 3;
 static constexpr int SHELF_ITEM_COUNT = 5;
+static constexpr int NORMAL_CARD_REWARD_PRICE = 50;
+static constexpr int SPELL_CARD_REWARD_PRICE = 100;
+
 static constexpr std::pair<int, int> COINS_TO_LIFE_RATE = std::make_pair(100, 30);
 static constexpr std::pair<int, int> CARD_DELETION_PRODUCT_COORDS = std::make_pair(2, 2);
 
@@ -482,15 +485,7 @@ void ShopSceneLogicManager::OnProductPurchaseEnded(const events::ProductPurchase
     
     if (event.mWasSuccessful)
     {
-        if (product->mProductName == COINS_S_PRODUCT_NAME)
-        {
-            events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(productDefinition.mPrice, product->mSceneObjects.front()->mPosition);
-        }
-        else if (product->mProductName == COINS_M_PRODUCT_NAME)
-        {
-            events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(productDefinition.mPrice, product->mSceneObjects.front()->mPosition);
-        }
-        else if (product->mProductName == COINS_L_PRODUCT_NAME)
+        if (IsProductCoins(productShelfIndex, productShelfItemIndex))
         {
             events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(productDefinition.mPrice, product->mSceneObjects.front()->mPosition);
         }
@@ -669,7 +664,7 @@ void ShopSceneLogicManager::CreateProducts()
             const auto& cardData = CardDataRepository::GetInstance().GetCardData(cardId, true);
             auto productDefinitionName = strutils::StringId("card_" + std::to_string(cardId));
             
-            auto cardPrice = cardData.IsSpell() ? 100 : 50;
+            auto cardPrice = cardData.IsSpell() ? SPELL_CARD_REWARD_PRICE : NORMAL_CARD_REWARD_PRICE;
             mProductDefinitions.emplace(std::make_pair(productDefinitionName, ProductDefinition(productDefinitionName, cardId, cardData.mCardEffectTooltip, cardPrice)));
             mProducts[1][col] = std::make_unique<ProductInstance>(productDefinitionName);
         }
@@ -758,12 +753,7 @@ void ShopSceneLogicManager::CreateProducts()
             {
                 auto priceTagSceneObject = mScene->CreateSceneObject(strutils::StringId(PRODUCT_NAME_PREFIX + std::to_string(shelfIndex) + "_" + std::to_string(shelfItemIndex) + "_tag"));
                 
-                if
-                (
-                    product->mProductName == COINS_S_PRODUCT_NAME ||
-                    product->mProductName == COINS_M_PRODUCT_NAME ||
-                    product->mProductName == COINS_L_PRODUCT_NAME
-                )
+                if (IsProductCoins(shelfIndex, shelfItemIndex))
                 {
                     priceTagSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + PRICE_TAG_TEXTURE_FILE_NAME_PREFIX + "3.png");
                 }
@@ -784,12 +774,7 @@ void ShopSceneLogicManager::CreateProducts()
                 priceTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
                 priceTextData.mText = "|" + std::to_string(productDefinition.mPrice);
                 
-                if
-                (
-                    product->mProductName == COINS_S_PRODUCT_NAME ||
-                    product->mProductName == COINS_M_PRODUCT_NAME ||
-                    product->mProductName == COINS_L_PRODUCT_NAME
-                )
+                if (IsProductCoins(shelfIndex, shelfItemIndex))
                 {
 #if defined(MACOS) || defined(MOBILE_FLOW)
                     priceTextData.mText = apple_utils::GetProductPrice(product->mProductName.GetString());
@@ -949,9 +934,7 @@ void ShopSceneLogicManager::SelectProduct(const size_t productShelfIndex, const 
         auto& product = mProducts[productShelfIndex][productShelfItemIndex];
         const auto& productDefinition = mProductDefinitions.at(product->mProductName);
         
-        if (product->mProductName != COINS_S_PRODUCT_NAME &&
-            product->mProductName != COINS_M_PRODUCT_NAME &&
-            product->mProductName != COINS_L_PRODUCT_NAME)
+        if (!IsProductCoins(productShelfIndex, productShelfItemIndex))
         {
             if (!productDefinition.mDescription.empty())
             {
@@ -1097,7 +1080,7 @@ void ShopSceneLogicManager::OnBuyProductAttempt(const size_t productShelfIndex, 
     auto currentHealthValue = DataRepository::GetInstance().StoryCurrentHealth().GetValue();
     
     // Insufficient funds/health case
-    if ((productDefinition.mPrice > currentCoinsValue && product->mProductName != COINS_S_PRODUCT_NAME && product->mProductName != COINS_M_PRODUCT_NAME && product->mProductName != COINS_L_PRODUCT_NAME) ||
+    if ((productDefinition.mPrice > currentCoinsValue && !IsProductCoins(productShelfIndex, productShelfItemIndex)) ||
         (product->mProductName == COINS_TO_LIFE_PRODUCT_NAME && COINS_TO_LIFE_RATE.first > currentCoinsValue) ||
         (product->mProductName == LIFE_TO_COINS_PRODUCT_NAME && COINS_TO_LIFE_RATE.second >= currentHealthValue) ||
         (product->mProductName == COINS_TO_LIFE_PRODUCT_NAME && DataRepository::GetInstance().StoryCurrentHealth().GetValue() == DataRepository::GetInstance().GetStoryMaxHealth()) ||
@@ -1262,7 +1245,7 @@ void ShopSceneLogicManager::OnBuyProductAttempt(const size_t productShelfIndex, 
             DataRepository::GetInstance().SetPermaShopProductNameToPurchase(product->mProductName.GetString());            
             events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(PURCHASING_PRODUCT_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
             
-            mWaitingForPermaCoinAnimation = product->mProductName == COINS_S_PRODUCT_NAME || product->mProductName == COINS_M_PRODUCT_NAME || product->mProductName == COINS_L_PRODUCT_NAME;
+            mWaitingForPermaCoinAnimation = IsProductCoins(productShelfIndex, productShelfItemIndex);
             mSceneState = SceneState::BUYING_PERMA_SHOP_PRODUCT;
         }
     }
@@ -1389,9 +1372,7 @@ void ShopSceneLogicManager::UpdateProductPriceTags()
             auto& product = mProducts[shelfIndex][shelfItemIndex];
             const auto& productDefinition = mProductDefinitions.at(product->mProductName);
             
-            if (product->mProductName == COINS_S_PRODUCT_NAME ||
-                product->mProductName == COINS_M_PRODUCT_NAME ||
-                product->mProductName == COINS_L_PRODUCT_NAME)
+            if (IsProductCoins(shelfIndex, shelfItemIndex))
             {
                 product->mSceneObjects[2]->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = COIN_NORMAL_VALUE_TEXT_COLOR;
                 continue;
@@ -1443,3 +1424,13 @@ bool ShopSceneLogicManager::IsDisconnected() const
     return !window_utils::IsConnectedToTheInternet();
 #endif
 }
+
+///------------------------------------------------------------------------------------------------
+
+bool ShopSceneLogicManager::IsProductCoins(const size_t productShelfIndex, const size_t productShelfItemIndex)
+{
+    auto& product = mProducts[productShelfIndex][productShelfItemIndex];
+    return product->mProductName == COINS_S_PRODUCT_NAME || product->mProductName == COINS_M_PRODUCT_NAME || product->mProductName == COINS_L_PRODUCT_NAME;
+}
+
+///------------------------------------------------------------------------------------------------

@@ -11,9 +11,11 @@
 #include <engine/utils/Logging.h>
 #include <engine/utils/PlatformMacros.h>
 #include <engine/scene/SceneManager.h>
+#include <engine/scene/SceneObjectUtils.h>
 #include <game/AnimatedButton.h>
 #include <game/Cards.h>
 #include <game/DataRepository.h>
+#include <game/ProductIds.h>
 #include <game/events/EventSystem.h>
 #include <game/scenelogicmanagers/PurchasingProductSceneLogicManager.h>
 #include <SDL_events.h>
@@ -39,14 +41,15 @@ static const std::string PAYMENT_PENDING_ICON_TEXTURE_FILE_NAME = "spinner.png";
 
 static const glm::vec3 BUTTON_SCALE = {0.0005f, 0.0005f, 0.0005f};
 static const glm::vec3 CONTINUE_BUTTON_POSITION = {-0.071f, -0.141f, 23.1f};
-static const glm::vec3 PURCHASE_OUTCOME_TEXT_0_POSITION = {-0.256f, 0.140f, 23.1f};
-static const glm::vec3 PURCHASE_OUTCOME_TEXT_1_POSITION = {-0.225f, 0.088f, 23.1f};
-static const glm::vec3 PURCHASE_PENDING_TEXT_POSITION = {-0.335f, 0.117f, 23.1f};
+static const glm::vec3 PURCHASE_OUTCOME_TEXT_0_POSITION = {0.0f, 0.140f, 23.1f};
+static const glm::vec3 PURCHASE_OUTCOME_TEXT_1_POSITION = {0.0f, 0.088f, 23.1f};
+static const glm::vec3 PURCHASE_PENDING_TEXT_POSITION = {0.0f, 0.117f, 23.1f};
 
 static const float SUBSCENE_ITEM_FADE_IN_OUT_DURATION_SECS = 0.25f;
 static const float STAGGERED_ITEM_ALPHA_DELAY_SECS = 0.1f;
 static const float SPINNER_ROTATION_SPEED = 0.003f;
 static const float MIN_TIME_BEFORE_TRANSITIONING_TO_SUBSCENE_SECS = 3.0f;
+static const float SUCCESSFUL_COINS_PURCHASE_TEXT_Y_OFFSET = -0.02f;
 
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
 {
@@ -230,21 +233,36 @@ void PurchasingProductSceneLogicManager::InitSubScene(const SubSceneType subScen
         
             std::get<scene::TextSceneObjectData>(scene->FindSceneObject(TITLE_SCENE_OBJECT_NAME)->mSceneObjectTypeData).mText = "Purchase Successful!";
             
-            scene::TextSceneObjectData textDataPurchaseOutcomeTop;
-            textDataPurchaseOutcomeTop.mFontName = game_constants::DEFAULT_FONT_NAME;
-            textDataPurchaseOutcomeTop.mText = "Any card packs purchased will";
-            auto purchaseOutcomeTextTopSceneObject = scene->CreateSceneObject(PURCHASE_OUTCOME_TEXT_0_SCENE_OBJECT_NAME);
-            purchaseOutcomeTextTopSceneObject->mSceneObjectTypeData = std::move(textDataPurchaseOutcomeTop);
-            purchaseOutcomeTextTopSceneObject->mPosition = PURCHASE_OUTCOME_TEXT_0_POSITION;
-            purchaseOutcomeTextTopSceneObject->mScale = BUTTON_SCALE;
-            
-            scene::TextSceneObjectData textDataPurchaseOutcomeBot;
-            textDataPurchaseOutcomeBot.mFontName = game_constants::DEFAULT_FONT_NAME;
-            textDataPurchaseOutcomeBot.mText = "open up on the main menu!";
-            auto purchaseOutcomeTextBotSceneObject = scene->CreateSceneObject(PURCHASE_OUTCOME_TEXT_1_SCENE_OBJECT_NAME);
-            purchaseOutcomeTextBotSceneObject->mSceneObjectTypeData = std::move(textDataPurchaseOutcomeBot);
-            purchaseOutcomeTextBotSceneObject->mPosition = PURCHASE_OUTCOME_TEXT_1_POSITION;
-            purchaseOutcomeTextBotSceneObject->mScale = BUTTON_SCALE;            
+            auto purchasedProductName = DataRepository::GetInstance().GetPermaShopProductNameToPurchase();
+            if (purchasedProductName == product_ids::COINS_S || purchasedProductName == product_ids::COINS_M || purchasedProductName == product_ids::COINS_L)
+            {
+                scene::TextSceneObjectData textDataPurchaseOutcomeTop;
+                textDataPurchaseOutcomeTop.mFontName = game_constants::DEFAULT_FONT_NAME;
+                textDataPurchaseOutcomeTop.mText = "Enjoy your shiny new gold coins!";
+                auto purchaseOutcomeTextTopSceneObject = scene->CreateSceneObject(PURCHASE_OUTCOME_TEXT_0_SCENE_OBJECT_NAME);
+                purchaseOutcomeTextTopSceneObject->mSceneObjectTypeData = std::move(textDataPurchaseOutcomeTop);
+                purchaseOutcomeTextTopSceneObject->mPosition = PURCHASE_OUTCOME_TEXT_0_POSITION;
+                purchaseOutcomeTextTopSceneObject->mPosition.y += SUCCESSFUL_COINS_PURCHASE_TEXT_Y_OFFSET;
+                purchaseOutcomeTextTopSceneObject->mScale = BUTTON_SCALE;
+            }
+            else
+            {
+                scene::TextSceneObjectData textDataPurchaseOutcomeTop;
+                textDataPurchaseOutcomeTop.mFontName = game_constants::DEFAULT_FONT_NAME;
+                textDataPurchaseOutcomeTop.mText = "Your packs will automatically open";
+                auto purchaseOutcomeTextTopSceneObject = scene->CreateSceneObject(PURCHASE_OUTCOME_TEXT_0_SCENE_OBJECT_NAME);
+                purchaseOutcomeTextTopSceneObject->mSceneObjectTypeData = std::move(textDataPurchaseOutcomeTop);
+                purchaseOutcomeTextTopSceneObject->mPosition = PURCHASE_OUTCOME_TEXT_0_POSITION;
+                purchaseOutcomeTextTopSceneObject->mScale = BUTTON_SCALE;
+                
+                scene::TextSceneObjectData textDataPurchaseOutcomeBot;
+                textDataPurchaseOutcomeBot.mFontName = game_constants::DEFAULT_FONT_NAME;
+                textDataPurchaseOutcomeBot.mText = "next time you go to the main menu!";
+                auto purchaseOutcomeTextBotSceneObject = scene->CreateSceneObject(PURCHASE_OUTCOME_TEXT_1_SCENE_OBJECT_NAME);
+                purchaseOutcomeTextBotSceneObject->mSceneObjectTypeData = std::move(textDataPurchaseOutcomeBot);
+                purchaseOutcomeTextBotSceneObject->mPosition = PURCHASE_OUTCOME_TEXT_1_POSITION;
+                purchaseOutcomeTextBotSceneObject->mScale = BUTTON_SCALE;
+            }
         } break;
         
         case SubSceneType::PURCHASE_UNSUCCESSFUL:
@@ -259,7 +277,6 @@ void PurchasingProductSceneLogicManager::InitSubScene(const SubSceneType subScen
             auto purchaseOutcomeTextTopSceneObject = scene->CreateSceneObject(PURCHASE_OUTCOME_TEXT_0_SCENE_OBJECT_NAME);
             purchaseOutcomeTextTopSceneObject->mSceneObjectTypeData = std::move(textDataPurchaseOutcomeTop);
             purchaseOutcomeTextTopSceneObject->mPosition = PURCHASE_OUTCOME_TEXT_0_POSITION;
-            purchaseOutcomeTextTopSceneObject->mPosition.x -= 0.02f;
             purchaseOutcomeTextTopSceneObject->mScale = BUTTON_SCALE;
             
             scene::TextSceneObjectData textDataPurchaseOutcomeBot;
@@ -268,7 +285,6 @@ void PurchasingProductSceneLogicManager::InitSubScene(const SubSceneType subScen
             auto purchaseOutcomeTextBotSceneObject = scene->CreateSceneObject(PURCHASE_OUTCOME_TEXT_1_SCENE_OBJECT_NAME);
             purchaseOutcomeTextBotSceneObject->mSceneObjectTypeData = std::move(textDataPurchaseOutcomeBot);
             purchaseOutcomeTextBotSceneObject->mPosition = PURCHASE_OUTCOME_TEXT_1_POSITION;
-            purchaseOutcomeTextBotSceneObject->mPosition.x -= 0.05f;
             purchaseOutcomeTextBotSceneObject->mScale = BUTTON_SCALE;
         } break;
             
@@ -307,6 +323,13 @@ void PurchasingProductSceneLogicManager::InitSubScene(const SubSceneType subScen
             sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
         }
         
+        if (sceneObject->mName == TITLE_SCENE_OBJECT_NAME || sceneObject->mName == PURCHASE_OUTCOME_TEXT_0_SCENE_OBJECT_NAME || sceneObject->mName == PURCHASE_OUTCOME_TEXT_1_SCENE_OBJECT_NAME)
+        {
+            auto boundingRect = scene_object_utils::GetSceneObjectBoundingRect(*sceneObject);
+            auto textLength = boundingRect.topRight.x - boundingRect.bottomLeft.x;
+            sceneObject->mPosition.x = -textLength/2.0f;
+        }
+        
         CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, 1.0f, SUBSCENE_ITEM_FADE_IN_OUT_DURATION_SECS, animation_flags::NONE, sceneObjectIndex++ * STAGGERED_ITEM_ALPHA_DELAY_SECS), [=]()
         {
             mTransitioningToSubScene = false;
@@ -321,7 +344,7 @@ void PurchasingProductSceneLogicManager::TransitionToSubScene(const SubSceneType
     mTransitioningToSubScene = true;
     for (auto sceneObject: scene->GetSceneObjects())
     {
-        if (STATIC_SCENE_ELEMENTS.count(sceneObject->mName) && sceneObject->mName != SPINNER_SCENE_OBJECT_NAME)
+        if (sceneObject->mName == game_constants::OVERLAY_SCENE_OBJECT_NAME)
         {
             continue;
         }

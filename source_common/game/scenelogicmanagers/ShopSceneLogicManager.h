@@ -61,6 +61,7 @@ private:
     void UpdateProductPriceTags();
     void CheckProductsFinishedFadingIn();
     bool IsDisconnected() const;
+    bool IsProductCoins(const size_t productShelfIndex, const size_t productShelfItemIndex);
     
 private:
     struct ProductDefinition
