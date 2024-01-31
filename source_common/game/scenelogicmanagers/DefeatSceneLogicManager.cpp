@@ -197,6 +197,12 @@ void DefeatSceneLogicManager::InitSubScene(const SubSceneType subSceneType, std:
                 [=]()
                 {
                     DataRepository::GetInstance().ResetStoryData();
+                    
+                    if (DataRepository::GetInstance().GetGamesFinishedCount() == 0)
+                    {
+                        DataRepository::GetInstance().AddPendingCardPack(CardPackType::NORMAL);
+                    }
+                    
                     DataRepository::GetInstance().SetGamesFinishedCount(DataRepository::GetInstance().GetGamesFinishedCount() + 1);
                     DataRepository::GetInstance().FlushStateToFile();
                     events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::MAIN_MENU_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);

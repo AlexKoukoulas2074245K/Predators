@@ -204,7 +204,6 @@ void CardLibrarySceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scen
     );
     
     auto cards = DataRepository::GetInstance().GetCurrentCardLibraryBehaviorType() == CardLibraryBehaviorType::CARD_LIBRARY ? DataRepository::GetInstance().GetUnlockedCardIds() : DataRepository::GetInstance().GetCurrentStoryPlayerDeck();
-    
     for (const auto& cardId: cards)
     {
         CardData cardData = CardDataRepository::GetInstance().GetCardData(cardId, game_constants::LOCAL_PLAYER_INDEX);

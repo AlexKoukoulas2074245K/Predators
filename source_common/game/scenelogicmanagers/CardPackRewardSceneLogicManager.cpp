@@ -149,6 +149,12 @@ void CardPackRewardSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> s
     
     std::get<scene::TextSceneObjectData>(scene->FindSceneObject(TITLE_SCENE_OBJECT_NAME)->mSceneObjectTypeData).mText = CARD_PACK_TYPE_TO_TITLE_TEXT.at(mCardPackType);
     
+    // One-time card pack consolation prize
+    if (DataRepository::GetInstance().GetGamesFinishedCount() == 1)
+    {
+        std::get<scene::TextSceneObjectData>(scene->FindSceneObject(TITLE_SCENE_OBJECT_NAME)->mSceneObjectTypeData).mText = "First Game Reward!";
+    }
+    
     mContinueButton = std::make_unique<AnimatedButton>
     (
         CONTINUE_BUTTON_POSITION,

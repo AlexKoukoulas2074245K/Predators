@@ -111,10 +111,10 @@ static const glm::vec3 CARD_HISTORY_TURN_COUNTER_TEXT_OFFSET = {-0.032f, 0.003f,
 
 static const glm::vec3 CARD_TOOLTIP_TEXT_OFFSETS[game_constants::CARD_TOOLTIP_TEXT_ROWS_COUNT] =
 {
-    { -0.033f, 0.029f, 0.1f },
-    { -0.051f, 0.014f, 0.1f },
-    { -0.036f, -0.000f, 0.1f },
-    { -0.03f, -0.014f, 0.1f }
+    { -0.054f, 0.029f, 0.1f },
+    { -0.054f, 0.014f, 0.1f },
+    { -0.054f, -0.000f, 0.1f },
+    { -0.054f, -0.014f, 0.1f }
 };
 
 static const math::Rectangle CARD_HISTORY_CONTAINER_BOUNDS = {{-0.4f, -0.218f}, {0.4f, 0.0f}};
@@ -130,7 +130,7 @@ static const float CARD_TOOLTIP_MAX_REVEAL_THRESHOLD = 2.0f;
 static const float CARD_TOOLTIP_REVEAL_SPEED = 1.0f/200.0f;
 static const float CARD_TOOLTIP_TEXT_REVEAL_SPEED = 1.0f/500.0f;
 static const float CARD_TOOLTIP_FLIPPED_X_OFFSET = -0.17f;
-static const float CARD_TOOLTIP_TEXT_FLIPPED_X_OFFSET = -0.007f;
+static const float CARD_TOOLTIP_TEXT_FLIPPED_X_OFFSET = -0.002f;
 static const float CARD_TOOLTIP_CREATION_DELAY_SECS = 0.5f;
 static const float INDIVIDUAL_CARD_BOARD_EFFECT_BASE_Z = 1.1f;
 static const float INDIVIDUAL_CARD_BOARD_EFFECT_Z_INCREMENT = 0.01f;

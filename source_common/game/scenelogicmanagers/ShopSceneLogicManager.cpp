@@ -198,8 +198,11 @@ void ShopSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     
     RegisterForEvents();
     
-    math::SetControlSeed(DataRepository::GetInstance().GetCurrentStoryMapNodeSeed());
-    DataRepository::GetInstance().SetCurrentStoryMapSceneType(StoryMapSceneType::SHOP);
+    if (DataRepository::GetInstance().GetCurrentShopBehaviorType() == ShopBehaviorType::STORY_SHOP)
+    {
+        math::SetControlSeed(DataRepository::GetInstance().GetCurrentStoryMapNodeSeed());
+        DataRepository::GetInstance().SetCurrentStoryMapSceneType(StoryMapSceneType::SHOP);
+    }
     
     scene->FindSceneObject(SHELVES_SCENE_OBJECT_NAME)->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + (DataRepository::GetInstance().GetCurrentShopBehaviorType() == ShopBehaviorType::STORY_SHOP ? SHELVES_STORY_SHOP_TEXTURE_FILE_NAME : SHELVES_PERMA_SHOP_TEXTURE_FILE_NAME));
     

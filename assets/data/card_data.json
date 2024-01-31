@@ -170,7 +170,7 @@
             "family": "rodents",
             "name": "Fluff Attack",
             "effect": "DAMAGE +2 FAMILY BOARD HELD",
-            "tooltip": "Damage +2 for$  ALL Rodents on$hand & board",
+            "tooltip": "Damage +2 for ALL$Rodents on hand &$board",
             "texture": "rodents_attack.png",
             "shader": "basic.vs"
         },
@@ -179,7 +179,7 @@
             "family": "rodents",
             "name": "Fuzzy Speed",
             "effect": "DRAW +2 GAIN_1_WEIGHT",
-            "tooltip": " Draw 2 Cards$  and gain 1 Weight",
+            "tooltip": " $Draw 2 Cards and$gain 1 Weight",
             "texture": "fuzz_speed.png",
             "shader": "basic.vs"
         },
@@ -188,7 +188,7 @@
             "family": "dinosaurs",
             "name": "Throwing Net",
             "effect": "DAMAGE -2 ENEMY_BOARD_DEBUFF",
-            "tooltip": "Damage -2 for$ALL enemies the$opponent plays$  next turn",
+            "tooltip": "Damage -2 for ALL$normal cards the$opponent plays on$their next turn",
             "texture": "net.png",
             "shader": "basic.vs"
         },
@@ -197,7 +197,7 @@
             "family": "rodents",
             "name": "Bear Trap",
             "effect": "KILL",
-            "tooltip": "Destroy next$enemy normal card$played by the$  opponent",
+            "tooltip": "Destroy the next$normal card played$on the opponent's$next turn",
             "texture": "trap.png",
             "shader": "basic.vs"
         },
@@ -206,7 +206,7 @@
             "family": "dinosaurs",
             "name": "Feathery Dino",
             "effect": "WEIGHT -2 FAMILY HELD",
-            "tooltip": "Weight -2 for$  ALL Dinosaurs$  on hand",
+            "tooltip": " $Weight -2 for ALL$Dinosaurs on hand",
             "texture": "dino_with_feathers.png",
             "shader": "basic.vs"
         },
@@ -216,7 +216,7 @@
             "name": "Gust of Wind",
             "effect": "CLEAR_EFFECTS",
             "particle_effect": "feathers",
-            "tooltip": "Clears all active$    effects on your $ side of the$    board",
+            "tooltip": "Clears all active$effects on your side$of the board",
             "texture": "tornado.png",
             "shader": "basic.vs"
         },
@@ -225,7 +225,7 @@
             "family": "insects",
             "name": "Insect Duplication",
             "effect": "DUPLICATE_NEXT_INSECT",
-            "tooltip": "Duplicates the$next insect played$  this turn",
+            "tooltip": "Duplicates the next$insect played this$turn",
             "texture": "insect_duplication.png",
             "shader": "basic.vs"
         },
@@ -234,7 +234,7 @@
             "family": "dinosaurs",
             "name": "Mighty Dino Roar",
             "effect": "DOUBLE_NEXT_DINO_DAMAGE",
-            "tooltip": "Doubles the$damage of the next$dinosaur played",
+            "tooltip": "Doubles the damage$of the next dinosaur$you play this turn",
             "texture": "mighty_roar.png",
             "shader": "basic.vs"
         },
@@ -243,7 +243,7 @@
             "family": "insects",
             "name": "Toxic Wave",
             "effect": "DOUBLE_POISON_ATTACKS",
-            "tooltip": "Doubles the$poison stacks taken$by the opponent$ this turn",
+            "tooltip": "Doubles the poison$stacks taken by the$opponent at the end$of this turn",
             "texture": "poison_smoke.png",
             "shader": "basic.vs"
         },
@@ -252,7 +252,7 @@
             "family": "dinosaurs",
             "name": "Metal Claws",
             "effect": "DAMAGE +1 FAMILY BOARD HELD",
-            "tooltip": "Damage +1 for$ALL Dinosaurs on$hand & board",
+            "tooltip": "Damage +1 for ALL$Dinosaurs on your$hand & board",
             "texture": "metal_claw.png",
             "shader": "basic.vs"
         },
@@ -261,7 +261,7 @@
             "family": "dinosaurs",
             "name": "Impending Doom",
             "effect": "PERMANENT_CONTINUAL_WEIGHT_REDUCTION WEIGHT FAMILY HELD",
-            "tooltip": "Further reduce$the Weight by 1 for$ALL Dinosaurs$ every turn",
+            "tooltip": "Continually reduce$Weight by 1 for ALL$Dinosaurs held and$drawn every turn",
             "texture": "impending_doom.png",
             "shader": "basic.vs"
         },
@@ -310,7 +310,7 @@
             "family": "demons_medium",
             "name": "Dark Magic",
             "effect": "DAMAGE +2 FAMILY BOARD HELD",
-            "tooltip": "Damage +2 for$ALL Demons on$hand & board",
+            "tooltip": "Damage +2 for ALL$Demons on hand &$board",
             "texture": "story_cards/demon_wizard.png",
             "shader": "basic.vs"
         },
@@ -328,7 +328,7 @@
             "family": "rodents",
             "name": "Digging Time",
             "effect": "DIG_NO_FAIL",
-            "tooltip": "Rodents will$always succeed$when digging$ this turn",
+            "tooltip": "ALL Rodents you$play this turn will$successfully dig",
             "texture": "rodents_digging_holes.png",
             "shader": "basic.vs"
         }

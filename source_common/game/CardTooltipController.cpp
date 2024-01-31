@@ -27,10 +27,10 @@ static const std::string CARD_TOOLTIP_SHADER_FILE_NAME = "diagonal_reveal.vs";
 static const glm::vec3 CARD_TOOLTIP_BASE_OFFSET = {0.06f, 0.033f, 0.2f};
 static const glm::vec3 CARD_TOOLTIP_TEXT_OFFSETS[game_constants::CARD_TOOLTIP_TEXT_ROWS_COUNT] =
 {
-    { -0.033f, 0.029f, 0.1f },
-    { -0.051f, 0.014f, 0.1f },
-    { -0.036f, -0.000f, 0.1f },
-    { -0.03f, -0.014f, 0.1f }
+    { -0.055f, 0.032f, 0.1f },
+    { -0.055f, 0.015f, 0.1f },
+    { -0.055f, -0.002f, 0.1f },
+    { -0.055f, -0.019f, 0.1f }
 };
 
 static const float CARD_TOOLTIP_MAX_REVEAL_THRESHOLD = 2.0f;
@@ -38,8 +38,8 @@ static const float CARD_TOOLTIP_REVEAL_SPEED = 1.0f/200.0f;
 static const float CARD_TOOLTIP_TEXT_REVEAL_SPEED = 1.0f/500.0f;
 static const float CARD_TOOLTIP_FLIPPED_X_OFFSET = -0.17f;
 static const float CARD_TOOLTIP_FLIPPED_Y_OFFSET = -0.25f;
-static const float CARD_TOOLTIP_TEXT_FLIPPED_X_OFFSET = -0.007f;
-static const float CARD_TOOLTIP_TEXT_FLIPPED_Y_OFFSET = -0.014f;
+static const float CARD_TOOLTIP_TEXT_FLIPPED_X_OFFSET = -0.002f;
+static const float CARD_TOOLTIP_TEXT_FLIPPED_Y_OFFSET = -0.008f;
 
 ///------------------------------------------------------------------------------------------------
 
