@@ -14,7 +14,6 @@
     "card_data":
     [
         {
-            "id": 0,
             "damage": 3,
             "weight": 3,
             "family": "rodents",
@@ -23,7 +22,6 @@
             "shader": "basic.vs"
         },
         {
-            "id": 13,
             "damage": 2,
             "weight": 2,
             "family": "rodents",
@@ -32,7 +30,6 @@
             "shader": "basic.vs"
         },
         {
-            "id": 15,
             "damage": 2,
             "weight": 3,
             "family": "rodents",
@@ -41,7 +38,6 @@
             "shader": "basic.vs"
         },
         {
-            "id": 4,
             "damage": 1,
             "weight": 1,
             "family": "rodents",
@@ -50,7 +46,6 @@
             "shader": "basic.vs"
         },
         {
-            "id": 8,
             "damage": 2,
             "weight": 4,
             "family": "rodents",
@@ -59,7 +54,6 @@
             "shader": "basic.vs"
         },
         {
-            "id": 9,
             "damage": 1,
             "weight": 2,
             "family": "rodents",
@@ -68,7 +62,6 @@
             "shader": "basic.vs"
         },
         {
-            "id": 6,
             "damage": 1,
             "weight": 2,
             "family": "insects",
@@ -77,7 +70,6 @@
             "shader": "basic.vs"
         },
         {
-            "id": 7,
             "damage": 1,
             "weight": 2,
             "family": "insects",
@@ -86,7 +78,6 @@
             "shader": "basic.vs"
         },
         {
-            "id": 1,
             "damage": 2,
             "weight": 2,
             "family": "insects",
@@ -95,7 +86,6 @@
             "shader": "basic.vs"
         },
         {
-            "id": 2,
             "damage": 3,
             "weight": 4,
             "family": "insects",
@@ -104,7 +94,6 @@
             "shader": "basic.vs"
         },
         {
-            "id": 10,
             "damage": 1,
             "weight": 2,
             "family": "insects",
@@ -113,7 +102,6 @@
             "shader": "basic.vs"
         },
         {
-            "id": 11,
             "damage": 3,
             "weight": 3,
             "family": "insects",
@@ -122,7 +110,6 @@
             "shader": "basic.vs"
         },
         {
-            "id": 12,
             "damage": 1,
             "weight": 2,
             "family": "insects",
@@ -131,7 +118,6 @@
             "shader": "basic.vs"
         },
         {
-            "id": 3,
             "damage": 7,
             "weight": 7,
             "family": "dinosaurs",
@@ -140,7 +126,6 @@
             "shader": "basic.vs"
         },
         {
-            "id": 14,
             "damage": 7,
             "weight": 6,
             "family": "dinosaurs",
@@ -149,7 +134,6 @@
             "shader": "basic.vs"
         },
         {
-            "id": 16,
             "damage": 6,
             "weight": 6,
             "family": "dinosaurs",
@@ -158,7 +142,6 @@
             "shader": "basic.vs"
         },
         {
-            "id": 17,
             "damage": 6,
             "weight": 6,
             "family": "dinosaurs",
@@ -167,7 +150,6 @@
             "shader": "basic.vs"
         },
         {
-            "id": 5,
             "damage": 5,
             "weight": 4,
             "family": "dinosaurs",
@@ -176,7 +158,6 @@
             "shader": "basic.vs"
         },
         {
-            "id": 18,
             "damage": 4,
             "weight": 3,
             "family": "dinosaurs",
@@ -185,7 +166,6 @@
             "shader": "basic.vs"
         },
         {
-            "id": 19,
             "weight": 2,
             "family": "rodents",
             "name": "Fluff Attack",
@@ -195,7 +175,6 @@
             "shader": "basic.vs"
         },
         {
-            "id": 20,
             "weight": 1,
             "family": "rodents",
             "name": "Fuzzy Speed",
@@ -205,7 +184,6 @@
             "shader": "basic.vs"
         },
         {
-            "id": 21,
             "weight": 1,
             "family": "dinosaurs",
             "name": "Throwing Net",
@@ -215,7 +193,6 @@
             "shader": "basic.vs"
         },
         {
-            "id": 22,
             "weight": 1,
             "family": "rodents",
             "name": "Bear Trap",
@@ -225,7 +202,6 @@
             "shader": "basic.vs"
         },
         {
-            "id": 23,
             "weight": 1,
             "family": "dinosaurs",
             "name": "Feathery Dino",
@@ -235,7 +211,6 @@
             "shader": "basic.vs"
         },
         {
-            "id": 24,
             "weight": 0,
             "family": "rodents",
             "name": "Gust of Wind",
@@ -246,7 +221,6 @@
             "shader": "basic.vs"
         },
         {
-            "id": 25,
             "weight": 1,
             "family": "insects",
             "name": "Insect Duplication",
@@ -256,7 +230,6 @@
             "shader": "basic.vs"
         },
         {
-            "id": 26,
             "weight": 1,
             "family": "dinosaurs",
             "name": "Mighty Dino Roar",
@@ -266,7 +239,6 @@
             "shader": "basic.vs"
         },
         {
-            "id": 27,
             "weight": 1,
             "family": "insects",
             "name": "Toxic Wave",
@@ -276,7 +248,6 @@
             "shader": "basic.vs"
         },
         {
-            "id": 28,
             "weight": 0,
             "family": "dinosaurs",
             "name": "Metal Claws",
@@ -286,7 +257,6 @@
             "shader": "basic.vs"
         },
         {
-            "id": 29,
             "weight": 4,
             "family": "dinosaurs",
             "name": "Impending Doom",
@@ -296,7 +266,6 @@
             "shader": "basic.vs"
         },
         {
-            "id": 30,
             "damage": 1,
             "weight": 2,
             "family": "demons_normal",
@@ -305,7 +274,6 @@
             "shader": "basic.vs"
         },
         {
-            "id": 31,
             "damage": 2,
             "weight": 3,
             "family": "demons_normal",
@@ -314,7 +282,6 @@
             "shader": "basic.vs"
         },
         {
-            "id": 32,
             "damage": 3,
             "weight": 3,
             "family": "demons_medium",
@@ -323,7 +290,6 @@
             "shader": "basic.vs"
         },
         {
-            "id": 33,
             "damage": 4,
             "weight": 5,
             "family": "demons_medium",
@@ -332,7 +298,6 @@
             "shader": "basic.vs"
         },
         {
-            "id": 34,
             "damage": 6,
             "weight": 6,
             "family": "demons_hard",
@@ -341,7 +306,6 @@
             "shader": "basic.vs"
         },
         {
-            "id": 35,
             "weight": 3,
             "family": "demons_medium",
             "name": "Dark Magic",
@@ -351,7 +315,6 @@
             "shader": "basic.vs"
         },
         {
-            "id": 36,
             "damage": 10,
             "weight": 10,
             "family": "demons_boss",

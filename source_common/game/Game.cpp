@@ -80,6 +80,8 @@ Game::Game(const int argc, char** argv)
 #if defined(MACOS) || defined(MOBILE_FLOW)
     apple_utils::SetAssetFolder();
 #endif
+    CardDataRepository::GetInstance().LoadCardData(true);
+    
     CoreSystemsEngine::GetInstance().Start([&](){ Init(); }, [&](const float dtMillis){ Update(dtMillis); }, [&](){ ApplicationMovedToBackground(); }, [&](){ WindowResize(); }, [&](){ CreateDebugWidgets(); }, [&](){ OnOneSecondElapsed(); });
 }
 
@@ -252,7 +254,7 @@ static void CreateImGuiCardVecEntry(const std::string& cardIdPrefix, std::string
         if (cardData.IsSpell())
         {
             ImGui::SetItemTooltip("(Name: %s, Family: %s, Effect: %s, Weight: %d)",
-                                  cardData.mCardName.c_str(),
+                                  cardData.mCardName.GetString().c_str(),
                                   cardData.mCardFamily.GetString().c_str(),
                                   cardData.mCardEffect.c_str(),
                                   cardData.mCardWeight);
@@ -260,7 +262,7 @@ static void CreateImGuiCardVecEntry(const std::string& cardIdPrefix, std::string
         else
         {
             ImGui::SetItemTooltip("(Name: %s, Family: %s, Damage: %d, Weight: %d)",
-                                  cardData.mCardName.c_str(),
+                                  cardData.mCardName.GetString().c_str(),
                                   cardData.mCardFamily.GetString().c_str(),
                                   cardData.mCardDamage,
                                   cardData.mCardWeight);

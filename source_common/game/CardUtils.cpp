@@ -280,7 +280,7 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
         cardComponents.push_back(std::make_shared<scene::SceneObject>());
         scene::TextSceneObjectData cardNameTextData;
         cardNameTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
-        cardNameTextData.mText = cardData->mCardName;
+        cardNameTextData.mText = cardData->mCardName.GetString();
         cardComponents.back()->mSceneObjectTypeData = std::move(cardNameTextData);
         
         float scaleDeduct = CARD_NAME_TEST_DEDUCT_INCREMENTS;

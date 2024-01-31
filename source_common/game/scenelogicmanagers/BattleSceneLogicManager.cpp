@@ -726,11 +726,6 @@ void BattleSceneLogicManager::HandleTouchInput(const float dtMillis)
                 cardLocationIndicatorSo->mPosition = card_utils::CalculateBoardCardPosition(currentLocalPlayerBoardCardCount, currentLocalPlayerBoardCardCount + 1, false);
                 cardLocationIndicatorSo->mPosition.z = game_constants::CARD_LOCATION_EFFECT_Z;
                 mShouldShowCardLocationIndicator = true;
-                std::vector<std::string> cardNames;
-                for (const auto& soWrapper: mPendingCardsToBePlayed)
-                {
-                    cardNames.push_back(soWrapper->mCardData.mCardName);
-                }
                 freeMovingCardThisFrame = true;
             }
         }

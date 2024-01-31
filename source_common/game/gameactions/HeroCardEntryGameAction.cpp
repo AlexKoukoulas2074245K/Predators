@@ -51,7 +51,7 @@ void HeroCardEntryGameAction::VSetNewGameState()
     CardData heroCardData;
     heroCardData.mCardFamily = game_constants::DEMONS_GENERIC_FAMILY_NAME;
     heroCardData.mCardId = 0; // to be filled by CardDataRepository
-    heroCardData.mCardName = DataRepository::GetInstance().GetNextStoryOpponentName();
+    heroCardData.mCardName = strutils::StringId(DataRepository::GetInstance().GetNextStoryOpponentName());
     heroCardData.mCardDamage = DataRepository::GetInstance().GetNextStoryOpponentDamage();
     heroCardData.mCardWeight = DataRepository::GetInstance().GetNextBattleTopPlayerWeightLimit();
     heroCardData.mCardShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + game_constants::DEFAULT_SHADER_NAME);

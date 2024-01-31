@@ -67,7 +67,7 @@ struct CardData
     int mCardId;
     int mCardDamage;
     int mCardWeight;
-    std::string mCardName;
+    strutils::StringId mCardName;
     std::string mCardEffect;
     std::string mCardEffectTooltip;
     strutils::StringId mCardFamily;
@@ -107,6 +107,9 @@ public:
     std::vector<int> GetStoryUnlockedCardRewardsPool() const;
     std::vector<int> GetCardPackLockedCardRewardsPool() const;
     
+    int GetCardId(const strutils::StringId& cardName) const;
+    
+    CardData GetCardDataByCardName(const strutils::StringId& cardName, const size_t forPlayerIndex) const;
     CardData GetCardData(const int cardId, const size_t forPlayerIndex) const;
     const std::unordered_set<strutils::StringId, strutils::StringIdHasher>& GetCardFamilies() const;
     strutils::StringId GuessCurrentStoryDeckFamily() const;
@@ -122,6 +125,8 @@ private:
 private:
     std::unordered_map<int, CardData> mCardDataMap;
     std::unordered_set<strutils::StringId, strutils::StringIdHasher> mCardFamilies;
+    std::vector<int> mFreshAccountUnlockedCardIds;
+    std::unordered_map<strutils::StringId, std::vector<int>, strutils::StringIdHasher> mStoryStartingFamilyCards;
 };
 
 ///------------------------------------------------------------------------------------------------

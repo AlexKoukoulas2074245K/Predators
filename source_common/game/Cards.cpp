@@ -19,20 +19,22 @@
 
 ///------------------------------------------------------------------------------------------------
 
-static const std::vector<int> FRESH_ACCOUNT_UNLOCKED_CARDS =
+static const std::vector<strutils::StringId> FRESH_ACCOUNT_UNLOCKED_CARD_NAMES =
 {
     // All family story starting cards
-    17, 16, 5, 18, 4, 15, 8, 9, 7, 10, 2, 12,
+    strutils::StringId("Stegosaurus"), strutils::StringId("Triceratops"), strutils::StringId("Dilophosaurus"), strutils::StringId("Velociraptor"),
+    strutils::StringId("Bunny"), strutils::StringId("Squirrel"), strutils::StringId("Ground Hog"), strutils::StringId("Guinea Pig"),
+    strutils::StringId("Fly"), strutils::StringId("Ladybug"), strutils::StringId("Beetle"), strutils::StringId("Mosquito"),
     
     // Rest of available cards
-    6, 22, 24, 27, 28
+    strutils::StringId("Dragonfly"), strutils::StringId("Bear Trap"), strutils::StringId("Gust of Wind"), strutils::StringId("Toxic Wave"), strutils::StringId("Metal Claws")
 };
 
-static const std::unordered_map<strutils::StringId, std::vector<int>, strutils::StringIdHasher> FAMILY_STORY_STARTING_CARDS =
+static const std::unordered_map<strutils::StringId, std::vector<strutils::StringId>, strutils::StringIdHasher> FAMILY_STORY_STARTING_CARD_NAMES =
 {
-    { game_constants::DINOSAURS_FAMILY_NAME, {17, 16, 5, 18}},
-    { game_constants::RODENTS_FAMILY_NAME, {4, 15, 8, 9}},
-    { game_constants::INSECTS_FAMILY_NAME, {7, 10, 2, 12}},
+    { game_constants::DINOSAURS_FAMILY_NAME, {strutils::StringId("Stegosaurus"), strutils::StringId("Triceratops"), strutils::StringId("Dilophosaurus"), strutils::StringId("Velociraptor")}},
+    { game_constants::RODENTS_FAMILY_NAME, {strutils::StringId("Bunny"), strutils::StringId("Squirrel"), strutils::StringId("Ground Hog"), strutils::StringId("Guinea Pig")}},
+    { game_constants::INSECTS_FAMILY_NAME, {strutils::StringId("Fly"), strutils::StringId("Ladybug"), strutils::StringId("Beetle"), strutils::StringId("Mosquito")}},
 };
 
 ///------------------------------------------------------------------------------------------------
@@ -96,14 +98,14 @@ std::vector<int> CardDataRepository::GetCardIdsByFamily(const strutils::StringId
 
 std::vector<int> CardDataRepository::GetStoryStartingFamilyCards(const strutils::StringId& family) const
 {
-    return FAMILY_STORY_STARTING_CARDS.at(family);
+    return mStoryStartingFamilyCards.at(family);
 }
 
 ///------------------------------------------------------------------------------------------------
 
 std::vector<int> CardDataRepository::GetFreshAccountUnlockedCardIds() const
 {
-    return FRESH_ACCOUNT_UNLOCKED_CARDS;
+    return mFreshAccountUnlockedCardIds;
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -143,7 +145,7 @@ std::vector<int> CardDataRepository::GetStoryUnlockedCardRewardsPool() const
 std::vector<int> CardDataRepository::GetCardPackLockedCardRewardsPool() const
 {
     std::vector<int> baseCardPool;
-    for (const auto& familyCardEntry: FAMILY_STORY_STARTING_CARDS)
+    for (const auto& familyCardEntry: mStoryStartingFamilyCards)
     {
         auto allFamilyCards = GetCardIdsByFamily(familyCardEntry.first);
         baseCardPool.insert(baseCardPool.end(), allFamilyCards.begin(), allFamilyCards.end());
@@ -158,6 +160,29 @@ std::vector<int> CardDataRepository::GetCardPackLockedCardRewardsPool() const
     std::set_difference(baseCardPool.begin(), baseCardPool.end(), unlockedCards.begin(), unlockedCards.end(), std::back_inserter(finalCardPool));
     
     return finalCardPool;
+}
+
+///------------------------------------------------------------------------------------------------
+
+int CardDataRepository::GetCardId(const strutils::StringId& cardName) const
+{
+    for (const auto& cardDataMapEntry: mCardDataMap)
+    {
+        if (cardDataMapEntry.second.mCardName == cardName)
+        {
+            return cardDataMapEntry.first;
+        }
+    }
+    
+    ospopups::ShowMessageBox(ospopups::MessageBoxType::ERROR, ("Cannot find card with name " + cardName.GetString()).c_str());
+    return 0;
+}
+
+///------------------------------------------------------------------------------------------------
+
+CardData CardDataRepository::GetCardDataByCardName(const strutils::StringId& cardName, const size_t forPlayerIndex) const
+{
+    return GetCardData(GetCardId(cardName), forPlayerIndex);
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -265,7 +290,7 @@ void CardDataRepository::LoadCardData(bool loadCardAssets)
     for (const auto& cardObject: cardDataJson["card_data"])
     {
         CardData cardData = {};
-        cardData.mCardId = cardObject["id"].get<int>();
+        cardData.mCardId = static_cast<int>(mCardDataMap.size());
         cardData.mCardWeight = cardObject["weight"].get<int>();
         
         assert(cardIdsSeenThisLoad.count(cardData.mCardId) == 0);
@@ -297,7 +322,7 @@ void CardDataRepository::LoadCardData(bool loadCardAssets)
             ospopups::ShowMessageBox(ospopups::MessageBoxType::ERROR, ("Cannot find family \"" + cardData.mCardFamily.GetString() + "\" for card with id=" + std::to_string(cardData.mCardId)).c_str());
         }
         
-        cardData.mCardName = cardObject["name"].get<std::string>();
+        cardData.mCardName = strutils::StringId(cardObject["name"].get<std::string>());
         
         if (loadCardAssets)
         {
@@ -307,6 +332,21 @@ void CardDataRepository::LoadCardData(bool loadCardAssets)
         
         cardIdsSeenThisLoad.insert(cardData.mCardId);
         mCardDataMap[cardData.mCardId] = cardData;
+    }
+    
+    mFreshAccountUnlockedCardIds.clear();
+    for (const auto& freshAccountUnlockedCardName: FRESH_ACCOUNT_UNLOCKED_CARD_NAMES)
+    {
+        mFreshAccountUnlockedCardIds.push_back(GetCardId(freshAccountUnlockedCardName));
+    }
+    
+    mStoryStartingFamilyCards.clear();
+    for (const auto& storyStartingFamilyCardEntry: FAMILY_STORY_STARTING_CARD_NAMES)
+    {
+        for (const auto& cardName: storyStartingFamilyCardEntry.second)
+        {
+            mStoryStartingFamilyCards[storyStartingFamilyCardEntry.first].push_back(GetCardId(cardName));
+        }
     }
 }
 
