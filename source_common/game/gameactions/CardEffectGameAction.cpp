@@ -348,6 +348,13 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
             mCardBoardEffectMask = effects::board_modifier_masks::DOUBLE_POISON_ATTACKS;
         }
         
+        // Gain Weight Component
+        else if (effectComponent == effects::EFFECT_COMPONENT_GAIN_1_WEIGHT)
+        {
+            mBoardState->GetActivePlayerState().mPlayerCurrentWeightAmmo++;
+            events::EventSystem::GetInstance().DispatchEvent<events::WeightChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
+        }
+        
         // Modifier/Offset value component
         else if (!effects::STATIC_EFFECT_COMPONENT_NAMES.count(effectComponent))
         {

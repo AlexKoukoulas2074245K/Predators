@@ -40,6 +40,7 @@ inline const std::string EFFECT_COMPONENT_WEIGHT                               =
 inline const std::string EFFECT_COMPONENT_FAMILY                               = "FAMILY";
 inline const std::string EFFECT_COMPONENT_ENEMY_BOARD_DEBUFF                   = "ENEMY_BOARD_DEBUFF";
 inline const std::string EFFECT_COMPONENT_DRAW                                 = "DRAW";
+inline const std::string EFFECT_COMPONENT_GAIN_1_WEIGHT                        = "GAIN_1_WEIGHT";
 inline const std::string EFFECT_COMPONENT_KILL                                 = "KILL";
 inline const std::string EFFECT_COMPONENT_BOARD                                = "BOARD";
 inline const std::string EFFECT_COMPONENT_HELD                                 = "HELD";
@@ -65,6 +66,7 @@ inline const std::unordered_set<std::string> STATIC_EFFECT_COMPONENT_NAMES =
     EFFECT_COMPONENT_DOUBLE_NEXT_DINO_DAMAGE,
     EFFECT_COMPONENT_DOUBLE_POISON_ATTACKS,
     EFFECT_COMPONENT_PERMANENT_CONTINUAL_WEIGHT_REDUCTION,
+    EFFECT_COMPONENT_GAIN_1_WEIGHT,
     EFFECT_DIG_NO_FAIL
 };
 

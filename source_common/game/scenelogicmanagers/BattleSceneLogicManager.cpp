@@ -695,7 +695,7 @@ void BattleSceneLogicManager::HandleTouchInput(const float dtMillis)
             {
                 if (currentCardSoWrapper->mCardData.IsSpell())
                 {
-                    CreateCardTooltip(currentCardSoWrapper->mSceneObject->mPosition, currentCardSoWrapper->mCardData.mCardEffectTooltip, i, battleScene);
+                    CreateCardTooltip(currentCardSoWrapper->mSceneObject->mPosition, currentCardSoWrapper->mCardData.mCardEffectTooltip, localPlayerCardCount - i - 1, battleScene);
                 }
             }
         }

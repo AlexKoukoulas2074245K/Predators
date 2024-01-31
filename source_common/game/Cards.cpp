@@ -23,17 +23,22 @@ static const std::vector<strutils::StringId> FRESH_ACCOUNT_UNLOCKED_CARD_NAMES =
 {
     // All family story starting cards
     strutils::StringId("Stegosaurus"), strutils::StringId("Triceratops"), strutils::StringId("Dilophosaurus"), strutils::StringId("Velociraptor"),
-    strutils::StringId("Bunny"), strutils::StringId("Squirrel"), strutils::StringId("Ground Hog"), strutils::StringId("Guinea Pig"), strutils::StringId("Digging Time"),
+    strutils::StringId("Bunny"), strutils::StringId("Squirrel"), strutils::StringId("Ground Hog"), strutils::StringId("Guinea Pig"),
     strutils::StringId("Fly"), strutils::StringId("Ladybug"), strutils::StringId("Beetle"), strutils::StringId("Mosquito"),
     
     // Rest of available cards
-    strutils::StringId("Dragonfly"), strutils::StringId("Bear Trap"), strutils::StringId("Gust of Wind"), strutils::StringId("Toxic Wave"), strutils::StringId("Metal Claws")
+    strutils::StringId("Dragonfly"),
+    strutils::StringId("Fluff Attack"),
+    strutils::StringId("Bear Trap"),
+    strutils::StringId("Gust of Wind"),
+    strutils::StringId("Toxic Wave"),
+    strutils::StringId("Metal Claws")
 };
 
 static const std::unordered_map<strutils::StringId, std::vector<strutils::StringId>, strutils::StringIdHasher> FAMILY_STORY_STARTING_CARD_NAMES =
 {
     { game_constants::DINOSAURS_FAMILY_NAME, {strutils::StringId("Stegosaurus"), strutils::StringId("Triceratops"), strutils::StringId("Dilophosaurus"), strutils::StringId("Velociraptor")}},
-    { game_constants::RODENTS_FAMILY_NAME, {strutils::StringId("Bunny"), strutils::StringId("Squirrel"), strutils::StringId("Ground Hog"), strutils::StringId("Guinea Pig"), strutils::StringId("Digging Time")}},
+    { game_constants::RODENTS_FAMILY_NAME, {strutils::StringId("Bunny"), strutils::StringId("Squirrel"), strutils::StringId("Ground Hog"), strutils::StringId("Guinea Pig"), strutils::StringId("Fuzzy Speed")}},
     { game_constants::INSECTS_FAMILY_NAME, {strutils::StringId("Fly"), strutils::StringId("Ladybug"), strutils::StringId("Beetle"), strutils::StringId("Mosquito")}},
 };
 
@@ -278,8 +283,6 @@ void CardDataRepository::ClearCardData()
 
 void CardDataRepository::LoadCardData(bool loadCardAssets)
 {
-    ClearCardData();
-    
     auto& resourceService = CoreSystemsEngine::GetInstance().GetResourceLoadingService();
     auto cardsDefinitionJsonResourceId = resourceService.LoadResource(resources::ResourceLoadingService::RES_DATA_ROOT + "card_data.json");
     const auto cardDataJson =  nlohmann::json::parse(resourceService.GetResource<resources::DataFileResource>(cardsDefinitionJsonResourceId).GetContents());
@@ -289,10 +292,21 @@ void CardDataRepository::LoadCardData(bool loadCardAssets)
     }
     
     std::unordered_set<int> cardIdsSeenThisLoad;
+    bool freshCardLoad = mCardDataMap.empty();
+    
     for (const auto& cardObject: cardDataJson["card_data"])
     {
         CardData cardData = {};
-        cardData.mCardId = static_cast<int>(mCardDataMap.size());
+        
+        if (freshCardLoad)
+        {
+            cardData.mCardId = static_cast<int>(mCardDataMap.size());
+        }
+        else
+        {
+            cardData.mCardId = GetCardId(strutils::StringId(cardObject["name"].get<std::string>()));
+        }
+        
         cardData.mCardWeight = cardObject["weight"].get<int>();
         
         assert(cardIdsSeenThisLoad.count(cardData.mCardId) == 0);
