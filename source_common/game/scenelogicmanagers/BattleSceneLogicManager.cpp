@@ -1372,6 +1372,7 @@ void BattleSceneLogicManager::OnEndOfTurnCardDestruction(const events::EndOfTurn
         }
         else
         {
+            DestroyCardHighlighterAtIndex(i);
             battleScene->RemoveSceneObject(cardSoWrappers[i]->mSceneObject->mName);
         }
     }
