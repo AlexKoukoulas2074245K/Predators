@@ -65,8 +65,6 @@ void HeroCardEntryGameAction::VSetNewGameState()
     activePlayerState.mGoldenCardIds.push_back(mHeroCardId);
     activePlayerState.mPlayerBoardCards.push_back(mHeroCardId);
     
-    mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides.resize(activePlayerState.mPlayerBoardCards.size() + 1);
-    
     mGameActionEngine->AddGameAction(CARD_HISTORY_ENTRY_ADDITION_GAME_ACTION_NAME,
     {
         { CardHistoryEntryAdditionGameAction::PLAYER_INDEX_PARAM, std::to_string(game_constants::REMOTE_PLAYER_INDEX) },

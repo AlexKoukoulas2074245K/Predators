@@ -322,6 +322,15 @@
             "tooltip": "Damage +2 for$ALL Demons on$hand & board",
             "texture": "story_cards/demon_boss_6.png",
             "shader": "basic.vs"
+        },
+        {
+            "weight": 1,
+            "family": "rodents",
+            "name": "Digging Time",
+            "effect": "DIG_NO_FAIL",
+            "tooltip": "Rodents will$always succeed$when digging$ this turn",
+            "texture": "rodents_digging_holes.png",
+            "shader": "basic.vs"
         }
     ]
 }

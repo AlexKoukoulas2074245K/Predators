@@ -181,6 +181,12 @@ bool PlayerActionGenerationEngine::IsCardHighPriority(const CardData& cardData, 
         strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_DOUBLE_POISON_ATTACKS)
     ) return true;
     
+    else if
+    (
+        cardData.IsSpell() &&
+        strutils::StringContains(cardData.mCardEffect, effects::EFFECT_DIG_NO_FAIL)
+    ) return true;
+    
     return false;
 }
 

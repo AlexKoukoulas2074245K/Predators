@@ -62,6 +62,8 @@ namespace game_constants
     inline const strutils::StringId NEXT_DINO_DAMAGE_DOUBLING_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("next_dino_damage_doubling_effect_bot");
     inline const strutils::StringId DOUBLE_POISON_ATTACKS_EFFECT_TOP_SCENE_OBJECT_NAME = strutils::StringId("double_poison_attacks_effect_top");
     inline const strutils::StringId DOUBLE_POISON_ATTACKS_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("double_poison_attacks_effect_bot");
+    inline const strutils::StringId DIG_NO_FAIL_EFFECT_TOP_SCENE_OBJECT_NAME = strutils::StringId("dig_no_fail_effect_top");
+    inline const strutils::StringId DIG_NO_FAIL_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("dig_no_fail_effect_bot");
     inline const strutils::StringId PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_TOP_SCENE_OBJECT_NAME = strutils::StringId("permanent_continual_weight_reduction_effect_top");
     inline const strutils::StringId PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("permanent_continual_weight_reduction_effect_bot");
     inline const strutils::StringId OVERLAY_SCENE_OBJECT_NAME = strutils::StringId("overlay");
