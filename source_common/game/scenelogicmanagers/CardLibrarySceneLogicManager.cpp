@@ -586,6 +586,23 @@ void CardLibrarySceneLogicManager::CreateCardEntriesAndContainer()
     
     // Collect cards
     auto cards = DataRepository::GetInstance().GetCurrentCardLibraryBehaviorType() == CardLibraryBehaviorType::CARD_LIBRARY ? DataRepository::GetInstance().GetUnlockedCardIds() : DataRepository::GetInstance().GetCurrentStoryPlayerDeck();
+    cards = CardDataRepository::GetInstance().GetAllCardIds();
+    
+    // Sort cards (normal cards, spell cards, sorted by weight)
+    std::sort(cards.begin(), cards.end(), [](const int& lhs, const int& rhs)
+    {
+        const auto& lhsCardData = CardDataRepository::GetInstance().GetCardData(lhs, game_constants::LOCAL_PLAYER_INDEX);
+        const auto& rhsCardData = CardDataRepository::GetInstance().GetCardData(rhs, game_constants::LOCAL_PLAYER_INDEX);
+        
+        if ((lhsCardData.IsSpell() && rhsCardData.IsSpell()) || (!lhsCardData.IsSpell() && !rhsCardData.IsSpell()))
+        {
+            return lhsCardData.mCardWeight < rhsCardData.mCardWeight;
+        }
+        else
+        {
+            return !lhsCardData.IsSpell();
+        }
+    });
     
     // Filter cards
     if (DataRepository::GetInstance().GetCurrentCardLibraryBehaviorType() == CardLibraryBehaviorType::CARD_LIBRARY)

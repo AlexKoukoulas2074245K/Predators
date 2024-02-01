@@ -340,6 +340,22 @@
             "tooltip": "Draw a random$SPELL card from$your deck",
             "texture": "bunny_selecting_spell_card.png",
             "shader": "basic.vs"
+        },
+        {
+            "damage": 4,
+            "weight": 4,
+            "family": "rodents",
+            "name": "Capybara",
+            "texture": "capybara.png",
+            "shader": "basic.vs"
+        },
+        {
+            "damage": 2,
+            "weight": 3,
+            "family": "rodents",
+            "name": "Gopher",
+            "texture": "gopher.png",
+            "shader": "basic.vs"
         }
     ]
 }
