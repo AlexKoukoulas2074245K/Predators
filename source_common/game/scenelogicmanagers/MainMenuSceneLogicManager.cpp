@@ -71,9 +71,9 @@ static const glm::vec3 CONTINUE_STORY_BUTTON_POSITION = {-0.142f, 0.09f, 0.1f};
 static const glm::vec3 NO_PROGRESS_NEW_STORY_BUTTON_POSITION = {-0.091f, 0.06f, 0.1f};
 static const glm::vec3 NEW_STORY_BUTTON_POSITION = {-0.091f, 0.00f, 0.1f};
 static const glm::vec3 CARD_LIBRARY_BUTTON_POSITION = {-0.125f, 0.006f, 0.1f};
-static const glm::vec3 SHOP_BUTTON_POSITION = {-0.053f, -0.075f, 0.1f};
+static const glm::vec3 SHOP_BUTTON_POSITION = {-0.042f, -0.075f, 0.1f};
 //static const glm::vec3 QUICK_BATTLE_BUTTON_POSITION = {-0.109f, -0.055f, 0.1f};
-static const glm::vec3 QUIT_BUTTON_POSITION = {-0.045f, -0.160f, 0.1f};
+static const glm::vec3 QUIT_BUTTON_POSITION = {-0.036f, -0.160f, 0.1f};
 static const glm::vec3 NORMAL_BATTLE_MODE_BUTTON_POSITION = {-0.254f, 0.086f, 0.1f};
 static const glm::vec3 AI_DEMO_BATTLE_MODE_BUTTON_POSITION = {-0.07f, 0.086f, 0.1f};
 static const glm::vec3 REPLAY_BATTLE_MODE_BUTTON_POSITION = {0.136f, 0.086f, 0.1f};
@@ -261,7 +261,7 @@ void MainMenuSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     CheckForEmptyProgression();
 #if defined(MACOS) || defined(MOBILE_FLOW)
     cloudkit_utils::QueryPlayerProgress([=](cloudkit_utils::QueryResultData resultData){ OnCloudQueryCompleted(resultData); });
-    apple_utils::LoadStoreProducts({ product_ids::COINS_S, product_ids::COINS_M, product_ids::COINS_L });
+    apple_utils::LoadStoreProducts({ product_ids::STORY_HEALTH_REFILL, product_ids::COINS_S, product_ids::COINS_M, product_ids::COINS_L });
 #endif
     
     DataRepository::GetInstance().SetQuickPlayData(nullptr);

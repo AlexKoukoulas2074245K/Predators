@@ -50,7 +50,7 @@ static const float MAX_CARD_DISSOLVE_VALUE = 1.2f;
 static const float CARD_EFFECT_PARTICLE_EMITTER_Z_OFFSET = 21.0f;
 static const float CARD_SCALE_UP_FACTOR = 1.5f;
 static const float CARD_SCALE_DOWN_FACTOR = 0.5f;
-static const float CARD_DISSOLVE_Z_BUMP = 0.1f;
+static const float CARD_DISSOLVE_Z_BUMP = 0.05f;
 
 static const glm::vec2 CARD_DISSOLVE_EFFECT_MAG_RANGE = {10.0f, 18.0f};
 

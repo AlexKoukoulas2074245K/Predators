@@ -245,6 +245,17 @@ void PurchasingProductSceneLogicManager::InitSubScene(const SubSceneType subScen
                 purchaseOutcomeTextTopSceneObject->mPosition.y += SUCCESSFUL_COINS_PURCHASE_TEXT_Y_OFFSET;
                 purchaseOutcomeTextTopSceneObject->mScale = BUTTON_SCALE;
             }
+            else if (purchasedProductName == product_ids::STORY_HEALTH_REFILL)
+            {
+                scene::TextSceneObjectData textDataPurchaseOutcomeTop;
+                textDataPurchaseOutcomeTop.mFontName = game_constants::DEFAULT_FONT_NAME;
+                textDataPurchaseOutcomeTop.mText = "Story health is fully restored!";
+                auto purchaseOutcomeTextTopSceneObject = scene->CreateSceneObject(PURCHASE_OUTCOME_TEXT_0_SCENE_OBJECT_NAME);
+                purchaseOutcomeTextTopSceneObject->mSceneObjectTypeData = std::move(textDataPurchaseOutcomeTop);
+                purchaseOutcomeTextTopSceneObject->mPosition = PURCHASE_OUTCOME_TEXT_0_POSITION;
+                purchaseOutcomeTextTopSceneObject->mPosition.y += SUCCESSFUL_COINS_PURCHASE_TEXT_Y_OFFSET;
+                purchaseOutcomeTextTopSceneObject->mScale = BUTTON_SCALE;
+            }
             else
             {
                 scene::TextSceneObjectData textDataPurchaseOutcomeTop;

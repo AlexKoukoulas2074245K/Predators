@@ -174,7 +174,7 @@ void SettingsSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                 QUIT_BUTTON_NAME,
                 [=]()
                 {
-                    TransitionToSubScene(SubSceneType::QUIT_CONFIRMATION, scene);
+                    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::MAIN_MENU_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
                 },
                 *scene
             ));

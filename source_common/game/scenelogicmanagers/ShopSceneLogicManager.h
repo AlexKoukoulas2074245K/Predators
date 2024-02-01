@@ -118,7 +118,7 @@ private:
     bool mItemsFinishedFadingIn;
     float mCoinAnimationValue;
     bool mAnimatingCoinValue;
-    bool mWaitingForPermaCoinAnimation;
+    bool mWaitingForPermaProductAnimation;
 };
 
 ///------------------------------------------------------------------------------------------------

@@ -60,6 +60,12 @@
             "price": 6600,
             "texture_path": "card_pack_golden.png",
             "description": "Contains 3 new$GOLDEN cards for$your permanent card$library!"
+        },
+        {
+            "name": "story_health_refill",
+            "price": 100,
+            "texture_path": "shop_items/story_health_refill.png",
+            "description": " $Fully refills your$active story health!"
         }
     ]
 }

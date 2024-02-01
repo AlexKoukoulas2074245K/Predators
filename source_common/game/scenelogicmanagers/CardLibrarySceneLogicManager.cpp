@@ -596,7 +596,7 @@ void CardLibrarySceneLogicManager::CreateCardEntriesAndContainer()
     
     // Collect cards
     auto cards = DataRepository::GetInstance().GetCurrentCardLibraryBehaviorType() == CardLibraryBehaviorType::CARD_LIBRARY ? DataRepository::GetInstance().GetUnlockedCardIds() : DataRepository::GetInstance().GetCurrentStoryPlayerDeck();
-    cards = CardDataRepository::GetInstance().GetAllCardIds();
+    //cards = CardDataRepository::GetInstance().GetAllCardIds();
     
     // Sort cards (normal cards, spell cards, sorted by weight)
     std::sort(cards.begin(), cards.end(), [](const int& lhs, const int& rhs)
@@ -817,7 +817,9 @@ void CardLibrarySceneLogicManager::DeleteCard()
     cardSceneObject->mShaderFloatUniformValues[DISSOLVE_MAGNITUDE_UNIFORM_NAME] = math::RandomFloat(CARD_DISSOLVE_EFFECT_MAG_RANGE.x, CARD_DISSOLVE_EFFECT_MAG_RANGE.y);
     
     auto playerDeck = DataRepository::GetInstance().GetCurrentStoryPlayerDeck();
-    playerDeck.erase(playerDeck.begin() + mSelectedCardIndex);
+    auto cardIdToErase = mCardContainer->GetItems()[mSelectedCardIndex].mCardSoWrapper->mCardData.mCardId;
+    playerDeck.erase(std::find(playerDeck.begin(), playerDeck.end(), cardIdToErase));
+    
     DataRepository::GetInstance().SetCurrentStoryPlayerDeck(playerDeck);
     
     DataRepository::GetInstance().AddShopBoughtProductCoordinates(game_constants::CARD_DELETION_PRODUCT_COORDS);

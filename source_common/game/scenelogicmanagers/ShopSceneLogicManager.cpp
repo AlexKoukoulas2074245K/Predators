@@ -54,6 +54,7 @@ static const strutils::StringId SELECT_CARD_FOR_DELETION_BUTTON_SCENE_OBJECT_NAM
 static const strutils::StringId BUY_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("buy_button");
 static const strutils::StringId CANCEL_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("cancel_button");
 static const strutils::StringId DEFEAT_SCENE_NAME = strutils::StringId("defeat_scene");
+static const strutils::StringId STORY_HEALTH_REFILL_PRODUCT_NAME = strutils::StringId("story_health_refill");
 static const strutils::StringId NORMAL_PACK_PRODUCT_NAME = strutils::StringId("normal_card_pack");
 static const strutils::StringId GOLDEN_PACK_PRODUCT_NAME = strutils::StringId("golden_card_pack");
 static const strutils::StringId COINS_S_PRODUCT_NAME = strutils::StringId("coins_s");
@@ -132,8 +133,9 @@ static const float SELECTED_PRODUCT_SCALE_FACTOR = 2.0f;
 static const float PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS = 0.35f;
 static const float STAGGERED_FADE_IN_SECS = 0.1f;
 static const float SELECTED_PRODUCT_OVERLAY_MAX_ALPHA = 0.9f;
-static const float CARD_DISSOLVE_SPEED = 0.0005f;
-static const float MAX_CARD_DISSOLVE_VALUE = 1.2f;
+static const float PRODUCT_DISSOLVE_SPEED = 0.0005f;
+static const float STORY_HEALTH_REFILL_PRODUCT_DISSOLVE_SPEED = 0.00025f;
+static const float MAX_PRODUCT_DISSOLVE_VALUE = 1.2f;
 static const float ANIMATED_COIN_VALUE_DURATION_SECS = 1.5f;
 static const float CARD_BOUGHT_ANIMATION_DURATION_SECS = 1.0f;
 static const float CARD_BOUGHT_ANIMATION_MIN_ALPHA = 0.3f;
@@ -187,7 +189,7 @@ void ShopSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     DestroyCardTooltip();
     mGuiManager = std::make_shared<GuiObjectManager>(scene);
     mAnimatingCoinValue = false;
-    mWaitingForPermaCoinAnimation = false;
+    mWaitingForPermaProductAnimation = false;
     
     if (DataRepository::GetInstance().GetCurrentShopBehaviorType() == ShopBehaviorType::PERMA_SHOP)
     {
@@ -359,11 +361,11 @@ void ShopSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene:
             size_t productShelfIndex, productShelfItemIndex;
             FindHighlightedProduct(productShelfIndex, productShelfItemIndex);
             auto& product = mProducts[productShelfIndex][productShelfItemIndex];
-            product->mSceneObjects.front()->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] += dtMillis * CARD_DISSOLVE_SPEED;
+            product->mSceneObjects.front()->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] += dtMillis * PRODUCT_DISSOLVE_SPEED;
             
-            if (product->mSceneObjects.front()->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] >= MAX_CARD_DISSOLVE_VALUE)
+            if (product->mSceneObjects.front()->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] >= MAX_PRODUCT_DISSOLVE_VALUE)
             {
-                product->mSceneObjects.front()->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] = MAX_CARD_DISSOLVE_VALUE;
+                product->mSceneObjects.front()->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] = MAX_PRODUCT_DISSOLVE_VALUE;
             }
         } // Intentional Fallthrough
         case SceneState::BUYING_CARD_PRODUCT:
@@ -387,13 +389,34 @@ void ShopSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene:
             {
                 CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(mCoinAnimationValue, static_cast<float>(DataRepository::GetInstance().CurrencyCoins().GetValue()), ANIMATED_COIN_VALUE_DURATION_SECS), [=](){ mAnimatingCoinValue = false; });
                 
-                mGuiManager->Update(dtMillis);
-                if (!mWaitingForPermaCoinAnimation)
+                size_t productShelfIndex, productShelfItemIndex;
+                FindHighlightedProduct(productShelfIndex, productShelfItemIndex);
+                auto& product = mProducts[productShelfIndex][productShelfItemIndex];
+                
+                if (product->mProductName == STORY_HEALTH_REFILL_PRODUCT_NAME)
                 {
-                    size_t productShelfIndex, productShelfItemIndex;
-                    FindHighlightedProduct(productShelfIndex, productShelfItemIndex);
+                    product->mSceneObjects.front()->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] += dtMillis * STORY_HEALTH_REFILL_PRODUCT_DISSOLVE_SPEED;
+                    if (product->mSceneObjects.front()->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] >= MAX_PRODUCT_DISSOLVE_VALUE)
+                    {
+                        product->mSceneObjects.front()->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] = MAX_PRODUCT_DISSOLVE_VALUE;
+                    }
+                }
+                
+                mGuiManager->Update(dtMillis);
+                if (!mWaitingForPermaProductAnimation)
+                {
                     DeselectProduct(productShelfIndex, productShelfItemIndex);
                     mSceneState = SceneState::BROWSING_SHOP;
+                    
+                    // Story health refill is a one time product in this shop session
+                    if (product->mProductName == STORY_HEALTH_REFILL_PRODUCT_NAME && DataRepository::GetInstance().StoryCurrentHealth().GetValue() == DataRepository::GetInstance().GetStoryMaxHealth())
+                    {
+                        for (auto sceneObject: product->mSceneObjects)
+                        {
+                            mScene->RemoveSceneObject(sceneObject->mName);
+                        }
+                        mProducts[productShelfIndex][productShelfItemIndex] = nullptr;
+                    }
                 }
             }
         } break;
@@ -474,7 +497,7 @@ void ShopSceneLogicManager::OnGuiRewardAnimationFinished(const events::GuiReward
 {
     if (mSceneState == SceneState::BUYING_PERMA_SHOP_PRODUCT)
     {
-        mWaitingForPermaCoinAnimation = false;
+        mWaitingForPermaProductAnimation = false;
     }
     else
     {
@@ -498,6 +521,23 @@ void ShopSceneLogicManager::OnProductPurchaseEnded(const events::ProductPurchase
         {
             events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(productDefinition.mPrice, product->mSceneObjects.front()->mPosition);
         }
+        else if (product->mProductName == STORY_HEALTH_REFILL_PRODUCT_NAME)
+        {
+            // Fade out tag and price scene objects
+            for (auto i = 1U; i < product->mSceneObjects.size(); ++i)
+            {
+                CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(product->mSceneObjects[i], 0.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){ mProducts[productShelfIndex][productShelfItemIndex]->mSceneObjects[i]->mInvisible = true; });
+            }
+            
+            product->mSceneObjects.front()->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + DISSOLVE_SHADER_FILE_NAME);
+            product->mSceneObjects.front()->mEffectTextureResourceIds[0] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + DISSOLVE_TEXTURE_FILE_NAME);
+            product->mSceneObjects.front()->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] = 0.0f;
+            product->mSceneObjects.front()->mShaderFloatUniformValues[ORIGIN_X_UNIFORM_NAME] = product->mSceneObjects.front()->mPosition.x;
+            product->mSceneObjects.front()->mShaderFloatUniformValues[ORIGIN_Y_UNIFORM_NAME] = product->mSceneObjects.front()->mPosition.y;
+            product->mSceneObjects.front()->mShaderFloatUniformValues[DISSOLVE_MAGNITUDE_UNIFORM_NAME] = math::RandomFloat(CARD_DISSOLVE_EFFECT_MAG_RANGE.x, CARD_DISSOLVE_EFFECT_MAG_RANGE.y);
+
+            events::EventSystem::GetInstance().DispatchEvent<events::HealthRefillRewardEvent>(DataRepository::GetInstance().GetStoryMaxHealth() - DataRepository::GetInstance().StoryCurrentHealth().GetValue(), product->mSceneObjects.front()->mPosition);
+        }
         else if (product->mProductName == NORMAL_PACK_PRODUCT_NAME)
         {
             ChangeAndAnimateCoinValueReduction(productDefinition.mPrice);
@@ -513,7 +553,7 @@ void ShopSceneLogicManager::OnProductPurchaseEnded(const events::ProductPurchase
     }
     else
     {
-        mWaitingForPermaCoinAnimation = false;
+        mWaitingForPermaProductAnimation = false;
     }
 }
 
@@ -685,6 +725,12 @@ void ShopSceneLogicManager::CreateProducts()
     }
     else if (DataRepository::GetInstance().GetCurrentShopBehaviorType() == ShopBehaviorType::PERMA_SHOP)
     {
+        // First Shelf
+        if (DataRepository::GetInstance().StoryCurrentHealth().GetValue() <= DataRepository::GetInstance().GetStoryMaxHealth()/2)
+        {
+            mProducts[0][2] = std::make_unique<ProductInstance>(STORY_HEALTH_REFILL_PRODUCT_NAME);
+        }
+        
         // Second Shelf
         mProducts[1][0] = std::make_unique<ProductInstance>(COINS_S_PRODUCT_NAME);
         mProducts[1][2] = std::make_unique<ProductInstance>(COINS_M_PRODUCT_NAME);
@@ -762,7 +808,7 @@ void ShopSceneLogicManager::CreateProducts()
             {
                 auto priceTagSceneObject = mScene->CreateSceneObject(strutils::StringId(PRODUCT_NAME_PREFIX + std::to_string(shelfIndex) + "_" + std::to_string(shelfItemIndex) + "_tag"));
                 
-                if (IsProductCoins(shelfIndex, shelfItemIndex))
+                if (IsProductCoins(shelfIndex, shelfItemIndex) || product->mProductName == STORY_HEALTH_REFILL_PRODUCT_NAME)
                 {
                     priceTagSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + PRICE_TAG_TEXTURE_FILE_NAME_PREFIX + "3.png");
                 }
@@ -783,7 +829,7 @@ void ShopSceneLogicManager::CreateProducts()
                 priceTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
                 priceTextData.mText = "|" + std::to_string(productDefinition.mPrice);
                 
-                if (IsProductCoins(shelfIndex, shelfItemIndex))
+                if (IsProductCoins(shelfIndex, shelfItemIndex) || product->mProductName == STORY_HEALTH_REFILL_PRODUCT_NAME)
                 {
 #if defined(MACOS) || defined(MOBILE_FLOW)
                     priceTextData.mText = apple_utils::GetProductPrice(product->mProductName.GetString());
@@ -933,7 +979,7 @@ void ShopSceneLogicManager::SelectProduct(const size_t productShelfIndex, const 
     mSelectedProductInitialPosition = product->mSceneObjects.front()->mPosition;
     for (auto sceneObject: product->mSceneObjects)
     {
-        sceneObject->mPosition.z = (sceneObject->mPosition.z - product->mSceneObjects.front()->mPosition.z) + selectedProductOverlaySceneObject->mPosition.z + PRODUCT_SELECTION_DESELECTION_BUMP_Z;
+        sceneObject->mPosition.z = (sceneObject->mPosition.z - mSelectedProductInitialPosition.z) + selectedProductOverlaySceneObject->mPosition.z + PRODUCT_SELECTION_DESELECTION_BUMP_Z;
     }
     auto targetScale = (std::holds_alternative<int>(productDefinition.mProductTexturePathOrCardId) ? CARD_PRODUCT_SCALE : GENERIC_PRODUCT_SCALE) * SELECTED_PRODUCT_SCALE_FACTOR;
     if (product->mProductName == NORMAL_PACK_PRODUCT_NAME || product->mProductName == GOLDEN_PACK_PRODUCT_NAME)
@@ -1092,7 +1138,7 @@ void ShopSceneLogicManager::OnBuyProductAttempt(const size_t productShelfIndex, 
     auto currentHealthValue = DataRepository::GetInstance().StoryCurrentHealth().GetValue();
     
     // Insufficient funds/health case
-    if ((productDefinition.mPrice > currentCoinsValue && !IsProductCoins(productShelfIndex, productShelfItemIndex)) ||
+    if ((productDefinition.mPrice > currentCoinsValue && !IsProductCoins(productShelfIndex, productShelfItemIndex) && product->mProductName != STORY_HEALTH_REFILL_PRODUCT_NAME) ||
         (product->mProductName == COINS_TO_LIFE_PRODUCT_NAME && COINS_TO_LIFE_RATE.first > currentCoinsValue) ||
         (product->mProductName == LIFE_TO_COINS_PRODUCT_NAME && COINS_TO_LIFE_RATE.second >= currentHealthValue) ||
         (product->mProductName == COINS_TO_LIFE_PRODUCT_NAME && DataRepository::GetInstance().StoryCurrentHealth().GetValue() == DataRepository::GetInstance().GetStoryMaxHealth()) ||
@@ -1257,7 +1303,7 @@ void ShopSceneLogicManager::OnBuyProductAttempt(const size_t productShelfIndex, 
             DataRepository::GetInstance().SetPermaShopProductNameToPurchase(product->mProductName.GetString());            
             events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(PURCHASING_PRODUCT_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
             
-            mWaitingForPermaCoinAnimation = IsProductCoins(productShelfIndex, productShelfItemIndex);
+            mWaitingForPermaProductAnimation = IsProductCoins(productShelfIndex, productShelfItemIndex) || product->mProductName == STORY_HEALTH_REFILL_PRODUCT_NAME;
             mSceneState = SceneState::BUYING_PERMA_SHOP_PRODUCT;
         }
     }

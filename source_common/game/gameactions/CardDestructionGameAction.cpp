@@ -36,7 +36,7 @@ static const strutils::StringId CARD_ORIGIN_Y_UNIFORM_NAME = strutils::StringId(
 static const std::string DISSOLVE_TEXTURE_FILE_NAME = "dissolve.png";
 static const float CARD_DISSOLVE_SPEED = 0.002f;
 static const float MAX_CARD_DISSOLVE_VALUE = 1.2f;
-static const float CARD_DISSOLVE_Z_BUMP = 0.1f;
+static const float CARD_DISSOLVE_Z_BUMP = 0.05f;
 
 static const glm::vec2 CARD_DISSOLVE_EFFECT_MAG_RANGE = {7.0f, 14.0f};
 
