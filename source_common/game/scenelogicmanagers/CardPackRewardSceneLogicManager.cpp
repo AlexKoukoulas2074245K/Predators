@@ -541,6 +541,23 @@ void CardPackRewardSceneLogicManager::CreateCardRewards(std::shared_ptr<scene::S
     auto unlockedCardIds = DataRepository::GetInstance().GetUnlockedCardIds();
     auto unlockedGoldenCardIds = DataRepository::GetInstance().GetGoldenCardIdMap();
     
+    // For golden packs the pool includes unlocked cards (that have not had their golden counterparts won yet)
+    if (mCardPackType == CardPackType::GOLDEN)
+    {
+        std::copy(unlockedCardIds.begin(), unlockedCardIds.end(), std::back_inserter(cardRewardPool));
+        for (auto iter = cardRewardPool.begin(); iter != cardRewardPool.end();)
+        {
+            if (unlockedGoldenCardIds.count(*iter))
+            {
+                iter = cardRewardPool.erase(iter);
+            }
+            else
+            {
+                iter++;
+            }
+        }
+    }
+    
     while (cardRewardPool.size() < PACK_CARD_REWARD_COUNT)
     {
         auto randomUnlockedCardIndex = math::ControlledRandomInt() % unlockedCardIds.size();
