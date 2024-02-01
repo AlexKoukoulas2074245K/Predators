@@ -49,7 +49,8 @@ inline const std::string EFFECT_COMPONENT_CLEAR_EFFECTS                        =
 inline const std::string EFFECT_COMPONENT_DOUBLE_NEXT_DINO_DAMAGE              = "DOUBLE_NEXT_DINO_DAMAGE";
 inline const std::string EFFECT_COMPONENT_DOUBLE_POISON_ATTACKS                = "DOUBLE_POISON_ATTACKS";
 inline const std::string EFFECT_COMPONENT_PERMANENT_CONTINUAL_WEIGHT_REDUCTION = "PERMANENT_CONTINUAL_WEIGHT_REDUCTION";
-inline const std::string EFFECT_DIG_NO_FAIL                                    = "DIG_NO_FAIL";
+inline const std::string EFFECT_COMPONENT_DIG_NO_FAIL                          = "DIG_NO_FAIL";
+inline const std::string EFFECT_COMPONENT_DRAW_RANDOM_SPELL                    = "DRAW_RANDOM_SPELL";
 
 inline const std::unordered_set<std::string> STATIC_EFFECT_COMPONENT_NAMES =
 {
@@ -67,7 +68,8 @@ inline const std::unordered_set<std::string> STATIC_EFFECT_COMPONENT_NAMES =
     EFFECT_COMPONENT_DOUBLE_POISON_ATTACKS,
     EFFECT_COMPONENT_PERMANENT_CONTINUAL_WEIGHT_REDUCTION,
     EFFECT_COMPONENT_GAIN_1_WEIGHT,
-    EFFECT_DIG_NO_FAIL
+    EFFECT_COMPONENT_DIG_NO_FAIL,
+    EFFECT_COMPONENT_DRAW_RANDOM_SPELL
 };
 
 ///------------------------------------------------------------------------------------------------

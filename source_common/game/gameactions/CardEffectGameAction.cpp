@@ -11,6 +11,7 @@
 #include <game/events/EventSystem.h>
 #include <game/gameactions/CardBuffedDebuffedAnimationGameAction.h>
 #include <game/gameactions/CardEffectGameAction.h>
+#include <game/gameactions/DrawCardGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/scenelogicmanagers/BattleSceneLogicManager.h>
 #include <engine/rendering/AnimationManager.h>
@@ -49,6 +50,7 @@ static const float MAX_CARD_DISSOLVE_VALUE = 1.2f;
 static const float CARD_EFFECT_PARTICLE_EMITTER_Z_OFFSET = 21.0f;
 static const float CARD_SCALE_UP_FACTOR = 1.5f;
 static const float CARD_SCALE_DOWN_FACTOR = 0.5f;
+static const float CARD_DISSOLVE_Z_BUMP = 0.1f;
 
 static const glm::vec2 CARD_DISSOLVE_EFFECT_MAG_RANGE = {10.0f, 18.0f};
 
@@ -89,6 +91,7 @@ void CardEffectGameAction::VInitAnimation()
     cardSoWrapper->mSceneObject->mShaderFloatUniformValues[CARD_ORIGIN_X_UNIFORM_NAME] = cardSoWrapper->mSceneObject->mPosition.x;
     cardSoWrapper->mSceneObject->mShaderFloatUniformValues[CARD_ORIGIN_Y_UNIFORM_NAME] = cardSoWrapper->mSceneObject->mPosition.y;
     cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_MAGNITUDE_UNIFORM_NAME] = math::RandomFloat(CARD_DISSOLVE_EFFECT_MAG_RANGE.x, CARD_DISSOLVE_EFFECT_MAG_RANGE.y);
+    cardSoWrapper->mSceneObject->mPosition.z += CARD_DISSOLVE_Z_BUMP;
     
     systemsEngine.GetParticleManager().CreateParticleEmitterAtPosition
     (
@@ -328,7 +331,7 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
         }
         
         // Dig no Fail component
-        else if (effectComponent == effects::EFFECT_DIG_NO_FAIL)
+        else if (effectComponent == effects::EFFECT_COMPONENT_DIG_NO_FAIL)
         {
             mBoardState->GetActivePlayerState().mBoardModifiers.mBoardModifierMask |= effects::board_modifier_masks::DIG_NO_FAIL;
             mCardBoardEffectMask = effects::board_modifier_masks::DIG_NO_FAIL;
@@ -441,6 +444,15 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
         {
             mGameActionEngine->AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
         }
+    }
+    
+    // Draw spell effect
+    if (std::find(mEffectComponents.cbegin(), mEffectComponents.cend(), effects::EFFECT_COMPONENT_DRAW_RANDOM_SPELL) != mEffectComponents.cend())
+    {
+        mGameActionEngine->AddGameAction(DRAW_CARD_GAME_ACTION_NAME,
+        {
+            { DrawCardGameAction::DRAW_SPELL_ONLY_PARAM, "true"}
+        });
     }
     
     // Next turn effect

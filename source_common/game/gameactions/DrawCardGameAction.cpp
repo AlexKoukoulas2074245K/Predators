@@ -22,11 +22,23 @@
 
 ///------------------------------------------------------------------------------------------------
 
+const std::string DrawCardGameAction::DRAW_SPELL_ONLY_PARAM = "drawSpellOnly";
+
+///------------------------------------------------------------------------------------------------
+
 void DrawCardGameAction::VSetNewGameState()
 {
     auto& activePlayerState = mBoardState->GetActivePlayerState();
     auto availableCardDataCount = static_cast<int>(activePlayerState.mPlayerDeckCards.size());
     auto randomCardIndex = math::ControlledRandomInt() % availableCardDataCount;
+    
+    if (mExtraActionParams.count(DRAW_SPELL_ONLY_PARAM) && mExtraActionParams.at(DRAW_SPELL_ONLY_PARAM) == "true")
+    {
+        while (!CardDataRepository::GetInstance().GetCardData(activePlayerState.mPlayerDeckCards.at(randomCardIndex), mBoardState->GetActivePlayerIndex()).IsSpell())
+        {
+            randomCardIndex = math::ControlledRandomInt() % availableCardDataCount;
+        }
+    }
     
     activePlayerState.mPlayerHeldCards.push_back(activePlayerState.mPlayerDeckCards.at(randomCardIndex));
 }

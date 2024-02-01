@@ -184,7 +184,13 @@ bool PlayerActionGenerationEngine::IsCardHighPriority(const CardData& cardData, 
     else if
     (
         cardData.IsSpell() &&
-        strutils::StringContains(cardData.mCardEffect, effects::EFFECT_DIG_NO_FAIL)
+        strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_DIG_NO_FAIL)
+    ) return true;
+    
+    else if
+    (
+        cardData.IsSpell() &&
+        strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_DRAW_RANDOM_SPELL)
     ) return true;
     
     return false;

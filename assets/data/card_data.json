@@ -331,6 +331,15 @@
             "tooltip": "ALL Rodents you$play this turn will$successfully dig",
             "texture": "rodents_digging_holes.png",
             "shader": "basic.vs"
+        },
+        {
+            "weight": 1,
+            "family": "rodents",
+            "name": "Dig-A-Spell",
+            "effect": "DRAW_RANDOM_SPELL",
+            "tooltip": "Draw a random$SPELL card from$your deck",
+            "texture": "bunny_selecting_spell_card.png",
+            "shader": "basic.vs"
         }
     ]
 }

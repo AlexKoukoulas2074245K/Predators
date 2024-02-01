@@ -17,6 +17,8 @@
 class DrawCardGameAction final: public BaseGameAction
 {
 public:
+    static const std::string DRAW_SPELL_ONLY_PARAM;
+    
     void VSetNewGameState() override;
     
     void VInitAnimation() override;
