@@ -34,7 +34,7 @@ public:
     bool VButtonPressed(const Button button) const override;
     bool VButtonTapped(const Button button) const override;
     
-    void VProcessInputEvent(const SDL_Event& event, bool& shouldQuit, bool& windowSizeChange, bool& applicationMovingToBackground) override;
+    void VProcessInputEvent(const SDL_Event& event, bool& shouldQuit, bool& windowSizeChange, bool& applicationMovingToBackground, bool&) override;
     void VUpdate() override;
     
 private:

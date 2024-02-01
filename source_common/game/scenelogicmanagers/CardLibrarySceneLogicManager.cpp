@@ -85,7 +85,6 @@ static const float FILTERS_TEXT_SNAP_TO_EDGE_SCALE_FACTOR = 415.0f;
 static const float FILTER_CHECKBOX_SNAP_TO_EDGE_SCALE_FACTOR = 0.3f;
 static const float FILTER_ICON_SNAP_TO_EDGE_SCALE_FACTOR = 1.6f;
 
-static constexpr std::pair<int, int> CARD_DELETION_PRODUCT_COORDS = std::make_pair(2, 2);
 static constexpr int MIN_CONTAINER_ENTRIES_TO_ANIMATE = 5;
 static constexpr int CARD_DELETION_SERVICE_PRICE = 100;
 
@@ -793,7 +792,7 @@ void CardLibrarySceneLogicManager::DeleteCard()
     playerDeck.erase(playerDeck.begin() + mSelectedCardIndex);
     DataRepository::GetInstance().SetCurrentStoryPlayerDeck(playerDeck);
     
-    DataRepository::GetInstance().AddShopBoughtProductCoordinates(CARD_DELETION_PRODUCT_COORDS);
+    DataRepository::GetInstance().AddShopBoughtProductCoordinates(game_constants::CARD_DELETION_PRODUCT_COORDS);
     
     auto& storyCurrencyCoins = DataRepository::GetInstance().CurrencyCoins();
     storyCurrencyCoins.SetValue(storyCurrencyCoins.GetValue() - CARD_DELETION_SERVICE_PRICE);

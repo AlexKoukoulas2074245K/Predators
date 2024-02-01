@@ -41,7 +41,6 @@ static constexpr int NORMAL_CARD_REWARD_PRICE = 50;
 static constexpr int SPELL_CARD_REWARD_PRICE = 100;
 
 static constexpr std::pair<int, int> COINS_TO_LIFE_RATE = std::make_pair(100, 30);
-static constexpr std::pair<int, int> CARD_DELETION_PRODUCT_COORDS = std::make_pair(2, 2);
 
 static const strutils::StringId PURCHASING_PRODUCT_SCENE = strutils::StringId("purchasing_product_scene");
 static const strutils::StringId SELECTED_PRODUCT_OVERLAY_SCENE_OBJECT_NAME = strutils::StringId("selected_product_overlay");
@@ -457,7 +456,7 @@ void ShopSceneLogicManager::OnWindowResize(const events::WindowResizeEvent&)
 
 void ShopSceneLogicManager::OnCardDeletionAnimationFinished(const events::CardDeletionAnimationFinishedEvent&)
 {
-    DeselectProduct(CARD_DELETION_PRODUCT_COORDS.first, CARD_DELETION_PRODUCT_COORDS.second);
+    DeselectProduct(game_constants::CARD_DELETION_PRODUCT_COORDS.first, game_constants::CARD_DELETION_PRODUCT_COORDS.second);
     HandleAlreadyBoughtProducts();
     mSceneState = SceneState::BROWSING_SHOP;
 }

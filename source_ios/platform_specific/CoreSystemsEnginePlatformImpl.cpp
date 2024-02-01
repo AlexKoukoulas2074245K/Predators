@@ -141,6 +141,7 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
     auto secsAccumulator          = 0.0f;
     auto framesAccumulator        = 0LL;
     
+    bool pausedExecution = false;
     bool shouldQuit = false;
     
     const int refreshRate = rendering::GetDisplayRefreshRate();
@@ -150,6 +151,7 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
     {
         bool windowSizeChanged = false;
         bool applicationMovedToBackground = false;
+        bool applicationMovedToForeground = true;
         
         // Calculate frame delta
         const auto currentMillisSinceInit = static_cast<float>(SDL_GetTicks());  // the number of milliseconds since the SDL library
@@ -162,12 +164,22 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
         //Handle events on queue
         while(SDL_PollEvent(&event) != 0)
         {
-            mSystems->mInputStateManager.VProcessInputEvent(event, shouldQuit, windowSizeChanged, applicationMovedToBackground);
+            mSystems->mInputStateManager.VProcessInputEvent(event, shouldQuit, windowSizeChanged, applicationMovedToBackground, applicationMovedToForeground);
             
             if (applicationMovedToBackground)
             {
                 clientApplicationMovedToBackgroundFunction();
+                pausedExecution = true;
             }
+            else if (applicationMovedToForeground)
+            {
+                pausedExecution = false;
+            }
+        }
+        
+        if (pausedExecution)
+        {
+            continue;
         }
         
         if (windowSizeChanged)

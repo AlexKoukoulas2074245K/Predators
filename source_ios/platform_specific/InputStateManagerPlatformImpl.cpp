@@ -54,7 +54,7 @@ bool InputStateManagerPlatformImpl::VButtonTapped(const Button button) const
 
 ///------------------------------------------------------------------------------------------------
 
-void InputStateManagerPlatformImpl::VProcessInputEvent(const SDL_Event& event, bool& shouldQuit, bool& windowSizeChange, bool& applicationMovingToBackground)
+void InputStateManagerPlatformImpl::VProcessInputEvent(const SDL_Event& event, bool& shouldQuit, bool& windowSizeChange, bool& applicationMovingToBackground, bool& applicationMovingToForeground)
 {
     shouldQuit = false;
     applicationMovingToBackground = false;
@@ -72,6 +72,12 @@ void InputStateManagerPlatformImpl::VProcessInputEvent(const SDL_Event& event, b
         case SDL_APP_DIDENTERBACKGROUND:
         {
             applicationMovingToBackground = true;
+        } break;
+        
+        case SDL_APP_WILLENTERFOREGROUND:
+        case SDL_APP_DIDENTERFOREGROUND:
+        {
+            applicationMovingToForeground = true;
         } break;
             
         case SDL_WINDOWEVENT:

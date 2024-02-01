@@ -54,7 +54,7 @@ bool InputStateManagerPlatformImpl::VButtonTapped(const Button button) const
 
 ///------------------------------------------------------------------------------------------------
 
-void InputStateManagerPlatformImpl::VProcessInputEvent(const SDL_Event& event, bool& shouldQuit, bool& windowSizeChange, bool& applicationMovingToBackground)
+void InputStateManagerPlatformImpl::VProcessInputEvent(const SDL_Event& event, bool& shouldQuit, bool& windowSizeChange, bool& applicationMovingToBackground, bool&)
 {
     const auto& renderableDimensions = CoreSystemsEngine::GetInstance().GetContextRenderableDimensions();
     shouldQuit = false;

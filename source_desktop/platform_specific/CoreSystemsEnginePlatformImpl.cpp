@@ -208,7 +208,7 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
         //Handle events on queue
         while(SDL_PollEvent(&event) != 0)
         {
-            mSystems->mInputStateManager.VProcessInputEvent(event, shouldQuit, windowSizeChanged, applicationMovingToBackground);
+            mSystems->mInputStateManager.VProcessInputEvent(event, shouldQuit, windowSizeChanged, applicationMovingToBackground, applicationMovingToBackground);
             if (shouldQuit)
             {
                 break;

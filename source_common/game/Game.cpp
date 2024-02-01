@@ -34,6 +34,7 @@
 #include <game/gameactions/BaseGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/GameActionFactory.h>
+#include <game/GuiObjectManager.h>
 #include <game/ProductIds.h>
 #include <game/scenelogicmanagers/BattleSceneLogicManager.h>
 #include <game/scenelogicmanagers/CardLibrarySceneLogicManager.h>
@@ -369,10 +370,30 @@ void Game::CreateDebugWidgets()
         DataRepository::GetInstance().FlushStateToFile();
     }
     
+    static int coinAmount = 0;
+    ImGui::SliderInt("Coin Value", &coinAmount, -1000, 1000);
+    ImGui::SameLine();
+    if (ImGui::Button("Add Coins"))
+    {
+        DataRepository::GetInstance().CurrencyCoins().SetValue(DataRepository::GetInstance().CurrencyCoins().GetValue() + coinAmount);
+        DataRepository::GetInstance().CurrencyCoins().SetDisplayedValue(DataRepository::GetInstance().CurrencyCoins().GetValue());
+        DataRepository::GetInstance().FlushStateToFile();
+        
+        if (mGameSceneTransitionManager->GetActiveSceneLogicManager()->VGetGuiObjectManager())
+        {
+            mGameSceneTransitionManager->GetActiveSceneLogicManager()->VGetGuiObjectManager()->ResetDisplayedCurrencyCoins();
+        }
+    }
+    
     if (ImGui::Button("Reset Coins"))
     {
         DataRepository::GetInstance().CurrencyCoins().SetValue(0);
         DataRepository::GetInstance().FlushStateToFile();
+        
+        if (mGameSceneTransitionManager->GetActiveSceneLogicManager()->VGetGuiObjectManager())
+        {
+            mGameSceneTransitionManager->GetActiveSceneLogicManager()->VGetGuiObjectManager()->ResetDisplayedCurrencyCoins();
+        }
     }
     
     static size_t cardPackIndex = 0;
