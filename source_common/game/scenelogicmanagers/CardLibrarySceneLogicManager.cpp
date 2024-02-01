@@ -30,9 +30,13 @@ static const std::string TITLE_CARD_LIBRARY = "Card Library";
 static const std::string DISSOLVE_SHADER_FILE_NAME = "card_dissolve.vs";
 static const std::string DISSOLVE_TEXTURE_FILE_NAME = "dissolve.png";
 static const std::string GOLDEN_CHECKBOX_FILLED_TEXTURE_FILE_NAME = "golden_checkbox_filled.png";
-static const std::string GOLDEN_CHECKBOX_EMPTY_TEXTURE_FILE_NAME = "golden_checkbox_empty.png";
+static const std::string CHECKBOX_EMPTY_TEXTURE_FILE_NAME = "checkbox_empty.png";
+static const std::string CHECKBOX_FILLED_TEXTURE_FILE_NAME = "checkbox_filled.png";
+static const std::string CARD_FAMILY_FILTER_ICON_SHADER_FILE_NAME = "card_family_stamp.vs";
+static const std::string CARD_FAMILY_FILTER_ICON_MASK_TEXTURE_FILE_NAME = "trap_mask.png";
 
 static const strutils::StringId BACK_BUTTON_NAME = strutils::StringId("back_button");
+static const strutils::StringId FILTERS_TEXT_SCENE_OBJECT_NAME = strutils::StringId("card_library_filters_text");
 static const strutils::StringId GOLDEN_CHECKBOX_TEXT_SCENE_OBJECT_NAME = strutils::StringId("golden_checkbox_text");
 static const strutils::StringId GOLDEN_CHECKBOX_SCENE_OBJECT_NAME = strutils::StringId("golden_checkbox");
 static const strutils::StringId STORY_CARDS_TITLE_SCENE_OBJECT_NAME = strutils::StringId("story_cards_title");
@@ -49,16 +53,17 @@ static const glm::vec3 BUTTON_SCALE = {0.0004f, 0.0004f, 0.0004f};
 static const glm::vec3 DELETE_CARD_BUTTON_POSITION = {-0.225f, 0.05f, 23.9f};
 static const glm::vec3 GOLDEN_CHECKBOX_TEXT_POSITION = {-0.26f, 0.05f, 23.9f};
 static const glm::vec3 GOLDEN_CHECKBOX_POSITION = {-0.125f, 0.037f, 23.9f};
-static const glm::vec3 BACK_BUTTON_POSITION = {0.0f, -0.1f, 23.2f};
+static const glm::vec3 BACK_BUTTON_POSITION = {0.0f, -0.2f, 23.2f};
 static const glm::vec3 CANCEL_BUTTON_POSITION = {-0.231f, -0.05f, 23.9f};
 static const glm::vec3 CARD_ENTRY_SCALE = glm::vec3(-0.273f, 0.2512f, 2.0f);
 static const glm::vec3 CONTAINER_ITEM_ENTRY_SCALE = glm::vec3(0.124f, 0.212f, 2.0f);
 static const glm::vec3 CARD_TOOLTIP_POSITION_OFFSET = {0.0f, 0.1f, 0.0f};
 static const glm::vec3 CARD_TOOLTIP_BASE_SCALE = {0.274f, 0.274f, 1/10.0f};
 static const glm::vec3 GOLDEN_CHECKBOX_TEXT_SCALE = {0.0004f, 0.0004f, 0.0004f};
-static const glm::vec3 GOLDEN_CHECKBOX_SCALE = {0.1f, 0.1f, 0.1f};
+static const glm::vec3 CHECKBOX_SCALE = {0.1f, 0.1f, 0.1f};
+static const glm::vec3 FILTER_ICON_SCALE = {0.0769f, 0.0769f, 0.0769f};
 static const glm::vec3 SELECTED_CARD_TARGET_POSITION = {0.0f, 0.0f, 26.5f};
-
+static const glm::vec3 FILTERS_TEXT_POSITION = {0.0f, 0.176f, 23.2f};
 static const glm::vec2 CARD_ENTRY_CUTOFF_VALUES = {-0.208f, 0.158f};
 static const glm::vec2 CARD_CONTAINER_CUTOFF_VALUES = {-0.15f, 0.15f};
 static const glm::vec2 CARD_DISSOLVE_EFFECT_MAG_RANGE = {3.0f, 6.0f};
@@ -76,6 +81,9 @@ static const float CARD_DISSOLVE_SPEED = 0.0005f;
 static const float MAX_CARD_DISSOLVE_VALUE = 1.2f;
 static const float ANIMATED_COIN_VALUE_DURATION_SECS = 1.5f;
 static const float MAX_SWIPE_DISTANCE_THRESHOLD_TO_CANCEL_CARD_SELECTION = 0.01f;
+static const float FILTERS_TEXT_SNAP_TO_EDGE_SCALE_FACTOR = 415.0f;
+static const float FILTER_CHECKBOX_SNAP_TO_EDGE_SCALE_FACTOR = 0.3f;
+static const float FILTER_ICON_SNAP_TO_EDGE_SCALE_FACTOR = 1.6f;
 
 static constexpr std::pair<int, int> CARD_DELETION_PRODUCT_COORDS = std::make_pair(2, 2);
 static constexpr int MIN_CONTAINER_ENTRIES_TO_ANIMATE = 5;
@@ -89,6 +97,13 @@ static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
 static const std::unordered_set<strutils::StringId, strutils::StringIdHasher> STATIC_SCENE_ELEMENTS =
 {
     game_constants::OVERLAY_SCENE_OBJECT_NAME
+};
+
+static const std::unordered_map<strutils::StringId, glm::vec3, strutils::StringIdHasher> CARD_FAMILY_NAME_TO_FILTER_POSITION =
+{
+    { game_constants::DINOSAURS_FAMILY_NAME, glm::vec3(0.0f, 0.075f, 23.2f) },
+    { game_constants::RODENTS_FAMILY_NAME, glm::vec3(0.0f, -0.025f, 23.2f) },
+    { game_constants::INSECTS_FAMILY_NAME, glm::vec3(0.0f, -0.125f, 23.2f) }
 };
 
 ///------------------------------------------------------------------------------------------------
@@ -138,6 +153,49 @@ void CardLibrarySceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scen
         case CardLibraryBehaviorType::CARD_LIBRARY:
         {
             std::get<scene::TextSceneObjectData>(mScene->FindSceneObject(STORY_CARDS_TITLE_SCENE_OBJECT_NAME)->mSceneObjectTypeData).mText = TITLE_CARD_LIBRARY;
+        }
+    }
+    
+    
+    if (DataRepository::GetInstance().GetCurrentCardLibraryBehaviorType() == CardLibraryBehaviorType::CARD_LIBRARY)
+    {
+        // Card Library Filtering Text
+        scene::TextSceneObjectData filtersTextData;
+        filtersTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
+        filtersTextData.mText = "Filters";
+        
+        auto filtersTextSceneObject = scene->CreateSceneObject(FILTERS_TEXT_SCENE_OBJECT_NAME);
+        filtersTextSceneObject->mSceneObjectTypeData = std::move(filtersTextData);
+        filtersTextSceneObject->mPosition = FILTERS_TEXT_POSITION;
+        filtersTextSceneObject->mScale = BUTTON_SCALE;
+        filtersTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+        filtersTextSceneObject->mInvisible = true;
+        filtersTextSceneObject->mSnapToEdgeBehavior = scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE;
+        filtersTextSceneObject->mSnapToEdgeScaleOffsetFactor = FILTERS_TEXT_SNAP_TO_EDGE_SCALE_FACTOR;
+        
+        // Card Library Filtering Checkboxes
+        for (const auto& cardFamilyEntry: game_constants::CARD_FAMILY_NAMES_TO_TEXTURES)
+        {
+            auto filterCheckboxSceneObject = scene->CreateSceneObject(strutils::StringId(cardFamilyEntry.first.GetString() + "_filter_checkbox"));
+            filterCheckboxSceneObject->mPosition = CARD_FAMILY_NAME_TO_FILTER_POSITION.at(cardFamilyEntry.first);
+            filterCheckboxSceneObject->mScale = CHECKBOX_SCALE;
+            filterCheckboxSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CHECKBOX_FILLED_TEXTURE_FILE_NAME);
+            filterCheckboxSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+            filterCheckboxSceneObject->mInvisible = true;
+            filterCheckboxSceneObject->mSnapToEdgeBehavior = scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE;
+            filterCheckboxSceneObject->mSnapToEdgeScaleOffsetFactor = FILTER_CHECKBOX_SNAP_TO_EDGE_SCALE_FACTOR;
+            filterCheckboxSceneObject->mBoundingRectMultiplier /= 2.0f;
+            
+            auto filterIconSceneObject = scene->CreateSceneObject(strutils::StringId(cardFamilyEntry.first.GetString() + "_filter_icon"));
+            filterIconSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + game_constants::CARD_FAMILY_NAMES_TO_TEXTURES.at(cardFamilyEntry.first));
+            filterIconSceneObject->mEffectTextureResourceIds[0] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CARD_FAMILY_FILTER_ICON_MASK_TEXTURE_FILE_NAME);
+            filterIconSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CARD_FAMILY_FILTER_ICON_SHADER_FILE_NAME);
+            filterIconSceneObject->mScale = FILTER_ICON_SCALE;
+            filterIconSceneObject->mPosition = CARD_FAMILY_NAME_TO_FILTER_POSITION.at(cardFamilyEntry.first);
+            filterIconSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+            filterIconSceneObject->mInvisible = true;
+            filterIconSceneObject->mSnapToEdgeBehavior = scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE;
+            filterIconSceneObject->mSnapToEdgeScaleOffsetFactor = FILTER_ICON_SNAP_TO_EDGE_SCALE_FACTOR;
         }
     }
     
@@ -191,44 +249,16 @@ void CardLibrarySceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scen
     mAnimatedButtons.back()->GetSceneObject()->mInvisible = true;
     mAnimatedButtons.back()->GetSceneObject()->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
     
-    mCardContainer = std::make_unique<SwipeableContainer<CardEntry>>
-    (
-        ContainerType::VERTICAL_MATRIX,
-        CONTAINER_ITEM_ENTRY_SCALE,
-        CARD_CONTAINER_BOUNDS,
-        CARD_CONTAINER_CUTOFF_VALUES,
-        CARD_CONTAINER_SCENE_OBJECT_NAME,
-        CARD_ENTRY_Z,
-        *scene,
-        MIN_CONTAINER_ENTRIES_TO_ANIMATE
-    );
+    CreateCardEntriesAndContainer();
     
-    auto cards = DataRepository::GetInstance().GetCurrentCardLibraryBehaviorType() == CardLibraryBehaviorType::CARD_LIBRARY ? DataRepository::GetInstance().GetUnlockedCardIds() : DataRepository::GetInstance().GetCurrentStoryPlayerDeck();
-    for (const auto& cardId: cards)
-    {
-        CardData cardData = CardDataRepository::GetInstance().GetCardData(cardId, game_constants::LOCAL_PLAYER_INDEX);
-        const auto& cardIdToGoldenCardEnabledMap = DataRepository::GetInstance().GetGoldenCardIdMap();
-        bool isGoldenCard = cardIdToGoldenCardEnabledMap.count(cardId) && cardIdToGoldenCardEnabledMap.at(cardId);
-        
-        auto cardSoWrapper = card_utils::CreateCardSoWrapper(&cardData, glm::vec3(), "", CardOrientation::FRONT_FACE, isGoldenCard ? CardRarity::GOLDEN : CardRarity::NORMAL, true, false, true, {}, {}, *scene);
-        cardSoWrapper->mSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CARD_ENTRY_SHADER);
-        cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MIN_Y_UNIFORM_NAME] = CARD_ENTRY_CUTOFF_VALUES.s;
-        cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MAX_Y_UNIFORM_NAME] = CARD_ENTRY_CUTOFF_VALUES.t;
-        cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
-        cardSoWrapper->mSceneObject->mScale = CARD_ENTRY_SCALE;
-        
-        CardEntry cardEntry;
-        cardEntry.mCardSoWrapper = cardSoWrapper;
-        cardEntry.mSceneObjects.emplace_back(cardSoWrapper->mSceneObject);
-        mCardContainer->AddItem(std::move(cardEntry), EntryAdditionStrategy::ADD_ON_THE_BACK);
-    }
-    
+    // Golden card behavior Checkbox
     auto goldenCheckboxSceneObject = scene->CreateSceneObject(GOLDEN_CHECKBOX_SCENE_OBJECT_NAME);
     goldenCheckboxSceneObject->mPosition = GOLDEN_CHECKBOX_POSITION;
-    goldenCheckboxSceneObject->mScale = GOLDEN_CHECKBOX_SCALE;
-    goldenCheckboxSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + GOLDEN_CHECKBOX_EMPTY_TEXTURE_FILE_NAME);
+    goldenCheckboxSceneObject->mScale = CHECKBOX_SCALE;
+    goldenCheckboxSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CHECKBOX_EMPTY_TEXTURE_FILE_NAME);
     goldenCheckboxSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
     goldenCheckboxSceneObject->mInvisible = true;
+    goldenCheckboxSceneObject->mBoundingRectMultiplier /= 2.0f;
     
     scene::TextSceneObjectData goldenCheckboxTextData;
     goldenCheckboxTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
@@ -240,7 +270,8 @@ void CardLibrarySceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scen
     goldenCheckboxTextSceneObject->mScale = GOLDEN_CHECKBOX_TEXT_SCALE;
     goldenCheckboxTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
     goldenCheckboxTextSceneObject->mInvisible = true;
-                                                   
+    
+    // Staggered Item Presentation
     size_t sceneObjectIndex = 0;
     for (auto sceneObject: scene->GetSceneObjects())
     {
@@ -292,6 +323,9 @@ void CardLibrarySceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr
     {
         case SceneState::BROWSING_CARDS:
         {
+            const auto& inputStateManager = CoreSystemsEngine::GetInstance().GetInputStateManager();
+            auto worldTouchPos = inputStateManager.VGetPointingPosInWorldSpace(mScene->GetCamera().GetViewMatrix(), mScene->GetCamera().GetProjMatrix());
+            
             if (mCardContainer)
             {
                 static int sToolTipIndex = -1;
@@ -299,11 +333,7 @@ void CardLibrarySceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr
                 
                 if (mSelectedCardIndex != -1 && !CoreSystemsEngine::GetInstance().GetInputStateManager().VButtonPressed(input::Button::MAIN_BUTTON))
                 {
-                    const auto& inputStateManager = CoreSystemsEngine::GetInstance().GetInputStateManager();
-                    
-                    auto worldTouchPos = inputStateManager.VGetPointingPosInWorldSpace(mScene->GetCamera().GetViewMatrix(), mScene->GetCamera().GetProjMatrix());
                     auto sceneObjectRect = scene_object_utils::GetSceneObjectBoundingRect(*mCardContainer->GetItems()[mSelectedCardIndex].mSceneObjects.front());
-                    
                     if (math::IsPointInsideRectangle(sceneObjectRect.bottomLeft, sceneObjectRect.topRight, worldTouchPos) && glm::distance(mSelectedCardInitialPosition, mCardContainer->GetItems()[mSelectedCardIndex].mSceneObjects.front()->mPosition) < MAX_SWIPE_DISTANCE_THRESHOLD_TO_CANCEL_CARD_SELECTION)
                     {
                         SelectCard();
@@ -364,6 +394,28 @@ void CardLibrarySceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr
             for (auto& animatedButton: mAnimatedButtons)
             {
                 animatedButton->Update(dtMillis);
+            }
+            
+            if (DataRepository::GetInstance().GetCurrentCardLibraryBehaviorType() == CardLibraryBehaviorType::CARD_LIBRARY && inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON))
+            {
+                // Interaction with filters
+                for (const auto& cardFamilyEntry: game_constants::CARD_FAMILY_NAMES_TO_TEXTURES)
+                {
+                    auto filterCheckboxSceneObject = mScene->FindSceneObject(strutils::StringId(cardFamilyEntry.first.GetString() + "_filter_checkbox"));
+                    auto filterIconSceneObject = mScene->FindSceneObject(strutils::StringId(cardFamilyEntry.first.GetString() + "_filter_icon"));
+                    
+                    auto filterCheckboxSceneObjectRect = scene_object_utils::GetSceneObjectBoundingRect(*filterCheckboxSceneObject);
+                    auto filterIconSceneObjectRect = scene_object_utils::GetSceneObjectBoundingRect(*filterIconSceneObject);
+                    
+                    if
+                    (
+                        math::IsPointInsideRectangle(filterCheckboxSceneObjectRect.bottomLeft, filterCheckboxSceneObjectRect.topRight, worldTouchPos) ||
+                        math::IsPointInsideRectangle(filterIconSceneObjectRect.bottomLeft, filterIconSceneObjectRect.topRight, worldTouchPos)
+                    )
+                    {
+                        ToggleFilterCheckbox(filterCheckboxSceneObject);
+                    }
+                }
             }
         } break;
             
@@ -499,6 +551,119 @@ void CardLibrarySceneLogicManager::OnWindowResize(const events::WindowResizeEven
 
 ///------------------------------------------------------------------------------------------------
 
+void CardLibrarySceneLogicManager::CreateCardEntriesAndContainer()
+{
+    // Checbox values
+    resources::ResourceId checkboxFilledTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CHECKBOX_FILLED_TEXTURE_FILE_NAME);
+
+    // Clean up existing container
+    bool containerExists = mCardContainer != nullptr;
+    if (containerExists)
+    {
+        for (const auto& containerItem: mCardContainer->GetItems())
+        {
+            for (const auto& sceneObject: containerItem.mSceneObjects)
+            {
+                CoreSystemsEngine::GetInstance().GetAnimationManager().StopAllAnimationsPlayingForSceneObject(sceneObject->mName);
+                mScene->RemoveSceneObject(sceneObject->mName);
+            }
+        }
+        
+        mCardContainer = nullptr;
+    }
+    
+    // Card Container
+    mCardContainer = std::make_unique<SwipeableContainer<CardEntry>>
+    (
+        ContainerType::VERTICAL_MATRIX,
+        CONTAINER_ITEM_ENTRY_SCALE,
+        CARD_CONTAINER_BOUNDS,
+        CARD_CONTAINER_CUTOFF_VALUES,
+        CARD_CONTAINER_SCENE_OBJECT_NAME,
+        CARD_ENTRY_Z,
+        *mScene,
+        MIN_CONTAINER_ENTRIES_TO_ANIMATE
+    );
+    
+    // Collect cards
+    auto cards = DataRepository::GetInstance().GetCurrentCardLibraryBehaviorType() == CardLibraryBehaviorType::CARD_LIBRARY ? DataRepository::GetInstance().GetUnlockedCardIds() : DataRepository::GetInstance().GetCurrentStoryPlayerDeck();
+    
+    // Filter cards
+    if (DataRepository::GetInstance().GetCurrentCardLibraryBehaviorType() == CardLibraryBehaviorType::CARD_LIBRARY)
+    {
+        std::vector<std::function<bool(int)>> filterPredicates;
+        
+        for (const auto& cardFamilyEntry: game_constants::CARD_FAMILY_NAMES_TO_TEXTURES)
+        {
+            auto filterCheckboxSceneObject = mScene->FindSceneObject(strutils::StringId(cardFamilyEntry.first.GetString() + "_filter_checkbox"));
+            if (filterCheckboxSceneObject->mTextureResourceId == checkboxFilledTextureResourceId)
+            {
+                filterPredicates.emplace_back([=](const int cardId){ return CardDataRepository::GetInstance().GetCardData(cardId, game_constants::LOCAL_PLAYER_INDEX).mCardFamily == cardFamilyEntry.first; });
+            }
+        }
+        
+        for (auto cardIter = cards.begin(); cardIter != cards.end();)
+        {
+            bool shouldKeepCard = false;
+            for (auto& filterPredicate: filterPredicates)
+            {
+                if (filterPredicate(*cardIter))
+                {
+                    shouldKeepCard = true;
+                }
+            }
+            
+            if (!shouldKeepCard)
+            {
+                cardIter = cards.erase(cardIter);
+            }
+            else
+            {
+                cardIter++;
+            }
+        }
+    }
+    
+    
+    // Create card entries
+    for (const auto& cardId: cards)
+    {
+        CardData cardData = CardDataRepository::GetInstance().GetCardData(cardId, game_constants::LOCAL_PLAYER_INDEX);
+        const auto& cardIdToGoldenCardEnabledMap = DataRepository::GetInstance().GetGoldenCardIdMap();
+        bool isGoldenCard = cardIdToGoldenCardEnabledMap.count(cardId) && cardIdToGoldenCardEnabledMap.at(cardId);
+        
+        auto cardSoWrapper = card_utils::CreateCardSoWrapper(&cardData, glm::vec3(), "", CardOrientation::FRONT_FACE, isGoldenCard ? CardRarity::GOLDEN : CardRarity::NORMAL, true, false, true, {}, {}, *mScene);
+        cardSoWrapper->mSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CARD_ENTRY_SHADER);
+        cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MIN_Y_UNIFORM_NAME] = CARD_ENTRY_CUTOFF_VALUES.s;
+        cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MAX_Y_UNIFORM_NAME] = CARD_ENTRY_CUTOFF_VALUES.t;
+        cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+        cardSoWrapper->mSceneObject->mScale = CARD_ENTRY_SCALE;
+        
+        CardEntry cardEntry;
+        cardEntry.mCardSoWrapper = cardSoWrapper;
+        cardEntry.mSceneObjects.emplace_back(cardSoWrapper->mSceneObject);
+        mCardContainer->AddItem(std::move(cardEntry), EntryAdditionStrategy::ADD_ON_THE_BACK);
+    }
+    
+    // If container doesn't exist the staggered fade in will happen automatically at the end of VInitScene
+    if (containerExists)
+    {
+        // Staggered Item Presentation
+        size_t sceneObjectIndex = 0;
+        for (const auto& containerItems: mCardContainer->GetItems())
+        {
+            for (auto& sceneObject: containerItems.mSceneObjects)
+            {
+                sceneObject->mInvisible = false;
+                sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+                CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, 1.0f, ITEMS_FADE_IN_OUT_DURATION_SECS, animation_flags::NONE, sceneObjectIndex++ * STAGGERED_ITEM_ALPHA_DELAY_SECS), [=](){});
+            }
+        }
+    }
+}
+
+///------------------------------------------------------------------------------------------------
+
 void CardLibrarySceneLogicManager::CreateCardTooltip(const glm::vec3& cardOriginPostion, const std::string& tooltipText)
 {
     bool shouldBeHorFlipped = cardOriginPostion.x > 0.0f;
@@ -573,7 +738,7 @@ void CardLibrarySceneLogicManager::SelectCard()
         {
             // Fade in golden checkbox
             auto goldenCheckBoxSceneObject = mScene->FindSceneObject(GOLDEN_CHECKBOX_SCENE_OBJECT_NAME);
-            goldenCheckBoxSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + (goldenCardIds.at(card->mCardData.mCardId) ? GOLDEN_CHECKBOX_FILLED_TEXTURE_FILE_NAME : GOLDEN_CHECKBOX_EMPTY_TEXTURE_FILE_NAME));
+            goldenCheckBoxSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + (goldenCardIds.at(card->mCardData.mCardId) ? GOLDEN_CHECKBOX_FILLED_TEXTURE_FILE_NAME : CHECKBOX_EMPTY_TEXTURE_FILE_NAME));
                                                                                                                                       
             goldenCheckBoxSceneObject->mInvisible = false;
             animationManager.StopAllAnimationsPlayingForSceneObject(goldenCheckBoxSceneObject->mName);
@@ -683,6 +848,19 @@ void CardLibrarySceneLogicManager::DeselectCard()
 
 ///------------------------------------------------------------------------------------------------
 
+void CardLibrarySceneLogicManager::ToggleFilterCheckbox(std::shared_ptr<scene::SceneObject> filterCheckboxSceneObject)
+{
+    resources::ResourceId checkboxFilledTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CHECKBOX_FILLED_TEXTURE_FILE_NAME);
+    resources::ResourceId checkboxEmptyTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CHECKBOX_EMPTY_TEXTURE_FILE_NAME);
+    
+    bool newCheckboxValue = filterCheckboxSceneObject->mTextureResourceId == checkboxFilledTextureResourceId ? false : true;
+    filterCheckboxSceneObject->mTextureResourceId = newCheckboxValue ? checkboxFilledTextureResourceId : checkboxEmptyTextureResourceId;
+    
+    CreateCardEntriesAndContainer();
+}
+
+///------------------------------------------------------------------------------------------------
+
 void CardLibrarySceneLogicManager::ToggleGoldenCheckbox()
 {
     auto goldenCheckBoxSceneObject = mScene->FindSceneObject(GOLDEN_CHECKBOX_SCENE_OBJECT_NAME);
@@ -695,7 +873,7 @@ void CardLibrarySceneLogicManager::ToggleGoldenCheckbox()
 void CardLibrarySceneLogicManager::SetGoldenCheckboxValue(const bool checkboxValue)
 {
     resources::ResourceId goldenCheckboxFilledTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + GOLDEN_CHECKBOX_FILLED_TEXTURE_FILE_NAME);
-    resources::ResourceId goldenCheckboxEmptyTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + GOLDEN_CHECKBOX_EMPTY_TEXTURE_FILE_NAME);
+    resources::ResourceId goldenCheckboxEmptyTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CHECKBOX_EMPTY_TEXTURE_FILE_NAME);
     
     auto selectedCard = mCardContainer->GetItems()[mSelectedCardIndex].mCardSoWrapper;
     auto goldenCheckBoxSceneObject = mScene->FindSceneObject(GOLDEN_CHECKBOX_SCENE_OBJECT_NAME);

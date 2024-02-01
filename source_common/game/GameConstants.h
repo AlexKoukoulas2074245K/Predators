@@ -12,6 +12,7 @@
 
 #include <engine/utils/MathUtils.h>
 #include <engine/utils/StringUtils.h>
+#include <unordered_map>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -215,6 +216,14 @@ namespace game_constants
     inline const glm::ivec2 STORY_NODE_MAP_DIMENSIONS = {11, 7};
 
     inline float GAME_BOARD_BASED_SCENE_ZOOM_FACTOR = 120.0f;
+
+
+    inline const std::unordered_map<strutils::StringId, std::string, strutils::StringIdHasher> CARD_FAMILY_NAMES_TO_TEXTURES =
+    {
+        { INSECTS_FAMILY_NAME, "insect_duplication.png" },
+        { RODENTS_FAMILY_NAME, "rodents_attack.png" },
+        { DINOSAURS_FAMILY_NAME, "mighty_roar.png" }
+    };
 }
 
 ///------------------------------------------------------------------------------------------------

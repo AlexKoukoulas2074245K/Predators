@@ -94,13 +94,6 @@ static const std::unordered_map<CardPackType, std::string> CARD_PACK_TYPE_TO_TIT
     { CardPackType::GOLDEN, "Golden Pack Reward!" },
 };
 
-static const std::unordered_map<strutils::StringId, std::string, strutils::StringIdHasher> CARD_FAMILY_NAMES_TO_TEXTURES =
-{
-    { game_constants::INSECTS_FAMILY_NAME, "insect_duplication.png" },
-    { game_constants::RODENTS_FAMILY_NAME, "rodents_attack.png" },
-    { game_constants::DINOSAURS_FAMILY_NAME, "mighty_roar.png" }
-};
-
 ///------------------------------------------------------------------------------------------------
 
 const std::vector<strutils::StringId>& CardPackRewardSceneLogicManager::VGetApplicableSceneNames() const
@@ -579,7 +572,7 @@ void CardPackRewardSceneLogicManager::CreateCardRewards(std::shared_ptr<scene::S
             cardData.mCardFamily == game_constants::INSECTS_FAMILY_NAME)
         {
             mCardRewardFamilyStamps.push_back(scene->CreateSceneObject(strutils::StringId(CARD_REWARD_SCENE_OBJECT_NAME_PREFIX + "family_stamp_" + std::to_string(i))));
-            mCardRewardFamilyStamps.back()->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CARD_FAMILY_NAMES_TO_TEXTURES.at(cardData.mCardFamily));
+            mCardRewardFamilyStamps.back()->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + game_constants::CARD_FAMILY_NAMES_TO_TEXTURES.at(cardData.mCardFamily));
             mCardRewardFamilyStamps.back()->mEffectTextureResourceIds[0] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + FAMILY_STAMP_MASK_TEXTURE_FILE_NAME);
             mCardRewardFamilyStamps.back()->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CARD_FAMILY_STAMP_SHADER_FILE_NAME);
             mCardRewardFamilyStamps.back()->mScale.x = mCardRewardFamilyStamps.back()->mScale.y = game_constants::IN_GAME_CARD_PROPERTY_ICON_SCALE;

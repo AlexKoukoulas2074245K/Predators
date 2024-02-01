@@ -664,7 +664,7 @@ void ShopSceneLogicManager::CreateProducts()
         {
             auto randomCardIndex = static_cast<int>(math::ControlledRandomInt() % cardRewardsPool.size());
             auto cardId = cardRewardsPool[randomCardIndex];
-            const auto& cardData = CardDataRepository::GetInstance().GetCardData(cardId, true);
+            const auto& cardData = CardDataRepository::GetInstance().GetCardData(cardId, game_constants::LOCAL_PLAYER_INDEX);
             auto productDefinitionName = strutils::StringId("card_" + std::to_string(cardId));
             
             auto cardPrice = cardData.IsSpell() ? SPELL_CARD_REWARD_PRICE : NORMAL_CARD_REWARD_PRICE;

@@ -37,11 +37,13 @@ public:
     
 private:
     void OnWindowResize(const events::WindowResizeEvent&);
+    void CreateCardEntriesAndContainer();
     void CreateCardTooltip(const glm::vec3& cardOriginPostion, const std::string& tooltipText);
     void DestroyCardTooltip();
     void SelectCard();
     void DeleteCard();
     void DeselectCard();
+    void ToggleFilterCheckbox(std::shared_ptr<scene::SceneObject> filterCheckboxSceneObject);
     void ToggleGoldenCheckbox();
     void SetGoldenCheckboxValue(const bool checkboxValue);
     

@@ -125,13 +125,6 @@ static const std::unordered_map<strutils::StringId, BattleControlType, strutils:
     { REPLAY_BATTLE_MODE_BUTTON_NAME, BattleControlType::REPLAY }
 };
 
-static const std::unordered_map<strutils::StringId, std::string, strutils::StringIdHasher> CARD_FAMILY_NAMES_TO_SELECTION_TEXTURES =
-{
-    { game_constants::INSECTS_FAMILY_NAME, "insect_duplication.png" },
-    { game_constants::RODENTS_FAMILY_NAME, "rodents_attack.png" },
-    { game_constants::DINOSAURS_FAMILY_NAME, "mighty_roar.png" }
-};
-
 static const std::unordered_map<StoryMapSceneType, strutils::StringId> STORY_MAP_SCENE_TYPE_TO_SCENE_NAME =
 {
     { StoryMapSceneType::STORY_MAP, game_constants::STORY_MAP_SCENE },
@@ -591,7 +584,7 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                 MIN_DECK_ENTRIES_TO_SCROLL
             );
             
-            for (const auto& cardFamilyEntry: CARD_FAMILY_NAMES_TO_SELECTION_TEXTURES)
+            for (const auto& cardFamilyEntry: game_constants::CARD_FAMILY_NAMES_TO_TEXTURES)
             {
                 {
                     auto cardFamilyEntrySceneObject = scene->CreateSceneObject();
@@ -706,7 +699,7 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                 MIN_DECK_ENTRIES_TO_SCROLL
             );
             
-            for (const auto& cardFamilyEntry: CARD_FAMILY_NAMES_TO_SELECTION_TEXTURES)
+            for (const auto& cardFamilyEntry: game_constants::CARD_FAMILY_NAMES_TO_TEXTURES)
             {
                 {
                     auto cardFamilyEntrySceneObject = scene->CreateSceneObject();
