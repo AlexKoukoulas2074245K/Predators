@@ -70,6 +70,7 @@ static const strutils::StringId DISSOLVE_THRESHOLD_UNIFORM_NAME = strutils::Stri
 static const strutils::StringId DISSOLVE_MAGNITUDE_UNIFORM_NAME = strutils::StringId("dissolve_magnitude");
 static const strutils::StringId ORIGIN_X_UNIFORM_NAME = strutils::StringId("origin_x");
 static const strutils::StringId ORIGIN_Y_UNIFORM_NAME = strutils::StringId("origin_y");
+static const strutils::StringId PRODUCT_DESELECTION_ANIMATION_NAME = strutils::StringId("product_deselection_animation");
 
 static const std::string DISSOLVE_SHADER_FILE_NAME = "generic_dissolve.vs";
 static const std::string DISSOLVE_TEXTURE_FILE_NAME = "dissolve.png";
@@ -139,6 +140,7 @@ static const float CARD_BOUGHT_ANIMATION_MIN_ALPHA = 0.3f;
 static const float CARD_BOUGHT_ANIMATION_LIBRARY_ICON_PULSE_FACTOR = 1.25f;
 static const float CARD_BOUGHT_ANIMATION_LIBRARY_ICON_PULSE_DURATION_SECS = 0.1f;
 static const float CARD_PACK_PRODUCT_BOUNDING_RECT_MULTIPLIER = 12.0f;
+static const float PRODUCT_SELECTION_DESELECTION_BUMP_Z = 0.01f;
 
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
 {
@@ -251,6 +253,11 @@ void ShopSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene:
             }
             
             if (!mScene->FindSceneObject(SELECTED_PRODUCT_OVERLAY_SCENE_OBJECT_NAME)->mInvisible)
+            {
+                return;
+            }
+            
+            if (CoreSystemsEngine::GetInstance().GetAnimationManager().IsAnimationPlaying(PRODUCT_DESELECTION_ANIMATION_NAME))
             {
                 return;
             }
@@ -924,7 +931,10 @@ void ShopSceneLogicManager::SelectProduct(const size_t productShelfIndex, const 
     
     // Animate product (and related scene objects to target position)
     mSelectedProductInitialPosition = product->mSceneObjects.front()->mPosition;
-    
+    for (auto sceneObject: product->mSceneObjects)
+    {
+        sceneObject->mPosition.z = (sceneObject->mPosition.z - product->mSceneObjects.front()->mPosition.z) + selectedProductOverlaySceneObject->mPosition.z + PRODUCT_SELECTION_DESELECTION_BUMP_Z;
+    }
     auto targetScale = (std::holds_alternative<int>(productDefinition.mProductTexturePathOrCardId) ? CARD_PRODUCT_SCALE : GENERIC_PRODUCT_SCALE) * SELECTED_PRODUCT_SCALE_FACTOR;
     if (product->mProductName == NORMAL_PACK_PRODUCT_NAME || product->mProductName == GOLDEN_PACK_PRODUCT_NAME)
     {
@@ -986,7 +996,7 @@ void ShopSceneLogicManager::DeselectProduct(const size_t productShelfIndex, cons
     // Fade in selected product overlay
     auto selectedProductOverlaySceneObject = mScene->FindSceneObject(SELECTED_PRODUCT_OVERLAY_SCENE_OBJECT_NAME);
     animationManager.StopAllAnimationsPlayingForSceneObject(selectedProductOverlaySceneObject->mName);
-    animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(mScene->FindSceneObject(SELECTED_PRODUCT_OVERLAY_SCENE_OBJECT_NAME), 0.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){ selectedProductOverlaySceneObject->mInvisible = true; });
+    animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(mScene->FindSceneObject(SELECTED_PRODUCT_OVERLAY_SCENE_OBJECT_NAME), 0.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS/2), [=](){ selectedProductOverlaySceneObject->mInvisible = true; });
     
     auto defaultScale = (std::holds_alternative<int>(productDefinition.mProductTexturePathOrCardId) ? CARD_PRODUCT_SCALE : GENERIC_PRODUCT_SCALE);
     if (product->mProductName == NORMAL_PACK_PRODUCT_NAME || product->mProductName == GOLDEN_PACK_PRODUCT_NAME)
@@ -1015,7 +1025,7 @@ void ShopSceneLogicManager::DeselectProduct(const size_t productShelfIndex, cons
                 }
             }
         }
-    });
+    }, PRODUCT_DESELECTION_ANIMATION_NAME);
 }
 
 ///------------------------------------------------------------------------------------------------

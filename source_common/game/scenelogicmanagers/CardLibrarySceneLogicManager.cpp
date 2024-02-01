@@ -48,6 +48,7 @@ static const strutils::StringId DISSOLVE_THRESHOLD_UNIFORM_NAME = strutils::Stri
 static const strutils::StringId DISSOLVE_MAGNITUDE_UNIFORM_NAME = strutils::StringId("dissolve_magnitude");
 static const strutils::StringId CARD_ORIGIN_X_UNIFORM_NAME = strutils::StringId("card_origin_x");
 static const strutils::StringId CARD_ORIGIN_Y_UNIFORM_NAME = strutils::StringId("card_origin_y");
+static const strutils::StringId CARD_DESELECTION_ANIMATION_NAME = strutils::StringId("card_deselection_animation");
 
 static const glm::vec3 BUTTON_SCALE = {0.0004f, 0.0004f, 0.0004f};
 static const glm::vec3 DELETE_CARD_BUTTON_POSITION = {-0.225f, 0.05f, 23.9f};
@@ -84,6 +85,7 @@ static const float MAX_SWIPE_DISTANCE_THRESHOLD_TO_CANCEL_CARD_SELECTION = 0.01f
 static const float FILTERS_TEXT_SNAP_TO_EDGE_SCALE_FACTOR = 415.0f;
 static const float FILTER_CHECKBOX_SNAP_TO_EDGE_SCALE_FACTOR = 0.3f;
 static const float FILTER_ICON_SNAP_TO_EDGE_SCALE_FACTOR = 1.6f;
+static const float CARD_SELECTION_DESELECTION_BUMP_Z = 0.01f;
 
 static constexpr int MIN_CONTAINER_ENTRIES_TO_ANIMATE = 5;
 static constexpr int CARD_DELETION_SERVICE_PRICE = 100;
@@ -313,9 +315,15 @@ void CardLibrarySceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr
         return;
     }
     
+    
     for (auto& cardContainerItem: mCardContainer->GetItems())
     {
         cardContainerItem.mSceneObjects.front()->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
+    }
+    
+    if (CoreSystemsEngine::GetInstance().GetAnimationManager().IsAnimationPlaying(CARD_DESELECTION_ANIMATION_NAME))
+    {
+        return;
     }
     
     switch (mSceneState)
@@ -434,8 +442,10 @@ void CardLibrarySceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr
         case SceneState::SELECTED_CARD_IN_CARD_LIBRARY:
         {
             const auto& inputStateManager = CoreSystemsEngine::GetInstance().GetInputStateManager();
+            const auto& goldenCardIds = DataRepository::GetInstance().GetGoldenCardIdMap();
+            auto selectedCard = mCardContainer->GetItems()[mSelectedCardIndex].mCardSoWrapper;
             
-            if (inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON))
+            if (goldenCardIds.count(selectedCard->mCardData.mCardId) && inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON))
             {
                 auto worldTouchPos = inputStateManager.VGetPointingPosInWorldSpace(mScene->GetCamera().GetViewMatrix(), mScene->GetCamera().GetProjMatrix());
             
@@ -734,8 +744,9 @@ void CardLibrarySceneLogicManager::SelectCard()
     animationManager.StopAllAnimationsPlayingForSceneObject(cardDeletionOverlaySceneObject->mName);
     animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(cardDeletionOverlaySceneObject, SELECTED_CARD_OVERLAY_MAX_ALPHA, SELECTED_CARD_ANIMATION_DURATION_SECS), [=](){});
     
-    // Animate product (and related scene objects to target position)
+    // Animate product to target position
     mSelectedCardInitialPosition = card->mSceneObject->mPosition;
+    card->mSceneObject->mPosition.z = cardDeletionOverlaySceneObject->mPosition.z + CARD_SELECTION_DESELECTION_BUMP_Z;
     animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(card->mSceneObject, SELECTED_CARD_TARGET_POSITION, CARD_ENTRY_SCALE * SELECTED_CARD_SCALE_FACTOR, SELECTED_CARD_ANIMATION_DURATION_SECS), [=]()
     {
         if (card->mCardData.IsSpell())
@@ -854,9 +865,9 @@ void CardLibrarySceneLogicManager::DeselectCard()
     // Fade in selected card overlay
     auto cardDeletionOverlaySceneObject = mScene->FindSceneObject(CARD_DELETION_OVERLAY_SCENE_OBJECT_NAME);
     animationManager.StopAllAnimationsPlayingForSceneObject(cardDeletionOverlaySceneObject->mName);
-    animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(mScene->FindSceneObject(CARD_DELETION_OVERLAY_SCENE_OBJECT_NAME), 0.0f, SELECTED_CARD_ANIMATION_DURATION_SECS), [=](){ cardDeletionOverlaySceneObject->mInvisible = true; });
+    animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(mScene->FindSceneObject(CARD_DELETION_OVERLAY_SCENE_OBJECT_NAME), 0.0f, SELECTED_CARD_ANIMATION_DURATION_SECS/2), [=](){ cardDeletionOverlaySceneObject->mInvisible = true; });
     
-    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSceneObject, mSelectedCardInitialPosition, CARD_ENTRY_SCALE, SELECTED_CARD_ANIMATION_DURATION_SECS), [=](){ mSceneState = SceneState::BROWSING_CARDS; });
+    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSceneObject, mSelectedCardInitialPosition, CARD_ENTRY_SCALE, SELECTED_CARD_ANIMATION_DURATION_SECS), [=](){ mSceneState = SceneState::BROWSING_CARDS; }, CARD_DESELECTION_ANIMATION_NAME);
     
     mSelectedCardIndex = -1;
     mCardContainer->ResetSwipeData();
