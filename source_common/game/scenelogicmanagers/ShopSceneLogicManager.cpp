@@ -40,7 +40,8 @@ static constexpr int SHELF_ITEM_COUNT = 5;
 static constexpr int NORMAL_CARD_REWARD_PRICE = 50;
 static constexpr int SPELL_CARD_REWARD_PRICE = 100;
 
-static constexpr std::pair<int, int> COINS_TO_LIFE_RATE = std::make_pair(100, 30);
+static constexpr std::pair<int, int> COINS_TO_LIFE_RATE = std::make_pair(100, 15);
+static constexpr std::pair<int, int> LIFE_TO_COINS_RATE = std::make_pair(30, 100);
 
 static const strutils::StringId PURCHASING_PRODUCT_SCENE = strutils::StringId("purchasing_product_scene");
 static const strutils::StringId SELECTED_PRODUCT_OVERLAY_SCENE_OBJECT_NAME = strutils::StringId("selected_product_overlay");
@@ -230,6 +231,16 @@ void ShopSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene:
             }
             
             mProducts[shelfIndex][shelfItemIndex]->mSceneObjects.front()->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
+            
+            // Story health refill might need to be erased
+            if (mSceneState != SceneState::BUYING_PERMA_SHOP_PRODUCT && mProducts[shelfIndex][shelfItemIndex]->mProductName == STORY_HEALTH_REFILL_PRODUCT_NAME && DataRepository::GetInstance().StoryCurrentHealth().GetValue() > DataRepository::GetInstance().GetStoryMaxHealth()/2)
+            {
+                for (auto sceneObject: mProducts[shelfIndex][shelfItemIndex]->mSceneObjects)
+                {
+                    mScene->RemoveSceneObject(sceneObject->mName);
+                }
+                mProducts[shelfIndex][shelfItemIndex] = nullptr;
+            }
         }
     }
     
@@ -707,8 +718,17 @@ void ShopSceneLogicManager::CreateProducts()
     if (DataRepository::GetInstance().GetCurrentShopBehaviorType() == ShopBehaviorType::STORY_SHOP)
     {
         // First Shelf
-        mProducts[0][1] = std::make_unique<ProductInstance>(DAMAGE_GAIN_PRODUCT_NAME);
-        mProducts[0][3] = std::make_unique<ProductInstance>(WEIGHT_GAIN_PRODUCT_NAME);
+        if (DataRepository::GetInstance().StoryCurrentHealth().GetValue() <= DataRepository::GetInstance().GetStoryMaxHealth()/2)
+        {
+            mProducts[0][0] = std::make_unique<ProductInstance>(DAMAGE_GAIN_PRODUCT_NAME);
+            mProducts[0][2] = std::make_unique<ProductInstance>(STORY_HEALTH_REFILL_PRODUCT_NAME);
+            mProducts[0][4] = std::make_unique<ProductInstance>(WEIGHT_GAIN_PRODUCT_NAME);
+        }
+        else
+        {
+            mProducts[0][1] = std::make_unique<ProductInstance>(DAMAGE_GAIN_PRODUCT_NAME);
+            mProducts[0][3] = std::make_unique<ProductInstance>(WEIGHT_GAIN_PRODUCT_NAME);
+        }
         
         // Second Shelf
         const auto& cardRewardsPool = CardDataRepository::GetInstance().GetStoryUnlockedCardRewardsPool();
@@ -1160,9 +1180,9 @@ void ShopSceneLogicManager::OnBuyProductAttempt(const size_t productShelfIndex, 
     // Insufficient funds/health case
     if ((productDefinition.mPrice > currentCoinsValue && !IsProductCoins(productShelfIndex, productShelfItemIndex) && product->mProductName != STORY_HEALTH_REFILL_PRODUCT_NAME) ||
         (product->mProductName == COINS_TO_LIFE_PRODUCT_NAME && COINS_TO_LIFE_RATE.first > currentCoinsValue) ||
-        (product->mProductName == LIFE_TO_COINS_PRODUCT_NAME && COINS_TO_LIFE_RATE.second >= currentHealthValue) ||
+        (product->mProductName == LIFE_TO_COINS_PRODUCT_NAME && LIFE_TO_COINS_RATE.first >= currentHealthValue) ||
         (product->mProductName == COINS_TO_LIFE_PRODUCT_NAME && DataRepository::GetInstance().StoryCurrentHealth().GetValue() == DataRepository::GetInstance().GetStoryMaxHealth()) ||
-        (DataRepository::GetInstance().GetCurrentShopBehaviorType() == ShopBehaviorType::PERMA_SHOP && IsDisconnected()))
+        ((DataRepository::GetInstance().GetCurrentShopBehaviorType() == ShopBehaviorType::PERMA_SHOP || product->mProductName == STORY_HEALTH_REFILL_PRODUCT_NAME) && IsDisconnected()))
     {
         // Fade in can't buy product confirmation button
         auto cantBuyProductConfirmationButtonSceneObject = mScene->FindSceneObject(CANT_BUY_PRODUCT_CONFIRMATION_BUTTON_SCENE_OBJECT_NAME);
@@ -1176,7 +1196,7 @@ void ShopSceneLogicManager::OnBuyProductAttempt(const size_t productShelfIndex, 
             CANT_BUY_PRODUCT_HEALTH_CASE_TEXT:
             CANT_BUY_PRODUCT_COIN_CASE_TEXT;
         
-        if (DataRepository::GetInstance().GetCurrentShopBehaviorType() == ShopBehaviorType::PERMA_SHOP && IsDisconnected())
+        if ((DataRepository::GetInstance().GetCurrentShopBehaviorType() == ShopBehaviorType::PERMA_SHOP || product->mProductName == STORY_HEALTH_REFILL_PRODUCT_NAME) && IsDisconnected())
         {
             std::get<scene::TextSceneObjectData>(cantBuyProductText0SceneObject->mSceneObjectTypeData).mText = CANT_BUY_PRODUCT_DISCONNNECTED_CASE_TEXT;
         }
@@ -1235,9 +1255,9 @@ void ShopSceneLogicManager::OnBuyProductAttempt(const size_t productShelfIndex, 
         else if (product->mProductName == LIFE_TO_COINS_PRODUCT_NAME)
         {
             auto& storyCurrenteHealth = DataRepository::GetInstance().StoryCurrentHealth();
-            storyCurrenteHealth.SetDisplayedValue(storyCurrenteHealth.GetValue() - COINS_TO_LIFE_RATE.second);
-            storyCurrenteHealth.SetValue(storyCurrenteHealth.GetValue() - COINS_TO_LIFE_RATE.second);
-            events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(COINS_TO_LIFE_RATE.first, product->mSceneObjects.front()->mPosition);
+            storyCurrenteHealth.SetDisplayedValue(storyCurrenteHealth.GetValue() - LIFE_TO_COINS_RATE.first);
+            storyCurrenteHealth.SetValue(storyCurrenteHealth.GetValue() - LIFE_TO_COINS_RATE.first);
+            events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(LIFE_TO_COINS_RATE.second, product->mSceneObjects.front()->mPosition);
         }
         else if (product->mProductName == COINS_TO_LIFE_PRODUCT_NAME)
         {
@@ -1249,7 +1269,7 @@ void ShopSceneLogicManager::OnBuyProductAttempt(const size_t productShelfIndex, 
         }
         
         // Story shop puchase completion
-        if (DataRepository::GetInstance().GetCurrentShopBehaviorType() == ShopBehaviorType::STORY_SHOP)
+        if (DataRepository::GetInstance().GetCurrentShopBehaviorType() == ShopBehaviorType::STORY_SHOP && product->mProductName != STORY_HEALTH_REFILL_PRODUCT_NAME)
         {
             if (productDefinition.mPrice > 0)
             {
@@ -1308,7 +1328,7 @@ void ShopSceneLogicManager::OnBuyProductAttempt(const size_t productShelfIndex, 
             animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(cancelButtonSceneObject, 0.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){ cancelButtonSceneObject->mInvisible = true; });
         }
         // Perma shop purchase completion
-        else
+        else if (DataRepository::GetInstance().GetCurrentShopBehaviorType() == ShopBehaviorType::PERMA_SHOP || product->mProductName == STORY_HEALTH_REFILL_PRODUCT_NAME)
         {
             DestroyCardTooltip();
             

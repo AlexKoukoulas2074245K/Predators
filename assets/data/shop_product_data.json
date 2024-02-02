@@ -17,7 +17,7 @@
             "name": "coins_to_life",
             "price": 0,
             "texture_path": "shop_items/coins_to_life_icon.png",
-            "description": " $Convert 100 coins$to 30 health points"
+            "description": " $Convert 100 coins$to 15 health points"
         },
         {
             "name": "life_to_coins",

@@ -72,6 +72,10 @@ AnimatedStatContainer::AnimatedStatContainer
 
 AnimatedStatContainer::~AnimatedStatContainer()
 {
+    auto baseCrystalSo = mSceneObjects.front();
+    auto valueCrystalSo = mSceneObjects.back();
+    CoreSystemsEngine::GetInstance().GetAnimationManager().StopAllAnimationsPlayingForSceneObject(baseCrystalSo->mName);
+    CoreSystemsEngine::GetInstance().GetAnimationManager().StopAllAnimationsPlayingForSceneObject(valueCrystalSo->mName);
 }
 
 ///------------------------------------------------------------------------------------------------
