@@ -261,7 +261,7 @@ void MainMenuSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     CheckForEmptyProgression();
 #if defined(MACOS) || defined(MOBILE_FLOW)
     cloudkit_utils::QueryPlayerProgress([=](cloudkit_utils::QueryResultData resultData){ OnCloudQueryCompleted(resultData); });
-    apple_utils::LoadStoreProducts({ product_ids::STORY_HEALTH_REFILL, product_ids::COINS_S, product_ids::COINS_M, product_ids::COINS_L });
+    apple_utils::LoadStoreProducts({ product_ids::STORY_HEALTH_REFILL, product_ids::COINS_S, product_ids::COINS_L });
 #endif
     
     DataRepository::GetInstance().SetQuickPlayData(nullptr);

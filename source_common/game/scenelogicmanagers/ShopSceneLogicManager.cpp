@@ -92,6 +92,7 @@ static const std::string GOLDEN_CARD_PACK_TEXTURE_FILE_NAME = "card_pack_golden.
 static const std::string NORMAL_CARD_PACK_SHADER_FILE_NAME = "basic.vs";
 static const std::string NORMAL_CARD_PACK_TEXTURE_FILE_NAME = "card_pack_normal.png";
 static const std::string FAMILY_STAMP_MASK_TEXTURE_FILE_NAME = "trap_mask.png";
+static const std::string PLACEHOLDER_PRODUCT_TEXTURE_FILE_NAME = "shop_items/product_placeholder.png";
 
 static const glm::vec3 BUTTON_SCALE = {0.0004f, 0.0004f, 0.0004f};
 static const glm::vec3 SELECT_CARD_FOR_DELETION_BUTTON_SCALE = {0.0003f, 0.0003f, 0.0003f};
@@ -282,6 +283,11 @@ void ShopSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene:
                     }
                     
                     auto& product = mProducts[shelfIndex][shelfItemIndex];
+                    
+                    if ((IsProductCoins(shelfIndex, shelfItemIndex) || product->mProductName == STORY_HEALTH_REFILL_PRODUCT_NAME) && product->mSceneObjects.size() <= 1)
+                    {
+                        continue;
+                    }
                     
                     auto sceneObjectRect = scene_object_utils::GetSceneObjectBoundingRect(*product->mSceneObjects.front());
                     
@@ -754,6 +760,11 @@ void ShopSceneLogicManager::CreateProducts()
             auto& product = mProducts[shelfIndex][shelfItemIndex];
             const auto& productDefinition = mProductDefinitions.at(product->mProductName);
             
+#if defined(MACOS) || defined(MOBILE_FLOW)
+            const auto& permaShopPriceString = apple_utils::GetProductPrice(product->mProductName.GetString());
+            const bool shouldBeMarkedAsComingSoon = (IsProductCoins(shelfIndex, shelfItemIndex) || product->mProductName == STORY_HEALTH_REFILL_PRODUCT_NAME) && permaShopPriceString.empty();
+#endif
+            
             // Card Pack Product
             if (product->mProductName == NORMAL_PACK_PRODUCT_NAME || product->mProductName == GOLDEN_PACK_PRODUCT_NAME)
             {
@@ -776,7 +787,7 @@ void ShopSceneLogicManager::CreateProducts()
             else if (std::holds_alternative<std::string>(productDefinition.mProductTexturePathOrCardId))
             {
                 auto shelfItemSceneObject = mScene->CreateSceneObject(strutils::StringId(PRODUCT_NAME_PREFIX + std::to_string(shelfIndex) + "_" + std::to_string(shelfItemIndex)));
-                shelfItemSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + std::get<std::string>(productDefinition.mProductTexturePathOrCardId));
+                shelfItemSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + (shouldBeMarkedAsComingSoon ? PLACEHOLDER_PRODUCT_TEXTURE_FILE_NAME : std::get<std::string>(productDefinition.mProductTexturePathOrCardId)));
                 shelfItemSceneObject->mPosition = SHELF_ITEM_TARGET_BASE_POSITIONS[shelfIndex] + PRODUCT_POSITION_OFFSET;
                 shelfItemSceneObject->mScale = GENERIC_PRODUCT_SCALE;
                 shelfItemSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
@@ -802,6 +813,12 @@ void ShopSceneLogicManager::CreateProducts()
                 cardSoWrapper->mSceneObject->mSnapToEdgeScaleOffsetFactor = -0.4f - 0.6f * shelfItemIndex;
                 
                 product->mSceneObjects.push_back(cardSoWrapper->mSceneObject);
+            }
+            
+            // Skip price tag and text creation for placeholder products
+            if (shouldBeMarkedAsComingSoon)
+            {
+                continue;
             }
             
             if (productDefinition.mPrice > 0)
@@ -831,9 +848,7 @@ void ShopSceneLogicManager::CreateProducts()
                 
                 if (IsProductCoins(shelfIndex, shelfItemIndex) || product->mProductName == STORY_HEALTH_REFILL_PRODUCT_NAME)
                 {
-#if defined(MACOS) || defined(MOBILE_FLOW)
-                    priceTextData.mText = apple_utils::GetProductPrice(product->mProductName.GetString());
-#endif
+                    priceTextData.mText = permaShopPriceString;
                 }
                 
                 auto priceTextSceneObject = mScene->CreateSceneObject(strutils::StringId(PRODUCT_NAME_PREFIX + std::to_string(shelfIndex) + "_" + std::to_string(shelfItemIndex) + "_price_text"));
@@ -1067,6 +1082,11 @@ void ShopSceneLogicManager::DeselectProduct(const size_t productShelfIndex, cons
                 // Animate all scene objects for this product
                 for (auto& sceneObject: mProducts[shelfIndex][shelfItemIndex]->mSceneObjects)
                 {
+                    if ((IsProductCoins(shelfIndex, shelfItemIndex) || mProducts[shelfIndex][shelfItemIndex]->mProductName == STORY_HEALTH_REFILL_PRODUCT_NAME) && mProducts[shelfIndex][shelfItemIndex]->mSceneObjects.size() <= 1)
+                    {
+                        continue;
+                    }
+                    
                     CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::BouncePositionAnimation>(sceneObject, itemGroupBounceSpeed, PRODUCT_BOUNCE_ANIMATION_DURATION_SECS, animation_flags::ANIMATE_CONTINUOUSLY, itemGroupBounceDelay), [](){});
                 }
             }
@@ -1429,6 +1449,11 @@ void ShopSceneLogicManager::UpdateProductPriceTags()
             
             auto& product = mProducts[shelfIndex][shelfItemIndex];
             const auto& productDefinition = mProductDefinitions.at(product->mProductName);
+            
+            if ((IsProductCoins(shelfIndex, shelfItemIndex) || product->mProductName == STORY_HEALTH_REFILL_PRODUCT_NAME) && product->mSceneObjects.size() <= 1)
+            {
+                continue;
+            }
             
             if (IsProductCoins(shelfIndex, shelfItemIndex))
             {
