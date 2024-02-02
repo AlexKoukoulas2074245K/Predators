@@ -10,6 +10,7 @@
 #include <engine/scene/SceneObject.h>
 #include <engine/scene/SceneObjectUtils.h>
 #include <game/CardUtils.h>
+#include <game/DataRepository.h>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -324,9 +325,23 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
         {
             generatedTextureOverridePostfixSS << "_global_damage_" << globalStatModifiers.at(CardStatType::DAMAGE);
         }
+    
         if (globalStatModifiers.count(CardStatType::WEIGHT))
         {
             generatedTextureOverridePostfixSS << "_global_" << (isOnBoard ? "on_board_" : "held_") << "weight_" << globalStatModifiers.at(CardStatType::WEIGHT);
+        }
+    
+        if (DataRepository::GetInstance().IsCurrentlyPlayingStoryMode())
+        {
+            const auto& storyPlayerCardStatModifiers = DataRepository::GetInstance().GetStoryPlayerCardStatModifiers();
+            if (storyPlayerCardStatModifiers.count(CardStatType::DAMAGE))
+            {
+                generatedTextureOverridePostfixSS << "_story_modifier_damage_" << storyPlayerCardStatModifiers.at(CardStatType::DAMAGE);
+            }
+            if (storyPlayerCardStatModifiers.count(CardStatType::WEIGHT))
+            {
+                generatedTextureOverridePostfixSS << "_story_modifier_weight_" << storyPlayerCardStatModifiers.at(CardStatType::WEIGHT);
+            }
         }
         
         if (cardRarity == CardRarity::GOLDEN)

@@ -7,7 +7,6 @@ precision mediump float;
 in vec2 uv_frag;
 in vec3 frag_unprojected_pos;
 
-uniform sampler2D tex;
 uniform vec4 ambient_light_color;
 uniform vec4 point_light_colors[32];
 uniform vec3 point_light_positions[32];

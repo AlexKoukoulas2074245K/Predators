@@ -13,7 +13,6 @@ uniform vec4 point_light_colors[32];
 uniform vec3 point_light_positions[32];
 uniform float point_light_powers[32];
 uniform float custom_alpha;
-uniform float light_pos_x;
 uniform float cutoff_min_x;
 uniform float cutoff_max_x;
 uniform bool affected_by_light;

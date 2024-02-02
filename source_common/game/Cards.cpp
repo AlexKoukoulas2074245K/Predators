@@ -199,7 +199,7 @@ CardData CardDataRepository::GetCardData(const int cardId, const size_t forPlaye
     {
         CardData cardData = findIter->second;
         
-        if (!DataRepository::GetInstance().GetQuickPlayData())
+        if (!DataRepository::GetInstance().GetQuickPlayData() && DataRepository::GetInstance().IsCurrentlyPlayingStoryMode())
         {
             if (forPlayerIndex == game_constants::LOCAL_PLAYER_INDEX)
             {

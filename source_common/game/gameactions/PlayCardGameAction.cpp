@@ -38,8 +38,9 @@ static const strutils::StringId CARD_PLAY_PARTICLE_NAME = strutils::StringId("ca
 static const float CARD_CAMERA_SHAKE_DURATION = 0.25f;
 static const float CARD_CAMERA_SHAKE_STRENGTH = 0.005f;
 static const float CARD_PLAY_PARTICLE_EMITTER_Z = 0.01f;
-static const float IN_GAME_PLAYED_CARD_ANIMATION_DURATION = 0.5f;
+static const float IN_GAME_PLAYED_CARD_ANIMATION_DURATION = 0.4f;
 static const float CARD_PLAY_PROTRUDED_Y_OFFSET = 0.06f;
+static const float CARDS_MAKING_SPACE_Y_OFFSET = 0.025f;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -171,27 +172,38 @@ void PlayCardGameAction::VInitAnimation()
     {
         return;
     }
-    
-    if (mBoardState->GetActivePlayerIndex() != game_constants::REMOTE_PLAYER_INDEX)
-    {
-        events::EventSystem::GetInstance().DispatchEvent<events::LastCardPlayedFinalizedEvent>(lastPlayedCardIndex);
-        mHasFinalizedCardPlay = true;
-    }
-    
+
     if (DataRepository::GetInstance().GetNextBattleControlType() == BattleControlType::AI_TOP_ONLY && mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX)
-    {
-        AnimatedCardToBoard(lastPlayedCardSoWrapper);
-    }
-    else if (DataRepository::GetInstance().GetQuickPlayData() && DataRepository::GetInstance().GetQuickPlayData()->mBattleControlType == BattleControlType::AI_TOP_ONLY && mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX)
     {
         AnimatedCardToBoard(lastPlayedCardSoWrapper);
     }
     else
     {
+        auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+        
+        // Other cards make space for this card to be played
+        for (auto i = 0; i < mBattleSceneLogicManager->GetHeldCardSoWrappers()[mBoardState->GetActivePlayerIndex()].size(); ++i)
+        {
+            if (mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX)
+            {
+                if (i == lastPlayedCardIndex)
+                {
+                    continue;
+                }
+            }
+            
+            auto& cardSoWrapper = mBattleSceneLogicManager->GetHeldCardSoWrappers()[mBoardState->GetActivePlayerIndex()][i];
+            auto targetPosition = cardSoWrapper->mSceneObject->mPosition;
+            targetPosition.y += mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX ? CARDS_MAKING_SPACE_Y_OFFSET : -CARDS_MAKING_SPACE_Y_OFFSET;
+            
+            animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObject, targetPosition, cardSoWrapper->mSceneObject->mScale, IN_GAME_PLAYED_CARD_ANIMATION_DURATION/2, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+            {
+            });
+        }
+        
         auto targetPosition = lastPlayedCardSoWrapper->mSceneObject->mPosition;
         targetPosition.y += mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX ? -CARD_PLAY_PROTRUDED_Y_OFFSET : CARD_PLAY_PROTRUDED_Y_OFFSET;
         
-        auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
         animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(lastPlayedCardSoWrapper->mSceneObject, targetPosition, lastPlayedCardSoWrapper->mSceneObject->mScale, IN_GAME_PLAYED_CARD_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
         {
             mPendingAnimations--;
