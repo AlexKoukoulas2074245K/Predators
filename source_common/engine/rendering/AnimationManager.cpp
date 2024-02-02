@@ -149,6 +149,22 @@ bool AnimationManager::IsAnimationPlaying(const strutils::StringId& animationNam
 
 ///------------------------------------------------------------------------------------------------
 
+int AnimationManager::GetAnimationCountPlayingForSceneObject(const strutils::StringId& sceneObjectName)
+{
+    auto count = 0;
+    for(auto iter = mAnimations.begin(); iter != mAnimations.end(); iter++)
+    {
+        if (iter->mAnimation->VGetSceneObject() && iter->mAnimation->VGetSceneObject()->mName == sceneObjectName)
+        {
+            count++;
+        }
+    }
+    
+    return count;
+}
+
+///------------------------------------------------------------------------------------------------
+
 int AnimationManager::GetAnimationsPlayingCount() const
 {
     return static_cast<int>(mAnimations.size());

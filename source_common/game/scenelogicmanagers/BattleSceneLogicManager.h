@@ -123,6 +123,7 @@ private:
     std::vector<std::vector<std::shared_ptr<CardSoWrapper>>> mPlayerBoardCardSceneObjectWrappers;
     std::vector<std::pair<bool, std::unique_ptr<AnimatedStatContainer>>> mAnimatedStatContainers;
     std::vector<std::shared_ptr<CardSoWrapper>> mPendingCardsToBePlayed;
+    std::shared_ptr<CardSoWrapper> mPendingCardReleasedThisFrame;
     ProspectiveBoardCardsPushState mPreviousProspectiveBoardCardsPushState;
     BattleControlType mCurrentBattleControlType;
     float mSecsCardHighlighted;

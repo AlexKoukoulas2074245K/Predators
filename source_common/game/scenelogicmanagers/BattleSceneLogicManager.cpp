@@ -210,6 +210,7 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
     mCanPlayNextCard = false;
     mCanIssueNextTurnInteraction = false;
     mCanInteractWithAnyHeldCard = true;
+    mPendingCardReleasedThisFrame = nullptr;
     
     mBattleSceneAnimatedButtons.clear();
     mActiveIndividualCardBoardEffectSceneObjects.clear();
@@ -499,8 +500,11 @@ void BattleSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scen
         {
             mCanInteractWithAnyHeldCard = true;
             mCanPlayNextCard = true;
+            mPendingCardReleasedThisFrame = nullptr;
+            
             if (!mPendingCardsToBePlayed.empty())
             {
+                mPendingCardReleasedThisFrame = mPendingCardsToBePlayed.front();
                 mPendingCardsToBePlayed.erase(mPendingCardsToBePlayed.begin());
             }
         }
@@ -740,6 +744,15 @@ void BattleSceneLogicManager::HandleTouchInput(const float dtMillis)
                 case CardSoState::FREE_MOVING:
                 {
                     OnFreeMovingCardRelease(currentCardSoWrapper);
+                } break;
+                    
+                case CardSoState::IDLE:
+                {
+                    auto originalCardPosition = card_utils::CalculateHeldCardPosition(i, localPlayerCardCount, false, battleScene->GetCamera());
+                    if (animationManager.GetAnimationCountPlayingForSceneObject(currentCardSoWrapper->mSceneObject->mName) == 0)
+                    {
+                        animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(currentCardSoWrapper->mSceneObject, originalCardPosition, currentCardSoWrapper->mSceneObject->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::IGNORE_X_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){});
+                    }
                 } break;
                     
                 case CardSoState::HIGHLIGHTED:
@@ -1112,14 +1125,13 @@ void BattleSceneLogicManager::OnFreeMovingCardRelease(std::shared_ptr<CardSoWrap
 #endif
     
     if (inBoardDropThreshold &&
-        (mActionEngine->GetActiveGameActionName() == IDLE_GAME_ACTION_NAME || mActionEngine->GetActionCount() <= 2) &&
+        (mActionEngine->GetActiveGameActionName() == IDLE_GAME_ACTION_NAME || mActionEngine->GetActiveGameActionName() == PLAY_CARD_ACTION_NAME) &&
         mBoardState->GetActivePlayerIndex() == 1 &&
         mRuleEngine->CanCardBePlayed(&cardSoWrapper->mCardData, cardIndex, game_constants::LOCAL_PLAYER_INDEX))
     {
         bool inPendingCardsToBePlayed = std::find(mPendingCardsToBePlayed.begin(), mPendingCardsToBePlayed.end(), cardSoWrapper) != mPendingCardsToBePlayed.end();
-        if (mCanPlayNextCard && !inPendingCardsToBePlayed)
+        if ((mCanPlayNextCard && !inPendingCardsToBePlayed) || mPendingCardReleasedThisFrame == cardSoWrapper)
         {
-            logging::Log(logging::LogType::INFO, "PLAY_CARD_ACTION %s (%d card index)", cardSoWrapper->mCardData.mCardName.GetString().c_str(), cardIndex);
             mActionEngine->AddGameAction(PLAY_CARD_ACTION_NAME, {{PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, std::to_string(cardIndex)}});
             mCanPlayNextCard = false;
         }
@@ -1127,14 +1139,12 @@ void BattleSceneLogicManager::OnFreeMovingCardRelease(std::shared_ptr<CardSoWrap
         {
             if (!inPendingCardsToBePlayed)
             {
-                logging::Log(logging::LogType::INFO, "Pushing %s (%d card index) to pending cards", cardSoWrapper->mCardData.mCardName.GetString().c_str(), cardIndex);
                 mPendingCardsToBePlayed.push_back(cardSoWrapper);
             }
         }
     }
     else if (!inBoardDropThreshold || mCanPlayNextCard)
     {
-        logging::Log(logging::LogType::INFO, "Moving %s (%d card index) to set position", cardSoWrapper->mCardData.mCardName.GetString().c_str(), cardIndex);
         auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
         auto originalCardPosition = card_utils::CalculateHeldCardPosition(static_cast<int>(cardIndex), static_cast<int>(localPlayerCards.size()), false, battleScene->GetCamera());
         animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObject, originalCardPosition, cardSoWrapper->mSceneObject->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){cardSoWrapper->mState = CardSoState::IDLE; });

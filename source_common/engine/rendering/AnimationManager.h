@@ -36,6 +36,7 @@ public:
     void Update(const float dtMillis);
     
     bool IsAnimationPlaying(const strutils::StringId& animationName) const;
+    int GetAnimationCountPlayingForSceneObject(const strutils::StringId& sceneObjectName);
     int GetAnimationsPlayingCount() const;
     int GetAnimationCountPlayingWithName(const strutils::StringId& animationName) const;
     
