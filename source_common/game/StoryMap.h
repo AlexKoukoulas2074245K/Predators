@@ -117,6 +117,7 @@ private:
     glm::vec3 GenerateNodePositionForCoord(const MapCoord& mapCoord) const;
     NodeType SelectNodeTypeForCoord(const MapCoord& mapCoord) const;
     MapCoord RandomlySelectNextMapCoord(const MapCoord& mapCoord) const;
+    void DepthFirstSearchOnCurrentCoords(const MapCoord& currentCoord, std::unordered_set<MapCoord, MapCoordHasher>& resultCoordsThatCanBeReached) const;
     
 private:
     std::shared_ptr<scene::Scene> mScene;

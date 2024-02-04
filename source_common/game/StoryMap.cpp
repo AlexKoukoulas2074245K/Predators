@@ -327,6 +327,10 @@ void StoryMap::CreateMapSceneObjects()
         return lhs.size() < rhs.size();
     });
     
+    // Do a DFS to find all reachable coords
+    std::unordered_set<MapCoord, MapCoordHasher> coordsThatCanBeReached;
+    DepthFirstSearchOnCurrentCoords(mCurrentMapCoord, coordsThatCanBeReached);
+    
     // All node meshes
     for (const auto& mapNodeEntry: mMapData)
     {
@@ -591,8 +595,8 @@ void StoryMap::CreateMapSceneObjects()
             }
         }
         
-        // Make all previous nodes invisible
-        if (mapNodeEntry.first.mCol <= mCurrentMapCoord.mCol && mapNodeEntry.first != mCurrentMapCoord) 
+        // Make all previous or inaccessible nodes invisible
+        if ((mapNodeEntry.first.mCol <= mCurrentMapCoord.mCol && mapNodeEntry.first != mCurrentMapCoord) || (coordsThatCanBeReached.count(mapNodeEntry.first) == 0))
         {
             nodeSceneObject->mInvisible = true;
             nodePortraitSceneObject->mInvisible = true;
@@ -655,6 +659,12 @@ void StoryMap::CreateMapSceneObjects()
         {
             continue;
         }
+        
+        if (coordsThatCanBeReached.count(mapNodeEntry.first) == 0)
+        {
+            continue;
+        }
+        
         for (const auto& linkedCoord: mapNodeEntry.second.mNodeLinks)
         {
             bool isPartOfEligiblePath = mapNodeEntry.first == mCurrentMapCoord;
@@ -809,6 +819,17 @@ MapCoord StoryMap::RandomlySelectNextMapCoord(const MapCoord& mapCoord) const
 {
     auto randRow = math::Max(math::Min(mMapDimensions.y - 1, mapCoord.mRow + math::ControlledRandomInt(-1, 1)), 0);
     return mapCoord.mCol == mMapDimensions.x - 2 ? MapCoord(mMapDimensions.x - 1, mMapDimensions.y/2) : MapCoord(mapCoord.mCol + 1, randRow);
+}
+
+///------------------------------------------------------------------------------------------------
+
+void StoryMap::DepthFirstSearchOnCurrentCoords(const MapCoord& currentCoord, std::unordered_set<MapCoord, MapCoordHasher>& resultCoordsThatCanBeReached) const
+{
+    resultCoordsThatCanBeReached.insert(currentCoord);
+    for (auto& linkedCoord: mMapData.at(currentCoord).mNodeLinks)
+    {
+        DepthFirstSearchOnCurrentCoords(linkedCoord, resultCoordsThatCanBeReached);
+    }
 }
 
 ///------------------------------------------------------------------------------------------------
