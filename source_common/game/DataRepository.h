@@ -143,6 +143,9 @@ public:
     ShopBehaviorType GetCurrentShopBehaviorType() const;
     void SetCurrentShopBehaviorType(const ShopBehaviorType currentShopBehaviorType);
     
+    StoryMapType GetCurrentStoryMapType() const;
+    void SetCurrentStoryMapType(const StoryMapType currentStoryMapType);
+    
     const std::vector<int>& GetUnlockedCardIds() const;
     void SetUnlockedCardIds(const std::vector<int>& unlockedCardIds);
     
@@ -254,6 +257,7 @@ private:
     BattleSubSceneType mCurrentBattleSubSceneType;
     CardLibraryBehaviorType mCurrentCardLibraryBehaviorType;
     ShopBehaviorType mCurrentShopBehaviorType;
+    StoryMapType mCurrentStoryMapType;
     ForeignCloudDataFoundType mForeignProgressionDataFound = ForeignCloudDataFoundType::NONE;
     std::vector<int> mUnlockedCardIds;
     std::vector<int> mCurrentStoryPlayerDeck;

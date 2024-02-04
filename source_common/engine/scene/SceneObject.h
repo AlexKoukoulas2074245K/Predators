@@ -130,7 +130,6 @@ struct SceneObject
     resources::ResourceId mEffectTextureResourceIds[EFFECT_TEXTURES_COUNT] = {};
     SnapToEdgeBehavior mSnapToEdgeBehavior = SnapToEdgeBehavior::NONE;
     float mSnapToEdgeScaleOffsetFactor = 0.0f;
-    bool mIsBackground = false;
     bool mInvisible = false;
     bool mDeferredRendering = false;
 };

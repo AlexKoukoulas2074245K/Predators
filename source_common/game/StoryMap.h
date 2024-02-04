@@ -75,6 +75,14 @@ struct MapGenerationInfo
 
 ///------------------------------------------------------------------------------------------------
 
+enum class StoryMapType
+{
+    TUTORIAL_MAP,
+    NORMAL_MAP
+};
+
+///------------------------------------------------------------------------------------------------
+
 namespace scene { class Scene; }
 class StoryMap final
 {

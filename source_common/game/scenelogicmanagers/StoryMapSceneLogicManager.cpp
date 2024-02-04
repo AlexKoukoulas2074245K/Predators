@@ -47,6 +47,7 @@ static const float SWIPE_VELOCITY_DAMPING = 0.8f;
 static const float SWIPE_VELOCITY_INTEGRATION_SPEED = 0.08f;
 static const float SWIPE_VELOCITY_MIN_MAGNITUDE_TO_START_MOVING = 0.0001f;
 static const float MAX_CAMERA_DISTANCE_TO_REGISTER_NODE_TAP = 0.01f;
+static const float TUTORIAL_MAP_DOWNSCALE_FACTOR = 1.0f/4.0f;
 
 #if defined(NDEBUG) || defined(MOBILE_FLOW)
 static const float FRESH_MAP_ANIMATION_SPEED = 2.0f;
@@ -102,7 +103,13 @@ void StoryMapSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     const auto& currentMapCoord = DataRepository::GetInstance().GetCurrentStoryMapNodeCoord();
     std::thread mapGenerationThread = std::thread([=]
     {
-        mStoryMap = std::make_unique<StoryMap>(scene, game_constants::STORY_NODE_MAP_DIMENSIONS, MapCoord(currentMapCoord.x, currentMapCoord.y));
+        auto storyNodeMapDimensions = game_constants::STORY_NODE_MAP_DIMENSIONS;
+        if (DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::TUTORIAL_MAP)
+        {
+            storyNodeMapDimensions = game_constants::TUTORIAL_NODE_MAP_DIMENSIONS;
+        }
+        
+        mStoryMap = std::make_unique<StoryMap>(scene, storyNodeMapDimensions, MapCoord(currentMapCoord.x, currentMapCoord.y));
         mStoryMap->GenerateMapNodes();
     });
     mapGenerationThread.detach();
@@ -115,6 +122,21 @@ void StoryMapSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     mScene = scene;
     
     ResetSwipeData();
+    
+    mMapSwipeXBounds = MAP_SWIPE_X_BOUNDS;
+    mMapSwipeYBounds = MAP_SWIPE_Y_BOUNDS;
+    
+    if (DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::TUTORIAL_MAP)
+    {
+        mMapSwipeXBounds *= TUTORIAL_MAP_DOWNSCALE_FACTOR;
+        mMapSwipeXBounds *= 0.15f;
+        mMapSwipeYBounds *= TUTORIAL_MAP_DOWNSCALE_FACTOR;
+    }
+    
+    auto backgroundSceneObjectName = scene->CreateSceneObject(BACKGROUND_SCENE_OBJECT_NAME);
+    backgroundSceneObjectName->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + (DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::TUTORIAL_MAP ? "tutorial_landscape.png" : "story_landscape.png"));
+    backgroundSceneObjectName->mScale = DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::TUTORIAL_MAP ? glm::vec3(1.66666f) : glm::vec3(5.0f);
+    backgroundSceneObjectName->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
     
     DataRepository::GetInstance().SetCurrentStoryMapSceneType(StoryMapSceneType::STORY_MAP);
     DataRepository::GetInstance().FlushStateToFile();
@@ -151,21 +173,30 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
                 mExcludedSceneObjectsFromFrustumCulling.insert(sceneObject);
             }
         }
-        
+
         // First time entering map initialisation
-        if (currentMapCoord.x == game_constants::STORY_MAP_INIT_COORD.x && currentMapCoord.y == game_constants::STORY_MAP_INIT_COORD.y)
+        auto mapInitCoord = game_constants::STORY_MAP_INIT_COORD;
+        auto mapBossCoord = game_constants::STORY_MAP_BOSS_COORD;
+        
+        if (DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::TUTORIAL_MAP)
+        {
+            mapInitCoord = game_constants::TUTORIAL_MAP_INIT_COORD;
+            mapBossCoord = game_constants::TUTORIAL_MAP_BOSS_COORD;
+        }
+        
+        if (currentMapCoord.x == mapInitCoord.x && currentMapCoord.y == mapInitCoord.y)
         {
             mGuiManager->ForceSetStoryHealthValue(DataRepository::GetInstance().StoryCurrentHealth().GetValue());
             
             mMapUpdateState = MapUpdateState::FRESH_MAP_ANIMATION;
-            SetMapPositionTo(mStoryMap->GetMapData().at(MapCoord(game_constants::STORY_MAP_BOSS_COORD.x, game_constants::STORY_MAP_BOSS_COORD.y)).mPosition);
+            SetMapPositionTo(mStoryMap->GetMapData().at(MapCoord(mapBossCoord.x, mapBossCoord.y)).mPosition);
             
             mFreshMapCameraAnimationInitPosition = mScene->GetCamera().GetPosition();
-            mCameraTargetPos = mStoryMap->GetMapData().at(MapCoord(game_constants::STORY_MAP_INIT_COORD.x, game_constants::STORY_MAP_INIT_COORD.y)).mPosition;
+            mCameraTargetPos = mStoryMap->GetMapData().at(MapCoord(mapInitCoord.x, mapInitCoord.y)).mPosition;
             mCameraTargetPos.y += FRESH_MAP_ANIMATION_TARGET_Y_OFFSET;
             
-            mCameraTargetPos.x = math::Max(MAP_SWIPE_X_BOUNDS.s, math::Min(MAP_SWIPE_X_BOUNDS.t, mCameraTargetPos.x));
-            mCameraTargetPos.y = math::Max(MAP_SWIPE_Y_BOUNDS.s, math::Min(MAP_SWIPE_Y_BOUNDS.t, mCameraTargetPos.y));
+            mCameraTargetPos.x = math::Max(mMapSwipeXBounds.s, math::Min(mMapSwipeXBounds.t, mCameraTargetPos.x));
+            mCameraTargetPos.y = math::Max(mMapSwipeYBounds.s, math::Min(mMapSwipeYBounds.t, mCameraTargetPos.y));
             
             mCameraTargetPos.z = mScene->GetCamera().GetPosition().z;
         }
@@ -292,8 +323,8 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
 
                     mMapUpdateState = MapUpdateState::MOVING_TO_NODE;
                     mCameraTargetPos = mTappedMapNodeData->mPosition;
-                    mCameraTargetPos.x = math::Max(MAP_SWIPE_X_BOUNDS.s, math::Min(MAP_SWIPE_X_BOUNDS.t, mCameraTargetPos.x));
-                    mCameraTargetPos.y = math::Max(MAP_SWIPE_Y_BOUNDS.s, math::Min(MAP_SWIPE_Y_BOUNDS.t, mCameraTargetPos.y));
+                    mCameraTargetPos.x = math::Max(mMapSwipeXBounds.s, math::Min(mMapSwipeXBounds.t, mCameraTargetPos.x));
+                    mCameraTargetPos.y = math::Max(mMapSwipeYBounds.s, math::Min(mMapSwipeYBounds.t, mCameraTargetPos.y));
                     mCameraTargetPos.z = mScene->GetCamera().GetPosition().z;
                     mSelectedMapCoord = std::make_unique<MapCoord>(mTappedMapNodeData->mCoords.x, mTappedMapNodeData->mCoords.y);
                     for (auto mapNodeComponentSceneObject: scene->FindSceneObjectsWhoseNameStartsWith(mSelectedMapCoord->ToString()))
@@ -465,10 +496,10 @@ void StoryMapSceneLogicManager::MoveMapBy(const glm::vec3& delta)
     auto cameraTargetPosition = cameraInitialPosition;
     
     cameraTargetPosition.x += delta.x;
-    cameraTargetPosition.x = math::Max(MAP_SWIPE_X_BOUNDS.s, math::Min(MAP_SWIPE_X_BOUNDS.t, cameraTargetPosition.x));
+    cameraTargetPosition.x = math::Max(mMapSwipeXBounds.s, math::Min(mMapSwipeXBounds.t, cameraTargetPosition.x));
     
     cameraTargetPosition.y += delta.y;
-    cameraTargetPosition.y = math::Max(MAP_SWIPE_Y_BOUNDS.s, math::Min(MAP_SWIPE_Y_BOUNDS.t, cameraTargetPosition.y));
+    cameraTargetPosition.y = math::Max(mMapSwipeYBounds.s, math::Min(mMapSwipeYBounds.t, cameraTargetPosition.y));
 
     mScene->GetCamera().SetPosition(cameraTargetPosition);
     

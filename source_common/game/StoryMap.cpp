@@ -114,6 +114,7 @@ static const float PORTRAIT_BOUNCE_NOISE_FACTOR = 0.2f;
 static const float INACTIVE_NODE_TEXT_ALPHA = 0.5f;
 static const float ELITE_STAT_FACTOR = 1.5f;
 static const float BOSS_STAT_FACTOR = 1.8f;
+static const float TUTORIAL_MAP_DOWNSCALE_FACTOR = 1.0f/3.0f;
 
 static const int MAP_PATH_SEGMENTS_FACTOR = 30;
 static const int MAP_GENERATION_PASSES = 8;
@@ -208,7 +209,13 @@ void StoryMap::GenerateMapData()
         
         DataRepository::GetInstance().SetStoryMapGenerationSeed(math::GetControlSeed());
         
-        for (int i = 0; i < MAP_GENERATION_PASSES; ++i)
+        auto mapGenerationPasses = MAP_GENERATION_PASSES;
+        if (DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::TUTORIAL_MAP)
+        {
+            mapGenerationPasses *= TUTORIAL_MAP_DOWNSCALE_FACTOR;
+        }
+        
+        for (int i = 0; i < mapGenerationPasses; ++i)
         {
             auto currentCoordinate = MapCoord(0, mMapDimensions.y/2);
             mMapData[currentCoordinate].mPosition = GenerateNodePositionForCoord(currentCoordinate);
@@ -257,6 +264,15 @@ void StoryMap::DestroyParticleEmitters()
 
 bool StoryMap::FoundCloseEnoughNodes() const
 {
+    float topMapEdge = VERTICAL_MAP_EDGE.t;
+    float botMapEdge = VERTICAL_MAP_EDGE.s;
+    
+    if (DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::TUTORIAL_MAP)
+    {
+        topMapEdge *= TUTORIAL_MAP_DOWNSCALE_FACTOR;
+        botMapEdge *= TUTORIAL_MAP_DOWNSCALE_FACTOR;
+    }
+    
     for (auto& mapNodeEntry: mMapData)
     {
         if (mapNodeEntry.first.mCol == 0 || mapNodeEntry.first.mCol == mMapDimensions.x - 1)
@@ -276,13 +292,13 @@ bool StoryMap::FoundCloseEnoughNodes() const
             return true;
         }
         
-        if (mapNodeEntry.second.mPosition.y < VERTICAL_MAP_EDGE.s)
+        if (mapNodeEntry.second.mPosition.y < botMapEdge)
         {
             mMapGenerationInfo.mCloseToSouthEdgeErrors++;
             return true;
         }
         
-        if (mapNodeEntry.second.mPosition.y > VERTICAL_MAP_EDGE.t)
+        if (mapNodeEntry.second.mPosition.y > topMapEdge)
         {
             mMapGenerationInfo.mCloseToNorthEdgeErrors++;
             return true;
@@ -722,22 +738,31 @@ bool StoryMap::DetectedCrossedEdge(const MapCoord& currentCoord, const MapCoord&
 
 glm::vec3 StoryMap::GenerateNodePositionForCoord(const MapCoord& mapCoord) const
 {
+    auto firstNodePosition = FIRST_NODE_POSITION;
+    auto lastNodePosition = LAST_NODE_POSITION;
+    
+    if (DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::TUTORIAL_MAP)
+    {
+        firstNodePosition *= TUTORIAL_MAP_DOWNSCALE_FACTOR;
+        lastNodePosition *= TUTORIAL_MAP_DOWNSCALE_FACTOR;
+    }
+    
     if (mapCoord.mCol == 0)
     {
-        return FIRST_NODE_POSITION;
+        return firstNodePosition;
     }
     else if (mapCoord.mCol == mMapDimensions.x - 1)
     {
-        return LAST_NODE_POSITION;
+        return lastNodePosition;
     }
     else
     {
-        auto lastToFirstDirection = LAST_NODE_POSITION - FIRST_NODE_POSITION;
+        auto lastToFirstDirection = lastNodePosition - firstNodePosition;
         lastToFirstDirection.z = 0.0f;
         
         auto t = 0.04f + mapCoord.mCol/static_cast<float>(mMapDimensions.x);
         
-        auto lineOriginPosition = FIRST_NODE_POSITION + t * lastToFirstDirection;
+        auto lineOriginPosition = firstNodePosition + t * lastToFirstDirection;
         
         glm::vec3 resultPosition = lineOriginPosition + glm::vec3
         (

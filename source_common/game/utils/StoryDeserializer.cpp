@@ -58,6 +58,11 @@ StoryDeserializer::StoryDeserializer(DataRepository& dataRepository)
         dataRepository.SetCurrentStoryMapSceneType(static_cast<StoryMapSceneType>(storyJson["current_story_map_scene_type"].get<int>()));
     }
     
+    if (storyJson.count("current_story_map_type"))
+    {
+        dataRepository.SetCurrentStoryMapType(static_cast<StoryMapType>(storyJson["current_story_map_type"].get<int>()));
+    }
+    
     if (storyJson.count("current_shop_type"))
     {
         dataRepository.SetCurrentShopBehaviorType(static_cast<ShopBehaviorType>(storyJson["current_shop_type"].get<int>()));

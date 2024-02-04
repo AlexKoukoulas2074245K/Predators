@@ -66,6 +66,8 @@ private:
     glm::vec3 mPreviousDirectionToTargetNode;
     glm::vec3 mFreshMapCameraAnimationInitPosition;
     glm::vec3 mTappedNodeInitCameraPosition;
+    glm::vec2 mMapSwipeXBounds;
+    glm::vec2 mMapSwipeYBounds;
     MapUpdateState mMapUpdateState;
     bool mHasStartedSwipe;
 };
