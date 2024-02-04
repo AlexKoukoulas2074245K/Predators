@@ -52,7 +52,6 @@ private:
     void DeselectProduct(const size_t productShelfIndex, const size_t productShelfItemIndex);
     void CreateCardTooltip(const glm::vec3& cardOriginPostion, const std::string& tooltipText);
     void DestroyCardTooltip();
-    void LoadProductData();
     void OnBuyProductAttempt(const size_t productShelfIndex, const size_t productShelfItemIndex);
     void OnCantBuyProductConfirmationButtonPressed();
     void FindHighlightedProduct(size_t& productShelfIndex, size_t& productShelfItemIndex);
@@ -64,22 +63,6 @@ private:
     bool IsProductCoins(const size_t productShelfIndex, const size_t productShelfItemIndex);
     
 private:
-    struct ProductDefinition
-    {
-        ProductDefinition(const strutils::StringId& productName, const std::variant<int, std::string>& productTexturePathOrCardId, const std::string& description, const int price)
-            : mProductName(productName)
-            , mProductTexturePathOrCardId(productTexturePathOrCardId)
-            , mDescription(description)
-            , mPrice(price)
-        {
-        }
-        
-        const strutils::StringId mProductName;
-        const std::variant<int, std::string> mProductTexturePathOrCardId;
-        const std::string mDescription;
-        const int mPrice;
-    };
-    
     struct ProductInstance
     {
         ProductInstance(const strutils::StringId& productName)
@@ -108,7 +91,6 @@ private:
     
 private:
     std::vector<std::unique_ptr<AnimatedButton>> mAnimatedButtons;
-    std::unordered_map<strutils::StringId, ProductDefinition, strutils::StringIdHasher> mProductDefinitions;
     std::vector<std::vector<std::unique_ptr<ProductInstance>>> mProducts;
     std::unique_ptr<CardTooltipController> mCardTooltipController;
     std::shared_ptr<GuiObjectManager> mGuiManager;

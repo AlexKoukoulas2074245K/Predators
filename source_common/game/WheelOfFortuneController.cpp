@@ -7,8 +7,8 @@
 
 #include <engine/utils/Logging.h>
 #include <engine/rendering/AnimationManager.h>
+#include <game/ProductRepository.h>
 #include <game/WheelOfFortuneController.h>
-
 
 ///------------------------------------------------------------------------------------------------
 
@@ -34,9 +34,9 @@ static const float WHEEL_ROTATION_TO_SELECTED_TARGET_ANIMATION_DURATION_SECS = 1
 
 ///------------------------------------------------------------------------------------------------
 
-WheelOfFortuneController::WheelOfFortuneController(scene::Scene& scene, const std::vector<std::string>& itemTextures, std::function<void(const int, const std::shared_ptr<scene::SceneObject>)> onItemSelectedCallback)
+WheelOfFortuneController::WheelOfFortuneController(scene::Scene& scene, const std::vector<strutils::StringId>& productNames, std::function<void(const int, const std::shared_ptr<scene::SceneObject>)> onItemSelectedCallback)
     : mScene(scene)
-    , mItems(itemTextures)
+    , mItems(productNames)
     , mOnItemSelectedCallback(onItemSelectedCallback)
     , mWheelRotationSpeed(0.0f)
     , mWheelRotation(0.0f)
@@ -62,7 +62,7 @@ WheelOfFortuneController::WheelOfFortuneController(scene::Scene& scene, const st
     for (auto i = 0U; i < mItems.size(); ++i)
     {
         auto wheelItemSceneObject = mScene.CreateSceneObject(strutils::StringId(WHEEL_ITEM_SCENE_OBJECT_NAME_PREFIX + std::to_string(i)));
-        wheelItemSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + mItems[i]);
+        wheelItemSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + std::get<std::string>(ProductRepository::GetInstance().GetProductDefinition(mItems[i]).mProductTexturePathOrCardId));
         wheelItemSceneObject->mPosition = WHEEL_COMPONENTS_POSITION;
         wheelItemSceneObject->mScale = WHEEL_BASE_SCALE;
         wheelItemSceneObject->mRotation.z -= i * math::PI/6;

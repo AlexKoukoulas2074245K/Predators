@@ -59,6 +59,7 @@ static const float CARD_REWARD_SURFACE_DELAY_SECS = 0.5f;
 static const float SKIP_BUTTON_SNAP_TO_EDGE_FACTOR = 1850000.0f;
 static const float SKIP_BUTTON_MIN_ALPHA = 0.3f;
 static const float SUSPENDED_FOR_GUI_FLOW_Z_REDUCTION = 3.0f;
+static const float SELECTED_CARD_FLYING_Z = 24.0f;
 
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
 {
@@ -470,13 +471,19 @@ void CardSelectionRewardSceneLogicManager::OnConfirmationButtonPressed()
             mSceneState = SceneState::CARD_SELECTION_CONFIRMATION_ANIMATION;
             
             auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+            auto previousScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(mPreviousScene);
             
             // Calculate bezier points for card animation
-            auto previousScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(mPreviousScene);
+            auto firstPosition = cardReward->mSceneObject->mPosition;
+            firstPosition.z = SELECTED_CARD_FLYING_Z;
+            
             auto cardLibraryIconSceneObject = previousScene->FindSceneObject(game_constants::GUI_STORY_CARDS_BUTTON_SCENE_OBJECT_NAME);
             auto cardLibraryIconPosition = cardLibraryIconSceneObject->mPosition;
+            cardLibraryIconPosition.z = SELECTED_CARD_FLYING_Z;
+            
             glm::vec3 midPosition = glm::vec3(cardReward->mSceneObject->mPosition + cardLibraryIconPosition)/2.0f;
             midPosition.y += math::RandomSign() == 1 ? CARD_BOUGHT_ANIMATION_MIN_MAX_OFFSETS.t : CARD_BOUGHT_ANIMATION_MIN_MAX_OFFSETS.s;
+            midPosition.z = SELECTED_CARD_FLYING_Z;
             
             if (mPreviousScene == game_constants::BATTLE_SCENE)
             {
@@ -486,7 +493,7 @@ void CardSelectionRewardSceneLogicManager::OnConfirmationButtonPressed()
                 cardLibraryIconPosition.y *= 2.0f;
             }
             
-            math::BezierCurve curve({cardReward->mSceneObject->mPosition, midPosition, cardLibraryIconPosition});
+            math::BezierCurve curve({firstPosition, midPosition, cardLibraryIconPosition});
             
             // Animate bought card to card library icon
             animationManager.StartAnimation(std::make_unique<rendering::BezierCurveAnimation>(cardReward->mSceneObject, curve, CARD_BOUGHT_ANIMATION_DURATION_SECS), [=](){});

@@ -36,6 +36,7 @@
 #include <game/gameactions/GameActionFactory.h>
 #include <game/GuiObjectManager.h>
 #include <game/ProductIds.h>
+#include <game/ProductRepository.h>
 #include <game/scenelogicmanagers/BattleSceneLogicManager.h>
 #include <game/scenelogicmanagers/CardLibrarySceneLogicManager.h>
 #include <game/scenelogicmanagers/CardPackRewardSceneLogicManager.h>
@@ -64,7 +65,6 @@
 #include <platform_utilities/WindowsUtils.h>
 #endif
 
-
 ///------------------------------------------------------------------------------------------------
 
 static const strutils::StringId MAIN_MENU_SCENE = strutils::StringId("main_menu_scene");
@@ -82,6 +82,7 @@ Game::Game(const int argc, char** argv)
     apple_utils::SetAssetFolder();
 #endif
     CardDataRepository::GetInstance().LoadCardData(false);
+    ProductRepository::GetInstance().LoadProductDefinitions();
     
     CoreSystemsEngine::GetInstance().Start([&](){ Init(); }, [&](const float dtMillis){ Update(dtMillis); }, [&](){ ApplicationMovedToBackground(); }, [&](){ WindowResize(); }, [&](){ CreateDebugWidgets(); }, [&](){ OnOneSecondElapsed(); });
 }

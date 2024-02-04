@@ -24,7 +24,7 @@ namespace scene { struct SceneObject; }
 class WheelOfFortuneController final
 {
 public:
-    WheelOfFortuneController(scene::Scene& scene, const std::vector<std::string>& itemTextures, std::function<void(const int, const std::shared_ptr<scene::SceneObject>)> onItemSelectedCallback);
+    WheelOfFortuneController(scene::Scene& scene, const std::vector<strutils::StringId>& productNames, std::function<void(const int, const std::shared_ptr<scene::SceneObject>)> onItemSelectedCallback);
     
     void Spin();
     void Update(const float dtMillis);
@@ -44,7 +44,7 @@ private:
     
 private:
     scene::Scene& mScene;
-    const std::vector<std::string> mItems;
+    const std::vector<strutils::StringId> mItems;
     std::vector<std::shared_ptr<scene::SceneObject>> mSceneObjects;
     std::function<void(const int, const std::shared_ptr<scene::SceneObject>)> mOnItemSelectedCallback;
     WheelState mState;

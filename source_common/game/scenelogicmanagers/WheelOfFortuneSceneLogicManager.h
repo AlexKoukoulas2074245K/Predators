@@ -36,6 +36,7 @@ private:
     
 private:
     std::shared_ptr<scene::Scene> mScene;
+    std::vector<strutils::StringId> mWheelRewards;
     std::unique_ptr<AnimatedButton> mSpinButton;
     std::unique_ptr<AnimatedButton> mContinueButton;
     std::unique_ptr<WheelOfFortuneController> mWheelController;

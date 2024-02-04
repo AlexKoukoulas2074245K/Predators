@@ -25,6 +25,7 @@
 #include <game/GuiObjectManager.h>
 #include <game/DataRepository.h>
 #include <game/ProductIds.h>
+#include <game/ProductRepository.h>
 #include <game/scenelogicmanagers/ShopSceneLogicManager.h>
 #if defined(MACOS) || defined(MOBILE_FLOW)
 #include <platform_utilities/AppleUtils.h>
@@ -75,6 +76,7 @@ static const strutils::StringId ORIGIN_Y_UNIFORM_NAME = strutils::StringId("orig
 static const strutils::StringId PRODUCT_DESELECTION_ANIMATION_NAME = strutils::StringId("product_deselection_animation");
 
 static const std::string DISSOLVE_SHADER_FILE_NAME = "generic_dissolve.vs";
+static const std::string DISSOLVE_RARE_ITEM_SHADER_FILE_NAME = "generic_rare_item_dissolve.vs";
 static const std::string DISSOLVE_TEXTURE_FILE_NAME = "dissolve.png";
 static const std::string SHELVES_STORY_SHOP_TEXTURE_FILE_NAME = "shelves_story_shop.png";
 static const std::string SHELVES_PERMA_SHOP_TEXTURE_FILE_NAME = "shelves_perma_shop.png";
@@ -185,8 +187,7 @@ void ShopSceneLogicManager::VInitSceneCamera(std::shared_ptr<scene::Scene>)
 void ShopSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 {
     CardDataRepository::GetInstance().LoadCardData(true);
-    LoadProductData();
-    
+
     mScene = scene;
     DestroyCardTooltip();
     mGuiManager = std::make_shared<GuiObjectManager>(scene);
@@ -530,7 +531,7 @@ void ShopSceneLogicManager::OnProductPurchaseEnded(const events::ProductPurchase
     size_t productShelfIndex, productShelfItemIndex;
     FindHighlightedProduct(productShelfIndex, productShelfItemIndex);
     auto& product = mProducts[productShelfIndex][productShelfItemIndex];
-    const auto& productDefinition = mProductDefinitions.at(product->mProductName);
+    const auto& productDefinition = ProductRepository::GetInstance().GetProductDefinition(product->mProductName);
     
     if (event.mWasSuccessful)
     {
@@ -546,7 +547,7 @@ void ShopSceneLogicManager::OnProductPurchaseEnded(const events::ProductPurchase
                 CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(product->mSceneObjects[i], 0.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){ mProducts[productShelfIndex][productShelfItemIndex]->mSceneObjects[i]->mInvisible = true; });
             }
             
-            product->mSceneObjects.front()->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + DISSOLVE_SHADER_FILE_NAME);
+            product->mSceneObjects.front()->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + (productDefinition.mStoryRareItemName.empty() ? DISSOLVE_SHADER_FILE_NAME : DISSOLVE_RARE_ITEM_SHADER_FILE_NAME));
             product->mSceneObjects.front()->mEffectTextureResourceIds[0] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + DISSOLVE_TEXTURE_FILE_NAME);
             product->mSceneObjects.front()->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] = 0.0f;
             product->mSceneObjects.front()->mShaderFloatUniformValues[ORIGIN_X_UNIFORM_NAME] = product->mSceneObjects.front()->mPosition.x;
@@ -717,17 +718,26 @@ void ShopSceneLogicManager::CreateProducts()
     
     if (DataRepository::GetInstance().GetCurrentShopBehaviorType() == ShopBehaviorType::STORY_SHOP)
     {
+        // Get random rare items for the first shelf
+        const auto& rareItemProductNames = ProductRepository::GetInstance().GetRareItemProductNames();
+        const auto& firstRareItemProductName = rareItemProductNames[math::ControlledRandomInt() % rareItemProductNames.size()];
+        auto secondRareItemProductName = rareItemProductNames[math::ControlledRandomInt() % rareItemProductNames.size()];
+        while (secondRareItemProductName == firstRareItemProductName)
+        {
+            secondRareItemProductName = rareItemProductNames[math::ControlledRandomInt() % rareItemProductNames.size()];
+        }
+        
         // First Shelf
         if (DataRepository::GetInstance().StoryCurrentHealth().GetValue() <= DataRepository::GetInstance().GetStoryMaxHealth()/2)
         {
-            mProducts[0][0] = std::make_unique<ProductInstance>(DAMAGE_GAIN_PRODUCT_NAME);
+            mProducts[0][0] = std::make_unique<ProductInstance>(firstRareItemProductName);
             mProducts[0][2] = std::make_unique<ProductInstance>(STORY_HEALTH_REFILL_PRODUCT_NAME);
-            mProducts[0][4] = std::make_unique<ProductInstance>(WEIGHT_GAIN_PRODUCT_NAME);
+            mProducts[0][4] = std::make_unique<ProductInstance>(secondRareItemProductName);
         }
         else
         {
-            mProducts[0][1] = std::make_unique<ProductInstance>(DAMAGE_GAIN_PRODUCT_NAME);
-            mProducts[0][3] = std::make_unique<ProductInstance>(WEIGHT_GAIN_PRODUCT_NAME);
+            mProducts[0][1] = std::make_unique<ProductInstance>(firstRareItemProductName);
+            mProducts[0][3] = std::make_unique<ProductInstance>(secondRareItemProductName);
         }
         
         // Second Shelf
@@ -740,7 +750,7 @@ void ShopSceneLogicManager::CreateProducts()
             auto productDefinitionName = strutils::StringId("card_" + std::to_string(cardId));
             
             auto cardPrice = cardData.IsSpell() ? SPELL_CARD_REWARD_PRICE : NORMAL_CARD_REWARD_PRICE;
-            mProductDefinitions.emplace(std::make_pair(productDefinitionName, ProductDefinition(productDefinitionName, cardId, cardData.mCardEffectTooltip, cardPrice)));
+            ProductRepository::GetInstance().InsertDynamicProductDefinition(productDefinitionName, ProductDefinition(productDefinitionName, cardId, "", cardData.mCardEffectTooltip, cardPrice));
             mProducts[1][col] = std::make_unique<ProductInstance>(productDefinitionName);
         }
         
@@ -778,7 +788,7 @@ void ShopSceneLogicManager::CreateProducts()
             }
             
             auto& product = mProducts[shelfIndex][shelfItemIndex];
-            const auto& productDefinition = mProductDefinitions.at(product->mProductName);
+            const auto& productDefinition = ProductRepository::GetInstance().GetProductDefinition(product->mProductName);
             
 #if defined(MACOS) || defined(MOBILE_FLOW)
             const auto& permaShopPriceString = apple_utils::GetProductPrice(product->mProductName.GetString());
@@ -808,6 +818,7 @@ void ShopSceneLogicManager::CreateProducts()
             {
                 auto shelfItemSceneObject = mScene->CreateSceneObject(strutils::StringId(PRODUCT_NAME_PREFIX + std::to_string(shelfIndex) + "_" + std::to_string(shelfItemIndex)));
                 shelfItemSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + (shouldBeMarkedAsComingSoon ? PLACEHOLDER_PRODUCT_TEXTURE_FILE_NAME : std::get<std::string>(productDefinition.mProductTexturePathOrCardId)));
+                shelfItemSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(productDefinition.mShaderPath);
                 shelfItemSceneObject->mPosition = SHELF_ITEM_TARGET_BASE_POSITIONS[shelfIndex] + PRODUCT_POSITION_OFFSET;
                 shelfItemSceneObject->mScale = GENERIC_PRODUCT_SCALE;
                 shelfItemSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
@@ -921,7 +932,7 @@ void ShopSceneLogicManager::HighlightProduct(const size_t productShelfIndex, con
 {
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
     auto& product = mProducts[productShelfIndex][productShelfItemIndex];
-    const auto& productDefinition = mProductDefinitions.at(product->mProductName);
+    const auto& productDefinition = ProductRepository::GetInstance().GetProductDefinition(product->mProductName);
     
     auto highlightedScale = (std::holds_alternative<int>(productDefinition.mProductTexturePathOrCardId) ? CARD_PRODUCT_SCALE : GENERIC_PRODUCT_SCALE) * HIGHLIGHTED_PRODUCT_SCALE_FACTOR;
     if (product->mProductName == NORMAL_PACK_PRODUCT_NAME || product->mProductName == GOLDEN_PACK_PRODUCT_NAME)
@@ -938,7 +949,7 @@ void ShopSceneLogicManager::DehighlightProduct(const size_t productShelfIndex, c
 {
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
     auto& product = mProducts[productShelfIndex][productShelfItemIndex];
-    const auto& productDefinition = mProductDefinitions.at(product->mProductName);
+    const auto& productDefinition = ProductRepository::GetInstance().GetProductDefinition(product->mProductName);
     
     auto dehighlightedScale = (std::holds_alternative<int>(productDefinition.mProductTexturePathOrCardId) ? CARD_PRODUCT_SCALE : GENERIC_PRODUCT_SCALE);
     if (product->mProductName == NORMAL_PACK_PRODUCT_NAME || product->mProductName == GOLDEN_PACK_PRODUCT_NAME)
@@ -955,7 +966,7 @@ void ShopSceneLogicManager::SelectProduct(const size_t productShelfIndex, const 
 {
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
     auto& product = mProducts[productShelfIndex][productShelfItemIndex];
-    const auto& productDefinition = mProductDefinitions.at(product->mProductName);
+    const auto& productDefinition = ProductRepository::GetInstance().GetProductDefinition(product->mProductName);
     
     for (auto shelfIndex = 0U; shelfIndex < mProducts.size(); ++shelfIndex)
     {
@@ -1025,7 +1036,7 @@ void ShopSceneLogicManager::SelectProduct(const size_t productShelfIndex, const 
     {
         // Create card tooltip if necessary
         auto& product = mProducts[productShelfIndex][productShelfItemIndex];
-        const auto& productDefinition = mProductDefinitions.at(product->mProductName);
+        const auto& productDefinition = ProductRepository::GetInstance().GetProductDefinition(product->mProductName);
         
         if (!IsProductCoins(productShelfIndex, productShelfItemIndex))
         {
@@ -1048,7 +1059,7 @@ void ShopSceneLogicManager::DeselectProduct(const size_t productShelfIndex, cons
     
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
     auto& product = mProducts[productShelfIndex][productShelfItemIndex];
-    const auto& productDefinition = mProductDefinitions.at(product->mProductName);
+    const auto& productDefinition = ProductRepository::GetInstance().GetProductDefinition(product->mProductName);
     product->mHighlighted = false;
     
     for (auto& sceneObject: product->mSceneObjects)
@@ -1149,30 +1160,11 @@ void ShopSceneLogicManager::DestroyCardTooltip()
 
 ///------------------------------------------------------------------------------------------------
 
-void ShopSceneLogicManager::LoadProductData()
-{
-    auto& systemsEngine = CoreSystemsEngine::GetInstance();
-    auto productDefinitionJsonResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_DATA_ROOT + "shop_product_data.json", resources::DONT_RELOAD);
-    const auto particlesJson =  nlohmann::json::parse(systemsEngine.GetResourceLoadingService().GetResource<resources::DataFileResource>(productDefinitionJsonResourceId).GetContents());
-    
-    for (const auto& shopDefinitionObject: particlesJson["shop_product_data"])
-    {
-        strutils::StringId productName = strutils::StringId(shopDefinitionObject["name"].get<std::string>());
-        int productPrice = shopDefinitionObject["price"].get<int>();
-        std::string productTexturePath = shopDefinitionObject["texture_path"].get<std::string>();
-        std::string productDescription = shopDefinitionObject["description"].get<std::string>();
-        
-        mProductDefinitions.emplace(std::make_pair(productName, ProductDefinition(productName, productTexturePath, productDescription, productPrice)));
-    }
-}
-
-///------------------------------------------------------------------------------------------------
-
 void ShopSceneLogicManager::OnBuyProductAttempt(const size_t productShelfIndex, const size_t productShelfItemIndex)
 {
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
     auto& product = mProducts[productShelfIndex][productShelfItemIndex];
-    const auto& productDefinition = mProductDefinitions.at(product->mProductName);
+    const auto& productDefinition = ProductRepository::GetInstance().GetProductDefinition(product->mProductName);
     
     auto currentCoinsValue = DataRepository::GetInstance().CurrencyCoins().GetValue();
     auto currentHealthValue = DataRepository::GetInstance().StoryCurrentHealth().GetValue();
@@ -1295,7 +1287,7 @@ void ShopSceneLogicManager::OnBuyProductAttempt(const size_t productShelfIndex, 
             }
             else
             {
-                product->mSceneObjects.front()->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + DISSOLVE_SHADER_FILE_NAME);
+                product->mSceneObjects.front()->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + (productDefinition.mStoryRareItemName.empty() ? DISSOLVE_SHADER_FILE_NAME : DISSOLVE_RARE_ITEM_SHADER_FILE_NAME));
                 product->mSceneObjects.front()->mEffectTextureResourceIds[0] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + DISSOLVE_TEXTURE_FILE_NAME);
                 product->mSceneObjects.front()->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] = 0.0f;
                 product->mSceneObjects.front()->mShaderFloatUniformValues[ORIGIN_X_UNIFORM_NAME] = product->mSceneObjects.front()->mPosition.x;
@@ -1468,7 +1460,7 @@ void ShopSceneLogicManager::UpdateProductPriceTags()
             }
             
             auto& product = mProducts[shelfIndex][shelfItemIndex];
-            const auto& productDefinition = mProductDefinitions.at(product->mProductName);
+            const auto& productDefinition = ProductRepository::GetInstance().GetProductDefinition(product->mProductName);
             
             if ((IsProductCoins(shelfIndex, shelfItemIndex) || product->mProductName == STORY_HEALTH_REFILL_PRODUCT_NAME) && product->mSceneObjects.size() <= 1)
             {

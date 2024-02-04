@@ -12,11 +12,12 @@
 #include <engine/utils/PlatformMacros.h>
 #include <engine/scene/SceneManager.h>
 #include <game/AnimatedButton.h>
+#include <game/DataRepository.h>
 #include <game/GuiObjectManager.h>
 #include <game/events/EventSystem.h>
 #include <game/GameSceneTransitionManager.h>
+#include <game/ProductRepository.h>
 #include <game/scenelogicmanagers/WheelOfFortuneSceneLogicManager.h>
-#include <game/DataRepository.h>
 #include <game/WheelOfFortuneController.h>
 
 ///------------------------------------------------------------------------------------------------
@@ -26,36 +27,33 @@ static const strutils::StringId SPIN_BUTTON_SCENE_OBJECT_NAME = strutils::String
 static const strutils::StringId CONTINUE_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("continue_button");
 static const strutils::StringId WHEEL_OF_FORTUNE_TITLE_SCENE_OBJECT_NAME = strutils::StringId("wheel_of_fortune_title");
 
-static const glm::vec3 BUTTON_POSITION = {0.155f, -0.038f, 23.1f};
+static const std::string COIN_VALUE_TEXT_SHADER_FILE_NAME = "animated_stat_container_value_object.vs";
+static const std::string REWARD_TEXT_SCENE_OBJECT_NAME_PREFIX = "reward_text_";
+
+static const glm::vec3 BUTTON_POSITION = {0.103f, -0.178f, 23.1f};
 static const glm::vec3 BUTTON_SCALE = {0.0005f, 0.0005f, 0.0005f};
 static const glm::vec3 REWARD_ORIGIN_POSITION = {-0.032f, -0.034f, 23.1f};
-
+static const glm::vec3 COIN_VALUE_TEXT_COLOR = {0.80f, 0.71f, 0.11f};
+static const glm::vec3 REWARD_TEXT_SCALE = {0.00032f, 0.00032f, 0.00032f};
 static const int EXTRA_HP_REWARD_VALUE = 10;
 
 static const float FADE_IN_OUT_DURATION_SECS = 1.0f;
+static const float REWARD_TEXT_STAGGERED_FADE_IN_SECS = 0.1f;
 
-static const std::string REWARD_EXTRA_15_COINS_TEXTURE = "wheel_of_fortune_items/extra_15_coins.png";
-static const std::string REWARD_EXTRA_50_COINS_TEXTURE = "wheel_of_fortune_items/extra_50_coins.png";
-static const std::string REWARD_EXTRA_100_COINS_TEXTURE = "wheel_of_fortune_items/extra_100_coins.png";
-static const std::string REWARD_EXTRA_HP_TEXTURE = "wheel_of_fortune_items/extra_hp.png";
-static const std::string REWARD_REFILL_HP_TEXTURE = "wheel_of_fortune_items/refill_hp.png";
-static const std::string REWARD_EXTRA_WEIGHT_TEXTURE = "wheel_of_fortune_items/extra_weight.png";
-static const std::string REWARD_EXTRA_DAMAGE_TEXTURE = "wheel_of_fortune_items/extra_damage.png";
+static const strutils::StringId REWARD_EXTRA_15_COINS_PRODUCT_NAME = strutils::StringId("extra_15_coins");
+static const strutils::StringId REWARD_EXTRA_50_COINS_PRODUCT_NAME = strutils::StringId("extra_50_coins");
+static const strutils::StringId REWARD_EXTRA_100_COINS_PRODUCT_NAME = strutils::StringId("extra_100_coins");
+static const strutils::StringId REWARD_EXTRA_HP_PRODUCT_NAME = strutils::StringId("extra_hp");
+static const strutils::StringId REWARD_REFILL_HP_PRODUCT_NAME = strutils::StringId("story_health_refill");
+static const strutils::StringId REWARD_EXTRA_WEIGHT_PRODUCT_NAME = strutils::StringId("weight_gain_+1");
+static const strutils::StringId REWARD_EXTRA_DAMAGE_PRODUCT_NAME = strutils::StringId("damage_gain_+1");
 
-static const std::vector<std::string> WHEEL_REWARDS =
+static const glm::vec3 REWARD_TEXT_OFFSETS[4] =
 {
-    REWARD_EXTRA_15_COINS_TEXTURE,
-    REWARD_EXTRA_HP_TEXTURE,
-    REWARD_EXTRA_50_COINS_TEXTURE,
-    REWARD_EXTRA_15_COINS_TEXTURE,
-    REWARD_EXTRA_DAMAGE_TEXTURE,
-    REWARD_EXTRA_HP_TEXTURE,
-    REWARD_EXTRA_100_COINS_TEXTURE,
-    REWARD_EXTRA_HP_TEXTURE,
-    REWARD_EXTRA_15_COINS_TEXTURE,
-    REWARD_REFILL_HP_TEXTURE,
-    REWARD_EXTRA_50_COINS_TEXTURE,
-    REWARD_EXTRA_WEIGHT_TEXTURE
+    {0.138f, 0.00f, 23.2f},
+    {0.15f, -0.044f, 23.2f},
+    {0.15f, -0.088f, 23.2f},
+    {0.138f, -0.132f, 23.2f}
 };
 
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
@@ -103,7 +101,31 @@ void WheelOfFortuneSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> s
         DataRepository::GetInstance().FlushStateToFile();
     }
     
-    mWheelController = std::make_unique<WheelOfFortuneController>(*scene, WHEEL_REWARDS, [=](const int itemIndex, const std::shared_ptr<scene::SceneObject> itemSceneObject){ OnWheelItemSelected(itemIndex, itemSceneObject); });
+    const auto& rareItemProductNames = ProductRepository::GetInstance().GetRareItemProductNames();
+    const auto& firstRareItemProductName = rareItemProductNames[math::ControlledRandomInt() % rareItemProductNames.size()];
+    auto secondRareItemProductName = rareItemProductNames[math::ControlledRandomInt() % rareItemProductNames.size()];
+    while (secondRareItemProductName == firstRareItemProductName)
+    {
+        secondRareItemProductName = rareItemProductNames[math::ControlledRandomInt() % rareItemProductNames.size()];
+    }
+    
+    mWheelRewards =
+    {
+        REWARD_EXTRA_15_COINS_PRODUCT_NAME,
+        REWARD_EXTRA_HP_PRODUCT_NAME,
+        REWARD_EXTRA_50_COINS_PRODUCT_NAME,
+        REWARD_EXTRA_15_COINS_PRODUCT_NAME,
+        firstRareItemProductName,
+        REWARD_EXTRA_HP_PRODUCT_NAME,
+        REWARD_EXTRA_100_COINS_PRODUCT_NAME,
+        REWARD_EXTRA_HP_PRODUCT_NAME,
+        REWARD_EXTRA_15_COINS_PRODUCT_NAME,
+        REWARD_REFILL_HP_PRODUCT_NAME,
+        REWARD_EXTRA_50_COINS_PRODUCT_NAME,
+        secondRareItemProductName
+    };
+    
+    mWheelController = std::make_unique<WheelOfFortuneController>(*scene, mWheelRewards, [=](const int itemIndex, const std::shared_ptr<scene::SceneObject> itemSceneObject){ OnWheelItemSelected(itemIndex, itemSceneObject); });
         
     mContinueButton = nullptr;
     mSpinButton = std::make_unique<AnimatedButton>
@@ -204,31 +226,31 @@ std::shared_ptr<GuiObjectManager> WheelOfFortuneSceneLogicManager::VGetGuiObject
 
 void WheelOfFortuneSceneLogicManager::OnWheelItemSelected(const int itemIndex, const std::shared_ptr<scene::SceneObject>)
 {
-    if (WHEEL_REWARDS.at(itemIndex) == REWARD_EXTRA_15_COINS_TEXTURE)
+    if (mWheelRewards.at(itemIndex) == REWARD_EXTRA_15_COINS_PRODUCT_NAME)
     {
         events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(15, REWARD_ORIGIN_POSITION);
     }
-    else if (WHEEL_REWARDS.at(itemIndex) == REWARD_EXTRA_50_COINS_TEXTURE)
+    else if (mWheelRewards.at(itemIndex) == REWARD_EXTRA_50_COINS_PRODUCT_NAME)
     {
         events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(50, REWARD_ORIGIN_POSITION);
     }
-    else if (WHEEL_REWARDS.at(itemIndex) == REWARD_EXTRA_100_COINS_TEXTURE)
+    else if (mWheelRewards.at(itemIndex) == REWARD_EXTRA_100_COINS_PRODUCT_NAME)
     {
         events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(100, REWARD_ORIGIN_POSITION);
     }
-    else if (WHEEL_REWARDS.at(itemIndex) == REWARD_EXTRA_HP_TEXTURE)
+    else if (mWheelRewards.at(itemIndex) == REWARD_EXTRA_HP_PRODUCT_NAME)
     {
         events::EventSystem::GetInstance().DispatchEvent<events::MaxHealthGainRewardEvent>(EXTRA_HP_REWARD_VALUE);
     }
-    else if (WHEEL_REWARDS.at(itemIndex) == REWARD_REFILL_HP_TEXTURE)
+    else if (mWheelRewards.at(itemIndex) == REWARD_REFILL_HP_PRODUCT_NAME)
     {
         events::EventSystem::GetInstance().DispatchEvent<events::HealthRefillRewardEvent>(DataRepository::GetInstance().GetStoryMaxHealth() - DataRepository::GetInstance().StoryCurrentHealth().GetValue(), REWARD_ORIGIN_POSITION);
     }
-    else if (WHEEL_REWARDS.at(itemIndex) == REWARD_EXTRA_DAMAGE_TEXTURE)
+    else if (mWheelRewards.at(itemIndex) == REWARD_EXTRA_DAMAGE_PRODUCT_NAME)
     {
         events::EventSystem::GetInstance().DispatchEvent<events::ExtraDamageRewardEvent>();
     }
-    else if (WHEEL_REWARDS.at(itemIndex) == REWARD_EXTRA_WEIGHT_TEXTURE)
+    else if (mWheelRewards.at(itemIndex) == REWARD_EXTRA_WEIGHT_PRODUCT_NAME)
     {
         events::EventSystem::GetInstance().DispatchEvent<events::ExtraWeightRewardEvent>();
     }
@@ -259,6 +281,26 @@ void WheelOfFortuneSceneLogicManager::OnWheelItemSelected(const int itemIndex, c
         },
         *mScene
     );
+    
+    auto productDescription = ProductRepository::GetInstance().GetProductDefinition(mWheelRewards.at(itemIndex)).mDescription;
+    auto tooltipTextRows = strutils::StringSplit(productDescription, '$');
+    
+    for (auto i = 0U; i < tooltipTextRows.size(); ++i)
+    {
+        auto tooltipTextSceneObject = mScene->CreateSceneObject(strutils::StringId(REWARD_TEXT_SCENE_OBJECT_NAME_PREFIX + std::to_string(i)));
+        tooltipTextSceneObject->mScale = REWARD_TEXT_SCALE;
+        tooltipTextSceneObject->mPosition += REWARD_TEXT_OFFSETS[i];
+        tooltipTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+        tooltipTextSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + COIN_VALUE_TEXT_SHADER_FILE_NAME);
+        tooltipTextSceneObject->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = COIN_VALUE_TEXT_COLOR;
+        
+        scene::TextSceneObjectData textData;
+        textData.mFontName = game_constants::DEFAULT_FONT_NAME;
+        textData.mText = tooltipTextRows[i];
+        tooltipTextSceneObject->mSceneObjectTypeData = std::move(textData);
+        
+        CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(tooltipTextSceneObject, 1.0f, FADE_IN_OUT_DURATION_SECS, animation_flags::NONE, i * REWARD_TEXT_STAGGERED_FADE_IN_SECS), [=](){});
+    }
 }
 
 ///------------------------------------------------------------------------------------------------

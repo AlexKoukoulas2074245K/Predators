@@ -1,17 +1,21 @@
 {
-    "shop_product_data":
+    "product_definitions":
     [
         {
             "name": "damage_gain_+1",
             "price": 500,
-            "texture_path": "shop_items/damage_gain_icon.png",
-            "description": "Permanent +1$damage increase$for all normal cards"
+            "texture_path": "rare_item_rewards/extra_damage.png",
+            "shader_path": "rare_item.vs",
+            "description": "Permanent +1$damage increase$for all normal cards",
+            "story_rare_item_name": "Blood Diamond"
         },
         {
             "name": "weight_gain_+1",
             "price": 200,
-            "texture_path": "shop_items/weight_gain_icon.png",
-            "description": "Permanent +1$starting weight for$all future story$battles"
+            "texture_path": "rare_item_rewards/extra_weight.png",
+            "shader_path": "rare_item.vs",
+            "description": "Permanent +1$starting weight for$all future story$battles",
+            "story_rare_item_name": "Blue Sapphire"
         },
         {
             "name": "coins_to_life",
@@ -64,8 +68,37 @@
         {
             "name": "story_health_refill",
             "price": 100,
-            "texture_path": "shop_items/story_health_refill.png",
-            "description": " $Fully refills your$active story health!"
+            "texture_path": "rare_item_rewards/refill_hp.png",
+            "shader_path": "rare_item.vs",
+            "description": "Fully refills your$active story health!"
+        },
+        {
+            "name": "extra_hp",
+            "price": 10,
+            "texture_path": "rare_item_rewards/extra_hp.png",
+            "shader_path": "rare_item.vs",
+            "description": "Increases story MAX$HEALTH by 10!"
+        },
+        {
+            "name": "extra_15_coins",
+            "price": 15,
+            "texture_path": "rare_item_rewards/extra_15_coins.png",
+            "shader_path": "rare_item.vs",
+            "description": "+15 coins"
+        },
+        {
+            "name": "extra_50_coins",
+            "price": 50,
+            "texture_path": "rare_item_rewards/extra_50_coins.png",
+            "shader_path": "rare_item.vs",
+            "description": "+50 coins"
+        },
+        {
+            "name": "extra_100_coins",
+            "price": 100,
+            "texture_path": "rare_item_rewards/extra_100_coins.png",
+            "shader_path": "rare_item.vs",
+            "description": "+100 coins"
         }
     ]
 }
