@@ -116,7 +116,30 @@ ActionAnimationUpdateResult BattleInitialSetupAndAnimationGameAction::VUpdateAni
             
             if (currentSubSceneType == BattleSubSceneType::WHEEL)
             {
-                events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(CARD_SELECTION_REWARD_SCENE_NAME, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+                auto isTutorialMiniBoss = DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::TUTORIAL_MAP && DataRepository::GetInstance().GetCurrentStoryMapNodeCoord() == game_constants::TUTORIAL_MAP_BOSS_COORD;
+                auto isStoryFinalBoss = DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::NORMAL_MAP && DataRepository::GetInstance().GetCurrentStoryMapNodeCoord() == game_constants::STORY_MAP_BOSS_COORD;
+                
+                if (DataRepository::GetInstance().GetCurrentStoryMapNodeType() == StoryMap::NodeType::ELITE_ENCOUNTER || DataRepository::GetInstance().GetCurrentStoryMapNodeType() == StoryMap::NodeType::BOSS_ENCOUNTER)
+                {
+                    if (isTutorialMiniBoss)
+                    {
+                        DataRepository::GetInstance().SetCurrentWheelOfFortuneType(WheelOfFortuneType::TUTORIAL_BOSS);
+                    }
+                    else if (isStoryFinalBoss)
+                    {
+                        DataRepository::GetInstance().SetCurrentWheelOfFortuneType(WheelOfFortuneType::FINAL_BOSS);
+                    }
+                    else
+                    {
+                        DataRepository::GetInstance().SetCurrentWheelOfFortuneType(WheelOfFortuneType::ELITE);
+                    }
+                }
+                
+                if (!isStoryFinalBoss)
+                {
+                    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(CARD_SELECTION_REWARD_SCENE_NAME, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+                }
+                
                 events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(WHEEL_OF_FORTUNE_SCENE_NAME, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
             }
             else if (currentSubSceneType == BattleSubSceneType::CARD_SELECTION)

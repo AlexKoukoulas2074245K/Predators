@@ -110,12 +110,7 @@ void CardSelectionRewardSceneLogicManager::VInitScene(std::shared_ptr<scene::Sce
         game_constants::DEFAULT_FONT_NAME,
         "Skip Rewards",
         SKIP_BUTTON_SCENE_OBJECT_NAME,
-        [=]()
-        {
-            DataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::BATTLE);
-            DataRepository::GetInstance().FlushStateToFile();
-            events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_MAP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
-        },
+        [=](){ OnLeavingCardSelection(); },
         *scene,
         scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE,
         SKIP_BUTTON_SNAP_TO_EDGE_FACTOR
@@ -517,13 +512,35 @@ void CardSelectionRewardSceneLogicManager::OnConfirmationButtonPressed()
                     animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardLibraryIconSceneObject, cardLibraryIconSceneObject->mPosition, originalScale, CARD_BOUGHT_ANIMATION_LIBRARY_ICON_PULSE_DURATION_SECS, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT | animation_flags::IGNORE_Z_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
                     {
                         cardLibraryIconSceneObject->mScale = originalScale;
-                        events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_MAP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
+                        OnLeavingCardSelection();
                     });
                 });
             });
             break;
         }
     }
+}
+
+///------------------------------------------------------------------------------------------------
+
+void CardSelectionRewardSceneLogicManager::OnLeavingCardSelection()
+{
+    auto isStoryTutorialBoss = DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::TUTORIAL_MAP && DataRepository::GetInstance().GetCurrentStoryMapNodeCoord() == game_constants::TUTORIAL_MAP_BOSS_COORD;
+    
+    if (isStoryTutorialBoss)
+    {
+        DataRepository::GetInstance().SetStoryMapGenerationSeed(0);
+        DataRepository::GetInstance().SetCurrentStoryMapType(StoryMapType::NORMAL_MAP);
+        DataRepository::GetInstance().SetCurrentStoryMapNodeCoord(game_constants::STORY_MAP_INIT_COORD);
+        DataRepository::GetInstance().SetCurrentStoryMapSceneType(StoryMapSceneType::STORY_MAP);
+        DataRepository::GetInstance().StoryCurrentHealth().SetValue(DataRepository::GetInstance().GetStoryMaxHealth());
+        DataRepository::GetInstance().StoryCurrentHealth().SetDisplayedValue(DataRepository::GetInstance().GetStoryMaxHealth());
+    }
+    
+    DataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::BATTLE);
+    DataRepository::GetInstance().FlushStateToFile();
+    
+    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_MAP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
 }
 
 ///------------------------------------------------------------------------------------------------

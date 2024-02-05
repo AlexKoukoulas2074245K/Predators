@@ -42,6 +42,7 @@ private:
     void CreateCardTooltip(const glm::vec3& cardOriginPostion, const std::string& tooltipText, const size_t cardIndex, std::shared_ptr<scene::Scene> scene);
     void DestroyCardTooltip(std::shared_ptr<scene::Scene> scene);
     void OnConfirmationButtonPressed();
+    void OnLeavingCardSelection();
     
 private:
     enum class SceneState

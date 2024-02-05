@@ -547,7 +547,7 @@ void ShopSceneLogicManager::OnProductPurchaseEnded(const events::ProductPurchase
                 CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(product->mSceneObjects[i], 0.0f, PRODUCT_HIGHLIGHT_ANIMATION_DURATION_SECS), [=](){ mProducts[productShelfIndex][productShelfItemIndex]->mSceneObjects[i]->mInvisible = true; });
             }
             
-            product->mSceneObjects.front()->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + (productDefinition.mStoryRareItemName.empty() ? DISSOLVE_SHADER_FILE_NAME : DISSOLVE_RARE_ITEM_SHADER_FILE_NAME));
+            product->mSceneObjects.front()->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + ((productDefinition.mStoryRareItemName.empty() && product->mProductName != STORY_HEALTH_REFILL_PRODUCT_NAME) ? DISSOLVE_SHADER_FILE_NAME : DISSOLVE_RARE_ITEM_SHADER_FILE_NAME));
             product->mSceneObjects.front()->mEffectTextureResourceIds[0] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + DISSOLVE_TEXTURE_FILE_NAME);
             product->mSceneObjects.front()->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] = 0.0f;
             product->mSceneObjects.front()->mShaderFloatUniformValues[ORIGIN_X_UNIFORM_NAME] = product->mSceneObjects.front()->mPosition.x;
@@ -1287,7 +1287,7 @@ void ShopSceneLogicManager::OnBuyProductAttempt(const size_t productShelfIndex, 
             }
             else
             {
-                product->mSceneObjects.front()->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + (productDefinition.mStoryRareItemName.empty() ? DISSOLVE_SHADER_FILE_NAME : DISSOLVE_RARE_ITEM_SHADER_FILE_NAME));
+                product->mSceneObjects.front()->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + ((productDefinition.mStoryRareItemName.empty() && product->mProductName != STORY_HEALTH_REFILL_PRODUCT_NAME) ? DISSOLVE_SHADER_FILE_NAME : DISSOLVE_RARE_ITEM_SHADER_FILE_NAME));
                 product->mSceneObjects.front()->mEffectTextureResourceIds[0] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + DISSOLVE_TEXTURE_FILE_NAME);
                 product->mSceneObjects.front()->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] = 0.0f;
                 product->mSceneObjects.front()->mShaderFloatUniformValues[ORIGIN_X_UNIFORM_NAME] = product->mSceneObjects.front()->mPosition.x;

@@ -1921,9 +1921,30 @@ void BattleSceneLogicManager::OnStoryBattleWon(const events::StoryBattleWonEvent
     
     // Set next scenes accordingly
     DataRepository::GetInstance().SetCurrentStoryMapNodeSeed(math::GetControlSeed());
-    DataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::CARD_SELECTION);
-    if (DataRepository::GetInstance().GetCurrentStoryMapNodeType() == StoryMap::NodeType::ELITE_ENCOUNTER)
+    
+    auto isTutorialMiniBoss = DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::TUTORIAL_MAP && DataRepository::GetInstance().GetCurrentStoryMapNodeCoord() == game_constants::TUTORIAL_MAP_BOSS_COORD;
+    auto isStoryFinalBoss = DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::NORMAL_MAP && DataRepository::GetInstance().GetCurrentStoryMapNodeCoord() == game_constants::STORY_MAP_BOSS_COORD;
+    
+    if (!isStoryFinalBoss)
     {
+        DataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::CARD_SELECTION);
+    }
+    
+    if (DataRepository::GetInstance().GetCurrentStoryMapNodeType() == StoryMap::NodeType::ELITE_ENCOUNTER || DataRepository::GetInstance().GetCurrentStoryMapNodeType() == StoryMap::NodeType::BOSS_ENCOUNTER)
+    {
+        if (isTutorialMiniBoss)
+        {
+            DataRepository::GetInstance().SetCurrentWheelOfFortuneType(WheelOfFortuneType::TUTORIAL_BOSS);
+        }
+        else if (isStoryFinalBoss)
+        {
+            DataRepository::GetInstance().SetCurrentWheelOfFortuneType(WheelOfFortuneType::FINAL_BOSS);
+        }
+        else
+        {
+            DataRepository::GetInstance().SetCurrentWheelOfFortuneType(WheelOfFortuneType::ELITE);
+        }
+        
         DataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::WHEEL);
     }
     DataRepository::GetInstance().FlushStateToFile();

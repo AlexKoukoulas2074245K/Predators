@@ -25,6 +25,7 @@ static const strutils::StringId EVENT_PORTRAIT_SCENE_OBJECT_NAME = strutils::Str
 static const strutils::StringId EVENT_DESCRIPTION_SCENE_OBJECT_NAME = strutils::StringId("event_description");
 static const strutils::StringId EVENT_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("event_button");
 static const strutils::StringId DEFEAT_SCENE_NAME = strutils::StringId("defeat_scene");
+static const strutils::StringId ANIMATED_STAT_CONTAINER_ANIMATION_NAME = strutils::StringId("animated_stat_container_animation");
 
 static const glm::vec3 BUTTON_SCALE = {0.0004f, 0.0004f, 0.0004f};
 static const glm::vec3 EVENT_DESCRIPTION_TEXT_SCALE = {0.0004f, 0.0004f, 0.0004f};
@@ -113,9 +114,12 @@ void EventSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene
         return;
     }
     
-    for (auto& animatedButton: mCurrentEventButtons)
+    if (!CoreSystemsEngine::GetInstance().GetAnimationManager().IsAnimationPlaying(ANIMATED_STAT_CONTAINER_ANIMATION_NAME))
     {
-        animatedButton->Update(dtMillis);
+        for (auto& animatedButton: mCurrentEventButtons)
+        {
+            animatedButton->Update(dtMillis);
+        }
     }
 }
 

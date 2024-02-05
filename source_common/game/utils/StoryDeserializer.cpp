@@ -63,6 +63,11 @@ StoryDeserializer::StoryDeserializer(DataRepository& dataRepository)
         dataRepository.SetCurrentStoryMapType(static_cast<StoryMapType>(storyJson["current_story_map_type"].get<int>()));
     }
     
+    if (storyJson.count("current_wheel_of_fortune_type"))
+    {
+        dataRepository.SetCurrentWheelOfFortuneType(static_cast<WheelOfFortuneType>(storyJson["current_wheel_of_fortune_type"].get<int>()));
+    }
+    
     if (storyJson.count("current_shop_type"))
     {
         dataRepository.SetCurrentShopBehaviorType(static_cast<ShopBehaviorType>(storyJson["current_shop_type"].get<int>()));

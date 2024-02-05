@@ -47,6 +47,15 @@ enum class BattleSubSceneType
 
 ///------------------------------------------------------------------------------------------------
 
+enum class WheelOfFortuneType
+{
+    ELITE,
+    TUTORIAL_BOSS,
+    FINAL_BOSS
+};
+
+///------------------------------------------------------------------------------------------------
+
 enum class CardLibraryBehaviorType
 {
     STORY_CARDS,
@@ -145,6 +154,9 @@ public:
     
     StoryMapType GetCurrentStoryMapType() const;
     void SetCurrentStoryMapType(const StoryMapType currentStoryMapType);
+    
+    WheelOfFortuneType GetCurrentWheelOfFortuneType() const;
+    void SetCurrentWheelOfFortuneType(const WheelOfFortuneType currentWheelOfFortuneType);
     
     const std::vector<int>& GetUnlockedCardIds() const;
     void SetUnlockedCardIds(const std::vector<int>& unlockedCardIds);
@@ -258,6 +270,7 @@ private:
     CardLibraryBehaviorType mCurrentCardLibraryBehaviorType;
     ShopBehaviorType mCurrentShopBehaviorType;
     StoryMapType mCurrentStoryMapType;
+    WheelOfFortuneType mCurrentWheelOfFortuneType;
     ForeignCloudDataFoundType mForeignProgressionDataFound = ForeignCloudDataFoundType::NONE;
     std::vector<int> mUnlockedCardIds;
     std::vector<int> mCurrentStoryPlayerDeck;

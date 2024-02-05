@@ -15,15 +15,23 @@
 static const strutils::StringId WHEEL_BASE_SCENE_OBJECT_NAME = strutils::StringId("wheel_base");
 static const strutils::StringId WHEEL_POINTER_SCENE_OBJECT_NAME = strutils::StringId("wheel_pointer");
 static const strutils::StringId WHEEL_CENTER_SCENE_OBJECT_NAME = strutils::StringId("wheel_center");
+static const strutils::StringId NORMAL_PACK_PRODUCT_NAME = strutils::StringId("normal_card_pack");
+static const strutils::StringId GOLDEN_PACK_PRODUCT_NAME = strutils::StringId("golden_card_pack");
 
 static const std::string WHEEL_ITEM_SCENE_OBJECT_NAME_PREFIX = "wheel_item_";
 static const std::string WHEEL_BASE_TEXTURE_FILE_NAME = "wheel_of_fortune.png";
 static const std::string WHEEL_POINTER_TEXTURE_FILE_NAME = "wheel_of_fortune_pointer.png";
 static const std::string WHEEL_CENTER_TEXTURE_FILE_NAME = "wheel_of_fortune_center.png";
+static const std::string GOLDEN_CARD_PACK_SHADER_FILE_NAME = "card_pack_golden.vs";
+static const std::string GOLDEN_CARD_PACK_TEXTURE_FILE_NAME = "card_pack_golden.png";
+static const std::string NORMAL_CARD_PACK_SHADER_FILE_NAME = "basic.vs";
+static const std::string NORMAL_CARD_PACK_TEXTURE_FILE_NAME = "card_pack_normal.png";
+static const std::string CARD_PACK_REWARD_MESH_FILE_NAME = "card_pack_wheel_item.obj";
 
 static const glm::vec3 WHEEL_BASE_POSITION = {-0.05f, -0.05f, 23.1f};
 static const glm::vec3 WHEEL_COMPONENTS_POSITION = {-0.05f, -0.05f, 23.2f};
 static const glm::vec3 WHEEL_BASE_SCALE = {0.35f, 0.35f, 0.35f};
+static const glm::vec3 CARD_PACK_PRODUCT_WHEEL_ITEM_SCALE = {1/250.0f, 1/250.0f, 1/250.0f};
 
 static const glm::vec2 WHEEL_ROTATION_MULTIPLIER_RANDOM_RANGE = {800.0f, 1200.0f};
 static const float WHEEL_SPIN_ROTATION_DAMPING = 0.98f;
@@ -58,15 +66,31 @@ WheelOfFortuneController::WheelOfFortuneController(scene::Scene& scene, const st
     wheelCenterSceneObject->mPosition = WHEEL_COMPONENTS_POSITION;
     wheelCenterSceneObject->mScale = WHEEL_BASE_SCALE;
     wheelCenterSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
-    
+                                                    
     for (auto i = 0U; i < mItems.size(); ++i)
     {
-        auto wheelItemSceneObject = mScene.CreateSceneObject(strutils::StringId(WHEEL_ITEM_SCENE_OBJECT_NAME_PREFIX + std::to_string(i)));
-        wheelItemSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + std::get<std::string>(ProductRepository::GetInstance().GetProductDefinition(mItems[i]).mProductTexturePathOrCardId));
-        wheelItemSceneObject->mPosition = WHEEL_COMPONENTS_POSITION;
-        wheelItemSceneObject->mScale = WHEEL_BASE_SCALE;
-        wheelItemSceneObject->mRotation.z -= i * math::PI/6;
-        wheelItemSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+        auto productName = strutils::StringId(mItems[i]);
+        if (productName == NORMAL_PACK_PRODUCT_NAME || productName == GOLDEN_PACK_PRODUCT_NAME)
+        {
+            auto wheelItemSceneObject = mScene.CreateSceneObject(strutils::StringId(WHEEL_ITEM_SCENE_OBJECT_NAME_PREFIX + std::to_string(i)));
+            wheelItemSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + std::get<std::string>(ProductRepository::GetInstance().GetProductDefinition(mItems[i]).mProductTexturePathOrCardId));
+            wheelItemSceneObject->mMeshResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_MESHES_ROOT + CARD_PACK_REWARD_MESH_FILE_NAME);
+            wheelItemSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + (productName == NORMAL_PACK_PRODUCT_NAME ? NORMAL_CARD_PACK_SHADER_FILE_NAME : GOLDEN_CARD_PACK_SHADER_FILE_NAME));
+            wheelItemSceneObject->mPosition = WHEEL_COMPONENTS_POSITION;
+            wheelItemSceneObject->mScale = CARD_PACK_PRODUCT_WHEEL_ITEM_SCALE;
+            wheelItemSceneObject->mRotation.z -= i * math::PI/6;
+            wheelItemSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+        }
+        // Generic wheel reward
+        else
+        {
+            auto wheelItemSceneObject = mScene.CreateSceneObject(strutils::StringId(WHEEL_ITEM_SCENE_OBJECT_NAME_PREFIX + std::to_string(i)));
+            wheelItemSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + std::get<std::string>(ProductRepository::GetInstance().GetProductDefinition(mItems[i]).mProductTexturePathOrCardId));
+            wheelItemSceneObject->mPosition = WHEEL_COMPONENTS_POSITION;
+            wheelItemSceneObject->mScale = WHEEL_BASE_SCALE;
+            wheelItemSceneObject->mRotation.z -= i * math::PI/6;
+            wheelItemSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+        }
     }
     
     mState = WheelState::INITIAL_SLOW_ROTATION;
@@ -82,8 +106,11 @@ void WheelOfFortuneController::Spin()
 
 ///------------------------------------------------------------------------------------------------
 
-void WheelOfFortuneController::Update(const float)
+void WheelOfFortuneController::Update(const float dtMillis)
 {
+    static float time = 0.0f;
+    time += dtMillis * 0.001f;
+    
     switch (mState)
     {
         case WheelState::INITIAL_SLOW_ROTATION:
@@ -139,6 +166,12 @@ void WheelOfFortuneController::Update(const float)
     }
     
     ApplyRotationToItems();
+    
+    
+    for (auto i = 0U; i < mItems.size(); ++i)
+    {
+        mScene.FindSceneObject(strutils::StringId(WHEEL_ITEM_SCENE_OBJECT_NAME_PREFIX + std::to_string(i)))->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
+    }
 }
 
 ///------------------------------------------------------------------------------------------------

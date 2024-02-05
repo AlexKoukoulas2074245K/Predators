@@ -33,9 +33,13 @@ static const std::string REWARD_TEXT_SCENE_OBJECT_NAME_PREFIX = "reward_text_";
 static const glm::vec3 BUTTON_POSITION = {0.103f, -0.178f, 23.1f};
 static const glm::vec3 BUTTON_SCALE = {0.0005f, 0.0005f, 0.0005f};
 static const glm::vec3 REWARD_ORIGIN_POSITION = {-0.032f, -0.034f, 23.1f};
+static const glm::vec3 MINI_BOSS_TITLE_COLOR = {0.9f, 0.27f, 0.125f};
+static const glm::vec3 FINAL_BOSS_TITLE_COLOR = {0.86f, 0.1f, 0.1f};
 static const glm::vec3 COIN_VALUE_TEXT_COLOR = {0.80f, 0.71f, 0.11f};
 static const glm::vec3 REWARD_TEXT_SCALE = {0.00032f, 0.00032f, 0.00032f};
+
 static const int EXTRA_HP_REWARD_VALUE = 10;
+static const int REWARD_COUNT = 12;
 
 static const float FADE_IN_OUT_DURATION_SECS = 1.0f;
 static const float REWARD_TEXT_STAGGERED_FADE_IN_SECS = 0.1f;
@@ -47,6 +51,8 @@ static const strutils::StringId REWARD_EXTRA_HP_PRODUCT_NAME = strutils::StringI
 static const strutils::StringId REWARD_REFILL_HP_PRODUCT_NAME = strutils::StringId("story_health_refill");
 static const strutils::StringId REWARD_EXTRA_WEIGHT_PRODUCT_NAME = strutils::StringId("weight_gain_+1");
 static const strutils::StringId REWARD_EXTRA_DAMAGE_PRODUCT_NAME = strutils::StringId("damage_gain_+1");
+static const strutils::StringId REWARD_NORMAL_PACK_NAME = strutils::StringId("normal_card_pack");
+static const strutils::StringId REWARD_GOLDEN_PACK_NAME = strutils::StringId("golden_card_pack");
 
 static const glm::vec3 REWARD_TEXT_OFFSETS[4] =
 {
@@ -93,6 +99,8 @@ void WheelOfFortuneSceneLogicManager::VInitSceneCamera(std::shared_ptr<scene::Sc
 void WheelOfFortuneSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 {
     mScene = scene;
+    mWheelRewards.clear();
+    mWheelRewards.resize(REWARD_COUNT);
     
     if (!DataRepository::GetInstance().GetNextStoryOpponentName().empty())
     {
@@ -101,29 +109,90 @@ void WheelOfFortuneSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> s
         DataRepository::GetInstance().FlushStateToFile();
     }
     
+    const auto wheelType = DataRepository::GetInstance().GetCurrentWheelOfFortuneType();
     const auto& rareItemProductNames = ProductRepository::GetInstance().GetRareItemProductNames();
-    const auto& firstRareItemProductName = rareItemProductNames[math::ControlledRandomInt() % rareItemProductNames.size()];
-    auto secondRareItemProductName = rareItemProductNames[math::ControlledRandomInt() % rareItemProductNames.size()];
-    while (secondRareItemProductName == firstRareItemProductName)
+    auto titleSceneObject = scene->FindSceneObject(WHEEL_OF_FORTUNE_TITLE_SCENE_OBJECT_NAME);
+    
+    switch (wheelType)
     {
-        secondRareItemProductName = rareItemProductNames[math::ControlledRandomInt() % rareItemProductNames.size()];
+        case WheelOfFortuneType::ELITE:
+        {
+            const auto& firstRareItemProductName = rareItemProductNames[math::ControlledRandomInt() % rareItemProductNames.size()];
+            auto secondRareItemProductName = rareItemProductNames[math::ControlledRandomInt() % rareItemProductNames.size()];
+            while (secondRareItemProductName == firstRareItemProductName)
+            {
+                secondRareItemProductName = rareItemProductNames[math::ControlledRandomInt() % rareItemProductNames.size()];
+            }
+            
+            mWheelRewards =
+            {
+                REWARD_EXTRA_15_COINS_PRODUCT_NAME,
+                REWARD_EXTRA_HP_PRODUCT_NAME,
+                REWARD_EXTRA_50_COINS_PRODUCT_NAME,
+                REWARD_EXTRA_15_COINS_PRODUCT_NAME,
+                firstRareItemProductName,
+                REWARD_EXTRA_HP_PRODUCT_NAME,
+                REWARD_EXTRA_100_COINS_PRODUCT_NAME,
+                REWARD_EXTRA_HP_PRODUCT_NAME,
+                REWARD_EXTRA_15_COINS_PRODUCT_NAME,
+                REWARD_REFILL_HP_PRODUCT_NAME,
+                REWARD_EXTRA_50_COINS_PRODUCT_NAME,
+                secondRareItemProductName
+            };
+        } break;
+            
+        case WheelOfFortuneType::TUTORIAL_BOSS:
+        {
+            std::get<scene::TextSceneObjectData>(titleSceneObject->mSceneObjectTypeData).mText = "Mini Boss Wheel";
+            titleSceneObject->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = MINI_BOSS_TITLE_COLOR;
+            
+            auto rareItemCount = rareItemProductNames.size();
+            if (rareItemCount > REWARD_COUNT)
+            {
+                for (int i = 0; i < REWARD_COUNT; ++i)
+                {
+                    auto nextItem = rareItemProductNames[math::ControlledRandomInt() % rareItemCount];
+                    while (std::find(mWheelRewards.begin(), mWheelRewards.end(), nextItem) != mWheelRewards.end())
+                    {
+                        nextItem = rareItemProductNames[math::ControlledRandomInt() % rareItemCount];
+                    }
+                    mWheelRewards.push_back(nextItem);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < REWARD_COUNT; ++i)
+                {
+                    mWheelRewards[i] = rareItemProductNames[i % rareItemCount];
+                }
+            }
+        } break;
+            
+        case WheelOfFortuneType::FINAL_BOSS:
+        {
+            std::get<scene::TextSceneObjectData>(titleSceneObject->mSceneObjectTypeData).mText = "Boss Wheel";
+            titleSceneObject->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = FINAL_BOSS_TITLE_COLOR;
+            titleSceneObject->mPosition.x += 0.04f;
+            
+            mWheelRewards =
+            {
+                REWARD_NORMAL_PACK_NAME,
+                REWARD_NORMAL_PACK_NAME,
+                REWARD_GOLDEN_PACK_NAME,
+                REWARD_NORMAL_PACK_NAME,
+                REWARD_NORMAL_PACK_NAME,
+                REWARD_NORMAL_PACK_NAME,
+                REWARD_GOLDEN_PACK_NAME,
+                REWARD_NORMAL_PACK_NAME,
+                REWARD_NORMAL_PACK_NAME,
+                REWARD_NORMAL_PACK_NAME,
+                REWARD_GOLDEN_PACK_NAME,
+                REWARD_NORMAL_PACK_NAME
+            };
+        } break;
     }
     
-    mWheelRewards =
-    {
-        REWARD_EXTRA_15_COINS_PRODUCT_NAME,
-        REWARD_EXTRA_HP_PRODUCT_NAME,
-        REWARD_EXTRA_50_COINS_PRODUCT_NAME,
-        REWARD_EXTRA_15_COINS_PRODUCT_NAME,
-        firstRareItemProductName,
-        REWARD_EXTRA_HP_PRODUCT_NAME,
-        REWARD_EXTRA_100_COINS_PRODUCT_NAME,
-        REWARD_EXTRA_HP_PRODUCT_NAME,
-        REWARD_EXTRA_15_COINS_PRODUCT_NAME,
-        REWARD_REFILL_HP_PRODUCT_NAME,
-        REWARD_EXTRA_50_COINS_PRODUCT_NAME,
-        secondRareItemProductName
-    };
+    mFinalBossFlow = DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::NORMAL_MAP && DataRepository::GetInstance().GetCurrentStoryMapNodeCoord() == game_constants::STORY_MAP_BOSS_COORD;
     
     mWheelController = std::make_unique<WheelOfFortuneController>(*scene, mWheelRewards, [=](const int itemIndex, const std::shared_ptr<scene::SceneObject> itemSceneObject){ OnWheelItemSelected(itemIndex, itemSceneObject); });
         
@@ -254,12 +323,35 @@ void WheelOfFortuneSceneLogicManager::OnWheelItemSelected(const int itemIndex, c
     {
         events::EventSystem::GetInstance().DispatchEvent<events::ExtraWeightRewardEvent>();
     }
+    else if (mWheelRewards.at(itemIndex) == REWARD_NORMAL_PACK_NAME)
+    {
+        DataRepository::GetInstance().AddPendingCardPack(CardPackType::NORMAL);
+    }
+    else if (mWheelRewards.at(itemIndex) == REWARD_GOLDEN_PACK_NAME)
+    {
+        DataRepository::GetInstance().AddPendingCardPack(CardPackType::GOLDEN);
+    }
     
     if (!DataRepository::GetInstance().GetNextStoryOpponentName().empty())
     {
-        DataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::CARD_SELECTION);
-        DataRepository::GetInstance().SetCurrentStoryMapNodeSeed(math::GetControlSeed());
-        DataRepository::GetInstance().FlushStateToFile();
+        if (mFinalBossFlow)
+        {
+            DataRepository::GetInstance().ResetStoryData();
+            
+            if (DataRepository::GetInstance().GetGamesFinishedCount() == 0)
+            {
+                DataRepository::GetInstance().AddPendingCardPack(CardPackType::NORMAL);
+            }
+            
+            DataRepository::GetInstance().SetGamesFinishedCount(DataRepository::GetInstance().GetGamesFinishedCount() + 1);
+            DataRepository::GetInstance().FlushStateToFile();
+        }
+        else
+        {
+            DataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::CARD_SELECTION);
+            DataRepository::GetInstance().SetCurrentStoryMapNodeSeed(math::GetControlSeed());
+            DataRepository::GetInstance().FlushStateToFile();
+        }
     }
     
     mContinueButton = std::make_unique<AnimatedButton>
@@ -271,13 +363,20 @@ void WheelOfFortuneSceneLogicManager::OnWheelItemSelected(const int itemIndex, c
         CONTINUE_BUTTON_SCENE_OBJECT_NAME,
         [=]()
         {
-            auto guiObjectManager = mGameSceneTransitionManager->GetSceneLogicManagerResponsibleForScene(mPreviousScene)->VGetGuiObjectManager();
-            guiObjectManager->StopRewardAnimation();
-            guiObjectManager->ResetDisplayedCurrencyCoins();
-            DataRepository::GetInstance().StoryCurrentHealth().SetDisplayedValue(DataRepository::GetInstance().StoryCurrentHealth().GetValue());
-            guiObjectManager->ForceSetStoryHealthValue(DataRepository::GetInstance().StoryCurrentHealth().GetValue());
-            
-            events::EventSystem::GetInstance().DispatchEvent<events::PopSceneModalEvent>();
+            if (mFinalBossFlow)
+            {
+                events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::MAIN_MENU_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
+            }
+            else
+            {
+                auto guiObjectManager = mGameSceneTransitionManager->GetSceneLogicManagerResponsibleForScene(mPreviousScene)->VGetGuiObjectManager();
+                guiObjectManager->StopRewardAnimation();
+                guiObjectManager->ResetDisplayedCurrencyCoins();
+                DataRepository::GetInstance().StoryCurrentHealth().SetDisplayedValue(DataRepository::GetInstance().StoryCurrentHealth().GetValue());
+                guiObjectManager->ForceSetStoryHealthValue(DataRepository::GetInstance().StoryCurrentHealth().GetValue());
+                
+                events::EventSystem::GetInstance().DispatchEvent<events::PopSceneModalEvent>();
+            }
         },
         *mScene
     );

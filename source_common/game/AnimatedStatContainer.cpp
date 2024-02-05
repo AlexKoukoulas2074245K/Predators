@@ -14,6 +14,7 @@
 
 ///------------------------------------------------------------------------------------------------
 
+static const strutils::StringId ANIMATED_STAT_CONTAINER_ANIMATION_NAME = strutils::StringId("animated_stat_container_animation");
 static const std::string BASE_SCENE_OBJECT_NAME_POSTFIX = "base";
 static const std::string VALUE_SCENE_OBJECT_NAME_POSTFIX = "value";
 static const std::string HEALTH_STAT_CONTAINER_BASE_OBJECT_SHADER = "animated_stat_container_base_object.vs";
@@ -107,8 +108,8 @@ AnimatedStatContainerUpdateResult AnimatedStatContainer::Update(const float dtMi
                 {
                     mFinishedAnimating = true;
                     mSceneObjects.back()->mScale = STAT_CRYSTAL_VALUE_SCALE * mScaleFactor;
-                });
-            });
+                }, ANIMATED_STAT_CONTAINER_ANIMATION_NAME);
+            }, ANIMATED_STAT_CONTAINER_ANIMATION_NAME);
             
             auto originalGemScale = baseCrystalSo->mScale;
             animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(baseCrystalSo, baseCrystalSo->mPosition, originalGemScale * 1.5f, MAX_VALUE_CHANGE_DELAY_SECS/3, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT | animation_flags::IGNORE_Z_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
@@ -118,8 +119,8 @@ AnimatedStatContainerUpdateResult AnimatedStatContainer::Update(const float dtMi
                 {
                     mFinishedAnimating = true;
                     mSceneObjects.front()->mScale = STAT_CRYSTAL_SCALE * mScaleFactor;
-                });
-            });
+                }, ANIMATED_STAT_CONTAINER_ANIMATION_NAME);
+            }, ANIMATED_STAT_CONTAINER_ANIMATION_NAME);
         }
     }
     else if (mFinishedAnimating)

@@ -169,7 +169,7 @@ void DefeatSceneLogicManager::InitSubScene(const SubSceneType subSceneType, std:
         {
             scene::TextSceneObjectData textDataDefeatResultsTop;
             textDataDefeatResultsTop.mFontName = game_constants::DEFAULT_FONT_NAME;
-            textDataDefeatResultsTop.mText = "Highest level achieved: " + std::to_string(DataRepository::GetInstance().GetCurrentStoryMapNodeCoord().x) + "";
+            textDataDefeatResultsTop.mText = "Highest level achieved: " + std::to_string(DataRepository::GetInstance().GetCurrentStoryMapNodeCoord().x + (DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::NORMAL_MAP ? game_constants::TUTORIAL_NODE_MAP_DIMENSIONS.s : 0)) + "";
             auto textDefeatResultsTopSceneObject = scene->CreateSceneObject(DEFEAT_RESULTS_TEXT_TOP_NAME);
             textDefeatResultsTopSceneObject->mSceneObjectTypeData = std::move(textDataDefeatResultsTop);
             textDefeatResultsTopSceneObject->mPosition = DEFEAT_RESULTS_TEXT_TOP_POSITION;

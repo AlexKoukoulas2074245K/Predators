@@ -65,6 +65,7 @@ void DataRepository::ResetStoryData()
     mCurrentCardLibraryBehaviorType = CardLibraryBehaviorType::CARD_LIBRARY;
     mCurrentShopBehaviorType = ShopBehaviorType::STORY_SHOP;
     mCurrentStoryMapType = StoryMapType::TUTORIAL_MAP;
+    mCurrentWheelOfFortuneType = WheelOfFortuneType::ELITE;
     mSelectedStoryMapNodeData = nullptr;
     
     mStoryMaxHealth = game_constants::STORY_DEFAULT_MAX_HEALTH;
@@ -288,6 +289,21 @@ void DataRepository::SetCurrentBattleSubSceneType(const BattleSubSceneType curre
 {
     mCurrentBattleSubSceneType = currentBattleSubSceneType;
     mStoryDataSerializer->GetState()["current_battle_sub_scene_type"] = static_cast<int>(mCurrentBattleSubSceneType);
+}
+
+///------------------------------------------------------------------------------------------------
+
+WheelOfFortuneType DataRepository::GetCurrentWheelOfFortuneType() const
+{
+    return mCurrentWheelOfFortuneType;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void DataRepository::SetCurrentWheelOfFortuneType(const WheelOfFortuneType currentWheelOfFortuneType)
+{
+    mCurrentWheelOfFortuneType = currentWheelOfFortuneType;
+    mStoryDataSerializer->GetState()["current_wheel_of_fortune_type"] = static_cast<int>(mCurrentWheelOfFortuneType);
 }
 
 ///------------------------------------------------------------------------------------------------

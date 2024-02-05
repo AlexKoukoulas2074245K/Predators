@@ -41,6 +41,7 @@ private:
     std::unique_ptr<AnimatedButton> mContinueButton;
     std::unique_ptr<WheelOfFortuneController> mWheelController;
     bool mHasSpinnedWheel;
+    bool mFinalBossFlow;
 };
 
 ///------------------------------------------------------------------------------------------------

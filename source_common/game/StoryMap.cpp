@@ -811,6 +811,7 @@ StoryMap::NodeType StoryMap::SelectNodeTypeForCoord(const MapCoord& mapCoord) co
     {
         return NodeType::STARTING_LOCATION;
     }
+    
     // Last map coord
     else if (mapCoord == MapCoord(mMapDimensions.x - 1, mMapDimensions.y/2))
     {
