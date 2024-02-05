@@ -131,6 +131,7 @@ private:
     std::shared_ptr<scene::Scene> mScene;
     const glm::ivec2 mMapDimensions;
     const MapCoord mCurrentMapCoord;
+    StoryMapType mCurrentStoryMapType;
     int mMapGenerationAttemptsRemaining;
     bool mHasCreatedSceneObjects;
     std::map<MapCoord, NodeData> mMapData;

@@ -31,8 +31,9 @@ static const strutils::StringId BACK_BUTTON_NAME = strutils::StringId("back_butt
 static const glm::vec3 BUTTON_SCALE = {0.0005f, 0.0005f, 0.0005f};
 static const glm::vec3 WHITE_NODE_DESC_COLOR = {0.96f, 0.96f, 0.96f};
 static const glm::vec3 RED_NODE_DESC_COLOR = {0.86f, 0.1f, 0.1f};
-static const glm::vec3 PURPLE_NODE_DESC_COLOR = {0.66f, 0.35f, 1.0f};
+static const glm::vec3 DARK_ORANGE_NODE_DESC_COLOR = {0.9f, 0.27f, 0.125f};
 static const glm::vec3 ORANGE_NODE_DESC_COLOR = {0.96f, 0.47f, 0.25f};
+static const glm::vec3 PURPLE_NODE_DESC_COLOR = {0.66f, 0.35f, 1.0f};
 
 static const glm::vec2 NODE_DESC_MIN_MAX_X_OFFSETS = {-0.1f, -0.23f};
 static const glm::vec2 NODE_DESC_MIN_MAX_Y_OFFSETS = {0.14f, -0.11f};
@@ -153,6 +154,12 @@ void VisitMapNodeSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> sce
         {
             textDataNodeDescription.mText = "Elite Encounter";
             nodeDescriptionSceneObject->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = ORANGE_NODE_DESC_COLOR;
+            
+            if (DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::TUTORIAL_MAP && DataRepository::GetInstance().GetSelectedStoryMapNodeData()->mCoords == game_constants::TUTORIAL_MAP_BOSS_COORD)
+            {
+                textDataNodeDescription.mText = "Mini Boss Encounter";
+                nodeDescriptionSceneObject->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = DARK_ORANGE_NODE_DESC_COLOR;
+            }
         } break;
         
         case StoryMap::NodeType::EVENT:

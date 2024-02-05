@@ -83,7 +83,11 @@ BaseDataFileDeserializer::BaseDataFileDeserializer(const std::string& fileNameWi
         
         if (checkSumValidationBehavior == CheckSumValidationBehavior::VALIDATE_CHECKSUM && !ValidateChecksum(contents))
         {
-            ospopups::ShowMessageBox(ospopups::MessageBoxType::ERROR, "Corrupted file", ("Data File " + filePath + " is corrupted.").c_str());
+            if (warnOnFnFBehavior == WarnOnFileNotFoundBehavior::WARN)
+            {
+                ospopups::ShowMessageBox(ospopups::MessageBoxType::ERROR, "Corrupted file", ("Data File " + filePath + " is corrupted.").c_str());
+            }
+            
             return;
         }
         

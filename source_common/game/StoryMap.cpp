@@ -76,6 +76,7 @@ static const strutils::StringId ANIMATED_NODE_PATH_PARTICLE_EMITTER_NAME = strut
 static const strutils::StringId STATIC_NODE_PATH_PARTICLE_EMITTER_NAME = strutils::StringId("node_path_static_emitter");
 static const strutils::StringId IS_NODE_ACTIVE_UNIFORM_NAME = strutils::StringId("is_active");
 
+static const std::string TUTORIAL_MAP_BOSS_PORTRAIT_TEXTURE_FILE_NAME = "map_node_tutorial_boss.png";
 static const std::string STORY_MAP_NODE_SHADER_FILE_NAME = "story_map_node.vs";
 static const std::string SHOP_TEXTURE_FILE_NAME = "story_cards/shop.png";
 static const std::string EVENT_TEXTURE_FILE_NAME = "story_cards/event.png";
@@ -96,6 +97,7 @@ static const glm::vec3 ENCOUNTER_STAT_ICON_SCALE = {0.072f, 0.072f, 0.072f};
 static const glm::vec3 ENCOUNTER_STAT_HEALTH_ICON_POSITION_OFFSET = {0.00f, 0.07f, 0.12f};
 static const glm::vec3 ENCOUNTER_STAT_DAMAGE_ICON_POSITION_OFFSET = {-0.04f, 0.05f, 0.12f};
 static const glm::vec3 ENCOUNTER_STAT_WEIGHT_ICON_POSITION_OFFSET = {0.04f, 0.05f, 0.12f};
+static const glm::vec3 TUTORIAL_MAP_BOSS_SECONDARY_TEXT_POSITION_OFFSET = {-0.015f, 0.002f, 0.0f};
 
 static const float NODE_GENERATION_POSITION_NOISE = 0.01f;
 static const float NODE_POSITION_Z = 0.1f;
@@ -118,6 +120,7 @@ static const float TUTORIAL_MAP_DOWNSCALE_FACTOR = 1.0f/3.0f;
 
 static const int MAP_PATH_SEGMENTS_FACTOR = 30;
 static const int MAP_GENERATION_PASSES = 8;
+static const int TUTORIAL_MAP_GENERATION_PASSES = 2;
 
 #if defined(NDEBUG) || defined(MOBILE_FLOW)
 static const float NODES_CLOSE_ENOUGH_THRESHOLD = 0.050f;
@@ -137,6 +140,7 @@ StoryMap::StoryMap(std::shared_ptr<scene::Scene> scene, const glm::ivec2& mapDim
     : mScene(scene)
     , mMapDimensions(mapDimensions)
     , mCurrentMapCoord(currentMapCoord)
+    , mCurrentStoryMapType(DataRepository::GetInstance().GetCurrentStoryMapType())
     , mMapGenerationAttemptsRemaining(MAX_MAP_GENERATION_ATTEMPTS)
     , mHasCreatedSceneObjects(false)
 {
@@ -210,9 +214,9 @@ void StoryMap::GenerateMapData()
         DataRepository::GetInstance().SetStoryMapGenerationSeed(math::GetControlSeed());
         
         auto mapGenerationPasses = MAP_GENERATION_PASSES;
-        if (DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::TUTORIAL_MAP)
+        if (mCurrentStoryMapType == StoryMapType::TUTORIAL_MAP)
         {
-            mapGenerationPasses *= TUTORIAL_MAP_DOWNSCALE_FACTOR;
+            mapGenerationPasses = TUTORIAL_MAP_GENERATION_PASSES;
         }
         
         for (int i = 0; i < mapGenerationPasses; ++i)
@@ -267,7 +271,7 @@ bool StoryMap::FoundCloseEnoughNodes() const
     float topMapEdge = VERTICAL_MAP_EDGE.t;
     float botMapEdge = VERTICAL_MAP_EDGE.s;
     
-    if (DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::TUTORIAL_MAP)
+    if (mCurrentStoryMapType == StoryMapType::TUTORIAL_MAP)
     {
         topMapEdge *= TUTORIAL_MAP_DOWNSCALE_FACTOR;
         botMapEdge *= TUTORIAL_MAP_DOWNSCALE_FACTOR;
@@ -364,6 +368,12 @@ void StoryMap::CreateMapSceneObjects()
         nodeSceneObject->mBoundingRectMultiplier.x = game_constants::CARD_BOUNDING_RECT_X_MULTIPLIER;
         nodeSceneObject->mScale = glm::vec3(NODE_SCALE);
         
+        // Tutorial boss case
+        if (mCurrentStoryMapType == StoryMapType::TUTORIAL_MAP && mapNodeEntry.second.mCoords == game_constants::TUTORIAL_MAP_BOSS_COORD)
+        {
+            nodeSceneObject->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + TUTORIAL_MAP_BOSS_PORTRAIT_TEXTURE_FILE_NAME);
+        }
+        
         auto nodePortraitSceneObject = mScene->CreateSceneObject(strutils::StringId(mapNodeEntry.first.ToString() + game_constants::STORY_MAP_NODE_PORTRAIT_SO_NAME_POST_FIX));
         nodePortraitSceneObject->mShaderResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + STORY_MAP_NODE_SHADER_FILE_NAME);
         nodePortraitSceneObject->mShaderBoolUniformValues[IS_NODE_ACTIVE_UNIFORM_NAME] = mapNodeEntry.first == mCurrentMapCoord;
@@ -403,7 +413,7 @@ void StoryMap::CreateMapSceneObjects()
                 primaryTextData.mText = generatedDemonNames.front();
                 generatedDemonNames.erase(generatedDemonNames.begin());
                 
-                if (mapNodeEntry.first.mCol < mMapDimensions.x/2)
+                if (mCurrentStoryMapType == StoryMapType::TUTORIAL_MAP && mapNodeEntry.second.mCoords != game_constants::TUTORIAL_MAP_BOSS_COORD)
                 {
                     nodePortraitSceneObject->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + MEDIUM_FIGHT_TEXTURES.at(math::ControlledRandomInt(0, static_cast<int>(MEDIUM_FIGHT_TEXTURES.size()) - 1)));
                 }
@@ -413,6 +423,11 @@ void StoryMap::CreateMapSceneObjects()
                 }
                 
                 secondaryTextData.mText = "Elite";
+                
+                if (mCurrentStoryMapType == StoryMapType::TUTORIAL_MAP && mapNodeEntry.second.mCoords == game_constants::TUTORIAL_MAP_BOSS_COORD)
+                {
+                    secondaryTextData.mText = "Mini Boss";
+                }
             } break;
                 
             case NodeType::NORMAL_ENCOUNTER:
@@ -420,7 +435,7 @@ void StoryMap::CreateMapSceneObjects()
                 primaryTextData.mText = generatedDemonNames.front();
                 generatedDemonNames.erase(generatedDemonNames.begin());
                 
-                if (mapNodeEntry.first.mCol < mMapDimensions.x/2)
+                if (mCurrentStoryMapType == StoryMapType::TUTORIAL_MAP)
                 {
                     nodePortraitSceneObject->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + EASY_FIGHT_TEXTURES.at(math::ControlledRandomInt(0, static_cast<int>(EASY_FIGHT_TEXTURES.size()) - 1)));
                 }
@@ -468,6 +483,11 @@ void StoryMap::CreateMapSceneObjects()
         textSceneObjects[1]->mPosition = mapNodeEntry.second.mPosition;
         textSceneObjects[1]->mPosition += PORTRAIT_SECONDARY_TEXT_POSITION_OFFSET;
         
+        if (mCurrentStoryMapType == StoryMapType::TUTORIAL_MAP && mapNodeEntry.second.mCoords == game_constants::TUTORIAL_MAP_BOSS_COORD)
+        {
+            textSceneObjects[1]->mPosition += TUTORIAL_MAP_BOSS_SECONDARY_TEXT_POSITION_OFFSET;
+        }
+        
         std::shared_ptr<scene::SceneObject> nodeHealthIconSceneObject = nullptr;
         std::shared_ptr<scene::SceneObject> nodeHealthTextSceneObject = nullptr;
         std::shared_ptr<scene::SceneObject> nodeDamageIconSceneObject = nullptr;
@@ -481,6 +501,13 @@ void StoryMap::CreateMapSceneObjects()
             auto defaultHealthRange = glm::vec2(5.0f + mapNodeEntry.first.mCol, 10.0f + mapNodeEntry.first.mCol);
             auto defaultDamageRange = glm::vec2(0.0f + mapNodeEntry.first.mCol, 1.0f + mapNodeEntry.first.mCol);
             auto defaultWeightRange = glm::vec2(2.0f + mapNodeEntry.first.mCol, 3.0f + mapNodeEntry.first.mCol);
+            
+            if (mCurrentStoryMapType == StoryMapType::NORMAL_MAP)
+            {
+                defaultHealthRange += game_constants::TUTORIAL_NODE_MAP_DIMENSIONS.s;
+                defaultDamageRange += game_constants::TUTORIAL_NODE_MAP_DIMENSIONS.s;
+                defaultWeightRange += game_constants::TUTORIAL_NODE_MAP_DIMENSIONS.s;
+            }
             
             if (effectiveNodeType == NodeType::ELITE_ENCOUNTER)
             {
@@ -741,7 +768,7 @@ glm::vec3 StoryMap::GenerateNodePositionForCoord(const MapCoord& mapCoord) const
     auto firstNodePosition = FIRST_NODE_POSITION;
     auto lastNodePosition = LAST_NODE_POSITION;
     
-    if (DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::TUTORIAL_MAP)
+    if (mCurrentStoryMapType == StoryMapType::TUTORIAL_MAP)
     {
         firstNodePosition *= TUTORIAL_MAP_DOWNSCALE_FACTOR;
         lastNodePosition *= TUTORIAL_MAP_DOWNSCALE_FACTOR;
@@ -787,7 +814,7 @@ StoryMap::NodeType StoryMap::SelectNodeTypeForCoord(const MapCoord& mapCoord) co
     // Last map coord
     else if (mapCoord == MapCoord(mMapDimensions.x - 1, mMapDimensions.y/2))
     {
-        return NodeType::BOSS_ENCOUNTER;
+        return mCurrentStoryMapType == StoryMapType::TUTORIAL_MAP ? NodeType::ELITE_ENCOUNTER : NodeType::BOSS_ENCOUNTER;
     }
     else if (mapCoord.mCol == mMapDimensions.x - 2)
     {

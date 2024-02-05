@@ -37,6 +37,8 @@ static const std::string HEALTH_CRYSTAL_SCENE_OBJECT_NAME_PREFIX = "health_cryst
 
 static const glm::vec2 MAP_SWIPE_X_BOUNDS = {-0.975f, 0.975f};
 static const glm::vec2 MAP_SWIPE_Y_BOUNDS = {-0.975f, 0.975f};
+static const glm::vec2 TUTORIAL_MAP_SWIPE_X_BOUNDS = {-0.0975f, 0.0975f};
+static const glm::vec2 TUTORIAL_MAP_SWIPE_Y_BOUNDS = {-0.24375f, 0.24375};
 
 static const float DISTANCE_TO_TARGET_NODE_THRESHOLD = 0.01f;
 static const float CAMERA_NOT_MOVED_THRESHOLD = 0.0001f;
@@ -47,7 +49,6 @@ static const float SWIPE_VELOCITY_DAMPING = 0.8f;
 static const float SWIPE_VELOCITY_INTEGRATION_SPEED = 0.08f;
 static const float SWIPE_VELOCITY_MIN_MAGNITUDE_TO_START_MOVING = 0.0001f;
 static const float MAX_CAMERA_DISTANCE_TO_REGISTER_NODE_TAP = 0.01f;
-static const float TUTORIAL_MAP_DOWNSCALE_FACTOR = 1.0f/4.0f;
 
 #if defined(NDEBUG) || defined(MOBILE_FLOW)
 static const float FRESH_MAP_ANIMATION_SPEED = 2.0f;
@@ -128,9 +129,8 @@ void StoryMapSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     
     if (DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::TUTORIAL_MAP)
     {
-        mMapSwipeXBounds *= TUTORIAL_MAP_DOWNSCALE_FACTOR;
-        mMapSwipeXBounds *= 0.15f;
-        mMapSwipeYBounds *= TUTORIAL_MAP_DOWNSCALE_FACTOR;
+        mMapSwipeXBounds = TUTORIAL_MAP_SWIPE_X_BOUNDS;
+        mMapSwipeYBounds = TUTORIAL_MAP_SWIPE_Y_BOUNDS;
     }
     
     auto backgroundSceneObjectName = scene->CreateSceneObject(BACKGROUND_SCENE_OBJECT_NAME);

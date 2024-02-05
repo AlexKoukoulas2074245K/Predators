@@ -214,9 +214,9 @@ namespace game_constants
     inline const glm::ivec2 STORY_MAP_INIT_COORD = {0, 3};
     inline const glm::ivec2 STORY_MAP_BOSS_COORD = {10, 3};
     inline const glm::ivec2 STORY_NODE_MAP_DIMENSIONS = {11, 7};
-    inline const glm::ivec2 TUTORIAL_MAP_INIT_COORD = {0, 2};
-    inline const glm::ivec2 TUTORIAL_MAP_BOSS_COORD = {6, 2};
-    inline const glm::ivec2 TUTORIAL_NODE_MAP_DIMENSIONS = {7, 4};
+    inline const glm::ivec2 TUTORIAL_MAP_INIT_COORD = {0, 1};
+    inline const glm::ivec2 TUTORIAL_MAP_BOSS_COORD = {6, 1};
+    inline const glm::ivec2 TUTORIAL_NODE_MAP_DIMENSIONS = {7, 3};
 
     inline float GAME_BOARD_BASED_SCENE_ZOOM_FACTOR = 120.0f;
 
