@@ -30,7 +30,7 @@ void main()
     if (mask_color.r < 0.15f) discard;
     
     frag_color = texture(tex, vec2(final_uv_x, final_uv_y - time));
-    frag_color.a *= pow(texture(mask_tex, vec2(final_uv_x, final_uv_y)).r, 2.0f) * custom_alpha;
+    frag_color.a *= pow(texture(mask_tex, vec2(final_uv_x, final_uv_y)).r, 3.0f) * custom_alpha;
     
     const float CUTOFF_VALUE = 0.02f;
     if (frag_unprojected_pos.x < cutoff_min_x + CUTOFF_VALUE)

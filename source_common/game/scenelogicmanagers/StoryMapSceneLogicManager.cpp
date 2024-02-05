@@ -242,16 +242,24 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
         else
         {
             auto& mapNodeData = mStoryMap->GetMapData().at(MapCoord(currentMapCoord.x, currentMapCoord.y));
-            glm::vec3 positionAccum = mapNodeData.mPosition;
-            int positionInfluenceCount = 1;
             
-            for (const auto& link: mapNodeData.mNodeLinks)
+            if (currentMapCoord == game_constants::STORY_MAP_BOSS_COORD && DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::NORMAL_MAP)
             {
-                positionAccum += mStoryMap->GetMapData().at(MapCoord(link.mCol, link.mRow)).mPosition;
-                positionInfluenceCount++;
+                SetMapPositionTo(mapNodeData.mPosition);
             }
-            
-            SetMapPositionTo(positionAccum/static_cast<float>(positionInfluenceCount));
+            else
+            {
+                glm::vec3 positionAccum = mapNodeData.mPosition;
+                int positionInfluenceCount = 1;
+                
+                for (const auto& link: mapNodeData.mNodeLinks)
+                {
+                    positionAccum += mStoryMap->GetMapData().at(MapCoord(link.mCol, link.mRow)).mPosition;
+                    positionInfluenceCount++;
+                }
+                
+                SetMapPositionTo(positionAccum/static_cast<float>(positionInfluenceCount));
+            }
         }
 
         // Story Map Name fade in/out animation for first time entry

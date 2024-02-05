@@ -208,6 +208,31 @@ inline std::string GetHoursMinutesStringFromSeconds(const int seconds)
 }
 
 ///-----------------------------------------------------------------------------------------------
+/// Returns the formatted time string HH:MM:SS from the given number of seconds.
+/// @param[in] seconds the number of seconds to format.
+/// @returns the formatted time string.
+inline std::string GetHoursMinutesSecondsStringFromSeconds(const int seconds)
+{
+    const auto minutes = seconds / 60;
+    const auto hours   = minutes / 60;
+    
+    const auto hoursString = std::to_string(hours);
+    auto minutesString = std::to_string(minutes % 60);
+    auto secondsString = std::to_string(seconds % 60);
+    
+    if (minutesString.size() == 1)
+    {
+        minutesString = "0" + minutesString;
+    }
+    
+    if (secondsString.size() == 1)
+    {
+        secondsString = "0" + secondsString;
+    }
+    return hoursString + ":" + minutesString + ":" + secondsString;
+}
+
+///-----------------------------------------------------------------------------------------------
 /// Converts float to string with given precision
 /// @param[in] val the float value to convert to string s.
 /// @param[in] decimalPlaces of the stringified float.

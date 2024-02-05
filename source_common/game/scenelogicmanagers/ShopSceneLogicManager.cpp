@@ -911,6 +911,11 @@ void ShopSceneLogicManager::CreateProducts()
 
 void ShopSceneLogicManager::HandleAlreadyBoughtProducts()
 {
+    if (DataRepository::GetInstance().GetCurrentShopBehaviorType() == ShopBehaviorType::PERMA_SHOP)
+    {
+        return;
+    }
+    
     const auto& alreadyBoughtProductCoords = DataRepository::GetInstance().GetCurrentShopBoughtProductCoordinates();
     for (const auto& boughtProductCoord: alreadyBoughtProductCoords)
     {

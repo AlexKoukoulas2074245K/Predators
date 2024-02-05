@@ -28,7 +28,7 @@ static const strutils::StringId NODE_DESCRIPTION_TEXT_SCENE_OBJECT_NAME = struti
 static const strutils::StringId VISIT_BUTTON_NAME = strutils::StringId("visit_button");
 static const strutils::StringId BACK_BUTTON_NAME = strutils::StringId("back_button");
 
-static const glm::vec3 BUTTON_SCALE = {0.0005f, 0.0005f, 0.0005f};
+static const glm::vec3 BUTTON_SCALE = {0.0004f, 0.0004f, 0.0004f};
 static const glm::vec3 WHITE_NODE_DESC_COLOR = {0.96f, 0.96f, 0.96f};
 static const glm::vec3 RED_NODE_DESC_COLOR = {0.86f, 0.1f, 0.1f};
 static const glm::vec3 DARK_ORANGE_NODE_DESC_COLOR = {0.9f, 0.27f, 0.125f};
