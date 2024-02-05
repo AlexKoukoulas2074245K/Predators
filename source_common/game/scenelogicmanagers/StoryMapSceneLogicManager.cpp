@@ -24,6 +24,7 @@
 
 ///------------------------------------------------------------------------------------------------
 
+static const strutils::StringId MAP_NAME_SCENE_OBJECT_NAME = strutils::StringId("map_name");
 static const strutils::StringId VISIT_MAP_NODE_SCENE = strutils::StringId("visit_map_node_scene");
 static const strutils::StringId SETTINGS_SCENE = strutils::StringId("settings_scene");
 static const strutils::StringId BACKGROUND_SCENE_OBJECT_NAME = strutils::StringId("background");
@@ -40,6 +41,9 @@ static const glm::vec2 MAP_SWIPE_Y_BOUNDS = {-0.975f, 0.975f};
 static const glm::vec2 TUTORIAL_MAP_SWIPE_X_BOUNDS = {-0.0975f, 0.0975f};
 static const glm::vec2 TUTORIAL_MAP_SWIPE_Y_BOUNDS = {-0.24375f, 0.24375};
 
+static const glm::vec3 MAP_NAME_POSITION = {-0.225f, 0.2f, 19.0f};
+static const glm::vec3 MAP_NAME_SCALE = {0.00065f, 0.00065f, 0.00065f};
+
 static const float DISTANCE_TO_TARGET_NODE_THRESHOLD = 0.01f;
 static const float CAMERA_NOT_MOVED_THRESHOLD = 0.0001f;
 static const float CAMERA_MOVING_TO_NODE_SPEED = 0.0005f;
@@ -49,6 +53,8 @@ static const float SWIPE_VELOCITY_DAMPING = 0.8f;
 static const float SWIPE_VELOCITY_INTEGRATION_SPEED = 0.08f;
 static const float SWIPE_VELOCITY_MIN_MAGNITUDE_TO_START_MOVING = 0.0001f;
 static const float MAX_CAMERA_DISTANCE_TO_REGISTER_NODE_TAP = 0.01f;
+static const float MAP_NAME_FADE_IN_OUT_DURATION_SECS = 2.0f;
+static const float MAP_FADE_OUT_DELAY_SECS = 4.0f;
 
 #if defined(NDEBUG) || defined(MOBILE_FLOW)
 static const float FRESH_MAP_ANIMATION_SPEED = 2.0f;
@@ -68,7 +74,26 @@ static const std::vector<strutils::StringId> GUI_SCENE_OBJECT_NAMES =
     game_constants::GUI_SETTINGS_BUTTON_SCENE_OBJECT_NAME,
     game_constants::GUI_STORY_CARDS_BUTTON_SCENE_OBJECT_NAME,
     strutils::StringId(HEALTH_CRYSTAL_SCENE_OBJECT_NAME_PREFIX + "base"),
-    strutils::StringId(HEALTH_CRYSTAL_SCENE_OBJECT_NAME_PREFIX + "value")
+    strutils::StringId(HEALTH_CRYSTAL_SCENE_OBJECT_NAME_PREFIX + "value"),
+    MAP_NAME_SCENE_OBJECT_NAME
+};
+
+static const std::unordered_map<StoryMapType, float> MAP_TYPE_TO_SCENE_OBJECT_SCALE =
+{
+    {StoryMapType::TUTORIAL_MAP, 1.66666f},
+    {StoryMapType::NORMAL_MAP, 5.0f}
+};
+
+static const std::unordered_map<StoryMapType, std::string> MAP_TYPE_TO_LANDSCAPE_TEXTURE =
+{
+    {StoryMapType::TUTORIAL_MAP, "tutorial_landscape.png"},
+    {StoryMapType::NORMAL_MAP, "story_landscape.png"}
+};
+
+static const std::unordered_map<StoryMapType, std::string> MAP_TYPE_TO_NAME =
+{
+    {StoryMapType::TUTORIAL_MAP, "The Ominous Forest"},
+    {StoryMapType::NORMAL_MAP, "The Valley of Death"}
 };
 
 ///------------------------------------------------------------------------------------------------
@@ -134,8 +159,8 @@ void StoryMapSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     }
     
     auto backgroundSceneObjectName = scene->CreateSceneObject(BACKGROUND_SCENE_OBJECT_NAME);
-    backgroundSceneObjectName->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + (DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::TUTORIAL_MAP ? "tutorial_landscape.png" : "story_landscape.png"));
-    backgroundSceneObjectName->mScale = DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::TUTORIAL_MAP ? glm::vec3(1.66666f) : glm::vec3(5.0f);
+    backgroundSceneObjectName->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + MAP_TYPE_TO_LANDSCAPE_TEXTURE.at(DataRepository::GetInstance().GetCurrentStoryMapType()));
+    backgroundSceneObjectName->mScale = glm::vec3(MAP_TYPE_TO_SCENE_OBJECT_SCALE.at(DataRepository::GetInstance().GetCurrentStoryMapType()));
     backgroundSceneObjectName->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
     
     DataRepository::GetInstance().SetCurrentStoryMapSceneType(StoryMapSceneType::STORY_MAP);
@@ -173,7 +198,20 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
                 mExcludedSceneObjectsFromFrustumCulling.insert(sceneObject);
             }
         }
-
+            
+        // Story Map Title
+        auto mapNameTitleSceneObject = scene->CreateSceneObject(MAP_NAME_SCENE_OBJECT_NAME);
+        
+        scene::TextSceneObjectData mapNameTextData;
+        mapNameTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
+        mapNameTextData.mText = MAP_TYPE_TO_NAME.at(DataRepository::GetInstance().GetCurrentStoryMapType());
+        
+        mapNameTitleSceneObject->mSceneObjectTypeData = std::move(mapNameTextData);
+        mapNameTitleSceneObject->mInvisible = true;
+        mapNameTitleSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+        mapNameTitleSceneObject->mScale = MAP_NAME_SCALE;
+        mapNameTitleSceneObject->mPosition = MAP_NAME_POSITION;
+        
         // First time entering map initialisation
         auto mapInitCoord = game_constants::STORY_MAP_INIT_COORD;
         auto mapBossCoord = game_constants::STORY_MAP_BOSS_COORD;
@@ -215,6 +253,18 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
             
             SetMapPositionTo(positionAccum/static_cast<float>(positionInfluenceCount));
         }
+
+        // Story Map Name fade in/out animation for first time entry
+        if (currentMapCoord.x == mapInitCoord.x && currentMapCoord.y == mapInitCoord.y)
+        {
+            mapNameTitleSceneObject->mInvisible = false;
+            auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+            animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(mapNameTitleSceneObject, 1.0f, MAP_NAME_FADE_IN_OUT_DURATION_SECS), [=]()
+            {
+                CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(mapNameTitleSceneObject, 0.0f, MAP_NAME_FADE_IN_OUT_DURATION_SECS, animation_flags::NONE, MAP_FADE_OUT_DELAY_SECS), [=](){});
+                
+            });
+        }
     }
     
     switch (mMapUpdateState)
@@ -249,7 +299,7 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
                 {
                     auto sceneObject = scene->FindSceneObject(guiSceneObjectName);
                     auto sceneObjectRect = scene_object_utils::GetSceneObjectBoundingRect(*sceneObject);
-                    if (math::IsPointInsideRectangle(sceneObjectRect.bottomLeft, sceneObjectRect.topRight, touchPos))
+                    if (sceneObject->mName != MAP_NAME_SCENE_OBJECT_NAME && math::IsPointInsideRectangle(sceneObjectRect.bottomLeft, sceneObjectRect.topRight, touchPos))
                     {
                         tappedGuiSceneObject = true;
                         break;
