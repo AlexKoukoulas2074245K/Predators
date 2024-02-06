@@ -35,9 +35,13 @@ static const std::string CHECKBOX_FILLED_TEXTURE_FILE_NAME = "checkbox_filled.pn
 static const std::string CARD_FAMILY_FILTER_ICON_SHADER_FILE_NAME = "card_family_stamp.vs";
 static const std::string CARD_FAMILY_FILTER_ICON_MASK_TEXTURE_FILE_NAME = "trap_mask.png";
 static const std::string NEW_CARD_INDICATOR_SHADER_FILE_NAME = "new_indicator.vs";
+static const std::string GOLDEN_CARDS_COLLECTED_TEXT_SHADER_FILE_NAME = "basic_custom_color.vs";
 
 static const strutils::StringId BACK_BUTTON_NAME = strutils::StringId("back_button");
 static const strutils::StringId FILTERS_TEXT_SCENE_OBJECT_NAME = strutils::StringId("card_library_filters_text");
+static const strutils::StringId CARD_COLLECTION_TEXT_SCENE_OBJECT_NAME = strutils::StringId("card_collection_text");
+static const strutils::StringId NORMAL_CARD_COLLECTION_TEXT_SCENE_OBJECT_NAME = strutils::StringId("normal_card_collection_text");
+static const strutils::StringId GOLDEN_CARD_COLLECTION_TEXT_SCENE_OBJECT_NAME = strutils::StringId("golden_card_collection_text");
 static const strutils::StringId GOLDEN_CHECKBOX_TEXT_SCENE_OBJECT_NAME = strutils::StringId("golden_checkbox_text");
 static const strutils::StringId GOLDEN_CHECKBOX_SCENE_OBJECT_NAME = strutils::StringId("golden_checkbox");
 static const strutils::StringId STORY_CARDS_TITLE_SCENE_OBJECT_NAME = strutils::StringId("story_cards_title");
@@ -52,6 +56,7 @@ static const strutils::StringId CARD_ORIGIN_Y_UNIFORM_NAME = strutils::StringId(
 static const strutils::StringId CARD_DESELECTION_ANIMATION_NAME = strutils::StringId("card_deselection_animation");
 
 static const glm::vec3 BUTTON_SCALE = {0.0004f, 0.0004f, 0.0004f};
+static const glm::vec3 CARD_COLLECTION_TEXT_SCALE = {0.0003f, 0.0003f, 0.0003f};
 static const glm::vec3 DELETE_CARD_BUTTON_POSITION = {-0.225f, 0.05f, 23.9f};
 static const glm::vec3 GOLDEN_CHECKBOX_TEXT_POSITION = {-0.26f, 0.05f, 23.9f};
 static const glm::vec3 GOLDEN_CHECKBOX_POSITION = {-0.125f, 0.037f, 23.9f};
@@ -68,12 +73,16 @@ static const glm::vec3 SELECTED_CARD_TARGET_POSITION = {0.0f, 0.0f, 26.5f};
 static const glm::vec3 FILTERS_TEXT_POSITION = {0.0f, 0.176f, 23.2f};
 static const glm::vec3 NEW_CARD_INDICATOR_SCALE = {0.00045f, 0.00045f, 0.00045f};
 static const glm::vec3 NEW_CARD_INDICATOR_POSITION_OFFSET = {-0.036f, 0.018f, 0.1f};
+static const glm::vec3 CARD_COLLECTION_TEXT_POSITION = {-0.3f, -0.216f, 23.2f};
+static const glm::vec3 NORMAL_CARD_COLLECTION_TEXT_POSITION = {-0.098f, -0.216f, 23.2f};
+static const glm::vec3 GOLDEN_CARD_COLLECTION_TEXT_POSITION = {0.066f, -0.216f, 23.2f};
+static const glm::vec3 GOLDEN_CARDS_COLLECTED_TEXT_COLOR = {0.90f, 0.81f, 0.21f};
 
-static const glm::vec2 CARD_ENTRY_CUTOFF_VALUES = {-0.208f, 0.158f};
-static const glm::vec2 CARD_CONTAINER_CUTOFF_VALUES = {-0.15f, 0.15f};
+static const glm::vec2 CARD_ENTRY_CUTOFF_VALUES = {-0.193f, 0.173f};
+static const glm::vec2 CARD_CONTAINER_CUTOFF_VALUES = {-0.135f, 0.165f};
 static const glm::vec2 CARD_DISSOLVE_EFFECT_MAG_RANGE = {3.0f, 6.0f};
 
-static const math::Rectangle CARD_CONTAINER_BOUNDS = {{-0.305f, -0.22f}, {0.305f, 0.15f}};
+static const math::Rectangle CARD_CONTAINER_BOUNDS = {{-0.305f, -0.205f}, {0.305f, 0.165f}};
 
 static const float ITEMS_FADE_IN_OUT_DURATION_SECS = 0.25f;
 static const float STAGGERED_ITEM_ALPHA_DELAY_SECS = 0.05f;
@@ -203,6 +212,47 @@ void CardLibrarySceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scen
             filterIconSceneObject->mSnapToEdgeBehavior = scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE;
             filterIconSceneObject->mSnapToEdgeScaleOffsetFactor = FILTER_ICON_SNAP_TO_EDGE_SCALE_FACTOR;
         }
+        
+        // Card Collection Text
+        scene::TextSceneObjectData cardCollectionTextData;
+        cardCollectionTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
+        cardCollectionTextData.mText = "Cards Collected: ";
+        
+        auto cardCollectionTextSceneObject = scene->CreateSceneObject(CARD_COLLECTION_TEXT_SCENE_OBJECT_NAME);
+        cardCollectionTextSceneObject->mSceneObjectTypeData = std::move(cardCollectionTextData);
+        cardCollectionTextSceneObject->mPosition = CARD_COLLECTION_TEXT_POSITION;
+        cardCollectionTextSceneObject->mScale = CARD_COLLECTION_TEXT_SCALE;
+        cardCollectionTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+        cardCollectionTextSceneObject->mInvisible = true;
+        
+        // Normal Card Collection Text
+        auto totalCardPoolSize = DataRepository::GetInstance().GetUnlockedCardIds().size() + CardDataRepository::GetInstance().GetCardPackLockedCardRewardsPool().size();
+        auto percentageCollection = static_cast<int>((DataRepository::GetInstance().GetUnlockedCardIds().size() * 100.0f)/static_cast<float>(totalCardPoolSize));
+        scene::TextSceneObjectData normalCardCollectionTextData;
+        normalCardCollectionTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
+        normalCardCollectionTextData.mText = "Normal " + std::to_string(percentageCollection) + "%";
+        
+        auto normalCardCollectionTextSceneObject = scene->CreateSceneObject(NORMAL_CARD_COLLECTION_TEXT_SCENE_OBJECT_NAME);
+        normalCardCollectionTextSceneObject->mSceneObjectTypeData = std::move(normalCardCollectionTextData);
+        normalCardCollectionTextSceneObject->mPosition = NORMAL_CARD_COLLECTION_TEXT_POSITION;
+        normalCardCollectionTextSceneObject->mScale = CARD_COLLECTION_TEXT_SCALE;
+        normalCardCollectionTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+        normalCardCollectionTextSceneObject->mInvisible = true;
+        
+        // Golden Card Collection Text
+        auto goldenPercentageCollection = static_cast<int>((DataRepository::GetInstance().GetGoldenCardIdMap().size() * 100.0f)/static_cast<float>(totalCardPoolSize));
+        scene::TextSceneObjectData goldenCardCollectionTextData;
+        goldenCardCollectionTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
+        goldenCardCollectionTextData.mText = "Golden " + std::to_string(goldenPercentageCollection) + "%";
+        
+        auto goldenCardCollectionTextSceneObject = scene->CreateSceneObject(GOLDEN_CARD_COLLECTION_TEXT_SCENE_OBJECT_NAME);
+        goldenCardCollectionTextSceneObject->mSceneObjectTypeData = std::move(goldenCardCollectionTextData);
+        goldenCardCollectionTextSceneObject->mPosition = GOLDEN_CARD_COLLECTION_TEXT_POSITION;
+        goldenCardCollectionTextSceneObject->mScale = CARD_COLLECTION_TEXT_SCALE;
+        goldenCardCollectionTextSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + GOLDEN_CARDS_COLLECTED_TEXT_SHADER_FILE_NAME);
+        goldenCardCollectionTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+        goldenCardCollectionTextSceneObject->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = GOLDEN_CARDS_COLLECTED_TEXT_COLOR;
+        goldenCardCollectionTextSceneObject->mInvisible = true;
     }
     
     mAnimatedButtons.clear();

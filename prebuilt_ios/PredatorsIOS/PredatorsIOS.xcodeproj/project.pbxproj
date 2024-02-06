@@ -174,8 +174,10 @@
 		CB531F303F3C1CE853301CBB /* CardEffectGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEDDB72469D33C82815CCED2 /* CardEffectGameAction.cpp */; };
 		CD43589E44EA02EC52040B60 /* PersistentAccountDataSerializer.h in Sources */ = {isa = PBXBuildFile; fileRef = 2741FEDA480E848F1024F2A3 /* PersistentAccountDataSerializer.h */; };
 		CD788CBDD4CB28DB7952C250 /* WheelOfFortuneSceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 74CBE4C620C35D7D3D16AF39 /* WheelOfFortuneSceneLogicManager.h */; };
+		CDBAAFA12C8DC89BFFF18BCA /* GiftCodeClaimSceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EFE7466FBB2490322DD0855C /* GiftCodeClaimSceneLogicManager.cpp */; };
 		D0D28FD09D6A7C93CDF51FA9 /* ProductRepository.h in Sources */ = {isa = PBXBuildFile; fileRef = 4AACD386F5589D0221F980E5 /* ProductRepository.h */; };
 		D2E26E81223DD805B0E519C0 /* CardUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F62DA25CEC2725420792B4BA /* CardUtils.cpp */; };
+		D6C1B3BEF5F80FC476A6CFD0 /* GiftCodeClaimSceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = EA835AB1E98A4479FBB762C5 /* GiftCodeClaimSceneLogicManager.h */; };
 		D6EFB8D30597291B57B68A3F /* CloudDataConfirmationSceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 78D3D7811D0E6320DDDA9D6F /* CloudDataConfirmationSceneLogicManager.cpp */; };
 		DA1F4E6DEBBC3FAC753B2F9C /* ProductIds.h in Sources */ = {isa = PBXBuildFile; fileRef = 2BA0DDA65BD336E7C01F7AD5 /* ProductIds.h */; };
 		DCE8BFFC07F467E58FED4C02 /* PurchasingProductSceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 8D0344CE64D88079E3B9D1F4 /* PurchasingProductSceneLogicManager.h */; };
@@ -547,12 +549,14 @@
 		E765BE8BAD6EAAC5948DFB99 /* ParticleManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = ParticleManager.cpp; sourceTree = "<group>"; };
 		E935A2EA8B754F3F46B4A382 /* ShopSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = ShopSceneLogicManager.h; sourceTree = "<group>"; };
 		E945C55F295C1AC7EE5E7857 /* DisconnectedSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = DisconnectedSceneLogicManager.cpp; path = DisconnectedSceneLogicManager.cpp; sourceTree = "<group>"; };
+		EA835AB1E98A4479FBB762C5 /* GiftCodeClaimSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = GiftCodeClaimSceneLogicManager.h; path = GiftCodeClaimSceneLogicManager.h; sourceTree = "<group>"; };
 		EBD75F47AAFEB22AFA92DD21 /* PersistentAccountDataSerializer.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = PersistentAccountDataSerializer.cpp; sourceTree = "<group>"; };
 		EBF846548488DC5997004413 /* AnimationManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = AnimationManager.cpp; sourceTree = "<group>"; };
 		EC84408B7534251FFDF0A260 /* StorySerializer.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = StorySerializer.h; sourceTree = "<group>"; };
 		EEA5D60503CEF24015859459 /* IOSUtils.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; path = IOSUtils.mm; sourceTree = "<group>"; };
 		EEE04C21CA0FF05632F35BB0 /* TypeTraits.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = TypeTraits.cpp; sourceTree = "<group>"; };
 		EF351FA09079CF49E388DC3A /* CardAttackGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = CardAttackGameAction.h; sourceTree = "<group>"; };
+		EFE7466FBB2490322DD0855C /* GiftCodeClaimSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = GiftCodeClaimSceneLogicManager.cpp; path = GiftCodeClaimSceneLogicManager.cpp; sourceTree = "<group>"; };
 		F0FFCD7AE0C78521E3B1DFF2 /* BaseDataFileDeserializer.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = BaseDataFileDeserializer.cpp; sourceTree = "<group>"; };
 		F24C3EF902991ED1C9E6C625 /* CardHistoryEntryAdditionGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = CardHistoryEntryAdditionGameAction.h; sourceTree = "<group>"; };
 		F592E9DA6B763A3750432246 /* CloudKitUtils.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; path = CloudKitUtils.mm; sourceTree = "<group>"; };
@@ -1015,6 +1019,8 @@
 				8D0344CE64D88079E3B9D1F4 /* PurchasingProductSceneLogicManager.h */,
 				C1EE7DB5748D9F470F44737E /* VictorySceneLogicManager.cpp */,
 				2887862EA02130734A352942 /* VictorySceneLogicManager.h */,
+				EFE7466FBB2490322DD0855C /* GiftCodeClaimSceneLogicManager.cpp */,
+				EA835AB1E98A4479FBB762C5 /* GiftCodeClaimSceneLogicManager.h */,
 			);
 			path = scenelogicmanagers;
 			sourceTree = "<group>";
@@ -1460,6 +1466,8 @@
 				666569DB569B0BF9FF01CF1E /* GiftingUtils.cpp in Sources */,
 				795B2C9EE90C453029793917 /* VictorySceneLogicManager.h in Sources */,
 				95E86C0714C01FB14F01EF41 /* GiftingUtils.h in Sources */,
+				CDBAAFA12C8DC89BFFF18BCA /* GiftCodeClaimSceneLogicManager.cpp in Sources */,
+				D6C1B3BEF5F80FC476A6CFD0 /* GiftCodeClaimSceneLogicManager.h in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

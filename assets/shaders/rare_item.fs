@@ -21,7 +21,7 @@ void main()
 {
     float final_uv_x = uv_frag.x * 0.999f;
     float final_uv_y = 1.0 - uv_frag.y;
-    frag_color = texture(tex, vec2(final_uv_x/3 + 0.33333f, final_uv_y/3 + 0.05f));
+    frag_color = texture(tex, vec2(final_uv_x/3.0f + 0.33333f, final_uv_y/3.0f + 0.05f));
 
     if (frag_color.a < 0.1) discard;
     

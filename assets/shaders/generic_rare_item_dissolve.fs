@@ -26,7 +26,7 @@ void main()
 {
     float final_uv_x = uv_frag.x;
     float final_uv_y = 1.0 - uv_frag.y;
-    frag_color = texture(tex, vec2(final_uv_x/3 + 0.33333f, final_uv_y/3 + 0.05f));
+    frag_color = texture(tex, vec2(final_uv_x/3.0f + 0.33333f, final_uv_y/3.0f + 0.05f));
     
     float distance_uv_x = (frag_unprojected_pos.x - origin_x) * dissolve_magnitude;
     float distance_uv_y = (frag_unprojected_pos.y - origin_y) * dissolve_magnitude;

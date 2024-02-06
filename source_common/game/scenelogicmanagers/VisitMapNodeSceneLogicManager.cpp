@@ -192,6 +192,12 @@ void VisitMapNodeSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> sce
     nodeDescriptionSceneObject->mPosition = targetNodePosition;
     nodeDescriptionSceneObject->mPosition.x += (targetNodePosition.x < previousSceneCameraPosition.x ? NODE_DESC_MIN_MAX_X_OFFSETS.s : NODE_DESC_MIN_MAX_X_OFFSETS.t);
     nodeDescriptionSceneObject->mPosition.y += (targetNodePosition.y < previousSceneCameraPosition.y ? NODE_DESC_MIN_MAX_Y_OFFSETS.s : NODE_DESC_MIN_MAX_Y_OFFSETS.t);
+    
+    if (effectiveNodeType == StoryMap::NodeType::SHOP)
+    {
+        nodeDescriptionSceneObject->mPosition.y = targetNodePosition.y + NODE_DESC_MIN_MAX_Y_OFFSETS.t;
+    }
+    
     nodeDescriptionSceneObject->mPosition.z = BUTTON_Z;
     nodeDescriptionSceneObject->mScale = BUTTON_SCALE;
     
