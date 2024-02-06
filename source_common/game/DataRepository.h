@@ -184,6 +184,9 @@ public:
     const std::vector<int>& GetNextBotPlayerDeck() const;
     void SetNextBotPlayerDeck(const std::vector<int>& deck);
     
+    const std::vector<int>& GetNewCardIds() const;
+    void SetNewCardIds(const std::vector<int>& newCardIds);
+    
     const std::vector<std::string>& GetSuccessfulTransactionIds() const;
     void SetSuccessfulTransactionIds(const std::vector<std::string>& successfulTransactionIds);
     
@@ -294,6 +297,7 @@ private:
     std::vector<int> mCurrentStoryPlayerDeck;
     std::vector<int> mNextTopPlayerDeck;
     std::vector<int> mNextBotPlayerDeck;
+    std::vector<int> mNewCardIds;
     std::vector<std::string> mSuccessfulTransactionIds;
     std::vector<std::string> mGiftCodesClaimed;
     std::vector<std::pair<int, int>> mCurrentShopBoughtProductCoordinates;

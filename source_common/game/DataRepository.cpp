@@ -472,6 +472,21 @@ void DataRepository::SetNextBotPlayerDeck(const std::vector<int>& deck)
 
 ///------------------------------------------------------------------------------------------------
 
+const std::vector<int>& DataRepository::GetNewCardIds() const
+{
+    return mNewCardIds;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void DataRepository::SetNewCardIds(const std::vector<int>& newCardIds)
+{
+    mNewCardIds = newCardIds;
+    mPersistentDataSerializer->GetState()["new_card_ids"] = mNewCardIds;
+}
+
+///------------------------------------------------------------------------------------------------
+
 const std::vector<std::string>& DataRepository::GetSuccessfulTransactionIds() const
 {
     return mSuccessfulTransactionIds;

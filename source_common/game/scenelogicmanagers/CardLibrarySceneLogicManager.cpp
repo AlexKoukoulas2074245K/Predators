@@ -34,6 +34,7 @@ static const std::string CHECKBOX_EMPTY_TEXTURE_FILE_NAME = "checkbox_empty.png"
 static const std::string CHECKBOX_FILLED_TEXTURE_FILE_NAME = "checkbox_filled.png";
 static const std::string CARD_FAMILY_FILTER_ICON_SHADER_FILE_NAME = "card_family_stamp.vs";
 static const std::string CARD_FAMILY_FILTER_ICON_MASK_TEXTURE_FILE_NAME = "trap_mask.png";
+static const std::string NEW_CARD_INDICATOR_SHADER_FILE_NAME = "new_indicator.vs";
 
 static const strutils::StringId BACK_BUTTON_NAME = strutils::StringId("back_button");
 static const strutils::StringId FILTERS_TEXT_SCENE_OBJECT_NAME = strutils::StringId("card_library_filters_text");
@@ -65,6 +66,9 @@ static const glm::vec3 CHECKBOX_SCALE = {0.1f, 0.1f, 0.1f};
 static const glm::vec3 FILTER_ICON_SCALE = {0.0769f, 0.0769f, 0.0769f};
 static const glm::vec3 SELECTED_CARD_TARGET_POSITION = {0.0f, 0.0f, 26.5f};
 static const glm::vec3 FILTERS_TEXT_POSITION = {0.0f, 0.176f, 23.2f};
+static const glm::vec3 NEW_CARD_INDICATOR_SCALE = {0.00045f, 0.00045f, 0.00045f};
+static const glm::vec3 NEW_CARD_INDICATOR_POSITION_OFFSET = {-0.036f, 0.018f, 0.1f};
+
 static const glm::vec2 CARD_ENTRY_CUTOFF_VALUES = {-0.208f, 0.158f};
 static const glm::vec2 CARD_CONTAINER_CUTOFF_VALUES = {-0.15f, 0.15f};
 static const glm::vec2 CARD_DISSOLVE_EFFECT_MAG_RANGE = {3.0f, 6.0f};
@@ -72,10 +76,11 @@ static const glm::vec2 CARD_DISSOLVE_EFFECT_MAG_RANGE = {3.0f, 6.0f};
 static const math::Rectangle CARD_CONTAINER_BOUNDS = {{-0.305f, -0.22f}, {0.305f, 0.15f}};
 
 static const float ITEMS_FADE_IN_OUT_DURATION_SECS = 0.25f;
-static const float STAGGERED_ITEM_ALPHA_DELAY_SECS = 0.1f;
+static const float STAGGERED_ITEM_ALPHA_DELAY_SECS = 0.05f;
 static const float BACK_BUTTON_SNAP_TO_EDGE_FACTOR = 950000.0f;
 static const float CARD_ENTRY_Z = 23.2f;
 static const float SELECTED_CARD_ANIMATION_DURATION_SECS = 0.35f;
+static const float NEW_CARD_INDICATOR_FADE_OUT_ANIMATION_DURATION_SECS = 0.1f;
 static const float SELECTED_CARD_OVERLAY_MAX_ALPHA = 0.9f;
 static const float SELECTED_CARD_SCALE_FACTOR = 1.0f;
 static const float CARD_DISSOLVE_SPEED = 0.0005f;
@@ -315,10 +320,12 @@ void CardLibrarySceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr
         return;
     }
     
-    
-    for (auto& cardContainerItem: mCardContainer->GetItems())
+    for (auto i = 0; i < mCardContainer->GetItems().size(); ++i)
     {
-        cardContainerItem.mSceneObjects.front()->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
+        for (auto& sceneObject: mCardContainer->GetItems()[i].mSceneObjects)
+        {
+            sceneObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time + i;
+        }
     }
     
     if (CoreSystemsEngine::GetInstance().GetAnimationManager().IsAnimationPlaying(CARD_DESELECTION_ANIMATION_NAME))
@@ -652,6 +659,7 @@ void CardLibrarySceneLogicManager::CreateCardEntriesAndContainer()
     
     
     // Create card entries
+    const auto& newCardIds = DataRepository::GetInstance().GetNewCardIds();
     for (const auto& cardId: cards)
     {
         CardData cardData = CardDataRepository::GetInstance().GetCardData(cardId, game_constants::LOCAL_PLAYER_INDEX);
@@ -668,6 +676,25 @@ void CardLibrarySceneLogicManager::CreateCardEntriesAndContainer()
         CardEntry cardEntry;
         cardEntry.mCardSoWrapper = cardSoWrapper;
         cardEntry.mSceneObjects.emplace_back(cardSoWrapper->mSceneObject);
+        
+        if (DataRepository::GetInstance().GetCurrentCardLibraryBehaviorType() == CardLibraryBehaviorType::CARD_LIBRARY && std::find(newCardIds.begin(), newCardIds.end(), cardSoWrapper->mCardData.mCardId) != newCardIds.end())
+        {
+            auto newIndicatorSceneObject = mScene->CreateSceneObject(strutils::StringId());
+            newIndicatorSceneObject->mPosition += NEW_CARD_INDICATOR_POSITION_OFFSET;
+            
+            scene::TextSceneObjectData textNewIndicatorData;
+            textNewIndicatorData.mText = "NEW";
+            textNewIndicatorData.mFontName = game_constants::DEFAULT_FONT_NAME;
+            
+            newIndicatorSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + NEW_CARD_INDICATOR_SHADER_FILE_NAME);
+            newIndicatorSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MIN_Y_UNIFORM_NAME] = CARD_ENTRY_CUTOFF_VALUES.s;
+            newIndicatorSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MAX_Y_UNIFORM_NAME] = CARD_ENTRY_CUTOFF_VALUES.t;
+            
+            newIndicatorSceneObject->mScale = NEW_CARD_INDICATOR_SCALE;
+            newIndicatorSceneObject->mSceneObjectTypeData = std::move(textNewIndicatorData);
+            cardEntry.mSceneObjects.emplace_back(newIndicatorSceneObject);
+        }
+        
         mCardContainer->AddItem(std::move(cardEntry), EntryAdditionStrategy::ADD_ON_THE_BACK);
     }
     
@@ -729,9 +756,23 @@ void CardLibrarySceneLogicManager::SelectCard()
     auto card = mCardContainer->GetItems()[mSelectedCardIndex].mCardSoWrapper;
     auto cardSceneObject = mCardContainer->GetItems()[mSelectedCardIndex].mSceneObjects.front();
     const auto& goldenCardIds = DataRepository::GetInstance().GetGoldenCardIdMap();
+    auto newCardIds = DataRepository::GetInstance().GetNewCardIds();
     
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
-
+    
+    if (DataRepository::GetInstance().GetCurrentCardLibraryBehaviorType() == CardLibraryBehaviorType::CARD_LIBRARY)
+    {
+        auto newCardIter = std::find(newCardIds.begin(), newCardIds.end(), card->mCardData.mCardId);
+        if (newCardIter != newCardIds.end())
+        {
+            animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>( mCardContainer->GetItems()[mSelectedCardIndex].mSceneObjects.back(), 0.0f, NEW_CARD_INDICATOR_FADE_OUT_ANIMATION_DURATION_SECS), [=](){});
+            
+            newCardIds.erase(newCardIter);
+            DataRepository::GetInstance().SetNewCardIds(newCardIds);
+            DataRepository::GetInstance().FlushStateToFile();
+        }
+    }
+    
     // Fade in cancel button
     auto cancelButtonSceneObject = mScene->FindSceneObject(CANCEL_BUTTON_SCENE_OBJECT_NAME);
     cancelButtonSceneObject->mInvisible = false;

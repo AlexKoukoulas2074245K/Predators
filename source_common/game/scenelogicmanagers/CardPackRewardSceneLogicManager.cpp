@@ -540,6 +540,7 @@ void CardPackRewardSceneLogicManager::CreateCardRewards(std::shared_ptr<scene::S
     auto cardRewardPool = CardDataRepository::GetInstance().GetCardPackLockedCardRewardsPool();
     auto unlockedCardIds = DataRepository::GetInstance().GetUnlockedCardIds();
     auto unlockedGoldenCardIds = DataRepository::GetInstance().GetGoldenCardIdMap();
+    auto newCardIds = DataRepository::GetInstance().GetNewCardIds();
     
     // For golden packs the pool includes unlocked cards (that have not had their golden counterparts won yet)
     if (mCardPackType == CardPackType::GOLDEN)
@@ -604,16 +605,27 @@ void CardPackRewardSceneLogicManager::CreateCardRewards(std::shared_ptr<scene::S
         if (std::find(unlockedCardIds.begin(), unlockedCardIds.end(), cardData.mCardId) == unlockedCardIds.end())
         {
             unlockedCardIds.push_back(cardData.mCardId);
+            
+            if (std::find(newCardIds.begin(), newCardIds.end(), cardData.mCardId) == newCardIds.end())
+            {
+                newCardIds.push_back(cardData.mCardId);
+            }
         }
         
         if (isGolden && !unlockedGoldenCardIds.count(cardData.mCardId))
         {
             DataRepository::GetInstance().SetGoldenCardMapEntry(cardData.mCardId, true);
+            
+            if (std::find(newCardIds.begin(), newCardIds.end(), cardData.mCardId) == newCardIds.end())
+            {
+                newCardIds.push_back(cardData.mCardId);
+            }
         }
         
         cardRewardPool.erase(cardRewardPool.begin() + randomCardIndex);
     }
     
+    DataRepository::GetInstance().SetNewCardIds(newCardIds);
     DataRepository::GetInstance().SetUnlockedCardIds(unlockedCardIds);
     DataRepository::GetInstance().SetNextCardPackSeed(math::GetControlSeed());
     DataRepository::GetInstance().FlushStateToFile();

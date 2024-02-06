@@ -122,6 +122,7 @@ static const glm::vec2 CARD_HISTORY_CONTAINER_CUTOFF_VALUES = {-0.2f, 0.2f};
 
 static const float BOARD_SIDE_EFFECT_SHOWING_HIDING_ANIMATION_DURATION_SECS = 0.5f;
 static const float CARD_SELECTION_ANIMATION_DURATION = 0.2f;
+static const float CARD_HIGHLIGHT_ANIMATION_DURATION = 0.1f;
 static const float CARD_LOCATION_EFFECT_MIN_TARGET_ALPHA = 0.25f;
 static const float CARD_LOCATION_EFFECT_MAX_TARGET_ALPHA = 1.0f;
 static const float CARD_LOCATION_EFFECT_ALPHA_SPEED = 0.003f;
@@ -847,7 +848,7 @@ void BattleSceneLogicManager::HandleTouchInput(const float dtMillis)
         originalCardPosition.y += game_constants::IN_GAME_BOT_PLAYER_SELECTED_CARD_Y_OFFSET;
         originalCardPosition.z = game_constants::IN_GAME_HIGHLIGHTED_CARD_Z;
         
-        animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(currentCardSoWrapper->mSceneObject, originalCardPosition, currentCardSoWrapper->mSceneObject->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::IGNORE_X_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+        animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(currentCardSoWrapper->mSceneObject, originalCardPosition, currentCardSoWrapper->mSceneObject->mScale, CARD_HIGHLIGHT_ANIMATION_DURATION, animation_flags::IGNORE_X_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
         {
             CreateCardHighlighter();
         });
