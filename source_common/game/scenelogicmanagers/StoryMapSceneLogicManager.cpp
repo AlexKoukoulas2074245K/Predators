@@ -53,8 +53,8 @@ static const float SWIPE_VELOCITY_DAMPING = 0.8f;
 static const float SWIPE_VELOCITY_INTEGRATION_SPEED = 0.08f;
 static const float SWIPE_VELOCITY_MIN_MAGNITUDE_TO_START_MOVING = 0.0001f;
 static const float MAX_CAMERA_DISTANCE_TO_REGISTER_NODE_TAP = 0.01f;
-static const float MAP_NAME_FADE_IN_OUT_DURATION_SECS = 2.0f;
-static const float MAP_FADE_OUT_DELAY_SECS = 4.0f;
+static const float MAP_NAME_FADE_IN_OUT_DURATION_SECS = 1.0f;
+static const float MAP_FADE_OUT_DELAY_SECS = 2.0f;
 
 #if defined(NDEBUG) || defined(MOBILE_FLOW)
 static const float FRESH_MAP_ANIMATION_SPEED = 2.0f;
@@ -243,7 +243,7 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
         {
             auto& mapNodeData = mStoryMap->GetMapData().at(MapCoord(currentMapCoord.x, currentMapCoord.y));
             
-            if (currentMapCoord == game_constants::STORY_MAP_BOSS_COORD && DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::NORMAL_MAP)
+            if (currentMapCoord.x == game_constants::STORY_MAP_BOSS_COORD.x - 1 && DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::NORMAL_MAP)
             {
                 SetMapPositionTo(mapNodeData.mPosition);
             }

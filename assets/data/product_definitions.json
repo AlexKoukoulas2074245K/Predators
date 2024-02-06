@@ -76,28 +76,24 @@
             "name": "extra_hp",
             "price": 10,
             "texture_path": "rare_item_rewards/extra_hp.png",
-            "shader_path": "rare_item.vs",
             "description": "Increases story MAX$HEALTH by 10!"
         },
         {
             "name": "extra_15_coins",
             "price": 15,
             "texture_path": "rare_item_rewards/extra_15_coins.png",
-            "shader_path": "rare_item.vs",
             "description": "+15 coins"
         },
         {
             "name": "extra_50_coins",
             "price": 50,
             "texture_path": "rare_item_rewards/extra_50_coins.png",
-            "shader_path": "rare_item.vs",
             "description": "+50 coins"
         },
         {
             "name": "extra_100_coins",
             "price": 100,
             "texture_path": "rare_item_rewards/extra_100_coins.png",
-            "shader_path": "rare_item.vs",
             "description": "+100 coins"
         }
     ]

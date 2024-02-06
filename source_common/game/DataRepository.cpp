@@ -308,6 +308,20 @@ void DataRepository::SetCurrentWheelOfFortuneType(const WheelOfFortuneType curre
 
 ///------------------------------------------------------------------------------------------------
 
+GiftCodeClaimedResultType DataRepository::GetCurrentGiftCodeClaimedResultType() const
+{
+    return mCurrentGiftCodeClaimedResultType;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void DataRepository::SetCurrentGiftCodeClaimedResultType(const GiftCodeClaimedResultType currentGiftCodeClaimedResultType)
+{
+    mCurrentGiftCodeClaimedResultType = currentGiftCodeClaimedResultType;
+}
+
+///------------------------------------------------------------------------------------------------
+
 CardLibraryBehaviorType DataRepository::GetCurrentCardLibraryBehaviorType() const
 {
     return mCurrentCardLibraryBehaviorType;
@@ -469,6 +483,21 @@ void DataRepository::SetSuccessfulTransactionIds(const std::vector<std::string>&
 {
     mSuccessfulTransactionIds = successfulTransactionIds;
     mPersistentDataSerializer->GetState()["successful_transaction_ids"] = mSuccessfulTransactionIds;
+}
+
+///------------------------------------------------------------------------------------------------
+
+const std::vector<std::string>& DataRepository::GetGiftCodesClaimed() const
+{
+    return mGiftCodesClaimed;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void DataRepository::SetGiftCodesClaimed(const std::vector<std::string>& giftCodesClaimed)
+{
+    mGiftCodesClaimed = giftCodesClaimed;
+    mPersistentDataSerializer->GetState()["gift_codes_claimed"] = mGiftCodesClaimed;
 }
 
 ///------------------------------------------------------------------------------------------------

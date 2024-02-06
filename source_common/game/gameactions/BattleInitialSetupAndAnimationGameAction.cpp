@@ -22,6 +22,7 @@ const std::string BattleInitialSetupAndAnimationGameAction::CURRENT_BATTLE_SUBSC
 
 ///------------------------------------------------------------------------------------------------
 
+static const strutils::StringId STORY_VICTORY_SCENE_NAME = strutils::StringId("victory_scene");
 static const strutils::StringId CARD_SELECTION_REWARD_SCENE_NAME = strutils::StringId("card_selection_reward_scene");
 static const strutils::StringId WHEEL_OF_FORTUNE_SCENE_NAME = strutils::StringId("wheel_of_fortune_scene");
 static const strutils::StringId BOARD_SCENE_OBJECT_NAME = strutils::StringId("board");
@@ -135,7 +136,11 @@ ActionAnimationUpdateResult BattleInitialSetupAndAnimationGameAction::VUpdateAni
                     }
                 }
                 
-                if (!isStoryFinalBoss)
+                if (isStoryFinalBoss)
+                {
+                    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(STORY_VICTORY_SCENE_NAME, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+                }
+                else
                 {
                     events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(CARD_SELECTION_REWARD_SCENE_NAME, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
                 }
@@ -145,6 +150,10 @@ ActionAnimationUpdateResult BattleInitialSetupAndAnimationGameAction::VUpdateAni
             else if (currentSubSceneType == BattleSubSceneType::CARD_SELECTION)
             {
                 events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(CARD_SELECTION_REWARD_SCENE_NAME, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+            }
+            else if (currentSubSceneType == BattleSubSceneType::STORY_VICTORY)
+            {
+                events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(STORY_VICTORY_SCENE_NAME, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
             }
         }
     }

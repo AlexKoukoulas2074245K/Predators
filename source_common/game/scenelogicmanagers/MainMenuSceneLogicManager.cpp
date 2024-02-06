@@ -19,6 +19,8 @@
 #include <game/scenelogicmanagers/MainMenuSceneLogicManager.h>
 #include <game/DataRepository.h>
 #include <game/ProductIds.h>
+#include <game/ProductRepository.h>
+#include <game/utils/GiftingUtils.h>
 #include <SDL_events.h>
 #if defined(MACOS) || defined(MOBILE_FLOW)
 #include <platform_utilities/AppleUtils.h>
@@ -33,18 +35,19 @@ static const std::string SELECTABLE_BUTTON_SHADER_FILE_NAME = "basic_custom_colo
 static const std::string DECK_ENTRY_SHADER = "card_family_selection_swipe_entry.vs";
 static const std::string DECK_ENTRY_MASK_TEXTURE_FILE_NAME = "trap_mask.png";
 
+static const strutils::StringId GIFT_CODE_CLAIM_SCENE = strutils::StringId("gift_code_claim_scene");
 static const strutils::StringId BOARD_SCENE_OBJECT_NAME = strutils::StringId("board");
 static const strutils::StringId STORY_MODE_BUTTON_NAME = strutils::StringId("story_mode_button");
 static const strutils::StringId CARD_LIBRARY_BUTTON_NAME = strutils::StringId("card_library_button");
 static const strutils::StringId SHOP_BUTTON_NAME = strutils::StringId("shop_button");
 static const strutils::StringId CONTINUE_STORY_BUTTON_NAME = strutils::StringId("continue_story_button");
 static const strutils::StringId NEW_STORY_BUTTON_NAME = strutils::StringId("new_story_button");
-static const strutils::StringId QUICK_BATTLE_BUTTON_NAME = strutils::StringId("quick_battle_button");
+static const strutils::StringId EXTRAS_BUTTON_NAME = strutils::StringId("extras_button");
 static const strutils::StringId QUIT_BUTTON_NAME = strutils::StringId("quit_button");
 static const strutils::StringId NORMAL_BATTLE_MODE_BUTTON_NAME = strutils::StringId("normal_battle_mode_button");
 static const strutils::StringId AI_DEMO_BATTLE_MODE_BUTTON_NAME = strutils::StringId("ai_demo_battle_mode_button");
 static const strutils::StringId REPLAY_BATTLE_MODE_BUTTON_NAME = strutils::StringId("replay_battle_mode_button");
-static const strutils::StringId START_BATTLE_BUTTON_NAME = strutils::StringId("start_battle_button");
+static const strutils::StringId ENTER_GIFT_CODE_BUTTON_NAME = strutils::StringId("enter_gift_code_button");
 static const strutils::StringId BACK_BUTTON_NAME = strutils::StringId("back_button");
 static const strutils::StringId TITLE_SCENE_OBJECT_NAME = strutils::StringId("predators_title");
 static const strutils::StringId TOP_DECK_TEXT_SCENE_OBJECT_NAME = strutils::StringId("top_deck_text");
@@ -59,30 +62,30 @@ static const strutils::StringId NEW_STORY_CONFIRMATION_TEXT_MIDDLE_NAME = struti
 static const strutils::StringId NEW_STORY_CONFIRMATION_TEXT_BOT_NAME = strutils::StringId("new_story_confirmation_text_bot");
 static const strutils::StringId STORY_DECK_SELECTION_PROMPT_SCENE_OBJECT_NAME = strutils::StringId("story_deck_selection_prompt");
 static const strutils::StringId START_NEW_STORY_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("start_new_story_button");
+static const strutils::StringId STORY_HEALTH_REFILL_PRODUCT_NAME = strutils::StringId("story_health_refill");
+static const strutils::StringId NORMAL_PACK_PRODUCT_NAME = strutils::StringId("normal_card_pack");
+static const strutils::StringId GOLDEN_PACK_PRODUCT_NAME = strutils::StringId("golden_card_pack");
+static const strutils::StringId COINS_S_PRODUCT_NAME = strutils::StringId("coins_s");
+static const strutils::StringId COINS_M_PRODUCT_NAME = strutils::StringId("coins_m");
+static const strutils::StringId COINS_L_PRODUCT_NAME = strutils::StringId("coins_l");
 
-static const glm::vec2 DECK_ENTRY_CUTOFF_VALUES = {-0.01f, 0.25f};
 static const glm::vec2 STORY_DECK_ENTRY_CUTOFF_VALUES = {-0.25f, 0.15f};
-static const glm::vec2 DECK_CONTAINER_CUTOFF_VALUES = {0.05f, 0.15f};
 static const glm::vec2 STORY_DECK_SELECTION_CONTAINER_CUTOFF_VALUES = {-0.1f, 0.1f};
 
 static const glm::vec3 BUTTON_SCALE = {0.0005f, 0.0005f, 0.0005f};
-static const glm::vec3 STORY_MODE_BUTTON_POSITION = {-0.109f, 0.09f, 0.1f};
+static const glm::vec3 STORY_MODE_BUTTON_POSITION = {0.0f, 0.09f, 0.1f};
 static const glm::vec3 CONTINUE_STORY_BUTTON_POSITION = {-0.142f, 0.09f, 0.1f};
 static const glm::vec3 NO_PROGRESS_NEW_STORY_BUTTON_POSITION = {-0.091f, 0.06f, 0.1f};
 static const glm::vec3 NEW_STORY_BUTTON_POSITION = {-0.091f, 0.00f, 0.1f};
-static const glm::vec3 CARD_LIBRARY_BUTTON_POSITION = {-0.125f, 0.006f, 0.1f};
-static const glm::vec3 SHOP_BUTTON_POSITION = {-0.042f, -0.075f, 0.1f};
-//static const glm::vec3 QUICK_BATTLE_BUTTON_POSITION = {-0.109f, -0.055f, 0.1f};
-static const glm::vec3 QUIT_BUTTON_POSITION = {-0.036f, -0.160f, 0.1f};
-static const glm::vec3 NORMAL_BATTLE_MODE_BUTTON_POSITION = {-0.254f, 0.086f, 0.1f};
-static const glm::vec3 AI_DEMO_BATTLE_MODE_BUTTON_POSITION = {-0.07f, 0.086f, 0.1f};
-static const glm::vec3 REPLAY_BATTLE_MODE_BUTTON_POSITION = {0.136f, 0.086f, 0.1f};
-static const glm::vec3 START_BATTLE_BUTTON_POSITION = {-0.198f, -0.173f, 0.1f};
+static const glm::vec3 CARD_LIBRARY_BUTTON_POSITION = {0.0f, 0.02f, 0.1f};
+static const glm::vec3 SHOP_BUTTON_POSITION = {0.0f, -0.05f, 0.1f};
+static const glm::vec3 EXTRAS_BUTTON_POSITION = {0.0f, -0.110f, 0.1f};
+static const glm::vec3 QUIT_BUTTON_POSITION = {0.0f, -0.180f, 0.1f};
+
+static const glm::vec3 ENTER_GIFT_CODE_BUTTON_POSITION = {-0.135f, 0.085f, 0.1f};
 static const glm::vec3 BACK_BUTTON_POSITION = {0.082f, -0.173f, 0.1f};
 static const glm::vec3 DESELECTED_BUTTON_COLOR = { 1.0f, 1.0f, 1.0f};
 static const glm::vec3 SELECTED_BUTTON_COLOR = {0.0f, 0.66f, 0.66f};
-static const glm::vec3 TOP_DECK_TEXT_POSITION = {-0.254f, 0.01f, 0.1f};
-static const glm::vec3 BOT_DECK_TEXT_POSITION = {-0.250f, -0.068f, 0.1f};
 static const glm::vec3 NEW_STORY_CONFIRMATION_BUTTON_POSITION = {-0.132f, -0.103f, 23.1f};
 static const glm::vec3 NEW_STORY_CANCELLATION_BUTTON_POSITION = {0.036f, -0.103f, 23.1f};
 static const glm::vec3 NEW_STORY_CONFIRMATION_TEXT_TOP_POSITION = {-0.267f, 0.09f, 23.1f};
@@ -102,8 +105,6 @@ static const float DECK_SELECTED_MIN_SCALE_FACTOR = 0.65f;
 static const float DECK_SELECTION_ANIMATION_DURATION_SECS = 0.4f;
 
 static const math::Rectangle STORY_DECK_SELECTION_CONTAINER_TOP_BOUNDS = {{-0.25f, -0.08f}, {0.2f, 0.01f}};
-static const math::Rectangle DECK_SELECTION_CONTAINER_TOP_BOUNDS = {{-0.005f, -0.03f}, {0.24f, 0.04f}};
-static const math::Rectangle DECK_SELECTION_CONTAINER_BOT_BOUNDS = {{-0.005f, -0.11f}, {0.24f, -0.04f}};
 
 static const int MIN_DECK_ENTRIES_TO_SCROLL = 4;
 
@@ -413,16 +414,16 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                 *scene
             ));
             
-//            mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
-//            (
-//                QUICK_BATTLE_BUTTON_POSITION,
-//                BUTTON_SCALE,
-//                game_constants::DEFAULT_FONT_NAME,
-//                "Quick Battle",
-//                QUICK_BATTLE_BUTTON_NAME,
-//                [=](){ TransitionToSubScene(SubSceneType::QUICK_BATTLE, scene); },
-//                *scene
-//            ));
+            mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
+            (
+                EXTRAS_BUTTON_POSITION,
+                BUTTON_SCALE,
+                game_constants::DEFAULT_FONT_NAME,
+                "Extras",
+                EXTRAS_BUTTON_NAME,
+                [=](){ TransitionToSubScene(SubSceneType::EXTRAS, scene); },
+                *scene
+            ));
             
         #if defined(MOBILE_FLOW)
             (void)QUIT_BUTTON_NAME;
@@ -444,6 +445,13 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                 *scene
             ));
         #endif
+            
+            for (auto& animatedButton: mAnimatedButtons)
+            {
+                auto boundingRect = scene_object_utils::GetSceneObjectBoundingRect(*animatedButton->GetSceneObject());
+                auto textLength = boundingRect.topRight.x - boundingRect.bottomLeft.x;
+                animatedButton->GetSceneObject()->mPosition.x -= textLength/2.0f;
+            }
         } break;
            
         case SubSceneType::STORY_MODE:
@@ -622,127 +630,26 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
             DeckSelected(0, false);
         } break;
             
-        // TODO: clean up and remove
-        case SubSceneType::QUICK_BATTLE:
+        case SubSceneType::EXTRAS:
         {
             mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
             (
-                NORMAL_BATTLE_MODE_BUTTON_POSITION,
+                ENTER_GIFT_CODE_BUTTON_POSITION,
                 BUTTON_SCALE,
                 game_constants::DEFAULT_FONT_NAME,
-                "Normal",
-                NORMAL_BATTLE_MODE_BUTTON_NAME,
-                [=](){ BattleModeSelected(NORMAL_BATTLE_MODE_BUTTON_NAME); },
-                *scene
-            ));
-            
-            mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
-            (
-                AI_DEMO_BATTLE_MODE_BUTTON_POSITION,
-                BUTTON_SCALE,
-                game_constants::DEFAULT_FONT_NAME,
-                "AI Demo",
-                AI_DEMO_BATTLE_MODE_BUTTON_NAME,
-                [=](){ BattleModeSelected(AI_DEMO_BATTLE_MODE_BUTTON_NAME); },
-                *scene
-            ));
-            
-            mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
-            (
-                REPLAY_BATTLE_MODE_BUTTON_POSITION,
-                BUTTON_SCALE,
-                game_constants::DEFAULT_FONT_NAME,
-                "Replay",
-                REPLAY_BATTLE_MODE_BUTTON_NAME,
-                [=](){ BattleModeSelected(REPLAY_BATTLE_MODE_BUTTON_NAME); },
-                *scene
-            ));
-            
-            scene::TextSceneObjectData textDataTop;
-            textDataTop.mFontName = game_constants::DEFAULT_FONT_NAME;
-            textDataTop.mText = "Top Deck";
-            auto topDeckTextSceneObject = scene->CreateSceneObject(TOP_DECK_TEXT_SCENE_OBJECT_NAME);
-            topDeckTextSceneObject->mSceneObjectTypeData = std::move(textDataTop);
-            topDeckTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
-            topDeckTextSceneObject->mPosition = TOP_DECK_TEXT_POSITION;
-            topDeckTextSceneObject->mScale = BUTTON_SCALE;
-            
-            scene::TextSceneObjectData textDataBot;
-            textDataBot.mFontName = game_constants::DEFAULT_FONT_NAME;
-            textDataBot.mText = "Bottom Deck";
-            auto botDeckTextSceneObject = scene->CreateSceneObject(BOT_DECK_TEXT_SCENE_OBJECT_NAME);
-            botDeckTextSceneObject->mSceneObjectTypeData = std::move(textDataBot);
-            botDeckTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
-            botDeckTextSceneObject->mPosition = BOT_DECK_TEXT_POSITION;
-            botDeckTextSceneObject->mScale = BUTTON_SCALE;
-            
-            mCardFamilyContainerTop = std::make_unique<SwipeableContainer<CardFamilyEntry>>
-            (
-                ContainerType::HORIZONTAL_LINE,
-                glm::vec3(DECK_SWIPEABLE_ENTRY_SCALE * 2),
-                DECK_SELECTION_CONTAINER_TOP_BOUNDS,
-                DECK_CONTAINER_CUTOFF_VALUES,
-                TOP_DECK_CONTAINER_SCENE_OBJECT_NAME,
-                DECK_ENTRY_Z,
-                *scene,
-                MIN_DECK_ENTRIES_TO_SCROLL
-            );
-            mCardFamilyContainerBot = std::make_unique<SwipeableContainer<CardFamilyEntry>>
-            (
-                ContainerType::HORIZONTAL_LINE,
-                glm::vec3(DECK_SWIPEABLE_ENTRY_SCALE * 2),
-                DECK_SELECTION_CONTAINER_BOT_BOUNDS,
-                DECK_CONTAINER_CUTOFF_VALUES,
-                BOT_DECK_CONTAINER_SCENE_OBJECT_NAME,
-                DECK_ENTRY_Z,
-                *scene,
-                MIN_DECK_ENTRIES_TO_SCROLL
-            );
-            
-            for (const auto& cardFamilyEntry: game_constants::CARD_FAMILY_NAMES_TO_TEXTURES)
-            {
+                "Enter Gift Code",
+                ENTER_GIFT_CODE_BUTTON_NAME,
+                [=]()
                 {
-                    auto cardFamilyEntrySceneObject = scene->CreateSceneObject();
-                    cardFamilyEntrySceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + DECK_ENTRY_SHADER);
-                    cardFamilyEntrySceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MIN_X_UNIFORM_NAME] = DECK_ENTRY_CUTOFF_VALUES.s;
-                    cardFamilyEntrySceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MAX_X_UNIFORM_NAME] = DECK_ENTRY_CUTOFF_VALUES.t;
-                    cardFamilyEntrySceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = DECK_ENTRY_ALPHA;
-                    cardFamilyEntrySceneObject->mEffectTextureResourceIds[0] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + DECK_ENTRY_MASK_TEXTURE_FILE_NAME);
-                    cardFamilyEntrySceneObject->mScale = glm::vec3(DECK_SWIPEABLE_ENTRY_SCALE);
-                    cardFamilyEntrySceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + cardFamilyEntry.second);
-                    
-                    CardFamilyEntry topEntry;
-                    topEntry.mCardFamilyName = cardFamilyEntry.first;
-                    topEntry.mSceneObjects.emplace_back(cardFamilyEntrySceneObject);
-                    mCardFamilyContainerTop->AddItem(std::move(topEntry), EntryAdditionStrategy::ADD_ON_THE_BACK);
-                }
-                
-                {
-                    auto cardFamilyEntrySceneObject = scene->CreateSceneObject();
-                    cardFamilyEntrySceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + DECK_ENTRY_SHADER);
-                    cardFamilyEntrySceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MIN_X_UNIFORM_NAME] = DECK_ENTRY_CUTOFF_VALUES.s;
-                    cardFamilyEntrySceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MAX_X_UNIFORM_NAME] = DECK_ENTRY_CUTOFF_VALUES.t;
-                    cardFamilyEntrySceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = DECK_ENTRY_ALPHA;
-                    cardFamilyEntrySceneObject->mEffectTextureResourceIds[0] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + DECK_ENTRY_MASK_TEXTURE_FILE_NAME);
-                    cardFamilyEntrySceneObject->mScale = glm::vec3(DECK_SWIPEABLE_ENTRY_SCALE);
-                    cardFamilyEntrySceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + cardFamilyEntry.second);
-                    
-                    CardFamilyEntry botEntry;
-                    botEntry.mCardFamilyName = cardFamilyEntry.first;
-                    botEntry.mSceneObjects.emplace_back(cardFamilyEntrySceneObject);
-                    mCardFamilyContainerBot->AddItem(std::move(botEntry), EntryAdditionStrategy::ADD_ON_THE_BACK);
-                }
-            }
-            
-            mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
-            (
-                START_BATTLE_BUTTON_POSITION,
-                BUTTON_SCALE,
-                game_constants::DEFAULT_FONT_NAME,
-                "Start Battle",
-                START_BATTLE_BUTTON_NAME,
-                [=](){ DataRepository::GetInstance().SetQuickPlayData(std::move(mQuickPlayData));
-                    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::BATTLE_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE); },
+                    if (IsDisconnected())
+                    {
+                        events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::DISCONNECTED_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+                    }
+                    else
+                    {
+                        OnEnterGiftCodeButtonPressed();
+                    }
+                },
                 *scene
             ));
             
@@ -756,24 +663,6 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                 [=](){ GoToPreviousSubScene(scene); },
                 *scene
             ));
-            
-            DeckSelected(0, true);
-            DeckSelected(0, false);
-            BattleModeSelected(NORMAL_BATTLE_MODE_BUTTON_NAME);
-            
-            mDeckSelectionSceneObjects.push_back(topDeckTextSceneObject);
-            mDeckSelectionSceneObjects.push_back(botDeckTextSceneObject);
-            
-            for (auto& topCardFamilyEntry: mCardFamilyContainerTop->GetItems())
-            {
-                mDeckSelectionSceneObjects.push_back(topCardFamilyEntry.mSceneObjects.front());
-            }
-            
-            for (auto& botCardFamilyEntry: mCardFamilyContainerBot->GetItems())
-            {
-                mDeckSelectionSceneObjects.push_back(botCardFamilyEntry.mSceneObjects.front());
-            }
-            
         } break;
             
         default: break;
@@ -890,6 +779,44 @@ void MainMenuSceneLogicManager::StartNewStory()
     DataRepository::GetInstance().SetIsCurrentlyPlayingStoryMode(true);
     events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_MAP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
     DataRepository::GetInstance().FlushStateToFile();
+}
+
+///------------------------------------------------------------------------------------------------
+
+void MainMenuSceneLogicManager::OnEnterGiftCodeButtonPressed()
+{
+#if defined(MACOS) || defined(MOBILE_FLOW)
+    apple_utils::GetMessageBoxTextInput([](const std::string& giftCodeEntered)
+    {
+        strutils::StringId resultProductName;
+        gift_utils::ClaimGiftCode(giftCodeEntered, resultProductName);
+        
+        if (DataRepository::GetInstance().GetCurrentGiftCodeClaimedResultType() == GiftCodeClaimedResultType::SUCCESS)
+        {
+            const auto& productDefinition = ProductRepository::GetInstance().GetProductDefinition(resultProductName);
+            if (resultProductName == STORY_HEALTH_REFILL_PRODUCT_NAME)
+            {
+                DataRepository::GetInstance().StoryCurrentHealth().SetValue(DataRepository::GetInstance().GetStoryMaxHealth());
+            }
+            else if (resultProductName == NORMAL_PACK_PRODUCT_NAME)
+            {
+                DataRepository::GetInstance().AddPendingCardPack(CardPackType::NORMAL);
+            }
+            else if (resultProductName == GOLDEN_PACK_PRODUCT_NAME)
+            {
+                DataRepository::GetInstance().AddPendingCardPack(CardPackType::GOLDEN);
+            }
+            else if (resultProductName == COINS_S_PRODUCT_NAME || resultProductName == COINS_M_PRODUCT_NAME || resultProductName == COINS_L_PRODUCT_NAME)
+            {
+                DataRepository::GetInstance().CurrencyCoins().SetValue(DataRepository::GetInstance().CurrencyCoins().GetValue() + productDefinition.mPrice);
+            }
+            
+            DataRepository::GetInstance().FlushStateToFile();
+        }
+        
+        events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(GIFT_CODE_CLAIM_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+    });
+#endif
 }
 
 ///------------------------------------------------------------------------------------------------

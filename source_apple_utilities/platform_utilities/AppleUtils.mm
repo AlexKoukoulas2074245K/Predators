@@ -20,6 +20,61 @@
 
 ///-----------------------------------------------------------------------------------------------
 
+#if defined(MACOS)
+@interface CustomTextField : NSTextField
+
+@end
+
+@implementation CustomTextField
+
+- (BOOL)performKeyEquivalent:(NSEvent *)event {
+    if ((event.modifierFlags & NSEventModifierFlagDeviceIndependentFlagsMask) == NSEventModifierFlagCommand) {
+        if ([event.charactersIgnoringModifiers isEqualToString:@"c"]) {
+            [self copyText:self];
+            return YES;
+        } else if ([event.charactersIgnoringModifiers isEqualToString:@"v"]) {
+            [self pasteText:self];
+            return YES;
+        }
+    }
+    return [super performKeyEquivalent:event];
+}
+
+- (IBAction)copyText:(id)sender {
+    NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
+    [pasteboard clearContents];
+    [pasteboard writeObjects:@[self.stringValue]];
+}
+
+- (IBAction)pasteText:(id)sender {
+    NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
+    NSArray *classes = @[[NSString class]];
+    NSDictionary *options = @{};
+    NSArray *copiedItems = [pasteboard readObjectsForClasses:classes options:options];
+    if (copiedItems.count > 0) {
+        self.stringValue = copiedItems.firstObject;
+    }
+}
+
+@end
+
+#else
+@interface CustomTextField : UITextField
+
+@end
+
+@implementation CustomTextField
+
+- (BOOL)canPerformAction:(SEL)action withSender:(id)sender {
+    if (action == @selector(copy:) || action == @selector(paste:)) {
+        return YES;
+    }
+    return [super canPerformAction:action withSender:sender];
+}
+
+@end
+#endif
+
 @interface InAppPurchaseManager : NSObject <SKProductsRequestDelegate, SKPaymentTransactionObserver>
 
 - (void) addObserverToTransactionQueue;
@@ -27,6 +82,63 @@
 - (void) initiatePurchaseWithProductId:(NSString*)productId;
 
 @end
+
+
+typedef void(^TextInputCompletionHandler)(std::string);
+
+static void InternalGetMessageBoxTextInput(TextInputCompletionHandler completionHandler)
+{
+#if defined(MACOS)
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert setMessageText:@"Enter Gift Code"];
+    
+    CustomTextField *textField = [[CustomTextField alloc] initWithFrame:NSMakeRect(0, 0, 200, 48)];
+    [alert setAccessoryView:textField];
+    [[alert window] setInitialFirstResponder:textField];
+    
+    [alert addButtonWithTitle:@"OK"];
+    [alert addButtonWithTitle:@"Cancel"];
+    
+    NSModalResponse response = [alert runModal];
+    
+    if (response == NSAlertFirstButtonReturn && completionHandler)
+    {
+        completionHandler(std::string([[textField stringValue] UTF8String]));
+    }
+    else if (completionHandler)
+    {
+        completionHandler(std::string());
+    }
+#else
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Gift Code"
+                                                                   message:@"Enter Gift Code"
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+    
+    [alert addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+        textField.placeholder = @"Gift Code";
+        textField.keyboardType = UIKeyboardTypeAlphabet;
+        textField.autocapitalizationType = UITextAutocapitalizationTypeAllCharacters;
+    }];
+    
+    [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        UITextField *textField = alert.textFields.firstObject;
+        NSString *inputText = textField.text;
+        if (completionHandler) {
+            completionHandler(std::string([inputText UTF8String]));
+        }
+    }]];
+    
+    [alert addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
+        if (completionHandler) {
+            completionHandler(std::string());
+        }
+    }]];
+    
+    // Present the alert
+    UIViewController *rootViewController = [[[UIApplication sharedApplication] delegate] window].rootViewController;
+    [rootViewController presentViewController:alert animated:YES completion:nil];
+#endif
+}
 
 ///-----------------------------------------------------------------------------------------------
 
@@ -275,6 +387,16 @@ void InitiateProductPurchase(const std::string& productId, std::function<void(Pu
         purchaseFinishedCallback = onPurchaseFinishedCallback;
         [purchaseManager initiatePurchaseWithProductId:nsStringProductId];
     }
+}
+
+///-----------------------------------------------------------------------------------------------
+
+void GetMessageBoxTextInput(std::function<void(const std::string&)> inputTextReceivedCallback)
+{
+    InternalGetMessageBoxTextInput(^(std::string input)
+    {
+        inputTextReceivedCallback(input);
+    });
 }
 
 ///-----------------------------------------------------------------------------------------------

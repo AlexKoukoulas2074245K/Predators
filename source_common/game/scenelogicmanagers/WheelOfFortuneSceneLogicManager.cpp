@@ -336,22 +336,15 @@ void WheelOfFortuneSceneLogicManager::OnWheelItemSelected(const int itemIndex, c
     {
         if (mFinalBossFlow)
         {
-            DataRepository::GetInstance().ResetStoryData();
-            
-            if (DataRepository::GetInstance().GetGamesFinishedCount() == 0)
-            {
-                DataRepository::GetInstance().AddPendingCardPack(CardPackType::NORMAL);
-            }
-            
-            DataRepository::GetInstance().SetGamesFinishedCount(DataRepository::GetInstance().GetGamesFinishedCount() + 1);
-            DataRepository::GetInstance().FlushStateToFile();
+            DataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::STORY_VICTORY);
         }
         else
         {
             DataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::CARD_SELECTION);
             DataRepository::GetInstance().SetCurrentStoryMapNodeSeed(math::GetControlSeed());
-            DataRepository::GetInstance().FlushStateToFile();
         }
+        
+        DataRepository::GetInstance().FlushStateToFile();
     }
     
     mContinueButton = std::make_unique<AnimatedButton>
@@ -363,20 +356,16 @@ void WheelOfFortuneSceneLogicManager::OnWheelItemSelected(const int itemIndex, c
         CONTINUE_BUTTON_SCENE_OBJECT_NAME,
         [=]()
         {
-            if (mFinalBossFlow)
-            {
-                events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::MAIN_MENU_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
-            }
-            else
+            if (!mFinalBossFlow)
             {
                 auto guiObjectManager = mGameSceneTransitionManager->GetSceneLogicManagerResponsibleForScene(mPreviousScene)->VGetGuiObjectManager();
                 guiObjectManager->StopRewardAnimation();
                 guiObjectManager->ResetDisplayedCurrencyCoins();
                 DataRepository::GetInstance().StoryCurrentHealth().SetDisplayedValue(DataRepository::GetInstance().StoryCurrentHealth().GetValue());
                 guiObjectManager->ForceSetStoryHealthValue(DataRepository::GetInstance().StoryCurrentHealth().GetValue());
-                
-                events::EventSystem::GetInstance().DispatchEvent<events::PopSceneModalEvent>();
             }
+            
+            events::EventSystem::GetInstance().DispatchEvent<events::PopSceneModalEvent>();
         },
         *mScene
     );

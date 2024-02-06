@@ -207,7 +207,7 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
             }
             
             mAnimationDelayCounterSecs += dtMillis/1000.0f;
-            if (mAnimationDelayCounterSecs > 1.0f)
+            if (mAnimationDelayCounterSecs > 0.5f)
             {
                 mAnimationDelayCounterSecs = 0.0f;
                 mActionState = ActionState::FINISHED;

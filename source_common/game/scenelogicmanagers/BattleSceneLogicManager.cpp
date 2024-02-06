@@ -1925,7 +1925,11 @@ void BattleSceneLogicManager::OnStoryBattleWon(const events::StoryBattleWonEvent
     auto isTutorialMiniBoss = DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::TUTORIAL_MAP && DataRepository::GetInstance().GetCurrentStoryMapNodeCoord() == game_constants::TUTORIAL_MAP_BOSS_COORD;
     auto isStoryFinalBoss = DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::NORMAL_MAP && DataRepository::GetInstance().GetCurrentStoryMapNodeCoord() == game_constants::STORY_MAP_BOSS_COORD;
     
-    if (!isStoryFinalBoss)
+    if (isStoryFinalBoss)
+    {
+        DataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::STORY_VICTORY);
+    }
+    else
     {
         DataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::CARD_SELECTION);
     }

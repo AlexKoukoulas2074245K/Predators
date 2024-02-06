@@ -42,7 +42,8 @@ enum class BattleSubSceneType
 {
     BATTLE,
     WHEEL,
-    CARD_SELECTION
+    CARD_SELECTION,
+    STORY_VICTORY
 };
 
 ///------------------------------------------------------------------------------------------------
@@ -87,6 +88,16 @@ enum class ForeignCloudDataFoundType
     NONE,
     OPTIONAL,
     MANDATORY
+};
+
+///------------------------------------------------------------------------------------------------
+
+enum class GiftCodeClaimedResultType
+{
+    SUCCESS,
+    FAILURE_USED_ALREADY,
+    FAILURE_INVALID_CODE,
+    FAILURE_INVALID_PRODUCT
 };
 
 ///------------------------------------------------------------------------------------------------
@@ -158,6 +169,9 @@ public:
     WheelOfFortuneType GetCurrentWheelOfFortuneType() const;
     void SetCurrentWheelOfFortuneType(const WheelOfFortuneType currentWheelOfFortuneType);
     
+    GiftCodeClaimedResultType GetCurrentGiftCodeClaimedResultType() const;
+    void SetCurrentGiftCodeClaimedResultType(const GiftCodeClaimedResultType currentGiftCodeClaimedResultType);
+    
     const std::vector<int>& GetUnlockedCardIds() const;
     void SetUnlockedCardIds(const std::vector<int>& unlockedCardIds);
     
@@ -172,6 +186,9 @@ public:
     
     const std::vector<std::string>& GetSuccessfulTransactionIds() const;
     void SetSuccessfulTransactionIds(const std::vector<std::string>& successfulTransactionIds);
+    
+    const std::vector<std::string>& GetGiftCodesClaimed() const;
+    void SetGiftCodesClaimed(const std::vector<std::string>& giftCodesClaimed);
     
     const int& GetGamesFinishedCount() const;
     void SetGamesFinishedCount(const int gamesFinishedCount);
@@ -271,12 +288,14 @@ private:
     ShopBehaviorType mCurrentShopBehaviorType;
     StoryMapType mCurrentStoryMapType;
     WheelOfFortuneType mCurrentWheelOfFortuneType;
+    GiftCodeClaimedResultType mCurrentGiftCodeClaimedResultType;
     ForeignCloudDataFoundType mForeignProgressionDataFound = ForeignCloudDataFoundType::NONE;
     std::vector<int> mUnlockedCardIds;
     std::vector<int> mCurrentStoryPlayerDeck;
     std::vector<int> mNextTopPlayerDeck;
     std::vector<int> mNextBotPlayerDeck;
     std::vector<std::string> mSuccessfulTransactionIds;
+    std::vector<std::string> mGiftCodesClaimed;
     std::vector<std::pair<int, int>> mCurrentShopBoughtProductCoordinates;
     std::vector<CardPackType> mPendingCardPacks;
     std::string mNextStoryOpponentTexturePath;
