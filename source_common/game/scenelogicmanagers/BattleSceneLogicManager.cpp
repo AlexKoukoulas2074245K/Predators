@@ -118,7 +118,7 @@ static const glm::vec3 CARD_TOOLTIP_TEXT_OFFSETS[game_constants::CARD_TOOLTIP_TE
 };
 
 static const math::Rectangle CARD_HISTORY_CONTAINER_BOUNDS = {{-0.4f, -0.218f}, {0.4f, 0.0f}};
-static const glm::vec2 CARD_HISTORY_CONTAINER_CUTOFF_VALUES = {-0.2f, 0.2f};
+static const glm::vec2 CARD_HISTORY_CONTAINER_CUTOFF_VALUES = {-0.23f, 0.23f};
 
 static const float BOARD_SIDE_EFFECT_SHOWING_HIDING_ANIMATION_DURATION_SECS = 0.5f;
 static const float CARD_SELECTION_ANIMATION_DURATION = 0.2f;

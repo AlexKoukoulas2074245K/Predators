@@ -23,6 +23,13 @@ const glm::vec2& InputStateManagerPlatformImpl::VGetPointingPos() const
 
 ///------------------------------------------------------------------------------------------------
 
+const glm::ivec2& InputStateManagerPlatformImpl::VGetScrollDelta() const
+{
+    return mCurrentWheelDelta;
+}
+
+///------------------------------------------------------------------------------------------------
+
 glm::vec2 InputStateManagerPlatformImpl::VGetPointingPosInWorldSpace(const glm::mat4& viewMatrix, const glm::mat4& projMatrix) const
 {
     const auto& invVP = glm::inverse(projMatrix * viewMatrix);
@@ -98,6 +105,7 @@ void InputStateManagerPlatformImpl::VProcessInputEvent(const SDL_Event& event, b
             
         case SDL_MOUSEWHEEL:
         {
+            mCurrentWheelDelta = glm::ivec2(event.wheel.x, event.wheel.y);
         } break;
     }
     
@@ -111,6 +119,7 @@ void InputStateManagerPlatformImpl::VProcessInputEvent(const SDL_Event& event, b
 void InputStateManagerPlatformImpl::VUpdate()
 {
     mPreviousFrameButtonState = mCurrentFrameButtonState;
+    mCurrentWheelDelta = glm::ivec2(0);
 }
 
 ///------------------------------------------------------------------------------------------------

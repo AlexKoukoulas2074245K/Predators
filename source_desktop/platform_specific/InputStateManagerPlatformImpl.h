@@ -28,6 +28,7 @@ class InputStateManagerPlatformImpl final: public IInputStateManager
     friend struct CoreSystemsEngine::SystemsImpl;
 public:
     const glm::vec2& VGetPointingPos() const override;
+    const glm::ivec2& VGetScrollDelta() const override;
     glm::vec2 VGetPointingPosInWorldSpace(const glm::mat4& viewMatrix, const glm::mat4& projMatrix) const override;
     
     bool VIsTouchInputPlatform() const override;
@@ -42,6 +43,7 @@ private:
     
 private:
     glm::vec2 mPointingPos;
+    glm::ivec2 mCurrentWheelDelta;
     uint8_t mCurrentFrameButtonState = 0U;
     uint8_t mPreviousFrameButtonState = 0U;
 };

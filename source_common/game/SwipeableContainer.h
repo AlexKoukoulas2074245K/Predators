@@ -23,11 +23,12 @@
 ///------------------------------------------------------------------------------------------------
 
 inline const strutils::StringId RUBBER_BANDING_ANIMATION_NAME = strutils::StringId("rubber_banding_animation");
-inline const size_t DEFAULT_MIN_ITEMS_TO_ANIMATE = 0U;
+inline const size_t DEFAULT_MIN_ITEMS_TO_ANIMATE = 5U;
 inline const float CARD_VELOCITY_DAMPING = 0.85f;
 inline const float OVERSWIPE_DAMPING = 100.0f;
 inline const float SWIPE_DELTA_DIRECTION_CHANGE_NOISE_THRESHOLD = 0.00001f;
 inline const float RUBBER_BANDING_ANIMATION_DURATION = 0.1f;
+inline const float WHEEL_SWIPE_VELOCITY_MAGNITUDE = 0.0005f;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -196,6 +197,8 @@ public:
         const auto& inputStateManager = CoreSystemsEngine::GetInstance().GetInputStateManager();
         auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
         
+        const auto& scrollDelta = inputStateManager.VGetScrollDelta();
+        
         auto worldTouchPos = inputStateManager.VGetPointingPosInWorldSpace(mScene.GetCamera().GetViewMatrix(), mScene.GetCamera().GetProjMatrix());
         
         auto firstSceneObject = mScene.FindSceneObject(strutils::StringId(mContainerName.GetString() + "_0_0"));
@@ -245,6 +248,11 @@ public:
                 ResetSwipeData();
             }
         }
+        else if (!mBlockedUpdate && ((scrollDelta.x != 0 && mContainerType == ContainerType::HORIZONTAL_LINE)|| (scrollDelta.y != 0 && mContainerType == ContainerType::VERTICAL_MATRIX)))
+        {
+            mSwipeVelocityDelta = mContainerType == ContainerType::HORIZONTAL_LINE ? -scrollDelta.x : -scrollDelta.y;
+            mSwipeVelocityDelta *= WHEEL_SWIPE_VELOCITY_MAGNITUDE;
+        }
         else if (!mBlockedUpdate && inputStateManager.VButtonPressed(input::Button::MAIN_BUTTON) && mItems.size() >= mMinItemsToAnimate)
         {
             if (mHasStartedSwipe && !animationManager.IsAnimationPlaying(RUBBER_BANDING_ANIMATION_NAME) && firstSceneObject != nullptr && lastSceneObject != nullptr)
@@ -257,27 +265,27 @@ public:
                 float overswipeDampingFactor = 0.0f;
                 if (mContainerType == ContainerType::HORIZONTAL_LINE)
                 {
-                    if (firstSceneObject->mPosition.x + targetDelta > mContainerCutoffValues.t)
+                    if (firstSceneObject->mPosition.x + targetDelta > mContainerCutoffValues.s)
                     {
-                        overswipeDampingFactor = (firstSceneObject->mPosition.x + targetDelta - mContainerCutoffValues.t) * OVERSWIPE_DAMPING;
+                        overswipeDampingFactor = (firstSceneObject->mPosition.x + targetDelta - mContainerCutoffValues.s) * OVERSWIPE_DAMPING;
                         targetDelta = math::Abs(overswipeDampingFactor) <= 1.0f ? 0.0f : targetDelta/overswipeDampingFactor;
                     }
-                    else if (lastSceneObject->mPosition.x + targetDelta < mContainerCutoffValues.s)
+                    else if (lastSceneObject->mPosition.x + targetDelta < mContainerCutoffValues.t)
                     {
-                        overswipeDampingFactor = -(lastSceneObject->mPosition.x + targetDelta - mContainerCutoffValues.s) * OVERSWIPE_DAMPING;
+                        overswipeDampingFactor = -(lastSceneObject->mPosition.x + targetDelta - mContainerCutoffValues.t) * OVERSWIPE_DAMPING;
                         targetDelta = math::Abs(overswipeDampingFactor) <= 1.0f ? 0.0f : targetDelta/overswipeDampingFactor;
                     }
                 }
                 else
                 {
-                    if (firstSceneObject->mPosition.y + targetDelta < mContainerCutoffValues.s)
+                    if (firstSceneObject->mPosition.y + targetDelta < mContainerCutoffValues.t)
                     {
-                        overswipeDampingFactor = -(firstSceneObject->mPosition.y + targetDelta - mContainerCutoffValues.s) * OVERSWIPE_DAMPING;
+                        overswipeDampingFactor = -(firstSceneObject->mPosition.y + targetDelta - mContainerCutoffValues.t) * OVERSWIPE_DAMPING;
                         targetDelta = math::Abs(overswipeDampingFactor) <= 1.0f ? 0.0f : targetDelta/overswipeDampingFactor;
                     }
-                    else if (lastSceneObject->mPosition.y + targetDelta > mContainerCutoffValues.t)
+                    else if (lastSceneObject->mPosition.y + targetDelta > mContainerCutoffValues.s)
                     {
-                        overswipeDampingFactor = (lastSceneObject->mPosition.y + targetDelta - mContainerCutoffValues.t) * OVERSWIPE_DAMPING;
+                        overswipeDampingFactor = (lastSceneObject->mPosition.y + targetDelta - mContainerCutoffValues.s) * OVERSWIPE_DAMPING;
                         targetDelta = math::Abs(overswipeDampingFactor) <= 1.0f ? 0.0f : targetDelta/overswipeDampingFactor;
                     }
                 }
@@ -318,9 +326,9 @@ public:
         {
             if (mContainerType == ContainerType::HORIZONTAL_LINE)
             {
-                if (firstSceneObject->mPosition.x > mContainerCutoffValues.t)
+                if (firstSceneObject->mPosition.x > mContainerCutoffValues.s)
                 {
-                    float xOffset = mContainerCutoffValues.t - firstSceneObject->mPosition.x;
+                    float xOffset = mContainerCutoffValues.s - firstSceneObject->mPosition.x;
                     for (auto& item: mItems)
                     {
                         for (auto& sceneObject: item.mSceneObjects)
@@ -331,9 +339,9 @@ public:
                         }
                     }
                 }
-                else if (lastSceneObject->mPosition.x < mContainerCutoffValues.s)
+                else if (lastSceneObject->mPosition.x < mContainerCutoffValues.t)
                 {
-                    float xOffset = mContainerCutoffValues.s - lastSceneObject->mPosition.x;
+                    float xOffset = mContainerCutoffValues.t - lastSceneObject->mPosition.x;
                     for (auto& item: mItems)
                     {
                         for (auto& sceneObject: item.mSceneObjects)
@@ -347,9 +355,9 @@ public:
             }
             else
             {
-                if (firstSceneObject->mPosition.y < mContainerCutoffValues.s)
+                if (firstSceneObject->mPosition.y < mContainerCutoffValues.t)
                 {
-                    float yOffset = mContainerCutoffValues.s - firstSceneObject->mPosition.y;
+                    float yOffset = mContainerCutoffValues.t - firstSceneObject->mPosition.y;
                     for (auto& item: mItems)
                     {
                         for (auto& sceneObject: item.mSceneObjects)
@@ -360,9 +368,9 @@ public:
                         }
                     }
                 }
-                else if (lastSceneObject->mPosition.y > mContainerCutoffValues.t)
+                else if (lastSceneObject->mPosition.y > mContainerCutoffValues.s)
                 {
-                    float yOffset = mContainerCutoffValues.t - lastSceneObject->mPosition.y;
+                    float yOffset = mContainerCutoffValues.s - lastSceneObject->mPosition.y;
                     for (auto& item: mItems)
                     {
                         for (auto& sceneObject: item.mSceneObjects)
@@ -392,9 +400,9 @@ public:
                 
                 if (mContainerType == ContainerType::HORIZONTAL_LINE)
                 {
-                    if (firstSceneObject->mPosition.x + targetDelta > mContainerCutoffValues.t)
+                    if (firstSceneObject->mPosition.x + targetDelta > mContainerCutoffValues.s)
                     {
-                        float xOffset = mContainerCutoffValues.t - firstSceneObject->mPosition.x;
+                        float xOffset = mContainerCutoffValues.s - firstSceneObject->mPosition.x;
                         for (auto& item: mItems)
                         {
                             for (auto& sceneObject: item.mSceneObjects)
@@ -406,9 +414,9 @@ public:
                         mSwipeVelocityDelta = 0.0f;
                         targetDelta = 0.0f;
                     }
-                    else if (lastSceneObject->mPosition.x + targetDelta < mContainerCutoffValues.s)
+                    else if (lastSceneObject->mPosition.x + targetDelta < mContainerCutoffValues.t)
                     {
-                        float xOffset = mContainerCutoffValues.s - lastSceneObject->mPosition.x;
+                        float xOffset = mContainerCutoffValues.t - lastSceneObject->mPosition.x;
                         for (auto& item: mItems)
                         {
                             for (auto& sceneObject: item.mSceneObjects)
@@ -423,9 +431,9 @@ public:
                 }
                 else
                 {
-                    if (firstSceneObject->mPosition.y + targetDelta < mContainerCutoffValues.s)
+                    if (firstSceneObject->mPosition.y + targetDelta < mContainerCutoffValues.t)
                     {
-                        float yOffset = mContainerCutoffValues.s - firstSceneObject->mPosition.y;
+                        float yOffset = mContainerCutoffValues.t - firstSceneObject->mPosition.y;
                         for (auto& item: mItems)
                         {
                             for (auto& sceneObject: item.mSceneObjects)
@@ -437,9 +445,9 @@ public:
                         mSwipeVelocityDelta = 0.0f;
                         targetDelta = 0.0f;
                     }
-                    else if (lastSceneObject->mPosition.y + targetDelta > mContainerCutoffValues.t)
+                    else if (lastSceneObject->mPosition.y + targetDelta > mContainerCutoffValues.s)
                     {
-                        float yOffset = mContainerCutoffValues.t - lastSceneObject->mPosition.y;
+                        float yOffset = mContainerCutoffValues.s - lastSceneObject->mPosition.y;
                         for (auto& item: mItems)
                         {
                             for (auto& sceneObject: item.mSceneObjects)

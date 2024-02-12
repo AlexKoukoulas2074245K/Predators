@@ -79,7 +79,7 @@ static const glm::vec3 GOLDEN_CARD_COLLECTION_TEXT_POSITION = {0.066f, -0.216f, 
 static const glm::vec3 GOLDEN_CARDS_COLLECTED_TEXT_COLOR = {0.90f, 0.81f, 0.21f};
 
 static const glm::vec2 CARD_ENTRY_CUTOFF_VALUES = {-0.193f, 0.173f};
-static const glm::vec2 CARD_CONTAINER_CUTOFF_VALUES = {-0.135f, 0.165f};
+static const glm::vec2 CARD_CONTAINER_CUTOFF_VALUES = {-0.085f, 0.065f};
 static const glm::vec2 CARD_DISSOLVE_EFFECT_MAG_RANGE = {3.0f, 6.0f};
 
 static const math::Rectangle CARD_CONTAINER_BOUNDS = {{-0.305f, -0.205f}, {0.305f, 0.165f}};
