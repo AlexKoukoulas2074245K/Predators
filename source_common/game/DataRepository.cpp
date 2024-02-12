@@ -862,6 +862,20 @@ void DataRepository::SetIsCurrentlyPlayingStoryMode(const bool isCurrentlyPlayin
 
 ///------------------------------------------------------------------------------------------------
 
+const bool& DataRepository::CanSurfaceCloudDataScene() const
+{
+    return mCanSurfaceCloudDataScene;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void DataRepository::SetCanSurfaceCloudDataScene(const bool canSurfaceCloudDataScene)
+{
+    mCanSurfaceCloudDataScene = canSurfaceCloudDataScene;
+}
+
+///------------------------------------------------------------------------------------------------
+
 ForeignCloudDataFoundType DataRepository::GetForeignProgressionDataFound() const
 {
     return mForeignProgressionDataFound;

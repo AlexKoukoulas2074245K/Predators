@@ -64,6 +64,7 @@ struct CardData
 {
     bool IsSpell() const { return !mCardEffect.empty(); }
     
+    bool mIsSingleUse;
     int mCardId;
     int mCardDamage;
     int mCardWeight;

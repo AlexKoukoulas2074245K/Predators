@@ -345,6 +345,8 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
         return;
     }
     
+    DataRepository::GetInstance().SetCanSurfaceCloudDataScene(subSceneType == SubSceneType::MAIN || subSceneType == SubSceneType::NONE);
+    
     if (!mShouldPushToPreviousSceneStack)
     {
         mShouldPushToPreviousSceneStack = true;

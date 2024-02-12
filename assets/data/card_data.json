@@ -263,7 +263,8 @@
             "effect": "PERMANENT_CONTINUAL_WEIGHT_REDUCTION WEIGHT FAMILY HELD",
             "tooltip": "Continually reduce$Weight by 1 for ALL$Dinosaurs held and$drawn every turn",
             "texture": "impending_doom.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "single_use": true
         },
         {
             "damage": 1,
@@ -312,7 +313,8 @@
             "effect": "DAMAGE +2 FAMILY BOARD HELD",
             "tooltip": "Damage +2 for ALL$Demons on hand &$board",
             "texture": "story_cards/demon_wizard.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "single_use": true
         },
         {
             "damage": 10,
@@ -330,7 +332,8 @@
             "effect": "DIG_NO_FAIL",
             "tooltip": "ALL Rodents you$play this turn will$successfully dig",
             "texture": "rodents_digging_holes.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "single_use": true
         },
         {
             "weight": 1,
@@ -339,7 +342,8 @@
             "effect": "DRAW_RANDOM_SPELL",
             "tooltip": "Draw a random$SPELL card from$your deck",
             "texture": "bunny_selecting_spell_card.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "single_use": true
         },
         {
             "damage": 4,

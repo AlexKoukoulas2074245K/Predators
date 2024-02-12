@@ -331,6 +331,12 @@ void CardDataRepository::LoadCardData(bool loadCardAssets)
             cardData.mParticleEffect = strutils::StringId(cardObject["particle_effect"].get<std::string>());
         }
         
+        // Optional single use
+        if (cardObject.count("single_use"))
+        {
+            cardData.mIsSingleUse = cardObject["single_use"].get<bool>();
+        }
+        
         // Make sure card has a registered card family
         cardData.mCardFamily = strutils::StringId(cardObject["family"].get<std::string>());
         if (cardData.mCardFamily != game_constants::DEMONS_GENERIC_FAMILY_NAME && !mCardFamilies.count(cardData.mCardFamily))

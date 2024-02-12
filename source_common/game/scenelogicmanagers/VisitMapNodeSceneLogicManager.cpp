@@ -308,7 +308,7 @@ void VisitMapNodeSceneLogicManager::InitializeNodeVisitData()
         } // Intentional fallthrough
         case StoryMap::NodeType::ELITE_ENCOUNTER:
         {
-            if (selectedNodeData->mCoords.x >= game_constants::STORY_NODE_MAP_DIMENSIONS.x/2)
+            if (DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::NORMAL_MAP || DataRepository::GetInstance().GetCurrentStoryMapNodeCoord() == game_constants::TUTORIAL_MAP_BOSS_COORD)
             {
                 auto mediumCards = CardDataRepository::GetInstance().GetCardIdsByFamily(game_constants::DEMONS_MEDIUM_FAMILY_NAME);
                 opponentDeckBuilder.insert(opponentDeckBuilder.end(), mediumCards.begin(), mediumCards.end());

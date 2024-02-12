@@ -270,6 +270,9 @@ public:
     const bool& IsCurrentlyPlayingStoryMode() const;
     void SetIsCurrentlyPlayingStoryMode(const bool isCurrentlyPlayingStoryMode);
     
+    const bool& CanSurfaceCloudDataScene() const;
+    void SetCanSurfaceCloudDataScene(const bool canSurfaceCloudDataScene);
+    
     ForeignCloudDataFoundType GetForeignProgressionDataFound() const;
     void SetForeignProgressionDataFound(const ForeignCloudDataFoundType foreignProgressionDataFound);
     
@@ -328,6 +331,7 @@ private:
     int mNextStoryOpponentDamage = 0;
     int mCurrentStorySecondsPlayed = 0;
     bool mIsCurrentlyPlayingStoryMode = false;
+    bool mCanSurfaceCloudDataScene = false;
 };
 
 ///------------------------------------------------------------------------------------------------

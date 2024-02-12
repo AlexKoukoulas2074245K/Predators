@@ -37,7 +37,7 @@ static const glm::vec3 BACK_TO_MAIN_MENU_BUTTON_POSITION = {-0.152f, -0.083f, 23
 static const glm::vec3 DEFEAT_INTRO_TEXT_TOP_POSITION = {-0.25f, 0.07f, 23.1f};
 static const glm::vec3 DEFEAT_INTRO_TEXT_BOT_POSITION = {-0.20f, 0.019f, 23.1f};
 static const glm::vec3 DEFEAT_RESULTS_TEXT_TOP_POSITION = {-0.186f, 0.07f, 23.1f};
-static const glm::vec3 DEFEAT_RESULTS_TEXT_BOT_POSITION = {-0.159f, 0.019f, 23.1f};
+static const glm::vec3 DEFEAT_RESULTS_TEXT_BOT_POSITION = {-0.191f, 0.019f, 23.1f};
 
 static const float SUBSCENE_ITEM_FADE_IN_OUT_DURATION_SECS = 0.25f;
 static const float STAGGERED_ITEM_ALPHA_DELAY_SECS = 0.1f;

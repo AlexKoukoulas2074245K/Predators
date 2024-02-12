@@ -180,6 +180,7 @@ void Game::Update(const float dtMillis)
     
     if
     (
+        DataRepository::GetInstance().CanSurfaceCloudDataScene() &&
         DataRepository::GetInstance().GetForeignProgressionDataFound() != ForeignCloudDataFoundType::NONE &&
         mGameSceneTransitionManager->GetActiveSceneStack().top().mActiveSceneName == MAIN_MENU_SCENE &&
         !sceneManager.FindScene(game_constants::LOADING_SCENE_NAME) &&
