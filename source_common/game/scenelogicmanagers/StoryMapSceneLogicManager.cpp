@@ -291,7 +291,14 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
             }
             
             auto guiInteractionResult = mGuiManager->Update(dtMillis);
+            
+            // If the gui buttons were pressed we force reset the map node so that it doesn't clip through the
+            // settings/card library scenes
             bool interactedWithGui = guiInteractionResult == GuiUpdateInteractionResult::CLICKED_GUI_BUTTONS;
+            if (interactedWithGui)
+            {
+                ResetSelectedMapNode();
+            }
             
             const auto& currentCoord = MapCoord(DataRepository::GetInstance().GetCurrentStoryMapNodeCoord().x, DataRepository::GetInstance().GetCurrentStoryMapNodeCoord().y);
             const auto& currentMapNode = mStoryMap->GetMapData().at(currentCoord);

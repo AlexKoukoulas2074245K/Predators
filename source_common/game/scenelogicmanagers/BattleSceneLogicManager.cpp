@@ -750,7 +750,7 @@ void BattleSceneLogicManager::HandleTouchInput(const float dtMillis)
                 case CardSoState::IDLE:
                 {
                     auto originalCardPosition = card_utils::CalculateHeldCardPosition(i, localPlayerCardCount, false, battleScene->GetCamera());
-                    if (!cursorInSceneObject && glm::distance(currentCardSoWrapper->mSceneObject->mPosition, originalCardPosition) > 0.001f)
+                    if (!cursorInSceneObject && animationManager.GetAnimationCountPlayingForSceneObject(currentCardSoWrapper->mSceneObject->mName) == 0 && glm::distance(currentCardSoWrapper->mSceneObject->mPosition, originalCardPosition) > 0.001f)
                     {
                         animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(currentCardSoWrapper->mSceneObject, originalCardPosition, currentCardSoWrapper->mSceneObject->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::IGNORE_X_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){});
                     }
