@@ -23,6 +23,14 @@ const glm::vec2& InputStateManagerPlatformImpl::VGetPointingPos() const
 
 ///------------------------------------------------------------------------------------------------
 
+const glm::ivec2& InputStateManagerPlatformImpl::VGetScrollDelta() const
+{
+    static glm::ivec2 dummyDelta(0);
+    return dummyDelta;
+}
+
+///------------------------------------------------------------------------------------------------
+
 glm::vec2 InputStateManagerPlatformImpl::VGetPointingPosInWorldSpace(const glm::mat4& viewMatrix, const glm::mat4& projMatrix) const
 {
     const auto& invVP = glm::inverse(projMatrix * viewMatrix);

@@ -76,6 +76,7 @@ private:
     void OnLocalPlayerTurnStarted(const events::LocalPlayerTurnStarted&);
     void OnEndOfTurnCardDestruction(const events::EndOfTurnCardDestructionEvent&);
     void OnImmediateCardDestructionWithReposition(const events::ImmediateCardDestructionWithRepositionEvent&);
+    void OnSingleUseHeldCardCopyDestructionWithReposition(const events::SingleUseHeldCardCopyDestructionWithRepositionEvent&);
     void OnCardCreation(const events::CardCreationEvent& event);
     void OnCardBuffedDebuffed(const events::CardBuffedDebuffedEvent& event);
     void OnHeldCardSwap(const events::HeldCardSwapEvent& event);

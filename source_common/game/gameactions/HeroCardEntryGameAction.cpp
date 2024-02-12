@@ -48,7 +48,7 @@ void HeroCardEntryGameAction::VSetNewGameState()
     
     assert(!DataRepository::GetInstance().GetNextStoryOpponentTexturePath().empty());
     
-    CardData heroCardData;
+    CardData heroCardData = {};
     heroCardData.mCardFamily = game_constants::DEMONS_GENERIC_FAMILY_NAME;
     heroCardData.mCardId = 0; // to be filled by CardDataRepository
     heroCardData.mCardName = strutils::StringId(DataRepository::GetInstance().GetNextStoryOpponentName());

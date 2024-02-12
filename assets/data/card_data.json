@@ -314,7 +314,7 @@
             "tooltip": "Damage +2 for ALL$Demons on hand &$board",
             "texture": "story_cards/demon_wizard.png",
             "shader": "basic.vs",
-            "single_use": true
+            "single_use": false
         },
         {
             "damage": 10,
@@ -343,7 +343,7 @@
             "tooltip": "Draw a random$SPELL card from$your deck",
             "texture": "bunny_selecting_spell_card.png",
             "shader": "basic.vs",
-            "single_use": true
+            "single_use": false
         },
         {
             "damage": 4,
@@ -359,6 +359,15 @@
             "family": "rodents",
             "name": "Gopher",
             "texture": "gopher.png",
+            "shader": "basic.vs"
+        },
+        {
+            "weight": 2,
+            "family": "none",
+            "name": "Card Token",
+            "effect": "CARD_TOKEN",
+            "tooltip": "Takes the form$of a random card$in your deck",
+            "texture": "story_cards/event.png",
             "shader": "basic.vs"
         }
     ]

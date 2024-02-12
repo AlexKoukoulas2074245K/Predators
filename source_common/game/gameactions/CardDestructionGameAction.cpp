@@ -25,7 +25,7 @@ const std::string CardDestructionGameAction::CARD_INDICES_PARAM = "cardIndices";
 const std::string CardDestructionGameAction::PLAYER_INDEX_PARAM = "playerIndex";
 const std::string CardDestructionGameAction::IS_BOARD_CARD_PARAM = "isBoardCard";
 const std::string CardDestructionGameAction::IS_TRAP_TRIGGER_PARAM = "isTrapTrigger";
-
+const std::string CardDestructionGameAction::IS_SINGLE_CARD_USED_COPY_PARAM = "isSingleCardUsedCopy";
 const std::string CARD_DISSOLVE_SHADER_FILE_NAME = "card_dissolve.vs";
 
 static const strutils::StringId DISSOLVE_THRESHOLD_UNIFORM_NAME = strutils::StringId("dissolve_threshold");
@@ -69,14 +69,7 @@ void CardDestructionGameAction::VSetNewGameState()
     {
         for (const auto& cardIndex: cardIndices)
         {
-            if (isBoardCard)
-            {
-                mBoardState->GetPlayerStates()[attackingPayerIndex].mBoardCardIndicesToDestroy.insert(std::stoi(cardIndex));
-            }
-            else
-            {
-                mBoardState->GetPlayerStates()[attackingPayerIndex].mHeldCardIndicesToDestroy.insert(std::stoi(cardIndex));
-            }
+            mBoardState->GetPlayerStates()[attackingPayerIndex].mBoardCardIndicesToDestroy.insert(std::stoi(cardIndex));
         }
     }
     else if (isBoardCard && isTrapTrigger)
@@ -119,6 +112,7 @@ ActionAnimationUpdateResult CardDestructionGameAction::VUpdateAnimation(const fl
     auto cardIndices = strutils::StringToVecOfStrings(mExtraActionParams.at(CARD_INDICES_PARAM));
     auto playerIndex = std::stoi(mExtraActionParams.at(PLAYER_INDEX_PARAM));
     bool isBoardCard = mExtraActionParams.at(IS_BOARD_CARD_PARAM) == "true";
+    bool isSingleUseCardCopy = mExtraActionParams.count(IS_SINGLE_CARD_USED_COPY_PARAM) && mExtraActionParams.at(IS_SINGLE_CARD_USED_COPY_PARAM) == "true";
     bool isTrapTrigger = mExtraActionParams.at(IS_TRAP_TRIGGER_PARAM) == "true";
     
     bool finished = false;
@@ -132,11 +126,16 @@ ActionAnimationUpdateResult CardDestructionGameAction::VUpdateAnimation(const fl
         
         if (cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] >= MAX_CARD_DISSOLVE_VALUE)
         {
+            finished = true;
             if (isTrapTrigger)
             {
                 events::EventSystem::GetInstance().DispatchEvent<events::ImmediateCardDestructionWithRepositionEvent>(cardIndexInt, true, playerIndex == game_constants::REMOTE_PLAYER_INDEX);
             }
-            finished = true;
+            else if (isSingleUseCardCopy)
+            {
+                events::EventSystem::GetInstance().DispatchEvent<events::SingleUseHeldCardCopyDestructionWithRepositionEvent>(cardIndices, playerIndex == game_constants::REMOTE_PLAYER_INDEX);
+                break;
+            }
         }
     }
     

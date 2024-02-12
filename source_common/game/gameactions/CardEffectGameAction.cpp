@@ -10,6 +10,7 @@
 #include <game/CardUtils.h>
 #include <game/events/EventSystem.h>
 #include <game/gameactions/CardBuffedDebuffedAnimationGameAction.h>
+#include <game/gameactions/CardDestructionGameAction.h>
 #include <game/gameactions/CardEffectGameAction.h>
 #include <game/gameactions/DrawCardGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
@@ -30,6 +31,7 @@ const std::unordered_map<CardEffectGameAction::AffectedStatType, CardStatType> C
 
 // Follow up game actions
 static const strutils::StringId CARD_BUFFED_DEBUFFED_ANIMATION_GAME_ACTION_NAME = strutils::StringId("CardBuffedDebuffedAnimationGameAction");
+static const strutils::StringId CARD_DESTRUCTION_GAME_ACTION_NAME = strutils::StringId("CardDestructionGameAction");
 
 // Resources
 static const std::string CARD_DISSOLVE_SHADER_FILE_NAME = "card_spell_dissolve.vs";
@@ -77,6 +79,49 @@ void CardEffectGameAction::VSetNewGameState()
     }
     
     activePlayerState.mPlayerBoardCards.pop_back();
+    
+    // Handle single use spells
+    if (cardEffectData.mIsSingleUse)
+    {
+        activePlayerState.mPlayerDeckCards.erase(std::remove(activePlayerState.mPlayerDeckCards.begin(), activePlayerState.mPlayerDeckCards.end(), cardId), activePlayerState.mPlayerDeckCards.end());
+        if (activePlayerState.mPlayerDeckCards.empty())
+        {
+            activePlayerState.mPlayerDeckCards = { CardDataRepository::GetInstance().GetCardId(game_constants::EMPTY_DECK_TOKEN_CARD_NAME) };
+        }
+        
+        // Find all held card indices for this card id
+        std::vector<int> heldCardIndicesToDestroy;
+        auto heldCardIter = activePlayerState.mPlayerHeldCards.begin();
+        while ((heldCardIter = std::find_if(heldCardIter, activePlayerState.mPlayerHeldCards.end(), [=](const int heldCardId){ return heldCardId == cardId; })) != activePlayerState.mPlayerHeldCards.end())
+        {
+            heldCardIndicesToDestroy.push_back(static_cast<int>(std::distance(activePlayerState.mPlayerHeldCards.begin(), heldCardIter)));
+            heldCardIter++;
+        }
+        
+        if (!heldCardIndicesToDestroy.empty())
+        {
+            mGameActionEngine->AddGameAction(CARD_DESTRUCTION_GAME_ACTION_NAME,
+            {
+                { CardDestructionGameAction::CARD_INDICES_PARAM, strutils::VecToString(heldCardIndicesToDestroy)},
+                { CardDestructionGameAction::PLAYER_INDEX_PARAM, std::to_string(mBoardState->GetActivePlayerIndex())},
+                { CardDestructionGameAction::IS_SINGLE_CARD_USED_COPY_PARAM, "true"},
+                { CardDestructionGameAction::IS_BOARD_CARD_PARAM, "false"},
+                { CardDestructionGameAction::IS_TRAP_TRIGGER_PARAM, "false"}
+            });
+            
+            for (auto heldCardIter = activePlayerState.mPlayerHeldCards.begin(); heldCardIter != activePlayerState.mPlayerHeldCards.end();)
+            {
+                if (*heldCardIter == cardId)
+                {
+                    heldCardIter = activePlayerState.mPlayerHeldCards.erase(heldCardIter);
+                }
+                else
+                {
+                    heldCardIter++;
+                }
+            }
+        }
+    }
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -356,6 +401,11 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
         {
             mBoardState->GetActivePlayerState().mPlayerCurrentWeightAmmo++;
             events::EventSystem::GetInstance().DispatchEvent<events::WeightChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
+        }
+        
+        // Card Token
+        else if (effectComponent == effects::EFFECT_COMPONENT_CARD_TOKEN)
+        {
         }
         
         // Modifier/Offset value component

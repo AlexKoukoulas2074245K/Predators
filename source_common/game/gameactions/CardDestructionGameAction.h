@@ -22,6 +22,7 @@ public:
     static const std::string PLAYER_INDEX_PARAM;
     static const std::string IS_BOARD_CARD_PARAM;
     static const std::string IS_TRAP_TRIGGER_PARAM;
+    static const std::string IS_SINGLE_CARD_USED_COPY_PARAM;
     
 public:
     void VSetNewGameState() override;

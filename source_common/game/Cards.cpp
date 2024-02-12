@@ -37,7 +37,7 @@ static const std::vector<strutils::StringId> FRESH_ACCOUNT_UNLOCKED_CARD_NAMES =
 
 static const std::unordered_map<strutils::StringId, std::vector<strutils::StringId>, strutils::StringIdHasher> FAMILY_STORY_STARTING_CARD_NAMES =
 {
-    { game_constants::DINOSAURS_FAMILY_NAME, {strutils::StringId("Stegosaurus"), strutils::StringId("Triceratops"), strutils::StringId("Dilophosaurus"), strutils::StringId("Velociraptor")}},
+    { game_constants::DINOSAURS_FAMILY_NAME, {strutils::StringId("Digging Time"), strutils::StringId("Impending Doom")}},
     { game_constants::RODENTS_FAMILY_NAME, {strutils::StringId("Bunny"), strutils::StringId("Squirrel"), strutils::StringId("Ground Hog"), strutils::StringId("Guinea Pig")}},
     { game_constants::INSECTS_FAMILY_NAME, {strutils::StringId("Fly"), strutils::StringId("Ladybug"), strutils::StringId("Beetle"), strutils::StringId("Mosquito")}},
 };
@@ -332,19 +332,20 @@ void CardDataRepository::LoadCardData(bool loadCardAssets)
         }
         
         // Optional single use
+        cardData.mIsSingleUse = false;
         if (cardObject.count("single_use"))
         {
             cardData.mIsSingleUse = cardObject["single_use"].get<bool>();
         }
         
+        cardData.mCardName = strutils::StringId(cardObject["name"].get<std::string>());
+        
         // Make sure card has a registered card family
         cardData.mCardFamily = strutils::StringId(cardObject["family"].get<std::string>());
-        if (cardData.mCardFamily != game_constants::DEMONS_GENERIC_FAMILY_NAME && !mCardFamilies.count(cardData.mCardFamily))
+        if (cardData.mCardFamily != game_constants::DEMONS_GENERIC_FAMILY_NAME && cardData.mCardName != game_constants::EMPTY_DECK_TOKEN_CARD_NAME && !mCardFamilies.count(cardData.mCardFamily))
         {
             ospopups::ShowMessageBox(ospopups::MessageBoxType::ERROR, ("Cannot find family \"" + cardData.mCardFamily.GetString() + "\" for card with id=" + std::to_string(cardData.mCardId)).c_str());
         }
-        
-        cardData.mCardName = strutils::StringId(cardObject["name"].get<std::string>());
         
         if (loadCardAssets)
         {

@@ -86,6 +86,21 @@ public:
 
 ///------------------------------------------------------------------------------------------------
 
+class SingleUseHeldCardCopyDestructionWithRepositionEvent final
+{
+public:
+    SingleUseHeldCardCopyDestructionWithRepositionEvent(const std::vector<std::string>& heldCardIndicesToDestroy, const bool forRemotePlayer)
+        : mHeldCardIndicesToDestroy(heldCardIndicesToDestroy)
+        , mForRemotePlayer(forRemotePlayer)
+    {
+    }
+    
+    const std::vector<std::string> mHeldCardIndicesToDestroy;
+    const bool mForRemotePlayer;
+};
+
+///------------------------------------------------------------------------------------------------
+
 class CardCreationEvent final
 {
 public:

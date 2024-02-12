@@ -41,6 +41,7 @@ inline const std::string EFFECT_COMPONENT_FAMILY                               =
 inline const std::string EFFECT_COMPONENT_ENEMY_BOARD_DEBUFF                   = "ENEMY_BOARD_DEBUFF";
 inline const std::string EFFECT_COMPONENT_DRAW                                 = "DRAW";
 inline const std::string EFFECT_COMPONENT_GAIN_1_WEIGHT                        = "GAIN_1_WEIGHT";
+inline const std::string EFFECT_COMPONENT_CARD_TOKEN                           = "CARD_TOKEN";
 inline const std::string EFFECT_COMPONENT_KILL                                 = "KILL";
 inline const std::string EFFECT_COMPONENT_BOARD                                = "BOARD";
 inline const std::string EFFECT_COMPONENT_HELD                                 = "HELD";

@@ -1292,6 +1292,7 @@ void BattleSceneLogicManager::RegisterForEvents()
     eventSystem.RegisterForEvent<events::LocalPlayerTurnStarted>(this, &BattleSceneLogicManager::OnLocalPlayerTurnStarted);
     eventSystem.RegisterForEvent<events::EndOfTurnCardDestructionEvent>(this, &BattleSceneLogicManager::OnEndOfTurnCardDestruction);
     eventSystem.RegisterForEvent<events::ImmediateCardDestructionWithRepositionEvent>(this, &BattleSceneLogicManager::OnImmediateCardDestructionWithReposition);
+    eventSystem.RegisterForEvent<events::SingleUseHeldCardCopyDestructionWithRepositionEvent>(this, &BattleSceneLogicManager::OnSingleUseHeldCardCopyDestructionWithReposition);
     eventSystem.RegisterForEvent<events::CardCreationEvent>(this, &BattleSceneLogicManager::OnCardCreation);
     eventSystem.RegisterForEvent<events::CardBuffedDebuffedEvent>(this, &BattleSceneLogicManager::OnCardBuffedDebuffed);
     eventSystem.RegisterForEvent<events::HeldCardSwapEvent>(this, &BattleSceneLogicManager::OnHeldCardSwap);
@@ -1437,6 +1438,42 @@ void BattleSceneLogicManager::OnImmediateCardDestructionWithReposition(const eve
             card_utils::CalculateBoardCardPosition(i, currentCardCount, event.mForRemotePlayer) :
             card_utils::CalculateHeldCardPosition(i, currentCardCount, event.mForRemotePlayer, battleScene->GetCamera());
         
+        animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(currentCardSoWrapper->mSceneObject, originalCardPosition, currentCardSoWrapper->mSceneObject->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){});
+    }
+}
+
+///------------------------------------------------------------------------------------------------
+
+void BattleSceneLogicManager::OnSingleUseHeldCardCopyDestructionWithReposition(const events::SingleUseHeldCardCopyDestructionWithRepositionEvent& event)
+{
+    const auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
+    auto battleScene = sceneManager.FindScene(game_constants::BATTLE_SCENE);
+    auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+    auto& cardSoWrappers = mPlayerHeldCardSceneObjectWrappers[(event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)];
+        
+    std::vector<int> indicesToDestroy;
+    for (const auto& stringIndex: event.mHeldCardIndicesToDestroy)
+    {
+        indicesToDestroy.push_back(std::stoi(stringIndex));
+    }
+    std::sort(indicesToDestroy.begin(), indicesToDestroy.end());
+    
+    for (int i = static_cast<int>(indicesToDestroy.size() - 1); i >= 0; i--)
+    {
+        battleScene->RemoveSceneObject(cardSoWrappers[indicesToDestroy[i]]->mSceneObject->mName);
+        cardSoWrappers.erase(cardSoWrappers.begin() + indicesToDestroy[i]);
+    }
+    
+    // Animate rest of the cards to position.
+    for (int i = 0; i < cardSoWrappers.size(); ++i)
+    {
+        auto& currentCardSoWrapper = cardSoWrappers.at(i);
+        
+        currentCardSoWrapper->mSceneObject->mName = strutils::StringId((mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX ? game_constants::TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_HELD_CARD_SO_NAME_PREFIX) + std::to_string(i));
+        
+        auto originalCardPosition = card_utils::CalculateHeldCardPosition(i, static_cast<int>(cardSoWrappers.size()), event.mForRemotePlayer, battleScene->GetCamera());
+        
+        animationManager.StopAllAnimationsPlayingForSceneObject(currentCardSoWrapper->mSceneObject->mName);
         animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(currentCardSoWrapper->mSceneObject, originalCardPosition, currentCardSoWrapper->mSceneObject->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){});
     }
 }

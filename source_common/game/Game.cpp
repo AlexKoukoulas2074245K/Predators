@@ -245,11 +245,17 @@ void Game::WindowResize()
 #endif
 
 #if ((!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)) && (defined(CREATE_DEBUG_WIDGETS))
-static void CreateImGuiCardVecEntry(const std::string& cardIdPrefix, std::string& cardVec, const std::vector<CardStatOverrides>& cardOverrides, const effects::EffectBoardModifierMask boardModifierMask, const bool forRemotePlayer)
+static void CreateImGuiCardVecEntry(const std::string& cardIdPrefix, std::string& cardVec, const std::vector<CardStatOverrides>& cardOverrides, const effects::EffectBoardModifierMask boardModifierMask, const bool forRemotePlayer, const bool forBoardCards)
 {
     cardVec.erase(cardVec.begin());
     cardVec.erase(cardVec.end() - 1);
     auto splitByNewLine = strutils::StringSplit(cardVec, ',');
+    
+    if (!forBoardCards)
+    {
+        std::reverse(splitByNewLine.begin(), splitByNewLine.end());
+    }
+    
     ImGui::Text("[");
     ImGui::SameLine();
     for (size_t i = 0; i < splitByNewLine.size(); ++i)
@@ -285,7 +291,14 @@ static void CreateImGuiCardVecEntry(const std::string& cardIdPrefix, std::string
     {
         std::stringstream overridesString;
         overridesString << "[";
-        for (size_t i = 0; i < cardOverrides.size(); ++i)
+        
+        auto cardOverridesCopy = cardOverrides;
+        if (!forBoardCards)
+        {
+            std::reverse(cardOverridesCopy.begin(), cardOverridesCopy.end());
+        }
+        
+        for (size_t i = 0; i < cardOverridesCopy.size(); ++i)
         {
             if (i != 0)
             {
@@ -294,7 +307,7 @@ static void CreateImGuiCardVecEntry(const std::string& cardIdPrefix, std::string
             
             overridesString << i << ":{";
             bool hasSeenFirstInnerEntry = false;
-            for (const auto& statOverrideEntry: cardOverrides[i])
+            for (const auto& statOverrideEntry: cardOverridesCopy[i])
             {
                 if (hasSeenFirstInnerEntry)
                 {
@@ -561,13 +574,13 @@ void Game::CreateDebugWidgets()
     ImGui::SeparatorText("Remote Player Stats");
     ImGui::TextWrapped("%s", remotePlayerStats.c_str());
     ImGui::SeparatorText("Remote Player Hand");
-    CreateImGuiCardVecEntry("RemotePlayerHand", remotePlayerHand, boardState.GetPlayerStates()[0].mPlayerHeldCardStatOverrides, 0, true);
+    CreateImGuiCardVecEntry("RemotePlayerHand", remotePlayerHand, boardState.GetPlayerStates()[0].mPlayerHeldCardStatOverrides, 0, true, false);
     ImGui::SeparatorText("Remote Player Board");
-    CreateImGuiCardVecEntry("RemotePlayerBoard", remotePlayerBoard, boardState.GetPlayerStates()[0].mPlayerBoardCardStatOverrides, boardState.GetPlayerStates()[0].mBoardModifiers.mBoardModifierMask, true);
+    CreateImGuiCardVecEntry("RemotePlayerBoard", remotePlayerBoard, boardState.GetPlayerStates()[0].mPlayerBoardCardStatOverrides, boardState.GetPlayerStates()[0].mBoardModifiers.mBoardModifierMask, true, true);
     ImGui::SeparatorText("Local Player Board");
-    CreateImGuiCardVecEntry("LocalPlayerBoard", localPlayerBoard, boardState.GetPlayerStates()[1].mPlayerBoardCardStatOverrides, boardState.GetPlayerStates()[1].mBoardModifiers.mBoardModifierMask, false);
+    CreateImGuiCardVecEntry("LocalPlayerBoard", localPlayerBoard, boardState.GetPlayerStates()[1].mPlayerBoardCardStatOverrides, boardState.GetPlayerStates()[1].mBoardModifiers.mBoardModifierMask, false, true);
     ImGui::SeparatorText("Local Player Hand");
-    CreateImGuiCardVecEntry("LocalPlayerHand", localPlayerHand, boardState.GetPlayerStates()[1].mPlayerHeldCardStatOverrides, 0, false);
+    CreateImGuiCardVecEntry("LocalPlayerHand", localPlayerHand, boardState.GetPlayerStates()[1].mPlayerHeldCardStatOverrides, 0, false, false);
     ImGui::SeparatorText("Local Player Stats");
     ImGui::TextWrapped("%s", localPlayerStats.c_str());
     ImGui::End();

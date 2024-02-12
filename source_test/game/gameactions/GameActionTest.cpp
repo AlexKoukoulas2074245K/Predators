@@ -568,6 +568,7 @@ TEST_F(GameActionTests, TestBuffedDugOutRodentsHaveCorrectModifiersPostClearingN
 int BATTLE_SIMULATION_ITERATIONS = 1000;
 #define SIMULATE_BATTLES
 #if defined(SIMULATE_BATTLES)
+
 void GameActionTests::SimulateBattle(strutils::StringId topDeckFamilyName /*= strutils::StringId()*/, strutils::StringId botDeckFamilyName /*= strutils::StringId()*/)
 {
     const int PROGRESS_INCREMENTS = BATTLE_SIMULATION_ITERATIONS/100;
