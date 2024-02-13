@@ -43,7 +43,7 @@ glm::vec3 CalculateBoardCardPosition(const int cardIndex, const int playerCardCo
 
 ///------------------------------------------------------------------------------------------------
 
-CardRarity GetCardRarity(const int cardIndex, const size_t forPlayerIndex, const BoardState& boardState);
+CardRarity GetCardRarity(const int cardId, const size_t forPlayerIndex, const BoardState& boardState);
 
 ///------------------------------------------------------------------------------------------------
 

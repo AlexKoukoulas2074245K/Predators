@@ -121,7 +121,8 @@ static const math::Rectangle CARD_HISTORY_CONTAINER_BOUNDS = {{-0.4f, -0.218f}, 
 static const glm::vec2 CARD_HISTORY_CONTAINER_CUTOFF_VALUES = {-0.23f, 0.23f};
 
 static const float BOARD_SIDE_EFFECT_SHOWING_HIDING_ANIMATION_DURATION_SECS = 0.5f;
-static const float CARD_SELECTION_ANIMATION_DURATION = 0.2f;
+static const float EMPTY_DECK_CARD_TOKEN_NEW_CARD_SCALE_IN_ANIMATION_DURATION_SECS = 0.3f;
+static const float CARD_SELECTION_ANIMATION_DURATION = 0.15f;
 static const float CARD_HIGHLIGHT_ANIMATION_DURATION = 0.1f;
 static const float CARD_LOCATION_EFFECT_MIN_TARGET_ALPHA = 0.25f;
 static const float CARD_LOCATION_EFFECT_MAX_TARGET_ALPHA = 1.0f;
@@ -309,6 +310,9 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
         
     CardDataRepository::GetInstance().CleanDeckFromTempIds(mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards);
     CardDataRepository::GetInstance().CleanDeckFromTempIds(mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards);
+    
+    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerInitialDeckCards = mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards;
+    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerInitialDeckCards = mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards;
     
     mBattleSerializer = std::make_unique<BattleSerializer>(seed, mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerDeckCards, mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerDeckCards, mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerHealth, mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth);
     
@@ -1292,6 +1296,7 @@ void BattleSceneLogicManager::RegisterForEvents()
     eventSystem.RegisterForEvent<events::NewBoardCardCreatedEvent>(this, &BattleSceneLogicManager::OnNewBoardCardCreated);
     eventSystem.RegisterForEvent<events::HeroCardCreatedEvent>(this, &BattleSceneLogicManager::OnHeroCardCreated);
     eventSystem.RegisterForEvent<events::LastCardPlayedFinalizedEvent>(this, &BattleSceneLogicManager::OnLastCardPlayedFinalized);
+    eventSystem.RegisterForEvent<events::EmptyDeckCardTokenPlayedEvent>(this, &BattleSceneLogicManager::OnEmptyDeckCardTokenPlayed);
     eventSystem.RegisterForEvent<events::HealthChangeAnimationTriggerEvent>(this, &BattleSceneLogicManager::OnHealthChangeAnimationTrigger);
     eventSystem.RegisterForEvent<events::WeightChangeAnimationTriggerEvent>(this, &BattleSceneLogicManager::OnWeightChangeAnimationTrigger);
     eventSystem.RegisterForEvent<events::BoardSideCardEffectTriggeredEvent>(this, &BattleSceneLogicManager::OnBoardSideCardEffectTriggered);
@@ -1626,6 +1631,40 @@ void BattleSceneLogicManager::OnLastCardPlayedFinalized(const events::LastCardPl
             animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(currentCardSoWrapper->mSceneObject, originalCardPosition, currentCardSoWrapper->mSceneObject->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){});
         }
     }
+}
+
+///------------------------------------------------------------------------------------------------
+
+void BattleSceneLogicManager::OnEmptyDeckCardTokenPlayed(const events::EmptyDeckCardTokenPlayedEvent&)
+{
+    auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
+    auto battleScene = sceneManager.FindScene(game_constants::BATTLE_SCENE);
+    
+    const auto& newCardId = mBoardState->GetActivePlayerState().mPlayerBoardCards.back();
+    const auto& newCardData = CardDataRepository::GetInstance().GetCardData(newCardId, mBoardState->GetActivePlayerIndex());
+    auto& boardSceneObjectWrappers = mPlayerBoardCardSceneObjectWrappers[mBoardState->GetActivePlayerIndex()];
+    const auto newCardIndex = boardSceneObjectWrappers.size() - 1;
+    auto newCardPosition = boardSceneObjectWrappers.back()->mSceneObject->mPosition;
+    auto newCardScale = boardSceneObjectWrappers.back()->mSceneObject->mScale;
+    newCardPosition.z -= 0.001f;
+    
+    boardSceneObjectWrappers.push_back(card_utils::CreateCardSoWrapper
+    (
+        &newCardData,
+        newCardPosition,
+        (mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX ? game_constants::TOP_PLAYER_BOARD_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_BOARD_CARD_SO_NAME_PREFIX) + std::to_string(newCardIndex),
+        CardOrientation::FRONT_FACE,
+        card_utils::GetCardRarity(newCardId, mBoardState->GetActivePlayerIndex(), *mBoardState),
+        true,
+        mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX,
+        true,
+        {},
+        mBoardState->GetActivePlayerState().mBoardModifiers.mGlobalCardStatModifiers,
+        *battleScene
+    ));
+    
+    boardSceneObjectWrappers.back()->mSceneObject->mScale = newCardScale/2.0f;
+    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(boardSceneObjectWrappers.back()->mSceneObject, boardSceneObjectWrappers.back()->mSceneObject->mPosition, newCardScale, EMPTY_DECK_CARD_TOKEN_NEW_CARD_SCALE_IN_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){});
 }
 
 ///------------------------------------------------------------------------------------------------

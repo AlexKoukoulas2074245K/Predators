@@ -39,6 +39,12 @@ class LocalPlayerTurnStarted final
 
 ///------------------------------------------------------------------------------------------------
 
+class EmptyDeckCardTokenPlayedEvent final
+{
+};
+
+///------------------------------------------------------------------------------------------------
+
 class ProductPurchaseEndedEvent final
 {
 public:

@@ -64,6 +64,7 @@ private:
     AffectedStatType mAffectedBoardCardsStatType;
     int mEffectValue;
     float mAnimationDelayCounterSecs;
+    bool mCardTokenCase;
     effects::EffectBoardModifierMask mCardBoardEffectMask;
     std::vector<std::string> mEffectComponents;
     std::vector<AffectedCardEntry> mAffectedCards;

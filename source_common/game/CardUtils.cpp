@@ -96,13 +96,13 @@ glm::vec3 CalculateBoardCardPosition(const int cardIndex, const int playerCardCo
 
 ///------------------------------------------------------------------------------------------------
 
-CardRarity GetCardRarity(const int cardIndex, const size_t forPlayerIndex, const BoardState& boardState)
+CardRarity GetCardRarity(const int cardId, const size_t forPlayerIndex, const BoardState& boardState)
 {
     return std::find
     (
         boardState.GetPlayerStates()[forPlayerIndex].mGoldenCardIds.cbegin(),
         boardState.GetPlayerStates()[forPlayerIndex].mGoldenCardIds.cend(),
-        cardIndex
+        cardId
      ) != boardState.GetPlayerStates()[forPlayerIndex].mGoldenCardIds.cend() ? CardRarity::GOLDEN : CardRarity::NORMAL;
 }
 

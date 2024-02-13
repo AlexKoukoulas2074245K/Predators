@@ -31,6 +31,7 @@ struct PlayerState
     std::vector<int> mPlayerDeckCards;
     std::vector<int> mPlayerHeldCards;
     std::vector<int> mPlayerBoardCards;
+    std::vector<int> mPlayerInitialDeckCards;
     std::vector<int> mGoldenCardIds;
     std::unordered_set<int> mHeldCardIndicesToDestroy;
     std::unordered_set<int> mBoardCardIndicesToDestroy;

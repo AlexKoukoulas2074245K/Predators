@@ -473,6 +473,24 @@ TEST_F(GameActionTests, TestDinoMultiBuff)
     EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH - (GET_CARD_DAMAGE("Dilophosaurus") + 1)); // Dilophosaurus can be played due to reduced weight cost and also has +1 attack due to Metal Claws
 }
 
+TEST_F(GameActionTests, TestCardTokenDeckTransformationIfEmpty)
+{
+    mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {GET_CARD_ID("Impending Doom")}; // Top player has a deck of Impending Dooms
+    
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = GET_CARD_WEIGHT("Impending Doom");
+    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = GET_CARD_WEIGHT("Impending Doom");
+    mBoardState->GetPlayerStates()[0].mPlayerHeldCards = {GET_CARD_ID("Impending Doom")};
+    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Impending Doom is played
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerDeckCards.size(), 1); // Impending doom is removed from deck (single use card) and instead the deck is replaced with Tokens
+    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerDeckCards[0], GET_CARD_ID("Card Token"));
+}
+
 TEST_F(GameActionTests, TestImpendingDoomAndFeatheryDinoEffects)
 {
     mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {GET_CARD_ID("Impending Doom"), GET_CARD_ID("Feathery Dino"), GET_CARD_ID("Dilophosaurus")}; // Top player has a deck of Impending Doom, Feathery Dino and Dilophosaurus (d=5,w=4)
@@ -611,6 +629,9 @@ void GameActionTests::SimulateBattle(strutils::StringId topDeckFamilyName /*= st
             mBoardState->GetPlayerStates()[0].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(topDeckFamilyName);
             mBoardState->GetPlayerStates()[1].mPlayerDeckCards = CardDataRepository::GetInstance().GetCardIdsByFamily(botDeckFamilyName);
         }
+        
+        mBoardState->GetPlayerStates()[0].mPlayerInitialDeckCards = mBoardState->GetPlayerStates()[0].mPlayerDeckCards;
+        mBoardState->GetPlayerStates()[1].mPlayerInitialDeckCards = mBoardState->GetPlayerStates()[1].mPlayerDeckCards;
         
         mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
         while (mActionEngine->GetActiveGameActionName() != IDLE_GAME_ACTION_NAME && mActionEngine->GetActiveGameActionName() != GAME_OVER_GAME_ACTION_NAME)

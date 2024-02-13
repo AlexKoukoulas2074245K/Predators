@@ -12,6 +12,7 @@
 #include <game/gameactions/CardBuffedDebuffedAnimationGameAction.h>
 #include <game/gameactions/CardDestructionGameAction.h>
 #include <game/gameactions/CardEffectGameAction.h>
+#include <game/gameactions/CardHistoryEntryAdditionGameAction.h>
 #include <game/gameactions/DrawCardGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/scenelogicmanagers/BattleSceneLogicManager.h>
@@ -32,6 +33,8 @@ const std::unordered_map<CardEffectGameAction::AffectedStatType, CardStatType> C
 // Follow up game actions
 static const strutils::StringId CARD_BUFFED_DEBUFFED_ANIMATION_GAME_ACTION_NAME = strutils::StringId("CardBuffedDebuffedAnimationGameAction");
 static const strutils::StringId CARD_DESTRUCTION_GAME_ACTION_NAME = strutils::StringId("CardDestructionGameAction");
+static const strutils::StringId CARD_HISTORY_ENTRY_ADDITION_GAME_ACTION_NAME = strutils::StringId("CardHistoryEntryAdditionGameAction");
+static const strutils::StringId CARD_EFFECT_GAME_ACTION_NAME = strutils::StringId("CardEffectGameAction");
 
 // Resources
 static const std::string CARD_DISSOLVE_SHADER_FILE_NAME = "card_spell_dissolve.vs";
@@ -122,6 +125,27 @@ void CardEffectGameAction::VSetNewGameState()
             }
         }
     }
+    
+    // Card Token special case
+    if (mCardTokenCase)
+    {
+        auto availableCardDataCount = static_cast<int>(activePlayerState.mPlayerInitialDeckCards.size());
+        auto randomCardIndex = math::ControlledRandomInt() % availableCardDataCount;
+        activePlayerState.mPlayerBoardCards.push_back(activePlayerState.mPlayerInitialDeckCards[randomCardIndex]);
+        
+        if (CardDataRepository::GetInstance().GetCardData(activePlayerState.mPlayerBoardCards.back(), mBoardState->GetActivePlayerIndex()).IsSpell())
+        {
+            mGameActionEngine->AddGameAction(CARD_HISTORY_ENTRY_ADDITION_GAME_ACTION_NAME,
+            {
+                { CardHistoryEntryAdditionGameAction::PLAYER_INDEX_PARAM, std::to_string(mBoardState->GetActivePlayerIndex()) },
+                { CardHistoryEntryAdditionGameAction::CARD_INDEX_PARAM, std::to_string(activePlayerState.mPlayerBoardCards.size() - 1) },
+                { CardHistoryEntryAdditionGameAction::ENTRY_TYPE_TEXTURE_FILE_NAME_PARAM, CardHistoryEntryAdditionGameAction::ENTRY_TYPE_TEXTURE_FILE_NAME_EFFECT },
+                { CardHistoryEntryAdditionGameAction::IS_TURN_COUNTER_PARAM, "false"}
+            });
+            
+            mGameActionEngine->AddGameAction(CARD_EFFECT_GAME_ACTION_NAME);
+        }
+    }
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -129,7 +153,15 @@ void CardEffectGameAction::VSetNewGameState()
 void CardEffectGameAction::VInitAnimation()
 {
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
-    auto cardSoWrapper = mBattleSceneLogicManager->GetBoardCardSoWrappers().at(mBoardState->GetActivePlayerIndex()).at(mBoardState->GetActivePlayerState().mPlayerBoardCards.size());
+    
+    auto cardEffectBoardCardIndex = mBoardState->GetActivePlayerState().mPlayerBoardCards.size();
+    if (mCardTokenCase)
+    {
+        events::EventSystem::GetInstance().DispatchEvent<events::EmptyDeckCardTokenPlayedEvent>();
+        cardEffectBoardCardIndex--;
+    }
+    
+    auto cardSoWrapper = mBattleSceneLogicManager->GetBoardCardSoWrappers().at(mBoardState->GetActivePlayerIndex()).at(cardEffectBoardCardIndex);
     cardSoWrapper->mSceneObject->mShaderResourceId = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CARD_DISSOLVE_SHADER_FILE_NAME);
     cardSoWrapper->mSceneObject->mEffectTextureResourceIds[1] = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + DISSOLVE_TEXTURE_FILE_NAME);
     cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] = 0.0f;
@@ -138,6 +170,7 @@ void CardEffectGameAction::VInitAnimation()
     cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_MAGNITUDE_UNIFORM_NAME] = math::RandomFloat(CARD_DISSOLVE_EFFECT_MAG_RANGE.x, CARD_DISSOLVE_EFFECT_MAG_RANGE.y);
     cardSoWrapper->mSceneObject->mPosition.z += CARD_DISSOLVE_Z_BUMP;
     
+    CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE)->RemoveSceneObject(CARD_EFFECT_PARTICLE_EMITTER_NAME);
     systemsEngine.GetParticleManager().CreateParticleEmitterAtPosition
     (
         CARD_SPELL_EFFECT_PARTICLE_NAME,
@@ -177,6 +210,11 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
             const auto& deadHeldCardIndices = mBoardState->GetActivePlayerState().mHeldCardIndicesToDestroy;
             
             auto boardCardIndex = boardCards.size();
+            if (mCardTokenCase)
+            {
+                boardCardIndex--;
+            }
+            
             auto effectCardSoWrapper = mBattleSceneLogicManager->GetBoardCardSoWrappers().at(mBoardState->GetActivePlayerIndex()).at(boardCardIndex);
             effectCardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] += dtMillis * CARD_DISSOLVE_SPEED;
           
@@ -283,6 +321,7 @@ const std::vector<std::string>& CardEffectGameAction::VGetRequiredExtraParamName
 
 void CardEffectGameAction::HandleCardEffect(const std::string& effect)
 {
+    mCardTokenCase = false;
     mCardBoardEffectMask = effects::board_modifier_masks::NONE;
     mAffectedBoardCardsStatType = AffectedStatType::NONE;
     mEffectValue = 0;
@@ -301,7 +340,7 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
         effectCardFamily = game_constants::DEMONS_GENERIC_FAMILY_NAME;
     }
     
-    bool mAffectingFamilyOnly = false;
+    bool affectingFamilyOnly = false;
     
     std::vector<int> affectedBoardCardIndices;
     std::vector<int> affectedHeldCardIndices;
@@ -311,7 +350,7 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
         // Collection component
         if (effectComponent == effects::EFFECT_COMPONENT_FAMILY)
         {
-            mAffectingFamilyOnly = true;
+            affectingFamilyOnly = true;
         }
         
         // Stat Type component
@@ -406,6 +445,7 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
         // Card Token
         else if (effectComponent == effects::EFFECT_COMPONENT_CARD_TOKEN)
         {
+            mCardTokenCase = true;
         }
         
         // Modifier/Offset value component
@@ -422,7 +462,7 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
         {
             auto cardData = CardDataRepository::GetInstance().GetCardData(boardCards[i], mBoardState->GetActivePlayerIndex());
             
-            if (mAffectingFamilyOnly)
+            if (affectingFamilyOnly)
             {
                 if (effectCardFamily == game_constants::DEMONS_GENERIC_FAMILY_NAME)
                 {
@@ -458,7 +498,7 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
         {
             auto cardData = CardDataRepository::GetInstance().GetCardData(heldCards[i], mBoardState->GetActivePlayerIndex());
             
-            if (mAffectingFamilyOnly)
+            if (affectingFamilyOnly)
             {
                 if (effectCardFamily == game_constants::DEMONS_GENERIC_FAMILY_NAME)
                 {
