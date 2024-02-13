@@ -545,6 +545,14 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
         });
     }
     
+    // Armor effect
+    if (std::find(mEffectComponents.cbegin(), mEffectComponents.cend(), effects::EFFECT_COMPONENT_ARMOR) != mEffectComponents.cend())
+    {
+        mBoardState->GetActivePlayerState().mPlayerArmorRecharge += mEffectValue;
+        mBoardState->GetActivePlayerState().mPlayerCurrentArmor += mEffectValue;
+        events::EventSystem::GetInstance().DispatchEvent<events::ArmorChangeChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, mBoardState->GetActivePlayerState().mPlayerCurrentArmor);
+    }
+    
     // Next turn effect
     if (std::find(mEffectComponents.cbegin(), mEffectComponents.cend(), effects::EFFECT_COMPONENT_ENEMY_BOARD_DEBUFF) != mEffectComponents.cend())
     {

@@ -39,6 +39,8 @@ struct PlayerState
     std::vector<CardStatOverrides> mPlayerHeldCardStatOverrides;
     BoardModifiers mBoardModifiers;
     int mPlayerHealth = 30;
+    int mPlayerCurrentArmor = 0;
+    int mPlayerArmorRecharge = 0;
     int mPlayerPoisonStack = 0;
     int mPlayerTotalWeightAmmo = 0;
     int mPlayerCurrentWeightAmmo = 0;

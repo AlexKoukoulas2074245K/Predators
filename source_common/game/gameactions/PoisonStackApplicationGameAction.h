@@ -29,6 +29,8 @@ public:
 
 private:
     float mPendingDurationSecs;
+    int mAmountOfArmorDamaged;
+    int mAmountOfHealthDamaged;
 };
 
 ///------------------------------------------------------------------------------------------------

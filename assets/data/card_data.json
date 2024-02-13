@@ -369,6 +369,16 @@
             "tooltip": "Takes the form$of a random card$in your deck",
             "texture": "story_cards/event.png",
             "shader": "basic.vs"
+        },
+        {
+            "weight": 4,
+            "family": "dinosaurs",
+            "name": "Dino Armor",
+            "effect": "ARMOR +2",
+            "tooltip": "Gives +2 ARMOR now$and at the start of$every new turn",
+            "texture": "dino_armor.png",
+            "shader": "basic.vs",
+            "single_use": true
         }
     ]
 }

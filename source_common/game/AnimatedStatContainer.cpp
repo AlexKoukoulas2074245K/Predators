@@ -46,6 +46,7 @@ AnimatedStatContainer::AnimatedStatContainer
     auto crystalBaseSceneObject = scene.CreateSceneObject(strutils::StringId(crystalName + BASE_SCENE_OBJECT_NAME_POSTFIX));
     crystalBaseSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + textureFilename);
     crystalBaseSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + HEALTH_STAT_CONTAINER_BASE_OBJECT_SHADER);
+    crystalBaseSceneObject->mShaderBoolUniformValues[game_constants::METALLIC_STAT_CONTAINER_UNIFORM_NAME] = false;
     crystalBaseSceneObject->mPosition = position;
     crystalBaseSceneObject->mScale = STAT_CRYSTAL_SCALE * mScaleFactor;
     crystalBaseSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = startHidden ? 0.0f : 1.0f;

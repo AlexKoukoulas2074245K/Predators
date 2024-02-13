@@ -74,6 +74,7 @@ static const std::string MAKE_SPACE_REVERT_TO_POSITION_ANIMATION_NAME_PREFIX = "
 static const std::string BATTLE_ICON_TEXTURE_FILE_NAME = "battle_icon.png";
 static const std::string TURN_POINTER_TEXTURE_FILE_NAME = "turn_pointer.png";
 static const std::string HEALTH_CRYSTAL_TEXTURE_FILE_NAME = "health_icon.png";
+static const std::string METALLIC_HEALTH_CRYSTAL_TEXTURE_FILE_NAME = "metal_health_icon.png";
 static const std::string WEIGHT_CRYSTAL_TEXTURE_FILE_NAME = "weight_crystal.png";
 static const std::string POISON_STACK_TEXTURE_FILE_NAME = "poison_splatter.png";
 static const std::string BOARD_SIDE_STAT_EFFECT_SHADER_FILE_NAME = "board_side_stat_effect.vs";
@@ -84,6 +85,8 @@ static const std::string HISTORY_OVERLAY_TEXTURE_FILE_NAME = "overlay.png";
 static const std::string CARD_HIGHLIGHTER_SCENE_OBJECT_NAME_PREFIX = "highlighter_card_";
 static const std::string HEALTH_CRYSTAL_TOP_SCENE_OBJECT_NAME_PREFIX = "health_crystal_top_";
 static const std::string HEALTH_CRYSTAL_BOT_SCENE_OBJECT_NAME_PREFIX = "health_crystal_bot_";
+static const std::string ARMOR_CONTAINER_TOP_SCENE_OBJECT_NAME_PREFIX = "armor_health_crystal_top_";
+static const std::string ARMOR_CONTAINER_BOT_SCENE_OBJECT_NAME_PREFIX = "armor_health_crystal_bot_";
 static const std::string WEIGHT_CRYSTAL_TOP_SCENE_OBJECT_NAME_PREFIX = "weight_crystal_top_";
 static const std::string WEIGHT_CRYSTAL_BOT_SCENE_OBJECT_NAME_PREFIX = "weight_crystal_bot_";
 static const std::string POISON_STACK_TOP_SCENE_OBJECT_NAME_PREFIX = "poison_stack_top_";
@@ -348,13 +351,25 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
     mBattleSerializer->FlushStateToFile();
     
     // Stat Containers
+    // Health
     mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(game_constants::HEALTH_CRYSTAL_TOP_POSITION, HEALTH_CRYSTAL_TEXTURE_FILE_NAME, HEALTH_CRYSTAL_TOP_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[0].mPlayerHealth, false, *scene)));
     mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(game_constants::HEALTH_CRYSTAL_BOT_POSITION, HEALTH_CRYSTAL_TEXTURE_FILE_NAME, HEALTH_CRYSTAL_BOT_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[1].mPlayerHealth, false, *scene)));
+    
+    // Weight
     mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(game_constants::WEIGHT_CRYSTAL_TOP_POSITION, WEIGHT_CRYSTAL_TEXTURE_FILE_NAME, WEIGHT_CRYSTAL_TOP_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo, false, *scene)));
     mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(game_constants::WEIGHT_CRYSTAL_BOT_POSITION, WEIGHT_CRYSTAL_TEXTURE_FILE_NAME, WEIGHT_CRYSTAL_BOT_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[1].mPlayerCurrentWeightAmmo, false, *scene)));
+
+    // Poison stacks
     mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(game_constants::POISON_STACK_TOP_POSITION, POISON_STACK_TEXTURE_FILE_NAME, POISON_STACK_TOP_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[0].mPlayerPoisonStack, true, *scene)));
     mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(game_constants::POISON_STACK_BOT_POSITION, POISON_STACK_TEXTURE_FILE_NAME, POISON_STACK_BOT_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[1].mPlayerPoisonStack, true, *scene)));
     
+    // Armor
+    mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(game_constants::ARMOR_CONTAINER_TOP_POSITION, METALLIC_HEALTH_CRYSTAL_TEXTURE_FILE_NAME, ARMOR_CONTAINER_TOP_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[0].mPlayerCurrentArmor, true, *scene)));
+    mAnimatedStatContainers.back().second->GetSceneObjects().front()->mShaderBoolUniformValues[game_constants::METALLIC_STAT_CONTAINER_UNIFORM_NAME] = true;
+    mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(game_constants::ARMOR_CONTAINER_BOT_POSITION, METALLIC_HEALTH_CRYSTAL_TEXTURE_FILE_NAME, ARMOR_CONTAINER_BOT_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[1].mPlayerCurrentArmor, true, *scene)));
+    mAnimatedStatContainers.back().second->GetSceneObjects().front()->mShaderBoolUniformValues[game_constants::METALLIC_STAT_CONTAINER_UNIFORM_NAME] = true;
+    
+    // Board Effect Animation Factory lambda
     auto cardBoardEffectAnimation = [=]
     (
         const strutils::StringId& topSceneObjectName,
@@ -1303,6 +1318,7 @@ void BattleSceneLogicManager::RegisterForEvents()
     eventSystem.RegisterForEvent<events::BoardSideCardEffectEndedEvent>(this, &BattleSceneLogicManager::OnBoardSideCardEffectEnded);
     eventSystem.RegisterForEvent<events::ForceSendCardBackToPositionEvent>(this, &BattleSceneLogicManager::OnForceSendCardBackToPosition);
     eventSystem.RegisterForEvent<events::PoisonStackChangeChangeAnimationTriggerEvent>(this, &BattleSceneLogicManager::OnPoisonStackChangeChangeAnimationTrigger);
+    eventSystem.RegisterForEvent<events::ArmorChangeChangeAnimationTriggerEvent>(this, &BattleSceneLogicManager::OnArmorChangeAnimationTrigger);
     eventSystem.RegisterForEvent<events::CardHistoryEntryAdditionEvent>(this, &BattleSceneLogicManager::OnCardHistoryEntryAddition);
     eventSystem.RegisterForEvent<events::StoryBattleWonEvent>(this, &BattleSceneLogicManager::OnStoryBattleWon);
 }
@@ -1902,6 +1918,36 @@ void BattleSceneLogicManager::OnPoisonStackChangeChangeAnimationTrigger(const ev
         CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, newPoisonStackValue == 0 ? 0.0f : 1.0f, game_constants::POISON_STACK_SHOW_HIDE_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), [=]()
         {
             if (newPoisonStackValue == 0)
+            {
+                sceneObject->mInvisible = true;
+            }
+        });
+    }
+}
+
+///------------------------------------------------------------------------------------------------
+
+void BattleSceneLogicManager::OnArmorChangeAnimationTrigger(const events::ArmorChangeChangeAnimationTriggerEvent& event)
+{
+    auto& affectedContainerEntry = mAnimatedStatContainers[event.mForRemotePlayer ? 6 : 7];
+    affectedContainerEntry.first = true;
+    auto newArmorValue = event.mNewArmorValue;
+    auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+    
+    for (auto sceneObject: affectedContainerEntry.second->GetSceneObjects())
+    {
+        if (newArmorValue != 0)
+        {
+            if (animationManager.GetAnimationCountPlayingForSceneObject(sceneObject->mName) != 0)
+            {
+                animationManager.StopAllAnimationsPlayingForSceneObject(sceneObject->mName);
+            }
+            sceneObject->mInvisible = false;
+        }
+        
+        animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, newArmorValue == 0 ? 0.0f : 1.0f, game_constants::ARMOR_SHOW_HIDE_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), [=]()
+        {
+            if (newArmorValue == 0)
             {
                 sceneObject->mInvisible = true;
             }

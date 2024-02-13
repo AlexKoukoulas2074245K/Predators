@@ -40,14 +40,34 @@ void PoisonStackApplicationGameAction::VSetNewGameState()
     
     mPendingDurationSecs = activePlayerState.mPlayerPoisonStack * DURATION_SECS_PER_STACK;
     
-    activePlayerState.mPlayerHealth -= activePlayerState.mPlayerPoisonStack;
+    int damage = activePlayerState.mPlayerPoisonStack;
+    mAmountOfArmorDamaged = 0;
+    mAmountOfHealthDamaged = 0;
+    
+    if (damage > 0)
+    {
+        if (activePlayerState.mPlayerCurrentArmor > 0)
+        {
+            int startingArmorValue = activePlayerState.mPlayerCurrentArmor;
+            activePlayerState.mPlayerCurrentArmor = math::Max(0, activePlayerState.mPlayerCurrentArmor - damage);
+            damage = math::Max(0, damage - startingArmorValue);
+            mAmountOfArmorDamaged = math::Min(startingArmorValue, activePlayerState.mPlayerPoisonStack);
+        }
+        
+        if (damage > 0 && activePlayerState.mPlayerCurrentArmor <= 0)
+        {
+            activePlayerState.mPlayerHealth -= damage;
+            mAmountOfHealthDamaged = damage;
+        }
+    }
+    
     activePlayerState.mPlayerPoisonStack = 0;
     
-    events::EventSystem::GetInstance().DispatchEvent<events::HealthChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
     events::EventSystem::GetInstance().DispatchEvent<events::PoisonStackChangeChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, 0);
     
     if (activePlayerState.mPlayerHealth <= 0)
     {
+        events::EventSystem::GetInstance().DispatchEvent<events::HealthChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
         mPendingDurationSecs = 0.0f;
         activePlayerState.mPlayerHealth = 0;
         mGameActionEngine->AddGameAction(GAME_OVER_GAME_ACTION_NAME,
@@ -64,6 +84,23 @@ void PoisonStackApplicationGameAction::VInitAnimation()
     if (mPendingDurationSecs <= 0)
     {
         return;
+    }
+    
+    if (mAmountOfArmorDamaged > 0)
+    {
+        events::EventSystem::GetInstance().DispatchEvent<events::ArmorChangeChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, mBoardState->GetActivePlayerState().mPlayerCurrentArmor);
+        
+        if (mAmountOfHealthDamaged > 0)
+        {
+            CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TimeDelayAnimation>(game_constants::PER_ARMOR_DROPPED_DELAY_ANIMATION_DURATION_SECS * mAmountOfArmorDamaged), [&]()
+            {
+                events::EventSystem::GetInstance().DispatchEvent<events::HealthChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
+            });
+        }
+    }
+    else
+    {
+        events::EventSystem::GetInstance().DispatchEvent<events::HealthChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
     }
     
     auto targetPosition =

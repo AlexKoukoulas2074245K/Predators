@@ -90,6 +90,7 @@ private:
     void OnBoardSideCardEffectEnded(const events::BoardSideCardEffectEndedEvent&);
     void OnForceSendCardBackToPosition(const events::ForceSendCardBackToPositionEvent&);
     void OnPoisonStackChangeChangeAnimationTrigger(const events::PoisonStackChangeChangeAnimationTriggerEvent&);
+    void OnArmorChangeAnimationTrigger(const events::ArmorChangeChangeAnimationTriggerEvent&);
     void OnStoryBattleWon(const events::StoryBattleWonEvent&);
     void OnCardHistoryEntryAddition(const events::CardHistoryEntryAdditionEvent&);
     void OnHistoryButtonPressed();

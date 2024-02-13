@@ -92,9 +92,27 @@ void CardAttackGameAction::VSetNewGameState()
             activePlayerState.mPlayerPoisonStack++;
         }
     }
-    
-    activePlayerState.mPlayerHealth -= damage;
+
     mPendingDamage = damage;
+    mAmountOfArmorDamaged = 0;
+    mAmountOfHealthDamaged = 0;
+    
+    if (damage > 0)
+    {
+        if (activePlayerState.mPlayerCurrentArmor > 0)
+        {
+            int startingArmorValue = activePlayerState.mPlayerCurrentArmor;
+            activePlayerState.mPlayerCurrentArmor = math::Max(0, activePlayerState.mPlayerCurrentArmor - damage);
+            damage = math::Max(0, damage - startingArmorValue);
+            mAmountOfArmorDamaged = math::Min(startingArmorValue, mPendingDamage);
+        }
+        
+        if (damage > 0 && activePlayerState.mPlayerCurrentArmor <= 0)
+        {
+            activePlayerState.mPlayerHealth -= damage;
+            mAmountOfHealthDamaged = damage;
+        }
+    }
     
     mGameActionEngine->AddGameAction(CARD_HISTORY_ENTRY_ADDITION_GAME_ACTION_NAME,
     {
@@ -195,7 +213,25 @@ void CardAttackGameAction::VInitAnimation()
                     
                     if (mPendingDamage != 0)
                     {
-                        events::EventSystem::GetInstance().DispatchEvent<events::HealthChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
+                        if (mAmountOfArmorDamaged > 0)
+                        {
+                            events::EventSystem::GetInstance().DispatchEvent<events::ArmorChangeChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, mBoardState->GetActivePlayerState().mPlayerCurrentArmor);
+                            
+                            if (mAmountOfHealthDamaged > 0)
+                            {
+                                mPendingAnimations++;
+                                animationManager.StartAnimation(std::make_unique<rendering::TimeDelayAnimation>(game_constants::PER_ARMOR_DROPPED_DELAY_ANIMATION_DURATION_SECS * mAmountOfArmorDamaged), [&]()
+                                {
+                                    events::EventSystem::GetInstance().DispatchEvent<events::HealthChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
+                                    mPendingAnimations--;
+                                });
+                            }
+                        }
+                        else
+                        {
+                            events::EventSystem::GetInstance().DispatchEvent<events::HealthChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
+                        }
+                        
                     }
                     
                     auto cardSoWrapper = mBattleSceneLogicManager->GetBoardCardSoWrappers().at(attackingPayerIndex).at(cardIndex);

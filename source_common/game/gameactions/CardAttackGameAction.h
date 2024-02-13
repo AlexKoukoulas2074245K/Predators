@@ -36,6 +36,8 @@ public:
 private:
     int mPendingAnimations;
     int mPendingDamage;
+    int mAmountOfArmorDamaged;
+    int mAmountOfHealthDamaged;
     glm::vec3 mOriginalCardPosition;
     glm::vec3 mOriginalCardScale;
 };

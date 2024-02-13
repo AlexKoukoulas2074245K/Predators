@@ -40,6 +40,9 @@ static const float HEALTH_CRYSTAL_ANIMATION_DELAY_SECS = 0.5f;
 static const float HEALTH_CRYSTAL_ANIMATION_CURVE_MIDPOINT_Y_OFFSET = 0.05f;
 static const float HEALTH_CRYSTAL_ANIMATION_DURATION_SECS = 1.0f;
 
+static constexpr int MINI_BOSS_ARMOR = 2;
+static constexpr int FINAL_BOSS_ARMOR = 4;
+
 ///------------------------------------------------------------------------------------------------
 
 void HeroCardEntryGameAction::VSetNewGameState()
@@ -72,6 +75,19 @@ void HeroCardEntryGameAction::VSetNewGameState()
         { CardHistoryEntryAdditionGameAction::ENTRY_TYPE_TEXTURE_FILE_NAME_PARAM, CardHistoryEntryAdditionGameAction::ENTRY_TYPE_TEXTURE_FILE_NAME_EFFECT },
         { CardHistoryEntryAdditionGameAction::IS_TURN_COUNTER_PARAM, "false"}
     });
+    
+    // Add mini boss & boss armor
+    if (DataRepository::GetInstance().GetCurrentStoryMapNodeCoord() == game_constants::TUTORIAL_MAP_BOSS_COORD && DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::TUTORIAL_MAP)
+    {
+        mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerCurrentArmor = MINI_BOSS_ARMOR;
+        mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerArmorRecharge = MINI_BOSS_ARMOR;
+    }
+    else if (DataRepository::GetInstance().GetCurrentStoryMapNodeType() == StoryMap::NodeType::BOSS_ENCOUNTER)
+    {
+        mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerCurrentArmor = FINAL_BOSS_ARMOR;
+        mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerArmorRecharge = FINAL_BOSS_ARMOR;
+    }
+    
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -176,7 +192,16 @@ ActionAnimationUpdateResult HeroCardEntryGameAction::VUpdateAnimation(const floa
             
         case AnimationState::INITIALIZE_HEALTH_CRYSTAL_ANIMATION:
         {
-            animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(topHealthContainerBase, mTargetHealthCrystalBasePosition, mTargetHealthCrystalBaseScale, HEALTH_CRYSTAL_ANIMATION_DURATION_SECS, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT | animation_flags::IGNORE_Z_COMPONENT, HEALTH_CRYSTAL_ANIMATION_DELAY_SECS, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){ mAnimationState = AnimationState::COMPLETE; });
+            animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(topHealthContainerBase, mTargetHealthCrystalBasePosition, mTargetHealthCrystalBaseScale, HEALTH_CRYSTAL_ANIMATION_DURATION_SECS, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT | animation_flags::IGNORE_Z_COMPONENT, HEALTH_CRYSTAL_ANIMATION_DELAY_SECS, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+            {
+                if (mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerCurrentArmor > 0)
+                {
+                    events::EventSystem::GetInstance().DispatchEvent<events::ArmorChangeChangeAnimationTriggerEvent>(true, mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerCurrentArmor);
+                }
+                
+                mAnimationState = AnimationState::COMPLETE;
+                
+            });
             animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(topHealthContainerValue, mTargetHealthCrystalValuePosition, mTargetHealthCrystalValueScale, HEALTH_CRYSTAL_ANIMATION_DURATION_SECS, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT | animation_flags::IGNORE_Z_COMPONENT, HEALTH_CRYSTAL_ANIMATION_DELAY_SECS, math::LinearFunction, math::TweeningMode::EASE_OUT), [](){});
             
             auto crystalBaseMidwayPosition = (topHealthContainerBase->mPosition + mTargetHealthCrystalBasePosition)/2.0f;

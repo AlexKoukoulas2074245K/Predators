@@ -115,7 +115,7 @@ void PlayerActionGenerationEngine::DecideAndPushNextActions(BoardState* currentB
             currentHeldCards.erase(originalHeldCardIter);
             iter = currentHeldCardsCopySorted.erase(iter);
             
-            shouldWaitForFurtherActions = IsCardHighPriority(cardData, &boardStateCopy);
+            shouldWaitForFurtherActions = IsCardHighPriority(cardData, &boardStateCopy) || cardData.mIsSingleUse;
             if (shouldWaitForFurtherActions)
             {
                 break;
@@ -191,6 +191,12 @@ bool PlayerActionGenerationEngine::IsCardHighPriority(const CardData& cardData, 
     (
         cardData.IsSpell() &&
         strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_DRAW_RANDOM_SPELL)
+    ) return true;
+    
+    else if
+    (
+        cardData.IsSpell() &&
+        strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_ARMOR)
     ) return true;
     
     return false;

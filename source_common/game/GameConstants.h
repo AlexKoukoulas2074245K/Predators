@@ -103,7 +103,8 @@ namespace game_constants
     inline const strutils::StringId CUTOFF_MIN_Y_UNIFORM_NAME = strutils::StringId("cutoff_min_y");
     inline const strutils::StringId CUTOFF_MAX_Y_UNIFORM_NAME = strutils::StringId("cutoff_max_y");
     inline const strutils::StringId CUSTOM_COLOR_UNIFORM_NAME = strutils::StringId("custom_color");
-    
+    inline const strutils::StringId METALLIC_STAT_CONTAINER_UNIFORM_NAME = strutils::StringId("metallic_container");
+
     // Card Family Names
     inline const strutils::StringId INSECTS_FAMILY_NAME = strutils::StringId("insects");
     inline const strutils::StringId RODENTS_FAMILY_NAME = strutils::StringId("rodents");
@@ -198,13 +199,17 @@ namespace game_constants
     inline const float INDIVIDUAL_CARD_BOARD_EFFECT_SCALE_UP_FACTOR = 1.5f;
     inline const float INDIVIDUAL_CARD_BOARD_EFFECT_PULSE_ANIMATION_PULSE_DURATION_SECS = 1.0f;
     inline const float POISON_STACK_SHOW_HIDE_ANIMATION_DURATION_SECS = 1.0f;
+    inline const float ARMOR_SHOW_HIDE_ANIMATION_DURATION_SECS = 1.0f;
     inline const float RODENTS_RESPAWN_CHANCE = 0.4f;
     inline const float SCENE_SPEED_DILATION_ANIMATION_DURATION_SECS = 0.5f;
+    inline const float PER_ARMOR_DROPPED_DELAY_ANIMATION_DURATION_SECS = 0.3f;
 
     inline const glm::vec3 INDIVIDUAL_CARD_BOARD_EFFECT_SCALE = {1/20.0f, 1/20.0f, 1/20.0f};
     inline const glm::vec3 CARD_HIGHLIGHTER_SCALE = {0.08f, 0.13f, 1.0f};
     inline const glm::vec3 HEALTH_CRYSTAL_TOP_POSITION = {-0.105f, 0.03f, 2.0f};
     inline const glm::vec3 HEALTH_CRYSTAL_BOT_POSITION = {-0.105f, -0.03f, 2.0f};
+    inline const glm::vec3 ARMOR_CONTAINER_TOP_POSITION = {-0.105f, 0.036f, 2.05f};
+    inline const glm::vec3 ARMOR_CONTAINER_BOT_POSITION = {-0.105f, -0.024f, 2.05f};
     inline const glm::vec3 WEIGHT_CRYSTAL_TOP_POSITION = {0.095f, 0.03f, 2.0f};
     inline const glm::vec3 WEIGHT_CRYSTAL_BOT_POSITION = {0.095f, -0.03f, 2.0f};
     inline const glm::vec3 POISON_STACK_TOP_POSITION = {-0.105f, 0.005f, 2.0f};

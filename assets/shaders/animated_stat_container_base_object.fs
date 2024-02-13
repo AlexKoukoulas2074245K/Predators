@@ -14,6 +14,7 @@ uniform vec3 point_light_positions[32];
 uniform float point_light_powers[32];
 uniform float custom_alpha;
 uniform bool affected_by_light;
+uniform bool metallic_container;
 uniform int active_light_count;
 out vec4 frag_color;
 
@@ -24,6 +25,11 @@ void main()
     frag_color = texture(tex, vec2(final_uv_x, final_uv_y));
 
     if (frag_color.a < 0.58) discard;
+    
+    if (metallic_container)
+    {
+        frag_color.a *= 0.85f;
+    }
     
     frag_color.a *= custom_alpha;
     

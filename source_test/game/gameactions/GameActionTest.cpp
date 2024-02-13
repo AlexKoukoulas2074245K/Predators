@@ -308,6 +308,38 @@ TEST_F(GameActionTests, TestDoubleFluffAttackFollowedByBunny)
     EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH - (GET_CARD_DAMAGE("Bunny") + 2 + 2)); // Bunny original attack = 1. Fluff Attack + 2. Fluff Attack + 2. Final attack = 5.
 }
 
+TEST_F(GameActionTests, TestDoubleFluffAttackFollowedByBunnyAndDinoArmor)
+{
+    mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {GET_CARD_ID("Dino Armor")}; // Top player has a deck of dino armor
+    mBoardState->GetPlayerStates()[1].mPlayerDeckCards = {GET_CARD_ID("Bunny"), GET_CARD_ID("Fluff Attack")}; // Bot player has a deck of Beavers(3,3) and fluff attack
+    
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = GET_CARD_WEIGHT("Dino Armor");
+    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = GET_CARD_WEIGHT("Dino Armor");
+    mBoardState->GetPlayerStates()[0].mPlayerHeldCards = {GET_CARD_ID("Dino Armor")};
+    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Dino armor is played by top player
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mBoardState->GetPlayerStates()[1].mPlayerTotalWeightAmmo = GET_CARD_WEIGHT("Fluff Attack") + GET_CARD_WEIGHT("Bunny");
+    mBoardState->GetPlayerStates()[1].mPlayerCurrentWeightAmmo = GET_CARD_WEIGHT("Fluff Attack") + GET_CARD_WEIGHT("Bunny");
+    mBoardState->GetPlayerStates()[1].mPlayerHeldCards = {GET_CARD_ID("Bunny"), GET_CARD_ID("Fluff Attack"), GET_CARD_ID("Fluff Attack")};  // Bot player has 2 fluff attacks and a bunny
+    
+    mActionEngine->AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "1" }}); // First Fluff Attack is played
+    mActionEngine->AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "1" }}); // Second Fluff Attack is played
+    mActionEngine->AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "0" }}); // Bunny is played
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    
+    UpdateUntilActionOrIdle(CARD_ATTACK_GAME_ACTION_NAME);
+    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH);
+    
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH - (GET_CARD_DAMAGE("Bunny") + 2 + 2 - 3)); // Bunny original attack = 1. Fluff Attack + 2. Fluff Attack + 2. Dino Armor - 3. Final attack = 2.
+}
+
 TEST_F(GameActionTests, TestDoubleNetAndFluffAttackCombinedEffects)
 {
     mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {GET_CARD_ID("Throwing Net")}; // Top player has a deck of nets

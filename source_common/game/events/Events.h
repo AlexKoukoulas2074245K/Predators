@@ -380,6 +380,22 @@ public:
 
 ///------------------------------------------------------------------------------------------------
 
+class ArmorChangeChangeAnimationTriggerEvent final
+{
+public:
+    ArmorChangeChangeAnimationTriggerEvent(const bool forRemotePlayer, const int newArmorValue)
+        : mForRemotePlayer(forRemotePlayer)
+        , mNewArmorValue(newArmorValue)
+    {
+        
+    }
+    
+    const bool mForRemotePlayer;
+    const int mNewArmorValue;
+};
+
+///------------------------------------------------------------------------------------------------
+
 class CardHistoryEntryAdditionEvent final
 {
 public:
