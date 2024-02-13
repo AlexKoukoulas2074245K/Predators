@@ -729,7 +729,7 @@ void BattleSceneLogicManager::HandleTouchInput(const float dtMillis)
                 freeMovingCardThisFrame = true;
             }
         }
-        else if (inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON) && cursorInSceneObject && !otherHighlightedCardExists && mCanInteractWithAnyHeldCard)
+        else if (inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON) && cursorInSceneObject && !otherHighlightedCardExists && mCanInteractWithAnyHeldCard && currentCardSoWrapper->mState != CardSoState::MOVING_TO_SET_POSITION)
         {
             auto originalCardPosition = card_utils::CalculateHeldCardPosition(i, localPlayerCardCount, false, battleScene->GetCamera());
             if (currentCardSoWrapper->mSceneObject->mPosition.y <= originalCardPosition.y)
@@ -747,18 +747,11 @@ void BattleSceneLogicManager::HandleTouchInput(const float dtMillis)
                     OnFreeMovingCardRelease(currentCardSoWrapper);
                 } break;
                     
-                case CardSoState::IDLE:
-                {
-                    auto originalCardPosition = card_utils::CalculateHeldCardPosition(i, localPlayerCardCount, false, battleScene->GetCamera());
-                    if (!cursorInSceneObject && animationManager.GetAnimationCountPlayingForSceneObject(currentCardSoWrapper->mSceneObject->mName) == 0 && glm::distance(currentCardSoWrapper->mSceneObject->mPosition, originalCardPosition) > 0.001f)
-                    {
-                        animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(currentCardSoWrapper->mSceneObject, originalCardPosition, currentCardSoWrapper->mSceneObject->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::IGNORE_X_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){});
-                    }
-                } break;
                     
                 case CardSoState::HIGHLIGHTED:
                 {
                     auto originalCardPosition = card_utils::CalculateHeldCardPosition(i, localPlayerCardCount, false, battleScene->GetCamera());
+                    animationManager.StopAllAnimationsPlayingForSceneObject(currentCardSoWrapper->mSceneObject->mName);
                     animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(currentCardSoWrapper->mSceneObject, originalCardPosition, currentCardSoWrapper->mSceneObject->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::IGNORE_X_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){currentCardSoWrapper->mState = CardSoState::IDLE; });
                     currentCardSoWrapper->mState = CardSoState::MOVING_TO_SET_POSITION;
                     DestroyCardHighlighterAtIndex(i);

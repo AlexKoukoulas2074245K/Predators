@@ -53,8 +53,8 @@ static const float SWIPE_VELOCITY_DAMPING = 0.8f;
 static const float SWIPE_VELOCITY_INTEGRATION_SPEED = 0.08f;
 static const float SWIPE_VELOCITY_MIN_MAGNITUDE_TO_START_MOVING = 0.0001f;
 static const float MAX_CAMERA_DISTANCE_TO_REGISTER_NODE_TAP = 0.01f;
-static const float MAP_NAME_FADE_IN_OUT_DURATION_SECS = 1.0f;
-static const float MAP_FADE_OUT_DELAY_SECS = 2.0f;
+static const float MAP_NAME_FADE_IN_OUT_DURATION_SECS = 0.75f;
+static const float MAP_FADE_OUT_DELAY_SECS = 1.5f;
 
 #if defined(NDEBUG) || defined(MOBILE_FLOW)
 static const float FRESH_MAP_ANIMATION_SPEED = 2.0f;
