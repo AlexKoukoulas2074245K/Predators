@@ -35,6 +35,7 @@ static const std::string SELECTABLE_BUTTON_SHADER_FILE_NAME = "basic_custom_colo
 static const std::string DECK_ENTRY_SHADER = "card_family_selection_swipe_entry.vs";
 static const std::string DECK_ENTRY_MASK_TEXTURE_FILE_NAME = "trap_mask.png";
 
+static const strutils::StringId PRIVACY_POLICY_SCENE = strutils::StringId("privacy_policy_scene");
 static const strutils::StringId GIFT_CODE_CLAIM_SCENE = strutils::StringId("gift_code_claim_scene");
 static const strutils::StringId BOARD_SCENE_OBJECT_NAME = strutils::StringId("board");
 static const strutils::StringId STORY_MODE_BUTTON_NAME = strutils::StringId("story_mode_button");
@@ -48,6 +49,7 @@ static const strutils::StringId NORMAL_BATTLE_MODE_BUTTON_NAME = strutils::Strin
 static const strutils::StringId AI_DEMO_BATTLE_MODE_BUTTON_NAME = strutils::StringId("ai_demo_battle_mode_button");
 static const strutils::StringId REPLAY_BATTLE_MODE_BUTTON_NAME = strutils::StringId("replay_battle_mode_button");
 static const strutils::StringId ENTER_GIFT_CODE_BUTTON_NAME = strutils::StringId("enter_gift_code_button");
+static const strutils::StringId PRIVACY_POLICY_BUTTON_NAME = strutils::StringId("privacy_policy_button");
 static const strutils::StringId BACK_BUTTON_NAME = strutils::StringId("back_button");
 static const strutils::StringId TITLE_SCENE_OBJECT_NAME = strutils::StringId("predators_title");
 static const strutils::StringId TOP_DECK_TEXT_SCENE_OBJECT_NAME = strutils::StringId("top_deck_text");
@@ -81,8 +83,9 @@ static const glm::vec3 CARD_LIBRARY_BUTTON_POSITION = {0.0f, 0.02f, 0.1f};
 static const glm::vec3 SHOP_BUTTON_POSITION = {0.0f, -0.05f, 0.1f};
 static const glm::vec3 EXTRAS_BUTTON_POSITION = {0.0f, -0.110f, 0.1f};
 static const glm::vec3 QUIT_BUTTON_POSITION = {0.0f, -0.180f, 0.1f};
-
 static const glm::vec3 ENTER_GIFT_CODE_BUTTON_POSITION = {-0.135f, 0.085f, 0.1f};
+static const glm::vec3 PRIVACY_POLICY_BUTTON_POSITION = {-0.125f, 0.005f, 0.1f};
+
 static const glm::vec3 BACK_BUTTON_POSITION = {0.082f, -0.173f, 0.1f};
 static const glm::vec3 DESELECTED_BUTTON_COLOR = { 1.0f, 1.0f, 1.0f};
 static const glm::vec3 SELECTED_BUTTON_COLOR = {0.0f, 0.66f, 0.66f};
@@ -651,6 +654,20 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                     {
                         OnEnterGiftCodeButtonPressed();
                     }
+                },
+                *scene
+            ));
+            
+            mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
+            (
+                PRIVACY_POLICY_BUTTON_POSITION,
+                BUTTON_SCALE,
+                game_constants::DEFAULT_FONT_NAME,
+                "Privacy Policy",
+                PRIVACY_POLICY_BUTTON_NAME,
+                [=]()
+                {
+                    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(PRIVACY_POLICY_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
                 },
                 *scene
             ));

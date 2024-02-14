@@ -55,6 +55,7 @@
 		852CA5BF9F18EE7D8BC07F41 /* CardPackRewardSceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0329997E00487B8402D75893 /* CardPackRewardSceneLogicManager.cpp */; };
 		8B1E14201860F88101ECDA69 /* CardPackRewardSceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 57036803010C5B02CAA45959 /* CardPackRewardSceneLogicManager.h */; };
 		8C096F9D043616750BC963F8 /* TextureLoader.h in Sources */ = {isa = PBXBuildFile; fileRef = 05D038A4FFCF3C5AA2E85A75 /* TextureLoader.h */; };
+		8FEF85106FBA344AB3578CD7 /* PrivacyPolicySceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 562954112A205A0409E2625D /* PrivacyPolicySceneLogicManager.h */; };
 		9233DAB22B5E760200C55555 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9233DAB12B5E760200C55555 /* CloudKit.framework */; };
 		926C7C1E2B7239720028766E /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 926C7C1D2B7239720028766E /* AppKit.framework */; };
 		928B07DB2B5C385E0025DF3F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 928B07DA2B5C385E0025DF3F /* Assets.xcassets */; };
@@ -156,6 +157,7 @@
 		928B0D4E2B5D7B7E0025DF3F /* SDL2_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 928B0D4B2B5D7B7E0025DF3F /* SDL2_image.framework */; };
 		928B0D4F2B5D7B7E0025DF3F /* SDL2_image.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 928B0D4B2B5D7B7E0025DF3F /* SDL2_image.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		92CA97412B65132C00B53B01 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92CA97402B65132B00B53B01 /* StoreKit.framework */; };
+		956A9FE717F26B0C312CF97F /* PrivacyPolicySceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDA82AC01781CC5D7781923C /* PrivacyPolicySceneLogicManager.cpp */; };
 		95BF1C18A001B37A45C9BF9E /* IRenderer.h in Sources */ = {isa = PBXBuildFile; fileRef = E0599E67CDFA7350C55C73A5 /* IRenderer.h */; };
 		98103BEE4729AAA87D535679 /* VictorySceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC1DB90079164B1337D075DD /* VictorySceneLogicManager.cpp */; };
 		9F60F6BEA7D20AB4B5EFA323 /* ResourceLoadingService.h in Sources */ = {isa = PBXBuildFile; fileRef = 7C92E4EC0FBCD6AFCA53FD77 /* ResourceLoadingService.h */; };
@@ -244,6 +246,7 @@
 		53CDE03B92A8F220738E44FE /* ImageSurfaceResource.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = ImageSurfaceResource.cpp; sourceTree = "<group>"; };
 		543F0360AEBB87C61E32D84B /* ThreadSafeQueue.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = ThreadSafeQueue.h; sourceTree = "<group>"; };
 		54B9F7B7FC4B3D5056E01F2F /* GiftingUtils.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = GiftingUtils.h; sourceTree = "<group>"; };
+		562954112A205A0409E2625D /* PrivacyPolicySceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = PrivacyPolicySceneLogicManager.h; path = PrivacyPolicySceneLogicManager.h; sourceTree = "<group>"; };
 		57036803010C5B02CAA45959 /* CardPackRewardSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = CardPackRewardSceneLogicManager.h; sourceTree = "<group>"; };
 		59B053AEBDD62B4FCAB8E05D /* RenderingUtils.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = RenderingUtils.cpp; sourceTree = "<group>"; };
 		5BD45E193E73BAA2C5DD3337 /* CloudDataConfirmationSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = CloudDataConfirmationSceneLogicManager.cpp; sourceTree = "<group>"; };
@@ -462,6 +465,7 @@
 		C93CFFE8EE51C27FEBFD1AF9 /* DisconnectedSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = DisconnectedSceneLogicManager.cpp; sourceTree = "<group>"; };
 		CAEF02928D06B177B1091C5F /* ImageSurfaceResource.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = ImageSurfaceResource.h; sourceTree = "<group>"; };
 		CC1DB90079164B1337D075DD /* VictorySceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = VictorySceneLogicManager.cpp; sourceTree = "<group>"; };
+		CDA82AC01781CC5D7781923C /* PrivacyPolicySceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = PrivacyPolicySceneLogicManager.cpp; path = PrivacyPolicySceneLogicManager.cpp; sourceTree = "<group>"; };
 		CF33F7C72612B80A9AB49895 /* InputStateManagerPlatformImpl.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = InputStateManagerPlatformImpl.cpp; sourceTree = "<group>"; };
 		D099CB93E6198C3BE5F73FDE /* IInputStateManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = IInputStateManager.h; sourceTree = "<group>"; };
 		D64C3227BB47CA8611283D51 /* wglew.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = wglew.h; sourceTree = "<group>"; };
@@ -909,6 +913,8 @@
 				8360B79E5EF0CAFD8B87FA71 /* VictorySceneLogicManager.h */,
 				023F9B933F5F526D7A8725F5 /* GiftCodeClaimSceneLogicManager.cpp */,
 				71C6F5A357C7E63ABEB0D3CA /* GiftCodeClaimSceneLogicManager.h */,
+				CDA82AC01781CC5D7781923C /* PrivacyPolicySceneLogicManager.cpp */,
+				562954112A205A0409E2625D /* PrivacyPolicySceneLogicManager.h */,
 			);
 			path = scenelogicmanagers;
 			sourceTree = "<group>";
@@ -1324,6 +1330,8 @@
 				52E04351601B4B0D40066C6A /* GiftingUtils.h in Sources */,
 				C874CF4A0FB15BBE0C8E8E73 /* GiftCodeClaimSceneLogicManager.cpp in Sources */,
 				53D57AF62077A4EDE50A19A6 /* GiftCodeClaimSceneLogicManager.h in Sources */,
+				956A9FE717F26B0C312CF97F /* PrivacyPolicySceneLogicManager.cpp in Sources */,
+				8FEF85106FBA344AB3578CD7 /* PrivacyPolicySceneLogicManager.h in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

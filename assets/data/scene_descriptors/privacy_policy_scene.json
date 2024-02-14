@@ -1,0 +1,17 @@
+{
+    "children_scenes":
+    [
+    ],
+    
+    "scene_objects":
+    [
+        {
+            "name": "privacy_policy_title",
+            "font": "font",
+            "text": "Privacy Policy",
+            "scale": { "x": 0.0005, "y": 0.0005, "z": 0.0005 },
+            "position": { "x": -0.124, "y": 0.213, "z": 23.1 },
+            "alpha": 0.0
+        }
+    ]
+}

@@ -75,7 +75,8 @@ public:
         const strutils::StringId& containerName,
         const float containerItemsZ,
         scene::Scene& scene,
-        const size_t minItemsToAnimate = DEFAULT_MIN_ITEMS_TO_ANIMATE
+        const size_t minItemsToAnimate = DEFAULT_MIN_ITEMS_TO_ANIMATE,
+        const bool textMode = false
      )
         : mContainerType(containerType)
         , mEntryScale(entryScale)
@@ -85,6 +86,7 @@ public:
         , mContainerItemsZ(containerItemsZ)
         , mScene(scene)
         , mMinItemsToAnimate(minItemsToAnimate)
+        , mTextMode(textMode)
     {
         ResetSwipeData();
         mBlockedUpdate = false;
@@ -157,7 +159,7 @@ public:
         }
         
         auto containerWidth = mContainerBounds.topRight.x - mContainerBounds.bottomLeft.x;
-        auto maxRowElementsCount = static_cast<int>(containerWidth/mEntryScale.x);
+        auto maxRowElementsCount = mTextMode ? 1 : static_cast<int>(containerWidth/mEntryScale.x);
         auto columnElementIndex = itemIndex % maxRowElementsCount;
         auto rowElementIndex = itemIndex / maxRowElementsCount;
         
@@ -514,6 +516,7 @@ private:
     glm::vec3 mSwipeCurrentPos;
     bool mBlockedUpdate;
     bool mHasStartedSwipe;
+    bool mTextMode;
     float mSwipeDurationMillis = 0.0f;
     float mSwipeVelocityDelta = 0.0f;
     float mSwipeDelta = 0.0f;

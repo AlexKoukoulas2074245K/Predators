@@ -48,6 +48,7 @@
 #include <game/scenelogicmanagers/GiftCodeClaimSceneLogicManager.h>
 #include <game/scenelogicmanagers/LoadingSceneLogicManager.h>
 #include <game/scenelogicmanagers/MainMenuSceneLogicManager.h>
+#include <game/scenelogicmanagers/PrivacyPolicySceneLogicManager.h>
 #include <game/scenelogicmanagers/PurchasingProductSceneLogicManager.h>
 #include <game/scenelogicmanagers/SettingsSceneLogicManager.h>
 #include <game/scenelogicmanagers/ShopSceneLogicManager.h>
@@ -128,6 +129,7 @@ void Game::Init()
     mGameSceneTransitionManager->RegisterSceneLogicManager<GiftCodeClaimSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<LoadingSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<MainMenuSceneLogicManager>();
+    mGameSceneTransitionManager->RegisterSceneLogicManager<PrivacyPolicySceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<PurchasingProductSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<SettingsSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<ShopSceneLogicManager>();
