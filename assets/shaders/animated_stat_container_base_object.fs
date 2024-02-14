@@ -8,11 +8,13 @@ in vec2 uv_frag;
 in vec3 frag_unprojected_pos;
 
 uniform sampler2D tex;
+uniform sampler2D metallic_tex;
 uniform vec4 ambient_light_color;
 uniform vec4 point_light_colors[32];
 uniform vec3 point_light_positions[32];
 uniform float point_light_powers[32];
 uniform float custom_alpha;
+uniform float time;
 uniform bool affected_by_light;
 uniform bool metallic_container;
 uniform int active_light_count;
@@ -28,7 +30,11 @@ void main()
     
     if (metallic_container)
     {
-        frag_color.a *= 0.85f;
+        if (frag_color.r > 0.95f && frag_color.g > 0.95f && frag_color.b > 0.95f)
+        {
+            frag_color = texture(metallic_tex, vec2(final_uv_x + time/10, final_uv_y));
+        }
+        frag_color.a *= 0.8f;
     }
     
     frag_color.a *= custom_alpha;

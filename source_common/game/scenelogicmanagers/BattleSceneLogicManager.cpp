@@ -98,6 +98,7 @@ static const std::string HISTORY_ENTRY_MASK_TEXTURE_FILE_NAME = "history_entry_m
 static const std::string HISTORY_ENTRY_SPELL_MASK_TEXTURE_FILE_NAME = "history_entry_spell_mask.png";
 static const std::string HISTORY_ENTRY_TURN_COUNTER_MASK_TEXTURE_FILE_NAME = "history_entry_turn_counter_mask.png";
 static const std::string TURN_COUNTER_HISTORY_ENTRY_TEXTURE_FILE_NAME = "history_turn_counter.png";
+static const std::string METALLIC_TEXTURE_FILE_NAME = "metallic_texture.png";
 
 static const glm::vec3 BOARD_SIDE_EFFECT_TOP_POSITION = { 0.0f, 0.044f, 1.0f};
 static const glm::vec3 BOARD_SIDE_EFFECT_BOT_POSITION = { 0.0f, -0.044f, 1.0f};
@@ -366,8 +367,10 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
     // Armor
     mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(game_constants::ARMOR_CONTAINER_TOP_POSITION, METALLIC_HEALTH_CRYSTAL_TEXTURE_FILE_NAME, ARMOR_CONTAINER_TOP_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[0].mPlayerCurrentArmor, true, *scene)));
     mAnimatedStatContainers.back().second->GetSceneObjects().front()->mShaderBoolUniformValues[game_constants::METALLIC_STAT_CONTAINER_UNIFORM_NAME] = true;
+    mAnimatedStatContainers.back().second->GetSceneObjects().front()->mEffectTextureResourceIds[0] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + METALLIC_TEXTURE_FILE_NAME);
     mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(game_constants::ARMOR_CONTAINER_BOT_POSITION, METALLIC_HEALTH_CRYSTAL_TEXTURE_FILE_NAME, ARMOR_CONTAINER_BOT_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[1].mPlayerCurrentArmor, true, *scene)));
     mAnimatedStatContainers.back().second->GetSceneObjects().front()->mShaderBoolUniformValues[game_constants::METALLIC_STAT_CONTAINER_UNIFORM_NAME] = true;
+    mAnimatedStatContainers.back().second->GetSceneObjects().front()->mEffectTextureResourceIds[0] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + METALLIC_TEXTURE_FILE_NAME);
     
     // Board Effect Animation Factory lambda
     auto cardBoardEffectAnimation = [=]
@@ -1074,6 +1077,8 @@ void BattleSceneLogicManager::UpdateMiscSceneObjects(const float dtMillis)
         {
             statContainerEntry.first = statContainerEntry.second->Update(dtMillis) == AnimatedStatContainerUpdateResult::ONGOING;
         }
+        
+        statContainerEntry.second->GetSceneObjects().front()->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
     }
     
     // Board side effects
