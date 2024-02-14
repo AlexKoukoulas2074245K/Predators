@@ -243,7 +243,7 @@
             "family": "insects",
             "name": "Toxic Wave",
             "effect": "DOUBLE_POISON_ATTACKS",
-            "tooltip": "Doubles the poison$stacks taken by the$opponent at the end$of this turn",
+            "tooltip": "Doubles the poison$stacks taken by the$opponent this turn",
             "texture": "poison_smoke.png",
             "shader": "basic.vs"
         },
@@ -377,6 +377,19 @@
             "effect": "ARMOR +2",
             "tooltip": "Gives +2 ARMOR now$and at the start of$every new turn",
             "texture": "dino_armor.png",
+            "shader": "basic.vs",
+            "single_use": true
+        },
+        {
+            "weight": 0,
+            "family": "insects",
+            "name": "Toxic Bomb",
+            "effect": "TOXIC_BOMB",
+            "tooltip": "Expends all leftover$weight, to inflict$that much poison to$the opponent",
+            "texture": "toxic_bomb.png",
+            "particle_effect": "toxic_bomb",
+            "particle_shake_duration": 1.0,
+            "particle_shake_strength": 0.03,
             "shader": "basic.vs",
             "single_use": true
         }

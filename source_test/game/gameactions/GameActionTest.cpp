@@ -284,7 +284,7 @@ TEST_F(GameActionTests, TestNetAndFluffAttackCombinedEffects)
 TEST_F(GameActionTests, TestDoubleFluffAttackFollowedByBunny)
 {
     mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {GET_CARD_ID("Bunny")}; // Top player has a deck of bunnies
-    mBoardState->GetPlayerStates()[1].mPlayerDeckCards = {GET_CARD_ID("Bunny"), GET_CARD_ID("Fluff Attack")}; // Bot player has a deck of Beavers(3,3) and fluff attack
+    mBoardState->GetPlayerStates()[1].mPlayerDeckCards = {GET_CARD_ID("Bunny"), GET_CARD_ID("Fluff Attack")}; // Bot player has a deck of Bunnies(1,1) and fluff attack
     
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
@@ -311,7 +311,7 @@ TEST_F(GameActionTests, TestDoubleFluffAttackFollowedByBunny)
 TEST_F(GameActionTests, TestDoubleFluffAttackFollowedByBunnyAndDinoArmor)
 {
     mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {GET_CARD_ID("Dino Armor")}; // Top player has a deck of dino armor
-    mBoardState->GetPlayerStates()[1].mPlayerDeckCards = {GET_CARD_ID("Bunny"), GET_CARD_ID("Fluff Attack")}; // Bot player has a deck of Beavers(3,3) and fluff attack
+    mBoardState->GetPlayerStates()[1].mPlayerDeckCards = {GET_CARD_ID("Bunny"), GET_CARD_ID("Fluff Attack")}; // Bot player has a deck of Bunnies(1,1) and fluff attack
     
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
@@ -337,7 +337,48 @@ TEST_F(GameActionTests, TestDoubleFluffAttackFollowedByBunnyAndDinoArmor)
     EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH);
     
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
-    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH - (GET_CARD_DAMAGE("Bunny") + 2 + 2 - 3)); // Bunny original attack = 1. Fluff Attack + 2. Fluff Attack + 2. Dino Armor - 3. Final attack = 2.
+    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH - (GET_CARD_DAMAGE("Bunny") + 2 + 2 - 2)); // Bunny original attack = 1. Fluff Attack + 2. Fluff Attack + 2. Dino Armor - 2. Final attack = 2.
+}
+
+TEST_F(GameActionTests, TestToxicBombPoisonStackApplicationAndWeightReduction)
+{
+    mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {GET_CARD_ID("Toxic Bomb")}; // Top player has a deck of Toxic Bombs
+    mBoardState->GetPlayerStates()[1].mPlayerDeckCards = {GET_CARD_ID("Bunny")}; // Bot player has a deck of Bunnies(1,1)
+    
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = GET_CARD_WEIGHT("Toxic Bomb") + 4;
+    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = GET_CARD_WEIGHT("Toxic Bomb") + 4;
+    mBoardState->GetPlayerStates()[0].mPlayerHeldCards = {GET_CARD_ID("Toxic Bomb")};
+    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Toxic Bomb is played by top player
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo, 0);
+    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH - 4); // Expended weight = 4.
+}
+
+TEST_F(GameActionTests, TestToxicBombPoisonStackApplicationAndWeightReductionInConjunctionWithToxicWave)
+{
+    mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {GET_CARD_ID("Toxic Bomb"), GET_CARD_ID("Toxic Wave")}; // Top player has a deck of Toxic Bombs and Toxic Waves
+    mBoardState->GetPlayerStates()[1].mPlayerDeckCards = {GET_CARD_ID("Bunny")}; // Bot player has a deck of Bunnies(1,1)
+    
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = GET_CARD_WEIGHT("Toxic Bomb") + GET_CARD_WEIGHT("Toxic Wave") + 4;
+    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = GET_CARD_WEIGHT("Toxic Bomb") + GET_CARD_WEIGHT("Toxic Wave") + 4;
+    mBoardState->GetPlayerStates()[0].mPlayerHeldCards = {GET_CARD_ID("Toxic Bomb"), GET_CARD_ID("Toxic Wave")};
+    
+    mActionEngine->AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "1" }}); // Toxic Wave is played
+    mActionEngine->AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "0" }}); // Toxic Bomb is played
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo, 0);
+    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH - 8); // Toxic bomb original stacks = 4. Toxic Wave doubles that.
 }
 
 TEST_F(GameActionTests, TestDoubleNetAndFluffAttackCombinedEffects)

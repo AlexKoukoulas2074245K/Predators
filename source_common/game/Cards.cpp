@@ -39,7 +39,7 @@ static const std::unordered_map<strutils::StringId, std::vector<strutils::String
 {
     { game_constants::DINOSAURS_FAMILY_NAME, { strutils::StringId("Stegosaurus"), strutils::StringId("Triceratops"), strutils::StringId("Dilophosaurus"), strutils::StringId("Velociraptor") }},
     { game_constants::RODENTS_FAMILY_NAME,   { strutils::StringId("Bunny"), strutils::StringId("Squirrel"), strutils::StringId("Ground Hog"), strutils::StringId("Guinea Pig") }},
-    { game_constants::INSECTS_FAMILY_NAME,   { strutils::StringId("Fly"), strutils::StringId("Ladybug"), strutils::StringId("Beetle"), strutils::StringId("Mosquito") }},
+    { game_constants::INSECTS_FAMILY_NAME,   { strutils::StringId("Fly"), strutils::StringId("Ladybug"), strutils::StringId("Beetle"), strutils::StringId("Mosquito") }}
 };
 
 ///------------------------------------------------------------------------------------------------
@@ -338,6 +338,18 @@ void CardDataRepository::LoadCardData(bool loadCardAssets)
             cardData.mIsSingleUse = cardObject["single_use"].get<bool>();
         }
         
+        // Shake strength on particle step
+        if (cardObject.count("particle_shake_strength"))
+        {
+            cardData.mParticleShakeStrength = cardObject["particle_shake_strength"].get<float>();
+        }
+        
+        // Shake seconds duration on particle step
+        if (cardObject.count("particle_shake_duration"))
+        {
+            cardData.mParticleShakeDurationSecs = cardObject["particle_shake_duration"].get<float>();
+        }
+    
         cardData.mCardName = strutils::StringId(cardObject["name"].get<std::string>());
         
         // Make sure card has a registered card family

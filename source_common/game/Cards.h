@@ -68,6 +68,8 @@ struct CardData
     int mCardId;
     int mCardDamage;
     int mCardWeight;
+    float mParticleShakeDurationSecs;
+    float mParticleShakeStrength;
     strutils::StringId mCardName;
     std::string mCardEffect;
     std::string mCardEffectTooltip;

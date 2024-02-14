@@ -199,6 +199,12 @@ bool PlayerActionGenerationEngine::IsCardHighPriority(const CardData& cardData, 
         strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_ARMOR)
     ) return true;
     
+    else if
+    (
+        cardData.IsSpell() &&
+        strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_TOXIC_BOMB)
+    ) return true;
+    
     return false;
 }
 

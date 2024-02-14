@@ -34,6 +34,22 @@
             "particle_enlargement_speed": 0.00002
         },
         {
+            "name": "toxic_bomb",
+            "texture": "poison_smoke.png",
+            "particle_count": 20,
+            "prefilled": true,
+            "continuous_generation": false,
+            "enlarge_over_time": true,
+            "rotate_over_time": false,
+            "initially_rotated": false,
+            "custom_update": false,
+            "lifetime_range": {"min": 1.0, "max": 2.0},
+            "position_x_range": {"min": -0.03, "max": -0.01},
+            "position_y_range": {"min": -0.03, "max": 0.00},
+            "particle_size_range": {"min": 0.01, "max": 0.03},
+            "particle_enlargement_speed": 0.00004
+        },
+        {
             "name": "card_play",
             "texture": "smoke.png",
             "particle_count": 20,

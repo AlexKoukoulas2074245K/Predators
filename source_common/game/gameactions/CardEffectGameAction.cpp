@@ -35,6 +35,7 @@ static const strutils::StringId CARD_BUFFED_DEBUFFED_ANIMATION_GAME_ACTION_NAME 
 static const strutils::StringId CARD_DESTRUCTION_GAME_ACTION_NAME = strutils::StringId("CardDestructionGameAction");
 static const strutils::StringId CARD_HISTORY_ENTRY_ADDITION_GAME_ACTION_NAME = strutils::StringId("CardHistoryEntryAdditionGameAction");
 static const strutils::StringId CARD_EFFECT_GAME_ACTION_NAME = strutils::StringId("CardEffectGameAction");
+static const strutils::StringId CARD_PLAYED_PARTICLE_EFFECT_GAME_ACTION_NAME = strutils::StringId("CardPlayedParticleEffectGameAction");
 
 // Resources
 static const std::string CARD_DISSOLVE_SHADER_FILE_NAME = "card_spell_dissolve.vs";
@@ -133,7 +134,15 @@ void CardEffectGameAction::VSetNewGameState()
         auto randomCardIndex = math::ControlledRandomInt() % availableCardDataCount;
         activePlayerState.mPlayerBoardCards.push_back(activePlayerState.mPlayerInitialDeckCards[randomCardIndex]);
         
-        if (CardDataRepository::GetInstance().GetCardData(activePlayerState.mPlayerBoardCards.back(), mBoardState->GetActivePlayerIndex()).IsSpell())
+        const auto& cardData = CardDataRepository::GetInstance().GetCardData(activePlayerState.mPlayerBoardCards.back(), mBoardState->GetActivePlayerIndex());
+        
+        // Card-specific particle animation
+        if (!cardData.mParticleEffect.isEmpty())
+        {
+            mGameActionEngine->AddGameAction(CARD_PLAYED_PARTICLE_EFFECT_GAME_ACTION_NAME);
+        }
+        
+        if (cardData.IsSpell())
         {
             mGameActionEngine->AddGameAction(CARD_HISTORY_ENTRY_ADDITION_GAME_ACTION_NAME,
             {
@@ -446,6 +455,26 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
         else if (effectComponent == effects::EFFECT_COMPONENT_CARD_TOKEN)
         {
             mCardTokenCase = true;
+        }
+        
+        // Toxic Bomb
+        else if (effectComponent == effects::EFFECT_COMPONENT_TOXIC_BOMB)
+        {
+            if (mBoardState->GetActivePlayerState().mPlayerCurrentWeightAmmo > 0)
+            {
+                int bombStack = mBoardState->GetActivePlayerState().mPlayerCurrentWeightAmmo;
+                if ((mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::DOUBLE_POISON_ATTACKS) != 0)
+                {
+                    bombStack *= 2;
+                }
+                
+                mBoardState->GetInactivePlayerState().mPlayerPoisonStack += bombStack;
+                
+                mBoardState->GetActivePlayerState().mPlayerCurrentWeightAmmo = 0;
+                events::EventSystem::GetInstance().DispatchEvent<events::WeightChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
+                
+                events::EventSystem::GetInstance().DispatchEvent<events::PoisonStackChangeChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX, mBoardState->GetInactivePlayerState().mPlayerPoisonStack);
+            }
         }
         
         // Modifier/Offset value component

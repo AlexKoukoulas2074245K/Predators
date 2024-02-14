@@ -53,6 +53,7 @@ inline const std::string EFFECT_COMPONENT_PERMANENT_CONTINUAL_WEIGHT_REDUCTION =
 inline const std::string EFFECT_COMPONENT_DIG_NO_FAIL                          = "DIG_NO_FAIL";
 inline const std::string EFFECT_COMPONENT_DRAW_RANDOM_SPELL                    = "DRAW_RANDOM_SPELL";
 inline const std::string EFFECT_COMPONENT_ARMOR                                = "ARMOR";
+inline const std::string EFFECT_COMPONENT_TOXIC_BOMB                           = "TOXIC_BOMB";
 
 inline const std::unordered_set<std::string> STATIC_EFFECT_COMPONENT_NAMES =
 {
@@ -73,7 +74,8 @@ inline const std::unordered_set<std::string> STATIC_EFFECT_COMPONENT_NAMES =
     EFFECT_COMPONENT_DIG_NO_FAIL,
     EFFECT_COMPONENT_DRAW_RANDOM_SPELL,
     EFFECT_COMPONENT_CARD_TOKEN,
-    EFFECT_COMPONENT_ARMOR
+    EFFECT_COMPONENT_ARMOR,
+    EFFECT_COMPONENT_TOXIC_BOMB,
 };
 
 ///------------------------------------------------------------------------------------------------
