@@ -151,7 +151,7 @@ void ResourceLoadingService::Initialize()
     RES_SCRIPTS_ROOT       = RES_ROOT + "scripts/";
     RES_MESHES_ROOT        = RES_ROOT + "meshes/";
     RES_MUSIC_ROOT         = RES_ROOT + "music/";
-    RES_SOUNDS_ROOT        = RES_ROOT + "sounds/";
+    RES_SOUNDS_ROOT        = RES_ROOT + "sfx/";
     RES_SHADERS_ROOT       = RES_ROOT + "shaders/";
     RES_TEXTURES_ROOT      = RES_ROOT + "textures/";
     RES_ATLASES_ROOT       = RES_TEXTURES_ROOT + "atlases/";

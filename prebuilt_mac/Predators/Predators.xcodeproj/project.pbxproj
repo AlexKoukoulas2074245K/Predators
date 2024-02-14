@@ -7,10 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		005DDF1CA71A424F880BFF85 /* AVAudioPlayerManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7F068929D88F95729D0195E3 /* AVAudioPlayerManager.mm */; };
 		0118CE0544990425D47F3A12 /* ShaderResource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB4F4B243BF9EE66291B3910 /* ShaderResource.cpp */; };
 		02E7DF925FD7370A12023A23 /* Camera.h in Sources */ = {isa = PBXBuildFile; fileRef = 70EE9661089211DACFF22288 /* Camera.h */; };
 		03B28C98FAB2D3C8F86DF546 /* IInputStateManager.h in Sources */ = {isa = PBXBuildFile; fileRef = D099CB93E6198C3BE5F73FDE /* IInputStateManager.h */; };
 		08D8483FEFA770B4DBF5A3C4 /* VictorySceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 8360B79E5EF0CAFD8B87FA71 /* VictorySceneLogicManager.h */; };
+		120CF200D56449CFC3BD99AF /* AppleSoundUtils.h in Sources */ = {isa = PBXBuildFile; fileRef = D8216CC78F9B7DEB0BEC7678 /* AppleSoundUtils.h */; };
 		1821BE0D6457687787E1571F /* Scene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6544FC0C6E5993C9E3957773 /* Scene.cpp */; };
 		191617E17721C2C19E20E920 /* IResource.h in Sources */ = {isa = PBXBuildFile; fileRef = 99B2042795EEDA27C28F2D84 /* IResource.h */; };
 		19AB2555F153D36FD08A7E15 /* MeshResource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DDD0E1D0B63F40D725F02A35 /* MeshResource.cpp */; };
@@ -58,6 +60,8 @@
 		8FEF85106FBA344AB3578CD7 /* PrivacyPolicySceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 562954112A205A0409E2625D /* PrivacyPolicySceneLogicManager.h */; };
 		9233DAB22B5E760200C55555 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9233DAB12B5E760200C55555 /* CloudKit.framework */; };
 		926C7C1E2B7239720028766E /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 926C7C1D2B7239720028766E /* AppKit.framework */; };
+		9272506B2B7D2CCC0010DF26 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9272506A2B7D2CCC0010DF26 /* AVFoundation.framework */; };
+		9272506D2B7D2CEF0010DF26 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9272506C2B7D2CEF0010DF26 /* AudioToolbox.framework */; };
 		928B07DB2B5C385E0025DF3F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 928B07DA2B5C385E0025DF3F /* Assets.xcassets */; };
 		928B0C3A2B5C3C850025DF3F /* PredatorsReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 928B0A862B5C3C840025DF3F /* PredatorsReachability.m */; };
 		928B0C3B2B5C3C850025DF3F /* Dummy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 928B0A882B5C3C840025DF3F /* Dummy.cpp */; };
@@ -180,6 +184,7 @@
 		C7FF0B8B56D6E0E9E98D535C /* SceneObject.h in Sources */ = {isa = PBXBuildFile; fileRef = 9F1941D1E63978B2B9C05A1E /* SceneObject.h */; };
 		C874CF4A0FB15BBE0C8E8E73 /* GiftCodeClaimSceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 023F9B933F5F526D7A8725F5 /* GiftCodeClaimSceneLogicManager.cpp */; };
 		CA9897BC57F466630194BFE8 /* MeshResource.h in Sources */ = {isa = PBXBuildFile; fileRef = 88B55A70915E2429F0F03C71 /* MeshResource.h */; };
+		CB1B337E51727F74A3851A0E /* AVAudioPlayerManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 9A0A1CFEB31EB9D7990F0B4B /* AVAudioPlayerManager.h */; };
 		CCE13A87F90CB8EB69073CD1 /* FileUtils.h in Sources */ = {isa = PBXBuildFile; fileRef = 0D09AB023B7A329D725F2F2F /* FileUtils.h */; };
 		D44276B3AAC7224FC2221FC6 /* ImageSurfaceResource.h in Sources */ = {isa = PBXBuildFile; fileRef = CAEF02928D06B177B1091C5F /* ImageSurfaceResource.h */; };
 		D5A661D9EEA9810D1737FFCD /* DisconnectedSceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = FD25FD8EEBEBAE44283103D9 /* DisconnectedSceneLogicManager.h */; };
@@ -187,6 +192,7 @@
 		D7CE3ABE255F8D331D6B9B40 /* DataFileResource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 431D52A0E0BD619E5CEDBCA7 /* DataFileResource.cpp */; };
 		DF43128086ED7921D6D89992 /* CloudKitUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70F1FCAFCFC2229C3F093372 /* CloudKitUtils.mm */; };
 		DFC9D6A2B4A6F0AF0A0416C9 /* DataFileLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0106479588E4C78D4F938113 /* DataFileLoader.cpp */; };
+		E2240B574B476A510E0FEE8A /* AppleSoundUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = EFF6CA715340BD63F4562F60 /* AppleSoundUtils.mm */; };
 		E24F8BEB335EFB8866189742 /* BaseDataFileSerializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 903005ABB6F4A9CB6247ABDC /* BaseDataFileSerializer.cpp */; };
 		E7F3EF85172DB9E9D9AF8321 /* ImageSurfaceLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B645F5160C1B36C70F708518 /* ImageSurfaceLoader.cpp */; };
 		F2C17A279E5E5256D4401C90 /* DataFileLoader.h in Sources */ = {isa = PBXBuildFile; fileRef = B83F90BE48846F5019309046 /* DataFileLoader.h */; };
@@ -217,7 +223,7 @@
 /* Begin PBXFileReference section */
 		0106479588E4C78D4F938113 /* DataFileLoader.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = DataFileLoader.cpp; sourceTree = "<group>"; };
 		015DEBE74E403FDB72EDA711 /* PurchasingProductSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = PurchasingProductSceneLogicManager.h; sourceTree = "<group>"; };
-		023F9B933F5F526D7A8725F5 /* GiftCodeClaimSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = GiftCodeClaimSceneLogicManager.cpp; path = GiftCodeClaimSceneLogicManager.cpp; sourceTree = "<group>"; };
+		023F9B933F5F526D7A8725F5 /* GiftCodeClaimSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = GiftCodeClaimSceneLogicManager.cpp; sourceTree = "<group>"; };
 		0329997E00487B8402D75893 /* CardPackRewardSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = CardPackRewardSceneLogicManager.cpp; sourceTree = "<group>"; };
 		051E00BF71689A5C0A9F91D2 /* glew.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = glew.h; sourceTree = "<group>"; };
 		052939A977343440F86F0858 /* ResourceLoadingService.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = ResourceLoadingService.cpp; sourceTree = "<group>"; };
@@ -246,7 +252,7 @@
 		53CDE03B92A8F220738E44FE /* ImageSurfaceResource.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = ImageSurfaceResource.cpp; sourceTree = "<group>"; };
 		543F0360AEBB87C61E32D84B /* ThreadSafeQueue.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = ThreadSafeQueue.h; sourceTree = "<group>"; };
 		54B9F7B7FC4B3D5056E01F2F /* GiftingUtils.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = GiftingUtils.h; sourceTree = "<group>"; };
-		562954112A205A0409E2625D /* PrivacyPolicySceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = PrivacyPolicySceneLogicManager.h; path = PrivacyPolicySceneLogicManager.h; sourceTree = "<group>"; };
+		562954112A205A0409E2625D /* PrivacyPolicySceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = PrivacyPolicySceneLogicManager.h; sourceTree = "<group>"; };
 		57036803010C5B02CAA45959 /* CardPackRewardSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = CardPackRewardSceneLogicManager.h; sourceTree = "<group>"; };
 		59B053AEBDD62B4FCAB8E05D /* RenderingUtils.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = RenderingUtils.cpp; sourceTree = "<group>"; };
 		5BD45E193E73BAA2C5DD3337 /* CloudDataConfirmationSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = CloudDataConfirmationSceneLogicManager.cpp; sourceTree = "<group>"; };
@@ -258,9 +264,10 @@
 		6E2183A368D71198F98D6738 /* TypeTraits.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = TypeTraits.h; sourceTree = "<group>"; };
 		70EE9661089211DACFF22288 /* Camera.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = Camera.h; sourceTree = "<group>"; };
 		70F1FCAFCFC2229C3F093372 /* CloudKitUtils.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; path = CloudKitUtils.mm; sourceTree = "<group>"; };
-		71C6F5A357C7E63ABEB0D3CA /* GiftCodeClaimSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = GiftCodeClaimSceneLogicManager.h; path = GiftCodeClaimSceneLogicManager.h; sourceTree = "<group>"; };
+		71C6F5A357C7E63ABEB0D3CA /* GiftCodeClaimSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = GiftCodeClaimSceneLogicManager.h; sourceTree = "<group>"; };
 		7961514C3AA5315045E54E7E /* PlatformMacros.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = PlatformMacros.h; sourceTree = "<group>"; };
 		7C92E4EC0FBCD6AFCA53FD77 /* ResourceLoadingService.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = ResourceLoadingService.h; sourceTree = "<group>"; };
+		7F068929D88F95729D0195E3 /* AVAudioPlayerManager.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; path = AVAudioPlayerManager.mm; sourceTree = "<group>"; };
 		82DFED0E0B1AB607780AED60 /* Animations.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = Animations.h; sourceTree = "<group>"; };
 		8360B79E5EF0CAFD8B87FA71 /* VictorySceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = VictorySceneLogicManager.h; sourceTree = "<group>"; };
 		88B55A70915E2429F0F03C71 /* MeshResource.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = MeshResource.h; sourceTree = "<group>"; };
@@ -269,6 +276,8 @@
 		903005ABB6F4A9CB6247ABDC /* BaseDataFileSerializer.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = BaseDataFileSerializer.cpp; sourceTree = "<group>"; };
 		9233DAB12B5E760200C55555 /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
 		926C7C1D2B7239720028766E /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		9272506A2B7D2CCC0010DF26 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		9272506C2B7D2CEF0010DF26 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		928B07D42B5C385D0025DF3F /* Predators.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Predators.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		928B07DA2B5C385E0025DF3F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		928B07E12B5C385E0025DF3F /* Predators.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Predators.entitlements; sourceTree = "<group>"; };
@@ -453,6 +462,7 @@
 		988043F06556266668BE5677 /* TypeTraits.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = TypeTraits.cpp; sourceTree = "<group>"; };
 		989BFF482B72A00F213431FE /* TextureResource.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = TextureResource.h; sourceTree = "<group>"; };
 		99B2042795EEDA27C28F2D84 /* IResource.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = IResource.h; sourceTree = "<group>"; };
+		9A0A1CFEB31EB9D7990F0B4B /* AVAudioPlayerManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = AVAudioPlayerManager.h; sourceTree = "<group>"; };
 		9B369C56C71CD22B4F909799 /* GiftingUtils.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = GiftingUtils.cpp; sourceTree = "<group>"; };
 		9F1941D1E63978B2B9C05A1E /* SceneObject.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = SceneObject.h; sourceTree = "<group>"; };
 		A4ADBD10E11C136014CDB469 /* Animations.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = Animations.cpp; sourceTree = "<group>"; };
@@ -465,10 +475,11 @@
 		C93CFFE8EE51C27FEBFD1AF9 /* DisconnectedSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = DisconnectedSceneLogicManager.cpp; sourceTree = "<group>"; };
 		CAEF02928D06B177B1091C5F /* ImageSurfaceResource.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = ImageSurfaceResource.h; sourceTree = "<group>"; };
 		CC1DB90079164B1337D075DD /* VictorySceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = VictorySceneLogicManager.cpp; sourceTree = "<group>"; };
-		CDA82AC01781CC5D7781923C /* PrivacyPolicySceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = PrivacyPolicySceneLogicManager.cpp; path = PrivacyPolicySceneLogicManager.cpp; sourceTree = "<group>"; };
+		CDA82AC01781CC5D7781923C /* PrivacyPolicySceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = PrivacyPolicySceneLogicManager.cpp; sourceTree = "<group>"; };
 		CF33F7C72612B80A9AB49895 /* InputStateManagerPlatformImpl.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = InputStateManagerPlatformImpl.cpp; sourceTree = "<group>"; };
 		D099CB93E6198C3BE5F73FDE /* IInputStateManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = IInputStateManager.h; sourceTree = "<group>"; };
 		D64C3227BB47CA8611283D51 /* wglew.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = wglew.h; sourceTree = "<group>"; };
+		D8216CC78F9B7DEB0BEC7678 /* AppleSoundUtils.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = AppleSoundUtils.h; sourceTree = "<group>"; };
 		D979EC9B74F12857F47E4007 /* ImageSurfaceLoader.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = ImageSurfaceLoader.h; sourceTree = "<group>"; };
 		DDD0E1D0B63F40D725F02A35 /* MeshResource.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = MeshResource.cpp; sourceTree = "<group>"; };
 		E0599E67CDFA7350C55C73A5 /* IRenderer.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = IRenderer.h; sourceTree = "<group>"; };
@@ -478,6 +489,7 @@
 		EA3B9899242A079FE63DCD1E /* Camera.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = Camera.cpp; sourceTree = "<group>"; };
 		EEC2E35013E2E8B9B7A912C6 /* OSMessageBox.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = OSMessageBox.h; sourceTree = "<group>"; };
 		EF61AB7D638A80B4ABD5D5B7 /* StringUtils.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = StringUtils.h; sourceTree = "<group>"; };
+		EFF6CA715340BD63F4562F60 /* AppleSoundUtils.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; path = AppleSoundUtils.mm; sourceTree = "<group>"; };
 		F05BCACB9D0D7193765BB311 /* SerializationDefinitions.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = SerializationDefinitions.h; sourceTree = "<group>"; };
 		F16121E2A49D2514A725F7AA /* SceneObjectUtils.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = SceneObjectUtils.cpp; sourceTree = "<group>"; };
 		F2FC1889E08EEFD36C0B6476 /* AnimationManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = AnimationManager.h; sourceTree = "<group>"; };
@@ -496,8 +508,10 @@
 				928B0D4E2B5D7B7E0025DF3F /* SDL2_image.framework in Frameworks */,
 				9233DAB22B5E760200C55555 /* CloudKit.framework in Frameworks */,
 				92CA97412B65132C00B53B01 /* StoreKit.framework in Frameworks */,
+				9272506D2B7D2CEF0010DF26 /* AudioToolbox.framework in Frameworks */,
 				926C7C1E2B7239720028766E /* AppKit.framework in Frameworks */,
 				928B0D1F2B5C3E120025DF3F /* OpenGL.framework in Frameworks */,
+				9272506B2B7D2CCC0010DF26 /* AVFoundation.framework in Frameworks */,
 				928B0D4C2B5D7B7E0025DF3F /* SDL2.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -652,6 +666,10 @@
 				928B0A8A2B5C3C840025DF3F /* AppleUtils.h */,
 				0B7F76FD2D5492C5AB3ABFFD /* CloudKitUtils.h */,
 				70F1FCAFCFC2229C3F093372 /* CloudKitUtils.mm */,
+				9A0A1CFEB31EB9D7990F0B4B /* AVAudioPlayerManager.h */,
+				D8216CC78F9B7DEB0BEC7678 /* AppleSoundUtils.h */,
+				EFF6CA715340BD63F4562F60 /* AppleSoundUtils.mm */,
+				7F068929D88F95729D0195E3 /* AVAudioPlayerManager.mm */,
 			);
 			path = platform_utilities;
 			sourceTree = "<group>";
@@ -956,6 +974,8 @@
 		928B0D1D2B5C3E120025DF3F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				9272506C2B7D2CEF0010DF26 /* AudioToolbox.framework */,
+				9272506A2B7D2CCC0010DF26 /* AVFoundation.framework */,
 				926C7C1D2B7239720028766E /* AppKit.framework */,
 				92CA97402B65132B00B53B01 /* StoreKit.framework */,
 				9233DAB12B5E760200C55555 /* CloudKit.framework */,
@@ -1332,6 +1352,10 @@
 				53D57AF62077A4EDE50A19A6 /* GiftCodeClaimSceneLogicManager.h in Sources */,
 				956A9FE717F26B0C312CF97F /* PrivacyPolicySceneLogicManager.cpp in Sources */,
 				8FEF85106FBA344AB3578CD7 /* PrivacyPolicySceneLogicManager.h in Sources */,
+				CB1B337E51727F74A3851A0E /* AVAudioPlayerManager.h in Sources */,
+				120CF200D56449CFC3BD99AF /* AppleSoundUtils.h in Sources */,
+				E2240B574B476A510E0FEE8A /* AppleSoundUtils.mm in Sources */,
+				005DDF1CA71A424F880BFF85 /* AVAudioPlayerManager.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

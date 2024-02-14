@@ -24,6 +24,7 @@
 #include <SDL_events.h>
 #if defined(MACOS) || defined(MOBILE_FLOW)
 #include <platform_utilities/AppleUtils.h>
+#include <platform_utilities/AppleSoundUtils.h>
 #include <platform_utilities/CloudKitUtils.h>
 #elif defined(WINDOWS)
 #include <platform_utilities/WindowsUtils.h>

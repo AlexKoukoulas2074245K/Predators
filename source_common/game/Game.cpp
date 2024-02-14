@@ -63,6 +63,7 @@
 
 #if defined(MACOS) || defined(MOBILE_FLOW)
 #include <platform_utilities/AppleUtils.h>
+#include <platform_utilities/AppleSoundUtils.h>
 #include <platform_utilities/CloudKitUtils.h>
 #elif defined(WINDOWS)
 #include <platform_utilities/WindowsUtils.h>
@@ -83,6 +84,7 @@ Game::Game(const int argc, char** argv)
     
 #if defined(MACOS) || defined(MOBILE_FLOW)
     apple_utils::SetAssetFolder();
+    sound_utils::InitAudio();
 #endif
     CardDataRepository::GetInstance().LoadCardData(false);
     ProductRepository::GetInstance().LoadProductDefinitions();
@@ -204,6 +206,10 @@ void Game::Update(const float dtMillis)
     }
 
     mGameSceneTransitionManager->Update(dtMillis);
+    
+#if defined(MACOS) || defined(MOBILE_FLOW)
+    sound_utils::UpdateAudio(dtMillis);
+#endif
 }
 
 ///------------------------------------------------------------------------------------------------
