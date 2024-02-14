@@ -54,7 +54,7 @@
 
 - (void) playSoundWith: (NSString*) soundResPath isMusic:(BOOL) isMusic forceLoop:(BOOL) forceLoop
 {
-    NSString* sandboxFilePath = [NSBundle.mainBundle pathForResource:soundResPath ofType:@"mp3"];
+    NSString* sandboxFilePath = [NSBundle.mainBundle pathForResource:soundResPath ofType:@"flac"];
 
     if (sandboxFilePath != nil)
     {

@@ -56,7 +56,7 @@ void PreloadSfx(const std::string& sfxResPath)
 
 void PlaySound(const std::string& soundResPath, const bool loopedSfx /* = false */)
 {
-    if (strutils::StringEndsWith(soundResPath, ".mp3") || strutils::StringEndsWith(soundResPath, ".wav"))
+    if (strutils::StringEndsWith(soundResPath, ".flac") || strutils::StringEndsWith(soundResPath, ".mp3"))
     {
         ospopups::ShowMessageBox(ospopups::MessageBoxType::WARNING, "Sound Path contains extension", "Sound res path " + soundResPath + " includes extension and will be ignored.");
         return;
