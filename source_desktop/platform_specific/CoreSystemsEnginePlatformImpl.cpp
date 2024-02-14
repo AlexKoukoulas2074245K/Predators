@@ -89,7 +89,7 @@ CoreSystemsEngine::~CoreSystemsEngine()
 void CoreSystemsEngine::Initialize()
 {
     // Initialize SDL
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0)
+    if (SDL_Init(SDL_INIT_VIDEO) < 0)
     {
         ospopups::ShowMessageBox(ospopups::MessageBoxType::ERROR, "SDL could not initialize!", SDL_GetError());
         return;
