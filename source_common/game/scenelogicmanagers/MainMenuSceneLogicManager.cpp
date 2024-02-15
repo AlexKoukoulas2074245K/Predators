@@ -36,6 +36,7 @@ static const std::string SELECTABLE_BUTTON_SHADER_FILE_NAME = "basic_custom_colo
 static const std::string DECK_ENTRY_SHADER = "card_family_selection_swipe_entry.vs";
 static const std::string DECK_ENTRY_MASK_TEXTURE_FILE_NAME = "trap_mask.png";
 
+static const strutils::StringId SETTINGS_SCENE = strutils::StringId("settings_scene");
 static const strutils::StringId PRIVACY_POLICY_SCENE = strutils::StringId("privacy_policy_scene");
 static const strutils::StringId GIFT_CODE_CLAIM_SCENE = strutils::StringId("gift_code_claim_scene");
 static const strutils::StringId BOARD_SCENE_OBJECT_NAME = strutils::StringId("board");
@@ -45,6 +46,7 @@ static const strutils::StringId SHOP_BUTTON_NAME = strutils::StringId("shop_butt
 static const strutils::StringId CONTINUE_STORY_BUTTON_NAME = strutils::StringId("continue_story_button");
 static const strutils::StringId NEW_STORY_BUTTON_NAME = strutils::StringId("new_story_button");
 static const strutils::StringId EXTRAS_BUTTON_NAME = strutils::StringId("extras_button");
+static const strutils::StringId OPTIONS_BUTTON_NAME = strutils::StringId("options_button");
 static const strutils::StringId QUIT_BUTTON_NAME = strutils::StringId("quit_button");
 static const strutils::StringId NORMAL_BATTLE_MODE_BUTTON_NAME = strutils::StringId("normal_battle_mode_button");
 static const strutils::StringId AI_DEMO_BATTLE_MODE_BUTTON_NAME = strutils::StringId("ai_demo_battle_mode_button");
@@ -76,13 +78,14 @@ static const glm::vec2 STORY_DECK_ENTRY_CUTOFF_VALUES = {-0.25f, 0.15f};
 static const glm::vec2 STORY_DECK_SELECTION_CONTAINER_CUTOFF_VALUES = {-0.1f, 0.1f};
 
 static const glm::vec3 BUTTON_SCALE = {0.0005f, 0.0005f, 0.0005f};
-static const glm::vec3 STORY_MODE_BUTTON_POSITION = {0.0f, 0.09f, 0.1f};
 static const glm::vec3 CONTINUE_STORY_BUTTON_POSITION = {-0.142f, 0.09f, 0.1f};
 static const glm::vec3 NO_PROGRESS_NEW_STORY_BUTTON_POSITION = {-0.091f, 0.06f, 0.1f};
 static const glm::vec3 NEW_STORY_BUTTON_POSITION = {-0.091f, 0.00f, 0.1f};
-static const glm::vec3 CARD_LIBRARY_BUTTON_POSITION = {0.0f, 0.02f, 0.1f};
-static const glm::vec3 SHOP_BUTTON_POSITION = {0.0f, -0.05f, 0.1f};
-static const glm::vec3 EXTRAS_BUTTON_POSITION = {0.0f, -0.110f, 0.1f};
+static const glm::vec3 STORY_MODE_BUTTON_POSITION = {0.0f, 0.11f, 0.1f};
+static const glm::vec3 CARD_LIBRARY_BUTTON_POSITION = {0.0f, 0.05f, 0.1f};
+static const glm::vec3 SHOP_BUTTON_POSITION = {0.0f, -0.01f, 0.1f};
+static const glm::vec3 EXTRAS_BUTTON_POSITION = {0.0f, -0.06f, 0.1f};
+static const glm::vec3 OPTIONS_BUTTON_POSITION = {0.0f, -0.120f, 0.1f};
 static const glm::vec3 QUIT_BUTTON_POSITION = {0.0f, -0.180f, 0.1f};
 static const glm::vec3 ENTER_GIFT_CODE_BUTTON_POSITION = {-0.135f, 0.085f, 0.1f};
 static const glm::vec3 PRIVACY_POLICY_BUTTON_POSITION = {-0.125f, 0.005f, 0.1f};
@@ -429,6 +432,21 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                 "Extras",
                 EXTRAS_BUTTON_NAME,
                 [=](){ TransitionToSubScene(SubSceneType::EXTRAS, scene); },
+                *scene
+            ));
+            
+            mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
+            (
+                OPTIONS_BUTTON_POSITION,
+                BUTTON_SCALE,
+                game_constants::DEFAULT_FONT_NAME,
+                "Options",
+                OPTIONS_BUTTON_NAME,
+                [=]()
+                {
+                    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(scene->GetUpdateTimeSpeedFactor(), 0.0f, game_constants::SCENE_SPEED_DILATION_ANIMATION_DURATION_SECS), [](){}, game_constants::SCENE_SPEED_DILATION_ANIMATION_NAME);
+                    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(SETTINGS_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+                },
                 *scene
             ));
             

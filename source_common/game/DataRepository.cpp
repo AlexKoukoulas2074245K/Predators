@@ -876,6 +876,21 @@ void DataRepository::SetCanSurfaceCloudDataScene(const bool canSurfaceCloudDataS
 
 ///------------------------------------------------------------------------------------------------
 
+const bool& DataRepository::IsAudioEnabled() const
+{
+    return mAudioEnabled;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void DataRepository::SetAudioEnabled(const bool audioEnabled)
+{
+    mAudioEnabled = audioEnabled;
+    mPersistentDataSerializer->GetState()["audio_enabled"] = mAudioEnabled;
+}
+
+///------------------------------------------------------------------------------------------------
+
 ForeignCloudDataFoundType DataRepository::GetForeignProgressionDataFound() const
 {
     return mForeignProgressionDataFound;

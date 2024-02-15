@@ -6,13 +6,17 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <engine/CoreSystemsEngine.h>
-#include <engine/utils/PlatformMacros.h>
+#include <engine/input/IInputStateManager.h>
 #include <engine/rendering/AnimationManager.h>
+#include <engine/utils/PlatformMacros.h>
 #include <engine/utils/Logging.h>
 #include <engine/utils/PlatformMacros.h>
 #include <engine/scene/SceneManager.h>
+#include <engine/scene/SceneObjectUtils.h>
+#include <engine/sound/SoundManager.h>
 #include <game/AnimatedButton.h>
 #include <game/Cards.h>
+#include <game/DataRepository.h>
 #include <game/events/EventSystem.h>
 #include <game/scenelogicmanagers/SettingsSceneLogicManager.h>
 #include <SDL_events.h>
@@ -22,23 +26,31 @@
 static const std::string SELECTABLE_BUTTON_SHADER_FILE_NAME = "basic_custom_color.vs";
 static const std::string DECK_ENTRY_SHADER = "card_family_selection_swipe_entry.vs";
 static const std::string DECK_ENTRY_MASK_TEXTURE_FILE_NAME = "trap_mask.png";
+static const std::string CHECKBOX_EMPTY_TEXTURE_FILE_NAME = "checkbox_empty.png";
+static const std::string CHECKBOX_FILLED_TEXTURE_FILE_NAME = "checkbox_filled.png";
 
+static const strutils::StringId MAIN_MENU_SCENE = strutils::StringId("main_menu_scene");
 static const strutils::StringId SETTINGS_SCENE_NAME = strutils::StringId("settings_scene");
 static const strutils::StringId CONTINUE_BUTTON_NAME = strutils::StringId("continue_button");
 static const strutils::StringId QUIT_BUTTON_NAME = strutils::StringId("quit_button");
 static const strutils::StringId PAUSED_TEXT_SCENE_OBJECT_NAME = strutils::StringId("paused_text");
+static const strutils::StringId MUSIC_CHECKBOX_SCENE_OBJECT_NAME = strutils::StringId("music_checkbox");
+static const strutils::StringId MUSIC_CHECKBOX_TEXT_SCENE_OBJECT_NAME = strutils::StringId("music_checkbox_text");
 static const strutils::StringId QUIT_CONFIRMATION_BUTTON_NAME = strutils::StringId("quit_confirmation");
 static const strutils::StringId QUIT_CANCELLATION_BUTTON_NAME = strutils::StringId("quit_cancellation");
 static const strutils::StringId QUIT_CONFIRMATION_TEXT_TOP_NAME = strutils::StringId("quit_confirmation_text_top");
 static const strutils::StringId QUIT_CONFIRMATION_TEXT_BOT_NAME = strutils::StringId("quit_confirmation_text_bot");
 
+static const glm::vec3 MUSIC_CHECKBOX_TEXT_POSITION = {-0.085f, 0.05f, 23.1f};
+static const glm::vec3 MUSIC_CHECKBOX_POSITION = {0.04f, 0.037f, 23.1f};
 static const glm::vec3 BUTTON_SCALE = {0.0005f, 0.0005f, 0.0005f};
-static const glm::vec3 CONTINUE_BUTTON_POSITION = {-0.091f, 0.02f, 23.1f};
-static const glm::vec3 QUIT_BUTTON_POSITION = {-0.041f, -0.083f, 23.1f};
+static const glm::vec3 CONTINUE_BUTTON_POSITION = {-0.091f, -0.06f, 23.1f};
+static const glm::vec3 QUIT_BUTTON_POSITION = {-0.041f, -0.163f, 23.1f};
 static const glm::vec3 QUIT_CONFIRMATION_BUTTON_POSITION = {-0.132f, -0.083f, 23.1f};
 static const glm::vec3 QUIT_CANCELLATION_BUTTON_POSITION = {0.036f, -0.083f, 23.1f};
 static const glm::vec3 QUIT_CONFIRMATION_TEXT_TOP_POSITION = {-0.225f, 0.07f, 23.1f};
 static const glm::vec3 QUIT_CONFIRMATION_TEXT_BOT_POSITION = {-0.32f, 0.019f, 23.1f};
+static const glm::vec3 CHECKBOX_SCALE = {0.1f, 0.1f, 0.1f};
 
 static const float SUBSCENE_ITEM_FADE_IN_OUT_DURATION_SECS = 0.25f;
 static const float STAGGERED_ITEM_ALPHA_DELAY_SECS = 0.1f;
@@ -86,11 +98,27 @@ void SettingsSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 
 ///------------------------------------------------------------------------------------------------
 
-void SettingsSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene::Scene>)
+void SettingsSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene::Scene> scene)
 {
     if (mTransitioningToSubScene)
     {
         return;
+    }
+    
+    const auto& inputStateManager = CoreSystemsEngine::GetInstance().GetInputStateManager();
+    auto worldTouchPos = inputStateManager.VGetPointingPosInWorldSpace(scene->GetCamera().GetViewMatrix(), scene->GetCamera().GetProjMatrix());
+
+    auto checkboxSceneObjectRect = scene_object_utils::GetSceneObjectBoundingRect(*scene->FindSceneObject(MUSIC_CHECKBOX_SCENE_OBJECT_NAME));
+    auto checkboxTextSceneObjectRect = scene_object_utils::GetSceneObjectBoundingRect(*scene->FindSceneObject(MUSIC_CHECKBOX_TEXT_SCENE_OBJECT_NAME));
+    
+    if
+    (
+        inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON) &&
+        (math::IsPointInsideRectangle(checkboxSceneObjectRect.bottomLeft, checkboxSceneObjectRect.topRight, worldTouchPos) ||
+        math::IsPointInsideRectangle(checkboxTextSceneObjectRect.bottomLeft, checkboxTextSceneObjectRect.topRight, worldTouchPos))
+    )
+    {
+        ToggleMusicCheckbox(scene);
     }
     
     // Animated buttons
@@ -150,6 +178,28 @@ void SettingsSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
     {
         case SubSceneType::MAIN:
         {
+            // Music checkbox
+            auto musicCheckboxSceneObject = scene->CreateSceneObject(MUSIC_CHECKBOX_SCENE_OBJECT_NAME);
+            musicCheckboxSceneObject->mPosition = MUSIC_CHECKBOX_POSITION;
+            musicCheckboxSceneObject->mScale = CHECKBOX_SCALE;
+            musicCheckboxSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CHECKBOX_EMPTY_TEXTURE_FILE_NAME);
+            musicCheckboxSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+            musicCheckboxSceneObject->mInvisible = false;
+            musicCheckboxSceneObject->mBoundingRectMultiplier /= 2.0f;
+            
+            scene::TextSceneObjectData musicCheckboxTextData;
+            musicCheckboxTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
+            musicCheckboxTextData.mText = "Music";
+            
+            auto musicCheckboxTextSceneObject = scene->CreateSceneObject(MUSIC_CHECKBOX_TEXT_SCENE_OBJECT_NAME);
+            musicCheckboxTextSceneObject->mSceneObjectTypeData = std::move(musicCheckboxTextData);
+            musicCheckboxTextSceneObject->mPosition = MUSIC_CHECKBOX_TEXT_POSITION;
+            musicCheckboxTextSceneObject->mScale = BUTTON_SCALE;
+            musicCheckboxTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+            musicCheckboxTextSceneObject->mInvisible = false;
+            
+            SetMusicCheckboxValue(scene, DataRepository::GetInstance().IsAudioEnabled());
+            
             mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
             (
                 CONTINUE_BUTTON_POSITION,
@@ -165,19 +215,22 @@ void SettingsSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                 *scene
             ));
             
-            mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
-            (
-                QUIT_BUTTON_POSITION,
-                BUTTON_SCALE,
-                game_constants::DEFAULT_FONT_NAME,
-                "Quit",
-                QUIT_BUTTON_NAME,
-                [=]()
-                {
-                    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::MAIN_MENU_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
-                },
-                *scene
-            ));
+            if (mPreviousScene != MAIN_MENU_SCENE)
+            {
+                mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
+                (
+                    QUIT_BUTTON_POSITION,
+                    BUTTON_SCALE,
+                    game_constants::DEFAULT_FONT_NAME,
+                    "Quit",
+                    QUIT_BUTTON_NAME,
+                    [=]()
+                    {
+                        events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::MAIN_MENU_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
+                    },
+                    *scene
+                ));
+            }
         } break;
             
         case SubSceneType::QUIT_CONFIRMATION:
@@ -269,6 +322,31 @@ void SettingsSceneLogicManager::TransitionToSubScene(const SubSceneType subScene
             InitSubScene(subSceneType, scene);
         });
     }
+}
+
+///------------------------------------------------------------------------------------------------
+
+void SettingsSceneLogicManager::ToggleMusicCheckbox(std::shared_ptr<scene::Scene> scene)
+{
+    auto checkBoxSceneObject = scene->FindSceneObject(MUSIC_CHECKBOX_SCENE_OBJECT_NAME);
+    
+    bool checkBoxValue = checkBoxSceneObject->mTextureResourceId == CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CHECKBOX_FILLED_TEXTURE_FILE_NAME) ? false : true;
+    SetMusicCheckboxValue(scene, checkBoxValue);
+    
+    DataRepository::GetInstance().SetAudioEnabled(checkBoxValue);
+    DataRepository::GetInstance().FlushStateToFile();
+    CoreSystemsEngine::GetInstance().GetSoundManager().SetAudioEnabled(checkBoxValue);
+}
+
+///------------------------------------------------------------------------------------------------
+
+void SettingsSceneLogicManager::SetMusicCheckboxValue(std::shared_ptr<scene::Scene> scene, const bool checkboxValue)
+{
+    resources::ResourceId checkboxFilledTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CHECKBOX_FILLED_TEXTURE_FILE_NAME);
+    resources::ResourceId checkboxEmptyTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CHECKBOX_EMPTY_TEXTURE_FILE_NAME);
+    
+    auto checkBoxSceneObject = scene->FindSceneObject(MUSIC_CHECKBOX_SCENE_OBJECT_NAME);
+    checkBoxSceneObject->mTextureResourceId = checkboxValue ? checkboxFilledTextureResourceId : checkboxEmptyTextureResourceId;
 }
 
 ///------------------------------------------------------------------------------------------------

@@ -13,6 +13,13 @@
 
 ///------------------------------------------------------------------------------------------------
 
+static const float ENABLED_AUDIO_MUSIC_VOLUME = 1.0f;
+static const float DISABLED_AUDIO_MUSIC_VOLUME = 0.0f;
+static const float ENABLED_AUDIO_SFX_VOLUME = 0.4f;
+static const float DISABLED_AUDIO_SFX_VOLUME = 0.0f;
+
+///------------------------------------------------------------------------------------------------
+
 -(id) init
 {
     self = [super init];
@@ -21,6 +28,8 @@
     _nextQueuedMusicPath = nil;
     _musicPlayer = nil;
     _firstAppStateCall = YES;
+    _targetSfxVolume = ENABLED_AUDIO_SFX_VOLUME;
+    _targetMusicVolume = ENABLED_AUDIO_MUSIC_VOLUME;
     return self;
 }
 
@@ -29,7 +38,7 @@
 - (void) preloadSfxWith:(NSString*) sfxResPath
 {
     NSString* sandboxFilePath = [NSBundle.mainBundle pathForResource:sfxResPath ofType:@"mp3"];
-
+    
     if (sandboxFilePath != nil)
     {
         if ([_sfxPlayers objectForKey:sandboxFilePath] == nil)
@@ -55,7 +64,7 @@
 - (void) playSoundWith: (NSString*) soundResPath isMusic:(BOOL) isMusic forceLoop:(BOOL) forceLoop
 {
     NSString* sandboxFilePath = [NSBundle.mainBundle pathForResource:soundResPath ofType:@"flac"];
-
+    
     if (sandboxFilePath != nil)
     {
         if (isMusic)
@@ -91,7 +100,7 @@
                         targetSfxPlayer.numberOfLoops = 1;
                     }
                     targetSfxPlayer.currentTime = 0;
-                    targetSfxPlayer.volume = 0.4f;
+                    targetSfxPlayer.volume = self.targetSfxVolume;
                     [targetSfxPlayer play];
                 });
             }
@@ -179,13 +188,31 @@
         }
         else
         {
-            if (_musicPlayer.volume < 1.0f)
+            if (_musicPlayer.volume < _targetMusicVolume)
             {
                 _musicPlayer.volume += dtMillis * FADE_SPEED;
             }
         }
     }
     
+}
+
+///------------------------------------------------------------------------------------------------
+
+- (void) setAudioEnabledWith:(BOOL) audioEnabled
+{
+    _targetMusicVolume = audioEnabled ? ENABLED_AUDIO_MUSIC_VOLUME : DISABLED_AUDIO_MUSIC_VOLUME;
+    _targetSfxVolume = audioEnabled ? ENABLED_AUDIO_SFX_VOLUME : DISABLED_AUDIO_SFX_VOLUME;
+    
+    if (_musicPlayer != nil)
+    {
+        _musicPlayer.volume = _targetMusicVolume;
+    }
+    for(id key in _sfxPlayers)
+    {
+        AVAudioPlayer* sfxPlayer = [_sfxPlayers objectForKey:key];
+        sfxPlayer.volume = _targetSfxVolume;
+    }
 }
 
 ///------------------------------------------------------------------------------------------------

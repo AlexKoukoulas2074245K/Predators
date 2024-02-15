@@ -273,6 +273,9 @@ public:
     const bool& CanSurfaceCloudDataScene() const;
     void SetCanSurfaceCloudDataScene(const bool canSurfaceCloudDataScene);
     
+    const bool& IsAudioEnabled() const;
+    void SetAudioEnabled(const bool musicEnabled);
+    
     ForeignCloudDataFoundType GetForeignProgressionDataFound() const;
     void SetForeignProgressionDataFound(const ForeignCloudDataFoundType foreignProgressionDataFound);
     
@@ -332,6 +335,7 @@ private:
     int mCurrentStorySecondsPlayed = 0;
     bool mIsCurrentlyPlayingStoryMode = false;
     bool mCanSurfaceCloudDataScene = false;
+    bool mAudioEnabled = false;
 };
 
 ///------------------------------------------------------------------------------------------------

@@ -28,6 +28,7 @@ void PauseMusicOnly();
 void PauseSfxOnly();
 void PauseAudio();
 void UpdateAudio(const float dtMillis);
+void SetAudioEnabled(const bool audioEnabled);
 
 ///-----------------------------------------------------------------------------------------------
 

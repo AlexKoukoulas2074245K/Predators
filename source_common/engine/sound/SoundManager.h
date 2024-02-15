@@ -39,6 +39,7 @@ public:
     void PauseMusicOnly();
     void PauseSfxOnly();
     void PauseAudio();
+    void SetAudioEnabled(const bool enabled);
     
 private:
     SoundManager();

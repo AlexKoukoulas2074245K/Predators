@@ -55,6 +55,11 @@ PersistentAccountDataDeserializer::PersistentAccountDataDeserializer(DataReposit
         dataRepository.SetGiftCodesClaimed(persistentDataJson["gift_codes_claimed"].get<std::vector<std::string>>());
     }
     
+    if (persistentDataJson.count("audio_enabled"))
+    {
+        dataRepository.SetAudioEnabled(persistentDataJson["audio_enabled"].get<bool>());
+    }
+    
     if (persistentDataJson.count("golden_card_id_map"))
     {
         dataRepository.ClearGoldenCardIdMap();

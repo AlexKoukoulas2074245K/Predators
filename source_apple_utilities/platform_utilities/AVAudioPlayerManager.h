@@ -17,6 +17,8 @@
 @property BOOL firstAppStateCall;
 @property NSString* currentPlayingMusicPath;
 @property NSString* nextQueuedMusicPath;
+@property float targetMusicVolume;
+@property float targetSfxVolume;
 
 - (id) init;
 - (void) preloadSfxWith:(NSString*) sfxResPath;
@@ -26,6 +28,7 @@
 - (void) pauseAudio;
 - (void) resumeAudio;
 - (void) updateAudioWith:(float) dtMillis;
+- (void) setAudioEnabledWith:(BOOL) audioEnabled;
 
 @end
 

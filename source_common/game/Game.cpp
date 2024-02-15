@@ -16,6 +16,7 @@
 #include <engine/scene/SceneManager.h>
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
+#include <engine/sound/SoundManager.h>
 #include <engine/utils/BaseDataFileDeserializer.h>
 #include <engine/utils/Logging.h>
 #include <engine/utils/FileUtils.h>
@@ -105,6 +106,8 @@ void Game::Init()
     systemsEngine.GetFontRepository().LoadFont(game_constants::DEFAULT_FONT_BLACK_NAME.GetString(), resources::ResourceReloadMode::DONT_RELOAD);
     systemsEngine.GetFontRepository().LoadFont(game_constants::FONT_PLACEHOLDER_DAMAGE_NAME.GetString(), resources::ResourceReloadMode::DONT_RELOAD);
     systemsEngine.GetFontRepository().LoadFont(game_constants::FONT_PLACEHOLDER_WEIGHT_NAME.GetString(), resources::ResourceReloadMode::DONT_RELOAD);
+    
+    systemsEngine.GetSoundManager().SetAudioEnabled(DataRepository::GetInstance().IsAudioEnabled());
     
     auto& eventSystem = events::EventSystem::GetInstance();
     mSceneChangeEventListener = eventSystem.RegisterForEvent<events::SceneChangeEvent>([=](const events::SceneChangeEvent& event)
