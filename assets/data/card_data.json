@@ -392,6 +392,16 @@
             "particle_shake_strength": 0.03,
             "shader": "basic.vs",
             "single_use": true
+        },
+        {
+            "weight": 6,
+            "family": "rodents",
+            "name": "Vampire Rodents",
+            "effect": "RODENT_LIFESTEAL_ON_ATTACKS",
+            "tooltip": "All rodent attacks$will HEAL you this$turn for every point$of DAMAGE dealt",
+            "texture": "vampire_bunny.png",
+            "shader": "basic.vs",
+            "single_use": true
         }
     ]
 }

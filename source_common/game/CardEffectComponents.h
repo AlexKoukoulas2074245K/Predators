@@ -31,6 +31,7 @@ namespace board_modifier_masks
     static constexpr EffectBoardModifierMask DOUBLE_POISON_ATTACKS = 0x10;
     static constexpr EffectBoardModifierMask PERMANENT_CONTINUAL_WEIGHT_REDUCTION = 0x20;
     static constexpr EffectBoardModifierMask DIG_NO_FAIL = 0x40;
+    static constexpr EffectBoardModifierMask RODENT_LIFESTEAL = 0x80;
 };
 
 
@@ -54,6 +55,7 @@ inline const std::string EFFECT_COMPONENT_DIG_NO_FAIL                          =
 inline const std::string EFFECT_COMPONENT_DRAW_RANDOM_SPELL                    = "DRAW_RANDOM_SPELL";
 inline const std::string EFFECT_COMPONENT_ARMOR                                = "ARMOR";
 inline const std::string EFFECT_COMPONENT_TOXIC_BOMB                           = "TOXIC_BOMB";
+inline const std::string EFFECT_COMPONENT_RODENT_LIFESTEAL_ON_ATTACKS          = "RODENT_LIFESTEAL_ON_ATTACKS";
 
 inline const std::unordered_set<std::string> STATIC_EFFECT_COMPONENT_NAMES =
 {
@@ -76,6 +78,7 @@ inline const std::unordered_set<std::string> STATIC_EFFECT_COMPONENT_NAMES =
     EFFECT_COMPONENT_CARD_TOKEN,
     EFFECT_COMPONENT_ARMOR,
     EFFECT_COMPONENT_TOXIC_BOMB,
+    EFFECT_COMPONENT_RODENT_LIFESTEAL_ON_ATTACKS
 };
 
 ///------------------------------------------------------------------------------------------------

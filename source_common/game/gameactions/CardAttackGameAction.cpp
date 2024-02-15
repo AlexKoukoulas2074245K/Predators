@@ -115,6 +115,18 @@ void CardAttackGameAction::VSetNewGameState()
             activePlayerState.mPlayerHealth -= damage;
             mAmountOfHealthDamaged = damage;
         }
+        
+        if ((mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::RODENT_LIFESTEAL) != 0)
+        {
+            if (mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX)
+            {
+                mBoardState->GetInactivePlayerState().mPlayerHealth = math::Min(mBoardState->GetInactivePlayerState().mPlayerHealth + mPendingDamage, DataRepository::GetInstance().GetStoryMaxHealth());
+            }
+            else
+            {
+                mBoardState->GetInactivePlayerState().mPlayerHealth += mPendingDamage;
+            }
+        }
     }
     
     mGameActionEngine->AddGameAction(CARD_HISTORY_ENTRY_ADDITION_GAME_ACTION_NAME,
@@ -238,6 +250,10 @@ void CardAttackGameAction::VInitAnimation()
                             events::EventSystem::GetInstance().DispatchEvent<events::HealthChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
                         }
                         
+                        if ((mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::RODENT_LIFESTEAL) != 0)
+                        {
+                            events::EventSystem::GetInstance().DispatchEvent<events::HealthChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX);
+                        }
                     }
                     
                     auto cardSoWrapper = mBattleSceneLogicManager->GetBoardCardSoWrappers().at(attackingPayerIndex).at(cardIndex);

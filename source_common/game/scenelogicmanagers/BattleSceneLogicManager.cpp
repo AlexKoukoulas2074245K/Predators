@@ -396,6 +396,9 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
     // Double Poison Attacks Effects
     cardBoardEffectAnimation(game_constants::DOUBLE_POISON_ATTACKS_EFFECT_TOP_SCENE_OBJECT_NAME, game_constants::DOUBLE_POISON_ATTACKS_EFFECT_BOT_SCENE_OBJECT_NAME);
     
+    // Rodent Lifesteal on Attack
+    cardBoardEffectAnimation(game_constants::RODENT_LIFESTEAL_ON_ATTACKS_EFFECT_TOP_SCENE_OBJECT_NAME, game_constants::RODENT_LIFESTEAL_ON_ATTACKS_EFFECT_BOT_SCENE_OBJECT_NAME);
+    
     // Dig no Fail Effects
     cardBoardEffectAnimation(game_constants::DIG_NO_FAIL_EFFECT_TOP_SCENE_OBJECT_NAME, game_constants::DIG_NO_FAIL_EFFECT_BOT_SCENE_OBJECT_NAME);
     
@@ -1740,6 +1743,10 @@ void BattleSceneLogicManager::OnBoardSideCardEffectTriggered(const events::Board
         {
             sideEffectSceneObject = battleScene->FindSceneObject(event.mForRemotePlayer ? game_constants::DIG_NO_FAIL_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::DIG_NO_FAIL_EFFECT_BOT_SCENE_OBJECT_NAME);
         }
+        else if (event.mEffectBoardModifierMask == effects::board_modifier_masks::RODENT_LIFESTEAL)
+        {
+            sideEffectSceneObject = battleScene->FindSceneObject(event.mForRemotePlayer ? game_constants::RODENT_LIFESTEAL_ON_ATTACKS_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::RODENT_LIFESTEAL_ON_ATTACKS_EFFECT_BOT_SCENE_OBJECT_NAME);
+        }
         else if (event.mEffectBoardModifierMask == effects::board_modifier_masks::PERMANENT_CONTINUAL_WEIGHT_REDUCTION)
         {
             sideEffectSceneObject = battleScene->FindSceneObject(event.mForRemotePlayer ? game_constants::PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_BOT_SCENE_OBJECT_NAME);
@@ -1826,6 +1833,10 @@ void BattleSceneLogicManager::OnBoardSideCardEffectEnded(const events::BoardSide
         else if (event.mEffectBoardModifierMask == effects::board_modifier_masks::DIG_NO_FAIL)
         {
             sideEffectSceneObject = battleScene->FindSceneObject(event.mForRemotePlayer ? game_constants::DIG_NO_FAIL_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::DIG_NO_FAIL_EFFECT_BOT_SCENE_OBJECT_NAME);
+        }
+        else if (event.mEffectBoardModifierMask == effects::board_modifier_masks::RODENT_LIFESTEAL)
+        {
+            sideEffectSceneObject = battleScene->FindSceneObject(event.mForRemotePlayer ? game_constants::RODENT_LIFESTEAL_ON_ATTACKS_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::RODENT_LIFESTEAL_ON_ATTACKS_EFFECT_BOT_SCENE_OBJECT_NAME);
         }
         else if (event.mEffectBoardModifierMask == effects::board_modifier_masks::PERMANENT_CONTINUAL_WEIGHT_REDUCTION)
         {
