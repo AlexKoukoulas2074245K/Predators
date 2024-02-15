@@ -15,6 +15,7 @@
 #include <engine/resloading/ResourceLoadingService.h>
 #include <engine/scene/SceneManager.h>
 #include <engine/scene/Scene.h>
+#include <engine/sound/SoundManager.h>
 #include <engine/utils/BaseDataFileDeserializer.h>
 #include <engine/utils/BaseDataFileSerializer.h>
 #include <engine/utils/FileUtils.h>
@@ -66,6 +67,7 @@ struct CoreSystemsEngine::SystemsImpl
     input::InputStateManagerPlatformImpl mInputStateManager;
     scene::SceneManager mSceneManager;
     resources::ResourceLoadingService mResourceLoadingService;
+    sound::SoundManager mSoundManager;
 };
 
 ///------------------------------------------------------------------------------------------------
@@ -139,6 +141,7 @@ void CoreSystemsEngine::Initialize()
     // Systems Initialization
     mSystems = std::make_unique<SystemsImpl>();
     mSystems->mResourceLoadingService.Initialize();
+    mSystems->mSoundManager.Initialize();
     
     // Enable texture blending
     GL_CALL(glEnable(GL_BLEND));
@@ -196,6 +199,7 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
     {
         bool windowSizeChanged = false;
         bool applicationMovingToBackground = false;
+        bool applicationMovingToForeground = false;
         
         // Calculate frame delta
         const auto currentMillisSinceInit = static_cast<float>(SDL_GetTicks());  // the number of milliseconds since the SDL library initialized
@@ -208,11 +212,21 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
         //Handle events on queue
         while(SDL_PollEvent(&event) != 0)
         {
-            mSystems->mInputStateManager.VProcessInputEvent(event, shouldQuit, windowSizeChanged, applicationMovingToBackground, applicationMovingToBackground);
+            mSystems->mInputStateManager.VProcessInputEvent(event, shouldQuit, windowSizeChanged, applicationMovingToBackground, applicationMovingToForeground);
             if (shouldQuit)
             {
                 break;
             }
+        }
+        
+        if (applicationMovingToBackground)
+        {
+            mSystems->mSoundManager.PauseAudio();
+        }
+        
+        if (applicationMovingToForeground)
+        {
+            mSystems->mSoundManager.ResumeAudio();
         }
         
         if (mSystems->mInputStateManager.VButtonTapped(input::Button::SECONDARY_BUTTON))
@@ -256,6 +270,7 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
         }
         
         mSystems->mResourceLoadingService.Update();
+        mSystems->mSoundManager.Update(dtMillis);
         
         float gameLogicMillis = math::Max(16.0f, math::Min(32.0f, dtMillis)) * sGameSpeed * targetFpsMillis/DEFAULT_FRAME_MILLIS;
 
@@ -392,6 +407,13 @@ scene::SceneManager& CoreSystemsEngine::GetSceneManager()
 resources::ResourceLoadingService& CoreSystemsEngine::GetResourceLoadingService()
 {
     return mSystems->mResourceLoadingService;
+}
+
+///------------------------------------------------------------------------------------------------
+
+sound::SoundManager& CoreSystemsEngine::GetSoundManager()
+{
+    return mSystems->mSoundManager;
 }
 
 ///------------------------------------------------------------------------------------------------

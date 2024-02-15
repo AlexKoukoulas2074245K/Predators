@@ -63,6 +63,7 @@
 		5C9953DDFEE1C355339E8F4D /* EventSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 549C84D3FE6BA93E39F0B406 /* EventSystem.cpp */; };
 		5D35EB306ABAAA6602F12C00 /* PostNextPlayerGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD189C394560D3EE41F57243 /* PostNextPlayerGameAction.cpp */; };
 		5D419704660E8D39EF808018 /* AnimatedButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41E9B2A6F18FC1E4E07DE13E /* AnimatedButton.cpp */; };
+		5E2DBB8D2706EB68C9F73856 /* SoundManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7002E4E05285B676C7910C17 /* SoundManager.cpp */; };
 		5EE22680E263BDE168812A46 /* CloudKitUtils.h in Sources */ = {isa = PBXBuildFile; fileRef = 35B913CBC29BA48AF1623AD8 /* CloudKitUtils.h */; };
 		5F70A6903C6F6704B8D0F3A9 /* SwipeableContainer.h in Sources */ = {isa = PBXBuildFile; fileRef = DC7E5EF8DD1626BCF3AB1038 /* SwipeableContainer.h */; };
 		60B9E1F13C4A6D7D1A4551BA /* VisitMapNodeSceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C16A1AADA07DA3267641EB14 /* VisitMapNodeSceneLogicManager.cpp */; };
@@ -71,6 +72,7 @@
 		63ACAC4B14C52F77FD898EB9 /* SceneManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 2D9F44C3DC0B2CD50A891B5D /* SceneManager.h */; };
 		660911608ADE1C9EEC6A9623 /* AnimatedStatContainer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 89C7A73D8D9B8551A0B90213 /* AnimatedStatContainer.cpp */; };
 		666569DB569B0BF9FF01CF1E /* GiftingUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B05ED07AC0DFFAA1307DEE86 /* GiftingUtils.cpp */; };
+		66AB165A307A903CD1E44358 /* SoundManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 4E45BF6E91E8A78C5D531D26 /* SoundManager.h */; };
 		67B1455F17EDD453F49F14AA /* ImageSurfaceResource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E3503F93D9327A645A426E67 /* ImageSurfaceResource.cpp */; };
 		6803C39E7B77E2806DA66431 /* PersistentAccountDataSerializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EBD75F47AAFEB22AFA92DD21 /* PersistentAccountDataSerializer.cpp */; };
 		68904C4D6B5810C48E2AB941 /* CardPackRewardSceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 8B913AA802CB2A386DBC56E8 /* CardPackRewardSceneLogicManager.h */; };
@@ -383,6 +385,7 @@
 		4AACD386F5589D0221F980E5 /* ProductRepository.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ProductRepository.h; path = ProductRepository.h; sourceTree = "<group>"; };
 		4D44F8A7427AB83EA69F0455 /* SceneObjectUtils.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = SceneObjectUtils.h; sourceTree = "<group>"; };
 		4E40B33B0D48EFF2D940A533 /* BattleDeserializer.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = BattleDeserializer.cpp; sourceTree = "<group>"; };
+		4E45BF6E91E8A78C5D531D26 /* SoundManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = SoundManager.h; path = SoundManager.h; sourceTree = "<group>"; };
 		4EFECE16CCB0ADBC363A29A2 /* CardTooltipController.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = CardTooltipController.cpp; sourceTree = "<group>"; };
 		5001D360D95CC8282014BA1A /* DataRepository.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = DataRepository.cpp; sourceTree = "<group>"; };
 		516E3FF0C808841DB35ACF05 /* HeroCardEntryGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = HeroCardEntryGameAction.cpp; sourceTree = "<group>"; };
@@ -403,6 +406,7 @@
 		6948DC10A2A8B62950304FD1 /* PrivacyPolicySceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = PrivacyPolicySceneLogicManager.h; path = PrivacyPolicySceneLogicManager.h; sourceTree = "<group>"; };
 		6A2B9146BB3700AB6F103DBE /* AppleUtils.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = AppleUtils.h; sourceTree = "<group>"; };
 		6DABF2AD773648BC395F392D /* StoryMapSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = StoryMapSceneLogicManager.cpp; sourceTree = "<group>"; };
+		7002E4E05285B676C7910C17 /* SoundManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = SoundManager.cpp; path = SoundManager.cpp; sourceTree = "<group>"; };
 		70EAA9FFECCEE753A4D14AFF /* IOSUtils.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = IOSUtils.h; sourceTree = "<group>"; };
 		7213B89F1A8AC4B38238ECEB /* Cards.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = Cards.h; sourceTree = "<group>"; };
 		737A7BF42484F5DE03FA7A46 /* SceneObjectUtils.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = SceneObjectUtils.cpp; sourceTree = "<group>"; };
@@ -792,6 +796,7 @@
 				9206EB1B2ACDC3FE00198337 /* utils */,
 				9206EB232ACDC3FE00198337 /* rendering */,
 				9206EB2E2ACDC3FE00198337 /* scene */,
+				D2F1FF4CFB8147ADE0EE5774 /* sound */,
 			);
 			path = engine;
 			sourceTree = "<group>";
@@ -1041,6 +1046,16 @@
 				6948DC10A2A8B62950304FD1 /* PrivacyPolicySceneLogicManager.h */,
 			);
 			path = scenelogicmanagers;
+			sourceTree = "<group>";
+		};
+		D2F1FF4CFB8147ADE0EE5774 /* sound */ = {
+			isa = PBXGroup;
+			children = (
+				7002E4E05285B676C7910C17 /* SoundManager.cpp */,
+				4E45BF6E91E8A78C5D531D26 /* SoundManager.h */,
+			);
+			name = sound;
+			path = sound;
 			sourceTree = "<group>";
 		};
 		E9B34BDC795E6602450C2817 /* events */ = {
@@ -1492,6 +1507,8 @@
 				ABDC5333E2E95E5AB630A5E4 /* AppleSoundUtils.h in Sources */,
 				EAD29D4944FA967EBE7A3F02 /* AppleSoundUtils.mm in Sources */,
 				C2AC05A6C8BF8C71A6A428AD /* AVAudioPlayerManager.mm in Sources */,
+				5E2DBB8D2706EB68C9F73856 /* SoundManager.cpp in Sources */,
+				66AB165A307A903CD1E44358 /* SoundManager.h in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

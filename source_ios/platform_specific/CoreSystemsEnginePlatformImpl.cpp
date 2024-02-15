@@ -12,6 +12,7 @@
 #include <engine/rendering/ParticleManager.h>
 #include <engine/rendering/RenderingUtils.h>
 #include <engine/resloading/ResourceLoadingService.h>
+#include <engine/sound/SoundManager.h>
 #include <engine/scene/SceneManager.h>
 #include <engine/scene/Scene.h>
 #include <engine/utils/Logging.h>
@@ -46,6 +47,7 @@ struct CoreSystemsEngine::SystemsImpl
     input::InputStateManagerPlatformImpl mInputStateManager;
     scene::SceneManager mSceneManager;
     resources::ResourceLoadingService mResourceLoadingService;
+    sound::SoundManager mSoundManager;
 };
 
 ///------------------------------------------------------------------------------------------------
@@ -107,6 +109,7 @@ void CoreSystemsEngine::Initialize()
     // Systems Initialization
     mSystems = std::make_unique<SystemsImpl>();
     mSystems->mResourceLoadingService.Initialize();
+    mSystems->mSoundManager.Initialize();
     
     // Enable texture blending
     GL_CALL(glEnable(GL_BLEND));
@@ -170,10 +173,12 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
             {
                 clientApplicationMovedToBackgroundFunction();
                 pausedExecution = true;
+                mSystems->mSoundManager.PauseAudio();
             }
             else if (applicationMovedToForeground)
             {
                 pausedExecution = false;
+                mSystems->mSoundManager.ResumeAudio();
             }
         }
         
@@ -191,6 +196,7 @@ void CoreSystemsEngine::Start(std::function<void()> clientInitFunction, std::fun
         }
         
         mSystems->mResourceLoadingService.Update();
+        mSystems->mSoundManager.Update(dtMillis);
         
         float gameLogicMillis = math::Max(16.0f, math::Min(32.0f, dtMillis)) * (TARGET_GAME_LOGIC_FPS/static_cast<float>(refreshRate));
         if (secsAccumulator > 1.0f)
@@ -296,6 +302,13 @@ scene::SceneManager& CoreSystemsEngine::GetSceneManager()
 resources::ResourceLoadingService& CoreSystemsEngine::GetResourceLoadingService()
 {
     return mSystems->mResourceLoadingService;
+}
+
+///------------------------------------------------------------------------------------------------
+
+sound::SoundManager& CoreSystemsEngine::GetSoundManager()
+{
+    return mSystems->mSoundManager;
 }
 
 ///------------------------------------------------------------------------------------------------

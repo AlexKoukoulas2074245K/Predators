@@ -23,6 +23,7 @@ namespace rendering { class IRenderer; }
 namespace rendering { class FontRepository; }
 namespace rendering { class ParticleManager; }
 namespace resources { class ResourceLoadingService; }
+namespace sound { class SoundManager; }
 namespace scene { class SceneManager; }
 
 struct SDL_Window;
@@ -51,6 +52,7 @@ public:
     input::IInputStateManager& GetInputStateManager();
     scene::SceneManager& GetSceneManager();
     resources::ResourceLoadingService& GetResourceLoadingService();
+    sound::SoundManager& GetSoundManager();
     
     float GetDefaultAspectRatio() const;
     SDL_Window& GetContextWindow() const;

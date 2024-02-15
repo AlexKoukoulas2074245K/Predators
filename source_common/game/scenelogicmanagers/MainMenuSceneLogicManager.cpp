@@ -12,6 +12,7 @@
 #include <engine/utils/Date.h>
 #include <engine/utils/Logging.h>
 #include <engine/scene/SceneManager.h>
+#include <engine/sound/SoundManager.h>
 #include <fstream>
 #include <game/AnimatedButton.h>
 #include <game/Cards.h>
@@ -24,7 +25,6 @@
 #include <SDL_events.h>
 #if defined(MACOS) || defined(MOBILE_FLOW)
 #include <platform_utilities/AppleUtils.h>
-#include <platform_utilities/AppleSoundUtils.h>
 #include <platform_utilities/CloudKitUtils.h>
 #elif defined(WINDOWS)
 #include <platform_utilities/WindowsUtils.h>
@@ -269,6 +269,7 @@ void MainMenuSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     apple_utils::LoadStoreProducts({ product_ids::STORY_HEALTH_REFILL, product_ids::COINS_S, product_ids::COINS_M, product_ids::COINS_L });
 #endif
     
+    CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound("final_boss_theme");
     DataRepository::GetInstance().SetQuickPlayData(nullptr);
     DataRepository::GetInstance().SetIsCurrentlyPlayingStoryMode(false);
     

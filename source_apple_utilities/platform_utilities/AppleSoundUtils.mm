@@ -38,12 +38,6 @@ void Vibrate()
 
 void PreloadSfx(const std::string& sfxResPath)
 {
-    if (strutils::StringEndsWith(sfxResPath, ".mp3") || strutils::StringEndsWith(sfxResPath, ".wav"))
-    {
-        ospopups::ShowMessageBox(ospopups::MessageBoxType::WARNING, "Sound Path contains extension", "Sound res path " + sfxResPath + " includes extension and will be ignored.");
-        return;
-    }
-    
     NSString* objectiveCresPath = [NSString stringWithCString:sfxResPath.data() encoding:[NSString defaultCStringEncoding]];
     
     if (manager != nil)
@@ -56,12 +50,6 @@ void PreloadSfx(const std::string& sfxResPath)
 
 void PlaySound(const std::string& soundResPath, const bool loopedSfx /* = false */)
 {
-    if (strutils::StringEndsWith(soundResPath, ".flac") || strutils::StringEndsWith(soundResPath, ".mp3"))
-    {
-        ospopups::ShowMessageBox(ospopups::MessageBoxType::WARNING, "Sound Path contains extension", "Sound res path " + soundResPath + " includes extension and will be ignored.");
-        return;
-    }
-    
     NSString* objectiveCresPath = [NSString stringWithCString:(ROOT_SOUND_RES_PATH + soundResPath).data() encoding:[NSString defaultCStringEncoding]];
     
     if (manager != nil)

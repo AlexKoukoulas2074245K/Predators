@@ -43,6 +43,7 @@
 		5BEFD96D266F53B603C278C1 /* TypeTraits.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 988043F06556266668BE5677 /* TypeTraits.cpp */; };
 		63011B7BE17965C680A05EAD /* BaseDataFileSerializer.h in Sources */ = {isa = PBXBuildFile; fileRef = 30D02CEC6861EBD7441E2004 /* BaseDataFileSerializer.h */; };
 		65D2F7E38372F0525D4554EF /* ProductRepository.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA762FD26B23DF71586603AB /* ProductRepository.cpp */; };
+		69A3B6CA894565C4F51E1123 /* SoundManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 7AC3E452BAA560B6D8B1349E /* SoundManager.h */; };
 		6A2CEF823BB7D7D42F2CBDE3 /* CloudDataConfirmationSceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 0A90C5CE1FAAD720E2DE0541 /* CloudDataConfirmationSceneLogicManager.h */; };
 		6B29A2EA7B3D661771AB8A2D /* RenderingUtils.h in Sources */ = {isa = PBXBuildFile; fileRef = 8AE4C68818CCB619974358E0 /* RenderingUtils.h */; };
 		6E1A780876A016C76FFF66C6 /* OBJMeshLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 06291EA0D3FF12CB3058DEF2 /* OBJMeshLoader.cpp */; };
@@ -50,6 +51,7 @@
 		71DEABFBFD9A818B6DFD8412 /* TextureLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E0D05FD28DC001514531A214 /* TextureLoader.cpp */; };
 		727597BF236993C7788D69DD /* GiftingUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9B369C56C71CD22B4F909799 /* GiftingUtils.cpp */; };
 		77F8C741493973A71A6DBA22 /* ImageSurfaceResource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 53CDE03B92A8F220738E44FE /* ImageSurfaceResource.cpp */; };
+		7A14147B43076FC43E6D5662 /* SoundManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F701DBE1A8A6D1664BEF16A3 /* SoundManager.cpp */; };
 		7A35378576E3FCE89E70ABA4 /* SceneManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FB79D70FA4FA614F184AFE40 /* SceneManager.cpp */; };
 		7B9789451DEA62BACC400C76 /* CloudKitUtils.h in Sources */ = {isa = PBXBuildFile; fileRef = 0B7F76FD2D5492C5AB3ABFFD /* CloudKitUtils.h */; };
 		7CA340B584BA7BDBF8857C4C /* OBJMeshLoader.h in Sources */ = {isa = PBXBuildFile; fileRef = 46BB489973B1ACFF46F552DB /* OBJMeshLoader.h */; };
@@ -266,6 +268,7 @@
 		70F1FCAFCFC2229C3F093372 /* CloudKitUtils.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; path = CloudKitUtils.mm; sourceTree = "<group>"; };
 		71C6F5A357C7E63ABEB0D3CA /* GiftCodeClaimSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = GiftCodeClaimSceneLogicManager.h; sourceTree = "<group>"; };
 		7961514C3AA5315045E54E7E /* PlatformMacros.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = PlatformMacros.h; sourceTree = "<group>"; };
+		7AC3E452BAA560B6D8B1349E /* SoundManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = SoundManager.h; path = SoundManager.h; sourceTree = "<group>"; };
 		7C92E4EC0FBCD6AFCA53FD77 /* ResourceLoadingService.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = ResourceLoadingService.h; sourceTree = "<group>"; };
 		7F068929D88F95729D0195E3 /* AVAudioPlayerManager.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; path = AVAudioPlayerManager.mm; sourceTree = "<group>"; };
 		82DFED0E0B1AB607780AED60 /* Animations.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = Animations.h; sourceTree = "<group>"; };
@@ -494,6 +497,7 @@
 		F16121E2A49D2514A725F7AA /* SceneObjectUtils.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = SceneObjectUtils.cpp; sourceTree = "<group>"; };
 		F2FC1889E08EEFD36C0B6476 /* AnimationManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = AnimationManager.h; sourceTree = "<group>"; };
 		F3DCD97E5C6A637C6DD4BC0B /* Fonts.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = Fonts.h; sourceTree = "<group>"; };
+		F701DBE1A8A6D1664BEF16A3 /* SoundManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = SoundManager.cpp; path = SoundManager.cpp; sourceTree = "<group>"; };
 		FA762FD26B23DF71586603AB /* ProductRepository.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = ProductRepository.cpp; sourceTree = "<group>"; };
 		FB0E9FCA60AD270C9B09FA51 /* SceneObjectUtils.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = SceneObjectUtils.h; sourceTree = "<group>"; };
 		FB79D70FA4FA614F184AFE40 /* SceneManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = SceneManager.cpp; sourceTree = "<group>"; };
@@ -548,6 +552,16 @@
 				B83F90BE48846F5019309046 /* DataFileLoader.h */,
 			);
 			path = resloading;
+			sourceTree = "<group>";
+		};
+		34B833F1E93B16BE9FBEB3FD /* sound */ = {
+			isa = PBXGroup;
+			children = (
+				F701DBE1A8A6D1664BEF16A3 /* SoundManager.cpp */,
+				7AC3E452BAA560B6D8B1349E /* SoundManager.h */,
+			);
+			name = sound;
+			path = sound;
 			sourceTree = "<group>";
 		};
 		38F3F61D04DE24E537D8D6EF /* utils */ = {
@@ -1067,6 +1081,7 @@
 				FE2A3B9216CE099766F73F39 /* scene */,
 				1B15A1EEB522F75EE7E24E55 /* CoreSystemsEngine.h */,
 				D96281C7720CC0470C671734 /* input */,
+				34B833F1E93B16BE9FBEB3FD /* sound */,
 			);
 			path = engine;
 			sourceTree = "<group>";
@@ -1356,6 +1371,8 @@
 				120CF200D56449CFC3BD99AF /* AppleSoundUtils.h in Sources */,
 				E2240B574B476A510E0FEE8A /* AppleSoundUtils.mm in Sources */,
 				005DDF1CA71A424F880BFF85 /* AVAudioPlayerManager.mm in Sources */,
+				7A14147B43076FC43E6D5662 /* SoundManager.cpp in Sources */,
+				69A3B6CA894565C4F51E1123 /* SoundManager.h in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
