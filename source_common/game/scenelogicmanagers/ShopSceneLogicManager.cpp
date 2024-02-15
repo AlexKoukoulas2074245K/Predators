@@ -16,6 +16,7 @@
 #include <engine/utils/PlatformMacros.h>
 #include <engine/utils/BaseDataFileDeserializer.h>
 #include <engine/scene/SceneManager.h>
+#include <engine/sound/SoundManager.h>
 #include <game/AnimatedButton.h>
 #include <game/Cards.h>
 #include <game/CardTooltipController.h>
@@ -74,6 +75,7 @@ static const strutils::StringId ORIGIN_X_UNIFORM_NAME = strutils::StringId("orig
 static const strutils::StringId ORIGIN_Y_UNIFORM_NAME = strutils::StringId("origin_y");
 static const strutils::StringId PRODUCT_DESELECTION_ANIMATION_NAME = strutils::StringId("product_deselection_animation");
 
+static const std::string SHOP_THEME_MUSIC = "main_menu_theme";
 static const std::string DISSOLVE_SHADER_FILE_NAME = "generic_dissolve.vs";
 static const std::string DISSOLVE_RARE_ITEM_SHADER_FILE_NAME = "generic_rare_item_dissolve.vs";
 static const std::string DISSOLVE_TEXTURE_FILE_NAME = "dissolve.png";
@@ -187,6 +189,8 @@ void ShopSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 {
     CardDataRepository::GetInstance().LoadCardData(true);
 
+    CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(SHOP_THEME_MUSIC);
+    
     mScene = scene;
     DestroyCardTooltip();
     mGuiManager = std::make_shared<GuiObjectManager>(scene);

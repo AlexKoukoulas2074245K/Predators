@@ -11,6 +11,7 @@
 #include <engine/resloading/MeshResource.h>
 #include <engine/scene/SceneManager.h>
 #include <engine/scene/SceneObjectUtils.h>
+#include <engine/sound/SoundManager.h>
 #include <engine/utils/Logging.h>
 #include <engine/utils/PlatformMacros.h>
 #include <game/AnimatedButton.h>
@@ -29,6 +30,9 @@ static const strutils::StringId VISIT_MAP_NODE_SCENE = strutils::StringId("visit
 static const strutils::StringId SETTINGS_SCENE = strutils::StringId("settings_scene");
 static const strutils::StringId BACKGROUND_SCENE_OBJECT_NAME = strutils::StringId("background");
 
+static const std::string MAIN_MAP_THEME_MUSIC = "main_map_theme";
+static const std::string TUTORIAL_MAP_THEME_MUSIC = "tutorial_map_theme";
+static const std::string VISIT_NODE_SFX = "sfx_visit_node";
 static const std::string OVERLAY_TEXTURE_FILE_NAME = "overlay.png";
 static const std::string COIN_VALUE_TEXT_SHADER_FILE_NAME = "basic_custom_color.vs";
 static const std::string SETTINGS_ICON_TEXTURE_FILE_NAME = "settings_button_icon.png";
@@ -166,6 +170,8 @@ void StoryMapSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     DataRepository::GetInstance().SetCurrentStoryMapSceneType(StoryMapSceneType::STORY_MAP);
     DataRepository::GetInstance().FlushStateToFile();
     
+    CoreSystemsEngine::GetInstance().GetSoundManager().PreloadSfx(VISIT_NODE_SFX);
+    
     mExcludedSceneObjectsFromFrustumCulling.clear();
     
     mMapUpdateState = MapUpdateState::NAVIGATING;
@@ -273,6 +279,8 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
                 
             });
         }
+        
+        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::TUTORIAL_MAP ? TUTORIAL_MAP_THEME_MUSIC : MAIN_MAP_THEME_MUSIC);
     }
     
     switch (mMapUpdateState)
@@ -381,7 +389,9 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
                     ResetSwipeData();
                     
                     ResetSelectedMapNode();
-
+                    
+                    CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(VISIT_NODE_SFX);
+                    
                     // Setup data for moving to target node
                     DataRepository::GetInstance().SetSelectedStoryMapNodePosition(mTappedMapNodeData->mPosition);
                     DataRepository::GetInstance().SetSelectedStoryMapNodeData(&mStoryMap->GetMapData().at(targetMapCoord));

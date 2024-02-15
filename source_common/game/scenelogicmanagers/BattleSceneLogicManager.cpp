@@ -29,6 +29,7 @@
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
 #include <engine/scene/SceneObjectUtils.h>
+#include <engine/sound/SoundManager.h>
 #include <engine/utils/Logging.h>
 #include <engine/utils/PlatformMacros.h>
 #if defined(MOBILE_FLOW)
@@ -69,6 +70,7 @@ static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
     game_constants::BATTLE_SCENE,
     HISTORY_SCENE
 };
+
 
 static const std::string MAKE_SPACE_REVERT_TO_POSITION_ANIMATION_NAME_PREFIX = "make_space_revert_";
 static const std::string BATTLE_ICON_TEXTURE_FILE_NAME = "battle_icon.png";

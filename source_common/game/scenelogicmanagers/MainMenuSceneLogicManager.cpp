@@ -35,6 +35,7 @@
 static const std::string SELECTABLE_BUTTON_SHADER_FILE_NAME = "basic_custom_color.vs";
 static const std::string DECK_ENTRY_SHADER = "card_family_selection_swipe_entry.vs";
 static const std::string DECK_ENTRY_MASK_TEXTURE_FILE_NAME = "trap_mask.png";
+static const std::string MAIN_MENU_THEME_MUSIC = "main_menu_theme";
 
 static const strutils::StringId SETTINGS_SCENE = strutils::StringId("settings_scene");
 static const strutils::StringId PRIVACY_POLICY_SCENE = strutils::StringId("privacy_policy_scene");
@@ -271,6 +272,8 @@ void MainMenuSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     cloudkit_utils::QueryPlayerProgress([=](cloudkit_utils::QueryResultData resultData){ OnCloudQueryCompleted(resultData); });
     apple_utils::LoadStoreProducts({ product_ids::STORY_HEALTH_REFILL, product_ids::COINS_S, product_ids::COINS_M, product_ids::COINS_L });
 #endif
+    
+    CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(MAIN_MENU_THEME_MUSIC);
     
     //CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound("final_boss_theme");
     DataRepository::GetInstance().SetQuickPlayData(nullptr);

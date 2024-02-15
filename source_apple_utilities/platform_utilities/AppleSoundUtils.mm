@@ -48,13 +48,13 @@ void PreloadSfx(const std::string& sfxResPath)
 
 ///------------------------------------------------------------------------------------------------
 
-void PlaySound(const std::string& soundResPath, const bool loopedSfx /* = false */)
+void PlaySound(const std::string& soundResPath, const bool loopedSfxOrUnloopedMusic /* = false */)
 {
     NSString* objectiveCresPath = [NSString stringWithCString:(ROOT_SOUND_RES_PATH + soundResPath).data() encoding:[NSString defaultCStringEncoding]];
     
     if (manager != nil)
     {
-        [manager playSoundWith:objectiveCresPath isMusic:(!strutils::StringStartsWith(fileutils::GetFileName(soundResPath), "sfx_")) forceLoop:loopedSfx];
+        [manager playSoundWith:objectiveCresPath isMusic:(!strutils::StringStartsWith(fileutils::GetFileName(soundResPath), "sfx_")) withLoopedSfxOrUnloopedMusic:loopedSfxOrUnloopedMusic];
     }
 }
 

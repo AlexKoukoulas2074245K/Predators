@@ -21,7 +21,7 @@ namespace sound_utils
 
 void Vibrate();
 void PreloadSfx(const std::string& sfxResPath);
-void PlaySound(const std::string& soundResPath, const bool loopedSfx = false);
+void PlaySound(const std::string& soundResPath, const bool loopedSfxOrUnloopedMusic = false);
 void InitAudio();
 void ResumeAudio();
 void PauseMusicOnly();

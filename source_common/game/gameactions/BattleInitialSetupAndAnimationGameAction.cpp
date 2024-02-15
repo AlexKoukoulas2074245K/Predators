@@ -10,17 +10,23 @@
 #include <engine/rendering/AnimationManager.h>
 #include <engine/scene/SceneManager.h>
 #include <engine/scene/Scene.h>
+#include <engine/sound/SoundManager.h>
 #include <game/events/EventSystem.h>
 #include <game/GameConstants.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/BattleInitialSetupAndAnimationGameAction.h>
 #include <game/scenelogicmanagers/BattleSceneLogicManager.h>
 
+
 ///------------------------------------------------------------------------------------------------
 
 const std::string BattleInitialSetupAndAnimationGameAction::CURRENT_BATTLE_SUBSCENE_PARAM = "currentBattleSubsceneParam";
 
 ///------------------------------------------------------------------------------------------------
+
+static const std::string MINI_BOSS_THEME_MUSIC = "mini_boss_theme";
+static const std::string FINAL_BOSS_THEME_MUSIC = "final_boss_theme";
+static const std::string VICTORY_THEME_MUSIC = "victory_theme";
 
 static const strutils::StringId STORY_VICTORY_SCENE_NAME = strutils::StringId("victory_scene");
 static const strutils::StringId CARD_SELECTION_REWARD_SCENE_NAME = strutils::StringId("card_selection_reward_scene");
@@ -58,6 +64,23 @@ void BattleInitialSetupAndAnimationGameAction::VInitAnimation()
     
     boardSceneObject->mPosition = game_constants::GAME_BOARD_INIT_POSITION;
     boardSceneObject->mRotation = game_constants::GAME_BOARD_INIT_ROTATION;
+    
+    auto currentSubSceneType = static_cast<BattleSubSceneType>(std::stoi(mExtraActionParams.at(CURRENT_BATTLE_SUBSCENE_PARAM)));
+    if (currentSubSceneType == BattleSubSceneType::BATTLE)
+    {
+        if (DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::TUTORIAL_MAP && DataRepository::GetInstance().GetCurrentStoryMapNodeCoord() == game_constants::TUTORIAL_MAP_BOSS_COORD)
+        {
+            CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(MINI_BOSS_THEME_MUSIC);
+        }
+        else if (DataRepository::GetInstance().GetCurrentStoryMapNodeCoord() == game_constants::STORY_MAP_BOSS_COORD)
+        {
+            CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(FINAL_BOSS_THEME_MUSIC);
+        }
+    }
+    else
+    {
+        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(VICTORY_THEME_MUSIC, true);
+    }
     
     // Animate board to target position
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();

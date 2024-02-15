@@ -22,7 +22,7 @@
 
 - (id) init;
 - (void) preloadSfxWith:(NSString*) sfxResPath;
-- (void) playSoundWith:(NSString*) soundResPath isMusic:(BOOL) isMusic forceLoop:(BOOL) forceLoop;
+- (void) playSoundWith:(NSString*) soundResPath isMusic:(BOOL) isMusic withLoopedSfxOrUnloopedMusic:(BOOL) loopedSfxOrUnloopedMusic;
 - (void) pauseMusic;
 - (void) pauseSfx;
 - (void) pauseAudio;

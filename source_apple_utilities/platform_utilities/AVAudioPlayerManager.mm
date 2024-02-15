@@ -61,7 +61,7 @@ static const float DISABLED_AUDIO_SFX_VOLUME = 0.0f;
 
 ///------------------------------------------------------------------------------------------------
 
-- (void) playSoundWith: (NSString*) soundResPath isMusic:(BOOL) isMusic forceLoop:(BOOL) forceLoop
+- (void) playSoundWith: (NSString*) soundResPath isMusic:(BOOL) isMusic withLoopedSfxOrUnloopedMusic:(BOOL) loopedSfxOrUnloopedMusic
 {
     NSString* sandboxFilePath = [NSBundle.mainBundle pathForResource:soundResPath ofType:@"flac"];
     
@@ -74,7 +74,7 @@ static const float DISABLED_AUDIO_SFX_VOLUME = 0.0f;
                 dispatch_queue_t backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
                 dispatch_async(backgroundQueue, ^{
                     self->_musicPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL fileURLWithPath:sandboxFilePath] error:nil];
-                    self->_musicPlayer.numberOfLoops = -1;
+                    self->_musicPlayer.numberOfLoops = loopedSfxOrUnloopedMusic ? 0 : -1;
                     self->_musicPlayer.volume = 0.0f;
                     self->_currentPlayingMusicPath = sandboxFilePath;
                     self->_nextQueuedMusicPath = sandboxFilePath;
@@ -95,10 +95,7 @@ static const float DISABLED_AUDIO_SFX_VOLUME = 0.0f;
             {
                 dispatch_queue_t backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
                 dispatch_async(backgroundQueue, ^{
-                    if (forceLoop)
-                    {
-                        targetSfxPlayer.numberOfLoops = 1;
-                    }
+                    targetSfxPlayer.numberOfLoops = loopedSfxOrUnloopedMusic ? -1 : 0;
                     targetSfxPlayer.currentTime = 0;
                     targetSfxPlayer.volume = self.targetSfxVolume;
                     [targetSfxPlayer play];

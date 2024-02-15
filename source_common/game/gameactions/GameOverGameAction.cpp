@@ -14,6 +14,7 @@
 #include <engine/scene/SceneManager.h>
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
+#include <engine/sound/SoundManager.h>
 #include <engine/utils/Logging.h>
 
 ///------------------------------------------------------------------------------------------------
@@ -23,6 +24,7 @@ const std::string GameOverGameAction::VICTORIOUS_PLAYER_INDEX_PARAM = "victoriou
 
 static const std::string CARD_DISSOLVE_SHADER_FILE_NAME = "card_dissolve.vs";
 static const std::string DISSOLVE_TEXTURE_FILE_NAME = "dissolve.png";
+static const std::string VICTORY_THEME_MUSIC = "victory_theme";
 
 static const strutils::StringId STORY_VICTORY_SCENE_NAME = strutils::StringId("victory_scene");
 static const strutils::StringId CARD_SELECTION_REWARD_SCENE_NAME = strutils::StringId("card_selection_reward_scene");
@@ -167,6 +169,8 @@ ActionAnimationUpdateResult GameOverGameAction::VUpdateAnimation(const float dtM
                     {
                         events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(WHEEL_OF_FORTUNE_SCENE_NAME, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
                     }
+                    
+                    CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(VICTORY_THEME_MUSIC, true);
                     
                     return ActionAnimationUpdateResult::FINISHED;
                 }

@@ -62,9 +62,9 @@ void SoundManager::PreloadSfx(const std::string& sfxResPath)
 
 ///------------------------------------------------------------------------------------------------
 
-void SoundManager::PlaySound(const std::string& soundResPath, const bool loopedSfx /* = false */)
+void SoundManager::PlaySound(const std::string& soundResPath, const bool loopedSfxOrUnloopedMusic /* = false */)
 {
-    PLATFORM_CALL(PlaySound(soundResPath, loopedSfx));
+    PLATFORM_CALL(PlaySound(soundResPath, loopedSfxOrUnloopedMusic));
 }
 
 ///------------------------------------------------------------------------------------------------
