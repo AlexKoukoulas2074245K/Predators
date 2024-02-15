@@ -69,12 +69,13 @@ static const float DISABLED_AUDIO_SFX_VOLUME = 0.0f;
     {
         if (isMusic)
         {
+            _nextMusicUnlooped = loopedSfxOrUnloopedMusic;
             if (_musicPlayer == nil)
             {
                 dispatch_queue_t backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
                 dispatch_async(backgroundQueue, ^{
                     self->_musicPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL fileURLWithPath:sandboxFilePath] error:nil];
-                    self->_musicPlayer.numberOfLoops = loopedSfxOrUnloopedMusic ? 0 : -1;
+                    self->_musicPlayer.numberOfLoops = self->_nextMusicUnlooped ? 0 : -1;
                     self->_musicPlayer.volume = 0.0f;
                     self->_currentPlayingMusicPath = sandboxFilePath;
                     self->_nextQueuedMusicPath = sandboxFilePath;
@@ -176,7 +177,7 @@ static const float DISABLED_AUDIO_SFX_VOLUME = 0.0f;
             else
             {
                 _musicPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL fileURLWithPath:_nextQueuedMusicPath] error:nil];
-                _musicPlayer.numberOfLoops = -1;
+                _musicPlayer.numberOfLoops = _nextMusicUnlooped ? 0 : -1;
                 _musicPlayer.volume = 0.0f;
                 [_musicPlayer prepareToPlay];
                 [_musicPlayer play];

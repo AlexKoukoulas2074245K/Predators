@@ -24,6 +24,7 @@ const std::string BattleInitialSetupAndAnimationGameAction::CURRENT_BATTLE_SUBSC
 
 ///------------------------------------------------------------------------------------------------
 
+static const std::string BATTLE_THEME_MUSIC = "battle_theme";
 static const std::string MINI_BOSS_THEME_MUSIC = "mini_boss_theme";
 static const std::string FINAL_BOSS_THEME_MUSIC = "final_boss_theme";
 static const std::string VICTORY_THEME_MUSIC = "victory_theme";
@@ -75,6 +76,10 @@ void BattleInitialSetupAndAnimationGameAction::VInitAnimation()
         else if (DataRepository::GetInstance().GetCurrentStoryMapNodeCoord() == game_constants::STORY_MAP_BOSS_COORD)
         {
             CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(FINAL_BOSS_THEME_MUSIC);
+        }
+        else
+        {
+            CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(BATTLE_THEME_MUSIC);
         }
     }
     else
