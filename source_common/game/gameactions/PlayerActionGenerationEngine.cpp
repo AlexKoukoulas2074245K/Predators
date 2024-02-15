@@ -171,6 +171,12 @@ bool PlayerActionGenerationEngine::IsCardHighPriority(const CardData& cardData, 
     else if
     (
         cardData.IsSpell() &&
+        strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_HEAL_NEXT_DINO_DAMAGE)
+    ) return true;
+    
+    else if
+    (
+        cardData.IsSpell() &&
         strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_PERMANENT_CONTINUAL_WEIGHT_REDUCTION) &&
         ((currentBoardState->GetActivePlayerState().mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::PERMANENT_CONTINUAL_WEIGHT_REDUCTION) == 0 || mActionGenerationType != ActionGenerationType::OPTIMISED)
     ) return true;

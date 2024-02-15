@@ -20,7 +20,7 @@ namespace effects
 
 ///------------------------------------------------------------------------------------------------
 // Effect types
-using EffectBoardModifierMask = uint8_t;
+using EffectBoardModifierMask = uint32_t;
 namespace board_modifier_masks
 {
     static constexpr EffectBoardModifierMask NONE = 0x0;
@@ -32,6 +32,7 @@ namespace board_modifier_masks
     static constexpr EffectBoardModifierMask PERMANENT_CONTINUAL_WEIGHT_REDUCTION = 0x20;
     static constexpr EffectBoardModifierMask DIG_NO_FAIL = 0x40;
     static constexpr EffectBoardModifierMask RODENT_LIFESTEAL = 0x80;
+    static constexpr EffectBoardModifierMask HEAL_NEXT_DINO_DAMAGE = 0x100;
 };
 
 
@@ -56,6 +57,7 @@ inline const std::string EFFECT_COMPONENT_DRAW_RANDOM_SPELL                    =
 inline const std::string EFFECT_COMPONENT_ARMOR                                = "ARMOR";
 inline const std::string EFFECT_COMPONENT_TOXIC_BOMB                           = "TOXIC_BOMB";
 inline const std::string EFFECT_COMPONENT_RODENT_LIFESTEAL_ON_ATTACKS          = "RODENT_LIFESTEAL_ON_ATTACKS";
+inline const std::string EFFECT_COMPONENT_HEAL_NEXT_DINO_DAMAGE                = "HEAL_NEXT_DINO_DAMAGE";
 
 inline const std::unordered_set<std::string> STATIC_EFFECT_COMPONENT_NAMES =
 {
@@ -78,7 +80,8 @@ inline const std::unordered_set<std::string> STATIC_EFFECT_COMPONENT_NAMES =
     EFFECT_COMPONENT_CARD_TOKEN,
     EFFECT_COMPONENT_ARMOR,
     EFFECT_COMPONENT_TOXIC_BOMB,
-    EFFECT_COMPONENT_RODENT_LIFESTEAL_ON_ATTACKS
+    EFFECT_COMPONENT_RODENT_LIFESTEAL_ON_ATTACKS,
+    EFFECT_COMPONENT_HEAL_NEXT_DINO_DAMAGE
 };
 
 ///------------------------------------------------------------------------------------------------

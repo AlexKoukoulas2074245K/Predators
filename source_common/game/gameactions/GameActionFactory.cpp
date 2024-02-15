@@ -25,6 +25,7 @@
 #include <game/gameactions/RodentsDigAnimationGameAction.h>
 #include <game/gameactions/TrapTriggeredAnimationGameAction.h>
 #include <game/gameactions/NextDinoDamageDoublingGameAction.h>
+#include <game/gameactions/HealNextDinoDamageGameAction.h>
 #include <game/gameactions/CardBuffedDebuffedAnimationGameAction.h>
 #include <algorithm>
 #include <vector>
@@ -62,6 +63,7 @@ void GameActionFactory::RegisterGameActions()
     REGISTER_ACTION(RodentsDigAnimationGameAction);
     REGISTER_ACTION(InsectDuplicationGameAction);
     REGISTER_ACTION(NextDinoDamageDoublingGameAction);
+    REGISTER_ACTION(HealNextDinoDamageGameAction);
     REGISTER_ACTION(CardBuffedDebuffedAnimationGameAction);
     REGISTER_ACTION(CardHistoryEntryAdditionGameAction);
     std::sort(REGISTERED_ACTION_NAMES.begin(), REGISTERED_ACTION_NAMES.end(), [&](const strutils::StringId& lhs, const strutils::StringId& rhs)
@@ -99,6 +101,7 @@ std::unique_ptr<BaseGameAction> GameActionFactory::CreateGameAction(const struti
     ACTION_CASE(RodentsDigAnimationGameAction);
     ACTION_CASE(InsectDuplicationGameAction);
     ACTION_CASE(NextDinoDamageDoublingGameAction);
+    ACTION_CASE(HealNextDinoDamageGameAction);
     ACTION_CASE(CardBuffedDebuffedAnimationGameAction);
     ACTION_CASE(CardHistoryEntryAdditionGameAction);
     assert(false && "Invalid game action name");

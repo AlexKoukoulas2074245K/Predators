@@ -552,6 +552,31 @@ TEST_F(GameActionTests, TestMightyDinoRoarEffect)
     EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, 30 - GET_CARD_DAMAGE("Dilophosaurus") * 3); // First dilophosaurus has double attack, the second one has normal attack
 }
 
+TEST_F(GameActionTests, TestDinoSnackFollowedByMightyDinoRoarEffect)
+{
+    mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {GET_CARD_ID("Mighty Dino Roar"), GET_CARD_ID("Dilophosaurus"), GET_CARD_ID("Dino Snack")}; // Top player has a deck of Mighty Dino Roars (w=2), Dilophosaurus (d=5,w=4) and Dino Snack (w=5);
+    
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mBoardState->GetPlayerStates()[0].mPlayerHealth = TEST_DEFAULT_PLAYER_HEALTH - GET_CARD_DAMAGE("Dilophosaurus") * 2;
+    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = 12;
+    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = 12;
+    mBoardState->GetPlayerStates()[0].mPlayerHeldCards = {GET_CARD_ID("Mighty Dino Roar"), GET_CARD_ID("Dilophosaurus"), GET_CARD_ID("Dilophosaurus"), GET_CARD_ID("Dino Snack")};
+    
+    
+    mActionEngine->AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "3" }}); // Dino Snack is played
+    mActionEngine->AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "0" }}); // Mighty Dino Roar is Played
+    mActionEngine->AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "0" }}); // Dilophosaurus is Played
+    
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    
+    
+    UpdateUntilActionOrIdle(DRAW_CARD_GAME_ACTION_NAME);
+    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, 30 - GET_CARD_DAMAGE("Dilophosaurus") * 2); // Dilophosaurus has double attack
+    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH); // Top player regains 10 HP
+}
+
 TEST_F(GameActionTests, TestDinoMultiBuff)
 {
     mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {GET_CARD_ID("Feathery Dino"), GET_CARD_ID("Metal Claws"), GET_CARD_ID("Dilophosaurus")}; // Top player has a deck of Feathery Dinos, Metal Claws and Dilophosaurus (d=5,w=4)

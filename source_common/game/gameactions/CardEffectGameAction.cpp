@@ -278,6 +278,7 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
                 case effects::board_modifier_masks::RODENT_LIFESTEAL:
                 case effects::board_modifier_masks::DUPLICATE_NEXT_INSECT:
                 case effects::board_modifier_masks::DOUBLE_NEXT_DINO_DAMAGE:
+                case effects::board_modifier_masks::HEAL_NEXT_DINO_DAMAGE:
                 case effects::board_modifier_masks::PERMANENT_CONTINUAL_WEIGHT_REDUCTION:
                 {
                     events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectTriggeredEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, mCardBoardEffectMask);
@@ -292,6 +293,7 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
                 events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, true, effects::board_modifier_masks::DIG_NO_FAIL);
                 events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, true, effects::board_modifier_masks::RODENT_LIFESTEAL);
                 events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, true,  effects::board_modifier_masks::DOUBLE_NEXT_DINO_DAMAGE);
+                events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, true,  effects::board_modifier_masks::HEAL_NEXT_DINO_DAMAGE);
                 events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, true,  effects::board_modifier_masks::PERMANENT_CONTINUAL_WEIGHT_REDUCTION);
             }
             
@@ -437,6 +439,13 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
         {
             mBoardState->GetActivePlayerState().mBoardModifiers.mBoardModifierMask |= effects::board_modifier_masks::DOUBLE_NEXT_DINO_DAMAGE;
             mCardBoardEffectMask = effects::board_modifier_masks::DOUBLE_NEXT_DINO_DAMAGE;
+        }
+        
+        // Heal on next Dino's Damage
+        else if (effectComponent == effects::EFFECT_COMPONENT_HEAL_NEXT_DINO_DAMAGE)
+        {
+            mBoardState->GetActivePlayerState().mBoardModifiers.mBoardModifierMask |= effects::board_modifier_masks::HEAL_NEXT_DINO_DAMAGE;
+            mCardBoardEffectMask = effects::board_modifier_masks::HEAL_NEXT_DINO_DAMAGE;
         }
         
         // Rodents Lifesteal

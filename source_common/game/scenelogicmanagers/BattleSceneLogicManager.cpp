@@ -393,6 +393,9 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
     // Double Dino Damage Effects
     cardBoardEffectAnimation(game_constants::NEXT_DINO_DAMAGE_DOUBLING_EFFECT_TOP_SCENE_OBJECT_NAME, game_constants::NEXT_DINO_DAMAGE_DOUBLING_EFFECT_BOT_SCENE_OBJECT_NAME);
     
+    // Heal next Dino Damage Effects
+    cardBoardEffectAnimation(game_constants::NEXT_DINO_HEAL_EFFECT_TOP_SCENE_OBJECT_NAME, game_constants::NEXT_DINO_HEAL_EFFECT_BOT_SCENE_OBJECT_NAME);
+    
     // Double Poison Attacks Effects
     cardBoardEffectAnimation(game_constants::DOUBLE_POISON_ATTACKS_EFFECT_TOP_SCENE_OBJECT_NAME, game_constants::DOUBLE_POISON_ATTACKS_EFFECT_BOT_SCENE_OBJECT_NAME);
     
@@ -1735,6 +1738,10 @@ void BattleSceneLogicManager::OnBoardSideCardEffectTriggered(const events::Board
         {
             sideEffectSceneObject = battleScene->FindSceneObject(event.mForRemotePlayer ? game_constants::NEXT_DINO_DAMAGE_DOUBLING_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::NEXT_DINO_DAMAGE_DOUBLING_EFFECT_BOT_SCENE_OBJECT_NAME);
         }
+        else if (event.mEffectBoardModifierMask == effects::board_modifier_masks::HEAL_NEXT_DINO_DAMAGE)
+        {
+            sideEffectSceneObject = battleScene->FindSceneObject(event.mForRemotePlayer ? game_constants::NEXT_DINO_HEAL_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::NEXT_DINO_HEAL_EFFECT_BOT_SCENE_OBJECT_NAME);
+        }
         else if (event.mEffectBoardModifierMask == effects::board_modifier_masks::DOUBLE_POISON_ATTACKS)
         {
             sideEffectSceneObject = battleScene->FindSceneObject(event.mForRemotePlayer ? game_constants::DOUBLE_POISON_ATTACKS_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::DOUBLE_POISON_ATTACKS_EFFECT_BOT_SCENE_OBJECT_NAME);
@@ -1825,6 +1832,10 @@ void BattleSceneLogicManager::OnBoardSideCardEffectEnded(const events::BoardSide
         else if (event.mEffectBoardModifierMask == effects::board_modifier_masks::DOUBLE_NEXT_DINO_DAMAGE)
         {
             sideEffectSceneObject = battleScene->FindSceneObject(event.mForRemotePlayer ? game_constants::NEXT_DINO_DAMAGE_DOUBLING_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::NEXT_DINO_DAMAGE_DOUBLING_EFFECT_BOT_SCENE_OBJECT_NAME);
+        }
+        else if (event.mEffectBoardModifierMask == effects::board_modifier_masks::HEAL_NEXT_DINO_DAMAGE)
+        {
+            sideEffectSceneObject = battleScene->FindSceneObject(event.mForRemotePlayer ? game_constants::NEXT_DINO_HEAL_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::NEXT_DINO_HEAL_EFFECT_BOT_SCENE_OBJECT_NAME);
         }
         else if (event.mEffectBoardModifierMask == effects::board_modifier_masks::DOUBLE_POISON_ATTACKS)
         {

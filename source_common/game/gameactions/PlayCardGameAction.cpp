@@ -36,6 +36,7 @@ static const strutils::StringId INSECT_DUPLICATION_GAME_ACTION_NAME = strutils::
 static const strutils::StringId NEXT_DINO_DAMAGE_DOUBLING_GAME_ACTION_NAME = strutils::StringId("NextDinoDamageDoublingGameAction");
 static const strutils::StringId CARD_HISTORY_ENTRY_ADDITION_GAME_ACTION_NAME = strutils::StringId("CardHistoryEntryAdditionGameAction");
 static const strutils::StringId CARD_PLAY_PARTICLE_NAME = strutils::StringId("card_play");
+static const strutils::StringId HEAL_NEXT_DINO_DAMAGE_GAME_ACTION_NAME = strutils::StringId("HealNextDinoDamageGameAction");
 
 static const float CARD_CAMERA_SHAKE_DURATION = 0.25f;
 static const float CARD_CAMERA_SHAKE_STRENGTH = 0.005f;
@@ -156,6 +157,13 @@ void PlayCardGameAction::VSetNewGameState()
         {
             mGameActionEngine->AddGameAction(NEXT_DINO_DAMAGE_DOUBLING_GAME_ACTION_NAME, {});
             activePlayerState.mBoardModifiers.mBoardModifierMask &= (~effects::board_modifier_masks::DOUBLE_NEXT_DINO_DAMAGE);
+        }
+        
+        if ((activePlayerState.mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::HEAL_NEXT_DINO_DAMAGE) != 0 &&
+            cardData.mCardFamily == game_constants::DINOSAURS_FAMILY_NAME)
+        {
+            mGameActionEngine->AddGameAction(HEAL_NEXT_DINO_DAMAGE_GAME_ACTION_NAME, {});
+            activePlayerState.mBoardModifiers.mBoardModifierMask &= (~effects::board_modifier_masks::HEAL_NEXT_DINO_DAMAGE);
         }
     }
 }

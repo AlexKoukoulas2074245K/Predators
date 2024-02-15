@@ -99,6 +99,7 @@ void CardAttackGameAction::VSetNewGameState()
     mPendingDamage = damage;
     mAmountOfArmorDamaged = 0;
     mAmountOfHealthDamaged = 0;
+    mLifestealHealedAtLeast1Hp = false;
     
     if (damage > 0)
     {
@@ -118,6 +119,7 @@ void CardAttackGameAction::VSetNewGameState()
         
         if ((mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::RODENT_LIFESTEAL) != 0)
         {
+            int oldHealth = mBoardState->GetInactivePlayerState().mPlayerHealth;
             if (mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX)
             {
                 mBoardState->GetInactivePlayerState().mPlayerHealth = math::Min(mBoardState->GetInactivePlayerState().mPlayerHealth + mPendingDamage, DataRepository::GetInstance().GetStoryMaxHealth());
@@ -126,6 +128,8 @@ void CardAttackGameAction::VSetNewGameState()
             {
                 mBoardState->GetInactivePlayerState().mPlayerHealth += mPendingDamage;
             }
+            
+            mLifestealHealedAtLeast1Hp = oldHealth != mBoardState->GetInactivePlayerState().mPlayerHealth;
         }
     }
     
@@ -250,7 +254,7 @@ void CardAttackGameAction::VInitAnimation()
                             events::EventSystem::GetInstance().DispatchEvent<events::HealthChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
                         }
                         
-                        if ((mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::RODENT_LIFESTEAL) != 0)
+                        if ((mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::RODENT_LIFESTEAL) != 0 && mLifestealHealedAtLeast1Hp)
                         {
                             events::EventSystem::GetInstance().DispatchEvent<events::HealthChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX);
                         }

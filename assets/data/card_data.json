@@ -402,6 +402,16 @@
             "texture": "vampire_bunny.png",
             "shader": "basic.vs",
             "single_use": true
+        },
+        {
+            "weight": 5,
+            "family": "dinosaurs",
+            "name": "Dino Snack",
+            "effect": "HEAL_NEXT_DINO_DAMAGE",
+            "tooltip": "The next dinosaur$played will HEAL$you for 100% of its$current DAMAGE",
+            "texture": "hungry_dinosaur.png",
+            "shader": "basic.vs",
+            "single_use": true
         }
     ]
 }
