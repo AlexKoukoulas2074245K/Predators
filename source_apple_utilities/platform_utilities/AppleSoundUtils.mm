@@ -38,7 +38,7 @@ void Vibrate()
 
 void PreloadSfx(const std::string& sfxResPath)
 {
-    NSString* objectiveCresPath = [NSString stringWithCString:sfxResPath.data() encoding:[NSString defaultCStringEncoding]];
+    NSString* objectiveCresPath = [NSString stringWithCString:(ROOT_SOUND_RES_PATH + sfxResPath).data() encoding:[NSString defaultCStringEncoding]];
     
     if (manager != nil)
     {

@@ -15,7 +15,7 @@
 
 static const float ENABLED_AUDIO_MUSIC_VOLUME = 1.0f;
 static const float DISABLED_AUDIO_MUSIC_VOLUME = 0.0f;
-static const float ENABLED_AUDIO_SFX_VOLUME = 0.4f;
+static const float ENABLED_AUDIO_SFX_VOLUME = 0.2f;
 static const float DISABLED_AUDIO_SFX_VOLUME = 0.0f;
 
 ///------------------------------------------------------------------------------------------------
@@ -37,7 +37,7 @@ static const float DISABLED_AUDIO_SFX_VOLUME = 0.0f;
 
 - (void) preloadSfxWith:(NSString*) sfxResPath
 {
-    NSString* sandboxFilePath = [NSBundle.mainBundle pathForResource:sfxResPath ofType:@"mp3"];
+    NSString* sandboxFilePath = [NSBundle.mainBundle pathForResource:sfxResPath ofType:@"flac"];
     
     if (sandboxFilePath != nil)
     {

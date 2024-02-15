@@ -11,6 +11,7 @@
 #include <engine/rendering/AnimationManager.h>
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObjectUtils.h>
+#include <engine/sound/SoundManager.h>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -18,6 +19,7 @@ static const float INTERACTION_ANIMATION_DURATION = 0.1f;
 static const float INTERACTION_ANIMATION_SCALE_FACTOR = 0.5f;
 static const strutils::StringId BUTTON_PULSING_ANIMATION_NAME = strutils::StringId("pulsing_animation");
 static const strutils::StringId BUTTON_CLICK_ANIMATION_NAME = strutils::StringId("click_animation");
+static const std::string BUTTON_PRESS_SFX = "sfx_button_press";
 
 ///------------------------------------------------------------------------------------------------
 
@@ -36,6 +38,8 @@ AnimatedButton::AnimatedButton
     , mOnPressCallback(onPressCallback)
     , mAnimating(false)
 {
+    CoreSystemsEngine::GetInstance().GetSoundManager().PreloadSfx(BUTTON_PRESS_SFX);
+    
     mSceneObject = scene.CreateSceneObject(buttonName);
     
     mSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
@@ -64,6 +68,8 @@ AnimatedButton::AnimatedButton
     , mOnPressCallback(onPressCallback)
     , mAnimating(false)
 {
+    CoreSystemsEngine::GetInstance().GetSoundManager().PreloadSfx(BUTTON_PRESS_SFX);
+    
     mSceneObject = scene.CreateSceneObject(buttonName);
     
     scene::TextSceneObjectData textData;
@@ -100,6 +106,8 @@ ButtonUpdateInteractionResult AnimatedButton::Update(const float)
     
     if (!mSceneObject->mInvisible && cursorInSceneObject && inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON) && !mAnimating)
     {
+        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(BUTTON_PRESS_SFX);
+        
         interactionResult = ButtonUpdateInteractionResult::CLICKED;
         mAnimating = true;
         auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();

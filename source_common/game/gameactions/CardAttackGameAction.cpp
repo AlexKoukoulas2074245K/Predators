@@ -20,11 +20,14 @@
 #include <engine/scene/SceneManager.h>
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
+#include <engine/sound/SoundManager.h>
 
 ///------------------------------------------------------------------------------------------------
 
 const std::string CardAttackGameAction::CARD_INDEX_PARAM = "cardIndex";
 const std::string CardAttackGameAction::PLAYER_INDEX_PARAM = "playerIndex";
+const std::string LIGHT_ATTACK_SFX = "sfx_attack_light";
+const std::string HEAVY_ATTACK_SFX = "sfx_attack_heavy";
 
 static const strutils::StringId GAME_OVER_GAME_ACTION_NAME = strutils::StringId("GameOverGameAction");
 static const strutils::StringId CARD_DESTRUCTION_GAME_ACTION_NAME = strutils::StringId("CardDestructionGameAction");
@@ -172,6 +175,9 @@ void CardAttackGameAction::VInitAnimation()
     auto cardIndex = std::stoi(mExtraActionParams.at(CARD_INDEX_PARAM));
     auto attackingPayerIndex = std::stoi(mExtraActionParams.at(PLAYER_INDEX_PARAM));
     
+    systemsEngine.GetSoundManager().PreloadSfx(LIGHT_ATTACK_SFX);
+    systemsEngine.GetSoundManager().PreloadSfx(HEAVY_ATTACK_SFX);
+    
     mPendingAnimations = 0;
     
     // Card has been destroyed in between this action's creation and it's invocation of setting state here
@@ -241,12 +247,15 @@ void CardAttackGameAction::VInitAnimation()
                         events::EventSystem::GetInstance().DispatchEvent<events::PoisonStackChangeChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, mBoardState->GetActivePlayerState().mPlayerPoisonStack);
                     }
                     
+                    
                     systemsEngine.GetParticleManager().CreateParticleEmitterAtPosition
                     (
                         ATTACKING_CARD_PARTICLE_NAME,
                         glm::vec3(cardSoWrapper->mSceneObject->mPosition.x, cardSoWrapper->mSceneObject->mPosition.y, ATTACKING_CARD_PARTICLE_EMITTER_Z),
                         *CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE)
                      );
+                    
+                    systemsEngine.GetSoundManager().PlaySound(mPendingDamage <= 5 ? LIGHT_ATTACK_SFX : HEAVY_ATTACK_SFX);
                     
                     auto cameraShakeDuration = math::Min(ATTACKING_CARD_CAMERA_SHAKE_MAX_DURATION, ATTACKING_CARD_CAMERA_SHAKE_DURATION * (1.0f + 0.05f * std::powf(static_cast<float>(mPendingDamage), 2.0f)));
                     auto cameraShakeStrength = math::Min(ATTACKING_CARD_CAMERA_SHAKE_MAX_STRENGTH, ATTACKING_CARD_CAMERA_SHAKE_STRENGTH * (1.0f + 0.05f * std::powf(static_cast<float>(mPendingDamage), 2.0f)));

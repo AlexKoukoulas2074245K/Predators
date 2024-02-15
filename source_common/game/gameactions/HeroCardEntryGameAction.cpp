@@ -18,9 +18,12 @@
 #include <engine/scene/SceneManager.h>
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
+#include <engine/sound/SoundManager.h>
 #include <engine/utils/FileUtils.h>
 
 ///------------------------------------------------------------------------------------------------
+
+static const std::string CARD_PLAY_SFX = "sfx_card_play";
 
 static const strutils::StringId CARD_HISTORY_ENTRY_ADDITION_GAME_ACTION_NAME = strutils::StringId("CardHistoryEntryAdditionGameAction");
 static const strutils::StringId CARD_PLAY_PARTICLE_NAME = strutils::StringId("card_play");
@@ -95,7 +98,9 @@ void HeroCardEntryGameAction::VSetNewGameState()
 void HeroCardEntryGameAction::VInitAnimation()
 {
     mAnimationState = AnimationState::ANIMATING_HERO_CARD;
-
+    
+    CoreSystemsEngine::GetInstance().GetSoundManager().PreloadSfx(CARD_PLAY_SFX);
+    
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
     auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
     auto scene = sceneManager.FindScene(game_constants::BATTLE_SCENE);
@@ -127,6 +132,8 @@ void HeroCardEntryGameAction::VInitAnimation()
     auto targetPosition = card_utils::CalculateBoardCardPosition(nonDeadBoardCardCount - 1, nonDeadBoardCardCount, true);
     animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(heroCardSoWrapper->mSceneObject, targetPosition, heroCardSoWrapper->mSceneObject->mScale * game_constants::IN_GAME_PLAYED_CARD_SCALE_FACTOR, IN_GAME_PLAYED_CARD_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
     {
+        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(CARD_PLAY_SFX);
+        
         CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE)->GetCamera().Shake(CARD_CAMERA_SHAKE_DURATION, CARD_CAMERA_SHAKE_STRENGTH);
         CoreSystemsEngine::GetInstance().GetParticleManager().CreateParticleEmitterAtPosition
         (

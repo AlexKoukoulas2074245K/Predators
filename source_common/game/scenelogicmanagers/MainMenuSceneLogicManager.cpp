@@ -272,7 +272,7 @@ void MainMenuSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     apple_utils::LoadStoreProducts({ product_ids::STORY_HEALTH_REFILL, product_ids::COINS_S, product_ids::COINS_M, product_ids::COINS_L });
 #endif
     
-    CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound("final_boss_theme");
+    //CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound("final_boss_theme");
     DataRepository::GetInstance().SetQuickPlayData(nullptr);
     DataRepository::GetInstance().SetIsCurrentlyPlayingStoryMode(false);
     

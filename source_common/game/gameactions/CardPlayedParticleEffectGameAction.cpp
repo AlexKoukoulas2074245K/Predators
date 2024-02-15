@@ -11,6 +11,7 @@
 #include <engine/rendering/ParticleManager.h>
 #include <engine/scene/SceneManager.h>
 #include <engine/scene/Scene.h>
+#include <engine/sound/SoundManager.h>
 #include <game/events/EventSystem.h>
 #include <game/GameConstants.h>
 #include <game/gameactions/GameActionEngine.h>
@@ -19,6 +20,7 @@
 
 ///------------------------------------------------------------------------------------------------
 
+static const std::string HEAVY_ATTACK_SFX = "sfx_attack_heavy";
 static const strutils::StringId PARTICLE_SCENE_OBJECT_NAME = strutils::StringId("card_played_particle_effect");
 static const glm::vec3 PARTICLE_EMITTER_OFFSET = {0.0f, 0.0f, 0.01f};
 
@@ -38,6 +40,8 @@ void CardPlayedParticleEffectGameAction::VInitAnimation()
     assert(!lastPlayedCardSoWrapper->mCardData.mParticleEffect.isEmpty());
     
     CoreSystemsEngine::GetInstance().GetParticleManager().CreateParticleEmitterAtPosition(lastPlayedCardSoWrapper->mCardData.mParticleEffect, lastPlayedCardSoWrapper->mSceneObject->mPosition + PARTICLE_EMITTER_OFFSET, *scene, PARTICLE_SCENE_OBJECT_NAME);
+    
+    CoreSystemsEngine::GetInstance().GetSoundManager().PreloadSfx(HEAVY_ATTACK_SFX);
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -54,6 +58,7 @@ ActionAnimationUpdateResult CardPlayedParticleEffectGameAction::VUpdateAnimation
         const auto& lastPlayedCardSoWrapper = mBattleSceneLogicManager->GetBoardCardSoWrappers()[mBoardState->GetActivePlayerIndex()].back();
         if (lastPlayedCardSoWrapper->mCardData.mParticleShakeDurationSecs > 0.0f && lastPlayedCardSoWrapper->mCardData.mParticleShakeStrength > 0.0f)
         {
+            CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(HEAVY_ATTACK_SFX);
             CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE)->GetCamera().Shake(lastPlayedCardSoWrapper->mCardData.mParticleShakeDurationSecs, lastPlayedCardSoWrapper->mCardData.mParticleShakeStrength);
         }
         
