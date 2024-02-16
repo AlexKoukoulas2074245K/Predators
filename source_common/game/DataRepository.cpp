@@ -58,6 +58,7 @@ void DataRepository::ResetStoryData()
     mNextBotPlayerDeck.clear();
     mNextStoryOpponentTexturePath.clear();
     mNextStoryOpponentName.clear();
+    mStoryDeletedCards.clear();
     
     mSelectedStoryMapNodePosition = {};
     mCurrentStoryMapNodeCoord = game_constants::TUTORIAL_MAP_INIT_COORD;
@@ -483,6 +484,21 @@ void DataRepository::SetNewCardIds(const std::vector<int>& newCardIds)
 {
     mNewCardIds = newCardIds;
     mPersistentDataSerializer->GetState()["new_card_ids"] = mNewCardIds;
+}
+
+///------------------------------------------------------------------------------------------------
+
+const std::vector<int>& DataRepository::GetStoryDeletedCardIds() const
+{
+    return mStoryDeletedCards;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void DataRepository::SetStoryDeletedCardIds(const std::vector<int>& storyDeletedCardIds)
+{
+    mStoryDeletedCards = storyDeletedCardIds;
+    mStoryDataSerializer->GetState()["story_deleted_cards"] = mStoryDeletedCards;
 }
 
 ///------------------------------------------------------------------------------------------------

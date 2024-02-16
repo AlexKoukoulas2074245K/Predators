@@ -397,6 +397,11 @@ void CardSelectionRewardSceneLogicManager::CreateCardRewards(std::shared_ptr<sce
     {
         auto randomCardIndex = math::ControlledRandomInt() % cardRewardsPool.size();
         auto cardData = CardDataRepository::GetInstance().GetCardData(cardRewardsPool[randomCardIndex], game_constants::LOCAL_PLAYER_INDEX);
+        while (std::find_if(mCardRewards.begin(), mCardRewards.end(), [&](std::shared_ptr<CardSoWrapper> cardReward){ return cardData.mCardId == cardReward->mCardData.mCardId; }) != mCardRewards.end())
+        {
+            randomCardIndex = math::ControlledRandomInt() % cardRewardsPool.size();
+            cardData = CardDataRepository::GetInstance().GetCardData(cardRewardsPool[randomCardIndex], game_constants::LOCAL_PLAYER_INDEX);
+        }
         
         const auto& goldenCardIds = DataRepository::GetInstance().GetGoldenCardIdMap();
         bool isGoldenCard = goldenCardIds.count(cardRewardsPool[randomCardIndex]) && goldenCardIds.at(cardRewardsPool[randomCardIndex]);

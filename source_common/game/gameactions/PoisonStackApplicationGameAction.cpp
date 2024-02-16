@@ -67,6 +67,10 @@ void PoisonStackApplicationGameAction::VSetNewGameState()
     
     if (activePlayerState.mPlayerHealth <= 0)
     {
+        if (mAmountOfArmorDamaged > 0)
+        {
+            events::EventSystem::GetInstance().DispatchEvent<events::ArmorChangeChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, mBoardState->GetActivePlayerState().mPlayerCurrentArmor);
+        }
         events::EventSystem::GetInstance().DispatchEvent<events::HealthChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
         mPendingDurationSecs = 0.0f;
         activePlayerState.mPlayerHealth = 0;

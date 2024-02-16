@@ -749,6 +749,18 @@ void ShopSceneLogicManager::CreateProducts()
         {
             auto randomCardIndex = static_cast<int>(math::ControlledRandomInt() % cardRewardsPool.size());
             auto cardId = cardRewardsPool[randomCardIndex];
+            
+            while (std::find_if(mProducts[1].begin(), mProducts[1].end(), [&](std::unique_ptr<ProductInstance>& product)
+            {
+                if (!product) return false;
+                return cardId == std::get<int>(ProductRepository::GetInstance().GetProductDefinition(product->mProductName).mProductTexturePathOrCardId);
+                
+            }) != mProducts[1].end())
+            {
+                randomCardIndex = static_cast<int>(math::ControlledRandomInt() % cardRewardsPool.size());
+                cardId = cardRewardsPool[randomCardIndex];
+            }
+            
             const auto& cardData = CardDataRepository::GetInstance().GetCardData(cardId, game_constants::LOCAL_PLAYER_INDEX);
             auto productDefinitionName = strutils::StringId("card_" + std::to_string(cardId));
             
@@ -1475,7 +1487,7 @@ void ShopSceneLogicManager::UpdateProductPriceTags()
                 continue;
             }
             
-            if (IsProductCoins(shelfIndex, shelfItemIndex))
+            if (IsProductCoins(shelfIndex, shelfItemIndex) || product->mProductName == STORY_HEALTH_REFILL_PRODUCT_NAME)
             {
                 product->mSceneObjects[2]->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = COIN_NORMAL_VALUE_TEXT_COLOR;
                 continue;

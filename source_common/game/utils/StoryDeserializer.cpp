@@ -53,6 +53,11 @@ StoryDeserializer::StoryDeserializer(DataRepository& dataRepository)
         dataRepository.SetNextBotPlayerDeck(storyJson["next_bot_player_deck"].get<std::vector<int>>());
     }
     
+    if (storyJson.count("story_deleted_cards") && !storyJson["story_deleted_cards"].is_null())
+    {
+        dataRepository.SetStoryDeletedCardIds(storyJson["story_deleted_cards"].get<std::vector<int>>());
+    }
+    
     if (storyJson.count("current_story_map_scene_type"))
     {
         dataRepository.SetCurrentStoryMapSceneType(static_cast<StoryMapSceneType>(storyJson["current_story_map_scene_type"].get<int>()));

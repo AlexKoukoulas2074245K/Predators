@@ -132,14 +132,21 @@ std::vector<int> CardDataRepository::GetStoryUnlockedCardRewardsPool() const
     std::sort(currentStoryDeck.begin(), currentStoryDeck.end());
     
     // Final reward card pool is unlocked family cards minus any card on the current story deck
-    std::vector<int> finalRewardCardPool;
-    std::set_difference(familyUnlockedCards.begin(), familyUnlockedCards.end(), currentStoryDeck.begin(), currentStoryDeck.end(), std::back_inserter(finalRewardCardPool));
+    std::vector<int> rewardCardPoolWithDeletedCards;
+    std::set_difference(familyUnlockedCards.begin(), familyUnlockedCards.end(), currentStoryDeck.begin(), currentStoryDeck.end(), std::back_inserter(rewardCardPoolWithDeletedCards));
     
-    // Claimed all possible unlocked family cards that are not in the current deck?
-    if (finalRewardCardPool.empty())
+    // Remove deleted cards
+    std::vector<int> finalRewardCardPool;
+    auto storyDeletedCards = DataRepository::GetInstance().GetStoryDeletedCardIds();
+    std::set_difference(rewardCardPoolWithDeletedCards.begin(), rewardCardPoolWithDeletedCards.end(), storyDeletedCards.begin(), storyDeletedCards.end(), std::back_inserter(finalRewardCardPool));
+    
+    // Reward card pool is forced to be 3 or more cards by union with existing cards in story deck
+    if (finalRewardCardPool.size() < 3)
     {
-        // Select duplicates from deck
-        finalRewardCardPool = currentStoryDeck;
+        for (auto cardId: currentStoryDeck)
+        {
+            finalRewardCardPool.push_back(cardId);
+        }
     };
     
     return finalRewardCardPool;

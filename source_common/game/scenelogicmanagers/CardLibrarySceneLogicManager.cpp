@@ -911,7 +911,11 @@ void CardLibrarySceneLogicManager::DeleteCard()
     auto cardIdToErase = mCardContainer->GetItems()[mSelectedCardIndex].mCardSoWrapper->mCardData.mCardId;
     playerDeck.erase(std::find(playerDeck.begin(), playerDeck.end(), cardIdToErase));
     
+    auto storyDeletedCards = DataRepository::GetInstance().GetStoryDeletedCardIds();
+    storyDeletedCards.push_back(cardIdToErase);
+    
     DataRepository::GetInstance().SetCurrentStoryPlayerDeck(playerDeck);
+    DataRepository::GetInstance().SetStoryDeletedCardIds(storyDeletedCards);
     
     DataRepository::GetInstance().AddShopBoughtProductCoordinates(game_constants::CARD_DELETION_PRODUCT_COORDS);
     
