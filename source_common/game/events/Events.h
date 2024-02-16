@@ -237,6 +237,19 @@ public:
 
 ///------------------------------------------------------------------------------------------------
 
+class InsectMegaSwarmEvent final
+{
+public:
+    InsectMegaSwarmEvent(const std::vector<std::shared_ptr<CardSoWrapper>> cardSoWrappers)
+        : mCardSoWrappers(cardSoWrappers)
+    {
+    }
+    
+    const std::vector<std::shared_ptr<CardSoWrapper>> mCardSoWrappers;
+};
+
+///------------------------------------------------------------------------------------------------
+
 class HeroCardCreatedEvent final
 {
 public:

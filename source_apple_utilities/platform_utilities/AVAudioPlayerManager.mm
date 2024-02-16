@@ -94,13 +94,13 @@ static const float DISABLED_AUDIO_SFX_VOLUME = 0.0f;
             AVAudioPlayer* targetSfxPlayer = [_sfxPlayers objectForKey:sandboxFilePath];
             if (targetSfxPlayer)
             {
-                dispatch_queue_t backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
-                dispatch_async(backgroundQueue, ^{
+                if (![targetSfxPlayer isPlaying])
+                {
                     targetSfxPlayer.numberOfLoops = loopedSfxOrUnloopedMusic ? -1 : 0;
                     targetSfxPlayer.currentTime = 0;
                     targetSfxPlayer.volume = self.targetSfxVolume;
                     [targetSfxPlayer play];
-                });
+                }
             }
             else
             {

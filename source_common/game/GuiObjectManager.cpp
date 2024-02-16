@@ -16,6 +16,7 @@
 #include <engine/rendering/ParticleManager.h>
 #include <engine/scene/SceneManager.h>
 #include <engine/scene/Scene.h>
+#include <engine/sound/SoundManager.h>
 #include <engine/utils/Logging.h>
 
 ///------------------------------------------------------------------------------------------------
@@ -40,6 +41,9 @@ static const std::string STORY_CARDS_ICON_TEXTURE_FILE_NAME = "story_cards_butto
 static const std::string COIN_STACK_TEXTURE_FILE_NAME = "coin_stack.png";
 static const std::string HEALTH_CRYSTAL_TEXTURE_FILE_NAME = "health_icon.png";
 static const std::string HEALTH_CRYSTAL_SCENE_OBJECT_NAME_PREFIX = "health_crystal_";
+static const std::string COINS_SFX = "sfx_coins";
+static const std::string HEALTH_GAIN_SFX = "sfx_health_gain";
+static const std::string MAX_HEALTH_GAIN_SFX = "sfx_max_health_gain";
 
 static const glm::vec3 BATTLE_SCENE_SETTINGS_BUTTON_POSITION = {0.145f, 0.09f, 24.0f};
 static const glm::vec3 SETTINGS_BUTTON_POSITION = {0.145f, 0.161f, 24.0f};
@@ -94,6 +98,10 @@ GuiObjectManager::GuiObjectManager(std::shared_ptr<scene::Scene> scene)
     
     auto forBattleScene = scene->GetName() == game_constants::BATTLE_SCENE;
     auto extraScaleFactor = forBattleScene ? BATTLE_SCENE_SCALE_FACTOR : 1.0f;
+    
+    CoreSystemsEngine::GetInstance().GetSoundManager().PreloadSfx(COINS_SFX);
+    CoreSystemsEngine::GetInstance().GetSoundManager().PreloadSfx(HEALTH_GAIN_SFX);
+    CoreSystemsEngine::GetInstance().GetSoundManager().PreloadSfx(MAX_HEALTH_GAIN_SFX);
     
     mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
     (
@@ -323,6 +331,7 @@ void GuiObjectManager::AnimateStatParticlesToGui(const glm::vec3& originPosition
                                 // Animation only coin change
                                 auto& coins = DataRepository::GetInstance().CurrencyCoins();
                                 coins.SetDisplayedValue(coins.GetDisplayedValue() + 1);
+                                CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(COINS_SFX);
                             } break;
                                 
                             case StatParticleType::HEALTH:
@@ -330,6 +339,7 @@ void GuiObjectManager::AnimateStatParticlesToGui(const glm::vec3& originPosition
                                 // Animation only health change
                                 auto& health = DataRepository::GetInstance().StoryCurrentHealth();
                                 health.SetDisplayedValue(health.GetDisplayedValue() + 1);
+                                CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(HEALTH_GAIN_SFX);
                             } break;
                         }
                         
@@ -474,6 +484,8 @@ void GuiObjectManager::OnMaxHealthGainReward(const events::MaxHealthGainRewardEv
     DataRepository::GetInstance().SetStoryMaxHealth(DataRepository::GetInstance().GetStoryMaxHealth() + event.mMaxHealthGainAmount);
     DataRepository::GetInstance().StoryCurrentHealth().SetValue(DataRepository::GetInstance().StoryCurrentHealth().GetValue() + event.mMaxHealthGainAmount);
     
+    CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(MAX_HEALTH_GAIN_SFX);
+    
     AnimateStatGainParticles(mHealthStatContainer->GetSceneObjects().front()->mPosition, StatGainParticleType::MAX_HEALTH);
 }
 
@@ -486,6 +498,8 @@ void GuiObjectManager::OnExtraDamageReward(const events::ExtraDamageRewardEvent&
     
     DataRepository::GetInstance().SetStoryPlayerCardStatModifier(CardStatType::DAMAGE, modifierValue);
     
+    CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(MAX_HEALTH_GAIN_SFX);
+    
     AnimateStatGainParticles(EXTRA_DAMAGE_WEIGHT_PARTICLE_ORIGIN_POSITION, StatGainParticleType::DAMAGE);
 }
 
@@ -494,6 +508,9 @@ void GuiObjectManager::OnExtraDamageReward(const events::ExtraDamageRewardEvent&
 void GuiObjectManager::OnExtraWeightReward(const events::ExtraWeightRewardEvent&)
 {
     DataRepository::GetInstance().SetNextBattleBotPlayerInitWeight(DataRepository::GetInstance().GetNextBattleBotPlayerInitWeight() + 1);
+    
+    CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(MAX_HEALTH_GAIN_SFX);
+    
     AnimateStatGainParticles(EXTRA_DAMAGE_WEIGHT_PARTICLE_ORIGIN_POSITION, StatGainParticleType::WEIGHT);
 }
 

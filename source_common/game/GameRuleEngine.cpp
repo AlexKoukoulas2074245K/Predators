@@ -9,6 +9,7 @@
 #include <game/Cards.h>
 #include <game/GameRuleEngine.h>
 #include <game/GameConstants.h>
+#include <game/CardEffectComponents.h>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -35,6 +36,11 @@ bool GameRuleEngine::CanCardBePlayed(const CardData* cardData, const size_t card
     if (!cardData->IsSpell() && activePlayerState.mBoardModifiers.mGlobalCardStatModifiers.count(CardStatType::WEIGHT))
     {
         cardWeight = math::Max(0, cardWeight + activePlayerState.mBoardModifiers.mGlobalCardStatModifiers.at(CardStatType::WEIGHT));
+    }
+    
+    if (cardData->mCardEffect == effects::EFFECT_COMPONENT_INSECT_MEGASWARM && activePlayerState.mPlayerBoardCards.size() > 1)
+    {
+        return false;
     }
     
     return activePlayerState.mPlayerCurrentWeightAmmo >= cardWeight && activePlayerState.mPlayerBoardCards.size() < game_constants::MAX_BOARD_CARDS;

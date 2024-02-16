@@ -401,6 +401,9 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
     // Double Poison Attacks Effects
     cardBoardEffectAnimation(game_constants::DOUBLE_POISON_ATTACKS_EFFECT_TOP_SCENE_OBJECT_NAME, game_constants::DOUBLE_POISON_ATTACKS_EFFECT_BOT_SCENE_OBJECT_NAME);
     
+    // Insect Virus Effects
+    cardBoardEffectAnimation(game_constants::INSECT_VIRUS_EFFECT_TOP_SCENE_OBJECT_NAME, game_constants::INSECT_VIRUS_EFFECT_BOT_SCENE_OBJECT_NAME);
+    
     // Rodent Lifesteal on Attack
     cardBoardEffectAnimation(game_constants::RODENT_LIFESTEAL_ON_ATTACKS_EFFECT_TOP_SCENE_OBJECT_NAME, game_constants::RODENT_LIFESTEAL_ON_ATTACKS_EFFECT_BOT_SCENE_OBJECT_NAME);
     
@@ -1321,6 +1324,7 @@ void BattleSceneLogicManager::RegisterForEvents()
     eventSystem.RegisterForEvent<events::CardCreationEvent>(this, &BattleSceneLogicManager::OnCardCreation);
     eventSystem.RegisterForEvent<events::CardBuffedDebuffedEvent>(this, &BattleSceneLogicManager::OnCardBuffedDebuffed);
     eventSystem.RegisterForEvent<events::HeldCardSwapEvent>(this, &BattleSceneLogicManager::OnHeldCardSwap);
+    eventSystem.RegisterForEvent<events::InsectMegaSwarmEvent>(this, &BattleSceneLogicManager::OnInsectMegaSwarm);
     eventSystem.RegisterForEvent<events::NewBoardCardCreatedEvent>(this, &BattleSceneLogicManager::OnNewBoardCardCreated);
     eventSystem.RegisterForEvent<events::HeroCardCreatedEvent>(this, &BattleSceneLogicManager::OnHeroCardCreated);
     eventSystem.RegisterForEvent<events::LastCardPlayedFinalizedEvent>(this, &BattleSceneLogicManager::OnLastCardPlayedFinalized);
@@ -1580,6 +1584,30 @@ void BattleSceneLogicManager::OnHeldCardSwap(const events::HeldCardSwapEvent& ev
 
 ///------------------------------------------------------------------------------------------------
 
+void BattleSceneLogicManager::OnInsectMegaSwarm(const events::InsectMegaSwarmEvent& event)
+{
+    auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+    
+    const auto& boardCards = mBoardState->GetActivePlayerState().mPlayerBoardCards;
+    const auto& deadBoardCardIndices = mBoardState->GetActivePlayerState().mBoardCardIndicesToDestroy;
+    const auto& boardCardCount = card_utils::CalculateNonDeadCardsCount(boardCards, deadBoardCardIndices);
+    auto& playerBoardCardSoWrappers = mPlayerBoardCardSceneObjectWrappers[mBoardState->GetActivePlayerIndex()];
+    
+    for (int i = 0; i < boardCardCount - static_cast<int>(event.mCardSoWrappers.size()); ++i)
+    {
+        auto& currentCardSoWrapper = playerBoardCardSoWrappers.at(i);
+        auto originalCardPosition = card_utils::CalculateBoardCardPosition(i, boardCardCount, mBoardState->GetActivePlayerIndex() == 0);
+        animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(currentCardSoWrapper->mSceneObject, originalCardPosition, currentCardSoWrapper->mSceneObject->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){});
+    }
+    
+    for (int i = 0; i < event.mCardSoWrappers.size(); ++i)
+    {
+        playerBoardCardSoWrappers.push_back(event.mCardSoWrappers[i]);
+    }
+}
+
+///------------------------------------------------------------------------------------------------
+
 void BattleSceneLogicManager::OnNewBoardCardCreated(const events::NewBoardCardCreatedEvent& event)
 {
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
@@ -1748,6 +1776,10 @@ void BattleSceneLogicManager::OnBoardSideCardEffectTriggered(const events::Board
         {
             sideEffectSceneObject = battleScene->FindSceneObject(event.mForRemotePlayer ? game_constants::DOUBLE_POISON_ATTACKS_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::DOUBLE_POISON_ATTACKS_EFFECT_BOT_SCENE_OBJECT_NAME);
         }
+        else if (event.mEffectBoardModifierMask == effects::board_modifier_masks::INSECT_VIRUS)
+        {
+            sideEffectSceneObject = battleScene->FindSceneObject(event.mForRemotePlayer ? game_constants::INSECT_VIRUS_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::INSECT_VIRUS_EFFECT_BOT_SCENE_OBJECT_NAME);
+        }
         else if (event.mEffectBoardModifierMask == effects::board_modifier_masks::DIG_NO_FAIL)
         {
             sideEffectSceneObject = battleScene->FindSceneObject(event.mForRemotePlayer ? game_constants::DIG_NO_FAIL_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::DIG_NO_FAIL_EFFECT_BOT_SCENE_OBJECT_NAME);
@@ -1843,6 +1875,10 @@ void BattleSceneLogicManager::OnBoardSideCardEffectEnded(const events::BoardSide
         {
             sideEffectSceneObject = battleScene->FindSceneObject(event.mForRemotePlayer ? game_constants::DOUBLE_POISON_ATTACKS_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::DOUBLE_POISON_ATTACKS_EFFECT_BOT_SCENE_OBJECT_NAME);
         }
+        else if (event.mEffectBoardModifierMask == effects::board_modifier_masks::INSECT_VIRUS)
+        {
+            sideEffectSceneObject = battleScene->FindSceneObject(event.mForRemotePlayer ? game_constants::INSECT_VIRUS_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::INSECT_VIRUS_EFFECT_BOT_SCENE_OBJECT_NAME);
+        }
         else if (event.mEffectBoardModifierMask == effects::board_modifier_masks::DIG_NO_FAIL)
         {
             sideEffectSceneObject = battleScene->FindSceneObject(event.mForRemotePlayer ? game_constants::DIG_NO_FAIL_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::DIG_NO_FAIL_EFFECT_BOT_SCENE_OBJECT_NAME);
@@ -1869,7 +1905,7 @@ void BattleSceneLogicManager::OnBoardSideCardEffectEnded(const events::BoardSide
             
             for (auto i = 0U; i < activeEffects.size(); ++i)
             {
-                if (!event.mMassClear || (activeEffects[i]->mName == game_constants::PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_TOP_SCENE_OBJECT_NAME || activeEffects[i]->mName == game_constants::PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_BOT_SCENE_OBJECT_NAME))
+                if (!event.mMassClear || (activeEffects[i]->mName == game_constants::PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_TOP_SCENE_OBJECT_NAME || activeEffects[i]->mName == game_constants::PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_BOT_SCENE_OBJECT_NAME || activeEffects[i]->mName == game_constants::INSECT_VIRUS_EFFECT_TOP_SCENE_OBJECT_NAME || activeEffects[i]->mName == game_constants::INSECT_VIRUS_EFFECT_BOT_SCENE_OBJECT_NAME))
                 {
                     const auto& targetPosition = CalculateBoardEffectPosition(i, activeEffects.size(), event.mForRemotePlayer);
                     animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(activeEffects[i], targetPosition, activeEffects[i]->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){});

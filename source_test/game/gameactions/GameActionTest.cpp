@@ -602,6 +602,25 @@ TEST_F(GameActionTests, TestDinoMultiBuff)
     EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH - (GET_CARD_DAMAGE("Dilophosaurus") + 1)); // Dilophosaurus can be played due to reduced weight cost and also has +1 attack due to Metal Claws
 }
 
+TEST_F(GameActionTests, TestInsectSwarm)
+{
+    mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {GET_CARD_ID("MegaSwarm"), GET_CARD_ID("Bee"), GET_CARD_ID("Insect Duplication"), GET_CARD_ID("Toxic Wave")}; // Top player has a deck of MegaSwarm (w=5), Bees, and Random Spells
+    
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = GET_CARD_WEIGHT("MegaSwarm");
+    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = GET_CARD_WEIGHT("MegaSwarm");
+    mBoardState->GetPlayerStates()[0].mPlayerHeldCards = {GET_CARD_ID("MegaSwarm")};
+    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // MegaSwarm is played and it spawns 3 Bees (not spells)
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(DRAW_CARD_GAME_ACTION_NAME);
+    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH - 3 - 3 * GET_CARD_DAMAGE("Bee")); // 3 Bees attack and poison the opponent
+}
+
 TEST_F(GameActionTests, TestCardTokenDeckTransformationIfEmpty)
 {
     mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {GET_CARD_ID("Impending Doom")}; // Top player has a deck of Impending Dooms

@@ -36,6 +36,7 @@ static const strutils::StringId CARD_DESTRUCTION_GAME_ACTION_NAME = strutils::St
 static const strutils::StringId CARD_HISTORY_ENTRY_ADDITION_GAME_ACTION_NAME = strutils::StringId("CardHistoryEntryAdditionGameAction");
 static const strutils::StringId CARD_EFFECT_GAME_ACTION_NAME = strutils::StringId("CardEffectGameAction");
 static const strutils::StringId CARD_PLAYED_PARTICLE_EFFECT_GAME_ACTION_NAME = strutils::StringId("CardPlayedParticleEffectGameAction");
+static const strutils::StringId INSECT_MEGASWARM_GAME_ACTION_NAME = strutils::StringId("InsectMegaSwarmGameAction");
 
 // Resources
 static const std::string CARD_DISSOLVE_SHADER_FILE_NAME = "card_spell_dissolve.vs";
@@ -270,6 +271,7 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
                 case effects::board_modifier_masks::KILL_NEXT:
                 case effects::board_modifier_masks::BOARD_SIDE_DEBUFF:
                 case effects::board_modifier_masks::DOUBLE_POISON_ATTACKS:
+                case effects::board_modifier_masks::INSECT_VIRUS:
                 {
                     events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectTriggeredEvent>(mBoardState->GetActivePlayerIndex() != game_constants::REMOTE_PLAYER_INDEX, mCardBoardEffectMask);
                 } break;
@@ -295,6 +297,8 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
                 events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, true,  effects::board_modifier_masks::DOUBLE_NEXT_DINO_DAMAGE);
                 events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, true,  effects::board_modifier_masks::HEAL_NEXT_DINO_DAMAGE);
                 events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, true,  effects::board_modifier_masks::PERMANENT_CONTINUAL_WEIGHT_REDUCTION);
+                events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, true,  effects::board_modifier_masks::INSECT_VIRUS);
+                events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, true,  effects::board_modifier_masks::DOUBLE_POISON_ATTACKS);
             }
             
             if (mAffectedCards.empty())
@@ -473,6 +477,19 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
         else if (effectComponent == effects::EFFECT_COMPONENT_CARD_TOKEN)
         {
             mCardTokenCase = true;
+        }
+        
+        // Insect Megaswarm
+        else if (effectComponent == effects::EFFECT_COMPONENT_INSECT_MEGASWARM)
+        {
+            mGameActionEngine->AddGameAction(INSECT_MEGASWARM_GAME_ACTION_NAME);
+        }
+        
+        // Insect Megaswarm
+        else if (effectComponent == effects::EFFECT_COMPONENT_INSECT_VIRUS)
+        {
+            mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask |= effects::board_modifier_masks::INSECT_VIRUS;
+            mCardBoardEffectMask = effects::board_modifier_masks::INSECT_VIRUS;
         }
         
         // Toxic Bomb

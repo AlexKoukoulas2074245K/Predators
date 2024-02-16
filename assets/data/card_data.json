@@ -412,6 +412,26 @@
             "texture": "hungry_dinosaur.png",
             "shader": "basic.vs",
             "single_use": true
+        },
+        {
+            "weight": 5,
+            "family": "insects",
+            "name": "MegaSwarm",
+            "effect": "INSECT_MEGASWARM",
+            "tooltip": "Spawns 3 random$insects from your$deck",
+            "texture": "insect_megaswarm.png",
+            "shader": "basic.vs",
+            "single_use": true
+        },
+        {
+            "weight": 5,
+            "family": "insects",
+            "name": "Leech Virus",
+            "effect": "INSECT_VIRUS",
+            "tooltip": "The opponent looses$and you gain 1 HP$for every card they$play, every turn",
+            "texture": "insect_virus.png",
+            "shader": "basic.vs",
+            "single_use": true
         }
     ]
 }

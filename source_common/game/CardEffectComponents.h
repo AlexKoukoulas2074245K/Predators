@@ -23,16 +23,17 @@ namespace effects
 using EffectBoardModifierMask = uint32_t;
 namespace board_modifier_masks
 {
-    static constexpr EffectBoardModifierMask NONE = 0x0;
-    static constexpr EffectBoardModifierMask KILL_NEXT = 0x1;
-    static constexpr EffectBoardModifierMask BOARD_SIDE_DEBUFF = 0x2;
-    static constexpr EffectBoardModifierMask DUPLICATE_NEXT_INSECT = 0x4;
-    static constexpr EffectBoardModifierMask DOUBLE_NEXT_DINO_DAMAGE = 0x8;
-    static constexpr EffectBoardModifierMask DOUBLE_POISON_ATTACKS = 0x10;
+    static constexpr EffectBoardModifierMask NONE                                 = 0x0;
+    static constexpr EffectBoardModifierMask KILL_NEXT                            = 0x1;
+    static constexpr EffectBoardModifierMask BOARD_SIDE_DEBUFF                    = 0x2;
+    static constexpr EffectBoardModifierMask DUPLICATE_NEXT_INSECT                = 0x4;
+    static constexpr EffectBoardModifierMask DOUBLE_NEXT_DINO_DAMAGE              = 0x8;
+    static constexpr EffectBoardModifierMask DOUBLE_POISON_ATTACKS                = 0x10;
     static constexpr EffectBoardModifierMask PERMANENT_CONTINUAL_WEIGHT_REDUCTION = 0x20;
-    static constexpr EffectBoardModifierMask DIG_NO_FAIL = 0x40;
-    static constexpr EffectBoardModifierMask RODENT_LIFESTEAL = 0x80;
-    static constexpr EffectBoardModifierMask HEAL_NEXT_DINO_DAMAGE = 0x100;
+    static constexpr EffectBoardModifierMask DIG_NO_FAIL                          = 0x40;
+    static constexpr EffectBoardModifierMask RODENT_LIFESTEAL                     = 0x80;
+    static constexpr EffectBoardModifierMask HEAL_NEXT_DINO_DAMAGE                = 0x100;
+    static constexpr EffectBoardModifierMask INSECT_VIRUS                         = 0x200;
 };
 
 
@@ -58,6 +59,8 @@ inline const std::string EFFECT_COMPONENT_ARMOR                                =
 inline const std::string EFFECT_COMPONENT_TOXIC_BOMB                           = "TOXIC_BOMB";
 inline const std::string EFFECT_COMPONENT_RODENT_LIFESTEAL_ON_ATTACKS          = "RODENT_LIFESTEAL_ON_ATTACKS";
 inline const std::string EFFECT_COMPONENT_HEAL_NEXT_DINO_DAMAGE                = "HEAL_NEXT_DINO_DAMAGE";
+inline const std::string EFFECT_COMPONENT_INSECT_MEGASWARM                     = "INSECT_MEGASWARM";
+inline const std::string EFFECT_COMPONENT_INSECT_VIRUS                         = "INSECT_VIRUS";
 
 inline const std::unordered_set<std::string> STATIC_EFFECT_COMPONENT_NAMES =
 {
@@ -81,7 +84,9 @@ inline const std::unordered_set<std::string> STATIC_EFFECT_COMPONENT_NAMES =
     EFFECT_COMPONENT_ARMOR,
     EFFECT_COMPONENT_TOXIC_BOMB,
     EFFECT_COMPONENT_RODENT_LIFESTEAL_ON_ATTACKS,
-    EFFECT_COMPONENT_HEAL_NEXT_DINO_DAMAGE
+    EFFECT_COMPONENT_HEAL_NEXT_DINO_DAMAGE,
+    EFFECT_COMPONENT_INSECT_MEGASWARM,
+    EFFECT_COMPONENT_INSECT_VIRUS,
 };
 
 ///------------------------------------------------------------------------------------------------

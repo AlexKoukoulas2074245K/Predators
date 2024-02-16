@@ -32,7 +32,7 @@ void main()
     {
         if (frag_color.r > 0.95f && frag_color.g > 0.95f && frag_color.b > 0.95f)
         {
-            frag_color = texture(metallic_tex, vec2(final_uv_x + time/10, final_uv_y));
+            frag_color = texture(metallic_tex, vec2(final_uv_x + time/10.0f, final_uv_y));
         }
         frag_color.a *= 0.8f;
     }

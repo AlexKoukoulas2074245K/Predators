@@ -67,6 +67,8 @@ namespace game_constants
     inline const strutils::StringId RODENT_LIFESTEAL_ON_ATTACKS_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("rodent_lifesteal_on_attacks_effect_bot");
     inline const strutils::StringId DOUBLE_POISON_ATTACKS_EFFECT_TOP_SCENE_OBJECT_NAME = strutils::StringId("double_poison_attacks_effect_top");
     inline const strutils::StringId DOUBLE_POISON_ATTACKS_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("double_poison_attacks_effect_bot");
+    inline const strutils::StringId INSECT_VIRUS_EFFECT_TOP_SCENE_OBJECT_NAME = strutils::StringId("insect_virus_effect_top");
+    inline const strutils::StringId INSECT_VIRUS_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("insect_virus_effect_bot");
     inline const strutils::StringId DIG_NO_FAIL_EFFECT_TOP_SCENE_OBJECT_NAME = strutils::StringId("dig_no_fail_effect_top");
     inline const strutils::StringId DIG_NO_FAIL_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("dig_no_fail_effect_bot");
     inline const strutils::StringId PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_TOP_SCENE_OBJECT_NAME = strutils::StringId("permanent_continual_weight_reduction_effect_top");

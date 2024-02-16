@@ -70,12 +70,21 @@ void PostNextPlayerGameAction::VSetNewGameState()
     mBoardState->GetInactivePlayerState().mPlayerHeldCards.clear();
     mBoardState->GetInactivePlayerState().mPlayerHeldCardStatOverrides.clear();
     
+    bool permanentEffectExists = false;
     if ((mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::PERMANENT_CONTINUAL_WEIGHT_REDUCTION) != 0)
     {
         mBoardState->GetInactivePlayerState().mBoardModifiers.mGlobalCardStatModifiers.erase(CardStatType::DAMAGE);
         mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask = effects::board_modifier_masks::PERMANENT_CONTINUAL_WEIGHT_REDUCTION;
+        permanentEffectExists = true;
     }
-    else
+    
+    if ((mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::INSECT_VIRUS) != 0)
+    {
+        mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask = effects::board_modifier_masks::INSECT_VIRUS;
+        permanentEffectExists = true;
+    }
+    
+    if (!permanentEffectExists)
     {
         bool clearedDebuff = !mBoardState->GetInactivePlayerState().mBoardModifiers.mGlobalCardStatModifiers.empty();
         mBoardState->GetInactivePlayerState().mBoardModifiers.mGlobalCardStatModifiers.clear();

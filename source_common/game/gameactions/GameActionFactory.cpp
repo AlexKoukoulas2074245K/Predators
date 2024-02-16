@@ -18,6 +18,8 @@
 #include <game/gameactions/HeroCardEntryGameAction.h>
 #include <game/gameactions/IdleGameAction.h>
 #include <game/gameactions/InsectDuplicationGameAction.h>
+#include <game/gameactions/InsectMegaSwarmGameAction.h>
+#include <game/gameactions/InsectVirusGameAction.h>
 #include <game/gameactions/NextPlayerGameAction.h>
 #include <game/gameactions/PlayCardGameAction.h>
 #include <game/gameactions/PoisonStackApplicationGameAction.h>
@@ -62,6 +64,8 @@ void GameActionFactory::RegisterGameActions()
     REGISTER_ACTION(PoisonStackApplicationGameAction);
     REGISTER_ACTION(RodentsDigAnimationGameAction);
     REGISTER_ACTION(InsectDuplicationGameAction);
+    REGISTER_ACTION(InsectMegaSwarmGameAction);
+    REGISTER_ACTION(InsectVirusGameAction);
     REGISTER_ACTION(NextDinoDamageDoublingGameAction);
     REGISTER_ACTION(HealNextDinoDamageGameAction);
     REGISTER_ACTION(CardBuffedDebuffedAnimationGameAction);
@@ -100,6 +104,8 @@ std::unique_ptr<BaseGameAction> GameActionFactory::CreateGameAction(const struti
     ACTION_CASE(PoisonStackApplicationGameAction);
     ACTION_CASE(RodentsDigAnimationGameAction);
     ACTION_CASE(InsectDuplicationGameAction);
+    ACTION_CASE(InsectMegaSwarmGameAction);
+    ACTION_CASE(InsectVirusGameAction);
     ACTION_CASE(NextDinoDamageDoublingGameAction);
     ACTION_CASE(HealNextDinoDamageGameAction);
     ACTION_CASE(CardBuffedDebuffedAnimationGameAction);

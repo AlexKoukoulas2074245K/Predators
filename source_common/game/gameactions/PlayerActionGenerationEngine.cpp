@@ -214,6 +214,18 @@ bool PlayerActionGenerationEngine::IsCardHighPriority(const CardData& cardData, 
     else if
     (
         cardData.IsSpell() &&
+        strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_INSECT_MEGASWARM)
+    ) return true;
+        
+    else if
+    (
+        cardData.IsSpell() &&
+        strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_INSECT_VIRUS)
+    ) return true;
+    
+    else if
+    (
+        cardData.IsSpell() &&
         strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_RODENT_LIFESTEAL_ON_ATTACKS)
     ) return true;
     

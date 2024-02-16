@@ -37,6 +37,7 @@ static const strutils::StringId NEXT_DINO_DAMAGE_DOUBLING_GAME_ACTION_NAME = str
 static const strutils::StringId CARD_HISTORY_ENTRY_ADDITION_GAME_ACTION_NAME = strutils::StringId("CardHistoryEntryAdditionGameAction");
 static const strutils::StringId CARD_PLAY_PARTICLE_NAME = strutils::StringId("card_play");
 static const strutils::StringId HEAL_NEXT_DINO_DAMAGE_GAME_ACTION_NAME = strutils::StringId("HealNextDinoDamageGameAction");
+static const strutils::StringId INSECT_VIRUS_GAME_ACTION_NAME = strutils::StringId("InsectVirusGameAction");
 
 static const float CARD_CAMERA_SHAKE_DURATION = 0.25f;
 static const float CARD_CAMERA_SHAKE_STRENGTH = 0.005f;
@@ -165,6 +166,11 @@ void PlayCardGameAction::VSetNewGameState()
             mGameActionEngine->AddGameAction(HEAL_NEXT_DINO_DAMAGE_GAME_ACTION_NAME, {});
             activePlayerState.mBoardModifiers.mBoardModifierMask &= (~effects::board_modifier_masks::HEAL_NEXT_DINO_DAMAGE);
         }
+    }
+    
+    if ((activePlayerState.mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::INSECT_VIRUS) != 0)
+    {
+        mGameActionEngine->AddGameAction(INSECT_VIRUS_GAME_ACTION_NAME, {});
     }
 }
 

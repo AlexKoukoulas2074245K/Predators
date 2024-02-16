@@ -295,6 +295,26 @@
             "invisible": true
         },
         {
+            "name": "insect_virus_effect_top",
+            "texture": "insect_virus.png",
+            "effect_textures": [ "trap_mask.png" ],
+            "shader": "board_side_stat_effect.vs",
+            "scale": { "x": 0.05, "y": 0.05, "z": 0.05 },
+            "position": { "x": 0.0, "y": 0.044, "z": 1.0 },
+            "alpha": 0.0,
+            "invisible": true
+        },
+        {
+            "name": "insect_virus_effect_bot",
+            "texture": "poison_smoke.png",
+            "effect_textures": [ "trap_mask.png" ],
+            "shader": "board_side_stat_effect.vs",
+            "scale": { "x": 0.05, "y": 0.05, "z": 0.05 },
+            "position": { "x": 0.0, "y": -0.044, "z": 1.0 },
+            "alpha": 0.0,
+            "invisible": true
+        },
+        {
             "name": "dig_no_fail_effect_top",
             "texture": "rodents_digging_holes.png",
             "effect_textures": [ "trap_mask.png" ],

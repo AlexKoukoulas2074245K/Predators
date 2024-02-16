@@ -341,7 +341,7 @@ static void CreateImGuiCardVecEntry(const std::string& cardIdPrefix, std::string
     if (boardModifierMask > 0)
     {
         std::stringstream maskString;
-        maskString << std::bitset<8>(boardModifierMask);
+        maskString << std::bitset<32>(boardModifierMask);
         ImGui::Text("Board Modifier Mask: %s", maskString.str().c_str());
     }
 }
