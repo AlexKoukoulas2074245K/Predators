@@ -13,6 +13,8 @@
 #include <engine/utils/PlatformMacros.h>
 #include <engine/scene/SceneManager.h>
 #include <engine/scene/SceneObjectUtils.h>
+#include <engine/sound/SoundManager.h>
+
 #include <game/AnimatedButton.h>
 #include <game/CardUtils.h>
 #include <game/CardTooltipController.h>
@@ -34,6 +36,8 @@ static const strutils::StringId CARD_SELECTION_ANIMATION_NAME = strutils::String
 
 static const std::string CARD_REWARD_SCENE_OBJECT_NAME_PREFIX = "card_reward_";
 static const std::string CARD_REWARD_SHADER_FILE_NAME = "card_reward.vs";
+static const std::string CARD_COLLECTED_SFX = "sfx_bump";
+static const std::string CARD_SWIPE_SFX = "sfx_swipe";
 
 static const glm::vec3 CONFIRMATION_BUTTON_POSITION = {-0.10f, -0.18f, 23.1f};
 static const glm::vec3 SKIP_BUTTON_SCALE = {0.00035f, 0.00035f, 0.00035f};
@@ -102,6 +106,9 @@ void CardSelectionRewardSceneLogicManager::VInitScene(std::shared_ptr<scene::Sce
     mSceneState = SceneState::PENDING_PRESENTATION;
     mInitialSurfacingDelaySecs = INITIAL_SURFACING_DELAY_SECS;
     mGoldenCardLightPosX = game_constants::GOLDEN_CARD_LIGHT_POS_MIN_MAX_X.s;
+    
+    CoreSystemsEngine::GetInstance().GetSoundManager().PreloadSfx(CARD_COLLECTED_SFX);
+    CoreSystemsEngine::GetInstance().GetSoundManager().PreloadSfx(CARD_SWIPE_SFX);
     
     mSkipButton = std::make_unique<AnimatedButton>
     (
@@ -251,6 +258,7 @@ void CardSelectionRewardSceneLogicManager::VUpdate(const float dtMillis, std::sh
 #if !defined(MOBILE_FLOW)
                 if (cursorInSceneObject && cardSoWrapper->mState == CardSoState::IDLE)
                 {
+                    CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(CARD_SWIPE_SFX);
                     cardSoWrapper->mState = CardSoState::HIGHLIGHTED;
                     animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObject, cardSoWrapper->mSceneObject->mPosition, CARD_REWARD_EXPANDED_SCALE, CARD_HIGHLIGHT_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::ElasticFunction, math::TweeningMode::EASE_IN), [=](){}, CARD_SELECTION_ANIMATION_NAME);
                 }
@@ -507,6 +515,8 @@ void CardSelectionRewardSceneLogicManager::OnConfirmationButtonPressed()
             {
                 
                 // And pulse card library icon
+                CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(CARD_COLLECTED_SFX);
+                
                 auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
                 auto previousScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(mPreviousScene);
                 auto cardLibraryIconSceneObject = previousScene->FindSceneObject(game_constants::GUI_STORY_CARDS_BUTTON_SCENE_OBJECT_NAME);

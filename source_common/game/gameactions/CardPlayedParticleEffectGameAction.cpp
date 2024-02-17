@@ -20,7 +20,7 @@
 
 ///------------------------------------------------------------------------------------------------
 
-static const std::string HEAVY_ATTACK_SFX = "sfx_attack_heavy";
+static const std::string EXPLOSION_SFX = "sfx_explosion";
 static const strutils::StringId PARTICLE_SCENE_OBJECT_NAME = strutils::StringId("card_played_particle_effect");
 static const glm::vec3 PARTICLE_EMITTER_OFFSET = {0.0f, 0.0f, 0.01f};
 
@@ -41,7 +41,7 @@ void CardPlayedParticleEffectGameAction::VInitAnimation()
     
     CoreSystemsEngine::GetInstance().GetParticleManager().CreateParticleEmitterAtPosition(lastPlayedCardSoWrapper->mCardData.mParticleEffect, lastPlayedCardSoWrapper->mSceneObject->mPosition + PARTICLE_EMITTER_OFFSET, *scene, PARTICLE_SCENE_OBJECT_NAME);
     
-    CoreSystemsEngine::GetInstance().GetSoundManager().PreloadSfx(HEAVY_ATTACK_SFX);
+    CoreSystemsEngine::GetInstance().GetSoundManager().PreloadSfx(EXPLOSION_SFX);
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -58,7 +58,7 @@ ActionAnimationUpdateResult CardPlayedParticleEffectGameAction::VUpdateAnimation
         const auto& lastPlayedCardSoWrapper = mBattleSceneLogicManager->GetBoardCardSoWrappers()[mBoardState->GetActivePlayerIndex()].back();
         if (lastPlayedCardSoWrapper->mCardData.mParticleShakeDurationSecs > 0.0f && lastPlayedCardSoWrapper->mCardData.mParticleShakeStrength > 0.0f)
         {
-            CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(HEAVY_ATTACK_SFX);
+            CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(EXPLOSION_SFX);
             CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE)->GetCamera().Shake(lastPlayedCardSoWrapper->mCardData.mParticleShakeDurationSecs, lastPlayedCardSoWrapper->mCardData.mParticleShakeStrength);
         }
         

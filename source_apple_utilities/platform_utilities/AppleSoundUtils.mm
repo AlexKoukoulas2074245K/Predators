@@ -1,5 +1,5 @@
 ///------------------------------------------------------------------------------------------------
-///  AppleSoundUtils.cpp
+///  AppleSoundUtils.mm
 ///  Predators
 ///
 ///  Created by Alex Koukoulas on 14/02/2024.
@@ -11,7 +11,8 @@
 #include <engine/utils/OSMessageBox.h>
 #include <engine/utils/StringUtils.h>
 
-#import <platform_utilities/AVAudioPlayerManager.h>
+#import <platform_utilities/BackgroundMusicPlayer.h>
+#import <platform_utilities/SfxPlayer.h>
 #import <AudioToolbox/AudioServices.h>
 #import <AudioToolbox/AudioToolbox.h>
 #import <AVFoundation/AVFoundation.h>
@@ -24,7 +25,8 @@ namespace sound_utils
 
 ///-----------------------------------------------------------------------------------------------
 
-static AVAudioPlayerManager* manager;
+static BackgroundMusicPlayer* musicPlayer;
+static SfxPlayer* sfxPlayer;
 static std::string ROOT_SOUND_RES_PATH;
 
 ///-----------------------------------------------------------------------------------------------
@@ -40,9 +42,9 @@ void PreloadSfx(const std::string& sfxResPath)
 {
     NSString* objectiveCresPath = [NSString stringWithCString:(ROOT_SOUND_RES_PATH + sfxResPath).data() encoding:[NSString defaultCStringEncoding]];
     
-    if (manager != nil)
+    if (sfxPlayer != nil)
     {
-        [manager preloadSfxWith:objectiveCresPath];
+        [sfxPlayer loadSoundWithName:[NSString stringWithCString:sfxResPath.data() encoding:[NSString defaultCStringEncoding]] filePath:objectiveCresPath];
     }
 }
 
@@ -52,10 +54,21 @@ void PlaySound(const std::string& soundResPath, const bool loopedSfxOrUnloopedMu
 {
     NSString* objectiveCresPath = [NSString stringWithCString:(ROOT_SOUND_RES_PATH + soundResPath).data() encoding:[NSString defaultCStringEncoding]];
     
-    if (manager != nil)
+    if (strutils::StringStartsWith(soundResPath, "sfx_"))
     {
-        [manager playSoundWith:objectiveCresPath isMusic:(!strutils::StringStartsWith(fileutils::GetFileName(soundResPath), "sfx_")) withLoopedSfxOrUnloopedMusic:loopedSfxOrUnloopedMusic];
+        if (sfxPlayer != nil)
+        {
+            [sfxPlayer playSoundWithName:objectiveCresPath gain:1.0f pitch:1.0f shouldLoop:loopedSfxOrUnloopedMusic];
+        }
     }
+    else
+    {
+        if (musicPlayer != nil)
+        {
+            [musicPlayer playMusicWith:objectiveCresPath unloopedMusic:loopedSfxOrUnloopedMusic];
+        }
+    }
+    
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -63,16 +76,22 @@ void PlaySound(const std::string& soundResPath, const bool loopedSfxOrUnloopedMu
 void InitAudio()
 {
     ROOT_SOUND_RES_PATH = "assets/music/";
-    manager = [[AVAudioPlayerManager alloc] init];
+    musicPlayer = [[BackgroundMusicPlayer alloc] init];
+    sfxPlayer = [[SfxPlayer alloc] init];
 }
 
 ///------------------------------------------------------------------------------------------------
 
 void ResumeAudio()
 {
-    if (manager != nil)
+    if (musicPlayer != nil)
     {
-        [manager resumeAudio];
+        [musicPlayer resumeAudio];
+    }
+    
+    if (sfxPlayer != nil)
+    {
+        [sfxPlayer resumeSfx];
     }
 }
 
@@ -80,9 +99,9 @@ void ResumeAudio()
 
 void PauseMusicOnly()
 {
-    if (manager != nil)
+    if (musicPlayer != nil)
     {
-        [manager pauseMusic];
+        [musicPlayer pauseMusic];
     }
 }
 
@@ -90,9 +109,9 @@ void PauseMusicOnly()
 
 void PauseSfxOnly()
 {
-    if (manager != nil)
+    if (sfxPlayer != nil)
     {
-        [manager pauseSfx];
+        [sfxPlayer pauseSfx];
     }
 }
 
@@ -100,19 +119,17 @@ void PauseSfxOnly()
 
 void PauseAudio()
 {
-    if (manager != nil)
-    {
-        [manager pauseAudio];
-    }
+    PauseMusicOnly();
+    PauseSfxOnly();
 }
 
 ///------------------------------------------------------------------------------------------------
 
 void UpdateAudio(const float dtMillis)
 {
-    if (manager != nil)
+    if (musicPlayer != nil)
     {
-        [manager updateAudioWith:dtMillis];
+        [musicPlayer updateAudioWith:dtMillis];
     }
 }
 
@@ -120,9 +137,10 @@ void UpdateAudio(const float dtMillis)
 
 void SetAudioEnabled(const bool audioEnabled)
 {
-    if (manager != nil)
+    if (musicPlayer != nil)
     {
-        [manager setAudioEnabledWith:audioEnabled];
+        [musicPlayer setAudioEnabledWith:audioEnabled];
+        [sfxPlayer setAudioEnabledWith:audioEnabled];
     }
 }
 

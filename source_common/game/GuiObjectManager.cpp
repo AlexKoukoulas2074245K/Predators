@@ -42,7 +42,7 @@ static const std::string COIN_STACK_TEXTURE_FILE_NAME = "coin_stack.png";
 static const std::string HEALTH_CRYSTAL_TEXTURE_FILE_NAME = "health_icon.png";
 static const std::string HEALTH_CRYSTAL_SCENE_OBJECT_NAME_PREFIX = "health_crystal_";
 static const std::string COINS_SFX = "sfx_coins";
-static const std::string HEALTH_GAIN_SFX = "sfx_health_gain";
+static const std::string HEALTH_GAIN_SFX = "sfx_bump";
 static const std::string MAX_HEALTH_GAIN_SFX = "sfx_max_health_gain";
 
 static const glm::vec3 BATTLE_SCENE_SETTINGS_BUTTON_POSITION = {0.145f, 0.09f, 24.0f};

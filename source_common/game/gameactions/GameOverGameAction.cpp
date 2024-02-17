@@ -25,6 +25,7 @@ const std::string GameOverGameAction::VICTORIOUS_PLAYER_INDEX_PARAM = "victoriou
 static const std::string CARD_DISSOLVE_SHADER_FILE_NAME = "card_dissolve.vs";
 static const std::string DISSOLVE_TEXTURE_FILE_NAME = "dissolve.png";
 static const std::string VICTORY_THEME_MUSIC = "victory_theme";
+static const std::string EXPLOSION_SFX = "sfx_explosion";
 
 static const strutils::StringId STORY_VICTORY_SCENE_NAME = strutils::StringId("victory_scene");
 static const strutils::StringId CARD_SELECTION_REWARD_SCENE_NAME = strutils::StringId("card_selection_reward_scene");
@@ -66,6 +67,8 @@ void GameOverGameAction::VSetNewGameState()
 void GameOverGameAction::VInitAnimation()
 {
     auto& scene = *CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE);
+    
+    CoreSystemsEngine::GetInstance().GetSoundManager().PreloadSfx(EXPLOSION_SFX);
     
     if (!DataRepository::GetInstance().GetNextStoryOpponentName().empty() && !DataRepository::GetInstance().GetQuickPlayData())
     {
@@ -128,6 +131,8 @@ ActionAnimationUpdateResult GameOverGameAction::VUpdateAnimation(const float dtM
                              particleEmitterPosition,
                              *CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE)
                         );
+                        
+                        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(EXPLOSION_SFX);
                         
                         CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE)->GetCamera().Shake(CARD_CAMERA_SHAKE_DURATION, CARD_CAMERA_SHAKE_STRENGTH);
                     }
