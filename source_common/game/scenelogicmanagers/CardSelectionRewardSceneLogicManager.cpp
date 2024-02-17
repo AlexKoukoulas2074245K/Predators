@@ -36,7 +36,7 @@ static const strutils::StringId CARD_SELECTION_ANIMATION_NAME = strutils::String
 
 static const std::string CARD_REWARD_SCENE_OBJECT_NAME_PREFIX = "card_reward_";
 static const std::string CARD_REWARD_SHADER_FILE_NAME = "card_reward.vs";
-static const std::string CARD_COLLECTED_SFX = "sfx_bump";
+static const std::string CARD_COLLECTED_SFX = "sfx_collected";
 static const std::string CARD_SWIPE_SFX = "sfx_swipe";
 
 static const glm::vec3 CONFIRMATION_BUTTON_POSITION = {-0.10f, -0.18f, 23.1f};
@@ -203,6 +203,8 @@ void CardSelectionRewardSceneLogicManager::VUpdate(const float dtMillis, std::sh
                 bool cursorInSceneObject = math::IsPointInsideRectangle(sceneObjectRect.bottomLeft, sceneObjectRect.topRight, worldTouchPos);
                 if (cursorInSceneObject && inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON))
                 {
+                    CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(CARD_SWIPE_SFX);
+                    
                     if (cardSoWrapper->mState == CardSoState::IDLE)
                     {
                         cardSoWrapper->mState = CardSoState::HIGHLIGHTED;
@@ -258,7 +260,6 @@ void CardSelectionRewardSceneLogicManager::VUpdate(const float dtMillis, std::sh
 #if !defined(MOBILE_FLOW)
                 if (cursorInSceneObject && cardSoWrapper->mState == CardSoState::IDLE)
                 {
-                    CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(CARD_SWIPE_SFX);
                     cardSoWrapper->mState = CardSoState::HIGHLIGHTED;
                     animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObject, cardSoWrapper->mSceneObject->mPosition, CARD_REWARD_EXPANDED_SCALE, CARD_HIGHLIGHT_ANIMATION_DURATION_SECS, animation_flags::NONE, 0.0f, math::ElasticFunction, math::TweeningMode::EASE_IN), [=](){}, CARD_SELECTION_ANIMATION_NAME);
                 }

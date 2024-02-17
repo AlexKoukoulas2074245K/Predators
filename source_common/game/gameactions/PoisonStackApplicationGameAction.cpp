@@ -11,6 +11,7 @@
 #include <engine/rendering/ParticleManager.h>
 #include <engine/scene/SceneManager.h>
 #include <engine/scene/Scene.h>
+#include <engine/sound/SoundManager.h>
 #include <game/events/EventSystem.h>
 #include <game/GameConstants.h>
 #include <game/scenelogicmanagers/BattleSceneLogicManager.h>
@@ -20,8 +21,8 @@
 
 ///------------------------------------------------------------------------------------------------
 
+static const std::string POISON_SFX = "sfx_sizzling";
 static const strutils::StringId GAME_OVER_GAME_ACTION_NAME = strutils::StringId("GameOverGameAction");
-
 static const strutils::StringId POISON_GAS_PARTICLE_NAME = strutils::StringId("poison_smoke");
 static const float DURATION_SECS_PER_STACK = 0.2f;
 static const float POISON_SMOKE_Z_OFFSET = -0.09f;
@@ -85,6 +86,13 @@ void PoisonStackApplicationGameAction::VSetNewGameState()
 
 void PoisonStackApplicationGameAction::VInitAnimation()
 {
+    CoreSystemsEngine::GetInstance().GetSoundManager().PreloadSfx(POISON_SFX);
+    
+    if (mAmountOfArmorDamaged > 0 || mAmountOfHealthDamaged > 0)
+    {
+        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(POISON_SFX);
+    }
+    
     if (mPendingDurationSecs <= 0)
     {
         return;

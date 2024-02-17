@@ -19,6 +19,7 @@ static const float INTERACTION_ANIMATION_DURATION = 0.1f;
 static const float INTERACTION_ANIMATION_SCALE_FACTOR = 0.5f;
 static const strutils::StringId BUTTON_PULSING_ANIMATION_NAME = strutils::StringId("pulsing_animation");
 static const strutils::StringId BUTTON_CLICK_ANIMATION_NAME = strutils::StringId("click_animation");
+static const std::string CLICK_SFX = "sfx_click";
 
 ///------------------------------------------------------------------------------------------------
 
@@ -45,6 +46,8 @@ AnimatedButton::AnimatedButton
     mSceneObject->mScale = scale;
     mSceneObject->mSnapToEdgeBehavior = snapToEdgeBehavior;
     mSceneObject->mSnapToEdgeScaleOffsetFactor = mSceneObject->mScale.x * snapToEdgeScaleOffsetFactor;
+    
+    CoreSystemsEngine::GetInstance().GetSoundManager().PreloadSfx(CLICK_SFX);
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -77,6 +80,8 @@ AnimatedButton::AnimatedButton
     mSceneObject->mScale = scale;
     mSceneObject->mSnapToEdgeBehavior = snapToEdgeBehavior;
     mSceneObject->mSnapToEdgeScaleOffsetFactor = mSceneObject->mScale.x * snapToEdgeScaleOffsetFactor;
+    
+    CoreSystemsEngine::GetInstance().GetSoundManager().PreloadSfx(CLICK_SFX);
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -101,6 +106,8 @@ ButtonUpdateInteractionResult AnimatedButton::Update(const float)
     
     if (!mSceneObject->mInvisible && cursorInSceneObject && inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON) && !mAnimating)
     {
+        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(CLICK_SFX);
+        
         interactionResult = ButtonUpdateInteractionResult::CLICKED;
         mAnimating = true;
         auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();

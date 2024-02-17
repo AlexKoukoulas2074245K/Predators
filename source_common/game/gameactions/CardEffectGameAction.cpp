@@ -21,6 +21,7 @@
 #include <engine/scene/SceneManager.h>
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
+#include <engine/sound/SoundManager.h>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -39,6 +40,7 @@ static const strutils::StringId CARD_PLAYED_PARTICLE_EFFECT_GAME_ACTION_NAME = s
 static const strutils::StringId INSECT_MEGASWARM_GAME_ACTION_NAME = strutils::StringId("InsectMegaSwarmGameAction");
 
 // Resources
+static const std::string EFFECT_SFX = "sfx_chime";
 static const std::string CARD_DISSOLVE_SHADER_FILE_NAME = "card_spell_dissolve.vs";
 static const std::string DISSOLVE_TEXTURE_FILE_NAME = "dissolve.png";
 static const std::string BUFFED_CARD_PARTICLE_EMITTER_NAME_PREFIX = "card_effect_emitter_";
@@ -163,6 +165,9 @@ void CardEffectGameAction::VSetNewGameState()
 void CardEffectGameAction::VInitAnimation()
 {
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
+        
+    systemsEngine.GetSoundManager().PreloadSfx(EFFECT_SFX);
+    systemsEngine.GetSoundManager().PlaySound(EFFECT_SFX);
     
     auto cardEffectBoardCardIndex = mBoardState->GetActivePlayerState().mPlayerBoardCards.size();
     if (mCardTokenCase)

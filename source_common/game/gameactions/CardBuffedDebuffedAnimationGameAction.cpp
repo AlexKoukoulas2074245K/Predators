@@ -16,6 +16,7 @@
 #include <engine/scene/SceneManager.h>
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
+#include <engine/sound/SoundManager.h>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -25,6 +26,7 @@ const std::string CardBuffedDebuffedAnimationGameAction::IS_BOARD_CARD_PARAM = "
 const std::string CardBuffedDebuffedAnimationGameAction::SCALE_FACTOR_PARAM = "scaleFactor";
 const std::string CardBuffedDebuffedAnimationGameAction::PARTICLE_EMITTER_NAME_TO_REMOVE_PARAM = "particleEmitterNameToRemove";
 
+static const std::string BUFF_SFX = "sfx_power_up";
 
 static const float CARD_SCALE_ANIMATION_MIN_DURATION_SECS = 0.6f;
 static const float CARD_SCALE_ANIMATION_MIN_SCALE_FACTOR = 1.5f;
@@ -53,6 +55,8 @@ void CardBuffedDebuffedAnimationGameAction::VInitAnimation()
     mFinished = false;
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
     
+    CoreSystemsEngine::GetInstance().GetSoundManager().PreloadSfx(BUFF_SFX);
+    
     const auto cardIndex = std::stoi(mExtraActionParams.at(CARD_INDEX_PARAM));
     const auto playerIndex = std::stoi(mExtraActionParams.at(PLAYER_INDEX_PARAM));
     const auto isBoardCard = mExtraActionParams.at(IS_BOARD_CARD_PARAM) == "true";
@@ -71,6 +75,11 @@ void CardBuffedDebuffedAnimationGameAction::VInitAnimation()
     auto originalPosition = cardSoWrapper->mSceneObject->mPosition;
     auto targetPosition = originalPosition;
     targetPosition.z += CARD_SCALE_ANIMATION_TARGET_Z;
+    
+    if (scaleFactor > 1.0f)
+    {
+        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(BUFF_SFX);
+    }
     
     animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObject, targetPosition, originalScale * scaleFactor, targetDuration/2, animation_flags::IGNORE_X_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
     {

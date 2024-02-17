@@ -14,6 +14,7 @@
 #include <engine/utils/PlatformMacros.h>
 #include <engine/scene/SceneManager.h>
 #include <engine/scene/SceneObjectUtils.h>
+#include <engine/sound/SoundManager.h>
 #include <game/AnimatedButton.h>
 #include <game/Cards.h>
 #include <game/CardUtils.h>
@@ -33,6 +34,11 @@ static const strutils::StringId DARKEN_UNIFORM_NAME = strutils::StringId("darken
 static const strutils::StringId CONTINUE_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("continue_button");
 static const strutils::StringId CARD_SELECTION_ANIMATION_NAME = strutils::StringId("card_selection_animation");
 static const strutils::StringId CARD_PACK_REWARD_SCENE_OBJECT_NAME = strutils::StringId("card_pack_reward");
+
+static const std::string CARD_PACK_SWIPE_SFX = "sfx_swipe";
+static const std::string EXPLOSION_SFX = "sfx_explosion";
+static const std::string FIREWORKS_SFX = "sfx_fireworks";
+static const std::string VICTORY_SFX = "sfx_victory";
 
 static const std::string CARD_PACK_REWARD_MESH_FILE_NAME = "card_pack_dynamic.obj";
 static const std::string GOLDEN_CARD_PACK_SHADER_FILE_NAME = "card_pack_golden.vs";
@@ -125,6 +131,11 @@ void CardPackRewardSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> s
     
     mCardPackType = DataRepository::GetInstance().PopFrontPendingCardPack();
     
+    CoreSystemsEngine::GetInstance().GetSoundManager().PreloadSfx(CARD_PACK_SWIPE_SFX);
+    CoreSystemsEngine::GetInstance().GetSoundManager().PreloadSfx(EXPLOSION_SFX);
+    CoreSystemsEngine::GetInstance().GetSoundManager().PreloadSfx(FIREWORKS_SFX);
+    CoreSystemsEngine::GetInstance().GetSoundManager().PreloadSfx(VICTORY_SFX);
+    
     auto cardPackReward = scene->CreateSceneObject(CARD_PACK_REWARD_SCENE_OBJECT_NAME);
     cardPackReward->mPosition = CARD_PACK_INIT_POSITION;
     cardPackReward->mScale = CARD_PACK_INIT_SCALE/10.0f;
@@ -206,6 +217,8 @@ void CardPackRewardSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> s
         if (sceneObject->mName == CARD_PACK_REWARD_SCENE_OBJECT_NAME)
         {
             CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(sceneObject, sceneObject->mPosition, CARD_PACK_INIT_SCALE, SUBSCENE_ITEM_FADE_IN_OUT_DURATION_SECS, animation_flags::NONE, sceneObjectIndex * STAGGERED_ITEM_ALPHA_DELAY_SECS, math::ElasticFunction, math::TweeningMode::EASE_IN), [=](){});
+            
+            CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(CARD_PACK_SWIPE_SFX);
         }
         
         CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, 1.0f, SUBSCENE_ITEM_FADE_IN_OUT_DURATION_SECS/5.0f, animation_flags::NONE, sceneObjectIndex++ * STAGGERED_ITEM_ALPHA_DELAY_SECS), [=](){});
@@ -516,6 +529,10 @@ void CardPackRewardSceneLogicManager::CardPackShakeStep(std::shared_ptr<scene::S
         CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(mContinueButton->GetSceneObject(), 1.0f, CARD_REWARD_SURFACE_DELAY_SECS, animation_flags::NONE), [=]()
         {
         });
+        
+        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(EXPLOSION_SFX);
+        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(FIREWORKS_SFX);
+        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(VICTORY_SFX);
     }
     else
     {

@@ -76,6 +76,8 @@ static const strutils::StringId ORIGIN_Y_UNIFORM_NAME = strutils::StringId("orig
 static const strutils::StringId PRODUCT_DESELECTION_ANIMATION_NAME = strutils::StringId("product_deselection_animation");
 
 static const std::string SHOP_THEME_MUSIC = "main_menu_theme";
+static const std::string PRODUCT_SWIPE_SFX = "sfx_swipe";
+static const std::string CARD_COLLECTED_SFX = "sfx_collected";
 static const std::string DISSOLVE_SHADER_FILE_NAME = "generic_dissolve.vs";
 static const std::string DISSOLVE_RARE_ITEM_SHADER_FILE_NAME = "generic_rare_item_dissolve.vs";
 static const std::string DISSOLVE_TEXTURE_FILE_NAME = "dissolve.png";
@@ -190,6 +192,8 @@ void ShopSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     CardDataRepository::GetInstance().LoadCardData(true);
 
     CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(SHOP_THEME_MUSIC);
+    CoreSystemsEngine::GetInstance().GetSoundManager().PreloadSfx(PRODUCT_SWIPE_SFX);
+    CoreSystemsEngine::GetInstance().GetSoundManager().PreloadSfx(CARD_COLLECTED_SFX);
     
     mScene = scene;
     DestroyCardTooltip();
@@ -984,6 +988,8 @@ void ShopSceneLogicManager::DehighlightProduct(const size_t productShelfIndex, c
 
 void ShopSceneLogicManager::SelectProduct(const size_t productShelfIndex, const size_t productShelfItemIndex)
 {
+    CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(PRODUCT_SWIPE_SFX);
+    
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
     auto& product = mProducts[productShelfIndex][productShelfItemIndex];
     const auto& productDefinition = ProductRepository::GetInstance().GetProductDefinition(product->mProductName);
@@ -1450,7 +1456,8 @@ void ShopSceneLogicManager::AnimateBoughtCardToLibrary(const size_t productShelf
     animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(product->mSceneObjects.front(), glm::vec3(), CARD_PRODUCT_SCALE, CARD_BOUGHT_ANIMATION_DURATION_SECS, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT | animation_flags::IGNORE_Z_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
     {
         events::EventSystem::GetInstance().DispatchEvent<events::GuiRewardAnimationFinishedEvent>();
-   
+        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(CARD_COLLECTED_SFX);
+        
         // And pulse card library icon
         auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
         auto cardLibraryIconSceneObject = mScene->FindSceneObject(game_constants::GUI_STORY_CARDS_BUTTON_SCENE_OBJECT_NAME);

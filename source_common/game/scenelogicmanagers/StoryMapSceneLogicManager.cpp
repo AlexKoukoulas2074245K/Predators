@@ -390,8 +390,6 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
                     
                     ResetSelectedMapNode();
                     
-                    CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(VISIT_NODE_SFX);
-                    
                     // Setup data for moving to target node
                     DataRepository::GetInstance().SetSelectedStoryMapNodePosition(mTappedMapNodeData->mPosition);
                     DataRepository::GetInstance().SetSelectedStoryMapNodeData(&mStoryMap->GetMapData().at(targetMapCoord));
@@ -458,7 +456,7 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
             {
                 CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(mScene->GetUpdateTimeSpeedFactor(), 0.0f, game_constants::SCENE_SPEED_DILATION_ANIMATION_DURATION_SECS), [](){}, game_constants::SCENE_SPEED_DILATION_ANIMATION_NAME);
                 events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(VISIT_MAP_NODE_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
-                
+                CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(VISIT_NODE_SFX);
                 mMapUpdateState = MapUpdateState::NAVIGATING;
             }
         } break;
