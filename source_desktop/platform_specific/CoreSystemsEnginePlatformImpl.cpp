@@ -449,6 +449,51 @@ void CoreSystemsEngine::SpecialEventHandling(SDL_Event& event)
 void CreateEngineDebugWidgets()
 {
 #if (!defined(NDEBUG) || defined(IMGUI_IN_RELEASE))
+    static float pitch = 1.0f;
+    static float gain = 1.0f;
+    static size_t sfxIndex = 0;
+    static std::vector<std::string> availableSfx;
+    if (availableSfx.empty())
+    {
+        auto soundFiles = fileutils::GetAllFilenamesInDirectory(resources::ResourceLoadingService::RES_MUSIC_ROOT);
+        for (const auto& soundFile: soundFiles)
+        {
+            auto fileName = strutils::StringSplit(soundFile, '/').back();
+            if (!strutils::StringStartsWith(fileName, "sfx_"))
+            {
+                continue;
+            }
+            
+            availableSfx.emplace_back(strutils::StringSplit(fileName, '.').front());
+        }
+    }
+    
+    ImGui::Begin("Sound Effects", nullptr, GLOBAL_IMGUI_WINDOW_FLAGS);
+    if (ImGui::BeginCombo(" ", availableSfx.at(sfxIndex).c_str()))
+    {
+        for (size_t n = 0U; n < availableSfx.size(); n++)
+        {
+            const bool isSelected = (sfxIndex == n);
+            if (ImGui::Selectable(availableSfx.at(n).c_str(), isSelected))
+            {
+                sfxIndex = n;
+            }
+            if (isSelected)
+            {
+                ImGui::SetItemDefaultFocus();
+            }
+        }
+        ImGui::EndCombo();
+    }
+    ImGui::SliderFloat("Pitch", &pitch, 0.0f, 3.0f);
+    ImGui::SliderFloat("Gain", &gain, 0.0f, 2.0f);
+    if (ImGui::Button("Play Sound"))
+    {
+        CoreSystemsEngine::GetInstance().GetSoundManager().PreloadSfx(availableSfx[sfxIndex]);
+        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(availableSfx[sfxIndex], false, gain, pitch);
+    }
+    ImGui::End();
+    
     // Create runtime configs
     ImGui::Begin("Engine Runtime", nullptr, GLOBAL_IMGUI_WINDOW_FLAGS);
     ImGui::SeparatorText("General");

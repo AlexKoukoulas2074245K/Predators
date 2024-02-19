@@ -9,8 +9,11 @@
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
 #include <engine/scene/SceneObjectUtils.h>
+#include <engine/sound/SoundManager.h>
 #include <game/CardUtils.h>
 #include <game/DataRepository.h>
+
+
 
 ///------------------------------------------------------------------------------------------------
 
@@ -28,6 +31,11 @@ static const std::string CARD_SHADER_FILE_NAME = "card.vs";
 static const std::string CARD_DAMAGE_ICON_TEXTURE_FILE_NAME = "damage_icon.png";
 static const std::string CARD_WEIGHT_ICON_TEXTURE_FILE_NAME = "feather_icon.png";
 static const std::string GENERATED_R2T_NAME_PREFIX = "generated_card_texture_player_";
+static const std::string CARD_PLAY_SFX = "sfx_card_play";
+static const std::string CARD_LIGHT_ATTACK_SFX = "sfx_light_attack";
+static const std::string CARD_MEDIUM_ATTACK_SFX = "sfx_medium_attack";
+static const std::string CARD_HEAVY_ATTACK_SFX = "sfx_heavy_attack";
+static const std::string CARD_SHIELD_ATTACK_SFX = "sfx_shield";
 
 static const glm::vec3 RENDER_TO_TEXTURE_UPSCALE_FACTOR = {-1.365f, 1.256f, 1.0f};
 
@@ -100,31 +108,31 @@ CardRarity GetCardRarity(const int cardId, const size_t forPlayerIndex, const Bo
 {
     return std::find
     (
-        boardState.GetPlayerStates()[forPlayerIndex].mGoldenCardIds.cbegin(),
-        boardState.GetPlayerStates()[forPlayerIndex].mGoldenCardIds.cend(),
-        cardId
+     boardState.GetPlayerStates()[forPlayerIndex].mGoldenCardIds.cbegin(),
+     boardState.GetPlayerStates()[forPlayerIndex].mGoldenCardIds.cend(),
+     cardId
      ) != boardState.GetPlayerStates()[forPlayerIndex].mGoldenCardIds.cend() ? CardRarity::GOLDEN : CardRarity::NORMAL;
 }
 
 ///------------------------------------------------------------------------------------------------
 
 std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
-(
-     const CardData* cardData,
-     const glm::vec3& position,
-     const std::string& cardNamePrefix,
-     const CardOrientation cardOrientation,
-     const CardRarity cardRarity,
-     const bool isOnBoard,
-     const bool forRemotePlayer,
-     const bool canCardBePlayed,
-     const CardStatOverrides& cardStatOverrides,
-     const CardStatOverrides& globalStatModifiers,
-     scene::Scene& scene
-)
+ (
+  const CardData* cardData,
+  const glm::vec3& position,
+  const std::string& cardNamePrefix,
+  const CardOrientation cardOrientation,
+  const CardRarity cardRarity,
+  const bool isOnBoard,
+  const bool forRemotePlayer,
+  const bool canCardBePlayed,
+  const CardStatOverrides& cardStatOverrides,
+  const CardStatOverrides& globalStatModifiers,
+  scene::Scene& scene
+  )
 {
     auto cardSoWrapper = std::make_shared<CardSoWrapper>();
- 
+    
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
     auto& resService = systemsEngine.GetResourceLoadingService();
     
@@ -340,12 +348,12 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
         {
             generatedTextureOverridePostfixSS << "_global_damage_" << globalStatModifiers.at(CardStatType::DAMAGE);
         }
-    
+        
         if (globalStatModifiers.count(CardStatType::WEIGHT))
         {
             generatedTextureOverridePostfixSS << "_global_" << (isOnBoard ? "on_board_" : "held_") << "weight_" << globalStatModifiers.at(CardStatType::WEIGHT);
         }
-    
+        
         if (DataRepository::GetInstance().IsCurrentlyPlayingStoryMode())
         {
             const auto& storyPlayerCardStatModifiers = DataRepository::GetInstance().GetStoryPlayerCardStatModifiers();
@@ -409,6 +417,37 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
     cardSoWrapper->mCardData = *cardData;
     
     return cardSoWrapper;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void PlayCardPlaySfx(const CardData* cardData)
+{
+    CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(CARD_PLAY_SFX);
+}
+
+///------------------------------------------------------------------------------------------------
+
+void PlayCardAttackSfx(const int pendingDamage, const int amountOfArmorDamaged)
+{
+    if (amountOfArmorDamaged > 0)
+    {
+        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(CARD_SHIELD_ATTACK_SFX);
+        return;
+    }
+    
+    if (pendingDamage < 5)
+    {
+        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(CARD_LIGHT_ATTACK_SFX);
+    }
+    else if (pendingDamage < 10)
+    {
+        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(CARD_MEDIUM_ATTACK_SFX);
+    }
+    else
+    {
+        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(CARD_HEAVY_ATTACK_SFX);
+    }
 }
 
 ///------------------------------------------------------------------------------------------------

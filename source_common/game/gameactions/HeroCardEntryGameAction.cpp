@@ -132,7 +132,7 @@ void HeroCardEntryGameAction::VInitAnimation()
     auto targetPosition = card_utils::CalculateBoardCardPosition(nonDeadBoardCardCount - 1, nonDeadBoardCardCount, true);
     animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(heroCardSoWrapper->mSceneObject, targetPosition, heroCardSoWrapper->mSceneObject->mScale * game_constants::IN_GAME_PLAYED_CARD_SCALE_FACTOR, IN_GAME_PLAYED_CARD_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
     {
-        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(CARD_PLAY_SFX);
+        card_utils::PlayCardPlaySfx(&heroCardSoWrapper->mCardData);
         
         CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE)->GetCamera().Shake(CARD_CAMERA_SHAKE_DURATION, CARD_CAMERA_SHAKE_STRENGTH);
         CoreSystemsEngine::GetInstance().GetParticleManager().CreateParticleEmitterAtPosition

@@ -7,6 +7,7 @@
 
 #include <engine/utils/Logging.h>
 #include <engine/rendering/AnimationManager.h>
+#include <engine/sound/SoundManager.h>
 #include <game/ProductRepository.h>
 #include <game/WheelOfFortuneController.h>
 
@@ -27,6 +28,7 @@ static const std::string GOLDEN_CARD_PACK_TEXTURE_FILE_NAME = "card_pack_golden.
 static const std::string NORMAL_CARD_PACK_SHADER_FILE_NAME = "basic.vs";
 static const std::string NORMAL_CARD_PACK_TEXTURE_FILE_NAME = "card_pack_normal.png";
 static const std::string CARD_PACK_REWARD_MESH_FILE_NAME = "card_pack_wheel_item.obj";
+static const std::string WHEEL_REWARD_SELECTED_SFX = "sfx_wheel_reward_selected";
 
 static const glm::vec3 WHEEL_BASE_POSITION = {-0.05f, -0.05f, 23.1f};
 static const glm::vec3 WHEEL_COMPONENTS_POSITION = {-0.05f, -0.05f, 23.2f};
@@ -93,6 +95,8 @@ WheelOfFortuneController::WheelOfFortuneController(scene::Scene& scene, const st
         }
     }
     
+    CoreSystemsEngine::GetInstance().GetSoundManager().PreloadSfx(WHEEL_REWARD_SELECTED_SFX);
+    
     mState = WheelState::INITIAL_SLOW_ROTATION;
 }
 
@@ -137,6 +141,8 @@ void WheelOfFortuneController::Update(const float dtMillis)
                 {
                     targetRotation -= 2.0f * math::PI;
                 }
+                
+                CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(WHEEL_REWARD_SELECTED_SFX);
                 
                 // Tween wheel to rotation target
                 animationManager.StartAnimation(std::make_unique<rendering::TweenValueAnimation>

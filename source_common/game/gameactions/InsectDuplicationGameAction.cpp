@@ -16,12 +16,15 @@
 #include <engine/scene/SceneManager.h>
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
+#include <engine/sound/SoundManager.h>
 
 ///------------------------------------------------------------------------------------------------
 
 static const float DUPLICATED_CARD_Z_OFFSET = -0.01f;
 static const float DUPLICATED_CARD_INIT_SCALE_FACTOR = 0.01f;
 static const float DUPLICATION_ANIMATION_SECS_DURATION = 1.0f;
+
+static const std::string SPRING_SFX = "sfx_spring";
 
 ///------------------------------------------------------------------------------------------------
 
@@ -80,6 +83,9 @@ void InsectDuplicationGameAction::VInitAnimation()
     {
         mFinished = true;
     });
+    
+    CoreSystemsEngine::GetInstance().GetSoundManager().PreloadSfx(SPRING_SFX);
+    CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(SPRING_SFX);
 }
 
 ///------------------------------------------------------------------------------------------------

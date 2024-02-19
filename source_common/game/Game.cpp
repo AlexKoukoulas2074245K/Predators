@@ -379,6 +379,19 @@ void Game::CreateDebugWidgets()
     }
     ImGui::End();
     
+    // Playground
+//    ImGui::Begin("Playground", nullptr, GLOBAL_IMGUI_WINDOW_FLAGS);
+//    ImGui::SliderFloat("Pitch", &PITCH, 0.0f, 4.0f);
+//    ImGui::SliderFloat("Gain", &GAIN, 0.0f, 2.0f);
+//    ImGui::SliderInt("Frequency", &FREQUENCY, 40000, 65000);
+//    if (ImGui::Button("Play Sound"))
+//    {
+//        CoreSystemsEngine::GetInstance().GetSoundManager().PreloadSfx("sfx_attack_light");
+//        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound("sfx_attack_light");
+//    }
+//    ImGui::End();
+
+    
     // Manipulating Persistent Data
     ImGui::Begin("Persistent Data", nullptr, GLOBAL_IMGUI_WINDOW_FLAGS);
     if (ImGui::Button("Clear Unlocked & Golden Cards"))

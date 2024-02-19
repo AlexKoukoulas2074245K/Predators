@@ -8,7 +8,6 @@
 #import <platform_utilities/SfxPlayer.h>
 
 ///------------------------------------------------------------------------------------------------
-
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #define MAX_SFX_VOLUME 0.5f

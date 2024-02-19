@@ -22,6 +22,7 @@ public:
     static const std::string IS_BOARD_CARD_PARAM;
     static const std::string SCALE_FACTOR_PARAM;
     static const std::string PARTICLE_EMITTER_NAME_TO_REMOVE_PARAM;
+    static const std::string CARD_BUFFED_REPEAT_INDEX;
     
     void VSetNewGameState() override;
     

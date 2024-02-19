@@ -25,6 +25,7 @@ const std::string CardBuffedDebuffedAnimationGameAction::PLAYER_INDEX_PARAM = "p
 const std::string CardBuffedDebuffedAnimationGameAction::IS_BOARD_CARD_PARAM = "isBoardCard";
 const std::string CardBuffedDebuffedAnimationGameAction::SCALE_FACTOR_PARAM = "scaleFactor";
 const std::string CardBuffedDebuffedAnimationGameAction::PARTICLE_EMITTER_NAME_TO_REMOVE_PARAM = "particleEmitterNameToRemove";
+const std::string CardBuffedDebuffedAnimationGameAction::CARD_BUFFED_REPEAT_INDEX = "cardBuffedRepeatIndex";
 
 static const std::string BUFF_SFX = "sfx_power_up";
 
@@ -78,7 +79,8 @@ void CardBuffedDebuffedAnimationGameAction::VInitAnimation()
     
     if (scaleFactor > 1.0f)
     {
-        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(BUFF_SFX);
+        auto extraPitchPerRepeat = mExtraActionParams.count(CARD_BUFFED_REPEAT_INDEX) ? 0.1f * std::stoi(mExtraActionParams.at(CARD_BUFFED_REPEAT_INDEX)) : 0.0f;
+        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(BUFF_SFX, false, 1.0f, 1.0f + extraPitchPerRepeat);
     }
     
     animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObject, targetPosition, originalScale * scaleFactor, targetDuration/2, animation_flags::IGNORE_X_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()

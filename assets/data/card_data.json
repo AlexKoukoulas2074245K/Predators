@@ -310,8 +310,8 @@
             "weight": 3,
             "family": "demons_medium",
             "name": "Dark Magic",
-            "effect": "DAMAGE +2 FAMILY BOARD HELD",
-            "tooltip": "Damage +2 for ALL$Demons on hand &$board",
+            "effect": "DAMAGE +1 FAMILY BOARD HELD",
+            "tooltip": "Damage +1 for ALL$Demons on hand &$board",
             "texture": "story_cards/demon_wizard.png",
             "shader": "basic.vs",
             "single_use": false
@@ -371,7 +371,7 @@
             "shader": "basic.vs"
         },
         {
-            "weight": 4,
+            "weight": 2,
             "family": "dinosaurs",
             "name": "Dino Armor",
             "effect": "ARMOR +2",
@@ -394,7 +394,7 @@
             "single_use": true
         },
         {
-            "weight": 6,
+            "weight": 4,
             "family": "rodents",
             "name": "Vampire Rodents",
             "effect": "RODENT_LIFESTEAL_ON_ATTACKS",
@@ -404,7 +404,7 @@
             "single_use": true
         },
         {
-            "weight": 5,
+            "weight": 2,
             "family": "dinosaurs",
             "name": "Dino Snack",
             "effect": "HEAL_NEXT_DINO_DAMAGE",
@@ -424,7 +424,7 @@
             "single_use": true
         },
         {
-            "weight": 5,
+            "weight": 3,
             "family": "insects",
             "name": "Leech Virus",
             "effect": "INSECT_VIRUS",

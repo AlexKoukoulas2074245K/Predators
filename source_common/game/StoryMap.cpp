@@ -115,7 +115,7 @@ static const float SELECTABLE_NODE_BOUNCE_SPEED_Y = 0.000005f;
 static const float PORTRAIT_BOUNCE_NOISE_FACTOR = 0.2f;
 static const float INACTIVE_NODE_TEXT_ALPHA = 0.5f;
 static const float ELITE_STAT_FACTOR = 1.25f;
-static const float BOSS_STAT_FACTOR = 0.2f;
+static const float BOSS_STAT_FACTOR = 1.4f;
 static const float TUTORIAL_MAP_DOWNSCALE_FACTOR = 1.0f/3.0f;
 
 static const int MAP_PATH_SEGMENTS_FACTOR = 30;
@@ -498,9 +498,9 @@ void StoryMap::CreateMapSceneObjects()
         if (isEncounterNode)
         {
             // Stat range builders
-            auto defaultHealthRange = glm::vec2(5.0f + mapNodeEntry.first.mCol, 10.0f + mapNodeEntry.first.mCol);
-            auto defaultDamageRange = glm::vec2(0.0f + mapNodeEntry.first.mCol, 1.0f + mapNodeEntry.first.mCol);
-            auto defaultWeightRange = glm::vec2(2.0f + mapNodeEntry.first.mCol, 3.0f + mapNodeEntry.first.mCol);
+            auto defaultHealthRange = glm::vec2(5.0f + mapNodeEntry.first.mCol * 0.4f, 10.0f + mapNodeEntry.first.mCol * 0.55);
+            auto defaultDamageRange = glm::vec2(math::Max(1.0f, 0.0f + mapNodeEntry.first.mCol * 0.4f), 1.0f + mapNodeEntry.first.mCol * 0.55f);
+            auto defaultWeightRange = glm::vec2(2.0f + mapNodeEntry.first.mCol * 0.4f, 3.0f + mapNodeEntry.first.mCol * 0.55f);
             
             if (mCurrentStoryMapType == StoryMapType::NORMAL_MAP)
             {
@@ -516,7 +516,7 @@ void StoryMap::CreateMapSceneObjects()
                 defaultWeightRange *= ELITE_STAT_FACTOR;
             }
             
-            if (effectiveNodeType == NodeType::BOSS_ENCOUNTER)
+            if (effectiveNodeType == NodeType::BOSS_ENCOUNTER || (mCurrentStoryMapType == StoryMapType::TUTORIAL_MAP && mCurrentMapCoord.mCol == game_constants::TUTORIAL_MAP_BOSS_COORD.x && mCurrentMapCoord.mRow == game_constants::TUTORIAL_MAP_BOSS_COORD.y))
             {
                 defaultHealthRange *= BOSS_STAT_FACTOR;
                 defaultDamageRange *= BOSS_STAT_FACTOR;

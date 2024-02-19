@@ -11,6 +11,7 @@
 #include <engine/rendering/ParticleManager.h>
 #include <engine/scene/SceneManager.h>
 #include <engine/scene/Scene.h>
+#include <engine/sound/SoundManager.h>
 #include <game/events/EventSystem.h>
 #include <game/GameConstants.h>
 #include <game/gameactions/GameActionEngine.h>
@@ -25,6 +26,7 @@ const std::string RodentsDigAnimationGameAction::PLAYER_INDEX_PARAM = "playerInd
 static const strutils::StringId SHOVEL_SCENE_OBEJECT_NAME = strutils::StringId("dig_shovel");
 static const strutils::StringId DIRT_PARTICLE_NAME = strutils::StringId("dirt");
 
+static const std::string DIGGING_SFX = "sfx_digging";
 static const std::string SHOVEL_TEXTURE_FILE_NAME = "shovel.png";
 static const int ANIMATION_STEP_COUNT = 3;
 static const float TARGET_ANIMATION_DURATION = 2.0f;
@@ -62,6 +64,8 @@ void RodentsDigAnimationGameAction::VInitAnimation()
     
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
     auto scene = systemsEngine.GetSceneManager().FindScene(game_constants::BATTLE_SCENE);
+    
+    systemsEngine.GetSoundManager().PreloadSfx(DIGGING_SFX);
     
     auto cardIndex = std::stoi(mExtraActionParams.at(CARD_INDEX_PARAM));
     auto playerIndex = std::stoi(mExtraActionParams.at(PLAYER_INDEX_PARAM));
@@ -141,6 +145,8 @@ void RodentsDigAnimationGameAction::CreateAnimations()
             glm::vec3(targetPosition.x, targetPosition.y + DIRT_Y_OFFSET, targetPosition.z),
             *scene
         );
+        
+        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(DIGGING_SFX);
         
         glm::vec3 targetRotation = shovelSceneObject->mRotation;
         targetRotation.z = SHOVEL_MIN_MAX_ROTATIONS.t;

@@ -34,7 +34,7 @@ public:
     
     void Vibrate();
     void PreloadSfx(const std::string& sfxResPath);
-    void PlaySound(const std::string& soundResPath, const bool loopedSfxOrUnloopedMusic = false);
+    void PlaySound(const std::string& soundResPath, const bool loopedSfxOrUnloopedMusic = false, const float gain = 1.0f, const float pitch = 1.0f);
     void ResumeAudio();
     void PauseMusicOnly();
     void PauseSfxOnly();

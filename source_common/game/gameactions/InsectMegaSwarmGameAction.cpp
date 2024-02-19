@@ -16,6 +16,7 @@
 #include <engine/scene/SceneManager.h>
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
+#include <engine/sound/SoundManager.h>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -24,6 +25,8 @@ static const float DUPLICATED_CARD_INIT_SCALE_FACTOR = 0.01f;
 static const float DUPLICATION_ANIMATION_SECS_DURATION = 1.0f;
 
 static const glm::vec3 NEW_CARD_TARGET_SCALE = {-0.091f, 0.084f, 0.666f};
+
+static const std::string SPRING_SFX = "sfx_spring";
 
 ///------------------------------------------------------------------------------------------------
 
@@ -64,6 +67,8 @@ void InsectMegaSwarmGameAction::VInitAnimation()
     const auto& deadBoardCardIndices = mBoardState->GetActivePlayerState().mBoardCardIndicesToDestroy;
     const auto nonDeadBoardCardCount = card_utils::CalculateNonDeadCardsCount(boardCards, deadBoardCardIndices);
     
+    CoreSystemsEngine::GetInstance().GetSoundManager().PreloadSfx(SPRING_SFX);
+    
     std::vector<std::shared_ptr<CardSoWrapper>> newCardSoWrappers;
     for (auto i = mBoardState->GetActivePlayerState().mPlayerBoardCards.size() - 3; i < mBoardState->GetActivePlayerState().mPlayerBoardCards.size(); ++i)
     {
@@ -87,6 +92,18 @@ void InsectMegaSwarmGameAction::VInitAnimation()
         ));
         newCardSoWrappers.back()->mSceneObject->mPosition.z += DUPLICATED_CARD_Z_OFFSET;
         newCardSoWrappers.back()->mSceneObject->mScale *= DUPLICATED_CARD_INIT_SCALE_FACTOR;
+        
+        if (i == 0)
+        {
+            CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(SPRING_SFX);
+        }
+        else
+        {
+            systemsEngine.GetAnimationManager().StartAnimation(std::make_unique<rendering::TimeDelayAnimation>(i * DUPLICATION_ANIMATION_SECS_DURATION/3), [=]()
+            {
+                CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(SPRING_SFX, false, 1.0f, 1.0f + i * 0.2f);
+            });
+        }
         
         systemsEngine.GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(newCardSoWrappers.back()->mSceneObject, targetPosition, NEW_CARD_TARGET_SCALE, DUPLICATION_ANIMATION_SECS_DURATION, animation_flags::NONE, i * DUPLICATION_ANIMATION_SECS_DURATION/3, math::ElasticFunction, math::TweeningMode::EASE_IN), [=]()
         {

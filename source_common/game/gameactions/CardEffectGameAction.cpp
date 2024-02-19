@@ -397,7 +397,8 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
                         { CardBuffedDebuffedAnimationGameAction::CARD_INDEX_PARAM, std::to_string(i)},
                         { CardBuffedDebuffedAnimationGameAction::PLAYER_INDEX_PARAM, std::to_string(mBoardState->GetActivePlayerIndex())},
                         { CardBuffedDebuffedAnimationGameAction::IS_BOARD_CARD_PARAM, "true" },
-                        { CardBuffedDebuffedAnimationGameAction::SCALE_FACTOR_PARAM, std::to_string(CARD_SCALE_UP_FACTOR) }
+                        { CardBuffedDebuffedAnimationGameAction::SCALE_FACTOR_PARAM, std::to_string(CARD_SCALE_UP_FACTOR) },
+                        { CardBuffedDebuffedAnimationGameAction::CARD_BUFFED_REPEAT_INDEX, std::to_string(i) }
                     });
                 }
             }
@@ -412,7 +413,8 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
                             { CardBuffedDebuffedAnimationGameAction::CARD_INDEX_PARAM, std::to_string(i)},
                             { CardBuffedDebuffedAnimationGameAction::PLAYER_INDEX_PARAM, std::to_string(mBoardState->GetActivePlayerIndex())},
                             { CardBuffedDebuffedAnimationGameAction::IS_BOARD_CARD_PARAM, "false" },
-                            { CardBuffedDebuffedAnimationGameAction::SCALE_FACTOR_PARAM, std::to_string(CARD_SCALE_DOWN_FACTOR) }
+                            { CardBuffedDebuffedAnimationGameAction::SCALE_FACTOR_PARAM, std::to_string(CARD_SCALE_DOWN_FACTOR) },
+                            { CardBuffedDebuffedAnimationGameAction::CARD_BUFFED_REPEAT_INDEX, std::to_string(i) }
                         });
                     }
                 }
@@ -683,7 +685,9 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
             { CardBuffedDebuffedAnimationGameAction::PLAYER_INDEX_PARAM, std::to_string(mBoardState->GetActivePlayerIndex())},
             { CardBuffedDebuffedAnimationGameAction::IS_BOARD_CARD_PARAM, "true" },
             { CardBuffedDebuffedAnimationGameAction::SCALE_FACTOR_PARAM, std::to_string(CARD_SCALE_UP_FACTOR) },
+            { CardBuffedDebuffedAnimationGameAction::CARD_BUFFED_REPEAT_INDEX, std::to_string(particleEmitterIndex) },
             { CardBuffedDebuffedAnimationGameAction::PARTICLE_EMITTER_NAME_TO_REMOVE_PARAM, BUFFED_CARD_PARTICLE_EMITTER_NAME_PREFIX + std::to_string(particleEmitterIndex++) }
+            
         });
         
         mBoardState->GetActivePlayerState().mPlayerBoardCardStatOverrides[*affectedBoardCardIter][affectedStat] = currentValue + mEffectValue;
@@ -729,6 +733,7 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
             { CardBuffedDebuffedAnimationGameAction::PLAYER_INDEX_PARAM, std::to_string(mBoardState->GetActivePlayerIndex())},
             { CardBuffedDebuffedAnimationGameAction::IS_BOARD_CARD_PARAM, "false" },
             { CardBuffedDebuffedAnimationGameAction::SCALE_FACTOR_PARAM, std::to_string(CARD_SCALE_UP_FACTOR) },
+            { CardBuffedDebuffedAnimationGameAction::CARD_BUFFED_REPEAT_INDEX, std::to_string(particleEmitterIndex) },
             { CardBuffedDebuffedAnimationGameAction::PARTICLE_EMITTER_NAME_TO_REMOVE_PARAM, BUFFED_CARD_PARTICLE_EMITTER_NAME_PREFIX + std::to_string(particleEmitterIndex++) }
         });
         

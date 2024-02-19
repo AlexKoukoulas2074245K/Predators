@@ -102,6 +102,7 @@ static const float DISABLED_AUDIO_MUSIC_VOLUME = 0.0f;
 - (void) updateAudioWith:(float) dtMillis
 {
     float FADE_SPEED = 0.00125f;
+    float TARGET_MILLIS = 16.66666f;
     
     if (_musicPlayer != nil)
     {
@@ -109,7 +110,7 @@ static const float DISABLED_AUDIO_MUSIC_VOLUME = 0.0f;
         {
             if (_musicPlayer.volume > 0.0f)
             {
-                _musicPlayer.volume -= dtMillis * FADE_SPEED;
+                _musicPlayer.volume -= TARGET_MILLIS * FADE_SPEED;
             }
             else
             {
@@ -125,7 +126,7 @@ static const float DISABLED_AUDIO_MUSIC_VOLUME = 0.0f;
         {
             if (_musicPlayer.volume < _targetMusicVolume)
             {
-                _musicPlayer.volume += dtMillis * FADE_SPEED;
+                _musicPlayer.volume += TARGET_MILLIS * FADE_SPEED;
             }
         }
     }

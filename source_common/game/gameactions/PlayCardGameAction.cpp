@@ -286,7 +286,7 @@ void PlayCardGameAction::AnimatedCardToBoard(std::shared_ptr<CardSoWrapper> last
         
         events::EventSystem::GetInstance().DispatchEvent<events::WeightChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
         
-        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(CARD_PLAY_SFX);
+        card_utils::PlayCardPlaySfx(&lastPlayedCardSoWrapper->mCardData);
         
         CoreSystemsEngine::GetInstance().GetParticleManager().CreateParticleEmitterAtPosition
         (

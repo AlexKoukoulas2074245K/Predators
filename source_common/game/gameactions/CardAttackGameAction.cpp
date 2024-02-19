@@ -26,8 +26,10 @@
 
 const std::string CardAttackGameAction::CARD_INDEX_PARAM = "cardIndex";
 const std::string CardAttackGameAction::PLAYER_INDEX_PARAM = "playerIndex";
-const std::string LIGHT_ATTACK_SFX = "sfx_attack_light";
-const std::string HEAVY_ATTACK_SFX = "sfx_attack_heavy";
+const std::string CARD_LIGHT_ATTACK_SFX = "sfx_light_attack";
+const std::string CARD_MEDIUM_ATTACK_SFX = "sfx_medium_attack";
+const std::string CARD_HEAVY_ATTACK_SFX = "sfx_heavy_attack";
+const std::string CARD_SHIELD_ATTACK_SFX = "sfx_shield";
 
 static const strutils::StringId GAME_OVER_GAME_ACTION_NAME = strutils::StringId("GameOverGameAction");
 static const strutils::StringId CARD_DESTRUCTION_GAME_ACTION_NAME = strutils::StringId("CardDestructionGameAction");
@@ -191,8 +193,10 @@ void CardAttackGameAction::VInitAnimation()
     auto cardIndex = std::stoi(mExtraActionParams.at(CARD_INDEX_PARAM));
     auto attackingPayerIndex = std::stoi(mExtraActionParams.at(PLAYER_INDEX_PARAM));
     
-    systemsEngine.GetSoundManager().PreloadSfx(LIGHT_ATTACK_SFX);
-    systemsEngine.GetSoundManager().PreloadSfx(HEAVY_ATTACK_SFX);
+    systemsEngine.GetSoundManager().PreloadSfx(CARD_LIGHT_ATTACK_SFX);
+    systemsEngine.GetSoundManager().PreloadSfx(CARD_MEDIUM_ATTACK_SFX);
+    systemsEngine.GetSoundManager().PreloadSfx(CARD_HEAVY_ATTACK_SFX);
+    systemsEngine.GetSoundManager().PreloadSfx(CARD_SHIELD_ATTACK_SFX);
     
     mPendingAnimations = 0;
     
@@ -275,7 +279,7 @@ void CardAttackGameAction::VInitAnimation()
                         *CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE)
                      );
                     
-                    systemsEngine.GetSoundManager().PlaySound(mPendingDamage <= 5 ? LIGHT_ATTACK_SFX : HEAVY_ATTACK_SFX);
+                    card_utils::PlayCardAttackSfx(mPendingDamage, mAmountOfArmorDamaged);
                     
                     auto cameraShakeDuration = math::Min(ATTACKING_CARD_CAMERA_SHAKE_MAX_DURATION, ATTACKING_CARD_CAMERA_SHAKE_DURATION * (1.0f + 0.05f * std::powf(static_cast<float>(mPendingDamage), 2.0f)));
                     auto cameraShakeStrength = math::Min(ATTACKING_CARD_CAMERA_SHAKE_MAX_STRENGTH, ATTACKING_CARD_CAMERA_SHAKE_STRENGTH * (1.0f + 0.05f * std::powf(static_cast<float>(mPendingDamage), 2.0f)));

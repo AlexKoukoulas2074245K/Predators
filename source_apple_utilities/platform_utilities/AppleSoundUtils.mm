@@ -50,7 +50,7 @@ void PreloadSfx(const std::string& sfxResPath)
 
 ///------------------------------------------------------------------------------------------------
 
-void PlaySound(const std::string& soundResPath, const bool loopedSfxOrUnloopedMusic /* = false */)
+void PlaySound(const std::string& soundResPath, const bool loopedSfxOrUnloopedMusic /* = false */, const float gain /* = 1.0f */, const float pitch /* = 1.0f */)
 {
     NSString* objectiveCresPath = [NSString stringWithCString:(ROOT_SOUND_RES_PATH + soundResPath).data() encoding:[NSString defaultCStringEncoding]];
     
@@ -58,7 +58,7 @@ void PlaySound(const std::string& soundResPath, const bool loopedSfxOrUnloopedMu
     {
         if (sfxPlayer != nil)
         {
-            [sfxPlayer playSoundWithName:objectiveCresPath gain:1.0f pitch:1.0f shouldLoop:loopedSfxOrUnloopedMusic];
+            [sfxPlayer playSoundWithName:objectiveCresPath gain:gain pitch:pitch shouldLoop:loopedSfxOrUnloopedMusic];
         }
     }
     else
