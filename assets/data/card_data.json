@@ -267,88 +267,6 @@
             "single_use": true
         },
         {
-            "damage": 1,
-            "weight": 2,
-            "family": "demons_normal",
-            "name": "Youngster Demon",
-            "texture": "story_cards/baby_demon.png",
-            "shader": "basic.vs"
-        },
-        {
-            "damage": 2,
-            "weight": 3,
-            "family": "demons_normal",
-            "name": "Clown Imp",
-            "texture": "story_cards/small_imp.png",
-            "shader": "basic.vs"
-        },
-        {
-            "damage": 3,
-            "weight": 5,
-            "family": "demons",
-            "name": "Scarlet Hound",
-            "texture": "story_cards/hound_demon_red.png",
-            "shader": "basic.vs"
-        },
-        {
-            "damage": 4,
-            "weight": 4,
-            "family": "demons",
-            "name": "Sapphire Hound",
-            "texture": "story_cards/hound_demon_sapphire.png",
-            "shader": "basic.vs"
-        },
-        {
-            "damage": 4,
-            "weight": 5,
-            "family": "demons",
-            "name": "Feral Hound",
-            "texture": "story_cards/hound_demon_feral.png",
-            "shader": "basic.vs"
-        },
-        {
-            "damage": 4,
-            "weight": 6,
-            "family": "demons",
-            "name": "Drake Hound",
-            "texture": "story_cards/hound_demon_drake.png",
-            "shader": "basic.vs"
-        },
-        {
-            "damage": 5,
-            "weight": 6,
-            "family": "demons",
-            "name": "Burning Hound",
-            "texture": "story_cards/hound_demon_burning.png",
-            "shader": "basic.vs"
-        },
-        {
-            "damage": 6,
-            "weight": 6,
-            "family": "demons",
-            "name": "Dark Hound",
-            "texture": "story_cards/hound_demon_dark.png",
-            "shader": "basic.vs"
-        },
-        {
-            "weight": 3,
-            "family": "demons_medium",
-            "name": "Dark Magic",
-            "effect": "DAMAGE +1 FAMILY BOARD HELD",
-            "tooltip": "Damage +1 for ALL$Demons on hand &$board",
-            "texture": "story_cards/demon_wizard.png",
-            "shader": "basic.vs",
-            "single_use": false
-        },
-        {
-            "damage": 6,
-            "weight": 7,
-            "family": "demons_hard",
-            "name": "Ghost Assassin",
-            "texture": "story_cards/elite_demon_0.png",
-            "shader": "basic.vs"
-        },
-        {
             "weight": 2,
             "family": "rodents",
             "name": "Digging Time",
@@ -457,12 +375,76 @@
             "single_use": true
         },
         {
+            "damage": 3,
             "weight": 5,
-            "family": "demons_hard",
-            "name": "Demon Trap",
-            "effect": "DEMON_KILL",
-            "tooltip": "Destroy the next$normal card played$on the opponent's$next turn",
-            "texture": "story_cards/demon_trap.png",
+            "family": "demons",
+            "name": "Scarlet Hound",
+            "texture": "story_cards/hound_demon_red.png",
+            "shader": "basic.vs"
+        },
+        {
+            "damage": 4,
+            "weight": 4,
+            "family": "demons",
+            "name": "Sapphire Hound",
+            "texture": "story_cards/hound_demon_sapphire.png",
+            "shader": "basic.vs"
+        },
+        {
+            "damage": 4,
+            "weight": 5,
+            "family": "demons",
+            "name": "Feral Hound",
+            "texture": "story_cards/hound_demon_feral.png",
+            "shader": "basic.vs"
+        },
+        {
+            "damage": 4,
+            "weight": 6,
+            "family": "demons",
+            "name": "Drake Hound",
+            "texture": "story_cards/hound_demon_drake.png",
+            "shader": "basic.vs"
+        },
+        {
+            "damage": 5,
+            "weight": 6,
+            "family": "demons",
+            "name": "Burning Hound",
+            "texture": "story_cards/hound_demon_burning.png",
+            "shader": "basic.vs"
+        },
+        {
+            "damage": 6,
+            "weight": 6,
+            "family": "demons",
+            "name": "Dark Hound",
+            "texture": "story_cards/hound_demon_dark.png",
+            "shader": "basic.vs"
+        },
+        {
+            "damage": 1,
+            "weight": 2,
+            "family": "demons_normal",
+            "name": "Youngster Demon",
+            "texture": "story_cards/baby_demon.png",
+            "shader": "basic.vs"
+        },
+        {
+            "damage": 2,
+            "weight": 3,
+            "family": "demons_normal",
+            "name": "Clown Imp",
+            "texture": "story_cards/small_imp.png",
+            "shader": "basic.vs"
+        },
+        {
+            "weight": 3,
+            "family": "demons_normal",
+            "name": "Dark Magic",
+            "effect": "DAMAGE +1 FAMILY BOARD HELD",
+            "tooltip": "Damage +1 for ALL$Demons on hand &$board",
+            "texture": "story_cards/demon_wizard.png",
             "shader": "basic.vs",
             "single_use": false
         },
@@ -475,6 +457,34 @@
             "texture": "story_cards/demon_strength.png",
             "shader": "basic.vs",
             "single_use": true
+        },
+        {
+            "weight": 9,
+            "family": "demons_hard",
+            "name": "Hound Summon",
+            "effect": "HOUND_SUMMON",
+            "tooltip": "Spawns 3 random$demon hounds from$your deck",
+            "texture": "demon_hound_summoning.png",
+            "shader": "basic.vs",
+            "single_use": true
+        },
+        {
+            "damage": 6,
+            "weight": 7,
+            "family": "demons_hard",
+            "name": "Ghost Assassin",
+            "texture": "story_cards/elite_demon_0.png",
+            "shader": "basic.vs"
+        },
+        {
+            "weight": 5,
+            "family": "demons_hard",
+            "name": "Demon Trap",
+            "effect": "DEMON_KILL",
+            "tooltip": "Destroy the next$normal card played$on the opponent's$next turn",
+            "texture": "story_cards/demon_trap.png",
+            "shader": "basic.vs",
+            "single_use": false
         },
         {
             "damage": 8,

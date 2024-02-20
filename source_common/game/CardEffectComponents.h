@@ -63,6 +63,7 @@ inline const std::string EFFECT_COMPONENT_RODENT_LIFESTEAL_ON_ATTACKS          =
 inline const std::string EFFECT_COMPONENT_HEAL_NEXT_DINO_DAMAGE                = "HEAL_NEXT_DINO_DAMAGE";
 inline const std::string EFFECT_COMPONENT_INSECT_MEGASWARM                     = "INSECT_MEGASWARM";
 inline const std::string EFFECT_COMPONENT_INSECT_VIRUS                         = "INSECT_VIRUS";
+inline const std::string EFFECT_COMPONENT_HOUND_SUMMONING                      = "HOUND_SUMMON";
 
 inline const std::unordered_set<std::string> STATIC_EFFECT_COMPONENT_NAMES =
 {
@@ -90,6 +91,7 @@ inline const std::unordered_set<std::string> STATIC_EFFECT_COMPONENT_NAMES =
     EFFECT_COMPONENT_HEAL_NEXT_DINO_DAMAGE,
     EFFECT_COMPONENT_INSECT_MEGASWARM,
     EFFECT_COMPONENT_INSECT_VIRUS,
+    EFFECT_COMPONENT_HOUND_SUMMONING
 };
 
 ///------------------------------------------------------------------------------------------------

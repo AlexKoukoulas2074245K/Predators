@@ -7,6 +7,7 @@
 
 #include <game/gameactions/BattleInitialSetupAndAnimationGameAction.h>
 #include <game/gameactions/CardAttackGameAction.h>
+#include <game/gameactions/CardBuffedDebuffedAnimationGameAction.h>
 #include <game/gameactions/CardEffectGameAction.h>
 #include <game/gameactions/CardDestructionGameAction.h>
 #include <game/gameactions/CardHistoryEntryAdditionGameAction.h>
@@ -15,20 +16,21 @@
 #include <game/gameactions/GameActionFactory.h>
 #include <game/gameactions/GameOverGameAction.h>
 #include <game/gameactions/GoldenCardPlayedEffectGameAction.h>
+#include <game/gameactions/HealNextDinoDamageGameAction.h>
 #include <game/gameactions/HeroCardEntryGameAction.h>
+#include <game/gameactions/HoundSummoningGameAction.h>
 #include <game/gameactions/IdleGameAction.h>
 #include <game/gameactions/InsectDuplicationGameAction.h>
 #include <game/gameactions/InsectMegaSwarmGameAction.h>
 #include <game/gameactions/InsectVirusGameAction.h>
+#include <game/gameactions/NextDinoDamageDoublingGameAction.h>
 #include <game/gameactions/NextPlayerGameAction.h>
 #include <game/gameactions/PlayCardGameAction.h>
 #include <game/gameactions/PoisonStackApplicationGameAction.h>
 #include <game/gameactions/PostNextPlayerGameAction.h>
 #include <game/gameactions/RodentsDigAnimationGameAction.h>
 #include <game/gameactions/TrapTriggeredAnimationGameAction.h>
-#include <game/gameactions/NextDinoDamageDoublingGameAction.h>
-#include <game/gameactions/HealNextDinoDamageGameAction.h>
-#include <game/gameactions/CardBuffedDebuffedAnimationGameAction.h>
+
 #include <algorithm>
 #include <vector>
 
@@ -70,6 +72,7 @@ void GameActionFactory::RegisterGameActions()
     REGISTER_ACTION(HealNextDinoDamageGameAction);
     REGISTER_ACTION(CardBuffedDebuffedAnimationGameAction);
     REGISTER_ACTION(CardHistoryEntryAdditionGameAction);
+    REGISTER_ACTION(HoundSummoningGameAction);
     std::sort(REGISTERED_ACTION_NAMES.begin(), REGISTERED_ACTION_NAMES.end(), [&](const strutils::StringId& lhs, const strutils::StringId& rhs)
     {
         return lhs.GetString() < rhs.GetString();
@@ -110,6 +113,7 @@ std::unique_ptr<BaseGameAction> GameActionFactory::CreateGameAction(const struti
     ACTION_CASE(HealNextDinoDamageGameAction);
     ACTION_CASE(CardBuffedDebuffedAnimationGameAction);
     ACTION_CASE(CardHistoryEntryAdditionGameAction);
+    ACTION_CASE(HoundSummoningGameAction);
     assert(false && "Invalid game action name");
     return nullptr;
 }

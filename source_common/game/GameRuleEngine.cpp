@@ -43,6 +43,11 @@ bool GameRuleEngine::CanCardBePlayed(const CardData* cardData, const size_t card
         return false;
     }
     
+    if (cardData->mCardEffect == effects::EFFECT_COMPONENT_HOUND_SUMMONING && activePlayerState.mPlayerBoardCards.size() > 1)
+    {
+        return false;
+    }
+    
     return activePlayerState.mPlayerCurrentWeightAmmo >= cardWeight && activePlayerState.mPlayerBoardCards.size() < game_constants::MAX_BOARD_CARDS;
 }
 

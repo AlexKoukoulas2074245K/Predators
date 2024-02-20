@@ -80,7 +80,7 @@ private:
     void OnCardCreation(const events::CardCreationEvent&);
     void OnCardBuffedDebuffed(const events::CardBuffedDebuffedEvent&);
     void OnHeldCardSwap(const events::HeldCardSwapEvent&);
-    void OnInsectMegaSwarm(const events::InsectMegaSwarmEvent&);
+    void OnCardSummoning(const events::CardSummoningEvent&);
     void OnNewBoardCardCreated(const events::NewBoardCardCreatedEvent&);
     void OnHeroCardCreated(const events::HeroCardCreatedEvent&);
     void OnLastCardPlayedFinalized(const events::LastCardPlayedFinalizedEvent&);

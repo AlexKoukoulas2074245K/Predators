@@ -237,10 +237,10 @@ public:
 
 ///------------------------------------------------------------------------------------------------
 
-class InsectMegaSwarmEvent final
+class CardSummoningEvent final
 {
 public:
-    InsectMegaSwarmEvent(const std::vector<std::shared_ptr<CardSoWrapper>> cardSoWrappers)
+    CardSummoningEvent(const std::vector<std::shared_ptr<CardSoWrapper>> cardSoWrappers)
         : mCardSoWrappers(cardSoWrappers)
     {
     }

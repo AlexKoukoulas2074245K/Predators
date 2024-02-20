@@ -1327,7 +1327,7 @@ void BattleSceneLogicManager::RegisterForEvents()
     eventSystem.RegisterForEvent<events::CardCreationEvent>(this, &BattleSceneLogicManager::OnCardCreation);
     eventSystem.RegisterForEvent<events::CardBuffedDebuffedEvent>(this, &BattleSceneLogicManager::OnCardBuffedDebuffed);
     eventSystem.RegisterForEvent<events::HeldCardSwapEvent>(this, &BattleSceneLogicManager::OnHeldCardSwap);
-    eventSystem.RegisterForEvent<events::InsectMegaSwarmEvent>(this, &BattleSceneLogicManager::OnInsectMegaSwarm);
+    eventSystem.RegisterForEvent<events::CardSummoningEvent>(this, &BattleSceneLogicManager::OnCardSummoning);
     eventSystem.RegisterForEvent<events::NewBoardCardCreatedEvent>(this, &BattleSceneLogicManager::OnNewBoardCardCreated);
     eventSystem.RegisterForEvent<events::HeroCardCreatedEvent>(this, &BattleSceneLogicManager::OnHeroCardCreated);
     eventSystem.RegisterForEvent<events::LastCardPlayedFinalizedEvent>(this, &BattleSceneLogicManager::OnLastCardPlayedFinalized);
@@ -1587,7 +1587,7 @@ void BattleSceneLogicManager::OnHeldCardSwap(const events::HeldCardSwapEvent& ev
 
 ///------------------------------------------------------------------------------------------------
 
-void BattleSceneLogicManager::OnInsectMegaSwarm(const events::InsectMegaSwarmEvent& event)
+void BattleSceneLogicManager::OnCardSummoning(const events::CardSummoningEvent& event)
 {
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
     

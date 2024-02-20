@@ -38,6 +38,7 @@ static const strutils::StringId CARD_HISTORY_ENTRY_ADDITION_GAME_ACTION_NAME = s
 static const strutils::StringId CARD_EFFECT_GAME_ACTION_NAME = strutils::StringId("CardEffectGameAction");
 static const strutils::StringId CARD_PLAYED_PARTICLE_EFFECT_GAME_ACTION_NAME = strutils::StringId("CardPlayedParticleEffectGameAction");
 static const strutils::StringId INSECT_MEGASWARM_GAME_ACTION_NAME = strutils::StringId("InsectMegaSwarmGameAction");
+static const strutils::StringId HOUND_SUMMONING_GAME_ACTION_NAME = strutils::StringId("HoundSummoningGameAction");
 
 // Resources
 static const std::string EFFECT_SFX = "sfx_chime";
@@ -499,6 +500,12 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
         else if (effectComponent == effects::EFFECT_COMPONENT_INSECT_MEGASWARM)
         {
             mGameActionEngine->AddGameAction(INSECT_MEGASWARM_GAME_ACTION_NAME);
+        }
+        
+        // Hound Summoning
+        else if (effectComponent == effects::EFFECT_COMPONENT_HOUND_SUMMONING)
+        {
+            mGameActionEngine->AddGameAction(HOUND_SUMMONING_GAME_ACTION_NAME);
         }
         
         // Insect Megaswarm
