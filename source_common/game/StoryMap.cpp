@@ -38,13 +38,18 @@ static const std::vector<std::string> EASY_FIGHT_TEXTURES =
     "story_cards/baby_demon.png",
     "story_cards/small_imp.png",
     "story_cards/youngster_imp_puppy.png",
-    "story_cards/red_youngster_imp_puppy.png"
+    "story_cards/red_youngster_imp_puppy.png",
+    "story_cards/baby_dragon_dog.png",
 };
 
 static const std::vector<std::string> MEDIUM_FIGHT_TEXTURES =
 {
-    "story_cards/young_adult_blue_demon.png",
-    "story_cards/red_young_adult_demon.png"
+    "story_cards/hound_demon_sapphire.png",
+    "story_cards/hound_demon_red.png",
+    "story_cards/hound_demon_burning.png",
+    "story_cards/hound_demon_dark.png",
+    "story_cards/hound_demon_feral.png",
+    "story_cards/hound_demon_drake.png",
 };
 
 static const std::vector<std::string> HARD_FIGHT_TEXTURES =
@@ -353,17 +358,11 @@ void StoryMap::CreateMapSceneObjects()
     // All node meshes
     for (const auto& mapNodeEntry: mMapData)
     {
-        auto effectiveNodeType = mapNodeEntry.second.mNodeType;
-        if (mapNodeEntry.first == mCurrentMapCoord)
-        {
-            effectiveNodeType = NodeType::STARTING_LOCATION;
-        }
-        
         auto nodeSceneObject = mScene->CreateSceneObject(strutils::StringId(mapNodeEntry.first.ToString()));
         nodeSceneObject->mPosition = mapNodeEntry.second.mPosition;
         nodeSceneObject->mShaderResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + STORY_MAP_NODE_SHADER_FILE_NAME);
         nodeSceneObject->mShaderBoolUniformValues[IS_NODE_ACTIVE_UNIFORM_NAME] = mapNodeEntry.first == mCurrentMapCoord;
-        nodeSceneObject->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + MAP_NODE_TYPES_TO_PORTRAIT_TEXTURES.at(effectiveNodeType));
+        nodeSceneObject->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + MAP_NODE_TYPES_TO_PORTRAIT_TEXTURES.at(mapNodeEntry.second.mNodeType));
         nodeSceneObject->mBoundingRectMultiplier.x = game_constants::CARD_BOUNDING_RECT_X_MULTIPLIER;
         nodeSceneObject->mScale = glm::vec3(NODE_SCALE);
         
@@ -381,7 +380,7 @@ void StoryMap::CreateMapSceneObjects()
         nodePortraitSceneObject->mPosition += NODE_PORTRAIT_POSITION_OFFSET;
         
         // Starting location does not have a portrait texture
-        if (effectiveNodeType == NodeType::STARTING_LOCATION)
+        if (mapNodeEntry.second.mNodeType == NodeType::STARTING_LOCATION)
         {
             nodePortraitSceneObject->mInvisible = true;
         }
@@ -399,9 +398,9 @@ void StoryMap::CreateMapSceneObjects()
         primaryTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
         secondaryTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
         
-        bool isEncounterNode = effectiveNodeType == NodeType::BOSS_ENCOUNTER || effectiveNodeType == NodeType::ELITE_ENCOUNTER || effectiveNodeType == NodeType::NORMAL_ENCOUNTER;
+        bool isEncounterNode = mapNodeEntry.second.mNodeType == NodeType::BOSS_ENCOUNTER || mapNodeEntry.second.mNodeType == NodeType::ELITE_ENCOUNTER || mapNodeEntry.second.mNodeType == NodeType::NORMAL_ENCOUNTER;
         
-        switch (effectiveNodeType)
+        switch (mapNodeEntry.second.mNodeType)
         {
             case NodeType::STARTING_LOCATION:
             {
@@ -508,14 +507,14 @@ void StoryMap::CreateMapSceneObjects()
                 defaultWeightRange += game_constants::TUTORIAL_NODE_MAP_DIMENSIONS.s;
             }
             
-            if (effectiveNodeType == NodeType::ELITE_ENCOUNTER)
+            if (mapNodeEntry.second.mNodeType == NodeType::ELITE_ENCOUNTER)
             {
                 defaultHealthRange *= ELITE_STAT_FACTOR;
                 defaultDamageRange *= ELITE_STAT_FACTOR;
                 defaultWeightRange *= ELITE_STAT_FACTOR;
             }
             
-            if (effectiveNodeType == NodeType::BOSS_ENCOUNTER || (mCurrentStoryMapType == StoryMapType::TUTORIAL_MAP && mCurrentMapCoord.mCol == game_constants::TUTORIAL_MAP_BOSS_COORD.x && mCurrentMapCoord.mRow == game_constants::TUTORIAL_MAP_BOSS_COORD.y))
+            if (mapNodeEntry.second.mNodeType == NodeType::BOSS_ENCOUNTER || (mCurrentStoryMapType == StoryMapType::TUTORIAL_MAP && mCurrentMapCoord.mCol == game_constants::TUTORIAL_MAP_BOSS_COORD.x && mCurrentMapCoord.mRow == game_constants::TUTORIAL_MAP_BOSS_COORD.y))
             {
                 defaultHealthRange *= BOSS_STAT_FACTOR;
                 defaultDamageRange *= BOSS_STAT_FACTOR;
@@ -659,6 +658,18 @@ void StoryMap::CreateMapSceneObjects()
             }
         }
     }
+    
+    // Transform current coord to tent
+    for (auto& sceneObject: mScene->GetSceneObjects())
+    {
+        if (strutils::StringStartsWith(sceneObject->mName.GetString(), mCurrentMapCoord.ToString()))
+        {
+            sceneObject->mInvisible = true;
+        }
+    }
+    auto currentSceneObject = mScene->FindSceneObject(strutils::StringId(mCurrentMapCoord.ToString()));
+    currentSceneObject->mInvisible = false;
+    currentSceneObject->mTextureResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + MAP_NODE_TYPES_TO_PORTRAIT_TEXTURES.at(StoryMap::NodeType::STARTING_LOCATION));
     
     auto& particleManager = CoreSystemsEngine::GetInstance().GetParticleManager();
     auto animatedNodePathParticleEmitterSceneObject = particleManager.CreateParticleEmitterAtPosition(ANIMATED_NODE_PATH_PARTICLE_DEFINITION_NAME, glm::vec3(), *mScene, ANIMATED_NODE_PATH_PARTICLE_EMITTER_NAME, [](float dtMillis, scene::ParticleEmitterObjectData& particleEmitterData)

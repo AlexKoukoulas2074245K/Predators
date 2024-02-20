@@ -284,18 +284,50 @@
         },
         {
             "damage": 3,
-            "weight": 3,
-            "family": "demons_medium",
-            "name": "Scarlet Demon",
-            "texture": "story_cards/red_young_adult_demon.png",
+            "weight": 5,
+            "family": "demons",
+            "name": "Scarlet Hound",
+            "texture": "story_cards/hound_demon_red.png",
+            "shader": "basic.vs"
+        },
+        {
+            "damage": 4,
+            "weight": 4,
+            "family": "demons",
+            "name": "Sapphire Hound",
+            "texture": "story_cards/hound_demon_sapphire.png",
             "shader": "basic.vs"
         },
         {
             "damage": 4,
             "weight": 5,
-            "family": "demons_medium",
-            "name": "Sapphire Claws",
-            "texture": "story_cards/young_adult_blue_demon.png",
+            "family": "demons",
+            "name": "Feral Hound",
+            "texture": "story_cards/hound_demon_feral.png",
+            "shader": "basic.vs"
+        },
+        {
+            "damage": 4,
+            "weight": 6,
+            "family": "demons",
+            "name": "Drake Hound",
+            "texture": "story_cards/hound_demon_drake.png",
+            "shader": "basic.vs"
+        },
+        {
+            "damage": 5,
+            "weight": 6,
+            "family": "demons",
+            "name": "Burning Hound",
+            "texture": "story_cards/hound_demon_burning.png",
+            "shader": "basic.vs"
+        },
+        {
+            "damage": 6,
+            "weight": 6,
+            "family": "demons",
+            "name": "Dark Hound",
+            "texture": "story_cards/hound_demon_dark.png",
             "shader": "basic.vs"
         },
         {
