@@ -299,14 +299,6 @@
             "shader": "basic.vs"
         },
         {
-            "damage": 6,
-            "weight": 6,
-            "family": "demons_hard",
-            "name": "Ghost Assassin",
-            "texture": "story_cards/elite_demon_0.png",
-            "shader": "basic.vs"
-        },
-        {
             "weight": 3,
             "family": "demons_medium",
             "name": "Dark Magic",
@@ -317,12 +309,11 @@
             "single_use": false
         },
         {
-            "damage": 10,
-            "weight": 10,
-            "family": "demons_boss",
-            "name": "Test Boss",
-            "tooltip": "Damage +2 for$ALL Demons on$hand & board",
-            "texture": "story_cards/demon_boss_6.png",
+            "damage": 6,
+            "weight": 7,
+            "family": "demons_hard",
+            "name": "Ghost Assassin",
+            "texture": "story_cards/elite_demon_0.png",
             "shader": "basic.vs"
         },
         {
@@ -432,6 +423,44 @@
             "texture": "insect_virus.png",
             "shader": "basic.vs",
             "single_use": true
+        },
+        {
+            "weight": 5,
+            "family": "demons_hard",
+            "name": "Demon Trap",
+            "effect": "DEMON_KILL",
+            "tooltip": "Destroy the next$normal card played$on the opponent's$next turn",
+            "texture": "story_cards/demon_trap.png",
+            "shader": "basic.vs",
+            "single_use": false
+        },
+        {
+            "weight": 4,
+            "family": "demons_medium",
+            "name": "Demon Glare",
+            "effect": "DAMAGE -2 ENEMY_BOARD_DEBUFF",
+            "tooltip": "Damage -2 for ALL$normal cards the$opponent plays on$their next turn",
+            "texture": "story_cards/demon_strength.png",
+            "shader": "basic.vs",
+            "single_use": true
+        },
+        {
+            "damage": 8,
+            "weight": 9,
+            "family": "demons_hard",
+            "name": "Chaos Wizard",
+            "texture": "story_cards/elite_demon_wizard_0.png",
+            "shader": "basic.vs"
+        },
+        {
+            "weight": 4,
+            "family": "demons_hard",
+            "name": "Chaos Magic",
+            "effect": "DAMAGE +2 FAMILY BOARD HELD",
+            "tooltip": "Damage +2 for ALL$Demons on hand &$board",
+            "texture": "story_cards/demon_ritual.png",
+            "shader": "basic.vs",
+            "single_use": false
         }
     ]
 }

@@ -34,6 +34,7 @@ namespace board_modifier_masks
     static constexpr EffectBoardModifierMask RODENT_LIFESTEAL                     = 0x80;
     static constexpr EffectBoardModifierMask HEAL_NEXT_DINO_DAMAGE                = 0x100;
     static constexpr EffectBoardModifierMask INSECT_VIRUS                         = 0x200;
+    static constexpr EffectBoardModifierMask DEMON_KILL_NEXT                      = 0x400;
 };
 
 
@@ -46,6 +47,7 @@ inline const std::string EFFECT_COMPONENT_DRAW                                 =
 inline const std::string EFFECT_COMPONENT_GAIN_1_WEIGHT                        = "GAIN_1_WEIGHT";
 inline const std::string EFFECT_COMPONENT_CARD_TOKEN                           = "CARD_TOKEN";
 inline const std::string EFFECT_COMPONENT_KILL                                 = "KILL";
+inline const std::string EFFECT_COMPONENT_DEMON_KILL                           = "DEMON_KILL";
 inline const std::string EFFECT_COMPONENT_BOARD                                = "BOARD";
 inline const std::string EFFECT_COMPONENT_HELD                                 = "HELD";
 inline const std::string EFFECT_COMPONENT_DUPLICATE_INSECT                     = "DUPLICATE_NEXT_INSECT";
@@ -70,6 +72,7 @@ inline const std::unordered_set<std::string> STATIC_EFFECT_COMPONENT_NAMES =
     EFFECT_COMPONENT_FAMILY,
     EFFECT_COMPONENT_ENEMY_BOARD_DEBUFF,
     EFFECT_COMPONENT_KILL,
+    EFFECT_COMPONENT_DEMON_KILL,
     EFFECT_COMPONENT_BOARD,
     EFFECT_COMPONENT_HELD,
     EFFECT_COMPONENT_CLEAR_EFFECTS,

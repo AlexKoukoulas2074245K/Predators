@@ -20,6 +20,9 @@ public:
     static const std::string TRAP_TRIGGER_TYPE_PARAM;
     static const std::string TRAP_TRIGGER_TYPE_KILL;
     static const std::string TRAP_TRIGGER_TYPE_DEBUFF;
+    static const std::string KILL_TRAP_TYPE_PARAM;
+    static const std::string KILL_TRAP_TYPE_BEAR_TRAP;
+    static const std::string KILL_TRAP_TYPE_DEMON_TRAP;
     
 public:
     void VSetNewGameState() override;

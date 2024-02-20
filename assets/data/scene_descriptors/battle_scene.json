@@ -215,6 +215,26 @@
             "invisible": true
         },
         {
+            "name": "demon_kill_side_effect_top",
+            "texture": "story_cards/demon_trap.png",
+            "effect_textures": [ "trap_mask.png" ],
+            "shader": "board_side_stat_effect.vs",
+            "scale": { "x": 0.05, "y": 0.05, "z": 0.05 },
+            "position": { "x": 0.0, "y": 0.044, "z": 1.0 },
+            "alpha": 0.0,
+            "invisible": true
+        },
+        {
+            "name": "demon_kill_side_effect_bot",
+            "texture": "story_cards/demon_trap.png",
+            "effect_textures": [ "trap_mask.png" ],
+            "shader": "board_side_stat_effect.vs",
+            "scale": { "x": 0.05, "y": 0.05, "z": 0.05 },
+            "position": { "x": 0.0, "y": -0.044, "z": 1.0 },
+            "alpha": 0.0,
+            "invisible": true
+        },
+        {
             "name": "insect_duplication_effect_top",
             "texture": "insect_duplication.png",
             "effect_textures": [ "trap_mask.png" ],

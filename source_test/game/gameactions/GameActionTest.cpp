@@ -233,6 +233,31 @@ TEST_F(GameActionTests, TestBearTrapEffect)
     EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerBoardCards.size(), 0); // Bunny is destroyed before end of turn
 }
 
+TEST_F(GameActionTests, TestDemonTrapEffect)
+{
+    mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {GET_CARD_ID("Demon Trap")}; // Top player has a deck of bear traps
+    mBoardState->GetPlayerStates()[1].mPlayerDeckCards = {GET_CARD_ID("Bunny")}; // Bot player has a deck of bunnies
+    
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = GET_CARD_WEIGHT("Demon Trap");
+    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = GET_CARD_WEIGHT("Demon Trap");
+    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Demon trap is played
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Bunny is played
+    
+    UpdateUntilActionOrIdle(TRAP_TRIGGERED_ANIMATION_GAME_ACTION_NAME);
+    EXPECT_EQ(mActionEngine->GetActiveGameActionName(), TRAP_TRIGGERED_ANIMATION_GAME_ACTION_NAME); // Make sure the next stop is at TrapTriggerAnimationGameAction (not IdleGameAction)
+    mActionEngine->Update(0);
+    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerBoardCards.size(), 1);
+    UpdateUntilActionOrIdle(DRAW_CARD_GAME_ACTION_NAME);
+    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerBoardCards.size(), 0); // Bunny is destroyed before end of turn
+}
+
 TEST_F(GameActionTests, TestNetEffect)
 {
     mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {GET_CARD_ID("Throwing Net")}; // Top player has a deck of nets traps
@@ -242,6 +267,7 @@ TEST_F(GameActionTests, TestNetEffect)
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
     
     mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Net is played
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
     
     mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Bunny is played
@@ -265,6 +291,7 @@ TEST_F(GameActionTests, TestNetAndFluffAttackCombinedEffects)
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
     
     mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Net is played
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
     
     mBoardState->GetPlayerStates()[1].mPlayerTotalWeightAmmo = GET_CARD_WEIGHT("Fluff Attack") + GET_CARD_WEIGHT("Beaver");
@@ -423,7 +450,9 @@ TEST_F(GameActionTests, TestDoubleNetAndFluffAttackCombinedEffects)
     mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = GET_CARD_WEIGHT("Throwing Net") + GET_CARD_WEIGHT("Throwing Net");
     mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = GET_CARD_WEIGHT("Throwing Net") + GET_CARD_WEIGHT("Throwing Net");
     
-    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // 2 Nets are played
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Net is played
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Net is played
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
     
     mBoardState->GetPlayerStates()[1].mPlayerTotalWeightAmmo = GET_CARD_WEIGHT("Fluff Attack") + GET_CARD_WEIGHT("Beaver");
@@ -711,6 +740,7 @@ TEST_F(GameActionTests, TestBuffedDugOutRodentsHaveCorrectModifiersPostClearingN
     mBoardState->GetPlayerStates()[0].mPlayerHeldCards = {GET_CARD_ID("Throwing Net")};
     
     mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Net is played
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
     
     mBoardState->GetPlayerStates()[1].mPlayerTotalWeightAmmo = GET_CARD_WEIGHT("Gust of Wind");

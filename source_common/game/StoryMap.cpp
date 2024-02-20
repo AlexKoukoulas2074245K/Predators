@@ -49,7 +49,6 @@ static const std::vector<std::string> MEDIUM_FIGHT_TEXTURES =
 
 static const std::vector<std::string> HARD_FIGHT_TEXTURES =
 {
-    "story_cards/elite_demon_0.png",
     "story_cards/elite_demon_1.png",
     "story_cards/elite_demon_2.png",
     "story_cards/elite_demon_3.png",

@@ -184,6 +184,12 @@ bool PlayerActionGenerationEngine::IsCardHighPriority(const CardData& cardData, 
     else if
     (
         cardData.IsSpell() &&
+        strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_ENEMY_BOARD_DEBUFF)
+    ) return true;
+    
+    else if
+    (
+        cardData.IsSpell() &&
         strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_DOUBLE_POISON_ATTACKS)
     ) return true;
     
@@ -203,6 +209,12 @@ bool PlayerActionGenerationEngine::IsCardHighPriority(const CardData& cardData, 
     (
         cardData.IsSpell() &&
         strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_ARMOR)
+    ) return true;
+    
+    else if
+    (
+        cardData.IsSpell() &&
+        strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_DEMON_KILL)
     ) return true;
     
     else if

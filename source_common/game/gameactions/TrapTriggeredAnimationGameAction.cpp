@@ -24,6 +24,9 @@
 const std::string TrapTriggeredAnimationGameAction::TRAP_TRIGGER_TYPE_PARAM = "trapTriggerType";
 const std::string TrapTriggeredAnimationGameAction::TRAP_TRIGGER_TYPE_KILL = "trapTriggerTypeKill";
 const std::string TrapTriggeredAnimationGameAction::TRAP_TRIGGER_TYPE_DEBUFF = "trapTriggerTypeDebuff";
+const std::string TrapTriggeredAnimationGameAction::KILL_TRAP_TYPE_PARAM = "killTrapType";
+const std::string TrapTriggeredAnimationGameAction::KILL_TRAP_TYPE_BEAR_TRAP = "killTrapTypeBearTrap";
+const std::string TrapTriggeredAnimationGameAction::KILL_TRAP_TYPE_DEMON_TRAP = "killTrapTypeDemonTrap";
 
 static const strutils::StringId CARD_DESTRUCTION_GAME_ACTION_NAME = strutils::StringId("CardDestructionGameAction");
 static const strutils::StringId CARD_BUFFED_DEBUFFED_ANIMATION_GAME_ACTION_NAME = strutils::StringId("CardBuffedDebuffedAnimationGameAction");
@@ -53,6 +56,7 @@ void TrapTriggeredAnimationGameAction::VSetNewGameState()
     
     if (mExtraActionParams.at(TRAP_TRIGGER_TYPE_PARAM) == TRAP_TRIGGER_TYPE_KILL)
     {
+        assert(mExtraActionParams.count(KILL_TRAP_TYPE_PARAM) == 1);
         mGameActionEngine->AddGameAction(CARD_DESTRUCTION_GAME_ACTION_NAME,
         {
             { CardDestructionGameAction::CARD_INDICES_PARAM, {"[" + std::to_string(activePlayerState.mPlayerBoardCards.size() - 1) + "]"}},
@@ -87,7 +91,18 @@ void TrapTriggeredAnimationGameAction::VInitAnimation()
     {
         mAnimationState = ActionState::ANIMATION_STEP_WAIT;
         
-        auto killEffectSceneObject = scene->FindSceneObject(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX ? game_constants::KILL_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::KILL_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME);
+        auto killTrapType = mExtraActionParams.at(KILL_TRAP_TYPE_PARAM);
+        std::shared_ptr<scene::SceneObject> killEffectSceneObject = nullptr;
+        
+        if (killTrapType == KILL_TRAP_TYPE_BEAR_TRAP)
+        {
+            killEffectSceneObject = scene->FindSceneObject(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX ? game_constants::KILL_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::KILL_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME);
+        }
+        else if (killTrapType == KILL_TRAP_TYPE_DEMON_TRAP)
+        {
+            killEffectSceneObject = scene->FindSceneObject(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX ? game_constants::DEMON_KILL_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::DEMON_KILL_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME);
+        }
+        
         animationManager.StopAllAnimationsPlayingForSceneObject(killEffectSceneObject->mName);
         
         auto targetPosition = killEffectSceneObject->mPosition;
@@ -127,7 +142,17 @@ ActionAnimationUpdateResult TrapTriggeredAnimationGameAction::VUpdateAnimation(c
             
         case ActionState::ANIMATION_STEP_2:
         {
-            auto killEffectSceneObject = scene->FindSceneObject(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX ? game_constants::KILL_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::KILL_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME);
+            auto killTrapType = mExtraActionParams.at(KILL_TRAP_TYPE_PARAM);
+            std::shared_ptr<scene::SceneObject> killEffectSceneObject = nullptr;
+            
+            if (killTrapType == KILL_TRAP_TYPE_BEAR_TRAP)
+            {
+                killEffectSceneObject = scene->FindSceneObject(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX ? game_constants::KILL_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::KILL_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME);
+            }
+            else if (killTrapType == KILL_TRAP_TYPE_DEMON_TRAP)
+            {
+                killEffectSceneObject = scene->FindSceneObject(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX ? game_constants::DEMON_KILL_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::DEMON_KILL_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME);
+            }
             
             auto targetScale = killEffectSceneObject->mScale * ANIMATION_STEP_2_SCALE_FACTOR;
             auto targetRotation = killEffectSceneObject->mRotation;
@@ -147,7 +172,15 @@ ActionAnimationUpdateResult TrapTriggeredAnimationGameAction::VUpdateAnimation(c
         {
             if (mExtraActionParams.at(TRAP_TRIGGER_TYPE_PARAM) == TRAP_TRIGGER_TYPE_KILL)
             {
-                events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, false,  effects::board_modifier_masks::KILL_NEXT);
+                auto killTrapType = mExtraActionParams.at(KILL_TRAP_TYPE_PARAM);
+                if (killTrapType == KILL_TRAP_TYPE_BEAR_TRAP)
+                {
+                    events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, false,  effects::board_modifier_masks::KILL_NEXT);
+                }
+                else if (killTrapType == KILL_TRAP_TYPE_DEMON_TRAP)
+                {
+                    events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, false,  effects::board_modifier_masks::DEMON_KILL_NEXT);
+                }
             }
             return ActionAnimationUpdateResult::FINISHED;
         }

@@ -57,6 +57,8 @@ namespace game_constants
     inline const strutils::StringId BOARD_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("board_side_effect_bot");
     inline const strutils::StringId KILL_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME = strutils::StringId("kill_side_effect_top");
     inline const strutils::StringId KILL_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("kill_side_effect_bot");
+    inline const strutils::StringId DEMON_KILL_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME = strutils::StringId("demon_kill_side_effect_top");
+    inline const strutils::StringId DEMON_KILL_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("demon_kill_side_effect_bot");
     inline const strutils::StringId INSECT_DUPLICATION_EFFECT_TOP_SCENE_OBJECT_NAME = strutils::StringId("insect_duplication_effect_top");
     inline const strutils::StringId INSECT_DUPLICATION_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("insect_duplication_effect_bot");
     inline const strutils::StringId NEXT_DINO_DAMAGE_DOUBLING_EFFECT_TOP_SCENE_OBJECT_NAME = strutils::StringId("next_dino_damage_doubling_effect_top");

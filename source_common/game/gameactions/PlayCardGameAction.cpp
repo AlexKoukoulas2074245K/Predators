@@ -132,9 +132,30 @@ void PlayCardGameAction::VSetNewGameState()
             
             mGameActionEngine->AddGameAction(TRAP_TRIGGERED_ANIMATION_GAME_ACTION_NAME,
             {
-                { TrapTriggeredAnimationGameAction::TRAP_TRIGGER_TYPE_PARAM, TrapTriggeredAnimationGameAction::TRAP_TRIGGER_TYPE_KILL }
+                { TrapTriggeredAnimationGameAction::TRAP_TRIGGER_TYPE_PARAM, TrapTriggeredAnimationGameAction::TRAP_TRIGGER_TYPE_KILL },
+                { TrapTriggeredAnimationGameAction::KILL_TRAP_TYPE_PARAM, TrapTriggeredAnimationGameAction::KILL_TRAP_TYPE_BEAR_TRAP }
             });
             activePlayerState.mBoardModifiers.mBoardModifierMask &= (~effects::board_modifier_masks::KILL_NEXT);
+            return;
+        }
+        
+        if ((activePlayerState.mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::DEMON_KILL_NEXT) != 0)
+        {
+            mGameActionEngine->AddGameAction(CARD_HISTORY_ENTRY_ADDITION_GAME_ACTION_NAME,
+            {
+                { CardHistoryEntryAdditionGameAction::PLAYER_INDEX_PARAM, std::to_string(mBoardState->GetActivePlayerIndex()) },
+                { CardHistoryEntryAdditionGameAction::CARD_INDEX_PARAM, std::to_string(activePlayerState.mPlayerBoardCards.size() - 1) },
+                { CardHistoryEntryAdditionGameAction::ENTRY_TYPE_TEXTURE_FILE_NAME_PARAM, CardHistoryEntryAdditionGameAction::ENTRY_TYPE_TEXTURE_FILE_NAME_DEATH },
+                { CardHistoryEntryAdditionGameAction::IS_TURN_COUNTER_PARAM, "false"}
+            });
+            
+            mGameActionEngine->AddGameAction(TRAP_TRIGGERED_ANIMATION_GAME_ACTION_NAME,
+            {
+                { TrapTriggeredAnimationGameAction::TRAP_TRIGGER_TYPE_PARAM, TrapTriggeredAnimationGameAction::TRAP_TRIGGER_TYPE_KILL },
+                { TrapTriggeredAnimationGameAction::KILL_TRAP_TYPE_PARAM, TrapTriggeredAnimationGameAction::KILL_TRAP_TYPE_DEMON_TRAP }
+            });
+            
+            activePlayerState.mBoardModifiers.mBoardModifierMask &= (~effects::board_modifier_masks::DEMON_KILL_NEXT);
             return;
         }
         

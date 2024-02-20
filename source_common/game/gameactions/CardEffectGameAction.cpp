@@ -274,6 +274,7 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
             switch (mCardBoardEffectMask)
             {
                 case effects::board_modifier_masks::KILL_NEXT:
+                case effects::board_modifier_masks::DEMON_KILL_NEXT:
                 case effects::board_modifier_masks::BOARD_SIDE_DEBUFF:
                 case effects::board_modifier_masks::DOUBLE_POISON_ATTACKS:
                 case effects::board_modifier_masks::INSECT_VIRUS:
@@ -296,6 +297,7 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
             {
                 events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, true,  effects::board_modifier_masks::BOARD_SIDE_DEBUFF);
                 events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, true,  effects::board_modifier_masks::KILL_NEXT);
+                events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, true,  effects::board_modifier_masks::DEMON_KILL_NEXT);
                 events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, true,  effects::board_modifier_masks::DUPLICATE_NEXT_INSECT);
                 events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, true, effects::board_modifier_masks::DIG_NO_FAIL);
                 events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, true, effects::board_modifier_masks::RODENT_LIFESTEAL);
@@ -429,6 +431,13 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
         {
             mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask |= effects::board_modifier_masks::KILL_NEXT;
             mCardBoardEffectMask = effects::board_modifier_masks::KILL_NEXT;
+        }
+        
+        // Demon Kill component
+        else if (effectComponent == effects::EFFECT_COMPONENT_DEMON_KILL)
+        {
+            mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask |= effects::board_modifier_masks::DEMON_KILL_NEXT;
+            mCardBoardEffectMask = effects::board_modifier_masks::DEMON_KILL_NEXT;
         }
         
         // Insect Duplication component
