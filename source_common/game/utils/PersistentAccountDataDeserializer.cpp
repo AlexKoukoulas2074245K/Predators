@@ -45,6 +45,11 @@ PersistentAccountDataDeserializer::PersistentAccountDataDeserializer(DataReposit
         dataRepository.SetNewCardIds(persistentDataJson["new_card_ids"].get<std::vector<int>>());
     }
     
+    if (persistentDataJson.count("seen_opponent_spell_card_ids"))
+    {
+        dataRepository.SetSeenOpponentSpellCardIds(persistentDataJson["seen_opponent_spell_card_ids"].get<std::vector<int>>());
+    }
+    
     if (persistentDataJson.count("successful_transaction_ids"))
     {
         dataRepository.SetSuccessfulTransactionIds(persistentDataJson["successful_transaction_ids"].get<std::vector<std::string>>());

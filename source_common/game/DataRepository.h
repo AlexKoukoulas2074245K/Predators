@@ -187,6 +187,9 @@ public:
     const std::vector<int>& GetNewCardIds() const;
     void SetNewCardIds(const std::vector<int>& newCardIds);
     
+    const std::vector<int>& GetSeenOpponentSpellCardIds() const;
+    void SetSeenOpponentSpellCardIds(const std::vector<int>& seenOpponentSpellCardIds);
+    
     const std::vector<int>& GetStoryDeletedCardIds() const;
     void SetStoryDeletedCardIds(const std::vector<int>& storyDeletedCardIds);
     
@@ -243,6 +246,9 @@ public:
     
     const int& GetCurrentStorySecondsPlayed() const;
     void SetCurrentStorySecondPlayed(const int currentStorySecondsPlayed);
+    
+    const int& GetNextUnseenSpellCardId() const;
+    void SetNextUnseenSpellCardId(const int nextUnseenSpellCardId);
     
     const std::vector<std::pair<int, int>>& GetCurrentShopBoughtProductCoordinates() const;
     void ClearShopBoughtProductCoordinates();
@@ -308,6 +314,7 @@ private:
     std::vector<int> mNextBotPlayerDeck;
     std::vector<int> mStoryDeletedCards;
     std::vector<int> mNewCardIds;
+    std::vector<int> mSeenOpponentSpellCardIds;
     std::vector<std::string> mSuccessfulTransactionIds;
     std::vector<std::string> mGiftCodesClaimed;
     std::vector<std::pair<int, int>> mCurrentShopBoughtProductCoordinates;
@@ -337,6 +344,7 @@ private:
     int mNextBattleBotPlayerWeightLimit = 0;
     int mNextStoryOpponentDamage = 0;
     int mCurrentStorySecondsPlayed = 0;
+    int mNextUnseenSpellCardId = 0;
     bool mIsCurrentlyPlayingStoryMode = false;
     bool mCanSurfaceCloudDataScene = false;
     bool mAudioEnabled = false;

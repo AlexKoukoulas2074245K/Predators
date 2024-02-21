@@ -28,6 +28,7 @@
 const std::string PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM = "lastPlayedCardIndex";
 const std::string CARD_PLAY_SFX = "sfx_card_play";
 
+static const strutils::StringId UNSEEN_SPELL_SCENE_NAME = strutils::StringId("unseen_spell_scene");
 static const strutils::StringId CARD_EFFECT_GAME_ACTION_NAME = strutils::StringId("CardEffectGameAction");
 static const strutils::StringId TRAP_TRIGGERED_ANIMATION_GAME_ACTION_NAME = strutils::StringId("TrapTriggeredAnimationGameAction");
 static const strutils::StringId GOLDEN_CARD_PLAYED_EFFECT_GAME_ACTION_NAME = strutils::StringId("GoldenCardPlayedEffectGameAction");
@@ -318,6 +319,13 @@ void PlayCardGameAction::AnimatedCardToBoard(std::shared_ptr<CardSoWrapper> last
         );
         
         lastPlayedCardSoWrapper->mSceneObject->mShaderBoolUniformValues[game_constants::IS_HELD_CARD_UNIFORM_NAME] = false;
+        
+        const auto& seenSpellCardIds = DataRepository::GetInstance().GetSeenOpponentSpellCardIds();
+        if (mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX && lastPlayedCardSoWrapper->mCardData.IsSpell() && std::find(seenSpellCardIds.begin(), seenSpellCardIds.end(), lastPlayedCardSoWrapper->mCardData.mCardId) == seenSpellCardIds.end())
+        {
+            DataRepository::GetInstance().SetNextUnseenSpellCardId(lastPlayedCardSoWrapper->mCardData.mCardId);
+            events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(UNSEEN_SPELL_SCENE_NAME, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+        }
     });
     mPendingAnimations++;
 }

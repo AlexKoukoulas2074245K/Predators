@@ -248,6 +248,7 @@ void CardSelectionRewardSceneLogicManager::VUpdate(const float dtMillis, std::sh
                         },
                         *scene
                     );
+                    mConfirmationButton->GetSceneObject()->mBoundingRectMultiplier.y *= 1.5f;
                     
                     if (cardSoWrapper->mCardData.IsSpell())
                     {

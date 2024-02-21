@@ -488,6 +488,21 @@ void DataRepository::SetNewCardIds(const std::vector<int>& newCardIds)
 
 ///------------------------------------------------------------------------------------------------
 
+const std::vector<int>& DataRepository::GetSeenOpponentSpellCardIds() const
+{
+    return mSeenOpponentSpellCardIds;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void DataRepository::SetSeenOpponentSpellCardIds(const std::vector<int>& seenOpponentSpellCardIds)
+{
+    mSeenOpponentSpellCardIds = seenOpponentSpellCardIds;
+    mPersistentDataSerializer->GetState()["seen_opponent_spell_card_ids"] = mSeenOpponentSpellCardIds;
+}
+
+///------------------------------------------------------------------------------------------------
+
 const std::vector<int>& DataRepository::GetStoryDeletedCardIds() const
 {
     return mStoryDeletedCards;
@@ -724,6 +739,20 @@ void DataRepository::SetCurrentStorySecondPlayed(const int currentStorySecondsPl
 {
     mCurrentStorySecondsPlayed = currentStorySecondsPlayed;
     mStoryDataSerializer->GetState()["current_story_seconds_played"] = mCurrentStorySecondsPlayed;
+}
+
+///------------------------------------------------------------------------------------------------
+
+const int& DataRepository::GetNextUnseenSpellCardId() const
+{
+    return mNextUnseenSpellCardId;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void DataRepository::SetNextUnseenSpellCardId(const int nextUnseenSpellCardId)
+{
+    mNextUnseenSpellCardId = nextUnseenSpellCardId;
 }
 
 ///------------------------------------------------------------------------------------------------

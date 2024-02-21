@@ -54,6 +54,7 @@
 #include <game/scenelogicmanagers/SettingsSceneLogicManager.h>
 #include <game/scenelogicmanagers/ShopSceneLogicManager.h>
 #include <game/scenelogicmanagers/StoryMapSceneLogicManager.h>
+#include <game/scenelogicmanagers/UnseenSpellSceneLogicManager.h>
 #include <game/scenelogicmanagers/VictorySceneLogicManager.h>
 #include <game/scenelogicmanagers/VisitMapNodeSceneLogicManager.h>
 #include <game/scenelogicmanagers/WheelOfFortuneSceneLogicManager.h>
@@ -137,6 +138,7 @@ void Game::Init()
     mGameSceneTransitionManager->RegisterSceneLogicManager<SettingsSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<ShopSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<StoryMapSceneLogicManager>();
+    mGameSceneTransitionManager->RegisterSceneLogicManager<UnseenSpellSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<VictorySceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<VisitMapNodeSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<WheelOfFortuneSceneLogicManager>();
