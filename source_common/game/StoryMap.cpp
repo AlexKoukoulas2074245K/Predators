@@ -118,8 +118,8 @@ static const float INACTIVE_NODE_PATH_LIFETIME_SECS = 0.85f;
 static const float SELECTABLE_NODE_BOUNCE_SPEED_Y = 0.000005f;
 static const float PORTRAIT_BOUNCE_NOISE_FACTOR = 0.2f;
 static const float INACTIVE_NODE_TEXT_ALPHA = 0.5f;
-static const float ELITE_STAT_FACTOR = 1.25f;
-static const float BOSS_STAT_FACTOR = 1.4f;
+static const float ELITE_STAT_FACTOR = 1.15f;
+static const float BOSS_STAT_FACTOR = 1.25f;
 static const float TUTORIAL_MAP_DOWNSCALE_FACTOR = 1.0f/3.0f;
 
 static const int MAP_PATH_SEGMENTS_FACTOR = 30;
