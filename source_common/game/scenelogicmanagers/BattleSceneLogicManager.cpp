@@ -41,7 +41,8 @@
 static const strutils::StringId HISTORY_SCENE = strutils::StringId("battle_history_scene");
 static const strutils::StringId SETTINGS_SCENE = strutils::StringId("settings_scene");
 static const strutils::StringId CARD_HISTORY_CONTAINER_NAME = strutils::StringId("card_history_container");
-static const strutils::StringId LOOT_INDICATOR_SCENE_OBJECT_NAME = strutils::StringId("loot_indicator");
+static const strutils::StringId COINS_LOOT_INDICATOR_SCENE_OBJECT_NAME = strutils::StringId("coins_loot_indicator");
+static const strutils::StringId HEALTH_LOOT_INDICATOR_SCENE_OBJECT_NAME = strutils::StringId("health_loot_indicator");
 static const strutils::StringId HISTORY_TROLLEY_SCENE_OBJECT_NAME = strutils::StringId("history_trolley");
 static const strutils::StringId CARD_LOCATION_INDICATOR_SCENE_OBJECT_NAME = strutils::StringId("card_location_indicator");
 static const strutils::StringId CARD_HISTORY_CAPSULE_SCENE_OBJECT_NAME = strutils::StringId("card_history_capsule");
@@ -355,22 +356,22 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
     
     // Stat Containers
     // Health
-    mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(game_constants::HEALTH_CRYSTAL_TOP_POSITION, HEALTH_CRYSTAL_TEXTURE_FILE_NAME, HEALTH_CRYSTAL_TOP_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[0].mPlayerHealth, false, *scene)));
-    mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(game_constants::HEALTH_CRYSTAL_BOT_POSITION, HEALTH_CRYSTAL_TEXTURE_FILE_NAME, HEALTH_CRYSTAL_BOT_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[1].mPlayerHealth, false, *scene)));
+    mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(game_constants::HEALTH_CRYSTAL_TOP_POSITION, HEALTH_CRYSTAL_TEXTURE_FILE_NAME, HEALTH_CRYSTAL_TOP_SCENE_OBJECT_NAME_PREFIX, &mBoardState->GetPlayerStates()[0].mPlayerHealth, false, *scene)));
+    mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(game_constants::HEALTH_CRYSTAL_BOT_POSITION, HEALTH_CRYSTAL_TEXTURE_FILE_NAME, HEALTH_CRYSTAL_BOT_SCENE_OBJECT_NAME_PREFIX, &mBoardState->GetPlayerStates()[1].mPlayerHealth, false, *scene)));
     
     // Weight
-    mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(game_constants::WEIGHT_CRYSTAL_TOP_POSITION, WEIGHT_CRYSTAL_TEXTURE_FILE_NAME, WEIGHT_CRYSTAL_TOP_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo, false, *scene)));
-    mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(game_constants::WEIGHT_CRYSTAL_BOT_POSITION, WEIGHT_CRYSTAL_TEXTURE_FILE_NAME, WEIGHT_CRYSTAL_BOT_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[1].mPlayerCurrentWeightAmmo, false, *scene)));
+    mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(game_constants::WEIGHT_CRYSTAL_TOP_POSITION, WEIGHT_CRYSTAL_TEXTURE_FILE_NAME, WEIGHT_CRYSTAL_TOP_SCENE_OBJECT_NAME_PREFIX, &mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo, false, *scene)));
+    mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(game_constants::WEIGHT_CRYSTAL_BOT_POSITION, WEIGHT_CRYSTAL_TEXTURE_FILE_NAME, WEIGHT_CRYSTAL_BOT_SCENE_OBJECT_NAME_PREFIX, &mBoardState->GetPlayerStates()[1].mPlayerCurrentWeightAmmo, false, *scene)));
 
     // Poison stacks
-    mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(game_constants::POISON_STACK_TOP_POSITION, POISON_STACK_TEXTURE_FILE_NAME, POISON_STACK_TOP_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[0].mPlayerPoisonStack, true, *scene)));
-    mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(game_constants::POISON_STACK_BOT_POSITION, POISON_STACK_TEXTURE_FILE_NAME, POISON_STACK_BOT_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[1].mPlayerPoisonStack, true, *scene)));
+    mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(game_constants::POISON_STACK_TOP_POSITION, POISON_STACK_TEXTURE_FILE_NAME, POISON_STACK_TOP_SCENE_OBJECT_NAME_PREFIX, &mBoardState->GetPlayerStates()[0].mPlayerPoisonStack, true, *scene)));
+    mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(game_constants::POISON_STACK_BOT_POSITION, POISON_STACK_TEXTURE_FILE_NAME, POISON_STACK_BOT_SCENE_OBJECT_NAME_PREFIX, &mBoardState->GetPlayerStates()[1].mPlayerPoisonStack, true, *scene)));
     
     // Armor
-    mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(game_constants::ARMOR_CONTAINER_TOP_POSITION, METALLIC_HEALTH_CRYSTAL_TEXTURE_FILE_NAME, ARMOR_CONTAINER_TOP_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[0].mPlayerCurrentArmor, true, *scene)));
+    mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(game_constants::ARMOR_CONTAINER_TOP_POSITION, METALLIC_HEALTH_CRYSTAL_TEXTURE_FILE_NAME, ARMOR_CONTAINER_TOP_SCENE_OBJECT_NAME_PREFIX, &mBoardState->GetPlayerStates()[0].mPlayerCurrentArmor, true, *scene)));
     mAnimatedStatContainers.back().second->GetSceneObjects().front()->mShaderBoolUniformValues[game_constants::METALLIC_STAT_CONTAINER_UNIFORM_NAME] = true;
     mAnimatedStatContainers.back().second->GetSceneObjects().front()->mEffectTextureResourceIds[0] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + METALLIC_TEXTURE_FILE_NAME);
-    mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(game_constants::ARMOR_CONTAINER_BOT_POSITION, METALLIC_HEALTH_CRYSTAL_TEXTURE_FILE_NAME, ARMOR_CONTAINER_BOT_SCENE_OBJECT_NAME_PREFIX, mBoardState->GetPlayerStates()[1].mPlayerCurrentArmor, true, *scene)));
+    mAnimatedStatContainers.emplace_back(std::make_pair(false, std::make_unique<AnimatedStatContainer>(game_constants::ARMOR_CONTAINER_BOT_POSITION, METALLIC_HEALTH_CRYSTAL_TEXTURE_FILE_NAME, ARMOR_CONTAINER_BOT_SCENE_OBJECT_NAME_PREFIX, &mBoardState->GetPlayerStates()[1].mPlayerCurrentArmor, true, *scene)));
     mAnimatedStatContainers.back().second->GetSceneObjects().front()->mShaderBoolUniformValues[game_constants::METALLIC_STAT_CONTAINER_UNIFORM_NAME] = true;
     mAnimatedStatContainers.back().second->GetSceneObjects().front()->mEffectTextureResourceIds[0] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + METALLIC_TEXTURE_FILE_NAME);
     
@@ -2098,19 +2099,40 @@ void BattleSceneLogicManager::OnCardHistoryEntryAddition(const events::CardHisto
 void BattleSceneLogicManager::OnStoryBattleWon(const events::StoryBattleWonEvent&)
 {
     auto battleCoinRewards = DataRepository::GetInstance().GetNextBattleTopPlayerHealth();
+    auto healthReward = DataRepository::GetInstance().GetNextStoryOpponentDamage();
     
-    // Add victory coin indicator and animate them to gui
-    auto lootIndicatorSceneObject = mActiveScene->FindSceneObject(LOOT_INDICATOR_SCENE_OBJECT_NAME);
-    lootIndicatorSceneObject->mInvisible = false;
-    std::get<scene::TextSceneObjectData>(lootIndicatorSceneObject->mSceneObjectTypeData).mText = "+" + std::to_string(battleCoinRewards) + " coins";
-    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(lootIndicatorSceneObject, 1.0f, 0.5f), [=](){});
+    // Add victory coin loot indicator and animate coins to gui
+    auto coinsLootIndicatorSceneObject = mActiveScene->FindSceneObject(COINS_LOOT_INDICATOR_SCENE_OBJECT_NAME);
+    coinsLootIndicatorSceneObject->mInvisible = false;
+    std::get<scene::TextSceneObjectData>(coinsLootIndicatorSceneObject->mSceneObjectTypeData).mText = "+" + std::to_string(battleCoinRewards) + " coins";
+    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(coinsLootIndicatorSceneObject, 1.0f, 0.5f), [=](){});
     events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(battleCoinRewards, mPlayerBoardCardSceneObjectWrappers[game_constants::REMOTE_PLAYER_INDEX][0]->mSceneObject->mPosition);
     
     // Commit health values
     DataRepository::GetInstance().StoryCurrentHealth().SetValue(mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth);
     DataRepository::GetInstance().StoryCurrentHealth().SetDisplayedValue(mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth);
     mGuiManager->ForceSetStoryHealthValue(mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth);
+    mAnimatedStatContainers[1].second->ChangeTrackedValue(&DataRepository::GetInstance().StoryCurrentHealth().GetDisplayedValue());
     
+    auto eligibleHealthPointsAdded = 0;
+    while (DataRepository::GetInstance().StoryCurrentHealth().GetValue() < DataRepository::GetInstance().GetStoryMaxHealth() && eligibleHealthPointsAdded < healthReward)
+    {
+        DataRepository::GetInstance().StoryCurrentHealth().SetValue(DataRepository::GetInstance().StoryCurrentHealth().GetValue() + 1);
+        eligibleHealthPointsAdded++;
+    }
+    
+    if (eligibleHealthPointsAdded > 0)
+    {
+        // Add victory health loot indicator and animate health to gui
+        auto healthLootIndicatorSceneObject = mActiveScene->FindSceneObject(HEALTH_LOOT_INDICATOR_SCENE_OBJECT_NAME);
+        healthLootIndicatorSceneObject->mInvisible = false;
+        std::get<scene::TextSceneObjectData>(healthLootIndicatorSceneObject->mSceneObjectTypeData).mText = "+" + std::to_string(eligibleHealthPointsAdded) + " health";
+        CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(healthLootIndicatorSceneObject, 1.0f, 0.5f), [=](){});
+        
+        events::EventSystem::GetInstance().DispatchEvent<events::HealthRefillRewardEvent>(eligibleHealthPointsAdded, mPlayerBoardCardSceneObjectWrappers[game_constants::REMOTE_PLAYER_INDEX][0]->mSceneObject->mPosition, true);
+    }
+    
+
     // Set next scenes accordingly
     DataRepository::GetInstance().SetCurrentStoryMapNodeSeed(math::GetControlSeed());
     

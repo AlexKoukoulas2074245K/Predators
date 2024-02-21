@@ -33,7 +33,7 @@ public:
         const glm::vec3& position,
         const std::string& textureFilename,
         const std::string& crystalName,
-        const int& valueToTrack,
+        const int* valueToTrack,
         const bool startHidden,
         scene::Scene& scene,
         scene::SnapToEdgeBehavior snapToEdgeBehavior = scene::SnapToEdgeBehavior::NONE,
@@ -46,9 +46,10 @@ public:
     std::vector<std::shared_ptr<scene::SceneObject>>& GetSceneObjects();
     void ForceSetDisplayedValue(const int displayedValue);
     void RealignBaseAndValueSceneObjects();
+    void ChangeTrackedValue(const int* newValueToTrack);
     
 private:
-    const int& mValueToTrack;
+    const int* mValueToTrack;
     const float mScaleFactor;
     int mDisplayedValue;
     float mValueChangeDelaySecs;

@@ -17,6 +17,9 @@
 class HoundSummoningGameAction final: public BaseGameAction
 {
 public:
+    static const std::string NUMBER_OF_HOUNDS_PARAM;
+    
+public:
     void VSetNewGameState() override;
     
     void VInitAnimation() override;

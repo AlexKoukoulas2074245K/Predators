@@ -281,14 +281,16 @@ public:
 class HealthRefillRewardEvent final
 {
 public:
-    HealthRefillRewardEvent(const int healthAmount, const glm::vec3& animationOriginPosition)
+    HealthRefillRewardEvent(const int healthAmount, const glm::vec3& animationOriginPosition, bool battleLootHealthRefillCase = false)
         : mHealthAmount(healthAmount)
         , mAnimationOriginPosition(animationOriginPosition)
+        , mBattleLootHealthRefillCase(battleLootHealthRefillCase)
     {
     }
     
     const int mHealthAmount;
     const glm::vec3 mAnimationOriginPosition;
+    const bool mBattleLootHealthRefillCase;
 };
 
 ///------------------------------------------------------------------------------------------------

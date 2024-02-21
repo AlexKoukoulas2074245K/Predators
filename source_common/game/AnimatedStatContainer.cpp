@@ -31,7 +31,7 @@ AnimatedStatContainer::AnimatedStatContainer
     const glm::vec3& position,
     const std::string& textureFilename,
     const std::string& crystalName,
-    const int& valueToTrack,
+    const int* valueToTrack,
     const bool startHidden,
     scene::Scene& scene,
     scene::SnapToEdgeBehavior snapToEdgeBehavior /* = scene::SnapToEdgeBehavior::NONE */,
@@ -39,7 +39,7 @@ AnimatedStatContainer::AnimatedStatContainer
 )
     : mValueToTrack(valueToTrack)
     , mScaleFactor(customScaleFactor)
-    , mDisplayedValue(valueToTrack)
+    , mDisplayedValue(*valueToTrack)
     , mValueChangeDelaySecs(0.0f)
     , mFinishedAnimating(false)
 {
@@ -89,15 +89,15 @@ AnimatedStatContainerUpdateResult AnimatedStatContainer::Update(const float dtMi
     auto baseCrystalSo = mSceneObjects.front();
     auto valueCrystalSo = mSceneObjects.back();
     
-    if (mDisplayedValue != mValueToTrack)
+    if (mDisplayedValue != *mValueToTrack)
     {
         mValueChangeDelaySecs -= dtMillis/1000.0f;
         if (mValueChangeDelaySecs <= 0.0f)
         {
             mValueChangeDelaySecs = MAX_VALUE_CHANGE_DELAY_SECS;
             
-            if (mDisplayedValue < mValueToTrack) mDisplayedValue++;
-            if (mDisplayedValue > mValueToTrack) mDisplayedValue--;
+            if (mDisplayedValue < *mValueToTrack) mDisplayedValue++;
+            if (mDisplayedValue > *mValueToTrack) mDisplayedValue--;
             
             mFinishedAnimating = false;
             auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
@@ -161,6 +161,13 @@ void AnimatedStatContainer::RealignBaseAndValueSceneObjects()
     
     auto boundingRect = scene_object_utils::GetSceneObjectBoundingRect(*valueCrystalSo);
     valueCrystalSo->mPosition.x -= (boundingRect.topRight.x - boundingRect.bottomLeft.x)/2.0f;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void AnimatedStatContainer::ChangeTrackedValue(const int* newValueToTrack)
+{
+    mValueToTrack = newValueToTrack;
 }
 
 ///------------------------------------------------------------------------------------------------

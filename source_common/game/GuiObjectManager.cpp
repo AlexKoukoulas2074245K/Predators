@@ -22,7 +22,9 @@
 ///------------------------------------------------------------------------------------------------
 
 static const strutils::StringId SETTINGS_SCENE = strutils::StringId("settings_scene");
-static const strutils::StringId PARTICLE_EMITTER_SCENE_OBJECT_NAME = strutils::StringId("stat_particle_emitter");
+static const strutils::StringId GENERIC_PARTICLE_EMITTER_SCENE_OBJECT_NAME = strutils::StringId("generic_stat_particle_emitter");
+static const strutils::StringId HEALTH_REWARD_PARTICLE_EMITTER_SCENE_OBJECT_NAME = strutils::StringId("health_reward_stat_particle_emitter");
+static const strutils::StringId COINS_REWARD_PARTICLE_EMITTER_SCENE_OBJECT_NAME = strutils::StringId("coins_reward_stat_particle_emitter");
 static const strutils::StringId PARTICLE_EMITTER_DEFINITION_COIN_SMALL = strutils::StringId("coin_gain_small");
 static const strutils::StringId PARTICLE_EMITTER_DEFINITION_COIN_LARGE = strutils::StringId("coin_gain_large");
 static const strutils::StringId PARTICLE_EMITTER_DEFINITION_HEALTH_SMALL = strutils::StringId("health_refill_small");
@@ -149,7 +151,7 @@ GuiObjectManager::GuiObjectManager(std::shared_ptr<scene::Scene> scene)
     coinValueTextSceneObject->mSnapToEdgeBehavior = scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE;
     coinValueTextSceneObject->mSnapToEdgeScaleOffsetFactor = COIN_VALUE_TEXT_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR;
     
-    mHealthStatContainer = std::make_unique<AnimatedStatContainer>(forBattleScene ? BATTLE_SCENE_HEALTH_CRYSTAL_POSITION : HEALTH_CRYSTAL_POSITION, HEALTH_CRYSTAL_TEXTURE_FILE_NAME, HEALTH_CRYSTAL_SCENE_OBJECT_NAME_PREFIX, DataRepository::GetInstance().StoryCurrentHealth().GetDisplayedValue(), forBattleScene, *scene, scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE, extraScaleFactor * HEALTH_CRYSTAL_CONTAINER_CUSTOM_SCALE_FACTOR);
+    mHealthStatContainer = std::make_unique<AnimatedStatContainer>(forBattleScene ? BATTLE_SCENE_HEALTH_CRYSTAL_POSITION : HEALTH_CRYSTAL_POSITION, HEALTH_CRYSTAL_TEXTURE_FILE_NAME, HEALTH_CRYSTAL_SCENE_OBJECT_NAME_PREFIX, &DataRepository::GetInstance().StoryCurrentHealth().GetDisplayedValue(), forBattleScene, *scene, scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE, extraScaleFactor * HEALTH_CRYSTAL_CONTAINER_CUSTOM_SCALE_FACTOR);
     mHealthStatContainer->ForceSetDisplayedValue(DataRepository::GetInstance().StoryCurrentHealth().GetValue());
     
     mHealthStatContainer->GetSceneObjects()[0]->mSnapToEdgeScaleOffsetFactor = HEALTH_CRYSTAL_BASE_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR;
@@ -245,7 +247,9 @@ void GuiObjectManager::StopRewardAnimation()
 {
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
     animationManager.StopAllAnimations();
-    mScene->RemoveSceneObject(PARTICLE_EMITTER_SCENE_OBJECT_NAME);
+    mScene->RemoveSceneObject(GENERIC_PARTICLE_EMITTER_SCENE_OBJECT_NAME);
+    mScene->RemoveSceneObject(COINS_REWARD_PARTICLE_EMITTER_SCENE_OBJECT_NAME);
+    mScene->RemoveSceneObject(HEALTH_REWARD_PARTICLE_EMITTER_SCENE_OBJECT_NAME);
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -254,16 +258,28 @@ void GuiObjectManager::AnimateStatParticlesToGui(const glm::vec3& originPosition
 {
     auto forBattleScene = mScene->GetName() == game_constants::BATTLE_SCENE;
     auto& particleManager = CoreSystemsEngine::GetInstance().GetParticleManager();
-    mScene->RemoveSceneObject(PARTICLE_EMITTER_SCENE_OBJECT_NAME);
     
     auto particleDefinition = strutils::StringId();
+    auto particleEmitterName = strutils::StringId();
+    
     switch (statParticleType)
     {
-        case StatParticleType::COINS: particleDefinition = forBattleScene ? PARTICLE_EMITTER_DEFINITION_COIN_SMALL : PARTICLE_EMITTER_DEFINITION_COIN_LARGE; break;
-        case StatParticleType::HEALTH: particleDefinition = forBattleScene ? PARTICLE_EMITTER_DEFINITION_HEALTH_SMALL : PARTICLE_EMITTER_DEFINITION_HEALTH_LARGE; break;
+        case StatParticleType::COINS:
+        {
+            particleEmitterName = COINS_REWARD_PARTICLE_EMITTER_SCENE_OBJECT_NAME;
+            particleDefinition = forBattleScene ? PARTICLE_EMITTER_DEFINITION_COIN_SMALL : PARTICLE_EMITTER_DEFINITION_COIN_LARGE;
+        } break;
+        case StatParticleType::HEALTH:
+        {
+            particleEmitterName = HEALTH_REWARD_PARTICLE_EMITTER_SCENE_OBJECT_NAME;
+            particleDefinition = forBattleScene ? PARTICLE_EMITTER_DEFINITION_HEALTH_SMALL : PARTICLE_EMITTER_DEFINITION_HEALTH_LARGE;
+        } break;
     }
     
-    auto particleEmitterSceneObject = particleManager.CreateParticleEmitterAtPosition(particleDefinition, glm::vec3(), *mScene, PARTICLE_EMITTER_SCENE_OBJECT_NAME, [=](float dtMillis, scene::ParticleEmitterObjectData& particleEmitterData)
+    mParticleEmitterTimeAccums[particleEmitterName] = 0.0f;
+    mScene->RemoveSceneObject(particleEmitterName);
+
+    auto particleEmitterSceneObject = particleManager.CreateParticleEmitterAtPosition(particleDefinition, glm::vec3(), *mScene, particleEmitterName, [=](float dtMillis, scene::ParticleEmitterObjectData& particleEmitterData)
     {
         auto& particleManager = CoreSystemsEngine::GetInstance().GetParticleManager();
         auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
@@ -280,19 +296,26 @@ void GuiObjectManager::AnimateStatParticlesToGui(const glm::vec3& originPosition
                 
             case StatParticleType::HEALTH:
             {
-                targetPosition += mHealthStatContainer->GetSceneObjects().front()->mPosition;
+                if (!mBattleLootHealthRefillCase)
+                {
+                    targetPosition += mHealthStatContainer->GetSceneObjects().front()->mPosition;
+                }
+                else
+                {
+                    targetPosition += game_constants::HEALTH_CRYSTAL_BOT_POSITION;
+                }
+                
                 targetRespawnSecs = HEALTH_PARTICLE_RESPAWN_TICK_SECS;
             } break;
         }
         
-        auto& particleEmitterSceneObject = *mScene->FindSceneObject(PARTICLE_EMITTER_SCENE_OBJECT_NAME);
+        auto& particleEmitterSceneObject = *mScene->FindSceneObject(particleEmitterName);
         
-        static float timeAccum = 0.0f;
-        timeAccum += dtMillis/1000.0f;
+        mParticleEmitterTimeAccums[particleEmitterName] += dtMillis/1000.0f;
 
-        if (timeAccum > targetRespawnSecs)
+        if (mParticleEmitterTimeAccums[particleEmitterName] > targetRespawnSecs)
         {
-            timeAccum = 0.0f;
+            mParticleEmitterTimeAccums[particleEmitterName] = 0.0f;
             
             auto particlesToSpawn = 1;
             if (statAmount > 100)
@@ -322,7 +345,7 @@ void GuiObjectManager::AnimateStatParticlesToGui(const glm::vec3& originPosition
                     
                     animationManager.StartAnimation(std::make_unique<rendering::BezierCurveAnimation>(particleEmitterData.mParticlePositions[particleIndex], curve, math::RandomFloat(STAT_PARTICLE_ANIMATION_DURATION_MIN_SECS, STAT_PARTICLE_ANIMATION_DURATION_MAX_SECS)), [=]()
                     {
-                        std::get<scene::ParticleEmitterObjectData>(mScene->FindSceneObject(PARTICLE_EMITTER_SCENE_OBJECT_NAME)->mSceneObjectTypeData).mParticleLifetimeSecs[particleIndex] = 0.0f;
+                        std::get<scene::ParticleEmitterObjectData>(mScene->FindSceneObject(particleEmitterName)->mSceneObjectTypeData).mParticleLifetimeSecs[particleIndex] = 0.0f;
                         
                         switch (statParticleType)
                         {
@@ -340,6 +363,7 @@ void GuiObjectManager::AnimateStatParticlesToGui(const glm::vec3& originPosition
                                 auto& health = DataRepository::GetInstance().StoryCurrentHealth();
                                 health.SetDisplayedValue(health.GetDisplayedValue() + 1);
                                 CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(HEALTH_GAIN_SFX);
+                                events::EventSystem::GetInstance().DispatchEvent<events::HealthChangeAnimationTriggerEvent>(false);
                             } break;
                         }
                         
@@ -362,7 +386,8 @@ void GuiObjectManager::AnimateStatGainParticles(const glm::vec3& originPosition,
     auto forBattleScene = mScene->GetName() == game_constants::BATTLE_SCENE;
     auto& particleManager = CoreSystemsEngine::GetInstance().GetParticleManager();
     
-    mScene->RemoveSceneObject(PARTICLE_EMITTER_SCENE_OBJECT_NAME);
+    mScene->RemoveSceneObject(GENERIC_PARTICLE_EMITTER_SCENE_OBJECT_NAME);
+    mParticleEmitterTimeAccums[GENERIC_PARTICLE_EMITTER_SCENE_OBJECT_NAME] = 0.0f;
     
     mRewardAnimationSecsLeft = STAT_GAIN_ANIMATION_DURATION_SECS;
     auto particleDefinition = strutils::StringId();
@@ -376,21 +401,20 @@ void GuiObjectManager::AnimateStatGainParticles(const glm::vec3& originPosition,
     
     CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TimeDelayAnimation>(STAT_GAIN_ANIMATION_DURATION_SECS * 2), [](){ events::EventSystem::GetInstance().DispatchEvent<events::GuiRewardAnimationFinishedEvent>(); } );
         
-    auto particleEmitterSceneObject = particleManager.CreateParticleEmitterAtPosition(particleDefinition, originPosition + (forBattleScene ? STAT_GAIN_BATTLE_PARTICLE_OFFSET_POSITION: STAT_GAIN_PARTICLE_OFFSET_POSITION), *mScene, PARTICLE_EMITTER_SCENE_OBJECT_NAME, [=](float dtMillis, scene::ParticleEmitterObjectData& particleEmitterData)
+    auto particleEmitterSceneObject = particleManager.CreateParticleEmitterAtPosition(particleDefinition, originPosition + (forBattleScene ? STAT_GAIN_BATTLE_PARTICLE_OFFSET_POSITION: STAT_GAIN_PARTICLE_OFFSET_POSITION), *mScene, GENERIC_PARTICLE_EMITTER_SCENE_OBJECT_NAME, [=](float dtMillis, scene::ParticleEmitterObjectData& particleEmitterData)
     {
         auto& particleManager = CoreSystemsEngine::GetInstance().GetParticleManager();
         
         auto targetRespawnSecs = statGainParticleType == StatGainParticleType::MAX_HEALTH ? STAT_GAIN_PARTICLE_RESPAWN_SECS : STAT_GAIN_PARTICLE_RESPAWN_SECS/2;
-        auto particleEmitterSceneObject = mScene->FindSceneObject(PARTICLE_EMITTER_SCENE_OBJECT_NAME);
+        auto particleEmitterSceneObject = mScene->FindSceneObject(GENERIC_PARTICLE_EMITTER_SCENE_OBJECT_NAME);
 
-        static float timeAccum = 0.0f;
-        timeAccum += dtMillis/1000.0f;
+        mParticleEmitterTimeAccums[GENERIC_PARTICLE_EMITTER_SCENE_OBJECT_NAME] += dtMillis/1000.0f;
 
         mRewardAnimationSecsLeft -= dtMillis/1000.0f;
         
-        if (timeAccum > targetRespawnSecs && mRewardAnimationSecsLeft > 0.0f)
+        if (mParticleEmitterTimeAccums[GENERIC_PARTICLE_EMITTER_SCENE_OBJECT_NAME] > targetRespawnSecs && mRewardAnimationSecsLeft > 0.0f)
         {
-            timeAccum = 0.0f;
+            mParticleEmitterTimeAccums[GENERIC_PARTICLE_EMITTER_SCENE_OBJECT_NAME] = 0.0f;
             auto newParticleIndex = particleManager.SpawnParticleAtFirstAvailableSlot(*particleEmitterSceneObject);
 
             particleEmitterData.mParticleLifetimeSecs[newParticleIndex] = math::RandomFloat(0.01f, 0.1f);
@@ -451,6 +475,7 @@ void GuiObjectManager::OnStoryCardsButtonPressed()
 
 void GuiObjectManager::OnCoinReward(const events::CoinRewardEvent& event)
 {
+    mBattleLootHealthRefillCase = false;
     DataRepository::GetInstance().CurrencyCoins().SetValue(DataRepository::GetInstance().CurrencyCoins().GetValue() + event.mCoinAmount);
     AnimateStatParticlesToGui(event.mAnimationOriginPosition, StatParticleType::COINS, event.mCoinAmount);
 }
@@ -459,13 +484,19 @@ void GuiObjectManager::OnCoinReward(const events::CoinRewardEvent& event)
 
 void GuiObjectManager::OnHealthRefillReward(const events::HealthRefillRewardEvent& event)
 {
-    for (auto sceneObject: mHealthStatContainer->GetSceneObjects())
-    {
-        sceneObject->mInvisible = false;
-        CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, 1.0f, 0.5f), [=](){});
-    }
+    mBattleLootHealthRefillCase = event.mBattleLootHealthRefillCase;
     
-    DataRepository::GetInstance().StoryCurrentHealth().SetValue(DataRepository::GetInstance().StoryCurrentHealth().GetValue() + event.mHealthAmount);
+    if (!mBattleLootHealthRefillCase)
+    {
+        for (auto sceneObject: mHealthStatContainer->GetSceneObjects())
+        {
+            sceneObject->mInvisible = false;
+            CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, 1.0f, 0.5f), [=](){});
+        }
+        
+        DataRepository::GetInstance().StoryCurrentHealth().SetValue(DataRepository::GetInstance().StoryCurrentHealth().GetValue() + event.mHealthAmount);
+    }
+
     AnimateStatParticlesToGui(event.mAnimationOriginPosition, StatParticleType::HEALTH, event.mHealthAmount);
 }
 

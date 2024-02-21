@@ -284,6 +284,7 @@ void VisitMapNodeSceneLogicManager::InitializeNodeVisitData()
     DataRepository::GetInstance().SetCurrentStoryMapNodeType(selectedNodeData->mNodeType);
     
     std::vector<int> opponentDeckBuilder;
+    bool isEliteOnNormalMapOrBossFightEncounter = false;
     
     switch (selectedNodeData->mNodeType)
     {
@@ -305,6 +306,7 @@ void VisitMapNodeSceneLogicManager::InitializeNodeVisitData()
         {
             auto eliteCards = CardDataRepository::GetInstance().GetCardIdsByFamily(game_constants::DEMONS_HARD_FAMILY_NAME);
             opponentDeckBuilder.insert(opponentDeckBuilder.end(), eliteCards.begin(), eliteCards.end());
+            isEliteOnNormalMapOrBossFightEncounter = true;
         } // Intentional fallthrough
         case StoryMap::NodeType::ELITE_ENCOUNTER:
         {
@@ -312,12 +314,16 @@ void VisitMapNodeSceneLogicManager::InitializeNodeVisitData()
             {
                 auto mediumCards = CardDataRepository::GetInstance().GetCardIdsByFamily(game_constants::DEMONS_MEDIUM_FAMILY_NAME);
                 opponentDeckBuilder.insert(opponentDeckBuilder.end(), mediumCards.begin(), mediumCards.end());
+                isEliteOnNormalMapOrBossFightEncounter = true;
             }
         } // Intentional fallthrough
         case StoryMap::NodeType::NORMAL_ENCOUNTER:
         {
-            auto normalCards = CardDataRepository::GetInstance().GetCardIdsByFamily(game_constants::DEMONS_NORMAL_FAMILY_NAME);
-            opponentDeckBuilder.insert(opponentDeckBuilder.end(), normalCards.begin(), normalCards.end());
+            if (!isEliteOnNormalMapOrBossFightEncounter)
+            {
+                auto normalCards = CardDataRepository::GetInstance().GetCardIdsByFamily(game_constants::DEMONS_NORMAL_FAMILY_NAME);
+                opponentDeckBuilder.insert(opponentDeckBuilder.end(), normalCards.begin(), normalCards.end());
+            }
             
             // Populate opponent deck and battle control type
             DataRepository::GetInstance().SetNextTopPlayerDeck(opponentDeckBuilder);

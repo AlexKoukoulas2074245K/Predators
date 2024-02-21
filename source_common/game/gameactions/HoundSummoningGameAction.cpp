@@ -20,6 +20,8 @@
 
 ///------------------------------------------------------------------------------------------------
 
+const std::string HoundSummoningGameAction::NUMBER_OF_HOUNDS_PARAM = "numberOfHounds";
+
 static const strutils::StringId CARD_PLAY_PARTICLE_NAME = strutils::StringId("card_play");
 static const strutils::StringId TOP_PLAYER_HEALTH_CONTAINER_BASE = strutils::StringId("health_crystal_top_base");
 static const strutils::StringId TOP_PLAYER_HEALTH_CONTAINER_VALUE = strutils::StringId("health_crystal_top_value");
@@ -39,18 +41,22 @@ static const std::string ROAR_SFX = "sfx_roar";
 
 static const std::vector<std::string> sRequiredExtraParamNames =
 {
+    HoundSummoningGameAction::NUMBER_OF_HOUNDS_PARAM
 };
 
 ///------------------------------------------------------------------------------------------------
 
 void HoundSummoningGameAction::VSetNewGameState()
 {
+    assert(mExtraActionParams.count(NUMBER_OF_HOUNDS_PARAM) == 1);
+    const auto numberOfHounds = std::stoi(mExtraActionParams.at(NUMBER_OF_HOUNDS_PARAM));
+    
     auto& activePlayerState = mBoardState->GetActivePlayerState();
     
     std::vector<int> houndCardIds;
     const auto& genericDemonCardIds = CardDataRepository::GetInstance().GetCardIdsByFamily(game_constants::DEMONS_GENERIC_FAMILY_NAME);
     
-    for (int i = 0; i < 3; ++i)
+    for (int i = 0; i < numberOfHounds; ++i)
     {
         auto randomCardId = genericDemonCardIds[math::ControlledRandomInt() % genericDemonCardIds.size()];
         auto cardData = CardDataRepository::GetInstance().GetCardData(randomCardId, mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
@@ -70,9 +76,11 @@ void HoundSummoningGameAction::VSetNewGameState()
 void HoundSummoningGameAction::VInitAnimation()
 {
     mFinished = false;
+    
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
     auto scene = systemsEngine.GetSceneManager().FindScene(game_constants::BATTLE_SCENE);
     
+    const auto numberOfHounds = std::stoi(mExtraActionParams.at(NUMBER_OF_HOUNDS_PARAM));
     const auto& boardCards = mBoardState->GetActivePlayerState().mPlayerBoardCards;
     const auto& deadBoardCardIndices = mBoardState->GetActivePlayerState().mBoardCardIndicesToDestroy;
     const auto nonDeadBoardCardCount = card_utils::CalculateNonDeadCardsCount(boardCards, deadBoardCardIndices);
@@ -85,7 +93,7 @@ void HoundSummoningGameAction::VInitAnimation()
     });
     
     std::vector<std::shared_ptr<CardSoWrapper>> newCardSoWrappers;
-    for (auto i = mBoardState->GetActivePlayerState().mPlayerBoardCards.size() - 3; i < mBoardState->GetActivePlayerState().mPlayerBoardCards.size(); ++i)
+    for (auto i = mBoardState->GetActivePlayerState().mPlayerBoardCards.size() - numberOfHounds; i < mBoardState->GetActivePlayerState().mPlayerBoardCards.size(); ++i)
     {
         const auto& cardData = CardDataRepository::GetInstance().GetCardData(boardCards[i], mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
         

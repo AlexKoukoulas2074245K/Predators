@@ -438,15 +438,15 @@ void PlayCardAttackSfx(const int pendingDamage, const int amountOfArmorDamaged)
     
     if (pendingDamage < 5)
     {
-        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(CARD_LIGHT_ATTACK_SFX);
+        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(CARD_PLAY_SFX);
     }
     else if (pendingDamage < 10)
     {
-        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(CARD_MEDIUM_ATTACK_SFX);
+        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(CARD_PLAY_SFX, false, 1.8f);
     }
     else
     {
-        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(CARD_HEAVY_ATTACK_SFX);
+        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(CARD_PLAY_SFX, false, 2.6f);
     }
 }
 

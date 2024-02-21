@@ -496,9 +496,9 @@ void StoryMap::CreateMapSceneObjects()
         if (isEncounterNode)
         {
             // Stat range builders
-            auto defaultHealthRange = glm::vec2(5.0f + mapNodeEntry.first.mCol * 0.4f, 10.0f + mapNodeEntry.first.mCol * 0.55);
-            auto defaultDamageRange = glm::vec2(math::Max(1.0f, 0.0f + mapNodeEntry.first.mCol * 0.4f), 1.0f + mapNodeEntry.first.mCol * 0.55f);
-            auto defaultWeightRange = glm::vec2(2.0f + mapNodeEntry.first.mCol * 0.4f, 3.0f + mapNodeEntry.first.mCol * 0.55f);
+            auto defaultHealthRange = glm::vec2(5.0f + mapNodeEntry.first.mCol, 10.0f + mapNodeEntry.first.mCol);
+            auto defaultDamageRange = glm::vec2(math::Max(1.0f, 0.0f + mapNodeEntry.first.mCol), 1.0f + mapNodeEntry.first.mCol);
+            auto defaultWeightRange = glm::vec2(2.0f + mapNodeEntry.first.mCol, 3.0f + mapNodeEntry.first.mCol);
             
             if (mCurrentStoryMapType == StoryMapType::NORMAL_MAP)
             {

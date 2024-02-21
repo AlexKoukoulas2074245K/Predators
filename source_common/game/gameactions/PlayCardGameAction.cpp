@@ -159,14 +159,6 @@ void PlayCardGameAction::VSetNewGameState()
             return;
         }
         
-        if ((activePlayerState.mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::BOARD_SIDE_DEBUFF) != 0)
-        {
-            mGameActionEngine->AddGameAction(TRAP_TRIGGERED_ANIMATION_GAME_ACTION_NAME,
-            {
-                { TrapTriggeredAnimationGameAction::TRAP_TRIGGER_TYPE_PARAM, TrapTriggeredAnimationGameAction::TRAP_TRIGGER_TYPE_DEBUFF }
-            });
-        }
-        
         if ((activePlayerState.mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::DUPLICATE_NEXT_INSECT) != 0 &&
             cardData.mCardFamily == game_constants::INSECTS_FAMILY_NAME)
         {
@@ -186,6 +178,14 @@ void PlayCardGameAction::VSetNewGameState()
         {
             mGameActionEngine->AddGameAction(HEAL_NEXT_DINO_DAMAGE_GAME_ACTION_NAME, {});
             activePlayerState.mBoardModifiers.mBoardModifierMask &= (~effects::board_modifier_masks::HEAL_NEXT_DINO_DAMAGE);
+        }
+        
+        if ((activePlayerState.mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::BOARD_SIDE_DEBUFF) != 0)
+        {
+            mGameActionEngine->AddGameAction(TRAP_TRIGGERED_ANIMATION_GAME_ACTION_NAME,
+            {
+                { TrapTriggeredAnimationGameAction::TRAP_TRIGGER_TYPE_PARAM, TrapTriggeredAnimationGameAction::TRAP_TRIGGER_TYPE_DEBUFF }
+            });
         }
     }
     

@@ -15,6 +15,7 @@
 #include <game/gameactions/CardHistoryEntryAdditionGameAction.h>
 #include <game/gameactions/DrawCardGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
+#include <game/gameactions/HoundSummoningGameAction.h>
 #include <game/scenelogicmanagers/BattleSceneLogicManager.h>
 #include <engine/rendering/AnimationManager.h>
 #include <engine/rendering/ParticleManager.h>
@@ -502,12 +503,6 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
             mGameActionEngine->AddGameAction(INSECT_MEGASWARM_GAME_ACTION_NAME);
         }
         
-        // Hound Summoning
-        else if (effectComponent == effects::EFFECT_COMPONENT_HOUND_SUMMONING)
-        {
-            mGameActionEngine->AddGameAction(HOUND_SUMMONING_GAME_ACTION_NAME);
-        }
-        
         // Insect Megaswarm
         else if (effectComponent == effects::EFFECT_COMPONENT_INSECT_VIRUS)
         {
@@ -630,6 +625,12 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
         {
             { DrawCardGameAction::DRAW_SPELL_ONLY_PARAM, "true"}
         });
+    }
+    
+    // Hound Summoning
+    if (std::find(mEffectComponents.cbegin(), mEffectComponents.cend(), effects::EFFECT_COMPONENT_HOUND_SUMMONING) != mEffectComponents.cend())
+    {
+        mGameActionEngine->AddGameAction(HOUND_SUMMONING_GAME_ACTION_NAME, { { HoundSummoningGameAction::NUMBER_OF_HOUNDS_PARAM, std::to_string(mEffectValue) } });
     }
     
     // Armor effect
@@ -769,7 +770,6 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
             mAffectedCards.push_back({mBattleSceneLogicManager->GetHeldCardSoWrappers()[mBoardState->GetActivePlayerIndex()].at(affectedHeldCardIndices.at(i)), affectedHeldCardIndices.at(i), false});
         }
     }
-    //
 }
 
 ///------------------------------------------------------------------------------------------------

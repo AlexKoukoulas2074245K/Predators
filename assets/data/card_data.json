@@ -175,13 +175,14 @@
             "shader": "basic.vs"
         },
         {
-            "weight": 1,
+            "weight": 0,
             "family": "rodents",
             "name": "Fuzzy Speed",
             "effect": "DRAW +2 GAIN_1_WEIGHT",
             "tooltip": " $Draw 2 Cards and$gain 1 Weight",
             "texture": "fuzz_speed.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "single_use": true
         },
         {
             "weight": 1,
@@ -440,7 +441,7 @@
         },
         {
             "weight": 3,
-            "family": "demons_normal",
+            "family": "demons_medium",
             "name": "Dark Magic",
             "effect": "DAMAGE +1 FAMILY BOARD HELD",
             "tooltip": "Damage +1 for ALL$Demons on hand &$board",
@@ -459,11 +460,20 @@
             "single_use": true
         },
         {
+            "weight": 5,
+            "family": "demons_medium",
+            "name": "Hound Ally",
+            "effect": "HOUND_SUMMON 1",
+            "tooltip": "Spawns 1 random$demon hound",
+            "texture": "demon_hound_ally.png",
+            "shader": "basic.vs"
+        },
+        {
             "weight": 9,
             "family": "demons_hard",
             "name": "Hound Summon",
-            "effect": "HOUND_SUMMON",
-            "tooltip": "Spawns 3 random$demon hounds from$your deck",
+            "effect": "HOUND_SUMMON 3",
+            "tooltip": "Spawns 3 random$demon hounds",
             "texture": "demon_hound_summoning.png",
             "shader": "basic.vs",
             "single_use": true
@@ -503,6 +513,16 @@
             "texture": "story_cards/demon_ritual.png",
             "shader": "basic.vs",
             "single_use": false
+        },
+        {
+            "weight": 4,
+            "family": "demons_hard",
+            "name": "Chaos Glare",
+            "effect": "DAMAGE -6 ENEMY_BOARD_DEBUFF",
+            "tooltip": "Damage -6 for ALL$normal cards the$opponent plays on$their next turn",
+            "texture": "story_cards/elite_demon_strength.png",
+            "shader": "basic.vs",
+            "single_use": true
         }
     ]
 }

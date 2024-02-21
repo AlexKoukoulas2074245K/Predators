@@ -67,10 +67,12 @@ private:
     void OnExtraWeightReward(const events::ExtraWeightRewardEvent&);
     
 private:
+    std::unordered_map<strutils::StringId, float, strutils::StringIdHasher> mParticleEmitterTimeAccums;
     std::vector<std::unique_ptr<AnimatedButton>> mAnimatedButtons;
     std::unique_ptr<AnimatedStatContainer> mHealthStatContainer;
     std::shared_ptr<scene::Scene> mScene;
     float mRewardAnimationSecsLeft;
+    bool mBattleLootHealthRefillCase;
 };
 
 ///------------------------------------------------------------------------------------------------

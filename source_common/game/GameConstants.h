@@ -228,8 +228,8 @@ namespace game_constants
     inline const glm::vec2 GOLDEN_CARD_LIGHT_POS_MIN_MAX_X = {-0.5f, 0.5f};
 
     inline const glm::ivec2 STORY_MAP_INIT_COORD = {0, 3};
-    inline const glm::ivec2 STORY_MAP_BOSS_COORD = {10, 3};
-    inline const glm::ivec2 STORY_NODE_MAP_DIMENSIONS = {11, 7};
+    inline const glm::ivec2 STORY_MAP_BOSS_COORD = {9, 3};
+    inline const glm::ivec2 STORY_NODE_MAP_DIMENSIONS = {10, 7};
     inline const glm::ivec2 TUTORIAL_MAP_INIT_COORD = {0, 1};
     inline const glm::ivec2 TUTORIAL_MAP_BOSS_COORD = {6, 1};
     inline const glm::ivec2 TUTORIAL_NODE_MAP_DIMENSIONS = {7, 3};

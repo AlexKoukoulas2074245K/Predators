@@ -581,6 +581,36 @@ TEST_F(GameActionTests, TestMightyDinoRoarEffect)
     EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, 30 - GET_CARD_DAMAGE("Dilophosaurus") * 3); // First dilophosaurus has double attack, the second one has normal attack
 }
 
+TEST_F(GameActionTests, TestNetFollowedByMightyDinoRoarEffects)
+{
+    mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {GET_CARD_ID("Throwing Net")}; // Top player has a deck of Mighty Dino Roars (w=2) and  Dilophosaurus (d=5,w=4)
+    
+    mBoardState->GetPlayerStates()[1].mPlayerDeckCards = {GET_CARD_ID("Mighty Dino Roar"), GET_CARD_ID("Dilophosaurus")}; // Top player has a deck of Mighty Dino Roars (w=2) and  Dilophosaurus (d=5,w=4)
+    
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = GET_CARD_WEIGHT("Throwing Net");
+    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = GET_CARD_WEIGHT("Throwing Net");
+    mBoardState->GetPlayerStates()[0].mPlayerHeldCards = {GET_CARD_ID("Throwing Net")};
+    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Throwing Net played
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mBoardState->GetPlayerStates()[1].mPlayerTotalWeightAmmo = GET_CARD_WEIGHT("Mighty Dino Roar") + GET_CARD_WEIGHT("Dilophosaurus") + GET_CARD_WEIGHT("Dilophosaurus");
+    mBoardState->GetPlayerStates()[1].mPlayerCurrentWeightAmmo = GET_CARD_WEIGHT("Mighty Dino Roar") + GET_CARD_WEIGHT("Dilophosaurus") + GET_CARD_WEIGHT("Dilophosaurus");
+    mBoardState->GetPlayerStates()[1].mPlayerHeldCards = {GET_CARD_ID("Mighty Dino Roar"), GET_CARD_ID("Dilophosaurus"), GET_CARD_ID("Dilophosaurus")};
+    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Mighty Dino Roar is played
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // 2 Dilophosaurus' are played
+    
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(DRAW_CARD_GAME_ACTION_NAME);
+    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH - GET_CARD_DAMAGE("Dilophosaurus") + 2 - 2 * GET_CARD_DAMAGE("Dilophosaurus") + 2); // First dilophosaurus has double attack minus the Net damage reduction, the second one has normal attack minus the Net damage reduction
+}
+
 TEST_F(GameActionTests, TestDinoSnackFollowedByMightyDinoRoarEffect)
 {
     mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {GET_CARD_ID("Mighty Dino Roar"), GET_CARD_ID("Dilophosaurus"), GET_CARD_ID("Dino Snack")}; // Top player has a deck of Mighty Dino Roars (w=2), Dilophosaurus (d=5,w=4) and Dino Snack (w=5);
@@ -648,6 +678,53 @@ TEST_F(GameActionTests, TestInsectSwarm)
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     UpdateUntilActionOrIdle(DRAW_CARD_GAME_ACTION_NAME);
     EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH - 3 - 3 * GET_CARD_DAMAGE("Bee")); // 3 Bees attack and poison the opponent
+}
+
+
+TEST_F(GameActionTests, TestHoundSummon)
+{
+    mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {GET_CARD_ID("Hound Summon")}; // Top player has a deck of Hound Summon
+    
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = GET_CARD_WEIGHT("Hound Summon");
+    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = GET_CARD_WEIGHT("Hound Summon");
+    mBoardState->GetPlayerStates()[0].mPlayerHeldCards = {GET_CARD_ID("Hound Summon")};
+    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Hound Summon is played
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerBoardCards.size(), 3);
+    auto damageSum = CardDataRepository::GetInstance().GetCardData(mBoardState->GetPlayerStates()[0].mPlayerBoardCards[0], false).mCardDamage +
+                     CardDataRepository::GetInstance().GetCardData(mBoardState->GetPlayerStates()[0].mPlayerBoardCards[1], false).mCardDamage +
+                     CardDataRepository::GetInstance().GetCardData(mBoardState->GetPlayerStates()[0].mPlayerBoardCards[2], false).mCardDamage;
+    
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(DRAW_CARD_GAME_ACTION_NAME);
+    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH - damageSum); // 3 Hounds attack the opponent
+}
+
+TEST_F(GameActionTests, TestHoundAlly)
+{
+    mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {GET_CARD_ID("Hound Ally")}; // Top player has a deck of Hound Ally
+    
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = GET_CARD_WEIGHT("Hound Ally");
+    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = GET_CARD_WEIGHT("Hound Ally");
+    mBoardState->GetPlayerStates()[0].mPlayerHeldCards = {GET_CARD_ID("Hound Ally")};
+    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Hound Summon is played
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerBoardCards.size(), 1);
+    auto damage = CardDataRepository::GetInstance().GetCardData(mBoardState->GetPlayerStates()[0].mPlayerBoardCards[0], false).mCardDamage;
+    
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(DRAW_CARD_GAME_ACTION_NAME);
+    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH - damage); // 1 Hound attacks the opponent
 }
 
 TEST_F(GameActionTests, TestCardTokenDeckTransformationIfEmpty)
