@@ -14,7 +14,7 @@
     "card_data":
     [
         {
-            "damage": 3,
+            "damage": 4,
             "weight": 3,
             "family": "rodents",
             "name": "Beaver",
@@ -22,7 +22,7 @@
             "shader": "basic.vs"
         },
         {
-            "damage": 2,
+            "damage": 3,
             "weight": 2,
             "family": "rodents",
             "name": "Rat",
@@ -30,7 +30,7 @@
             "shader": "basic.vs"
         },
         {
-            "damage": 2,
+            "damage": 3,
             "weight": 3,
             "family": "rodents",
             "name": "Squirrel",
@@ -38,7 +38,7 @@
             "shader": "basic.vs"
         },
         {
-            "damage": 1,
+            "damage": 2,
             "weight": 1,
             "family": "rodents",
             "name": "Bunny",
@@ -46,7 +46,7 @@
             "shader": "basic.vs"
         },
         {
-            "damage": 2,
+            "damage": 3,
             "weight": 4,
             "family": "rodents",
             "name": "Ground Hog",
@@ -54,7 +54,7 @@
             "shader": "basic.vs"
         },
         {
-            "damage": 1,
+            "damage": 2,
             "weight": 2,
             "family": "rodents",
             "name": "Guinea Pig",
@@ -62,7 +62,7 @@
             "shader": "basic.vs"
         },
         {
-            "damage": 1,
+            "damage": 2,
             "weight": 2,
             "family": "insects",
             "name": "Dragonfly",
@@ -71,14 +71,14 @@
         },
         {
             "damage": 1,
-            "weight": 2,
+            "weight": 1,
             "family": "insects",
             "name": "Fly",
             "texture": "fly.png",
             "shader": "basic.vs"
         },
         {
-            "damage": 2,
+            "damage": 3,
             "weight": 2,
             "family": "insects",
             "name": "Bee",
@@ -86,7 +86,7 @@
             "shader": "basic.vs"
         },
         {
-            "damage": 3,
+            "damage": 4,
             "weight": 4,
             "family": "insects",
             "name": "Beetle",
@@ -102,7 +102,7 @@
             "shader": "basic.vs"
         },
         {
-            "damage": 3,
+            "damage": 4,
             "weight": 3,
             "family": "insects",
             "name": "Mantis",
@@ -110,7 +110,7 @@
             "shader": "basic.vs"
         },
         {
-            "damage": 1,
+            "damage": 2,
             "weight": 2,
             "family": "insects",
             "name": "Mosquito",
@@ -118,7 +118,7 @@
             "shader": "basic.vs"
         },
         {
-            "damage": 7,
+            "damage": 8,
             "weight": 7,
             "family": "dinosaurs",
             "name": "Brachiosaurus",
@@ -126,7 +126,7 @@
             "shader": "basic.vs"
         },
         {
-            "damage": 7,
+            "damage": 8,
             "weight": 6,
             "family": "dinosaurs",
             "name": "Rex",
@@ -134,7 +134,7 @@
             "shader": "basic.vs"
         },
         {
-            "damage": 6,
+            "damage": 7,
             "weight": 6,
             "family": "dinosaurs",
             "name": "Stegosaurus",
@@ -142,7 +142,7 @@
             "shader": "basic.vs"
         },
         {
-            "damage": 6,
+            "damage": 7,
             "weight": 6,
             "family": "dinosaurs",
             "name": "Triceratops",
@@ -158,7 +158,7 @@
             "shader": "basic.vs"
         },
         {
-            "damage": 4,
+            "damage": 5,
             "weight": 3,
             "family": "dinosaurs",
             "name": "Velociraptor",
@@ -288,7 +288,7 @@
             "single_use": false
         },
         {
-            "damage": 4,
+            "damage": 5,
             "weight": 4,
             "family": "rodents",
             "name": "Capybara",
@@ -296,7 +296,7 @@
             "shader": "basic.vs"
         },
         {
-            "damage": 2,
+            "damage": 3,
             "weight": 3,
             "family": "rodents",
             "name": "Gopher",
@@ -440,8 +440,8 @@
             "shader": "basic.vs"
         },
         {
-            "weight": 3,
-            "family": "demons_medium",
+            "weight": 4,
+            "family": "demons_normal",
             "name": "Dark Magic",
             "effect": "DAMAGE +1 FAMILY BOARD HELD",
             "tooltip": "Damage +1 for ALL$Demons on hand &$board",
@@ -450,7 +450,7 @@
             "single_use": false
         },
         {
-            "weight": 4,
+            "weight": 5,
             "family": "demons_medium",
             "name": "Demon Glare",
             "effect": "DAMAGE -2 ENEMY_BOARD_DEBUFF",
@@ -467,6 +467,16 @@
             "tooltip": "Spawns 1 random$demon hound",
             "texture": "demon_hound_ally.png",
             "shader": "basic.vs"
+        },
+        {
+            "weight": 6,
+            "family": "demons_medium",
+            "name": "Chaos Magic",
+            "effect": "DAMAGE +4 FAMILY BOARD HELD",
+            "tooltip": "Damage +4 for ALL$Demons on hand &$board",
+            "texture": "story_cards/demon_ritual.png",
+            "shader": "basic.vs",
+            "single_use": false
         },
         {
             "weight": 9,
@@ -487,14 +497,14 @@
             "shader": "basic.vs"
         },
         {
-            "weight": 5,
+            "weight": 8,
             "family": "demons_hard",
             "name": "Demon Trap",
             "effect": "DEMON_KILL",
             "tooltip": "Destroy the next$normal card played$on the opponent's$next turn",
             "texture": "story_cards/demon_trap.png",
             "shader": "basic.vs",
-            "single_use": false
+            "single_use": true
         },
         {
             "damage": 8,
@@ -505,17 +515,7 @@
             "shader": "basic.vs"
         },
         {
-            "weight": 4,
-            "family": "demons_hard",
-            "name": "Chaos Magic",
-            "effect": "DAMAGE +2 FAMILY BOARD HELD",
-            "tooltip": "Damage +2 for ALL$Demons on hand &$board",
-            "texture": "story_cards/demon_ritual.png",
-            "shader": "basic.vs",
-            "single_use": false
-        },
-        {
-            "weight": 4,
+            "weight": 8,
             "family": "demons_hard",
             "name": "Chaos Glare",
             "effect": "DAMAGE -6 ENEMY_BOARD_DEBUFF",

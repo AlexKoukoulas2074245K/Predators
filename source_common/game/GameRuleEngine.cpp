@@ -43,9 +43,15 @@ bool GameRuleEngine::CanCardBePlayed(const CardData* cardData, const size_t card
         return false;
     }
     
-    if (cardData->mCardEffect == effects::EFFECT_COMPONENT_HOUND_SUMMONING && activePlayerState.mPlayerBoardCards.size() > 1)
+    if (strutils::StringContains(cardData->mCardEffect, effects::EFFECT_COMPONENT_HOUND_SUMMONING))
     {
-        return false;
+        auto effectSplitBySpace = strutils::StringSplit(cardData->mCardEffect, ' ');
+        auto summonCount = effectSplitBySpace[0] == effects::EFFECT_COMPONENT_HOUND_SUMMONING ? std::stoi(effectSplitBySpace[1]) : std::stoi(effectSplitBySpace[0]);
+        
+        if (activePlayerState.mPlayerBoardCards.size() + summonCount > game_constants::MAX_BOARD_CARDS)
+        {
+            return false;
+        }
     }
     
     return activePlayerState.mPlayerCurrentWeightAmmo >= cardWeight && activePlayerState.mPlayerBoardCards.size() < game_constants::MAX_BOARD_CARDS;

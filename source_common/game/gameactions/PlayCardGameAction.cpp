@@ -159,13 +159,6 @@ void PlayCardGameAction::VSetNewGameState()
             return;
         }
         
-        if ((activePlayerState.mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::DUPLICATE_NEXT_INSECT) != 0 &&
-            cardData.mCardFamily == game_constants::INSECTS_FAMILY_NAME)
-        {
-            mGameActionEngine->AddGameAction(INSECT_DUPLICATION_GAME_ACTION_NAME, {});
-            activePlayerState.mBoardModifiers.mBoardModifierMask &= (~effects::board_modifier_masks::DUPLICATE_NEXT_INSECT);
-        }
-        
         if ((activePlayerState.mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::DOUBLE_NEXT_DINO_DAMAGE) != 0 &&
             cardData.mCardFamily == game_constants::DINOSAURS_FAMILY_NAME)
         {
@@ -187,6 +180,14 @@ void PlayCardGameAction::VSetNewGameState()
                 { TrapTriggeredAnimationGameAction::TRAP_TRIGGER_TYPE_PARAM, TrapTriggeredAnimationGameAction::TRAP_TRIGGER_TYPE_DEBUFF }
             });
         }
+        
+        if ((activePlayerState.mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::DUPLICATE_NEXT_INSECT) != 0 &&
+            cardData.mCardFamily == game_constants::INSECTS_FAMILY_NAME)
+        {
+            mGameActionEngine->AddGameAction(INSECT_DUPLICATION_GAME_ACTION_NAME, {});
+            activePlayerState.mBoardModifiers.mBoardModifierMask &= (~effects::board_modifier_masks::DUPLICATE_NEXT_INSECT);
+        }
+        
     }
     
     if ((activePlayerState.mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::INSECT_VIRUS) != 0)

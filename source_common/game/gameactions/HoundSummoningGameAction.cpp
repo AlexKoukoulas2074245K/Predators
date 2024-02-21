@@ -59,12 +59,12 @@ void HoundSummoningGameAction::VSetNewGameState()
     for (int i = 0; i < numberOfHounds; ++i)
     {
         auto randomCardId = genericDemonCardIds[math::ControlledRandomInt() % genericDemonCardIds.size()];
-        auto cardData = CardDataRepository::GetInstance().GetCardData(randomCardId, mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
+        auto cardData = CardDataRepository::GetInstance().GetCardData(randomCardId, mBoardState->GetActivePlayerIndex());
         
         while (!strutils::StringEndsWith(cardData.mCardName.GetString(), "Hound"))
         {
             randomCardId = genericDemonCardIds[math::ControlledRandomInt() % genericDemonCardIds.size()];
-            cardData = CardDataRepository::GetInstance().GetCardData(randomCardId, mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
+            cardData = CardDataRepository::GetInstance().GetCardData(randomCardId, mBoardState->GetActivePlayerIndex());
         }
         
         activePlayerState.mPlayerBoardCards.push_back(randomCardId);
@@ -95,7 +95,7 @@ void HoundSummoningGameAction::VInitAnimation()
     std::vector<std::shared_ptr<CardSoWrapper>> newCardSoWrappers;
     for (auto i = mBoardState->GetActivePlayerState().mPlayerBoardCards.size() - numberOfHounds; i < mBoardState->GetActivePlayerState().mPlayerBoardCards.size(); ++i)
     {
-        const auto& cardData = CardDataRepository::GetInstance().GetCardData(boardCards[i], mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
+        const auto& cardData = CardDataRepository::GetInstance().GetCardData(boardCards[i], mBoardState->GetActivePlayerIndex());
         
         auto targetPosition = card_utils::CalculateBoardCardPosition(static_cast<int>(i), nonDeadBoardCardCount, mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
 

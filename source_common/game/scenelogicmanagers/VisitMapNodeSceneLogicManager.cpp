@@ -284,7 +284,8 @@ void VisitMapNodeSceneLogicManager::InitializeNodeVisitData()
     DataRepository::GetInstance().SetCurrentStoryMapNodeType(selectedNodeData->mNodeType);
     
     std::vector<int> opponentDeckBuilder;
-    bool isEliteOnNormalMapOrBossFightEncounter = false;
+    bool isEliteOrTutorialBossFightEncounter = false;
+    bool isFinalBossFightEncounter = false;
     
     switch (selectedNodeData->mNodeType)
     {
@@ -306,20 +307,23 @@ void VisitMapNodeSceneLogicManager::InitializeNodeVisitData()
         {
             auto eliteCards = CardDataRepository::GetInstance().GetCardIdsByFamily(game_constants::DEMONS_HARD_FAMILY_NAME);
             opponentDeckBuilder.insert(opponentDeckBuilder.end(), eliteCards.begin(), eliteCards.end());
-            isEliteOnNormalMapOrBossFightEncounter = true;
+            isFinalBossFightEncounter = true;
         } // Intentional fallthrough
         case StoryMap::NodeType::ELITE_ENCOUNTER:
         {
             if (DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::NORMAL_MAP || DataRepository::GetInstance().GetCurrentStoryMapNodeCoord() == game_constants::TUTORIAL_MAP_BOSS_COORD)
             {
-                auto mediumCards = CardDataRepository::GetInstance().GetCardIdsByFamily(game_constants::DEMONS_MEDIUM_FAMILY_NAME);
-                opponentDeckBuilder.insert(opponentDeckBuilder.end(), mediumCards.begin(), mediumCards.end());
-                isEliteOnNormalMapOrBossFightEncounter = true;
+                if (!isFinalBossFightEncounter)
+                {
+                    auto mediumCards = CardDataRepository::GetInstance().GetCardIdsByFamily(game_constants::DEMONS_MEDIUM_FAMILY_NAME);
+                    opponentDeckBuilder.insert(opponentDeckBuilder.end(), mediumCards.begin(), mediumCards.end());
+                    isEliteOrTutorialBossFightEncounter = true;
+                }
             }
         } // Intentional fallthrough
         case StoryMap::NodeType::NORMAL_ENCOUNTER:
         {
-            if (!isEliteOnNormalMapOrBossFightEncounter)
+            if (!isEliteOrTutorialBossFightEncounter && !isFinalBossFightEncounter)
             {
                 auto normalCards = CardDataRepository::GetInstance().GetCardIdsByFamily(game_constants::DEMONS_NORMAL_FAMILY_NAME);
                 opponentDeckBuilder.insert(opponentDeckBuilder.end(), normalCards.begin(), normalCards.end());
