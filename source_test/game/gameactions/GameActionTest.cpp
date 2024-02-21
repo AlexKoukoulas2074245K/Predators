@@ -338,7 +338,7 @@ TEST_F(GameActionTests, TestDoubleFluffAttackFollowedByBunny)
 TEST_F(GameActionTests, TestDoubleFluffAttackFollowedByBunnyAndVampireRodents)
 {
     mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {GET_CARD_ID("Bunny")}; // Top player has a deck of bunnies
-    mBoardState->GetPlayerStates()[1].mPlayerDeckCards = {GET_CARD_ID("Bunny"), GET_CARD_ID("Fluff Attack"), GET_CARD_ID("Vampire Rodents")}; // Bot player has a deck of Bunnies(1,1), Fluff Attack and Vampire Rodents
+    mBoardState->GetPlayerStates()[1].mPlayerDeckCards = {GET_CARD_ID("Bunny"), GET_CARD_ID("Fluff Attack"), GET_CARD_ID("Vampire Rodents")}; // Bot player has a deck of Bunnies(2,1), Fluff Attack and Vampire Rodents
     
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
@@ -346,7 +346,7 @@ TEST_F(GameActionTests, TestDoubleFluffAttackFollowedByBunnyAndVampireRodents)
     mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Bunny is played by top player
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
     
-    mBoardState->GetPlayerStates()[1].mPlayerHealth = TEST_DEFAULT_PLAYER_HEALTH - 5;
+    mBoardState->GetPlayerStates()[1].mPlayerHealth = TEST_DEFAULT_PLAYER_HEALTH - 6;
     mBoardState->GetPlayerStates()[1].mPlayerTotalWeightAmmo = GET_CARD_WEIGHT("Fluff Attack") + GET_CARD_WEIGHT("Bunny") + GET_CARD_WEIGHT("Vampire Rodents");
     mBoardState->GetPlayerStates()[1].mPlayerCurrentWeightAmmo = GET_CARD_WEIGHT("Fluff Attack") + GET_CARD_WEIGHT("Bunny") + GET_CARD_WEIGHT("Vampire Rodents");
     mBoardState->GetPlayerStates()[1].mPlayerHeldCards = {GET_CARD_ID("Bunny"), GET_CARD_ID("Fluff Attack"), GET_CARD_ID("Fluff Attack"), GET_CARD_ID("Vampire Rodents")};  // Bot player has 2 fluff attacks, a bunny and Vampire Rodents
@@ -359,10 +359,10 @@ TEST_F(GameActionTests, TestDoubleFluffAttackFollowedByBunnyAndVampireRodents)
     
     UpdateUntilActionOrIdle(CARD_ATTACK_GAME_ACTION_NAME);
     EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH);
-    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH - 5);
+    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH - 6);
     
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
-    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH - (GET_CARD_DAMAGE("Bunny") + 2 + 2)); // Bunny original attack = 1. Fluff Attack + 2. Fluff Attack + 2. Final attack = 5.
+    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH - (GET_CARD_DAMAGE("Bunny") + 2 + 2)); // Bunny original attack = 2. Fluff Attack + 2. Fluff Attack + 2. Final attack = 6.
     EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH); // Bot player receives 5 health back
 }
 
@@ -411,6 +411,26 @@ TEST_F(GameActionTests, TestToxicBombPoisonStackApplicationAndWeightReduction)
     mBoardState->GetPlayerStates()[0].mPlayerHeldCards = {GET_CARD_ID("Toxic Bomb")};
     
     mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Toxic Bomb is played by top player
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo, 0);
+    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH - 4); // Expended weight = 4.
+}
+
+TEST_F(GameActionTests, TestDemonPunchDamageAndWeightReduction)
+{
+    mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {GET_CARD_ID("Demon Punch")}; // Top player has a deck of Toxic Bombs
+    mBoardState->GetPlayerStates()[1].mPlayerDeckCards = {GET_CARD_ID("Bunny")}; // Bot player has a deck of Bunnies(1,1)
+    
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = GET_CARD_WEIGHT("Demon Punch") + 4;
+    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = GET_CARD_WEIGHT("Demon Punch") + 4;
+    mBoardState->GetPlayerStates()[0].mPlayerHeldCards = {GET_CARD_ID("Demon Punch")};
+    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Demon Punch is played by top player
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
     

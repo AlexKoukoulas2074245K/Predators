@@ -432,12 +432,22 @@
             "shader": "basic.vs"
         },
         {
-            "damage": 2,
+            "damage": 1,
             "weight": 3,
             "family": "demons_normal",
             "name": "Clown Imp",
             "texture": "story_cards/small_imp.png",
             "shader": "basic.vs"
+        },
+        {
+            "weight": 1,
+            "family": "demons_normal",
+            "name": "Demon Punch",
+            "effect": "DEMON_PUNCH",
+            "tooltip": "Expends all leftover$weight, to inflict$that much damage$to the opponent",
+            "texture": "demon_punch.png",
+            "shader": "basic.vs",
+            "single_use": true
         },
         {
             "weight": 4,

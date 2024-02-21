@@ -19,6 +19,7 @@
 		1AFC9A98EB4CEF5FA6491FA6 /* ResourceLoadingService.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 052939A977343440F86F0858 /* ResourceLoadingService.cpp */; };
 		1ECC3C6E351A36D1C71615E0 /* Logging.h in Sources */ = {isa = PBXBuildFile; fileRef = 43A25A1E55390D38AC6A5742 /* Logging.h */; };
 		216990DC394003275C5EA33D /* Fonts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BB8C2E3FACC90180DAAE4F40 /* Fonts.cpp */; };
+		217E8CF7479A3687C606C49A /* DemonPunchGameAction.h in Sources */ = {isa = PBXBuildFile; fileRef = 29BF26174D9E7C9DDE03C263 /* DemonPunchGameAction.h */; };
 		221448B42DDAFB77429B0FC6 /* DisconnectedSceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C93CFFE8EE51C27FEBFD1AF9 /* DisconnectedSceneLogicManager.cpp */; };
 		2459A2AD382EE0AA9153A204 /* wglew.h in Sources */ = {isa = PBXBuildFile; fileRef = D64C3227BB47CA8611283D51 /* wglew.h */; };
 		249415978B8DA701343AE116 /* ThreadSafeQueue.h in Sources */ = {isa = PBXBuildFile; fileRef = 543F0360AEBB87C61E32D84B /* ThreadSafeQueue.h */; };
@@ -196,6 +197,7 @@
 		CA9897BC57F466630194BFE8 /* MeshResource.h in Sources */ = {isa = PBXBuildFile; fileRef = 88B55A70915E2429F0F03C71 /* MeshResource.h */; };
 		CB1B337E51727F74A3851A0E /* BackgroundMusicPlayer.h in Sources */ = {isa = PBXBuildFile; fileRef = 9A0A1CFEB31EB9D7990F0B4B /* BackgroundMusicPlayer.h */; };
 		CCE13A87F90CB8EB69073CD1 /* FileUtils.h in Sources */ = {isa = PBXBuildFile; fileRef = 0D09AB023B7A329D725F2F2F /* FileUtils.h */; };
+		D0B24B8C6315F370410DAE14 /* DemonPunchGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 038CBDF21F9503DC0067D07C /* DemonPunchGameAction.cpp */; };
 		D44276B3AAC7224FC2221FC6 /* ImageSurfaceResource.h in Sources */ = {isa = PBXBuildFile; fileRef = CAEF02928D06B177B1091C5F /* ImageSurfaceResource.h */; };
 		D50334AC559B98F87151F0C4 /* InsectVirusGameAction.h in Sources */ = {isa = PBXBuildFile; fileRef = 3419ACBD925F58B9AC9FDDD9 /* InsectVirusGameAction.h */; };
 		D5A661D9EEA9810D1737FFCD /* DisconnectedSceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = FD25FD8EEBEBAE44283103D9 /* DisconnectedSceneLogicManager.h */; };
@@ -238,6 +240,7 @@
 		015DEBE74E403FDB72EDA711 /* PurchasingProductSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = PurchasingProductSceneLogicManager.h; sourceTree = "<group>"; };
 		023F9B933F5F526D7A8725F5 /* GiftCodeClaimSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = GiftCodeClaimSceneLogicManager.cpp; sourceTree = "<group>"; };
 		0329997E00487B8402D75893 /* CardPackRewardSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = CardPackRewardSceneLogicManager.cpp; sourceTree = "<group>"; };
+		038CBDF21F9503DC0067D07C /* DemonPunchGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = DemonPunchGameAction.cpp; path = DemonPunchGameAction.cpp; sourceTree = "<group>"; };
 		051E00BF71689A5C0A9F91D2 /* glew.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = glew.h; sourceTree = "<group>"; };
 		052939A977343440F86F0858 /* ResourceLoadingService.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = ResourceLoadingService.cpp; sourceTree = "<group>"; };
 		05D038A4FFCF3C5AA2E85A75 /* TextureLoader.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = TextureLoader.h; sourceTree = "<group>"; };
@@ -255,6 +258,7 @@
 		2096C38A74EAF730ECCA5E36 /* MathUtils.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = MathUtils.h; sourceTree = "<group>"; };
 		221289B3E3FA84B55F4C25E2 /* SceneManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = SceneManager.h; sourceTree = "<group>"; };
 		255CBE3395586957104E385D /* ShaderLoader.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = ShaderLoader.cpp; sourceTree = "<group>"; };
+		29BF26174D9E7C9DDE03C263 /* DemonPunchGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = DemonPunchGameAction.h; path = DemonPunchGameAction.h; sourceTree = "<group>"; };
 		30D02CEC6861EBD7441E2004 /* BaseDataFileSerializer.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = BaseDataFileSerializer.h; sourceTree = "<group>"; };
 		3199A38C1A16A070A579BAB4 /* ParticleManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = ParticleManager.h; sourceTree = "<group>"; };
 		3419ACBD925F58B9AC9FDDD9 /* InsectVirusGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = InsectVirusGameAction.h; sourceTree = "<group>"; };
@@ -933,6 +937,8 @@
 				3419ACBD925F58B9AC9FDDD9 /* InsectVirusGameAction.h */,
 				DA5C864B99855517C4F977C7 /* HoundSummoningGameAction.cpp */,
 				437FF6271AD4FE678DBE87C3 /* HoundSummoningGameAction.h */,
+				038CBDF21F9503DC0067D07C /* DemonPunchGameAction.cpp */,
+				29BF26174D9E7C9DDE03C263 /* DemonPunchGameAction.h */,
 			);
 			path = gameactions;
 			sourceTree = "<group>";
@@ -1416,6 +1422,8 @@
 				A50C73CD4B3C9E1668BFADDD /* SfxPlayer.mm in Sources */,
 				33F13529D488520827DCC6DD /* HoundSummoningGameAction.cpp in Sources */,
 				F87F1963B2AD25599885FC0E /* HoundSummoningGameAction.h in Sources */,
+				D0B24B8C6315F370410DAE14 /* DemonPunchGameAction.cpp in Sources */,
+				217E8CF7479A3687C606C49A /* DemonPunchGameAction.h in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

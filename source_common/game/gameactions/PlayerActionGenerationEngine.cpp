@@ -238,6 +238,12 @@ bool PlayerActionGenerationEngine::IsCardHighPriority(const CardData& cardData, 
     else if
     (
         cardData.IsSpell() &&
+        strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_DEMON_PUNCH)
+    ) return true;
+    
+    else if
+    (
+        cardData.IsSpell() &&
         strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_INSECT_VIRUS)
     ) return true;
     

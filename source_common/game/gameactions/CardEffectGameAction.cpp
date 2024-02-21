@@ -13,6 +13,7 @@
 #include <game/gameactions/CardDestructionGameAction.h>
 #include <game/gameactions/CardEffectGameAction.h>
 #include <game/gameactions/CardHistoryEntryAdditionGameAction.h>
+#include <game/gameactions/DemonPunchGameAction.h>
 #include <game/gameactions/DrawCardGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/HoundSummoningGameAction.h>
@@ -40,6 +41,7 @@ static const strutils::StringId CARD_EFFECT_GAME_ACTION_NAME = strutils::StringI
 static const strutils::StringId CARD_PLAYED_PARTICLE_EFFECT_GAME_ACTION_NAME = strutils::StringId("CardPlayedParticleEffectGameAction");
 static const strutils::StringId INSECT_MEGASWARM_GAME_ACTION_NAME = strutils::StringId("InsectMegaSwarmGameAction");
 static const strutils::StringId HOUND_SUMMONING_GAME_ACTION_NAME = strutils::StringId("HoundSummoningGameAction");
+static const strutils::StringId DEMON_PUNCH_GAME_ACTION_NAME = strutils::StringId("DemonPunchGameAction");
 
 // Resources
 static const std::string EFFECT_SFX = "sfx_chime";
@@ -527,6 +529,22 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
                 events::EventSystem::GetInstance().DispatchEvent<events::WeightChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
                 
                 events::EventSystem::GetInstance().DispatchEvent<events::PoisonStackChangeChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX, mBoardState->GetInactivePlayerState().mPlayerPoisonStack);
+            }
+        }
+        
+        // Demon Punch
+        else if (effectComponent == effects::EFFECT_COMPONENT_DEMON_PUNCH)
+        {
+            if (mBoardState->GetActivePlayerState().mPlayerCurrentWeightAmmo > 1)
+            {
+                int damage = mBoardState->GetActivePlayerState().mPlayerCurrentWeightAmmo;
+                mBoardState->GetActivePlayerState().mPlayerCurrentWeightAmmo = 0;
+                events::EventSystem::GetInstance().DispatchEvent<events::WeightChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
+                
+                mGameActionEngine->AddGameAction(DEMON_PUNCH_GAME_ACTION_NAME,
+                {
+                    { DemonPunchGameAction::DEMON_PUNCH_DAMAGE_PARAM, std::to_string(damage)}
+                });
             }
         }
         
