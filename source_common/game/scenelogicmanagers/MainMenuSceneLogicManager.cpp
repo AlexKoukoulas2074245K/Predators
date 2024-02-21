@@ -275,7 +275,6 @@ void MainMenuSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     
     CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(MAIN_MENU_THEME_MUSIC);
     
-    //CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound("final_boss_theme");
     DataRepository::GetInstance().SetQuickPlayData(nullptr);
     DataRepository::GetInstance().SetIsCurrentlyPlayingStoryMode(false);
     

@@ -25,6 +25,8 @@ const std::string GameOverGameAction::VICTORIOUS_PLAYER_INDEX_PARAM = "victoriou
 static const std::string CARD_DISSOLVE_SHADER_FILE_NAME = "card_dissolve.vs";
 static const std::string DISSOLVE_TEXTURE_FILE_NAME = "dissolve.png";
 static const std::string VICTORY_THEME_MUSIC = "victory_theme";
+static const std::string STORY_VICTORY_THEME_MUSIC = "story_victory_theme";
+static const std::string EMPTY_MUSIC = "empty_music";
 static const std::string EXPLOSION_SFX = "sfx_explosion";
 
 static const strutils::StringId STORY_VICTORY_SCENE_NAME = strutils::StringId("victory_scene");
@@ -43,7 +45,8 @@ static const float CARD_DISSOLVE_SPEED = 0.0006f;
 static const float MAX_CARD_DISSOLVE_VALUE = 1.2f;
 static const float EXPLOSION_DELAY_SECS = 0.8f;
 
-static const int MAX_EXPLOSIONS = 5;
+static const int NORMAL_MAX_EXPLOSIONS = 5;
+static const int BOSS_MAX_EXPLOSIONS = 20;
 
 static const glm::vec2 CARD_DISSOLVE_EFFECT_MAG_RANGE = {10.0f, 18.0f};
 
@@ -72,6 +75,11 @@ void GameOverGameAction::VInitAnimation()
     
     if (!DataRepository::GetInstance().GetNextStoryOpponentName().empty() && !DataRepository::GetInstance().GetQuickPlayData())
     {
+        if (DataRepository::GetInstance().GetCurrentStoryMapNodeType() == StoryMap::NodeType::BOSS_ENCOUNTER)
+        {
+            CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(EMPTY_MUSIC);
+        }
+        
         if (std::stoi(mExtraActionParams.at(VICTORIOUS_PLAYER_INDEX_PARAM)) == game_constants::LOCAL_PLAYER_INDEX)
         {
             mExplosionDelaySecs = EXPLOSION_DELAY_SECS;
@@ -116,9 +124,10 @@ ActionAnimationUpdateResult GameOverGameAction::VUpdateAnimation(const float dtM
                 mExplosionDelaySecs -= dtMillis/1000.0f;
                 if (mExplosionDelaySecs <= 0.0f)
                 {
-                    mExplosionDelaySecs = EXPLOSION_DELAY_SECS - (mExplosionCounter * 0.1f);
+                    auto maxExplosions = DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::NORMAL_MAP && DataRepository::GetInstance().GetCurrentStoryMapNodeCoord() == game_constants::STORY_MAP_BOSS_COORD ? BOSS_MAX_EXPLOSIONS : NORMAL_MAX_EXPLOSIONS;
+                    mExplosionDelaySecs = DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::NORMAL_MAP && DataRepository::GetInstance().GetCurrentStoryMapNodeCoord() == game_constants::STORY_MAP_BOSS_COORD ? (EXPLOSION_DELAY_SECS - (mExplosionCounter * 0.02f)) : (EXPLOSION_DELAY_SECS - (mExplosionCounter * 0.1f));
                     
-                    if (mExplosionCounter++ <= MAX_EXPLOSIONS)
+                    if (mExplosionCounter++ <= maxExplosions)
                     {
                         auto particleEmitterPosition = cardSoWrapper->mSceneObject->mPosition;
                         particleEmitterPosition.x += math::RandomFloat(-0.02f, 0.01f);
@@ -175,7 +184,14 @@ ActionAnimationUpdateResult GameOverGameAction::VUpdateAnimation(const float dtM
                         events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(WHEEL_OF_FORTUNE_SCENE_NAME, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
                     }
                     
-                    CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(VICTORY_THEME_MUSIC, true);
+                    if (isStoryFinalBoss)
+                    {
+                        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(STORY_VICTORY_THEME_MUSIC, true);
+                    }
+                    if (!isStoryFinalBoss)
+                    {
+                        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(VICTORY_THEME_MUSIC, true);
+                    }
                     
                     return ActionAnimationUpdateResult::FINISHED;
                 }
