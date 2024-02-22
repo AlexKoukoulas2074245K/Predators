@@ -55,7 +55,7 @@ private:
     void InitSubScene(const SubSceneType subSceneType, std::shared_ptr<scene::Scene> scene);
     void TransitionToSubScene(const SubSceneType subSceneType, std::shared_ptr<scene::Scene> scene);
     void BattleModeSelected(const strutils::StringId& buttonName);
-    void DeckSelected(const int selectedDeckIndex, const bool forTopPlayer);
+    void DeckSelected(const int selectedDeckIndex, const bool forTopPlayer, std::shared_ptr<scene::Scene> scene);
     void GoToPreviousSubScene(std::shared_ptr<scene::Scene> mainScene);
     void StartNewStory();
     void OnEnterGiftCodeButtonPressed();

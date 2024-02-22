@@ -32,10 +32,18 @@
 
 ///------------------------------------------------------------------------------------------------
 
+static constexpr int AVAILABLE_STORY_DECKS_COUNT = 3;
+
 static const std::string SELECTABLE_BUTTON_SHADER_FILE_NAME = "basic_custom_color.vs";
 static const std::string DECK_ENTRY_SHADER = "card_family_selection_swipe_entry.vs";
 static const std::string DECK_ENTRY_MASK_TEXTURE_FILE_NAME = "trap_mask.png";
 static const std::string MAIN_MENU_THEME_MUSIC = "main_menu_theme";
+static const std::string STORY_DECK_NAMES[AVAILABLE_STORY_DECKS_COUNT] =
+{
+    "Dinosaurs",
+    "Rodents",
+    "Insects"
+};
 
 static const strutils::StringId SETTINGS_SCENE = strutils::StringId("settings_scene");
 static const strutils::StringId PRIVACY_POLICY_SCENE = strutils::StringId("privacy_policy_scene");
@@ -74,11 +82,18 @@ static const strutils::StringId GOLDEN_PACK_PRODUCT_NAME = strutils::StringId("g
 static const strutils::StringId COINS_S_PRODUCT_NAME = strutils::StringId("coins_s");
 static const strutils::StringId COINS_M_PRODUCT_NAME = strutils::StringId("coins_m");
 static const strutils::StringId COINS_L_PRODUCT_NAME = strutils::StringId("coins_l");
+static const strutils::StringId STORY_DECK_SCENE_OBJECT_NAMES[AVAILABLE_STORY_DECKS_COUNT] =
+{
+    strutils::StringId("selected_deck_dinosaurs"),
+    strutils::StringId("selected_deck_rodents"),
+    strutils::StringId("selected_deck_insects")
+};
 
 static const glm::vec2 STORY_DECK_ENTRY_CUTOFF_VALUES = {-0.25f, 0.15f};
 static const glm::vec2 STORY_DECK_SELECTION_CONTAINER_CUTOFF_VALUES = {-0.1f, 0.1f};
 
 static const glm::vec3 BUTTON_SCALE = {0.0005f, 0.0005f, 0.0005f};
+static const glm::vec3 STORY_DECK_NAME_SCALES = {0.00035f, 0.00035f, 0.00035f};
 static const glm::vec3 CONTINUE_STORY_BUTTON_POSITION = {-0.142f, 0.09f, 0.1f};
 static const glm::vec3 NO_PROGRESS_NEW_STORY_BUTTON_POSITION = {-0.091f, 0.06f, 0.1f};
 static const glm::vec3 NEW_STORY_BUTTON_POSITION = {-0.091f, 0.00f, 0.1f};
@@ -91,7 +106,7 @@ static const glm::vec3 QUIT_BUTTON_POSITION = {0.0f, -0.180f, 0.1f};
 static const glm::vec3 ENTER_GIFT_CODE_BUTTON_POSITION = {-0.135f, 0.085f, 0.1f};
 static const glm::vec3 PRIVACY_POLICY_BUTTON_POSITION = {-0.125f, 0.005f, 0.1f};
 
-static const glm::vec3 BACK_BUTTON_POSITION = {0.082f, -0.173f, 0.1f};
+static const glm::vec3 BACK_BUTTON_POSITION = {0.148f, -0.148f, 0.1f};
 static const glm::vec3 DESELECTED_BUTTON_COLOR = { 1.0f, 1.0f, 1.0f};
 static const glm::vec3 SELECTED_BUTTON_COLOR = {0.0f, 0.66f, 0.66f};
 static const glm::vec3 NEW_STORY_CONFIRMATION_BUTTON_POSITION = {-0.132f, -0.103f, 23.1f};
@@ -101,6 +116,12 @@ static const glm::vec3 NEW_STORY_CONFIRMATION_TEXT_MIDDLE_POSITION = {-0.282f, 0
 static const glm::vec3 NEW_STORY_CONFIRMATION_TEXT_BOT_POSITION = {-0.205f, -0.012f, 23.1f};
 static const glm::vec3 NEW_STORY_DECK_SELECTION_TEXT_POSITION = {-0.169f, 0.115f, 0.1f};
 static const glm::vec3 START_NEW_STORY_BUTTON_POSITION = {-0.058f, -0.145f, 23.1f};
+static const glm::vec3 STORY_DECK_NAME_POSITIONS[AVAILABLE_STORY_DECKS_COUNT] =
+{
+    { -0.202f, 0.054f, 0.1f},
+    { -0.072f, 0.054f, 0.1f},
+    { 0.054f, 0.054f, 0.1f}
+};
 
 static const float SUBSCENE_ITEM_FADE_IN_OUT_DURATION_SECS = 0.25f;
 static const float DECK_SWIPEABLE_ENTRY_SCALE = 0.075f;
@@ -319,7 +340,7 @@ void MainMenuSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
         auto containerUpdateResult = mCardFamilyContainerTop->Update(dtMillis);
         if (containerUpdateResult.mInteractedElementId != -1 && mQuickPlayData->mBattleControlType != BattleControlType::REPLAY)
         {
-            DeckSelected(containerUpdateResult.mInteractedElementId, true);
+            DeckSelected(containerUpdateResult.mInteractedElementId, true, scene);
         }
     }
     
@@ -328,7 +349,7 @@ void MainMenuSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
         auto containerUpdateResult = mCardFamilyContainerBot->Update(dtMillis);
         if (containerUpdateResult.mInteractedElementId != -1 && (mQuickPlayData->mBattleControlType != BattleControlType::REPLAY || mActiveSubScene == SubSceneType::NEW_STORY_DECK_SELECTION))
         {
-            DeckSelected(containerUpdateResult.mInteractedElementId, false);
+            DeckSelected(containerUpdateResult.mInteractedElementId, false, scene);
         }
     }
 }
@@ -607,6 +628,18 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
             deckSelectionTextSceneObject->mPosition = NEW_STORY_DECK_SELECTION_TEXT_POSITION;
             deckSelectionTextSceneObject->mScale = BUTTON_SCALE;
             
+            for (int i = 0; i < AVAILABLE_STORY_DECKS_COUNT; ++i)
+            {
+                scene::TextSceneObjectData textDataDeckSelectionPrompt;
+                textDataDeckSelectionPrompt.mFontName = game_constants::DEFAULT_FONT_NAME;
+                textDataDeckSelectionPrompt.mText = STORY_DECK_NAMES[i];
+                auto deckSelectionTextSceneObject = scene->CreateSceneObject(STORY_DECK_SCENE_OBJECT_NAMES[i]);
+                deckSelectionTextSceneObject->mSceneObjectTypeData = std::move(textDataDeckSelectionPrompt);
+                deckSelectionTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+                deckSelectionTextSceneObject->mPosition = STORY_DECK_NAME_POSITIONS[i];
+                deckSelectionTextSceneObject->mScale = STORY_DECK_NAME_SCALES;
+            }
+            
             mCardFamilyContainerBot = std::make_unique<SwipeableContainer<CardFamilyEntry>>
             (
                 ContainerType::HORIZONTAL_LINE,
@@ -654,7 +687,18 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                 *scene
             ));
             
-            DeckSelected(0, false);
+            mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
+            (
+                BACK_BUTTON_POSITION,
+                BUTTON_SCALE,
+                game_constants::DEFAULT_FONT_NAME,
+                "Back",
+                BACK_BUTTON_NAME,
+                [=](){ TransitionToSubScene(SubSceneType::MAIN, scene); },
+                *scene
+            ));
+            
+            DeckSelected(0, false, scene);
         } break;
             
         case SubSceneType::EXTRAS:
@@ -717,6 +761,13 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
             continue;
         }
         
+        if (sceneObject->mName == STORY_DECK_SCENE_OBJECT_NAMES[0] ||
+            sceneObject->mName == STORY_DECK_SCENE_OBJECT_NAMES[1] ||
+            sceneObject->mName == STORY_DECK_SCENE_OBJECT_NAMES[2])
+        {
+            continue;
+        }
+        
         sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
         CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, 1.0f, SUBSCENE_ITEM_FADE_IN_OUT_DURATION_SECS, animation_flags::NONE, sceneObjectIndex++ * STAGGERED_ITEM_ALPHA_DELAY_SECS), [=]()
         {
@@ -774,7 +825,7 @@ void MainMenuSceneLogicManager::BattleModeSelected(const strutils::StringId& but
 
 ///------------------------------------------------------------------------------------------------
 
-void MainMenuSceneLogicManager::DeckSelected(const int selectedDeckIndex, const bool forTopPlayer)
+void MainMenuSceneLogicManager::DeckSelected(const int selectedDeckIndex, const bool forTopPlayer, std::shared_ptr<scene::Scene> scene)
 {
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
     auto& respectiveDeckContainer = forTopPlayer ? mCardFamilyContainerTop : mCardFamilyContainerBot;
@@ -789,6 +840,11 @@ void MainMenuSceneLogicManager::DeckSelected(const int selectedDeckIndex, const 
     if (mActiveSubScene == SubSceneType::NEW_STORY_DECK_SELECTION)
     {
         mQuickPlayData->mBotPlayerDeck = CardDataRepository::GetInstance().GetStoryStartingFamilyCards(respectiveDeckContainer->GetItems()[selectedDeckIndex].mCardFamilyName);
+        
+        for (auto i = 0; i < AVAILABLE_STORY_DECKS_COUNT; ++i)
+        {
+            animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(scene->FindSceneObject(STORY_DECK_SCENE_OBJECT_NAMES[i]), i == selectedDeckIndex ? 1.0f : 0.0f, DECK_SELECTION_ANIMATION_DURATION_SECS), [=](){});
+        }
     }
     else
     {
