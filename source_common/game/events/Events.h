@@ -338,6 +338,12 @@ class CardDeletionAnimationFinishedEvent final
 
 ///------------------------------------------------------------------------------------------------
 
+class BlockInteractionWithHeldCardsEvent final
+{    
+};
+
+///------------------------------------------------------------------------------------------------
+
 class LastCardPlayedFinalizedEvent final
 {
 public:

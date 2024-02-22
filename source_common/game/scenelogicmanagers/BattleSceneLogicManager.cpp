@@ -1328,6 +1328,7 @@ void BattleSceneLogicManager::RegisterForEvents()
     eventSystem.RegisterForEvent<events::CardCreationEvent>(this, &BattleSceneLogicManager::OnCardCreation);
     eventSystem.RegisterForEvent<events::CardBuffedDebuffedEvent>(this, &BattleSceneLogicManager::OnCardBuffedDebuffed);
     eventSystem.RegisterForEvent<events::HeldCardSwapEvent>(this, &BattleSceneLogicManager::OnHeldCardSwap);
+    eventSystem.RegisterForEvent<events::BlockInteractionWithHeldCardsEvent>(this, &BattleSceneLogicManager::OnBlockInteractionWithHeldCards);
     eventSystem.RegisterForEvent<events::CardSummoningEvent>(this, &BattleSceneLogicManager::OnCardSummoning);
     eventSystem.RegisterForEvent<events::NewBoardCardCreatedEvent>(this, &BattleSceneLogicManager::OnNewBoardCardCreated);
     eventSystem.RegisterForEvent<events::HeroCardCreatedEvent>(this, &BattleSceneLogicManager::OnHeroCardCreated);
@@ -1584,6 +1585,13 @@ void BattleSceneLogicManager::OnCardBuffedDebuffed(const events::CardBuffedDebuf
 void BattleSceneLogicManager::OnHeldCardSwap(const events::HeldCardSwapEvent& event)
 {
     mPlayerHeldCardSceneObjectWrappers[(event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)][event.mCardIndex] = event.mCardSoWrapper;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void BattleSceneLogicManager::OnBlockInteractionWithHeldCards(const events::BlockInteractionWithHeldCardsEvent&)
+{
+    mCanInteractWithAnyHeldCard = false;
 }
 
 ///------------------------------------------------------------------------------------------------

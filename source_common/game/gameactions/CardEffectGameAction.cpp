@@ -81,16 +81,6 @@ void CardEffectGameAction::VSetNewGameState()
     auto cardId = activePlayerState.mPlayerBoardCards.back();
     const auto& cardEffectData = CardDataRepository::GetInstance().GetCardData(cardId, mBoardState->GetActivePlayerIndex());
     
-    HandleCardEffect(cardEffectData.mCardEffect);
-    
-    // shouldn't really happen
-    if (activePlayerState.mPlayerBoardCardStatOverrides.size() == activePlayerState.mPlayerBoardCards.size())
-    {
-        activePlayerState.mPlayerBoardCardStatOverrides.pop_back();
-    }
-    
-    activePlayerState.mPlayerBoardCards.pop_back();
-    
     // Handle single use spells
     if (cardEffectData.mIsSingleUse)
     {
@@ -131,8 +121,20 @@ void CardEffectGameAction::VSetNewGameState()
                     heldCardIter++;
                 }
             }
+            
+            events::EventSystem::GetInstance().DispatchEvent<events::BlockInteractionWithHeldCardsEvent>();
         }
     }
+    
+    HandleCardEffect(cardEffectData.mCardEffect);
+    
+    // shouldn't really happen
+    if (activePlayerState.mPlayerBoardCardStatOverrides.size() == activePlayerState.mPlayerBoardCards.size())
+    {
+        activePlayerState.mPlayerBoardCardStatOverrides.pop_back();
+    }
+    
+    activePlayerState.mPlayerBoardCards.pop_back();
     
     // Card Token special case
     if (mCardTokenCase)
@@ -354,7 +356,7 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
     mAffectedBoardCardsStatType = AffectedStatType::NONE;
     mEffectValue = 0;
     mAffectedCards.clear();
-    
+        
     mEffectComponents = strutils::StringSplit(effect, ' ');
     const auto& boardCards = mBoardState->GetActivePlayerState().mPlayerBoardCards;
     const auto& heldCards = mBoardState->GetActivePlayerState().mPlayerHeldCards;
