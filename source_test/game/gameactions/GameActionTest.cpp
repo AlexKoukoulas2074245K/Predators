@@ -440,7 +440,7 @@ TEST_F(GameActionTests, TestDemonPunchDamageAndWeightReduction)
 
 TEST_F(GameActionTests, TestMeteorDamageAndCardSacrifice)
 {
-    mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {GET_CARD_ID("Meteor")}; // Top player has a deck of Meteors and Velociraptors
+    mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {GET_CARD_ID("Meteor"), GET_CARD_ID("Velociraptor")}; // Top player has a deck of Meteors and Velociraptors
     mBoardState->GetPlayerStates()[1].mPlayerDeckCards = {GET_CARD_ID("Bunny")}; // Bot player has a deck of Bunnies(1,1)
     
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
@@ -448,7 +448,7 @@ TEST_F(GameActionTests, TestMeteorDamageAndCardSacrifice)
     
     mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = GET_CARD_WEIGHT("Meteor") + GET_CARD_WEIGHT("Velociraptor");
     mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = GET_CARD_WEIGHT("Meteor") + GET_CARD_WEIGHT("Velociraptor");
-    mBoardState->GetPlayerStates()[0].mPlayerHeldCards = { GET_CARD_ID("Meteor"), GET_CARD_ID("Velociraptor")};
+    mBoardState->GetPlayerStates()[0].mPlayerHeldCards = { GET_CARD_ID("Meteor"), GET_CARD_ID("Velociraptor") };
     
     mActionEngine->AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "0" }});
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
@@ -458,6 +458,29 @@ TEST_F(GameActionTests, TestMeteorDamageAndCardSacrifice)
     EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerDeckCards.size(), 1); // Deck was emptied (single use spell + sacrificed card) and then replaced with tokens
     EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerDeckCards.front(), GET_CARD_ID("Card Token")); // Deck was emptied (single use spell + sacrificed card) and then replaced with tokens
     EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH - 2 * GET_CARD_DAMAGE("Velociraptor")); // Meteor does 2 * Attack of sacrified card
+}
+
+TEST_F(GameActionTests, TestMeteorDamageWithMetalClawsAndCardSacrifice)
+{
+    mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {GET_CARD_ID("Meteor"), GET_CARD_ID("Velociraptor"), GET_CARD_ID("Metal Claws")}; // Top player has a deck of Meteors, Velociraptors and Metal Claws
+    mBoardState->GetPlayerStates()[1].mPlayerDeckCards = {GET_CARD_ID("Bunny")}; // Bot player has a deck of Bunnies(1,1)
+    
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = GET_CARD_WEIGHT("Meteor") + GET_CARD_WEIGHT("Velociraptor") + GET_CARD_WEIGHT("Metal Claws");
+    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = GET_CARD_WEIGHT("Meteor") + GET_CARD_WEIGHT("Velociraptor") + GET_CARD_WEIGHT("Metal Claws");
+    mBoardState->GetPlayerStates()[0].mPlayerHeldCards = { GET_CARD_ID("Meteor"), GET_CARD_ID("Velociraptor"), GET_CARD_ID("Metal Claws") };
+    
+    mActionEngine->AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "2" }}); // Play Metal Claws
+    mActionEngine->AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "0" }}); // Play Meteor
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHeldCards.size(), 0); // Velociraptor was sacrificed
+    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerDeckCards.size(), 1); // Deck only has Metal Claws left
+    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerDeckCards.front(), GET_CARD_ID("Metal Claws")); // Deck only has Metal Claws left
+    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH - 2 * (GET_CARD_DAMAGE("Velociraptor") + 1)); // Meteor does 2 * Attack of sacrified card. Sacrificed card has +1 attack from Metal Claws
 }
 
 

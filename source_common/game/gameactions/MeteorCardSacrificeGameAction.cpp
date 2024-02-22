@@ -10,6 +10,7 @@
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/CardDestructionGameAction.h>
 #include <game/GameConstants.h>
+#include <game/GameRuleEngine.h>
 #include <game/events/EventSystem.h>
 #include <game/gameactions/MeteorCardSacrificeGameAction.h>
 #include <game/gameactions/MeteorDamageGameAction.h>
@@ -26,16 +27,41 @@ static const strutils::StringId METEOR_DAMAGE_GAME_ACTION_NAME = strutils::Strin
 void MeteorCardSacrificeGameAction::VSetNewGameState()
 {
     auto& activePlayerState = mBoardState->GetActivePlayerState();
+    auto meteorDamage = 0;
+    int selectedCardIdToSacrifice = -1;
     
-    // Find Dino to sacrifice
-    auto randomHeldCardIndex = math::ControlledRandomInt() % activePlayerState.mPlayerHeldCards.size();
-    auto cardData = CardDataRepository::GetInstance().GetCardData(activePlayerState.mPlayerHeldCards[randomHeldCardIndex], mBoardState->GetActivePlayerIndex());
-    while (cardData.IsSpell() || cardData.mCardFamily != game_constants::DINOSAURS_FAMILY_NAME)
+    // If played from token there isn't going to be a dino in deck
+    if (std::find_if(activePlayerState.mPlayerHeldCards.begin(), activePlayerState.mPlayerHeldCards.end(), [&](const int cardId)
     {
-        randomHeldCardIndex = math::ControlledRandomInt() % activePlayerState.mPlayerHeldCards.size();
-        cardData = CardDataRepository::GetInstance().GetCardData(activePlayerState.mPlayerHeldCards[randomHeldCardIndex], mBoardState->GetActivePlayerIndex());
+        const auto& cardData = CardDataRepository::GetInstance().GetCardData(cardId, mBoardState->GetActivePlayerIndex());
+        return !cardData.IsSpell() && cardData.mCardFamily == game_constants::DINOSAURS_FAMILY_NAME;
+    }) == activePlayerState.mPlayerHeldCards.end())
+    {
+        meteorDamage = 0;
+        return;
     }
-    auto selectedCardIdToSacrifice = activePlayerState.mPlayerHeldCards[randomHeldCardIndex];
+    else
+    {
+        // Find Dino to sacrifice
+        auto randomHeldCardIndex = math::ControlledRandomInt() % activePlayerState.mPlayerHeldCards.size();
+        auto cardData = CardDataRepository::GetInstance().GetCardData(activePlayerState.mPlayerHeldCards[randomHeldCardIndex], mBoardState->GetActivePlayerIndex());
+        while (cardData.IsSpell() || cardData.mCardFamily != game_constants::DINOSAURS_FAMILY_NAME)
+        {
+            randomHeldCardIndex = math::ControlledRandomInt() % activePlayerState.mPlayerHeldCards.size();
+            cardData = CardDataRepository::GetInstance().GetCardData(activePlayerState.mPlayerHeldCards[randomHeldCardIndex], mBoardState->GetActivePlayerIndex());
+        }
+        selectedCardIdToSacrifice = activePlayerState.mPlayerHeldCards[randomHeldCardIndex];
+        
+        // Calculate meteor damage
+        meteorDamage = cardData.mCardDamage;
+        auto& attackingPlayerOverrides = mBoardState->GetPlayerStates()[mBoardState->GetActivePlayerIndex()].mPlayerHeldCardStatOverrides;
+        auto cardIndex = std::distance(activePlayerState.mPlayerHeldCards.begin(), std::find(activePlayerState.mPlayerHeldCards.begin(), activePlayerState.mPlayerHeldCards.end(), selectedCardIdToSacrifice));
+        if (!attackingPlayerOverrides.empty() && static_cast<int>(attackingPlayerOverrides.size()) > cardIndex && attackingPlayerOverrides[cardIndex].count(CardStatType::DAMAGE))
+        {
+            meteorDamage = math::Max(0, attackingPlayerOverrides[cardIndex].at(CardStatType::DAMAGE));
+        }
+        meteorDamage *= 2;
+    }
     
     // Erase spell from deck
     activePlayerState.mPlayerDeckCards.erase(std::remove(activePlayerState.mPlayerDeckCards.begin(), activePlayerState.mPlayerDeckCards.end(), selectedCardIdToSacrifice), activePlayerState.mPlayerDeckCards.end());
@@ -78,7 +104,7 @@ void MeteorCardSacrificeGameAction::VSetNewGameState()
     
     mGameActionEngine->AddGameAction(METEOR_DAMAGE_GAME_ACTION_NAME,
     {
-        { MeteorDamageGameAction::METEOR_DAMAGE_PARAM, std::to_string(cardData.mCardDamage * 2)}
+        { MeteorDamageGameAction::METEOR_DAMAGE_PARAM, std::to_string(meteorDamage)}
     });
 }
 
