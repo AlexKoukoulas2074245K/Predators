@@ -170,7 +170,7 @@
             "family": "rodents",
             "name": "Fluff Attack",
             "effect": "DAMAGE +2 FAMILY BOARD HELD",
-            "tooltip": "Damage +2 for ALL$Rodents on hand &$board",
+            "tooltip": "Attack +2 for ALL$Rodents on hand &$board",
             "texture": "rodents_attack.png",
             "shader": "basic.vs"
         },
@@ -178,8 +178,8 @@
             "weight": 0,
             "family": "rodents",
             "name": "Fuzzy Speed",
-            "effect": "DRAW +2 GAIN_1_WEIGHT",
-            "tooltip": " $Draw 2 Cards and$gain 1 Weight",
+            "effect": "DRAW +2 GAIN_2_WEIGHT",
+            "tooltip": " $Draw 2 Cards and$gain 2 WEIGHT",
             "texture": "fuzz_speed.png",
             "shader": "basic.vs",
             "single_use": true
@@ -189,7 +189,7 @@
             "family": "dinosaurs",
             "name": "Throwing Net",
             "effect": "DAMAGE -2 ENEMY_BOARD_DEBUFF",
-            "tooltip": "Damage -2 for ALL$normal cards the$opponent plays on$their next turn",
+            "tooltip": "ATTACK -2 for ALL$normal cards the$opponent plays on$their next turn",
             "texture": "net.png",
             "shader": "basic.vs"
         },
@@ -207,7 +207,7 @@
             "family": "dinosaurs",
             "name": "Feathery Dino",
             "effect": "WEIGHT -2 FAMILY HELD",
-            "tooltip": " $Weight -2 for ALL$Dinosaurs on hand",
+            "tooltip": " $WEIGHT -2 for ALL$Dinosaurs on hand",
             "texture": "dino_with_feathers.png",
             "shader": "basic.vs"
         },
@@ -235,7 +235,7 @@
             "family": "dinosaurs",
             "name": "Mighty Dino Roar",
             "effect": "DOUBLE_NEXT_DINO_DAMAGE",
-            "tooltip": "Doubles the damage$of the next dinosaur$you play this turn",
+            "tooltip": "Doubles the ATTACK$of the next dinosaur$you play this turn",
             "texture": "mighty_roar.png",
             "shader": "basic.vs"
         },
@@ -253,7 +253,7 @@
             "family": "dinosaurs",
             "name": "Metal Claws",
             "effect": "DAMAGE +1 FAMILY BOARD HELD",
-            "tooltip": "Damage +1 for ALL$Dinosaurs on your$hand & board",
+            "tooltip": "ATTACK +1 for ALL$Dinosaurs on your$hand & board",
             "texture": "metal_claw.png",
             "shader": "basic.vs"
         },
@@ -340,7 +340,7 @@
             "family": "rodents",
             "name": "Vampire Rodents",
             "effect": "RODENT_LIFESTEAL_ON_ATTACKS",
-            "tooltip": "All rodent attacks$will HEAL you this$turn for every point$of DAMAGE dealt",
+            "tooltip": "All rodent attacks$will HEAL you this$turn for every point$of damage dealt",
             "texture": "vampire_bunny.png",
             "shader": "basic.vs",
             "single_use": true
@@ -350,7 +350,7 @@
             "family": "dinosaurs",
             "name": "Dino Snack",
             "effect": "HEAL_NEXT_DINO_DAMAGE",
-            "tooltip": "The next dinosaur$played will HEAL$you for 100% of its$current DAMAGE",
+            "tooltip": "The next dinosaur$played will HEAL$you for 100% of its$current ATTACK",
             "texture": "hungry_dinosaur.png",
             "shader": "basic.vs",
             "single_use": true
@@ -427,13 +427,21 @@
             "damage": 1,
             "weight": 2,
             "family": "demons_normal",
-            "name": "Youngster Demon",
+            "name": "Baby Demon",
             "texture": "story_cards/baby_demon.png",
             "shader": "basic.vs"
         },
         {
-            "damage": 1,
+            "damage": 2,
             "weight": 3,
+            "family": "demons_normal",
+            "name": "Dark Baby",
+            "texture": "story_cards/dark_demon_baby.png",
+            "shader": "basic.vs"
+        },
+        {
+            "damage": 3,
+            "weight": 4,
             "family": "demons_normal",
             "name": "Clown Imp",
             "texture": "story_cards/small_imp.png",
@@ -454,7 +462,7 @@
             "family": "demons_normal",
             "name": "Dark Magic",
             "effect": "DAMAGE +1 FAMILY BOARD HELD",
-            "tooltip": "Damage +1 for ALL$Demons on hand &$board",
+            "tooltip": "ATTACK +1 for ALL$Demons on hand &$board",
             "texture": "story_cards/demon_wizard.png",
             "shader": "basic.vs",
             "single_use": false
@@ -464,7 +472,7 @@
             "family": "demons_medium",
             "name": "Demon Glare",
             "effect": "DAMAGE -2 ENEMY_BOARD_DEBUFF",
-            "tooltip": "Damage -2 for ALL$normal cards the$opponent plays on$their next turn",
+            "tooltip": "ATTACK -2 for ALL$normal cards the$opponent plays on$their next turn",
             "texture": "story_cards/demon_strength.png",
             "shader": "basic.vs",
             "single_use": true
@@ -483,7 +491,7 @@
             "family": "demons_medium",
             "name": "Chaos Magic",
             "effect": "DAMAGE +4 FAMILY BOARD HELD",
-            "tooltip": "Damage +4 for ALL$Demons on hand &$board",
+            "tooltip": "ATTACK +4 for ALL$Demons on hand &$board",
             "texture": "story_cards/demon_ritual.png",
             "shader": "basic.vs",
             "single_use": false
@@ -529,8 +537,18 @@
             "family": "demons_hard",
             "name": "Chaos Glare",
             "effect": "DAMAGE -6 ENEMY_BOARD_DEBUFF",
-            "tooltip": "Damage -6 for ALL$normal cards the$opponent plays on$their next turn",
+            "tooltip": "ATTACK -6 for ALL$normal cards the$opponent plays on$their next turn",
             "texture": "story_cards/elite_demon_strength.png",
+            "shader": "basic.vs",
+            "single_use": true
+        },
+        {
+            "weight": 5,
+            "family": "dinosaurs",
+            "name": "Meteor",
+            "effect": "METEOR",
+            "tooltip": "Sacrifices a normal$held dinosaur card$to inflict double$its attack in damage",
+            "texture": "meteor.png",
             "shader": "basic.vs",
             "single_use": true
         }

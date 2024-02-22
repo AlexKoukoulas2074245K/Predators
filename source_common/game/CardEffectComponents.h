@@ -45,6 +45,7 @@ inline const std::string EFFECT_COMPONENT_FAMILY                               =
 inline const std::string EFFECT_COMPONENT_ENEMY_BOARD_DEBUFF                   = "ENEMY_BOARD_DEBUFF";
 inline const std::string EFFECT_COMPONENT_DRAW                                 = "DRAW";
 inline const std::string EFFECT_COMPONENT_GAIN_1_WEIGHT                        = "GAIN_1_WEIGHT";
+inline const std::string EFFECT_COMPONENT_GAIN_2_WEIGHT                        = "GAIN_2_WEIGHT";
 inline const std::string EFFECT_COMPONENT_CARD_TOKEN                           = "CARD_TOKEN";
 inline const std::string EFFECT_COMPONENT_KILL                                 = "KILL";
 inline const std::string EFFECT_COMPONENT_DEMON_KILL                           = "DEMON_KILL";
@@ -65,6 +66,7 @@ inline const std::string EFFECT_COMPONENT_HEAL_NEXT_DINO_DAMAGE                =
 inline const std::string EFFECT_COMPONENT_INSECT_MEGASWARM                     = "INSECT_MEGASWARM";
 inline const std::string EFFECT_COMPONENT_INSECT_VIRUS                         = "INSECT_VIRUS";
 inline const std::string EFFECT_COMPONENT_HOUND_SUMMONING                      = "HOUND_SUMMON";
+inline const std::string EFFECT_COMPONENT_METEOR                               = "METEOR";
 
 inline const std::unordered_set<std::string> STATIC_EFFECT_COMPONENT_NAMES =
 {
@@ -83,6 +85,7 @@ inline const std::unordered_set<std::string> STATIC_EFFECT_COMPONENT_NAMES =
     EFFECT_COMPONENT_DOUBLE_POISON_ATTACKS,
     EFFECT_COMPONENT_PERMANENT_CONTINUAL_WEIGHT_REDUCTION,
     EFFECT_COMPONENT_GAIN_1_WEIGHT,
+    EFFECT_COMPONENT_GAIN_2_WEIGHT,
     EFFECT_COMPONENT_DIG_NO_FAIL,
     EFFECT_COMPONENT_DRAW_RANDOM_SPELL,
     EFFECT_COMPONENT_CARD_TOKEN,
@@ -93,7 +96,8 @@ inline const std::unordered_set<std::string> STATIC_EFFECT_COMPONENT_NAMES =
     EFFECT_COMPONENT_HEAL_NEXT_DINO_DAMAGE,
     EFFECT_COMPONENT_INSECT_MEGASWARM,
     EFFECT_COMPONENT_INSECT_VIRUS,
-    EFFECT_COMPONENT_HOUND_SUMMONING
+    EFFECT_COMPONENT_HOUND_SUMMONING,
+    EFFECT_COMPONENT_METEOR
 };
 
 ///------------------------------------------------------------------------------------------------

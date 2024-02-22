@@ -42,6 +42,7 @@ static const strutils::StringId CARD_PLAYED_PARTICLE_EFFECT_GAME_ACTION_NAME = s
 static const strutils::StringId INSECT_MEGASWARM_GAME_ACTION_NAME = strutils::StringId("InsectMegaSwarmGameAction");
 static const strutils::StringId HOUND_SUMMONING_GAME_ACTION_NAME = strutils::StringId("HoundSummoningGameAction");
 static const strutils::StringId DEMON_PUNCH_GAME_ACTION_NAME = strutils::StringId("DemonPunchGameAction");
+static const strutils::StringId METEOR_CARD_SACRIFICE_GAME_ACTION_NAME = strutils::StringId("MeteorCardSacrificeGameAction");
 
 // Resources
 static const std::string EFFECT_SFX = "sfx_chime";
@@ -84,6 +85,7 @@ void CardEffectGameAction::VSetNewGameState()
     // Handle single use spells
     if (cardEffectData.mIsSingleUse)
     {
+        // Erase spell from deck
         activePlayerState.mPlayerDeckCards.erase(std::remove(activePlayerState.mPlayerDeckCards.begin(), activePlayerState.mPlayerDeckCards.end(), cardId), activePlayerState.mPlayerDeckCards.end());
         if (activePlayerState.mPlayerDeckCards.empty())
         {
@@ -474,6 +476,12 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
             mCardBoardEffectMask = effects::board_modifier_masks::HEAL_NEXT_DINO_DAMAGE;
         }
         
+        // Meteor
+        else if (effectComponent == effects::EFFECT_COMPONENT_METEOR)
+        {
+            mGameActionEngine->AddGameAction(METEOR_CARD_SACRIFICE_GAME_ACTION_NAME);
+        }
+        
         // Rodents Lifesteal
         else if (effectComponent == effects::EFFECT_COMPONENT_RODENT_LIFESTEAL_ON_ATTACKS)
         {
@@ -488,10 +496,17 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
             mCardBoardEffectMask = effects::board_modifier_masks::DOUBLE_POISON_ATTACKS;
         }
         
-        // Gain Weight Component
+        // Gain 1 Weight Component
         else if (effectComponent == effects::EFFECT_COMPONENT_GAIN_1_WEIGHT)
         {
             mBoardState->GetActivePlayerState().mPlayerCurrentWeightAmmo++;
+            events::EventSystem::GetInstance().DispatchEvent<events::WeightChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
+        }
+        
+        // Gain 2 Weight Component
+        else if (effectComponent == effects::EFFECT_COMPONENT_GAIN_2_WEIGHT)
+        {
+            mBoardState->GetActivePlayerState().mPlayerCurrentWeightAmmo += 2;
             events::EventSystem::GetInstance().DispatchEvent<events::WeightChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
         }
         

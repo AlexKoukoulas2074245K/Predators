@@ -35,11 +35,11 @@ static const std::unordered_map<StoryMap::NodeType, std::string> MAP_NODE_TYPES_
 
 static const std::vector<std::string> EASY_FIGHT_TEXTURES =
 {
-    "story_cards/baby_demon.png",
-    "story_cards/small_imp.png",
     "story_cards/youngster_imp_puppy.png",
     "story_cards/red_youngster_imp_puppy.png",
     "story_cards/baby_dragon_dog.png",
+    "story_cards/young_meditating_demon.png",
+    "story_cards/mini_demon_wizard.png",
 };
 
 static const std::vector<std::string> MEDIUM_FIGHT_TEXTURES =

@@ -54,6 +54,18 @@ bool GameRuleEngine::CanCardBePlayed(const CardData* cardData, const size_t card
         }
     }
     
+    if (strutils::StringContains(cardData->mCardEffect, effects::EFFECT_COMPONENT_METEOR))
+    {
+        if (std::find_if(activePlayerState.mPlayerHeldCards.begin(), activePlayerState.mPlayerHeldCards.end(), [&](const int cardId)
+        {
+            const auto& cardData = CardDataRepository::GetInstance().GetCardData(cardId, mBoardState->GetActivePlayerIndex());
+            return !cardData.IsSpell() && cardData.mCardFamily == game_constants::DINOSAURS_FAMILY_NAME;
+        }) == activePlayerState.mPlayerHeldCards.end())
+        {
+            return false;
+        }
+    }
+    
     return activePlayerState.mPlayerCurrentWeightAmmo >= cardWeight && activePlayerState.mPlayerBoardCards.size() < game_constants::MAX_BOARD_CARDS;
 }
 

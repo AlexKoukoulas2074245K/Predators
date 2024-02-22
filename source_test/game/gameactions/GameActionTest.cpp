@@ -438,6 +438,29 @@ TEST_F(GameActionTests, TestDemonPunchDamageAndWeightReduction)
     EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH - 4); // Expended weight = 4.
 }
 
+TEST_F(GameActionTests, TestMeteorDamageAndCardSacrifice)
+{
+    mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {GET_CARD_ID("Meteor")}; // Top player has a deck of Meteors and Velociraptors
+    mBoardState->GetPlayerStates()[1].mPlayerDeckCards = {GET_CARD_ID("Bunny")}; // Bot player has a deck of Bunnies(1,1)
+    
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = GET_CARD_WEIGHT("Meteor") + GET_CARD_WEIGHT("Velociraptor");
+    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = GET_CARD_WEIGHT("Meteor") + GET_CARD_WEIGHT("Velociraptor");
+    mBoardState->GetPlayerStates()[0].mPlayerHeldCards = { GET_CARD_ID("Meteor"), GET_CARD_ID("Velociraptor")};
+    
+    mActionEngine->AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "0" }});
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHeldCards.size(), 0); // The other held card was sacrificed
+    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerDeckCards.size(), 1); // Deck was emptied (single use spell + sacrificed card) and then replaced with tokens
+    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerDeckCards.front(), GET_CARD_ID("Card Token")); // Deck was emptied (single use spell + sacrificed card) and then replaced with tokens
+    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH - 2 * GET_CARD_DAMAGE("Velociraptor")); // Meteor does 2 * Attack of sacrified card
+}
+
+
 TEST_F(GameActionTests, TestToxicBombPoisonStackApplicationAndWeightReductionInConjunctionWithToxicWave)
 {
     mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {GET_CARD_ID("Toxic Bomb"), GET_CARD_ID("Toxic Wave")}; // Top player has a deck of Toxic Bombs and Toxic Waves
