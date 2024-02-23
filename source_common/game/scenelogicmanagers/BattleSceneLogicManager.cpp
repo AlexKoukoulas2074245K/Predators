@@ -971,10 +971,18 @@ void BattleSceneLogicManager::UpdateMiscSceneObjects(const float dtMillis)
     for (auto& cardSoWrapper: localPlayerBoardCards)
     {
         cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
+        if (cardSoWrapper->mSceneObject->mShaderIntUniformValues[game_constants::CARD_WEIGHT_INTERACTIVE_MODE_UNIFORM_NAME] != game_constants::CARD_INTERACTIVE_MODE_INTERACTIVE)
+        {
+            cardSoWrapper->mSceneObject->mShaderIntUniformValues[game_constants::CARD_WEIGHT_INTERACTIVE_MODE_UNIFORM_NAME] = game_constants::CARD_INTERACTIVE_MODE_DEFAULT;
+        }
     }
     for (auto& cardSoWrapper: remotePlayerBoardCards)
     {
         cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
+        if (cardSoWrapper->mSceneObject->mShaderIntUniformValues[game_constants::CARD_WEIGHT_INTERACTIVE_MODE_UNIFORM_NAME] != game_constants::CARD_INTERACTIVE_MODE_INTERACTIVE)
+        {
+            cardSoWrapper->mSceneObject->mShaderIntUniformValues[game_constants::CARD_WEIGHT_INTERACTIVE_MODE_UNIFORM_NAME] = game_constants::CARD_INTERACTIVE_MODE_DEFAULT;
+        }
     }
     
     // Action Highlighters

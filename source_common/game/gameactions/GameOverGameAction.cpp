@@ -190,7 +190,7 @@ ActionAnimationUpdateResult GameOverGameAction::VUpdateAnimation(const float dtM
                     }
                     if (!isStoryFinalBoss)
                     {
-                        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(VICTORY_THEME_MUSIC, true);
+                        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(VICTORY_THEME_MUSIC, false);
                     }
                     
                     return ActionAnimationUpdateResult::FINISHED;

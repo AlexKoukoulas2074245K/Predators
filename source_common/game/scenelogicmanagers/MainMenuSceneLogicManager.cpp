@@ -33,6 +33,7 @@
 ///------------------------------------------------------------------------------------------------
 
 static constexpr int AVAILABLE_STORY_DECKS_COUNT = 3;
+static constexpr int MIN_DECK_ENTRIES_TO_SCROLL = 4;
 
 static const std::string SELECTABLE_BUTTON_SHADER_FILE_NAME = "basic_custom_color.vs";
 static const std::string DECK_ENTRY_SHADER = "card_family_selection_swipe_entry.vs";
@@ -134,8 +135,6 @@ static const float DECK_SELECTED_MIN_SCALE_FACTOR = 0.65f;
 static const float DECK_SELECTION_ANIMATION_DURATION_SECS = 0.4f;
 
 static const math::Rectangle STORY_DECK_SELECTION_CONTAINER_TOP_BOUNDS = {{-0.25f, -0.08f}, {0.2f, 0.01f}};
-
-static const int MIN_DECK_ENTRIES_TO_SCROLL = 4;
 
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
 {
