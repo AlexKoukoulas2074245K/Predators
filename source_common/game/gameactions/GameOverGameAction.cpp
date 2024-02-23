@@ -188,7 +188,7 @@ ActionAnimationUpdateResult GameOverGameAction::VUpdateAnimation(const float dtM
                     {
                         CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(STORY_VICTORY_THEME_MUSIC, true);
                     }
-                    if (!isStoryFinalBoss)
+                    else
                     {
                         CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(VICTORY_THEME_MUSIC, false);
                     }
