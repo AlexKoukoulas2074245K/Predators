@@ -553,7 +553,7 @@
             "single_use": true
         },
         {
-            "weight": 1,
+            "weight": 5,
             "family": "rodents",
             "name": "Rodent Combo",
             "effect": "EVERY_THIRD_CARD_PLAYED_HAS_ZERO_COST",
