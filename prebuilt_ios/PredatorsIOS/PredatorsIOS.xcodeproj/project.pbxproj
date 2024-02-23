@@ -48,13 +48,16 @@
 		3C57F79423A88F9B91DB228F /* HeroCardEntryGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 516E3FF0C808841DB35ACF05 /* HeroCardEntryGameAction.cpp */; };
 		3D7719CC812F54B85FE8CF15 /* LoadingSceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = D06AB41BD48F4EA034DFC9A4 /* LoadingSceneLogicManager.h */; };
 		4067D0A9431E2A682BA2B3C4 /* CardEffectComponents.h in Sources */ = {isa = PBXBuildFile; fileRef = 9F590974FFD4AB7AC83044F3 /* CardEffectComponents.h */; };
+		41154D8E3168DEEF94AC1162 /* ZeroCostTimeGameAction.h in Sources */ = {isa = PBXBuildFile; fileRef = B1C431F2BD0FD0D8477A5DF3 /* ZeroCostTimeGameAction.h */; };
 		4146EE0555B4B1018CBBAC8C /* GuiObjectManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54D1E9FC16CD3C543B9BED8D /* GuiObjectManager.cpp */; };
 		42A211CADF22FDE84E8D421E /* UnseenSpellSceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 06355C55630984C3026D2FA0 /* UnseenSpellSceneLogicManager.cpp */; };
 		42BE3DB80391E684504E7F15 /* StorySerializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA53B2AEBEFAD8B07D4F949A /* StorySerializer.cpp */; };
+		45FE6B9EE70C5E0A6CE46DD6 /* ZeroCostTimeGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 99094508C76BE0CED74DCB69 /* ZeroCostTimeGameAction.cpp */; };
 		46813F37C7B44D77848C9A04 /* CloudDataConfirmationSceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = BDB3DBBDFD5F04CBE969820C /* CloudDataConfirmationSceneLogicManager.h */; };
 		46F6BCE0E0E5C698199D1767 /* BaseDataFileDeserializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F0FFCD7AE0C78521E3B1DFF2 /* BaseDataFileDeserializer.cpp */; };
 		47FD92C7924B28A1A0161AB3 /* CardEffectGameAction.h in Sources */ = {isa = PBXBuildFile; fileRef = 684882AB57582AA7C028DE3F /* CardEffectGameAction.h */; };
 		4806A612F0016F3AA933D2E6 /* Events.h in Sources */ = {isa = PBXBuildFile; fileRef = B44A455E0B720A9A63FF5AA4 /* Events.h */; };
+		4B4CF9850E3F8C1AC25DA9BE /* stb_image_write.h in Sources */ = {isa = PBXBuildFile; fileRef = AD91490AA01CC7CAB71ABD60 /* stb_image_write.h */; };
 		4E668AB696437BCD6C4ED337 /* StorySerializer.h in Sources */ = {isa = PBXBuildFile; fileRef = EC84408B7534251FFDF0A260 /* StorySerializer.h */; };
 		4E71A19BB3DA7B87946D19C7 /* Date.h in Sources */ = {isa = PBXBuildFile; fileRef = E641ED7689F0E595A6995C4C /* Date.h */; };
 		501213E2A69B305C643A8E93 /* SettingsSceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ACB1819C4991701AB7CC0E57 /* SettingsSceneLogicManager.cpp */; };
@@ -547,6 +550,7 @@
 		977F8E7B3CD8B07CF742FF36 /* BackgroundMusicPlayer.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = BackgroundMusicPlayer.h; sourceTree = "<group>"; };
 		9791CC2CBE8337871F9E892C /* HealNextDinoDamageGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = HealNextDinoDamageGameAction.cpp; sourceTree = "<group>"; };
 		989D5D93E995723F377B2323 /* ThreadSafeQueue.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = ThreadSafeQueue.h; sourceTree = "<group>"; };
+		99094508C76BE0CED74DCB69 /* ZeroCostTimeGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = ZeroCostTimeGameAction.cpp; path = ZeroCostTimeGameAction.cpp; sourceTree = "<group>"; };
 		9F590974FFD4AB7AC83044F3 /* CardEffectComponents.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = CardEffectComponents.h; sourceTree = "<group>"; };
 		A0365F73CFA0169F1E1060B0 /* CardLibrarySceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = CardLibrarySceneLogicManager.cpp; sourceTree = "<group>"; };
 		A27D8C2596AF7ECA17A6F2DA /* SfxPlayer.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; path = SfxPlayer.mm; sourceTree = "<group>"; };
@@ -554,9 +558,11 @@
 		AB16493B917105168F0125F5 /* NextDinoDamageDoublingGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = NextDinoDamageDoublingGameAction.cpp; sourceTree = "<group>"; };
 		AB3F8F352EF07293CE136062 /* MeteorCardSacrificeGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = MeteorCardSacrificeGameAction.cpp; path = MeteorCardSacrificeGameAction.cpp; sourceTree = "<group>"; };
 		ACB1819C4991701AB7CC0E57 /* SettingsSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = SettingsSceneLogicManager.cpp; sourceTree = "<group>"; };
+		AD91490AA01CC7CAB71ABD60 /* stb_image_write.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = stb_image_write.h; path = stb_image_write.h; sourceTree = "<group>"; };
 		AF90805AEC8FDF4F7790F186 /* BattleDeserializer.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = BattleDeserializer.h; sourceTree = "<group>"; };
 		B05ED07AC0DFFAA1307DEE86 /* GiftingUtils.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = GiftingUtils.cpp; sourceTree = "<group>"; };
 		B0E40336BF3CCBB53A0B7053 /* SceneManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = SceneManager.cpp; sourceTree = "<group>"; };
+		B1C431F2BD0FD0D8477A5DF3 /* ZeroCostTimeGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ZeroCostTimeGameAction.h; path = ZeroCostTimeGameAction.h; sourceTree = "<group>"; };
 		B25A5742A2E334B615B7DF40 /* CardTooltipController.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = CardTooltipController.h; sourceTree = "<group>"; };
 		B3A902E2D8B1AD656D561A89 /* GameConstants.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = GameConstants.h; sourceTree = "<group>"; };
 		B3D605C469F5491AEE121CBB /* GameRuleEngine.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = GameRuleEngine.cpp; sourceTree = "<group>"; };
@@ -838,6 +844,8 @@
 				AB3F8F352EF07293CE136062 /* MeteorCardSacrificeGameAction.cpp */,
 				9561FAA40734F522A51B73AC /* MeteorDamageGameAction.h */,
 				BA9758B343E8E7A0B318918C /* MeteorCardSacrificeGameAction.h */,
+				99094508C76BE0CED74DCB69 /* ZeroCostTimeGameAction.cpp */,
+				B1C431F2BD0FD0D8477A5DF3 /* ZeroCostTimeGameAction.h */,
 			);
 			path = gameactions;
 			sourceTree = "<group>";
@@ -936,6 +944,7 @@
 				9185C9CB0C297CF483484A21 /* RenderingUtils.h */,
 				E765BE8BAD6EAAC5948DFB99 /* ParticleManager.cpp */,
 				07E6A4152BAC640B7D892FEF /* ParticleManager.h */,
+				AD91490AA01CC7CAB71ABD60 /* stb_image_write.h */,
 			);
 			path = rendering;
 			sourceTree = "<group>";
@@ -1584,6 +1593,9 @@
 				89D04AFD303C25537C71E7AD /* MeteorCardSacrificeGameAction.cpp in Sources */,
 				7815E90D4FE75A3C9E39CB62 /* MeteorDamageGameAction.h in Sources */,
 				8B9F4ECDF0B6DF57B7976C14 /* MeteorCardSacrificeGameAction.h in Sources */,
+				45FE6B9EE70C5E0A6CE46DD6 /* ZeroCostTimeGameAction.cpp in Sources */,
+				41154D8E3168DEEF94AC1162 /* ZeroCostTimeGameAction.h in Sources */,
+				4B4CF9850E3F8C1AC25DA9BE /* stb_image_write.h in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
