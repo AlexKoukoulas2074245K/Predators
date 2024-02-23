@@ -190,7 +190,7 @@ ActionAnimationUpdateResult GameOverGameAction::VUpdateAnimation(const float dtM
                     }
                     else
                     {
-                        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(VICTORY_THEME_MUSIC, false);
+                        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(VICTORY_THEME_MUSIC, true);
                     }
                     
                     return ActionAnimationUpdateResult::FINISHED;

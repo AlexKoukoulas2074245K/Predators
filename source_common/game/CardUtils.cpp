@@ -10,10 +10,19 @@
 #include <engine/scene/SceneObject.h>
 #include <engine/scene/SceneObjectUtils.h>
 #include <engine/sound/SoundManager.h>
+#include <engine/utils/OSMessageBox.h>
 #include <game/CardUtils.h>
 #include <game/DataRepository.h>
-
-
+#include <fstream>
+#include <engine/utils/PlatformMacros.h>
+#include <engine/utils/StringUtils.h>
+#if defined(MACOS) || defined(MOBILE_FLOW)
+#include <platform_utilities/AppleUtils.h>
+#elif defined(WINDOWS)
+#include <platform_utilities/WindowsUtils.h>
+#endif
+#include <filesystem>
+#include <SDL.h>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -117,19 +126,20 @@ CardRarity GetCardRarity(const int cardId, const size_t forPlayerIndex, const Bo
 ///------------------------------------------------------------------------------------------------
 
 std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
- (
-  const CardData* cardData,
-  const glm::vec3& position,
-  const std::string& cardNamePrefix,
-  const CardOrientation cardOrientation,
-  const CardRarity cardRarity,
-  const bool isOnBoard,
-  const bool forRemotePlayer,
-  const bool canCardBePlayed,
-  const CardStatOverrides& cardStatOverrides,
-  const CardStatOverrides& globalStatModifiers,
-  scene::Scene& scene
-  )
+(
+    const CardData* cardData,
+    const glm::vec3& position,
+    const std::string& cardNamePrefix,
+    const CardOrientation cardOrientation,
+    const CardRarity cardRarity,
+    const bool isOnBoard,
+    const bool forRemotePlayer,
+    const bool canCardBePlayed,
+    const CardStatOverrides& cardStatOverrides,
+    const CardStatOverrides& globalStatModifiers,
+    scene::Scene& scene,
+    const std::string& exportToFilePath /* = std::string() */
+)
 {
     auto cardSoWrapper = std::make_shared<CardSoWrapper>();
     
@@ -372,7 +382,7 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
             generatedTextureOverridePostfixSS << "_golden";
         }
         
-        rendering::CollateSceneObjectsIntoOne(GENERATED_R2T_NAME_PREFIX + (forRemotePlayer ? "0_id_" : "1_id_") + std::to_string(cardData->mCardId) + generatedTextureOverridePostfixSS.str(), position, cardComponents, scene);
+        rendering::CollateSceneObjectsIntoOne(GENERATED_R2T_NAME_PREFIX + (forRemotePlayer ? "0_id_" : "1_id_") + std::to_string(cardData->mCardId) + generatedTextureOverridePostfixSS.str(), position, cardComponents, "", scene);
         cardComponents.front()->mShaderResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CARD_SHADER_FILE_NAME);
         
         int weight = math::Max(0, cardStatOverrides.count(CardStatType::WEIGHT) ? cardStatOverrides.at(CardStatType::WEIGHT) : cardData->mCardWeight);
@@ -412,6 +422,13 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
         cardComponents.front()->mEffectTextureResourceIds[0] = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + (cardData->IsSpell() ? game_constants::GOLDEN_SPELL_CARD_FLAKES_MASK_TEXTURE_FILE_NAME : game_constants::GOLDEN_CARD_FLAKES_MASK_TEXTURE_FILE_NAME));
         cardComponents.front()->mEffectTextureResourceIds[1] = systemsEngine.GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + DORMANT_CARD_MASK_TEXTURE_FILE_NAME);
         cardSoWrapper->mSceneObject = cardComponents.front();
+        
+        if (!exportToFilePath.empty())
+        {
+            cardComponents.front()->mScale.x *= 2.0f;
+            cardComponents.front()->mScale.y *= -1.0f;
+            rendering::CollateSceneObjectsIntoOne(GENERATED_R2T_NAME_PREFIX + (forRemotePlayer ? "0_id_" : "1_id_") + std::to_string(cardData->mCardId) + generatedTextureOverridePostfixSS.str(), position, cardComponents, exportToFilePath, scene);
+        }
     }
     
     cardSoWrapper->mCardData = *cardData;
@@ -448,6 +465,65 @@ void PlayCardAttackSfx(const int pendingDamage, const int amountOfArmorDamaged)
     {
         CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(CARD_PLAY_SFX, false, 2.6f);
     }
+}
+
+///------------------------------------------------------------------------------------------------
+
+void ExportCardData(std::shared_ptr<scene::Scene> scene)
+{
+    CardDataRepository::GetInstance().LoadCardData(true);
+    
+    // Collect all card IDs
+    auto cardIdsToExport = CardDataRepository::GetInstance().GetCardIdsByFamily(game_constants::RODENTS_FAMILY_NAME);
+    auto dinosaurCardIds = CardDataRepository::GetInstance().GetCardIdsByFamily(game_constants::DINOSAURS_FAMILY_NAME);
+    auto insectCardIds = CardDataRepository::GetInstance().GetCardIdsByFamily(game_constants::INSECTS_FAMILY_NAME);
+    
+    cardIdsToExport.insert(cardIdsToExport.end(), dinosaurCardIds.begin(), dinosaurCardIds.end());
+    cardIdsToExport.insert(cardIdsToExport.end(), insectCardIds.begin(), insectCardIds.end());
+    
+    // Sort them
+    std::sort(cardIdsToExport.begin(), cardIdsToExport.end(), [](const int& lhs, const int& rhs)
+    {
+        const auto& lhsCardData = CardDataRepository::GetInstance().GetCardData(lhs, game_constants::LOCAL_PLAYER_INDEX);
+        const auto& rhsCardData = CardDataRepository::GetInstance().GetCardData(rhs, game_constants::LOCAL_PLAYER_INDEX);
+        
+        if ((lhsCardData.IsSpell() && rhsCardData.IsSpell()) || (!lhsCardData.IsSpell() && !rhsCardData.IsSpell()))
+        {
+            return lhsCardData.mCardWeight < rhsCardData.mCardWeight;
+        }
+        else
+        {
+            return !lhsCardData.IsSpell();
+        }
+    });
+    
+    for (auto i = 0; i < cardIdsToExport.size(); ++i)
+    {
+        const auto& cardData = CardDataRepository::GetInstance().GetCardData(cardIdsToExport[i], false);
+        auto cardEffectTooltip = cardData.mCardEffectTooltip;
+        if (cardData.IsSpell())
+        {
+            if (cardEffectTooltip[0] == ' ')
+            {
+                cardEffectTooltip = cardEffectTooltip.substr(1);
+            }
+            
+            for (auto& c: cardEffectTooltip)
+            {
+                if (c == '$')
+                {
+                    c = ' ';
+                }
+            }
+        }
+        std::string fileName = "entry=" + std::to_string(i) + " name=" + cardData.mCardName.GetString() + " effect=" + cardEffectTooltip + ".png";
+        
+#if defined(MACOS) || defined(MOBILE_FLOW)
+        CreateCardSoWrapper(&cardData, glm::vec3(0.0f), "test", CardOrientation::FRONT_FACE, CardRarity::NORMAL, false, true, true, {}, {}, *scene, apple_utils::GetPersistentDataDirectoryPath() + "card_exports/" + fileName);
+#endif
+    }
+    
+    ospopups::ShowMessageBox(ospopups::MessageBoxType::INFO, "Export Data Success", "Successfully export data for " + std::to_string(cardIdsToExport.size()) + " cards.");
 }
 
 ///------------------------------------------------------------------------------------------------

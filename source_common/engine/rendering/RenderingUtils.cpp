@@ -9,7 +9,11 @@
 #include <engine/rendering/RenderingUtils.h>
 #include <engine/rendering/OpenGL.h>
 #include <engine/rendering/IRenderer.h>
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <engine/rendering/stb_image_write.h>
+#include <engine/resloading/TextureResource.h>
 #include <engine/scene/Scene.h>
+#include <engine/utils/Logging.h>
 #include <engine/utils/PlatformMacros.h>
 
 ///------------------------------------------------------------------------------------------------
@@ -23,12 +27,12 @@ namespace rendering
 
 ///------------------------------------------------------------------------------------------------
 
-void CollateSceneObjectsIntoOne(const std::string& dynamicTextureResourceName, const glm::vec3& positionOffset, std::vector<std::shared_ptr<scene::SceneObject>>& sceneObjects, scene::Scene& scene)
+void CollateSceneObjectsIntoOne(const std::string& dynamicTextureResourceName, const glm::vec3& positionOffset, std::vector<std::shared_ptr<scene::SceneObject>>& sceneObjects, const std::string& exportFilePath, scene::Scene& scene)
 {
     auto& resService = CoreSystemsEngine::GetInstance().GetResourceLoadingService();
     resources::ResourceId dynamicTextureResourceId = resService.HasLoadedResource(dynamicTextureResourceName, true) ? resService.GetResourceIdFromPath(dynamicTextureResourceName, true) : 0;
     
-    if (!dynamicTextureResourceId)
+    if (!dynamicTextureResourceId || !exportFilePath.empty())
     {
         int w, h;
         SDL_GL_GetDrawableSize(&CoreSystemsEngine::GetInstance().GetContextWindow(), &w, &h);
@@ -68,13 +72,36 @@ void CollateSceneObjectsIntoOne(const std::string& dynamicTextureResourceName, c
         
         CoreSystemsEngine::GetInstance().GetRenderer().VRenderSceneObjectsToTexture(sceneObjects, scene.GetCamera());
         
+        if (!exportFilePath.empty())
+        {
+            const auto width = static_cast<GLsizei>(NEW_TEXTURE_SIZE/2/currentAspectToDefaultAspect);
+            const auto height = static_cast<GLsizei>(NEW_TEXTURE_SIZE);
+            
+            GLvoid* pixels = malloc(sizeof(GLubyte) * width * height * 4);
+            GL_CALL(glReadPixels(
+               0,
+               0,
+               width,
+               height,
+               GL_RGBA,
+               GL_UNSIGNED_BYTE,
+               pixels
+            ));
+            
+            stbi_write_png(exportFilePath.c_str(), width, height, 4, pixels, width * 4);
+            
+            logging::Log(logging::LogType::INFO, "Wrote texture to file %s", exportFilePath.c_str());
+            
+            free(pixels);
+        }
+        
         dynamicTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().AddDynamicallyCreatedTextureResourceId
         (
-         dynamicTextureResourceName,
-         textureId,
-         NEW_TEXTURE_SIZE,
-         NEW_TEXTURE_SIZE
-         );
+            dynamicTextureResourceName,
+            textureId,
+            NEW_TEXTURE_SIZE,
+            NEW_TEXTURE_SIZE
+        );
         
         GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, oldFrameBuffer));
         GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, oldRenderBuffer));
@@ -88,11 +115,14 @@ void CollateSceneObjectsIntoOne(const std::string& dynamicTextureResourceName, c
         sceneObjects.front()->mPosition -= positionOffset;
     }
     
-    assert(sceneObjects.size() > 1);
-    
-    for (auto iter = sceneObjects.begin() + 1; iter != sceneObjects.end();)
+    if (exportFilePath.empty())
     {
-        iter = sceneObjects.erase(iter);
+        assert(sceneObjects.size() > 1);
+        
+        for (auto iter = sceneObjects.begin() + 1; iter != sceneObjects.end();)
+        {
+            iter = sceneObjects.erase(iter);
+        }
     }
     
     sceneObjects.front()->mTextureResourceId = dynamicTextureResourceId;

@@ -10,6 +10,7 @@
 
 ///------------------------------------------------------------------------------------------------
 
+#include <engine/resloading/ResourceLoadingService.h>
 #include <engine/utils/MathUtils.h>
 #include <memory>
 #include <vector>
@@ -24,7 +25,7 @@ namespace rendering
 
 ///------------------------------------------------------------------------------------------------
 
-void CollateSceneObjectsIntoOne(const std::string& dynamicTextureResourceName, const glm::vec3& positionOffset, std::vector<std::shared_ptr<scene::SceneObject>>& sceneObjects, scene::Scene& scene);
+void CollateSceneObjectsIntoOne(const std::string& dynamicTextureResourceName, const glm::vec3& positionOffset, std::vector<std::shared_ptr<scene::SceneObject>>& sceneObjects, const std::string& exportFilePath, scene::Scene& scene);
 
 int GetDisplayRefreshRate();
 

@@ -59,7 +59,8 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
     const bool canCardBePlayed,
     const CardStatOverrides& cardStatOverrides,
     const CardStatOverrides& globalStatModifiers,
-    scene::Scene& scene
+    scene::Scene& scene,
+    const std::string& exportToFilePath = std::string()
 );
 
 ///------------------------------------------------------------------------------------------------
@@ -69,6 +70,10 @@ void PlayCardPlaySfx(const CardData* cardData);
 ///------------------------------------------------------------------------------------------------
 
 void PlayCardAttackSfx(const int pendingDamage, const int amountOfArmorDamaged);
+
+///------------------------------------------------------------------------------------------------
+
+void ExportCardData(std::shared_ptr<scene::Scene> scene);
 
 ///------------------------------------------------------------------------------------------------
 

@@ -392,6 +392,12 @@ void Game::CreateDebugWidgets()
 //        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound("sfx_attack_light");
 //    }
 //    ImGui::End();
+    ImGui::Begin("Card Data Export", nullptr, GLOBAL_IMGUI_WINDOW_FLAGS);
+    if (ImGui::Button("Export Cards"))
+    {
+        card_utils::ExportCardData(CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(mGameSceneTransitionManager->GetActiveSceneStack().top().mActiveSceneName));
+    }
+    ImGui::End();
 
     
     // Manipulating Persistent Data

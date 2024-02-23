@@ -62,7 +62,7 @@ static const float CARD_HIGHLIGHT_ANIMATION_DURATION_SECS = 0.5f;
 static const float CARD_REWARD_SURFACE_DELAY_SECS = 0.5f;
 static const float SKIP_BUTTON_SNAP_TO_EDGE_FACTOR = 1850000.0f;
 static const float SKIP_BUTTON_MIN_ALPHA = 0.3f;
-static const float SUSPENDED_FOR_GUI_FLOW_Z_REDUCTION = 3.0f;
+static const float SUSPENDED_FOR_GUI_FLOW_Z_REDUCTION = 2.0f;
 static const float SELECTED_CARD_FLYING_Z = 24.0f;
 
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
@@ -157,6 +157,8 @@ void CardSelectionRewardSceneLogicManager::VUpdate(const float dtMillis, std::sh
             mInitialSurfacingDelaySecs -= dtMillis/1000.0f;
             if (mInitialSurfacingDelaySecs <= 0.0f)
             {
+                CoreSystemsEngine::GetInstance().GetSceneManager().RemoveScene(game_constants::WHEEL_OF_FORTUNE_SCENE);
+                
                 if (!DataRepository::GetInstance().GetNextStoryOpponentName().empty())
                 {
                     DataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::CARD_SELECTION);
