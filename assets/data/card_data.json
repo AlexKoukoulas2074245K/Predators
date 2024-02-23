@@ -551,6 +551,16 @@
             "texture": "meteor.png",
             "shader": "basic.vs",
             "single_use": true
+        },
+        {
+            "weight": 1,
+            "family": "rodents",
+            "name": "Rodent Combo",
+            "effect": "EVERY_THIRD_CARD_PLAYED_HAS_ZERO_COST",
+            "tooltip": "For the rest of this$battle, every third$card played costs 0$weight",
+            "texture": "rodent_combo.png",
+            "shader": "basic.vs",
+            "single_use": true
         }
     ]
 }

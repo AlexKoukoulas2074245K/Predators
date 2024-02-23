@@ -296,6 +296,7 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
                 case effects::board_modifier_masks::DOUBLE_NEXT_DINO_DAMAGE:
                 case effects::board_modifier_masks::HEAL_NEXT_DINO_DAMAGE:
                 case effects::board_modifier_masks::PERMANENT_CONTINUAL_WEIGHT_REDUCTION:
+                case effects::board_modifier_masks::EVERY_THIRD_CARD_PLAYED_HAS_ZERO_COST:
                 {
                     events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectTriggeredEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, mCardBoardEffectMask);
                 }
@@ -312,6 +313,7 @@ ActionAnimationUpdateResult CardEffectGameAction::VUpdateAnimation(const float d
                 events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, true,  effects::board_modifier_masks::DOUBLE_NEXT_DINO_DAMAGE);
                 events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, true,  effects::board_modifier_masks::HEAL_NEXT_DINO_DAMAGE);
                 events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, true,  effects::board_modifier_masks::PERMANENT_CONTINUAL_WEIGHT_REDUCTION);
+                events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, true,  effects::board_modifier_masks::EVERY_THIRD_CARD_PLAYED_HAS_ZERO_COST);
                 events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, true,  effects::board_modifier_masks::INSECT_VIRUS);
                 events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, true,  effects::board_modifier_masks::DOUBLE_POISON_ATTACKS);
             }
@@ -707,6 +709,14 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
         mBoardState->GetActivePlayerState().mBoardModifiers.mGlobalCardStatModifiers[sAffectedStatTypeToCardStatType.at(mAffectedBoardCardsStatType)]--;
         mBoardState->GetActivePlayerState().mBoardModifiers.mBoardModifierMask |= effects::board_modifier_masks::PERMANENT_CONTINUAL_WEIGHT_REDUCTION;
         mCardBoardEffectMask = effects::board_modifier_masks::PERMANENT_CONTINUAL_WEIGHT_REDUCTION;
+    }
+    
+    // Every third card played has zero cost component
+    else if (std::find(mEffectComponents.cbegin(), mEffectComponents.cend(), effects::EFFECT_COMPONENT_EVERY_THIRD_CARD_PLAYED_HAS_ZERO_COST) != mEffectComponents.cend())
+    {
+        mBoardState->GetActivePlayerState().mBoardModifiers.mBoardModifierMask |= effects::board_modifier_masks::EVERY_THIRD_CARD_PLAYED_HAS_ZERO_COST;
+        mBoardState->GetActivePlayerState().mPlayedCardComboThisTurn = 0;
+        mCardBoardEffectMask = effects::board_modifier_masks::EVERY_THIRD_CARD_PLAYED_HAS_ZERO_COST;
     }
     
     // Create/Modify board card stat overrides

@@ -846,6 +846,31 @@ TEST_F(GameActionTests, TestImpendingDoomAndFeatheryDinoEffects)
     EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, 30 - GET_CARD_DAMAGE("Dilophosaurus")); // Dilophosaurus can be played due to reduced weight cost and also has +2 attack due to Metal Claws
 }
 
+TEST_F(GameActionTests, TestRodentComboWeightReductionEffect)
+{
+    mBoardState->GetPlayerStates()[0].mPlayerDeckCards = { GET_CARD_ID("Rodent Combo"), GET_CARD_ID("Bunny"), GET_CARD_ID("Rex") }; // Top player has a deck of Rodent Combos, Bunnies and a Rex
+    
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = GET_CARD_WEIGHT("Rodent Combo") + 2 * GET_CARD_WEIGHT("Bunny");
+    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = GET_CARD_WEIGHT("Rodent Combo") + 2 * GET_CARD_WEIGHT("Bunny");
+    mBoardState->GetPlayerStates()[0].mPlayerHeldCards = { GET_CARD_ID("Rodent Combo"), GET_CARD_ID("Bunny"), GET_CARD_ID("Bunny"), GET_CARD_ID("Rex") };
+    
+    mActionEngine->AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "0" }}); // Rodent Combo is played
+    mActionEngine->AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "0" }}); // First Bunny is played
+    mActionEngine->AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "0" }}); // Second Bunny is played, ZeroCostTime activates
+    mActionEngine->AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "0" }}); // Rex can also be played, ZeroCostTime gets disabled
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(CARD_ATTACK_GAME_ACTION_NAME);
+    
+    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerBoardCards.size(), 3); // 2 Bunnies & 1 Rex are down
+    
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+
+    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH - 2 * GET_CARD_DAMAGE("Bunny") - GET_CARD_DAMAGE("Rex"));
+}
+
 TEST_F(GameActionTests, TestBuffedDugOutRodentsHaveCorrectModifiersPostClearingNetWithGustOfWind)
 {
     mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {GET_CARD_ID("Throwing Net")}; // Top player has a deck of Nets

@@ -417,6 +417,9 @@ void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scen
     // Permanent Continual Weight Reduction Effects
     cardBoardEffectAnimation(game_constants::PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_TOP_SCENE_OBJECT_NAME, game_constants::PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_BOT_SCENE_OBJECT_NAME);
     
+    // Permanent Continual Weight Reduction Effects
+    cardBoardEffectAnimation(game_constants::EVERY_THIRD_CARD_PLAYED_HAS_ZERO_COST_EFFECT_TOP_SCENE_OBJECT_NAME, game_constants::EVERY_THIRD_CARD_PLAYED_HAS_ZERO_COST_EFFECT_BOT_SCENE_OBJECT_NAME);
+    
     auto historyButtonSnapToEdgeFactor = HISTORY_BUTTON_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR;
 #if defined(MOBILE_FLOW)
     if (ios_utils::IsIPad())
@@ -1337,6 +1340,7 @@ void BattleSceneLogicManager::RegisterForEvents()
     eventSystem.RegisterForEvent<events::CardBuffedDebuffedEvent>(this, &BattleSceneLogicManager::OnCardBuffedDebuffed);
     eventSystem.RegisterForEvent<events::HeldCardSwapEvent>(this, &BattleSceneLogicManager::OnHeldCardSwap);
     eventSystem.RegisterForEvent<events::BlockInteractionWithHeldCardsEvent>(this, &BattleSceneLogicManager::OnBlockInteractionWithHeldCards);
+    eventSystem.RegisterForEvent<events::ZeroCostTimeEvent>(this, &BattleSceneLogicManager::OnZeroCostTimeEvent);
     eventSystem.RegisterForEvent<events::CardSummoningEvent>(this, &BattleSceneLogicManager::OnCardSummoning);
     eventSystem.RegisterForEvent<events::NewBoardCardCreatedEvent>(this, &BattleSceneLogicManager::OnNewBoardCardCreated);
     eventSystem.RegisterForEvent<events::HeroCardCreatedEvent>(this, &BattleSceneLogicManager::OnHeroCardCreated);
@@ -1604,6 +1608,41 @@ void BattleSceneLogicManager::OnBlockInteractionWithHeldCards(const events::Bloc
 
 ///------------------------------------------------------------------------------------------------
 
+void BattleSceneLogicManager::OnZeroCostTimeEvent(const events::ZeroCostTimeEvent& event)
+{
+    auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
+    auto battleScene = sceneManager.FindScene(game_constants::BATTLE_SCENE);
+    
+    auto& playerState = mBoardState->GetPlayerStates()[(event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)];
+    auto& heldSceneObjectWrappers = mPlayerHeldCardSceneObjectWrappers[(event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)];
+    
+    for (auto i = 0; i < heldSceneObjectWrappers.size(); ++i)
+    {
+        auto& cardSceneObjectWrapper = heldSceneObjectWrappers[i];
+        auto previousScale = cardSceneObjectWrapper->mSceneObject->mScale;
+        
+        battleScene->RemoveSceneObject(cardSceneObjectWrapper->mSceneObject->mName);
+        
+        heldSceneObjectWrappers[i] = card_utils::CreateCardSoWrapper
+        (
+            &cardSceneObjectWrapper->mCardData,
+            cardSceneObjectWrapper->mSceneObject->mPosition,
+            (event.mForRemotePlayer ? game_constants::TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX : game_constants::BOT_PLAYER_HELD_CARD_SO_NAME_PREFIX) + std::to_string(i),
+            (event.mForRemotePlayer ? CardOrientation::BACK_FACE : CardOrientation::FRONT_FACE),
+            card_utils::GetCardRarity(cardSceneObjectWrapper->mCardData.mCardId, event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX, *mBoardState),
+            false,
+            event.mForRemotePlayer,
+            event.mZeroCostTimeEnabled ? true : mRuleEngine->CanCardBePlayed(&heldSceneObjectWrappers[i]->mCardData, i, event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX),
+            (static_cast<int>(playerState.mPlayerHeldCardStatOverrides.size()) > i ? playerState.mPlayerHeldCardStatOverrides.at(i) : CardStatOverrides()),
+            playerState.mBoardModifiers.mGlobalCardStatModifiers,
+            *battleScene
+        );
+        heldSceneObjectWrappers[i]->mSceneObject->mScale = previousScale;
+    }
+}
+
+///------------------------------------------------------------------------------------------------
+
 void BattleSceneLogicManager::OnCardSummoning(const events::CardSummoningEvent& event)
 {
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
@@ -1816,6 +1855,10 @@ void BattleSceneLogicManager::OnBoardSideCardEffectTriggered(const events::Board
         {
             sideEffectSceneObject = battleScene->FindSceneObject(event.mForRemotePlayer ? game_constants::PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_BOT_SCENE_OBJECT_NAME);
         }
+        else if (event.mEffectBoardModifierMask == effects::board_modifier_masks::EVERY_THIRD_CARD_PLAYED_HAS_ZERO_COST)
+        {
+            sideEffectSceneObject = battleScene->FindSceneObject(event.mForRemotePlayer ? game_constants::EVERY_THIRD_CARD_PLAYED_HAS_ZERO_COST_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::EVERY_THIRD_CARD_PLAYED_HAS_ZERO_COST_EFFECT_BOT_SCENE_OBJECT_NAME);
+        }
         
         assert(sideEffectSceneObject);
         
@@ -1919,6 +1962,10 @@ void BattleSceneLogicManager::OnBoardSideCardEffectEnded(const events::BoardSide
         {
             sideEffectSceneObject = battleScene->FindSceneObject(event.mForRemotePlayer ? game_constants::PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_BOT_SCENE_OBJECT_NAME);
         }
+        else if (event.mEffectBoardModifierMask == effects::board_modifier_masks::EVERY_THIRD_CARD_PLAYED_HAS_ZERO_COST)
+        {
+            sideEffectSceneObject = battleScene->FindSceneObject(event.mForRemotePlayer ? game_constants::EVERY_THIRD_CARD_PLAYED_HAS_ZERO_COST_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::EVERY_THIRD_CARD_PLAYED_HAS_ZERO_COST_EFFECT_BOT_SCENE_OBJECT_NAME);
+        }
         
         assert(sideEffectSceneObject);
         
@@ -1933,7 +1980,7 @@ void BattleSceneLogicManager::OnBoardSideCardEffectEnded(const events::BoardSide
             
             for (auto i = 0U; i < activeEffects.size(); ++i)
             {
-                if (!event.mMassClear || (activeEffects[i]->mName == game_constants::PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_TOP_SCENE_OBJECT_NAME || activeEffects[i]->mName == game_constants::PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_BOT_SCENE_OBJECT_NAME || activeEffects[i]->mName == game_constants::INSECT_VIRUS_EFFECT_TOP_SCENE_OBJECT_NAME || activeEffects[i]->mName == game_constants::INSECT_VIRUS_EFFECT_BOT_SCENE_OBJECT_NAME))
+                if (!event.mMassClear || (activeEffects[i]->mName == game_constants::PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_TOP_SCENE_OBJECT_NAME || activeEffects[i]->mName == game_constants::PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_BOT_SCENE_OBJECT_NAME || activeEffects[i]->mName == game_constants::INSECT_VIRUS_EFFECT_TOP_SCENE_OBJECT_NAME || activeEffects[i]->mName == game_constants::INSECT_VIRUS_EFFECT_BOT_SCENE_OBJECT_NAME || activeEffects[i]->mName == game_constants::EVERY_THIRD_CARD_PLAYED_HAS_ZERO_COST_EFFECT_TOP_SCENE_OBJECT_NAME || activeEffects[i]->mName == game_constants::EVERY_THIRD_CARD_PLAYED_HAS_ZERO_COST_EFFECT_BOT_SCENE_OBJECT_NAME))
                 {
                     const auto& targetPosition = CalculateBoardEffectPosition(i, activeEffects.size(), event.mForRemotePlayer);
                     animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(activeEffects[i], targetPosition, activeEffects[i]->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){});

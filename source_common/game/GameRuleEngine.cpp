@@ -66,7 +66,7 @@ bool GameRuleEngine::CanCardBePlayed(const CardData* cardData, const size_t card
         }
     }
     
-    return activePlayerState.mPlayerCurrentWeightAmmo >= cardWeight && activePlayerState.mPlayerBoardCards.size() < game_constants::MAX_BOARD_CARDS;
+    return (activePlayerState.mPlayerCurrentWeightAmmo >= cardWeight || activePlayerState.mZeroCostTime) && activePlayerState.mPlayerBoardCards.size() < game_constants::MAX_BOARD_CARDS;
 }
 
 ///------------------------------------------------------------------------------------------------

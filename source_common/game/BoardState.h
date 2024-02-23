@@ -45,6 +45,8 @@ struct PlayerState
     int mPlayerTotalWeightAmmo = 0;
     int mPlayerCurrentWeightAmmo = 0;
     int mPlayerWeightAmmoLimit = 0;
+    int mPlayedCardComboThisTurn = 0;
+    bool mZeroCostTime = false;
     bool mHasHeroCard = false;
 };
 

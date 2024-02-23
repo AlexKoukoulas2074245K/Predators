@@ -78,6 +78,12 @@ void PostNextPlayerGameAction::VSetNewGameState()
         permanentEffectExists = true;
     }
     
+    if ((mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::EVERY_THIRD_CARD_PLAYED_HAS_ZERO_COST) != 0)
+    {
+        mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask = effects::board_modifier_masks::EVERY_THIRD_CARD_PLAYED_HAS_ZERO_COST;
+        permanentEffectExists = true;
+    }
+    
     if ((mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::INSECT_VIRUS) != 0)
     {
         mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask = effects::board_modifier_masks::INSECT_VIRUS;
@@ -101,6 +107,13 @@ void PostNextPlayerGameAction::VSetNewGameState()
                 { CardBuffedDebuffedAnimationGameAction::SCALE_FACTOR_PARAM, std::to_string(CARD_SCALE_UP_FACTOR) }
             });
         }
+    }
+    
+    if (mBoardState->GetInactivePlayerState().mZeroCostTime)
+    {
+        mBoardState->GetInactivePlayerState().mZeroCostTime = false;
+        mBoardState->GetInactivePlayerState().mPlayedCardComboThisTurn = 0;
+        events::EventSystem::GetInstance().DispatchEvent<events::ZeroCostTimeEvent>(false, mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX);
     }
     
     mBoardState->GetInactivePlayerState().mBoardCardIndicesToDestroy.clear();

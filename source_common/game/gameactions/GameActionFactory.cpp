@@ -33,6 +33,7 @@
 #include <game/gameactions/PostNextPlayerGameAction.h>
 #include <game/gameactions/RodentsDigAnimationGameAction.h>
 #include <game/gameactions/TrapTriggeredAnimationGameAction.h>
+#include <game/gameactions/ZeroCostTimeGameAction.h>
 
 #include <algorithm>
 #include <vector>
@@ -79,6 +80,7 @@ void GameActionFactory::RegisterGameActions()
     REGISTER_ACTION(HoundSummoningGameAction);
     REGISTER_ACTION(MeteorCardSacrificeGameAction);
     REGISTER_ACTION(MeteorDamageGameAction);
+    REGISTER_ACTION(ZeroCostTimeGameAction);
     std::sort(REGISTERED_ACTION_NAMES.begin(), REGISTERED_ACTION_NAMES.end(), [&](const strutils::StringId& lhs, const strutils::StringId& rhs)
     {
         return lhs.GetString() < rhs.GetString();
@@ -123,6 +125,7 @@ std::unique_ptr<BaseGameAction> GameActionFactory::CreateGameAction(const struti
     ACTION_CASE(HoundSummoningGameAction);
     ACTION_CASE(MeteorCardSacrificeGameAction);
     ACTION_CASE(MeteorDamageGameAction);
+    ACTION_CASE(ZeroCostTimeGameAction);
     assert(false && "Invalid game action name");
     return nullptr;
 }

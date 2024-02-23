@@ -404,6 +404,26 @@
             "position": { "x": 0.0, "y": -0.044, "z": 1.0 },
             "alpha": 0.0,
             "invisible": true
+        },
+        {
+            "name": "every_third_card_played_has_zero_cost_effect_top",
+            "texture": "rodent_combo.png",
+            "effect_textures": [ "trap_mask.png" ],
+            "shader": "board_side_stat_effect.vs",
+            "scale": { "x": 0.05, "y": 0.05, "z": 0.05 },
+            "position": { "x": 0.0, "y": 0.044, "z": 1.0 },
+            "alpha": 0.0,
+            "invisible": true
+        },
+        {
+            "name": "every_third_card_played_has_zero_cost_effect_bot",
+            "texture": "rodent_combo.png",
+            "effect_textures": [ "trap_mask.png" ],
+            "shader": "board_side_stat_effect.vs",
+            "scale": { "x": 0.05, "y": 0.05, "z": 0.05 },
+            "position": { "x": 0.0, "y": -0.044, "z": 1.0 },
+            "alpha": 0.0,
+            "invisible": true
         }
     ]
 }

@@ -139,6 +139,21 @@ public:
 
 ///------------------------------------------------------------------------------------------------
 
+class ZeroCostTimeEvent final
+{
+public:
+    ZeroCostTimeEvent(const bool zeroCostTimeEnabled, const bool forRemotePlayer)
+        : mZeroCostTimeEnabled(zeroCostTimeEnabled)
+        , mForRemotePlayer(forRemotePlayer)
+    {
+    }
+    
+    const bool mZeroCostTimeEnabled;
+    const bool mForRemotePlayer;
+};
+
+///------------------------------------------------------------------------------------------------
+
 class ForceSendCardBackToPositionEvent final
 {
 public:

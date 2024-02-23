@@ -75,6 +75,8 @@ namespace game_constants
     inline const strutils::StringId DIG_NO_FAIL_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("dig_no_fail_effect_bot");
     inline const strutils::StringId PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_TOP_SCENE_OBJECT_NAME = strutils::StringId("permanent_continual_weight_reduction_effect_top");
     inline const strutils::StringId PERMANENT_CONTINUAL_WEIGHT_REDUCTION_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("permanent_continual_weight_reduction_effect_bot");
+    inline const strutils::StringId EVERY_THIRD_CARD_PLAYED_HAS_ZERO_COST_EFFECT_TOP_SCENE_OBJECT_NAME = strutils::StringId("every_third_card_played_has_zero_cost_effect_top");
+    inline const strutils::StringId EVERY_THIRD_CARD_PLAYED_HAS_ZERO_COST_EFFECT_BOT_SCENE_OBJECT_NAME = strutils::StringId("every_third_card_played_has_zero_cost_effect_bot");
     inline const strutils::StringId OVERLAY_SCENE_OBJECT_NAME = strutils::StringId("overlay");
     inline const strutils::StringId GUI_SETTINGS_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("settings_button");
     inline const strutils::StringId GUI_STORY_CARDS_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("story_cards_button");
@@ -157,7 +159,8 @@ namespace game_constants
     inline constexpr int TOP_PLAYER_DEFAULT_WEIGHT_LIMIT = 10;
     inline constexpr int BOT_PLAYER_DEFAULT_WEIGHT_LIMIT = 10;
     inline constexpr int STORY_DEFAULT_MAX_HEALTH = 80;
-    
+    inline constexpr int ZERO_COST_TIME_WEIGHT_VALUE = 100;
+
     inline const float CARD_COMPONENT_Z_OFFSET = 0.1f;
     inline const float CARD_BOUNDING_RECT_X_MULTIPLIER = 0.5f;
     inline const float IN_GAME_PLAYED_CARD_Z = 0.1f;

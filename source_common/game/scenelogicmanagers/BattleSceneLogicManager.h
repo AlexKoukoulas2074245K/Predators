@@ -81,6 +81,7 @@ private:
     void OnCardBuffedDebuffed(const events::CardBuffedDebuffedEvent&);
     void OnHeldCardSwap(const events::HeldCardSwapEvent&);
     void OnBlockInteractionWithHeldCards(const events::BlockInteractionWithHeldCardsEvent&);
+    void OnZeroCostTimeEvent(const events::ZeroCostTimeEvent&);
     void OnCardSummoning(const events::CardSummoningEvent&);
     void OnNewBoardCardCreated(const events::NewBoardCardCreatedEvent&);
     void OnHeroCardCreated(const events::HeroCardCreatedEvent&);
