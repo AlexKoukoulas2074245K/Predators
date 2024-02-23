@@ -115,7 +115,7 @@ static const glm::vec3 NEW_STORY_CONFIRMATION_TEXT_TOP_POSITION = {-0.267f, 0.09
 static const glm::vec3 NEW_STORY_CONFIRMATION_TEXT_MIDDLE_POSITION = {-0.282f, 0.039f, 23.1f};
 static const glm::vec3 NEW_STORY_CONFIRMATION_TEXT_BOT_POSITION = {-0.205f, -0.012f, 23.1f};
 static const glm::vec3 NEW_STORY_DECK_SELECTION_TEXT_POSITION = {-0.169f, 0.115f, 0.1f};
-static const glm::vec3 START_NEW_STORY_BUTTON_POSITION = {-0.058f, -0.145f, 23.1f};
+static const glm::vec3 START_NEW_STORY_BUTTON_POSITION = {-0.055f, -0.145f, 23.1f};
 static const glm::vec3 STORY_DECK_NAME_POSITIONS[AVAILABLE_STORY_DECKS_COUNT] =
 {
     { -0.202f, 0.054f, 0.1f},
@@ -843,7 +843,16 @@ void MainMenuSceneLogicManager::DeckSelected(const int selectedDeckIndex, const 
         
         for (auto i = 0; i < AVAILABLE_STORY_DECKS_COUNT; ++i)
         {
-            animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(scene->FindSceneObject(STORY_DECK_SCENE_OBJECT_NAMES[i]), i == selectedDeckIndex ? 1.0f : 0.0f, DECK_SELECTION_ANIMATION_DURATION_SECS), [=](){});
+            animationManager.StopAllAnimationsPlayingForSceneObject(STORY_DECK_SCENE_OBJECT_NAMES[i]);
+            
+            if (i == selectedDeckIndex)
+            {
+                animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(scene->FindSceneObject(STORY_DECK_SCENE_OBJECT_NAMES[i]), 1.0f, DECK_SELECTION_ANIMATION_DURATION_SECS), [=](){});
+            }
+            else
+            {
+                scene->FindSceneObject(STORY_DECK_SCENE_OBJECT_NAMES[i])->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+            }
         }
     }
     else
