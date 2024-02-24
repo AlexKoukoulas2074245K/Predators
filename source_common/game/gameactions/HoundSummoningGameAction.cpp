@@ -118,7 +118,7 @@ void HoundSummoningGameAction::VInitAnimation()
         
         systemsEngine.GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(newCardSoWrappers.back()->mSceneObject, targetPosition, NEW_CARD_TARGET_SCALE, DUPLICATION_ANIMATION_SECS_DURATION, animation_flags::NONE, i * DUPLICATION_ANIMATION_SECS_DURATION/3, math::LinearFunction, math::TweeningMode::EASE_IN), [=]()
         {
-            card_utils::PlayCardPlaySfx(&newCardSoWrappers[i]->mCardData);
+            card_utils::PlayCardPlaySfx(&cardData);
             
             CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE)->GetCamera().Shake(CARD_CAMERA_SHAKE_DURATION, CARD_CAMERA_SHAKE_STRENGTH);
             CoreSystemsEngine::GetInstance().GetParticleManager().CreateParticleEmitterAtPosition
