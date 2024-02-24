@@ -36,6 +36,11 @@ void ZeroCostTimeGameAction::VSetNewGameState()
         }
         
         events::EventSystem::GetInstance().DispatchEvent<events::ZeroCostTimeEvent>(true, mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
+        
+        for (auto i = 0; i < mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.size(); ++i)
+        {
+            events::EventSystem::GetInstance().DispatchEvent<events::ForceSendCardBackToPositionEvent>(i, false, mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
+        }
     }
     else if (activePlayerState.mPlayedCardComboThisTurn == 3)
     {
@@ -47,12 +52,18 @@ void ZeroCostTimeGameAction::VSetNewGameState()
             mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.resize(mBoardState->GetActivePlayerState().mPlayerHeldCards.size());
         }
             
-        for (auto& heldCardStatOverride: mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides)
+        for (auto i = 0; i < mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.size(); ++i)
         {
+            auto& heldCardStatOverride = mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides[i];
             heldCardStatOverride[CardStatType::WEIGHT] += game_constants::ZERO_COST_TIME_WEIGHT_VALUE;
         }
         
         events::EventSystem::GetInstance().DispatchEvent<events::ZeroCostTimeEvent>(false, mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
+        
+        for (auto i = 0; i < mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.size(); ++i)
+        {
+            events::EventSystem::GetInstance().DispatchEvent<events::ForceSendCardBackToPositionEvent>(i, false, mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
+        }
     }
 }
 

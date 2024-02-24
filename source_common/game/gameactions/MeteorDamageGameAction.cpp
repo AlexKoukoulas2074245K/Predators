@@ -131,8 +131,6 @@ void MeteorDamageGameAction::VInitAnimation()
         // Time delay the actual armor/health reduction animatinos
         CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TimeDelayAnimation>(CAMERA_SHAKE_DURATION), [=]()
         {
-            mFinished = true;
-            
             if (mPendingDamage != 0)
             {
                 if (mAmountOfArmorDamaged > 0)
@@ -143,13 +141,19 @@ void MeteorDamageGameAction::VInitAnimation()
                     {
                         CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TimeDelayAnimation>(game_constants::PER_ARMOR_DROPPED_DELAY_ANIMATION_DURATION_SECS * mAmountOfArmorDamaged), [&]()
                         {
+                            mFinished = true;
                             events::EventSystem::GetInstance().DispatchEvent<events::HealthChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX);
                         });
+                    }
+                    else
+                    {
+                        mFinished = true;
                     }
                 }
                 else
                 {
                     events::EventSystem::GetInstance().DispatchEvent<events::HealthChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX);
+                    mFinished = true;
                 }
             }
         });

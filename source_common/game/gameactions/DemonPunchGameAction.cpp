@@ -137,17 +137,21 @@ void DemonPunchGameAction::VInitAnimation()
                     {
                         CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TimeDelayAnimation>(game_constants::PER_ARMOR_DROPPED_DELAY_ANIMATION_DURATION_SECS * mAmountOfArmorDamaged), [&]()
                         {
+                            mAnimationState = ActionState::FINISHED;
                             events::EventSystem::GetInstance().DispatchEvent<events::HealthChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX);
                         });
+                    }
+                    else
+                    {
+                        mAnimationState = ActionState::FINISHED;
                     }
                 }
                 else
                 {
                     events::EventSystem::GetInstance().DispatchEvent<events::HealthChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX);
+                    mAnimationState = ActionState::FINISHED;
                 }
             }
-            
-            mAnimationState = ActionState::FINISHED;
         });
         
         CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(EXPLOSION_SFX);

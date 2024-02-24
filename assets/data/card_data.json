@@ -235,7 +235,7 @@
             "family": "dinosaurs",
             "name": "Mighty Dino Roar",
             "effect": "DOUBLE_NEXT_DINO_DAMAGE",
-            "tooltip": "Doubles the ATTACK$of the next dinosaur$you play this turn",
+            "tooltip": "Doubles the$ATTACK of the$next dinosaur you$play this turn",
             "texture": "mighty_roar.png",
             "shader": "basic.vs"
         },
@@ -317,7 +317,7 @@
             "family": "dinosaurs",
             "name": "Dino Armor",
             "effect": "ARMOR +2",
-            "tooltip": "Gives +2 ARMOR now$and at the start of$every new turn",
+            "tooltip": "Gives +2 ARMOR$now and at the start$of every new turn",
             "texture": "dino_armor.png",
             "shader": "basic.vs",
             "single_use": true

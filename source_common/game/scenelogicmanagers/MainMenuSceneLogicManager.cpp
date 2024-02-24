@@ -686,17 +686,6 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                 *scene
             ));
             
-            mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
-            (
-                BACK_BUTTON_POSITION,
-                BUTTON_SCALE,
-                game_constants::DEFAULT_FONT_NAME,
-                "Back",
-                BACK_BUTTON_NAME,
-                [=](){ TransitionToSubScene(SubSceneType::MAIN, scene); },
-                *scene
-            ));
-            
             DeckSelected(0, false, scene);
         } break;
             

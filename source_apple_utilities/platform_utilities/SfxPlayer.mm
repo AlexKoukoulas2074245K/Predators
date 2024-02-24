@@ -14,6 +14,7 @@
 
 @interface SfxPlayer (Private)
 - (BOOL)initOpenAL;
+- (BOOL)destroyOpenAL;
 - (NSUInteger) nextAvailableSource;
 - (AudioFileID) openAudioFile:(NSString*)fileName;
 - (UInt32) audioFileSize:(AudioFileID)fileDescriptor;
@@ -40,6 +41,7 @@
 
 - (void) resumeSfx
 {
+    [self initOpenAL];
     _targetSfxVolume = MAX_SFX_VOLUME;
 }
 
@@ -69,6 +71,19 @@
     }
     
     return NO;
+}
+
+- (BOOL) destroyOpenAL
+{
+    for (NSNumber* sourceNumber in _soundSources)
+    {
+        ALuint nsInt = static_cast<ALuint>([sourceNumber unsignedIntValue]);
+        alDeleteSources(1, &nsInt);
+    }
+    
+    alcDestroyContext(_context);
+    alcCloseDevice(_device);
+    return YES;
 }
 
 - (void) loadSoundWithName:(NSString *)soundName filePath:(NSString *)filePath
