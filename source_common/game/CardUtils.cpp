@@ -206,7 +206,14 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
             cardComponents.push_back(std::make_shared<scene::SceneObject>());
             scene::TextSceneObjectData weightTextData;
             weightTextData.mFontName = game_constants::FONT_PLACEHOLDER_WEIGHT_NAME;
-            weightTextData.mText = std::to_string(cardData->mCardWeight);
+            
+            int weight = math::Max(0, cardStatOverrides.count(CardStatType::WEIGHT) ? cardStatOverrides.at(CardStatType::WEIGHT) : cardData->mCardWeight);
+            if (globalStatModifiers.count(CardStatType::WEIGHT))
+            {
+                weight = math::Max(0, weight + globalStatModifiers.at(CardStatType::WEIGHT));
+            }
+            weightTextData.mText = std::to_string(weight);
+            
             cardComponents.back()->mSceneObjectTypeData = std::move(weightTextData);
             cardComponents.back()->mScale = glm::vec3(game_constants::IN_GAME_CARD_PROPERTY_SCALE);
             cardComponents.back()->mPosition = position;
@@ -391,7 +398,7 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
             weight = math::Max(0, weight + globalStatModifiers.at(CardStatType::WEIGHT));
         }
         
-        cardComponents.front()->mShaderIntUniformValues[game_constants::CARD_WEIGHT_INTERACTIVE_MODE_UNIFORM_NAME] = canCardBePlayed ? (!cardData->IsSpell() && weight < cardData->mCardWeight ? game_constants::CARD_INTERACTIVE_MODE_INTERACTIVE : game_constants::CARD_INTERACTIVE_MODE_DEFAULT) : game_constants::CARD_INTERACTIVE_MODE_NONINTERACTIVE;
+        cardComponents.front()->mShaderIntUniformValues[game_constants::CARD_WEIGHT_INTERACTIVE_MODE_UNIFORM_NAME] = canCardBePlayed ? (weight < cardData->mCardWeight ? game_constants::CARD_INTERACTIVE_MODE_INTERACTIVE : game_constants::CARD_INTERACTIVE_MODE_DEFAULT) : game_constants::CARD_INTERACTIVE_MODE_NONINTERACTIVE;
         
         int damage = math::Max(0, cardStatOverrides.count(CardStatType::DAMAGE) ? cardStatOverrides.at(CardStatType::DAMAGE) : cardData->mCardDamage);
         if (isOnBoard && globalStatModifiers.count(CardStatType::DAMAGE))

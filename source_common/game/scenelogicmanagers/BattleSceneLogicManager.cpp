@@ -949,11 +949,6 @@ void BattleSceneLogicManager::UpdateMiscSceneObjects(const float dtMillis)
             auto canCardBePlayed = mRuleEngine->CanCardBePlayed(&cardSoWrapper->mCardData, i, game_constants::LOCAL_PLAYER_INDEX);
             cardSoWrapper->mSceneObject->mShaderIntUniformValues[game_constants::CARD_WEIGHT_INTERACTIVE_MODE_UNIFORM_NAME] = canCardBePlayed ? game_constants::CARD_INTERACTIVE_MODE_DEFAULT : game_constants::CARD_INTERACTIVE_MODE_NONINTERACTIVE;
             
-            if (cardSoWrapper->mCardData.IsSpell())
-            {
-                continue;
-            }
-            
             const auto& heldCardStatOverrides = mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHeldCardStatOverrides;
             int overriddenWeight = cardSoWrapper->mCardData.mCardWeight;
             if (heldCardStatOverrides.size() > i)
