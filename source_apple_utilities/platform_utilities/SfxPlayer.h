@@ -12,8 +12,6 @@
 
 ///------------------------------------------------------------------------------------------------
 
-#define kMaxSources 32
-
 @interface SfxPlayer : NSObject
 
 @property ALCcontext* context;

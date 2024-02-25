@@ -10,14 +10,17 @@
 ///------------------------------------------------------------------------------------------------
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#define kMaxSources 31
 #define MAX_SFX_VOLUME 0.5f
+#define ALC_CALL(func) { func; [self logOpenALErrorWith:alcGetError(_device)]; }
+#define AL_CALL(func) { func; [self logOpenALErrorWith:alGetError()]; }
 
 @interface SfxPlayer (Private)
-- (BOOL)initOpenAL;
-- (BOOL)destroyOpenAL;
+- (BOOL) initOpenAL;
 - (NSUInteger) nextAvailableSource;
 - (AudioFileID) openAudioFile:(NSString*)fileName;
 - (UInt32) audioFileSize:(AudioFileID)fileDescriptor;
+- (void) logOpenALErrorWith:(ALenum)openALError;
 @end
 
 @implementation SfxPlayer
@@ -41,7 +44,6 @@
 
 - (void) resumeSfx
 {
-    [self initOpenAL];
     _targetSfxVolume = MAX_SFX_VOLUME;
 }
 
@@ -53,37 +55,24 @@
 - (BOOL) initOpenAL
 {
     _device = alcOpenDevice(NULL);
-    
+     
     if (_device)
     {
-        _context = alcCreateContext(_device, NULL);
-        alcMakeContextCurrent(_context);
+        ALC_CALL(_context = alcCreateContext(_device, NULL));
+        ALC_CALL(alcMakeContextCurrent(_context));
         
         ALuint sourceID;
         for (int i = 0; i < kMaxSources; ++i)
         {
-            alGenSources(1, &sourceID);
-            
+            AL_CALL(alGenSources(1, &sourceID));
             [_soundSources addObject:[NSNumber numberWithUnsignedInt:sourceID]];
         }
         
         return YES;
     }
     
+    NSLog(@"SfxPlayer: Can't open device!");
     return NO;
-}
-
-- (BOOL) destroyOpenAL
-{
-    for (NSNumber* sourceNumber in _soundSources)
-    {
-        ALuint nsInt = static_cast<ALuint>([sourceNumber unsignedIntValue]);
-        alDeleteSources(1, &nsInt);
-    }
-    
-    alcDestroyContext(_context);
-    alcCloseDevice(_device);
-    return YES;
 }
 
 - (void) loadSoundWithName:(NSString *)soundName filePath:(NSString *)filePath
@@ -107,9 +96,8 @@
     
     ALuint bufferID;
     
-    alGenBuffers(1, &bufferID);
-    
-    alBufferData(bufferID, AL_FORMAT_STEREO16, outData, fileSize, 48000);
+    AL_CALL(alGenBuffers(1, &bufferID));
+    AL_CALL(alBufferData(bufferID, AL_FORMAT_STEREO16, outData, fileSize, 48000));
     
     [_soundLibrary setObject:[NSNumber numberWithUnsignedInt:bufferID] forKey:filePath];
     
@@ -157,8 +145,6 @@
         return 0;
     }
     
-    ALenum err = alGetError();
-    
     NSNumber* numVal = [_soundLibrary objectForKey:soundName];
     if (numVal == nil)
     {
@@ -168,21 +154,15 @@
     ALuint bufferID = [numVal unsignedIntValue];
     ALuint sourceID = static_cast<ALuint>([self nextAvailableSource]);
     
-    alSourcei(sourceID, AL_BUFFER, 0);
-    alSourcei(sourceID, AL_BUFFER, bufferID);
+    AL_CALL(alSourcei(sourceID, AL_BUFFER, 0));
+    AL_CALL(alSourcei(sourceID, AL_BUFFER, bufferID));
     
-    alSourcef(sourceID, AL_PITCH, pitch);
-    alSourcef(sourceID, AL_GAIN, _targetSfxVolume * gain);
+    AL_CALL(alSourcef(sourceID, AL_PITCH, pitch));
+    AL_CALL(alSourcef(sourceID, AL_GAIN, _targetSfxVolume * gain));
     
-    alSourcei(sourceID, AL_LOOPING, shouldLoop ? AL_TRUE : AL_FALSE);
+    AL_CALL(alSourcei(sourceID, AL_LOOPING, shouldLoop ? AL_TRUE : AL_FALSE));
     
-    err = alGetError();
-    if (err != 0)
-    {
-        NSLog(@"ERROR SoundManager: %d", err);
-    }
-    
-    alSourcePlay(sourceID);
+    AL_CALL(alSourcePlay(sourceID));
     
     return sourceID;
 }
@@ -192,7 +172,7 @@
     ALint sourceState;
     for (NSNumber* sourceNumber in _soundSources)
     {
-        alGetSourcei([sourceNumber unsignedIntValue], AL_SOURCE_STATE, &sourceState);
+        AL_CALL(alGetSourcei([sourceNumber unsignedIntValue], AL_SOURCE_STATE, &sourceState));
         if (sourceState != AL_PLAYING)
         {
             return [sourceNumber unsignedIntValue];
@@ -202,18 +182,34 @@
     ALint looping;
     for (NSNumber* sourceNumber in _soundSources)
     {
-        alGetSourcei(static_cast<ALuint>([sourceNumber unsignedIntValue]), AL_LOOPING, &looping);
+        AL_CALL(alGetSourcei(static_cast<ALuint>([sourceNumber unsignedIntValue]), AL_LOOPING, &looping));
         if (!looping)
         {
             NSUInteger sourceID = [sourceNumber unsignedIntValue];
-            alSourceStop(static_cast<ALuint>(sourceID));
+            AL_CALL(alSourceStop(static_cast<ALuint>(sourceID)));
             return sourceID;
         }
     }
     
     NSUInteger sourceID = [[_soundSources objectAtIndex:0] unsignedIntegerValue];
-    alSourceStop(static_cast<ALuint>(sourceID));
+    AL_CALL(alSourceStop(static_cast<ALuint>(sourceID)));
     return sourceID;
+}
+
+- (void) logOpenALErrorWith:(ALenum)openALError
+{
+    if (openALError != AL_NO_ERROR)
+    {
+        switch (openALError)
+        {
+            case AL_INVALID_NAME: NSLog(@"AL_INVALID_NAME Error"); break;
+            case AL_INVALID_ENUM: NSLog(@"AL_INVALID_ENUM Error"); break;
+            case AL_INVALID_VALUE: NSLog(@"AL_INVALID_VALUE Error"); break;
+            case AL_INVALID_OPERATION: NSLog(@"AL_INVALID_OPERATION Error"); break;
+            case AL_OUT_OF_MEMORY: NSLog(@"AL_OUT_OF_MEMORY Error"); break;
+            default: NSLog(@"OpenAL Unknown Error"); break;
+        }
+    }
 }
 
 @end

@@ -18,6 +18,7 @@
 #include <engine/scene/SceneManager.h>
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
+#include <engine/sound/SoundManager.h>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -27,6 +28,7 @@ const std::string TrapTriggeredAnimationGameAction::TRAP_TRIGGER_TYPE_DEBUFF = "
 const std::string TrapTriggeredAnimationGameAction::KILL_TRAP_TYPE_PARAM = "killTrapType";
 const std::string TrapTriggeredAnimationGameAction::KILL_TRAP_TYPE_BEAR_TRAP = "killTrapTypeBearTrap";
 const std::string TrapTriggeredAnimationGameAction::KILL_TRAP_TYPE_DEMON_TRAP = "killTrapTypeDemonTrap";
+const std::string TRAP_TRIGGERED_SFX = "sfx_trap_triggered";
 
 static const strutils::StringId CARD_DESTRUCTION_GAME_ACTION_NAME = strutils::StringId("CardDestructionGameAction");
 static const strutils::StringId CARD_BUFFED_DEBUFFED_ANIMATION_GAME_ACTION_NAME = strutils::StringId("CardBuffedDebuffedAnimationGameAction");
@@ -91,6 +93,9 @@ void TrapTriggeredAnimationGameAction::VInitAnimation()
     {
         mAnimationState = ActionState::ANIMATION_STEP_WAIT;
         
+        CoreSystemsEngine::GetInstance().GetSoundManager().PreloadSfx(TRAP_TRIGGERED_SFX);
+        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(TRAP_TRIGGERED_SFX);
+        
         auto killTrapType = mExtraActionParams.at(KILL_TRAP_TYPE_PARAM);
         std::shared_ptr<scene::SceneObject> killEffectSceneObject = nullptr;
         
@@ -114,6 +119,7 @@ void TrapTriggeredAnimationGameAction::VInitAnimation()
         
         animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(killEffectSceneObject, targetPosition, targetScale, ANIMATION_STEP_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
         {
+            CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(TRAP_TRIGGERED_SFX);
             mAnimationState = ActionState::ANIMATION_STEP_2;
         });
         animationManager.StartAnimation(std::make_unique<rendering::TweenRotationAnimation>(killEffectSceneObject, targetRotation, ANIMATION_STEP_DURATION, animation_flags::NONE, 0.0f, math::BounceFunction, math::TweeningMode::EASE_IN), [=](){});
