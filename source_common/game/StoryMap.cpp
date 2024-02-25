@@ -121,6 +121,8 @@ static const float INACTIVE_NODE_TEXT_ALPHA = 0.5f;
 static const float ELITE_STAT_FACTOR = 1.15f;
 static const float BOSS_STAT_FACTOR = 1.25f;
 static const float TUTORIAL_MAP_DOWNSCALE_FACTOR = 1.0f/3.0f;
+static const float FINAL_BOSS_HEALTH = 35.0f;
+static const float MINI_BOSS_HEALTH = 20.0f;
 
 static const int MAP_PATH_SEGMENTS_FACTOR = 30;
 static const int MAP_GENERATION_PASSES = 8;
@@ -514,11 +516,20 @@ void StoryMap::CreateMapSceneObjects()
                 defaultWeightRange *= ELITE_STAT_FACTOR;
             }
             
-            if (mapNodeEntry.second.mNodeType == NodeType::BOSS_ENCOUNTER || (mCurrentStoryMapType == StoryMapType::TUTORIAL_MAP && mCurrentMapCoord.mCol == game_constants::TUTORIAL_MAP_BOSS_COORD.x && mCurrentMapCoord.mRow == game_constants::TUTORIAL_MAP_BOSS_COORD.y))
+            if (mapNodeEntry.second.mNodeType == NodeType::BOSS_ENCOUNTER || (mCurrentStoryMapType == StoryMapType::TUTORIAL_MAP && mapNodeEntry.first.mCol == game_constants::TUTORIAL_MAP_BOSS_COORD.x && mapNodeEntry.first.mRow == game_constants::TUTORIAL_MAP_BOSS_COORD.y))
             {
                 defaultHealthRange *= BOSS_STAT_FACTOR;
                 defaultDamageRange *= BOSS_STAT_FACTOR;
                 defaultWeightRange *= BOSS_STAT_FACTOR;
+                
+                if (mapNodeEntry.second.mNodeType == NodeType::BOSS_ENCOUNTER)
+                {
+                    defaultHealthRange = {FINAL_BOSS_HEALTH, FINAL_BOSS_HEALTH};
+                }
+                else if (mCurrentStoryMapType == StoryMapType::TUTORIAL_MAP && mapNodeEntry.first.mCol == game_constants::TUTORIAL_MAP_BOSS_COORD.x && mapNodeEntry.first.mRow == game_constants::TUTORIAL_MAP_BOSS_COORD.y)
+                {
+                    defaultHealthRange = {MINI_BOSS_HEALTH, MINI_BOSS_HEALTH};
+                }
             }
             
             // Final stat values
