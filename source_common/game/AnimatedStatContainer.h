@@ -44,6 +44,7 @@ public:
     AnimatedStatContainerUpdateResult Update(const float dtMillis);
     
     std::vector<std::shared_ptr<scene::SceneObject>>& GetSceneObjects();
+    int GetDisplayedValue() const;
     void ForceSetDisplayedValue(const int displayedValue);
     void RealignBaseAndValueSceneObjects();
     void ChangeTrackedValue(const int* newValueToTrack);

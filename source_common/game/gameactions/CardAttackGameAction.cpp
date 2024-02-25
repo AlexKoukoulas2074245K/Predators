@@ -232,45 +232,10 @@ void CardAttackGameAction::VInitAnimation()
                 
                 animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObject, targetPos, cardSoWrapper->mSceneObject->mScale, ATTACKING_CARD_SHORT_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [&]()
                 {
-                    mPendingAnimations--;
-                    
                     auto cardIndex = std::stoi(mExtraActionParams.at(CARD_INDEX_PARAM));
                     auto attackingPayerIndex = std::stoi(mExtraActionParams.at(PLAYER_INDEX_PARAM));
                     
-                    if (mPendingDamage != 0)
-                    {
-                        if (mAmountOfArmorDamaged > 0)
-                        {
-                            events::EventSystem::GetInstance().DispatchEvent<events::ArmorChangeChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, mBoardState->GetActivePlayerState().mPlayerCurrentArmor);
-                            
-                            if (mAmountOfHealthDamaged > 0)
-                            {
-                                mPendingAnimations++;
-                                animationManager.StartAnimation(std::make_unique<rendering::TimeDelayAnimation>(game_constants::PER_ARMOR_DROPPED_DELAY_ANIMATION_DURATION_SECS * mAmountOfArmorDamaged), [&]()
-                                {
-                                    events::EventSystem::GetInstance().DispatchEvent<events::HealthChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
-                                    mPendingAnimations--;
-                                });
-                            }
-                        }
-                        else
-                        {
-                            events::EventSystem::GetInstance().DispatchEvent<events::HealthChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
-                        }
-                        
-                        if ((mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::RODENT_LIFESTEAL) != 0 && mLifestealHealedAtLeast1Hp)
-                        {
-                            events::EventSystem::GetInstance().DispatchEvent<events::HealthChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX);
-                        }
-                    }
-                    
                     auto cardSoWrapper = mBattleSceneLogicManager->GetBoardCardSoWrappers().at(attackingPayerIndex).at(cardIndex);
-                    
-                    if (!cardSoWrapper->mCardData.IsSpell() && cardSoWrapper->mCardData.mCardFamily == game_constants::INSECTS_FAMILY_NAME)
-                    {
-                        events::EventSystem::GetInstance().DispatchEvent<events::PoisonStackChangeChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, mBoardState->GetActivePlayerState().mPlayerPoisonStack);
-                    }
-                    
                     
                     systemsEngine.GetParticleManager().CreateParticleEmitterAtPosition
                     (
@@ -288,6 +253,42 @@ void CardAttackGameAction::VInitAnimation()
                     animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObject, mOriginalCardPosition, mOriginalCardScale, ATTACKING_CARD_LONG_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [&]()
                     {
                         mPendingAnimations--;
+                    });
+                    
+                    animationManager.StartAnimation(std::make_unique<rendering::TimeDelayAnimation>(cameraShakeDuration), [=]()
+                    {
+                        mPendingAnimations--;
+                        if (mPendingDamage != 0)
+                        {
+                            if (mAmountOfArmorDamaged > 0)
+                            {
+                                events::EventSystem::GetInstance().DispatchEvent<events::ArmorChangeChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, mBoardState->GetActivePlayerState().mPlayerCurrentArmor);
+                                
+                                if (mAmountOfHealthDamaged > 0)
+                                {
+                                    mPendingAnimations++;
+                                    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TimeDelayAnimation>(game_constants::PER_ARMOR_DROPPED_DELAY_ANIMATION_DURATION_SECS * mAmountOfArmorDamaged), [&]()
+                                    {
+                                        events::EventSystem::GetInstance().DispatchEvent<events::HealthChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
+                                        mPendingAnimations--;
+                                    });
+                                }
+                            }
+                            else
+                            {
+                                events::EventSystem::GetInstance().DispatchEvent<events::HealthChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
+                            }
+                            
+                            if ((mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::RODENT_LIFESTEAL) != 0 && mLifestealHealedAtLeast1Hp)
+                            {
+                                events::EventSystem::GetInstance().DispatchEvent<events::HealthChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX);
+                            }
+                        }
+                        
+                        if (!cardSoWrapper->mCardData.IsSpell() && cardSoWrapper->mCardData.mCardFamily == game_constants::INSECTS_FAMILY_NAME)
+                        {
+                            events::EventSystem::GetInstance().DispatchEvent<events::PoisonStackChangeChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, mBoardState->GetActivePlayerState().mPlayerPoisonStack);
+                        }
                     });
                 });
             }

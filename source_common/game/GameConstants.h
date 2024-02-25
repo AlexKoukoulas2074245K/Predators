@@ -30,6 +30,7 @@ namespace game_constants
     inline const std::string GOLDEN_CARD_TEXTURE_FILE_NAME = "card_frame_golden.png";
     inline const std::string CARD_FRAME_NORMAL_TEXTURE_FILE_NAME = "card_frame_normal.png";
     inline const std::string CARD_FRAME_SPELL_TEXTURE_FILE_NAME = "card_frame_spell.png";
+    inline const std::string BASIC_CUSTOM_COLOR_SHADER_FILE_NAME = "basic_custom_color.vs";
 
     // SO Name Prefixes/Postfixes
     inline const std::string TOP_PLAYER_HELD_CARD_SO_NAME_PREFIX = "top_player_held_card_";

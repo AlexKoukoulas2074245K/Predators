@@ -102,6 +102,8 @@ static const std::string HISTORY_ENTRY_SPELL_MASK_TEXTURE_FILE_NAME = "history_e
 static const std::string HISTORY_ENTRY_TURN_COUNTER_MASK_TEXTURE_FILE_NAME = "history_entry_turn_counter_mask.png";
 static const std::string TURN_COUNTER_HISTORY_ENTRY_TEXTURE_FILE_NAME = "history_turn_counter.png";
 static const std::string METALLIC_TEXTURE_FILE_NAME = "metallic_texture.png";
+static const std::string HEALTH_CHANGE_TEXT_TOP_SCENE_OBJECT_NAME_PREFIX = "health_change_text_top_";
+static const std::string HEALTH_CHANGE_TEXT_BOT_SCENE_OBJECT_NAME_PREFIX = "health_change_text_bot_";
 
 static const glm::vec3 BOARD_SIDE_EFFECT_TOP_POSITION = { 0.0f, 0.044f, 1.0f};
 static const glm::vec3 BOARD_SIDE_EFFECT_BOT_POSITION = { 0.0f, -0.044f, 1.0f};
@@ -115,6 +117,10 @@ static const glm::vec3 CARD_HISTORY_ENTRY_SCALE = {0.3f, -0.3f, 0.3f};
 static const glm::vec3 CARD_HISTORY_TURN_COUNTER_ENTRY_SCALE = {0.266f, -0.3f, 0.3f};
 static const glm::vec3 CARD_HISTORY_CAPSULE_POSITION = {0.0f, -0.102f, 25.0f};
 static const glm::vec3 CARD_HISTORY_TURN_COUNTER_TEXT_OFFSET = {-0.032f, 0.003f, 0.001f};
+static const glm::vec3 HEALTH_CHANGE_TEXT_COLOR_GAIN = {0.11f, 0.8f, 0.11f};
+static const glm::vec3 HEALTH_CHANGE_TEXT_COLOR_LOSS = {0.8f, 0.11f, 0.11f};
+static const glm::vec3 HEALTH_CHANGE_TEXT_SCALE = {0.0002f, 0.0002f, 0.0002f};
+static const glm::vec3 HEALTH_CHANGE_TEXT_OFFSET = {-0.04f, 0.0f, 0.01f};
 
 static const glm::vec3 CARD_TOOLTIP_TEXT_OFFSETS[game_constants::CARD_TOOLTIP_TEXT_ROWS_COUNT] =
 {
@@ -155,6 +161,9 @@ static const float HISTORY_BUTTON_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 68.5f;
 static const float REPLAY_TEXT_PULSE_SCALE_FACTOR = 1.05f;
 static const float REPLAY_TEXT_INTER_PULSE_DURATION_SECS = 1.0f;
 static const float REPLAY_TEXT_MAX_ALPHA = 0.75f;
+static const float HEALTH_CHANGE_TARGET_Y_OFFSET = 0.05f;
+static const float HEALTH_CHANGE_TEXT_ANIMATION_DURATION_SECS = 0.5f;
+static const float HEALTH_CHANGE_TEXT_ANIMATION_DELAY_SECS = 0.25f;
 
 #if defined(MOBILE_FLOW)
 static const float IPAD_HISTORY_BUTTON_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 69.0f;
@@ -1782,7 +1791,41 @@ void BattleSceneLogicManager::OnEmptyDeckCardTokenPlayed(const events::EmptyDeck
 
 void BattleSceneLogicManager::OnHealthChangeAnimationTrigger(const events::HealthChangeAnimationTriggerEvent& event)
 {
-    mAnimatedStatContainers[event.mForRemotePlayer ? 0 : 1].first = true;
+    auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
+    auto battleScene = sceneManager.FindScene(game_constants::BATTLE_SCENE);
+    auto& playerState = mBoardState->GetPlayerStates()[event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX];
+    auto& animatedStateContainer = mAnimatedStatContainers[event.mForRemotePlayer ? 0 : 1];
+    animatedStateContainer.first = true;
+    
+    if (math::Abs(animatedStateContainer.second->GetDisplayedValue() - playerState.mPlayerHealth) <= 0 || mAnimatedStatContainers[0].second->GetDisplayedValue() <= 0)
+    {
+        return;
+    }
+    
+    auto existingHealthChangeTextSceneObjectCount = battleScene->FindSceneObjectsWhoseNameStartsWith(event.mForRemotePlayer ? HEALTH_CHANGE_TEXT_TOP_SCENE_OBJECT_NAME_PREFIX : HEALTH_CHANGE_TEXT_BOT_SCENE_OBJECT_NAME_PREFIX).size();
+    
+    scene::TextSceneObjectData healthChangeTextData;
+    healthChangeTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
+    healthChangeTextData.mText = std::to_string(math::Abs(animatedStateContainer.second->GetDisplayedValue() - playerState.mPlayerHealth));
+    healthChangeTextData.mText = animatedStateContainer.second->GetDisplayedValue() > playerState.mPlayerHealth ? "-" + healthChangeTextData.mText : "+" + healthChangeTextData.mText;
+    
+    auto healthChangeTextSceneObject = battleScene->CreateSceneObject(strutils::StringId(event.mForRemotePlayer ? HEALTH_CHANGE_TEXT_TOP_SCENE_OBJECT_NAME_PREFIX : HEALTH_CHANGE_TEXT_BOT_SCENE_OBJECT_NAME_PREFIX + std::to_string(existingHealthChangeTextSceneObjectCount)));
+    healthChangeTextSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + game_constants::BASIC_CUSTOM_COLOR_SHADER_FILE_NAME);
+    healthChangeTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
+    healthChangeTextSceneObject->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = healthChangeTextData.mText.front() == '+' ? HEALTH_CHANGE_TEXT_COLOR_GAIN : HEALTH_CHANGE_TEXT_COLOR_LOSS;
+    healthChangeTextSceneObject->mScale = HEALTH_CHANGE_TEXT_SCALE;
+    healthChangeTextSceneObject->mPosition = event.mForRemotePlayer ? game_constants::HEALTH_CRYSTAL_TOP_POSITION : game_constants::HEALTH_CRYSTAL_BOT_POSITION;
+    healthChangeTextSceneObject->mPosition += HEALTH_CHANGE_TEXT_OFFSET;
+    healthChangeTextSceneObject->mSceneObjectTypeData = std::move(healthChangeTextData);
+        
+    auto targetPosition = healthChangeTextSceneObject->mPosition;
+    targetPosition.y += HEALTH_CHANGE_TARGET_Y_OFFSET;
+    
+    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(healthChangeTextSceneObject, 0.0f, HEALTH_CHANGE_TEXT_ANIMATION_DURATION_SECS, animation_flags::NONE, HEALTH_CHANGE_TEXT_ANIMATION_DELAY_SECS), [](){});
+    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(healthChangeTextSceneObject, targetPosition, healthChangeTextSceneObject->mScale, HEALTH_CHANGE_TEXT_ANIMATION_DURATION_SECS, animation_flags::NONE, HEALTH_CHANGE_TEXT_ANIMATION_DELAY_SECS), [=]()
+    {
+        battleScene->RemoveSceneObject(healthChangeTextSceneObject->mName);
+    });
 }
 
 ///------------------------------------------------------------------------------------------------
