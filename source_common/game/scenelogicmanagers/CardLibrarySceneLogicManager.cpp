@@ -36,6 +36,8 @@ static const std::string CARD_FAMILY_FILTER_ICON_SHADER_FILE_NAME = "card_family
 static const std::string CARD_FAMILY_FILTER_ICON_MASK_TEXTURE_FILE_NAME = "trap_mask.png";
 static const std::string NEW_CARD_INDICATOR_SHADER_FILE_NAME = "new_indicator.vs";
 static const std::string GOLDEN_CARDS_COLLECTED_TEXT_SHADER_FILE_NAME = "basic_custom_color.vs";
+static const std::string FAMILY_STAMP_MASK_TEXTURE_FILE_NAME = "trap_mask.png";
+static const std::string CARD_FAMILY_STAMP_SHADER_FILE_NAME = "card_family_stamp_library_entry.vs";
 
 static const strutils::StringId BACK_BUTTON_NAME = strutils::StringId("back_button");
 static const strutils::StringId FILTERS_TEXT_SCENE_OBJECT_NAME = strutils::StringId("card_library_filters_text");
@@ -727,6 +729,25 @@ void CardLibrarySceneLogicManager::CreateCardEntriesAndContainer()
         cardEntry.mCardSoWrapper = cardSoWrapper;
         cardEntry.mSceneObjects.emplace_back(cardSoWrapper->mSceneObject);
         
+        // Create family stamps
+        if (DataRepository::GetInstance().GetCurrentCardLibraryBehaviorType() == CardLibraryBehaviorType::CARD_LIBRARY)
+        {
+            auto familyStampSceneObject = mScene->CreateSceneObject(strutils::StringId());
+            familyStampSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + game_constants::CARD_FAMILY_NAMES_TO_TEXTURES.at(cardData.mCardFamily));
+            familyStampSceneObject->mEffectTextureResourceIds[0] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + FAMILY_STAMP_MASK_TEXTURE_FILE_NAME);
+            familyStampSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CARD_FAMILY_STAMP_SHADER_FILE_NAME);
+            familyStampSceneObject->mScale.x = familyStampSceneObject->mScale.y = game_constants::IN_GAME_CARD_PROPERTY_ICON_SCALE;
+            familyStampSceneObject->mPosition = cardEntry.mSceneObjects.back()->mPosition;
+            familyStampSceneObject->mPosition.x -= 0.008f;
+            familyStampSceneObject->mPosition.y -= 0.06f;
+            familyStampSceneObject->mPosition.z += game_constants::CARD_COMPONENT_Z_OFFSET;
+            familyStampSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MIN_Y_UNIFORM_NAME] = CARD_ENTRY_CUTOFF_VALUES.s;
+            familyStampSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MAX_Y_UNIFORM_NAME] = CARD_ENTRY_CUTOFF_VALUES.t;
+            familyStampSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+            cardEntry.mSceneObjects.emplace_back(familyStampSceneObject);
+        }
+        
+        // Create new card indicator
         if (DataRepository::GetInstance().GetCurrentCardLibraryBehaviorType() == CardLibraryBehaviorType::CARD_LIBRARY && std::find(newCardIds.begin(), newCardIds.end(), cardSoWrapper->mCardData.mCardId) != newCardIds.end())
         {
             auto newIndicatorSceneObject = mScene->CreateSceneObject(strutils::StringId());
