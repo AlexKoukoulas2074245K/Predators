@@ -537,7 +537,7 @@
             "family": "demons_hard",
             "name": "Chaos Glare",
             "effect": "DAMAGE -6 ENEMY_BOARD_DEBUFF",
-            "tooltip": "ATTACK -6 for ALL$normal cards the$opponent plays on$their next turn",
+            "tooltip": "ATTACK -6 for$ALL normal cards$the opponent plays$on their next turn",
             "texture": "story_cards/elite_demon_strength.png",
             "shader": "basic.vs",
             "single_use": true
