@@ -40,6 +40,7 @@ static const std::string OVERLAY_TEXTURE_FILE_NAME = "overlay.png";
 static const std::string COIN_VALUE_TEXT_SHADER_FILE_NAME = "animated_stat_container_value_object.vs";
 static const std::string SETTINGS_ICON_TEXTURE_FILE_NAME = "settings_button_icon.png";
 static const std::string STORY_CARDS_ICON_TEXTURE_FILE_NAME = "story_cards_button_icon.png";
+static const std::string INVENTORY_ICON_TEXTURE_FILE_NAME = "inventory_button_icon.png";
 static const std::string COIN_STACK_TEXTURE_FILE_NAME = "coin_stack.png";
 static const std::string HEALTH_CRYSTAL_TEXTURE_FILE_NAME = "health_icon.png";
 static const std::string HEALTH_CRYSTAL_SCENE_OBJECT_NAME_PREFIX = "health_crystal_";
@@ -51,8 +52,11 @@ static const glm::vec3 BATTLE_SCENE_SETTINGS_BUTTON_POSITION = {0.145f, 0.09f, 2
 static const glm::vec3 SETTINGS_BUTTON_POSITION = {0.145f, 0.161f, 24.0f};
 static const glm::vec3 BATTLE_SCENE_STORY_CARDS_BUTTON_POSITION = {0.145f, 0.09f, 24.0f};
 static const glm::vec3 STORY_CARDS_BUTTON_POSITION = {0.145f, 0.161f, 24.0f};
-static const glm::vec3 SETTINGS_BUTTON_SCALE = {0.06f, 0.06f, 0.06f};
-static const glm::vec3 STORY_CARDS_BUTTON_SCALE = {0.06f, 0.06f, 0.06f};
+static const glm::vec3 BATTLE_SCENE_INVENTORY_BUTTON_POSITION = {0.145f, 0.09f, 24.0f};
+static const glm::vec3 INVENTORY_BUTTON_POSITION = {0.145f, 0.161f, 24.0f};
+static const glm::vec3 SETTINGS_BUTTON_SCALE = {0.05f, 0.05f, 0.05f};
+static const glm::vec3 STORY_CARDS_BUTTON_SCALE = {0.05f, 0.05f, 0.05f};
+static const glm::vec3 INVENTORY_BUTTON_SCALE = {0.05f, 0.05f, 0.05f};
 static const glm::vec3 COIN_STACK_POSITION = {0.145f, 0.101f, 24.0f};
 static const glm::vec3 BATTLE_SCENE_COIN_STACK_POSITION = {0.145f, 0.06f, 24.0f};
 static const glm::vec3 COIN_STACK_SCALE = {0.08f, 0.08f, 0.08f};
@@ -73,8 +77,9 @@ static const glm::vec2 STAT_FLYING_PARTYCLE_MIN_MAX_Z_OFFSET = {0.01f, 0.02f};
 
 static const float COIN_PARTICLE_RESPAWN_TICK_SECS = 0.025f;
 static const float HEALTH_PARTICLE_RESPAWN_TICK_SECS = 0.125f;
-static const float SETTINGS_BUTTON_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 33.5f;
-static const float STORY_CARDS_BUTTON_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 12.25f;
+static const float SETTINGS_BUTTON_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 8.25;
+static const float STORY_CARDS_BUTTON_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 50.5f;
+static const float INVENTORY_BUTTON_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 29.25f;
 static const float COIN_STACK_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 1.4f;
 static const float COIN_VALUE_TEXT_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 280.0f;
 static const float HEALTH_CRYSTAL_BASE_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 1.0f;
@@ -129,6 +134,17 @@ GuiObjectManager::GuiObjectManager(std::shared_ptr<scene::Scene> scene)
         STORY_CARDS_BUTTON_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR / extraScaleFactor
     ));
     
+    mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
+    (
+        forBattleScene ? BATTLE_SCENE_INVENTORY_BUTTON_POSITION : INVENTORY_BUTTON_POSITION,
+        extraScaleFactor * INVENTORY_BUTTON_SCALE,
+        INVENTORY_ICON_TEXTURE_FILE_NAME,
+        game_constants::GUI_INVENTORY_BUTTON_SCENE_OBJECT_NAME,
+        [=](){ OnStoryCardsButtonPressed(); },
+        *scene,
+        scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE,
+        INVENTORY_BUTTON_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR / extraScaleFactor
+    ));
     
     auto coinStackSceneObject = scene->CreateSceneObject(game_constants::GUI_COIN_STACK_SCENE_OBJECT_NAME);
     coinStackSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;

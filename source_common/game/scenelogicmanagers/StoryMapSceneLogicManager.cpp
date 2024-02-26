@@ -77,6 +77,7 @@ static const std::vector<strutils::StringId> GUI_SCENE_OBJECT_NAMES =
     game_constants::GUI_COIN_VALUE_TEXT_SCENE_OBJECT_NAME,
     game_constants::GUI_SETTINGS_BUTTON_SCENE_OBJECT_NAME,
     game_constants::GUI_STORY_CARDS_BUTTON_SCENE_OBJECT_NAME,
+    game_constants::GUI_INVENTORY_BUTTON_SCENE_OBJECT_NAME,
     strutils::StringId(HEALTH_CRYSTAL_SCENE_OBJECT_NAME_PREFIX + "base"),
     strutils::StringId(HEALTH_CRYSTAL_SCENE_OBJECT_NAME_PREFIX + "value"),
     MAP_NAME_SCENE_OBJECT_NAME

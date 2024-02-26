@@ -205,6 +205,7 @@ void ShopSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     {
         scene->FindSceneObject(game_constants::GUI_SETTINGS_BUTTON_SCENE_OBJECT_NAME)->mInvisible = true;
         scene->FindSceneObject(game_constants::GUI_STORY_CARDS_BUTTON_SCENE_OBJECT_NAME)->mInvisible = true;
+        scene->FindSceneObject(game_constants::GUI_INVENTORY_BUTTON_SCENE_OBJECT_NAME)->mInvisible = true;
         scene->FindSceneObject(GUI_HEALTH_CRYSTAL_BASE_SCENE_OBJECT_NAME)->mInvisible = true;
         scene->FindSceneObject(GUI_HEALTH_CRYSTAL_VALUE_SCENE_OBJECT_NAME)->mInvisible = true;
     }
