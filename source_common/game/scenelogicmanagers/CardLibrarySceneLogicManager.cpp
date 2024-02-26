@@ -825,7 +825,6 @@ void CardLibrarySceneLogicManager::DestroyCardTooltip()
 void CardLibrarySceneLogicManager::SelectCard()
 {
     auto card = mCardContainer->GetItems()[mSelectedCardIndex].mCardSoWrapper;
-    auto cardSceneObject = mCardContainer->GetItems()[mSelectedCardIndex].mSceneObjects.front();
     const auto& goldenCardIds = DataRepository::GetInstance().GetGoldenCardIdMap();
     auto newCardIds = DataRepository::GetInstance().GetNewCardIds();
     
@@ -858,8 +857,12 @@ void CardLibrarySceneLogicManager::SelectCard()
     
     // Animate product to target position
     mSelectedCardInitialPosition = card->mSceneObject->mPosition;
-    card->mSceneObject->mPosition.z = cardDeletionOverlaySceneObject->mPosition.z + CARD_SELECTION_DESELECTION_BUMP_Z;
-    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(card->mSceneObject, SELECTED_CARD_TARGET_POSITION, CARD_ENTRY_SCALE * SELECTED_CARD_SCALE_FACTOR, SELECTED_CARD_ANIMATION_DURATION_SECS), [=]()
+    for (int i = static_cast<int>(mCardContainer->GetItems()[mSelectedCardIndex].mSceneObjects.size()) - 1; i >= 0; --i)
+    {
+        mCardContainer->GetItems()[mSelectedCardIndex].mSceneObjects[i]->mPosition.z = mCardContainer->GetItems()[mSelectedCardIndex].mSceneObjects[i]->mPosition.z - mCardContainer->GetItems()[mSelectedCardIndex].mSceneObjects[0]->mPosition.z + cardDeletionOverlaySceneObject->mPosition.z + CARD_SELECTION_DESELECTION_BUMP_Z;
+    }
+    
+    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleGroupAnimation>(mCardContainer->GetItems()[mSelectedCardIndex].mSceneObjects, SELECTED_CARD_TARGET_POSITION, CARD_ENTRY_SCALE * SELECTED_CARD_SCALE_FACTOR, SELECTED_CARD_ANIMATION_DURATION_SECS), [=]()
     {
         if (card->mCardData.IsSpell())
         {
@@ -985,7 +988,7 @@ void CardLibrarySceneLogicManager::DeselectCard()
     animationManager.StopAllAnimationsPlayingForSceneObject(cardDeletionOverlaySceneObject->mName);
     animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(mScene->FindSceneObject(CARD_DELETION_OVERLAY_SCENE_OBJECT_NAME), 0.0f, SELECTED_CARD_ANIMATION_DURATION_SECS/2), [=](){ cardDeletionOverlaySceneObject->mInvisible = true; });
     
-    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSceneObject, mSelectedCardInitialPosition, CARD_ENTRY_SCALE, SELECTED_CARD_ANIMATION_DURATION_SECS), [=](){ mSceneState = SceneState::BROWSING_CARDS; }, CARD_DESELECTION_ANIMATION_NAME);
+    animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleGroupAnimation>(mCardContainer->GetItems()[mSelectedCardIndex].mSceneObjects, mSelectedCardInitialPosition, CARD_ENTRY_SCALE, SELECTED_CARD_ANIMATION_DURATION_SECS), [=](){ mSceneState = SceneState::BROWSING_CARDS; }, CARD_DESELECTION_ANIMATION_NAME);
     
     mSelectedCardIndex = -1;
     mCardContainer->ResetSwipeData();
@@ -1035,9 +1038,23 @@ void CardLibrarySceneLogicManager::SetGoldenCheckboxValue(const bool checkboxVal
     cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::LIGHT_POS_X_UNIFORM_NAME] = game_constants::GOLDEN_CARD_LIGHT_POS_MIN_MAX_X.s;
     cardSoWrapper->mSceneObject->mScale = CARD_ENTRY_SCALE;
     
+    auto familyStampSceneObject = mScene->CreateSceneObject(strutils::StringId());
+    familyStampSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + game_constants::CARD_FAMILY_NAMES_TO_TEXTURES.at(selectedCard->mCardData.mCardFamily));
+    familyStampSceneObject->mEffectTextureResourceIds[0] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + FAMILY_STAMP_MASK_TEXTURE_FILE_NAME);
+    familyStampSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CARD_FAMILY_STAMP_SHADER_FILE_NAME);
+    familyStampSceneObject->mScale.x = familyStampSceneObject->mScale.y = game_constants::IN_GAME_CARD_PROPERTY_ICON_SCALE;
+    familyStampSceneObject->mPosition = cardSoWrapper->mSceneObject->mPosition;
+    familyStampSceneObject->mPosition.x -= 0.008f;
+    familyStampSceneObject->mPosition.y -= 0.06f;
+    familyStampSceneObject->mPosition.z += game_constants::CARD_COMPONENT_Z_OFFSET;
+    familyStampSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MIN_Y_UNIFORM_NAME] = CARD_ENTRY_CUTOFF_VALUES.s;
+    familyStampSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MAX_Y_UNIFORM_NAME] = CARD_ENTRY_CUTOFF_VALUES.t;
+    familyStampSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
+    
     CardEntry cardEntry;
     cardEntry.mCardSoWrapper = cardSoWrapper;
     cardEntry.mSceneObjects.emplace_back(cardSoWrapper->mSceneObject);
+    cardEntry.mSceneObjects.emplace_back(familyStampSceneObject);
     mCardContainer->ReplaceItemAtIndexWithNewItem(std::move(cardEntry), mSelectedCardIndex);
     
     DataRepository::GetInstance().SetGoldenCardMapEntry(selectedCard->mCardData.mCardId, checkboxValue);
