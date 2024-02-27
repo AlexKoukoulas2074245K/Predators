@@ -9,6 +9,7 @@
 #include <engine/rendering/AnimationManager.h>
 #include <engine/rendering/ParticleManager.h>
 #include <engine/resloading/ResourceLoadingService.h>
+#include <engine/scene/SceneObjectUtils.h>
 #include <engine/utils/Logging.h>
 #include <engine/utils/PlatformMacros.h>
 #include <engine/scene/SceneManager.h>
@@ -25,6 +26,7 @@
 ///------------------------------------------------------------------------------------------------
 
 static const std::string ARTIFACT_ITEM_ENTRY_SHADER = "artifact_container_entry.vs";
+static const std::string ARTIFACT_TEXT_ITEM_ENTRY_SHADER = "artifact_text_container_entry.vs";
 static const std::string MUTATION_ITEM_ENTRY_SHADER = "mutation_container_entry.vs";
 
 static const strutils::StringId BACK_BUTTON_NAME = strutils::StringId("back_button");
@@ -38,8 +40,11 @@ static const glm::vec3 BACK_BUTTON_POSITION = {0.0f, -0.2f, 23.2f};
 static const glm::vec3 ITEM_ENTRY_SCALE = glm::vec3(0.273f/1.5f, 0.2512f/1.5f, 2.0f);
 static const glm::vec3 ITEM_TOOLTIP_POSITION_OFFSET = {0.0f, 0.1f, 0.0f};
 static const glm::vec3 ITEM_TOOLTIP_BASE_SCALE = {0.274f, 0.274f, 1/10.0f};
-static const glm::vec3 ARTIFACT_CONTAINER_ITEM_ENTRY_SCALE = glm::vec3(0.173f, 0.142f, 2.0f);
-static const glm::vec3 MUTATION_CONTAINER_ITEM_ENTRY_SCALE = glm::vec3(0.34f, 0.142f, 2.0f);
+static const glm::vec3 ARTIFACT_CONTAINER_ITEM_ENTRY_SCALE = {0.173f, 0.142f, 2.0f};
+static const glm::vec3 MUTATION_CONTAINER_ITEM_ENTRY_SCALE = {0.34f, 0.142f, 2.0f};
+static const glm::vec3 ARTIFACT_TEXT_SCALE = {0.00025f, 0.00025f, 0.00025f};
+static const glm::vec3 ARTIFACT_NAME_TEXT_OFFSET = glm::vec3(-0.06f, 0.05f, 0.1f);
+static const glm::vec3 ARTIFACT_COUNT_TEXT_OFFSET = glm::vec3(-0.06f, 0.0f, 0.1f);
 
 //static const glm::vec2 MUTATION_ITEM_ENTRY_CUTOFF_VALUES = {-0.27f, 0.2f};
 static const glm::vec2 MUTATION_ITEM_CONTAINER_CUTOFF_VALUES = {-0.15f, 0.15f};
@@ -332,9 +337,11 @@ void InventorySceneLogicManager::CreateItemEntriesAndContainer()
     );
     
     // Create artifact entries
+    auto artifactCount = 0;
     const auto& artifactEntries = DataRepository::GetInstance().GetCurrentStoryArtifacts();
     for (const auto& artifactEntry: artifactEntries)
     {
+        artifactCount += artifactEntry.second;
         const auto& artifactItemProduct = ProductRepository::GetInstance().GetProductDefinition(artifactEntry.first);
         
         auto artifactSceneObject = mScene->CreateSceneObject();
@@ -344,40 +351,52 @@ void InventorySceneLogicManager::CreateItemEntriesAndContainer()
         artifactSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MAX_Y_UNIFORM_NAME] = ARTIFACT_ITEM_ENTRY_CUTOFF_VALUES.t;
         artifactSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
         artifactSceneObject->mScale = ITEM_ENTRY_SCALE;
-
+        
+        auto artifactCountTextSceneObject = mScene->CreateSceneObject();
+        artifactCountTextSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + ARTIFACT_TEXT_ITEM_ENTRY_SHADER);
+        
+        scene::TextSceneObjectData artifactCountText;
+        artifactCountText.mText = std::to_string(artifactEntry.second) + " x";
+        artifactCountText.mFontName = game_constants::DEFAULT_FONT_NAME;
+        
+        artifactCountTextSceneObject->mSceneObjectTypeData = std::move(artifactCountText);
+        artifactCountTextSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MIN_Y_UNIFORM_NAME] = ARTIFACT_ITEM_ENTRY_CUTOFF_VALUES.s;
+        artifactCountTextSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MAX_Y_UNIFORM_NAME] = ARTIFACT_ITEM_ENTRY_CUTOFF_VALUES.t;
+        artifactCountTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+        artifactCountTextSceneObject->mScale = ARTIFACT_TEXT_SCALE;
+        artifactCountTextSceneObject->mPosition += ARTIFACT_COUNT_TEXT_OFFSET;
+        
+        auto artifactNameTextSceneObject = mScene->CreateSceneObject();
+        artifactNameTextSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + ARTIFACT_TEXT_ITEM_ENTRY_SHADER);
+        
+        scene::TextSceneObjectData artifactNameText;
+        artifactNameText.mText = artifactItemProduct.mStoryRareItemName;
+        artifactNameText.mFontName = game_constants::DEFAULT_FONT_NAME;
+        
+        artifactNameTextSceneObject->mSceneObjectTypeData = std::move(artifactNameText);
+        artifactNameTextSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MIN_Y_UNIFORM_NAME] = ARTIFACT_ITEM_ENTRY_CUTOFF_VALUES.s;
+        artifactNameTextSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MAX_Y_UNIFORM_NAME] = ARTIFACT_ITEM_ENTRY_CUTOFF_VALUES.t;
+        artifactNameTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+        artifactNameTextSceneObject->mScale = ARTIFACT_TEXT_SCALE;
+        artifactNameTextSceneObject->mPosition += ARTIFACT_NAME_TEXT_OFFSET;
+        
         ItemEntry itemEntry;
         itemEntry.mArtifactOrMutationName = artifactEntry.first;
         itemEntry.mSceneObjects.push_back(artifactSceneObject);
-        
-        mArtifactsItemContainer->AddItem(std::move(itemEntry), EntryAdditionStrategy::ADD_ON_THE_BACK);
-    }
-    for (const auto& artifactEntry: artifactEntries)
-    {
-        const auto& artifactItemProduct = ProductRepository::GetInstance().GetProductDefinition(artifactEntry.first);
-        
-        auto artifactSceneObject = mScene->CreateSceneObject();
-        artifactSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + ARTIFACT_ITEM_ENTRY_SHADER);
-        artifactSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + std::get<std::string>(artifactItemProduct.mProductTexturePathOrCardId));
-        artifactSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MIN_Y_UNIFORM_NAME] = ARTIFACT_ITEM_ENTRY_CUTOFF_VALUES.s;
-        artifactSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MAX_Y_UNIFORM_NAME] = ARTIFACT_ITEM_ENTRY_CUTOFF_VALUES.t;
-        artifactSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
-        artifactSceneObject->mScale = ITEM_ENTRY_SCALE;
-
-        ItemEntry itemEntry;
-        itemEntry.mArtifactOrMutationName = artifactEntry.first;
-        itemEntry.mSceneObjects.push_back(artifactSceneObject);
+        itemEntry.mSceneObjects.push_back(artifactCountTextSceneObject);
+        itemEntry.mSceneObjects.push_back(artifactNameTextSceneObject);
         
         mArtifactsItemContainer->AddItem(std::move(itemEntry), EntryAdditionStrategy::ADD_ON_THE_BACK);
     }
     
     //TODO: mutations here
-    
+    auto mutationCount = 0;
     // Toggle mutations title off if necessary
     mScene->FindSceneObject(MUTATIONS_TITLE_SCENE_OBJECT_NAME)->mInvisible = mMutationsItemContainer->GetItems().size() == 0;
     
     // Append item count to containers
-    std::get<scene::TextSceneObjectData>(mScene->FindSceneObject(ARTIFACTS_TITLE_SCENE_OBJECT_NAME)->mSceneObjectTypeData).mText += " (" + std::to_string(mArtifactsItemContainer->GetItems().size()) + ")";
-    std::get<scene::TextSceneObjectData>(mScene->FindSceneObject(MUTATIONS_TITLE_SCENE_OBJECT_NAME)->mSceneObjectTypeData).mText += " (" + std::to_string(mMutationsItemContainer->GetItems().size()) + ")";
+    std::get<scene::TextSceneObjectData>(mScene->FindSceneObject(ARTIFACTS_TITLE_SCENE_OBJECT_NAME)->mSceneObjectTypeData).mText = "Artifacts (" + std::to_string(artifactCount) + ")";
+    std::get<scene::TextSceneObjectData>(mScene->FindSceneObject(MUTATIONS_TITLE_SCENE_OBJECT_NAME)->mSceneObjectTypeData).mText = "Mutations (" + std::to_string(mutationCount) + ")";
     
     // If container doesn't exist the staggered fade in will happen automatically at the end of VInitScene
     if (containerExists)
