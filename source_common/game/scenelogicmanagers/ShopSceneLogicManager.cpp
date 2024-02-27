@@ -62,8 +62,6 @@ static const strutils::StringId GOLDEN_PACK_PRODUCT_NAME = strutils::StringId("g
 static const strutils::StringId COINS_S_PRODUCT_NAME = strutils::StringId("coins_s");
 static const strutils::StringId COINS_M_PRODUCT_NAME = strutils::StringId("coins_m");
 static const strutils::StringId COINS_L_PRODUCT_NAME = strutils::StringId("coins_l");
-static const strutils::StringId DAMAGE_GAIN_PRODUCT_NAME = strutils::StringId("damage_gain_+1");
-static const strutils::StringId WEIGHT_GAIN_PRODUCT_NAME = strutils::StringId("weight_gain_+1");
 static const strutils::StringId COINS_TO_LIFE_PRODUCT_NAME = strutils::StringId("coins_to_life");
 static const strutils::StringId LIFE_TO_COINS_PRODUCT_NAME = strutils::StringId("life_to_coins");
 static const strutils::StringId CARD_DELETION_PRODUCT_NAME = strutils::StringId("card_deletion");
@@ -1263,14 +1261,6 @@ void ShopSceneLogicManager::OnBuyProductAttempt(const size_t productShelfIndex, 
             events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::CARD_LIBRARY_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
             return;
         }
-        else if (product->mProductName == WEIGHT_GAIN_PRODUCT_NAME)
-        {
-            events::EventSystem::GetInstance().DispatchEvent<events::ExtraWeightRewardEvent>();
-        }
-        else if (product->mProductName == DAMAGE_GAIN_PRODUCT_NAME)
-        {
-            events::EventSystem::GetInstance().DispatchEvent<events::ExtraDamageRewardEvent>();
-        }
         else if (product->mProductName == LIFE_TO_COINS_PRODUCT_NAME)
         {
             auto& storyCurrenteHealth = DataRepository::GetInstance().StoryCurrentHealth();
@@ -1285,6 +1275,10 @@ void ShopSceneLogicManager::OnBuyProductAttempt(const size_t productShelfIndex, 
             auto& storyCurrentHealth = DataRepository::GetInstance().StoryCurrentHealth();
             auto healthRestored = math::Min(DataRepository::GetInstance().GetStoryMaxHealth(), storyCurrentHealth.GetValue() + COINS_TO_LIFE_RATE.second) - storyCurrentHealth.GetValue();
             events::EventSystem::GetInstance().DispatchEvent<events::HealthRefillRewardEvent>(healthRestored, product->mSceneObjects.front()->mPosition);
+        }
+        else if (!productDefinition.mStoryRareItemName.empty())
+        {
+            events::EventSystem::GetInstance().DispatchEvent<events::RareItemCollectedEvent>(product->mProductName, product->mSceneObjects.front());
         }
         
         // Story shop puchase completion
@@ -1314,12 +1308,15 @@ void ShopSceneLogicManager::OnBuyProductAttempt(const size_t productShelfIndex, 
             }
             else
             {
-                product->mSceneObjects.front()->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + ((productDefinition.mStoryRareItemName.empty() && product->mProductName != STORY_HEALTH_REFILL_PRODUCT_NAME) ? DISSOLVE_SHADER_FILE_NAME : DISSOLVE_RARE_ITEM_SHADER_FILE_NAME));
-                product->mSceneObjects.front()->mEffectTextureResourceIds[0] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + DISSOLVE_TEXTURE_FILE_NAME);
-                product->mSceneObjects.front()->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] = 0.0f;
-                product->mSceneObjects.front()->mShaderFloatUniformValues[ORIGIN_X_UNIFORM_NAME] = product->mSceneObjects.front()->mPosition.x;
-                product->mSceneObjects.front()->mShaderFloatUniformValues[ORIGIN_Y_UNIFORM_NAME] = product->mSceneObjects.front()->mPosition.y;
-                product->mSceneObjects.front()->mShaderFloatUniformValues[DISSOLVE_MAGNITUDE_UNIFORM_NAME] = math::RandomFloat(CARD_DISSOLVE_EFFECT_MAG_RANGE.x, CARD_DISSOLVE_EFFECT_MAG_RANGE.y);
+                if (productDefinition.mStoryRareItemName.empty())
+                {
+                    product->mSceneObjects.front()->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + ((productDefinition.mStoryRareItemName.empty() && product->mProductName != STORY_HEALTH_REFILL_PRODUCT_NAME) ? DISSOLVE_SHADER_FILE_NAME : DISSOLVE_RARE_ITEM_SHADER_FILE_NAME));
+                    product->mSceneObjects.front()->mEffectTextureResourceIds[0] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + DISSOLVE_TEXTURE_FILE_NAME);
+                    product->mSceneObjects.front()->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] = 0.0f;
+                    product->mSceneObjects.front()->mShaderFloatUniformValues[ORIGIN_X_UNIFORM_NAME] = product->mSceneObjects.front()->mPosition.x;
+                    product->mSceneObjects.front()->mShaderFloatUniformValues[ORIGIN_Y_UNIFORM_NAME] = product->mSceneObjects.front()->mPosition.y;
+                    product->mSceneObjects.front()->mShaderFloatUniformValues[DISSOLVE_MAGNITUDE_UNIFORM_NAME] = math::RandomFloat(CARD_DISSOLVE_EFFECT_MAG_RANGE.x, CARD_DISSOLVE_EFFECT_MAG_RANGE.y);
+                }
                 
                 mSceneState = SceneState::BUYING_NON_CARD_PRODUCT;
             }

@@ -208,10 +208,10 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
             weightTextData.mFontName = game_constants::FONT_PLACEHOLDER_WEIGHT_NAME;
             
             int weight = math::Max(0, cardStatOverrides.count(CardStatType::WEIGHT) ? cardStatOverrides.at(CardStatType::WEIGHT) : cardData->mCardWeight);
-            if (globalStatModifiers.count(CardStatType::WEIGHT))
-            {
-                weight = math::Max(0, weight + globalStatModifiers.at(CardStatType::WEIGHT));
-            }
+//            if (globalStatModifiers.count(CardStatType::WEIGHT))
+//            {
+//                weight = math::Max(0, weight + globalStatModifiers.at(CardStatType::WEIGHT));
+//            }
             weightTextData.mText = std::to_string(weight);
             
             cardComponents.back()->mSceneObjectTypeData = std::move(weightTextData);
@@ -393,9 +393,12 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
         cardComponents.front()->mShaderResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CARD_SHADER_FILE_NAME);
         
         int weight = math::Max(0, cardStatOverrides.count(CardStatType::WEIGHT) ? cardStatOverrides.at(CardStatType::WEIGHT) : cardData->mCardWeight);
-        if (globalStatModifiers.count(CardStatType::WEIGHT))
+        if (!cardData->IsSpell())
         {
-            weight = math::Max(0, weight + globalStatModifiers.at(CardStatType::WEIGHT));
+            if (globalStatModifiers.count(CardStatType::WEIGHT))
+            {
+                weight = math::Max(0, weight + globalStatModifiers.at(CardStatType::WEIGHT));
+            }
         }
         
         cardComponents.front()->mShaderIntUniformValues[game_constants::CARD_WEIGHT_INTERACTIVE_MODE_UNIFORM_NAME] = canCardBePlayed ? (weight < cardData->mCardWeight ? game_constants::CARD_INTERACTIVE_MODE_INTERACTIVE : game_constants::CARD_INTERACTIVE_MODE_DEFAULT) : game_constants::CARD_INTERACTIVE_MODE_NONINTERACTIVE;

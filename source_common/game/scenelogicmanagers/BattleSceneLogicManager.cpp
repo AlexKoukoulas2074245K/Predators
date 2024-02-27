@@ -965,7 +965,7 @@ void BattleSceneLogicManager::UpdateMiscSceneObjects(const float dtMillis)
             {
                 overriddenWeight = math::Max(0, heldCardStatOverrides[i].count(CardStatType::WEIGHT) ? heldCardStatOverrides[i].at(CardStatType::WEIGHT) : cardSoWrapper->mCardData.mCardWeight);
             }
-            if (mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mBoardModifiers.mGlobalCardStatModifiers.count(CardStatType::WEIGHT))
+            if (!cardSoWrapper->mCardData.IsSpell() && mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mBoardModifiers.mGlobalCardStatModifiers.count(CardStatType::WEIGHT))
             {
                 overriddenWeight = math::Max(0, overriddenWeight + mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mBoardModifiers.mGlobalCardStatModifiers.at(CardStatType::WEIGHT));
             }

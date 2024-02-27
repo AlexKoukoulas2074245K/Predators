@@ -10,6 +10,7 @@
 
 ///------------------------------------------------------------------------------------------------
 
+#include <engine/scene/SceneObject.h>
 #include <game/CardEffectComponents.h>
 #include <game/Cards.h>
 #include <game/GameSceneTransitionTypes.h>
@@ -323,18 +324,6 @@ public:
 
 ///------------------------------------------------------------------------------------------------
 
-class ExtraDamageRewardEvent final
-{
-};
-
-///------------------------------------------------------------------------------------------------
-
-class ExtraWeightRewardEvent final
-{
-};
-
-///------------------------------------------------------------------------------------------------
-
 class StoryBattleWonEvent final
 {
 };
@@ -355,6 +344,21 @@ class CardDeletionAnimationFinishedEvent final
 
 class BlockInteractionWithHeldCardsEvent final
 {    
+};
+
+///------------------------------------------------------------------------------------------------
+
+class RareItemCollectedEvent final
+{
+public:
+    RareItemCollectedEvent(const strutils::StringId& rareItemProductId, std::shared_ptr<scene::SceneObject> rareItemSceneObject)
+        : mRareItemProductId(rareItemProductId)
+        , mRareItemSceneObject(rareItemSceneObject)
+    {
+    }
+    
+    const strutils::StringId mRareItemProductId;
+    const std::shared_ptr<scene::SceneObject> mRareItemSceneObject;
 };
 
 ///------------------------------------------------------------------------------------------------

@@ -216,6 +216,7 @@ namespace game_constants
     inline const float RODENTS_RESPAWN_CHANCE = 0.4f;
     inline const float SCENE_SPEED_DILATION_ANIMATION_DURATION_SECS = 0.5f;
     inline const float PER_ARMOR_DROPPED_DELAY_ANIMATION_DURATION_SECS = 0.3f;
+    inline const float RARE_ITEM_COLLECTION_ANIMATION_DURATION_SECS = 1.2f;
 
     inline const glm::vec3 INDIVIDUAL_CARD_BOARD_EFFECT_SCALE = {1/20.0f, 1/20.0f, 1/20.0f};
     inline const glm::vec3 CARD_HIGHLIGHTER_SCALE = {0.08f, 0.13f, 1.0f};

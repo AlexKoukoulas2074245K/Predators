@@ -63,8 +63,7 @@ private:
     void OnCoinReward(const events::CoinRewardEvent&);
     void OnHealthRefillReward(const events::HealthRefillRewardEvent&);
     void OnMaxHealthGainReward(const events::MaxHealthGainRewardEvent&);
-    void OnExtraDamageReward(const events::ExtraDamageRewardEvent&);
-    void OnExtraWeightReward(const events::ExtraWeightRewardEvent&);
+    void OnRareItemCollected(const events::RareItemCollectedEvent&);
     
 private:
     std::unordered_map<strutils::StringId, float, strutils::StringIdHasher> mParticleEmitterTimeAccums;

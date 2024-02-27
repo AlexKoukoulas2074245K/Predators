@@ -49,8 +49,6 @@ static const strutils::StringId REWARD_EXTRA_50_COINS_PRODUCT_NAME = strutils::S
 static const strutils::StringId REWARD_EXTRA_100_COINS_PRODUCT_NAME = strutils::StringId("extra_100_coins");
 static const strutils::StringId REWARD_EXTRA_HP_PRODUCT_NAME = strutils::StringId("extra_hp");
 static const strutils::StringId REWARD_REFILL_HP_PRODUCT_NAME = strutils::StringId("story_health_refill");
-static const strutils::StringId REWARD_EXTRA_WEIGHT_PRODUCT_NAME = strutils::StringId("weight_gain_+1");
-static const strutils::StringId REWARD_EXTRA_DAMAGE_PRODUCT_NAME = strutils::StringId("damage_gain_+1");
 static const strutils::StringId REWARD_NORMAL_PACK_NAME = strutils::StringId("normal_card_pack");
 static const strutils::StringId REWARD_GOLDEN_PACK_NAME = strutils::StringId("golden_card_pack");
 
@@ -293,7 +291,7 @@ std::shared_ptr<GuiObjectManager> WheelOfFortuneSceneLogicManager::VGetGuiObject
 
 ///------------------------------------------------------------------------------------------------
 
-void WheelOfFortuneSceneLogicManager::OnWheelItemSelected(const int itemIndex, const std::shared_ptr<scene::SceneObject>)
+void WheelOfFortuneSceneLogicManager::OnWheelItemSelected(const int itemIndex, const std::shared_ptr<scene::SceneObject> selectedSceneObject)
 {
     if (mWheelRewards.at(itemIndex) == REWARD_EXTRA_15_COINS_PRODUCT_NAME)
     {
@@ -315,14 +313,6 @@ void WheelOfFortuneSceneLogicManager::OnWheelItemSelected(const int itemIndex, c
     {
         events::EventSystem::GetInstance().DispatchEvent<events::HealthRefillRewardEvent>(DataRepository::GetInstance().GetStoryMaxHealth() - DataRepository::GetInstance().StoryCurrentHealth().GetValue(), REWARD_ORIGIN_POSITION);
     }
-    else if (mWheelRewards.at(itemIndex) == REWARD_EXTRA_DAMAGE_PRODUCT_NAME)
-    {
-        events::EventSystem::GetInstance().DispatchEvent<events::ExtraDamageRewardEvent>();
-    }
-    else if (mWheelRewards.at(itemIndex) == REWARD_EXTRA_WEIGHT_PRODUCT_NAME)
-    {
-        events::EventSystem::GetInstance().DispatchEvent<events::ExtraWeightRewardEvent>();
-    }
     else if (mWheelRewards.at(itemIndex) == REWARD_NORMAL_PACK_NAME)
     {
         DataRepository::GetInstance().AddPendingCardPack(CardPackType::NORMAL);
@@ -330,6 +320,10 @@ void WheelOfFortuneSceneLogicManager::OnWheelItemSelected(const int itemIndex, c
     else if (mWheelRewards.at(itemIndex) == REWARD_GOLDEN_PACK_NAME)
     {
         DataRepository::GetInstance().AddPendingCardPack(CardPackType::GOLDEN);
+    }
+    else
+    {
+        events::EventSystem::GetInstance().DispatchEvent<events::RareItemCollectedEvent>(mWheelRewards.at(itemIndex), selectedSceneObject);
     }
     
     if (!DataRepository::GetInstance().GetNextStoryOpponentName().empty())
@@ -347,28 +341,31 @@ void WheelOfFortuneSceneLogicManager::OnWheelItemSelected(const int itemIndex, c
         DataRepository::GetInstance().FlushStateToFile();
     }
     
-    mContinueButton = std::make_unique<AnimatedButton>
-    (
-        BUTTON_POSITION,
-        BUTTON_SCALE,
-        game_constants::DEFAULT_FONT_NAME,
-        "Continue",
-        CONTINUE_BUTTON_SCENE_OBJECT_NAME,
-        [=]()
-        {
-            if (!mFinalBossFlow)
+    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TimeDelayAnimation>(game_constants::RARE_ITEM_COLLECTION_ANIMATION_DURATION_SECS), [=]()
+    {
+        mContinueButton = std::make_unique<AnimatedButton>
+        (
+            BUTTON_POSITION,
+            BUTTON_SCALE,
+            game_constants::DEFAULT_FONT_NAME,
+            "Continue",
+            CONTINUE_BUTTON_SCENE_OBJECT_NAME,
+            [=]()
             {
-                auto guiObjectManager = mGameSceneTransitionManager->GetSceneLogicManagerResponsibleForScene(mPreviousScene)->VGetGuiObjectManager();
-                guiObjectManager->StopRewardAnimation();
-                guiObjectManager->ResetDisplayedCurrencyCoins();
-                DataRepository::GetInstance().StoryCurrentHealth().SetDisplayedValue(DataRepository::GetInstance().StoryCurrentHealth().GetValue());
-                guiObjectManager->ForceSetStoryHealthValue(DataRepository::GetInstance().StoryCurrentHealth().GetValue());
-            }
-            
-            events::EventSystem::GetInstance().DispatchEvent<events::PopSceneModalEvent>();
-        },
-        *mScene
-    );
+                if (!mFinalBossFlow)
+                {
+                    auto guiObjectManager = mGameSceneTransitionManager->GetSceneLogicManagerResponsibleForScene(mPreviousScene)->VGetGuiObjectManager();
+                    guiObjectManager->StopRewardAnimation();
+                    guiObjectManager->ResetDisplayedCurrencyCoins();
+                    DataRepository::GetInstance().StoryCurrentHealth().SetDisplayedValue(DataRepository::GetInstance().StoryCurrentHealth().GetValue());
+                    guiObjectManager->ForceSetStoryHealthValue(DataRepository::GetInstance().StoryCurrentHealth().GetValue());
+                }
+                
+                events::EventSystem::GetInstance().DispatchEvent<events::PopSceneModalEvent>();
+            },
+            *mScene
+        );
+    });
     
     auto productDescription = ProductRepository::GetInstance().GetProductDefinition(mWheelRewards.at(itemIndex)).mDescription;
     auto tooltipTextRows = strutils::StringSplit(productDescription, '$');
