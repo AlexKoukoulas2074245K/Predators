@@ -27,7 +27,6 @@
 
 static const strutils::StringId MAP_NAME_SCENE_OBJECT_NAME = strutils::StringId("map_name");
 static const strutils::StringId VISIT_MAP_NODE_SCENE = strutils::StringId("visit_map_node_scene");
-static const strutils::StringId SETTINGS_SCENE = strutils::StringId("settings_scene");
 static const strutils::StringId BACKGROUND_SCENE_OBJECT_NAME = strutils::StringId("background");
 
 static const std::string MAIN_MAP_THEME_MUSIC = "main_map_theme";

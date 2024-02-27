@@ -1,0 +1,25 @@
+{
+    "children_scenes":
+    [
+    ],
+    
+    "scene_objects":
+    [
+        {
+            "name": "inventory_artifacts_title",
+            "font": "font",
+            "text": "Artifacts",
+            "scale": { "x": 0.0004, "y": 0.0004, "z": 0.0004 },
+            "position": { "x": -0.112, "y": 0.215, "z": 23.1 },
+            "alpha": 0.0
+        },
+        {
+            "name": "inventory_mutations_title",
+            "font": "font",
+            "text": "Mutations",
+            "scale": { "x": 0.0004, "y": 0.0004, "z": 0.0004 },
+            "position": { "x": -0.111, "y": -0.07, "z": 23.1 },
+            "alpha": 0.0
+        }
+    ]
+}

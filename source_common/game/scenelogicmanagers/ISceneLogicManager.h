@@ -30,6 +30,7 @@ public:
     virtual void VUpdate(const float dtMillis, std::shared_ptr<scene::Scene> activeScene) = 0;
     virtual void VDestroyScene(std::shared_ptr<scene::Scene> scene) = 0;
     virtual std::shared_ptr<GuiObjectManager> VGetGuiObjectManager() = 0;
+    virtual void VCreateDebugWidgets(){};
     
 protected:
     GameSceneTransitionManager* mGameSceneTransitionManager;

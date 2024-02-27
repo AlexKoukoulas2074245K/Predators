@@ -52,6 +52,7 @@ void DataRepository::ResetStoryData()
     
     mStoryCurrentHealth = ValueWithDelayedDisplay<int>(game_constants::STORY_DEFAULT_MAX_HEALTH, game_constants::STORY_DEFAULT_MAX_HEALTH, [=](const int& newValue) { mStoryDataSerializer->GetState()["current_story_health"] = newValue; });
     
+    mCurrentStoryArtifacts.clear();
     mCurrentShopBoughtProductCoordinates.clear();
     mCurrentStoryPlayerDeck.clear();
     mNextTopPlayerDeck.clear();
@@ -784,6 +785,60 @@ void DataRepository::AddShopBoughtProductCoordinates(const std::pair<int, int>& 
 {
     mCurrentShopBoughtProductCoordinates.push_back(shopBoughtProductCoordinates);
     mStoryDataSerializer->GetState()["current_shop_bought_product_coordinates"] = mCurrentShopBoughtProductCoordinates;
+}
+
+///------------------------------------------------------------------------------------------------
+
+const std::vector<std::pair<strutils::StringId, int>>& DataRepository::GetCurrentStoryArtifacts() const
+{
+    return mCurrentStoryArtifacts;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void DataRepository::ClearCurrentStoryArtifacts()
+{
+    mCurrentStoryArtifacts.clear();
+    mStoryDataSerializer->GetState()["current_story_artifacts"].clear();
+}
+
+///------------------------------------------------------------------------------------------------
+
+void DataRepository::AddStoryArtifact(const strutils::StringId& storyArtifact)
+{
+    bool addedQuantityToExistingEntry = false;
+    
+    for (auto& artifactEntry: mCurrentStoryArtifacts)
+    {
+        if (artifactEntry.first == storyArtifact)
+        {
+            artifactEntry.second++;
+            addedQuantityToExistingEntry = true;
+        }
+    }
+    
+    if (!addedQuantityToExistingEntry)
+    {
+        mCurrentStoryArtifacts.push_back(std::make_pair(storyArtifact, 1));
+    }
+    
+    SetCurrentStoryArtifacts(mCurrentStoryArtifacts);
+}
+
+///------------------------------------------------------------------------------------------------
+
+void DataRepository::SetCurrentStoryArtifacts(const std::vector<std::pair<strutils::StringId, int>>& storyArtifacts)
+{
+    mCurrentStoryArtifacts = storyArtifacts;
+    mStoryDataSerializer->GetState()["current_story_artifacts"].clear();
+    
+    nlohmann::json storyArtifactsJson;
+    for (const auto& artifactEntry: storyArtifacts)
+    {
+        storyArtifactsJson[artifactEntry.first.GetString()] = artifactEntry.second;
+    }
+    
+    mStoryDataSerializer->GetState()["current_story_artifacts"] = storyArtifactsJson;
 }
 
 ///------------------------------------------------------------------------------------------------

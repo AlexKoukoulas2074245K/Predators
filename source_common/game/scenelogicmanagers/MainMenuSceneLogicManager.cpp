@@ -46,7 +46,6 @@ static const std::string STORY_DECK_NAMES[AVAILABLE_STORY_DECKS_COUNT] =
     "Insects"
 };
 
-static const strutils::StringId SETTINGS_SCENE = strutils::StringId("settings_scene");
 static const strutils::StringId PRIVACY_POLICY_SCENE = strutils::StringId("privacy_policy_scene");
 static const strutils::StringId GIFT_CODE_CLAIM_SCENE = strutils::StringId("gift_code_claim_scene");
 static const strutils::StringId BOARD_SCENE_OBJECT_NAME = strutils::StringId("board");
@@ -337,18 +336,18 @@ void MainMenuSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
     if (mCardFamilyContainerTop)
     {
         auto containerUpdateResult = mCardFamilyContainerTop->Update(dtMillis);
-        if (containerUpdateResult.mInteractedElementId != -1 && mQuickPlayData->mBattleControlType != BattleControlType::REPLAY)
+        if (containerUpdateResult.mInteractedElementIndex != -1 && mQuickPlayData->mBattleControlType != BattleControlType::REPLAY)
         {
-            DeckSelected(containerUpdateResult.mInteractedElementId, true, scene);
+            DeckSelected(containerUpdateResult.mInteractedElementIndex, true, scene);
         }
     }
     
     if (mCardFamilyContainerBot)
     {
         auto containerUpdateResult = mCardFamilyContainerBot->Update(dtMillis);
-        if (containerUpdateResult.mInteractedElementId != -1 && (mQuickPlayData->mBattleControlType != BattleControlType::REPLAY || mActiveSubScene == SubSceneType::NEW_STORY_DECK_SELECTION))
+        if (containerUpdateResult.mInteractedElementIndex != -1 && (mQuickPlayData->mBattleControlType != BattleControlType::REPLAY || mActiveSubScene == SubSceneType::NEW_STORY_DECK_SELECTION))
         {
-            DeckSelected(containerUpdateResult.mInteractedElementId, false, scene);
+            DeckSelected(containerUpdateResult.mInteractedElementIndex, false, scene);
         }
     }
 }
@@ -467,7 +466,7 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                 [=]()
                 {
                     CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(scene->GetUpdateTimeSpeedFactor(), 0.0f, game_constants::SCENE_SPEED_DILATION_ANIMATION_DURATION_SECS), [](){}, game_constants::SCENE_SPEED_DILATION_ANIMATION_NAME);
-                    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(SETTINGS_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+                    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::SETTINGS_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
                 },
                 *scene
             ));

@@ -39,7 +39,6 @@
 ///------------------------------------------------------------------------------------------------
 
 static const strutils::StringId HISTORY_SCENE = strutils::StringId("battle_history_scene");
-static const strutils::StringId SETTINGS_SCENE = strutils::StringId("settings_scene");
 static const strutils::StringId CARD_HISTORY_CONTAINER_NAME = strutils::StringId("card_history_container");
 static const strutils::StringId COINS_LOOT_INDICATOR_SCENE_OBJECT_NAME = strutils::StringId("coins_loot_indicator");
 static const strutils::StringId HEALTH_LOOT_INDICATOR_SCENE_OBJECT_NAME = strutils::StringId("health_loot_indicator");
@@ -575,10 +574,10 @@ void BattleSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scen
         }
         else if (cardHistoryContainerUpdateResult.mInteractionType == InteractionType::INTERACTED_WITH_ELEMENTS)
         {
-            if (sToolTipIndex != cardHistoryContainerUpdateResult.mInteractedElementId)
+            if (sToolTipIndex != cardHistoryContainerUpdateResult.mInteractedElementIndex)
             {
-                sToolTipIndex = cardHistoryContainerUpdateResult.mInteractedElementId;
-                auto interactedElementEntry = mCardHistoryContainer->GetItems()[cardHistoryContainerUpdateResult.mInteractedElementId];
+                sToolTipIndex = cardHistoryContainerUpdateResult.mInteractedElementIndex;
+                auto interactedElementEntry = mCardHistoryContainer->GetItems()[cardHistoryContainerUpdateResult.mInteractedElementIndex];
                 if (!interactedElementEntry.mIsTurnCounter)
                 {
                     auto cardData = CardDataRepository::GetInstance().GetCardData(interactedElementEntry.mCardId, interactedElementEntry.mForOpponent ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX);
@@ -2291,7 +2290,7 @@ void BattleSceneLogicManager::FakeSettingsButtonPressed()
     CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(battleScene->GetUpdateTimeSpeedFactor(), 0.0f, game_constants::SCENE_SPEED_DILATION_ANIMATION_DURATION_SECS), [](){}, game_constants::SCENE_SPEED_DILATION_ANIMATION_NAME);
     
     battleScene->RemoveAllParticleEffects();
-    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(SETTINGS_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::SETTINGS_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
 }
 
 ///------------------------------------------------------------------------------------------------

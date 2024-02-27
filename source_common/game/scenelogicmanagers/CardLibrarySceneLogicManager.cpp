@@ -410,10 +410,10 @@ void CardLibrarySceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr
                 const auto& cardHistoryContainerUpdateResult = mCardContainer->Update(dtMillis);
                 if (cardHistoryContainerUpdateResult.mInteractionType == InteractionType::INTERACTED_WITH_ELEMENTS)
                 {
-                    if (sToolTipIndex != cardHistoryContainerUpdateResult.mInteractedElementId)
+                    if (sToolTipIndex != cardHistoryContainerUpdateResult.mInteractedElementIndex)
                     {
-                        sToolTipIndex = cardHistoryContainerUpdateResult.mInteractedElementId;
-                        auto interactedElementEntry = mCardContainer->GetItems()[cardHistoryContainerUpdateResult.mInteractedElementId];
+                        sToolTipIndex = cardHistoryContainerUpdateResult.mInteractedElementIndex;
+                        auto interactedElementEntry = mCardContainer->GetItems()[cardHistoryContainerUpdateResult.mInteractedElementIndex];
                         
                         switch (DataRepository::GetInstance().GetCurrentCardLibraryBehaviorType())
                         {
@@ -434,7 +434,7 @@ void CardLibrarySceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr
                             case CardLibraryBehaviorType::CARD_LIBRARY:
                             case CardLibraryBehaviorType::BROWSING_FOR_DELETION:
                             {
-                                mSelectedCardIndex = cardHistoryContainerUpdateResult.mInteractedElementId;
+                                mSelectedCardIndex = cardHistoryContainerUpdateResult.mInteractedElementIndex;
                                 mSelectedCardInitialPosition = mCardContainer->GetItems()[mSelectedCardIndex].mSceneObjects.front()->mPosition;
                             } break;
                         }

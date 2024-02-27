@@ -30,7 +30,6 @@ static const std::string CHECKBOX_EMPTY_TEXTURE_FILE_NAME = "checkbox_empty.png"
 static const std::string CHECKBOX_FILLED_TEXTURE_FILE_NAME = "checkbox_filled.png";
 
 static const strutils::StringId MAIN_MENU_SCENE = strutils::StringId("main_menu_scene");
-static const strutils::StringId SETTINGS_SCENE_NAME = strutils::StringId("settings_scene");
 static const strutils::StringId CONTINUE_BUTTON_NAME = strutils::StringId("continue_button");
 static const strutils::StringId QUIT_BUTTON_NAME = strutils::StringId("quit_button");
 static const strutils::StringId PAUSED_TEXT_SCENE_OBJECT_NAME = strutils::StringId("paused_text");
@@ -57,7 +56,7 @@ static const float STAGGERED_ITEM_ALPHA_DELAY_SECS = 0.1f;
 
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
 {
-    SETTINGS_SCENE_NAME
+    game_constants::SETTINGS_SCENE
 };
 
 static const std::unordered_set<strutils::StringId, strutils::StringIdHasher> STATIC_SCENE_ELEMENTS =

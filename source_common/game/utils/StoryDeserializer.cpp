@@ -31,6 +31,22 @@ StoryDeserializer::StoryDeserializer(DataRepository& dataRepository)
         }
     }
     
+    if (storyJson.count("current_story_artifacts"))
+    {
+        dataRepository.ClearCurrentStoryArtifacts();
+        
+        if (!storyJson["current_story_artifacts"].is_null())
+        {
+            for (auto entryIter = storyJson["current_story_artifacts"].begin(); entryIter != storyJson["current_story_artifacts"].end(); ++entryIter)
+            {
+                for (auto i = 0; i < entryIter.value().get<int>(); ++i)
+                {
+                    dataRepository.AddStoryArtifact(strutils::StringId(entryIter.key()));
+                }
+            }
+        }
+    }
+    
     if (storyJson.count("current_story_health"))
     {
         auto storyHealth = storyJson["current_story_health"].get<int>();

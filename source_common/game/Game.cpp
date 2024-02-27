@@ -47,6 +47,7 @@
 #include <game/scenelogicmanagers/DisconnectedSceneLogicManager.h>
 #include <game/scenelogicmanagers/EventSceneLogicManager.h>
 #include <game/scenelogicmanagers/GiftCodeClaimSceneLogicManager.h>
+#include <game/scenelogicmanagers/InventorySceneLogicManager.h>
 #include <game/scenelogicmanagers/LoadingSceneLogicManager.h>
 #include <game/scenelogicmanagers/MainMenuSceneLogicManager.h>
 #include <game/scenelogicmanagers/PrivacyPolicySceneLogicManager.h>
@@ -131,6 +132,7 @@ void Game::Init()
     mGameSceneTransitionManager->RegisterSceneLogicManager<DisconnectedSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<EventSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<GiftCodeClaimSceneLogicManager>();
+    mGameSceneTransitionManager->RegisterSceneLogicManager<InventorySceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<LoadingSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<MainMenuSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<PrivacyPolicySceneLogicManager>();
@@ -483,13 +485,15 @@ void Game::CreateDebugWidgets()
     }
     ImGui::End();
     
-    // Battle specific ImGui windows
+    
     auto* activeSceneLogicManager = mGameSceneTransitionManager->GetActiveSceneLogicManager();
+    activeSceneLogicManager->VCreateDebugWidgets();
+    
     if (!dynamic_cast<BattleSceneLogicManager*>(activeSceneLogicManager))
     {
         return;
     }
-    
+    // Battle specific ImGui windows
     auto& battleSceneLogicManager = *(dynamic_cast<BattleSceneLogicManager*>(activeSceneLogicManager));
     printGameActionTransitions = battleSceneLogicManager.GetActionEngine().LoggingActionTransitions();
     ImGui::Begin("Game Runtime", nullptr, GLOBAL_IMGUI_WINDOW_FLAGS);

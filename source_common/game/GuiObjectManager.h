@@ -60,6 +60,7 @@ private:
     void SetCoinValueText();
     void OnSettingsButtonPressed();
     void OnStoryCardsButtonPressed();
+    void OnInventoryButtonPressed();
     void OnCoinReward(const events::CoinRewardEvent&);
     void OnHealthRefillReward(const events::HealthRefillRewardEvent&);
     void OnMaxHealthGainReward(const events::MaxHealthGainRewardEvent&);

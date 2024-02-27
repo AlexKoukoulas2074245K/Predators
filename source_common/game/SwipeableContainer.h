@@ -57,7 +57,7 @@ enum class InteractionType
 struct UpdateResult
 {
     InteractionType mInteractionType;
-    int mInteractedElementId;
+    int mInteractedElementIndex;
 };
 
 ///------------------------------------------------------------------------------------------------
@@ -199,7 +199,7 @@ public:
     {
         UpdateResult updateResult;
         updateResult.mInteractionType = InteractionType::NONE;
-        updateResult.mInteractedElementId = -1;
+        updateResult.mInteractedElementIndex = -1;
         
         const auto& inputStateManager = CoreSystemsEngine::GetInstance().GetInputStateManager();
         auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
@@ -246,7 +246,7 @@ public:
                     if (math::IsPointInsideRectangle(sceneObjectRect.bottomLeft, sceneObjectRect.topRight, worldTouchPos))
                     {
                         updateResult.mInteractionType = InteractionType::INTERACTED_WITH_ELEMENTS;
-                        updateResult.mInteractedElementId = i;
+                        updateResult.mInteractedElementIndex = i;
                     }
                 }
             }

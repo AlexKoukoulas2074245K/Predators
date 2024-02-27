@@ -21,7 +21,6 @@
 
 ///------------------------------------------------------------------------------------------------
 
-static const strutils::StringId SETTINGS_SCENE = strutils::StringId("settings_scene");
 static const strutils::StringId GENERIC_PARTICLE_EMITTER_SCENE_OBJECT_NAME = strutils::StringId("generic_stat_particle_emitter");
 static const strutils::StringId HEALTH_REWARD_PARTICLE_EMITTER_SCENE_OBJECT_NAME = strutils::StringId("health_reward_stat_particle_emitter");
 static const strutils::StringId COINS_REWARD_PARTICLE_EMITTER_SCENE_OBJECT_NAME = strutils::StringId("coins_reward_stat_particle_emitter");
@@ -148,7 +147,7 @@ GuiObjectManager::GuiObjectManager(std::shared_ptr<scene::Scene> scene)
         extraScaleFactor * INVENTORY_BUTTON_SCALE,
         INVENTORY_ICON_TEXTURE_FILE_NAME,
         game_constants::GUI_INVENTORY_BUTTON_SCENE_OBJECT_NAME,
-        [=](){ OnStoryCardsButtonPressed(); },
+        [=](){ OnInventoryButtonPressed(); },
         *scene,
         scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE,
         INVENTORY_BUTTON_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR / extraScaleFactor
@@ -482,7 +481,7 @@ void GuiObjectManager::AnimateStatGainParticles(const glm::vec3& originPosition,
 void GuiObjectManager::OnSettingsButtonPressed()
 {
     CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(mScene->GetUpdateTimeSpeedFactor(), 0.0f, game_constants::SCENE_SPEED_DILATION_ANIMATION_DURATION_SECS), [](){}, game_constants::SCENE_SPEED_DILATION_ANIMATION_NAME);
-    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(SETTINGS_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::SETTINGS_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -492,6 +491,14 @@ void GuiObjectManager::OnStoryCardsButtonPressed()
     DataRepository::GetInstance().SetCurrentCardLibraryBehaviorType(CardLibraryBehaviorType::STORY_CARDS);
     CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(mScene->GetUpdateTimeSpeedFactor(), 0.0f, game_constants::SCENE_SPEED_DILATION_ANIMATION_DURATION_SECS), [](){}, game_constants::SCENE_SPEED_DILATION_ANIMATION_NAME);
     events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::CARD_LIBRARY_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+}
+
+///------------------------------------------------------------------------------------------------
+
+void GuiObjectManager::OnInventoryButtonPressed()
+{
+    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(mScene->GetUpdateTimeSpeedFactor(), 0.0f, game_constants::SCENE_SPEED_DILATION_ANIMATION_DURATION_SECS), [](){}, game_constants::SCENE_SPEED_DILATION_ANIMATION_NAME);
+    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::INVENTORY_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -606,6 +613,7 @@ void GuiObjectManager::OnRareItemCollected(const events::RareItemCollectedEvent&
     }
     
     // Handle data updates for rare item
+    DataRepository::GetInstance().AddStoryArtifact(event.mRareItemProductId);
     if (event.mRareItemProductId == REWARD_EXTRA_DAMAGE_PRODUCT_NAME)
     {
         auto existingDamageModifierIter = DataRepository::GetInstance().GetStoryPlayerCardStatModifiers().find(CardStatType::DAMAGE);

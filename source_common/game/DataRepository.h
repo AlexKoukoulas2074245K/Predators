@@ -255,6 +255,11 @@ public:
     void SetShopBoughtProductCoordinates(const std::vector<std::pair<int, int>>& shopBoughtProductCoordinates);
     void AddShopBoughtProductCoordinates(const std::pair<int, int>& shopBoughtProductCoordinates);
     
+    const std::vector<std::pair<strutils::StringId, int>>& GetCurrentStoryArtifacts() const;
+    void ClearCurrentStoryArtifacts();
+    void AddStoryArtifact(const strutils::StringId& storyArtifact);
+    void SetCurrentStoryArtifacts(const std::vector<std::pair<strutils::StringId, int>>& storyArtifacts);
+    
     const glm::ivec2& GetCurrentStoryMapNodeCoord() const;
     void SetCurrentStoryMapNodeCoord(const glm::ivec2& currentStoryMapNodeCoord);
     
@@ -318,6 +323,7 @@ private:
     std::vector<std::string> mSuccessfulTransactionIds;
     std::vector<std::string> mGiftCodesClaimed;
     std::vector<std::pair<int, int>> mCurrentShopBoughtProductCoordinates;
+    std::vector<std::pair<strutils::StringId, int>> mCurrentStoryArtifacts;
     std::vector<CardPackType> mPendingCardPacks;
     std::string mNextStoryOpponentTexturePath;
     std::string mNextStoryOpponentName;
