@@ -60,7 +60,7 @@ public:
     void RemoveParticleGraphicsData(scene::SceneObject& particleEmitterSceneObject);
     void RemoveParticleEmitterFlag(const uint8_t flag, const strutils::StringId particleEmitterSceneObjectName, scene::Scene& scene);
     void SortParticles(scene::ParticleEmitterObjectData& particleEmitterData) const;
-    
+    void ChangeParticleTexture(const strutils::StringId& particleEmitterDefinitionName, const resources::ResourceId textureResourceId);
     void LoadParticleData(const resources::ResourceReloadMode resourceReloadMode = resources::ResourceReloadMode::DONT_RELOAD);
     void ReloadParticlesFromDisk();
     
@@ -68,7 +68,7 @@ private:
     ParticleManager() = default;
     void SpawnParticleAtIndex(const size_t index, const glm::vec3& sceneObjectPosition, scene::ParticleEmitterObjectData& particleEmitterObjectData);
     void SpawnParticleAtIndex(const size_t index, scene::SceneObject& particleEmitterSceneObject);
-    
+
 private:
     std::vector<std::shared_ptr<scene::SceneObject>> mParticleEmittersToDelete;
     std::unordered_map<strutils::StringId, scene::ParticleEmitterObjectData, strutils::StringIdHasher> mParticleNamesToData;

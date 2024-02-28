@@ -378,6 +378,17 @@ void ParticleManager::SortParticles(scene::ParticleEmitterObjectData& particleEm
 
 ///------------------------------------------------------------------------------------------------
 
+void ParticleManager::ChangeParticleTexture(const strutils::StringId& particleEmitterDefinitionName, const resources::ResourceId textureResourceId)
+{
+    auto findIter = mParticleNamesToData.find(particleEmitterDefinitionName);
+    if (findIter != mParticleNamesToData.end())
+    {
+        findIter->second.mTextureResourceId = textureResourceId;
+    }
+}
+
+///------------------------------------------------------------------------------------------------
+
 void ParticleManager::SpawnParticleAtIndex(const size_t index, const glm::vec3& sceneObjectPosition, scene::ParticleEmitterObjectData& particleEmitterData)
 {
     const auto lifeTime = math::RandomFloat(particleEmitterData.mParticleLifetimeRangeSecs.x, particleEmitterData.mParticleLifetimeRangeSecs.y);

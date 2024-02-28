@@ -121,7 +121,7 @@ void WheelOfFortuneSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> s
             {
                 secondRareItemProductName = rareItemProductNames[math::ControlledRandomInt() % rareItemProductNames.size()];
             }
-            
+
             mWheelRewards =
             {
                 REWARD_EXTRA_15_COINS_PRODUCT_NAME,

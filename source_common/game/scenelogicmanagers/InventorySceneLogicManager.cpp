@@ -46,7 +46,7 @@ static const glm::vec3 ARTIFACT_TEXT_SCALE = {0.00025f, 0.00025f, 0.00025f};
 static const glm::vec3 ARTIFACT_NAME_TEXT_OFFSET = glm::vec3(-0.06f, 0.05f, 0.1f);
 static const glm::vec3 ARTIFACT_COUNT_TEXT_OFFSET = glm::vec3(-0.06f, 0.0f, 0.1f);
 
-static const glm::vec2 MUTATION_ITEM_ENTRY_CUTOFF_VALUES = {-0.27f, 0.2f};
+//static const glm::vec2 MUTATION_ITEM_ENTRY_CUTOFF_VALUES = {-0.27f, 0.2f};
 static const glm::vec2 MUTATION_ITEM_CONTAINER_CUTOFF_VALUES = {-0.15f, 0.15f};
 static const glm::vec2 ARTIFACT_ITEM_ENTRY_CUTOFF_VALUES = {-0.047f, 0.183f};
 static const glm::vec2 ARTIFACT_ITEM_CONTAINER_CUTOFF_VALUES = {0.076, 0.093f};
@@ -332,25 +332,25 @@ void InventorySceneLogicManager::CreateItemEntriesAndContainer()
     // Create artifact entries
     //TODO: mutations here
     auto mutationCount = 0;
-    for (const auto& artifactEntry: DataRepository::GetInstance().GetCurrentStoryArtifacts())
-    {
-        mutationCount += artifactEntry.second;
-        const auto& artifactItemProduct = ProductRepository::GetInstance().GetProductDefinition(artifactEntry.first);
-
-        auto artifactSceneObject = mScene->CreateSceneObject();
-        artifactSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + MUTATION_ITEM_ENTRY_SHADER);
-        artifactSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + std::get<std::string>(artifactItemProduct.mProductTexturePathOrCardId));
-        artifactSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MIN_X_UNIFORM_NAME] = MUTATION_ITEM_ENTRY_CUTOFF_VALUES.s;
-        artifactSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MAX_X_UNIFORM_NAME] = MUTATION_ITEM_ENTRY_CUTOFF_VALUES.t;
-        artifactSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
-        artifactSceneObject->mScale = ITEM_ENTRY_SCALE;
-
-        ItemEntry itemEntry;
-        itemEntry.mArtifactOrMutationName = artifactEntry.first;
-        itemEntry.mSceneObjects.push_back(artifactSceneObject);
-
-        mMutationsItemContainer->AddItem(std::move(itemEntry), EntryAdditionStrategy::ADD_ON_THE_BACK);
-    }
+//    for (const auto& artifactEntry: DataRepository::GetInstance().GetCurrentStoryArtifacts())
+//    {
+//        mutationCount += artifactEntry.second;
+//        const auto& artifactItemProduct = ProductRepository::GetInstance().GetProductDefinition(artifactEntry.first);
+//
+//        auto artifactSceneObject = mScene->CreateSceneObject();
+//        artifactSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + MUTATION_ITEM_ENTRY_SHADER);
+//        artifactSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + std::get<std::string>(artifactItemProduct.mProductTexturePathOrCardId));
+//        artifactSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MIN_X_UNIFORM_NAME] = MUTATION_ITEM_ENTRY_CUTOFF_VALUES.s;
+//        artifactSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MAX_X_UNIFORM_NAME] = MUTATION_ITEM_ENTRY_CUTOFF_VALUES.t;
+//        artifactSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+//        artifactSceneObject->mScale = ITEM_ENTRY_SCALE;
+//
+//        ItemEntry itemEntry;
+//        itemEntry.mArtifactOrMutationName = artifactEntry.first;
+//        itemEntry.mSceneObjects.push_back(artifactSceneObject);
+//
+//        mMutationsItemContainer->AddItem(std::move(itemEntry), EntryAdditionStrategy::ADD_ON_THE_BACK);
+//    }
     
     mArtifactsItemContainer = std::make_unique<SwipeableContainer<ItemEntry>>
     (

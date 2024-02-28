@@ -57,6 +57,7 @@ static const strutils::StringId PLAY_CARD_ACTION_NAME = strutils::StringId("Play
 static const strutils::StringId NEXT_PLAYER_ACTION_NAME = strutils::StringId("NextPlayerGameAction");
 static const strutils::StringId CARD_BUFFED_DEBUFFED_ANIMATION_GAME_ACTION_NAME = strutils::StringId("CardBuffedDebuffedAnimationGameAction");
 static const strutils::StringId CARD_EFFECT_GAME_ACTION_NAME = strutils::StringId("CardEffectGameAction");
+static const strutils::StringId GAME_OVER_GAME_ACTION_NAME = strutils::StringId("GameOverGameAction");
 static const strutils::StringId HERO_CARD_ENTRY_GAME_ACTION_NAME = strutils::StringId("HeroCardEntryGameAction");
 static const strutils::StringId CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES [game_constants::CARD_TOOLTIP_TEXT_ROWS_COUNT] =
 {
@@ -541,7 +542,7 @@ void BattleSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scen
             return statContainerEntry.first;
         }) != mAnimatedStatContainers.cend();
         
-        if (!foundActiveStatContainer)
+        if (!foundActiveStatContainer || mActionEngine->GetActiveGameActionName() == GAME_OVER_GAME_ACTION_NAME)
         {
             mActionEngine->Update(dtMillis);
         }

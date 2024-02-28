@@ -11,6 +11,7 @@
 #include <game/GameConstants.h>
 #include <game/events/EventSystem.h>
 #include <game/DataRepository.h>
+#include <game/ProductRepository.h>
 #include <engine/CoreSystemsEngine.h>
 #include <engine/rendering/AnimationManager.h>
 #include <engine/rendering/ParticleManager.h>
@@ -34,6 +35,8 @@ static const strutils::StringId PARTICLE_EMITTER_DEFINITION_DAMAGE_GAIN_SMALL = 
 static const strutils::StringId PARTICLE_EMITTER_DEFINITION_DAMAGE_GAIN_LARGE = strutils::StringId("damage_gain_large");
 static const strutils::StringId PARTICLE_EMITTER_DEFINITION_WEIGHT_GAIN_SMALL = strutils::StringId("weight_gain_small");
 static const strutils::StringId PARTICLE_EMITTER_DEFINITION_WEIGHT_GAIN_LARGE = strutils::StringId("weight_gain_large");
+static const strutils::StringId PARTICLE_EMITTER_DEFINITION_GENERIC_RARE_ITEM_LARGE = strutils::StringId("generic_rare_item_large");
+
 static const strutils::StringId REWARD_EXTRA_WEIGHT_PRODUCT_NAME = strutils::StringId("blue_sapphire");
 static const strutils::StringId REWARD_EXTRA_DAMAGE_PRODUCT_NAME = strutils::StringId("blood_diamond");
 
@@ -73,6 +76,7 @@ static const glm::vec3 STAT_PARTICLE_TARGET_POSITION_OFFSET = { -0.02f, -0.01f, 
 static const glm::vec3 STAT_GAIN_BATTLE_PARTICLE_OFFSET_POSITION = {0.0f, -0.04f, -0.01f};
 static const glm::vec3 STAT_GAIN_PARTICLE_OFFSET_POSITION = {0.0f, -0.08f, -0.01f};
 static const glm::vec3 EXTRA_DAMAGE_WEIGHT_PARTICLE_ORIGIN_POSITION = {-0.025f, -0.12f, 23.5f};
+static const glm::vec3 GENERIC_RARE_ITEM_PARTICLE_ORIGIN_POSITION = {0.0f, 0.0, 23.5f};
 
 static const glm::vec2 RARE_ITEM_COLLECTED_ANIMATION_MIN_MAX_OFFSETS = {-0.3f, 0.3f};
 static const glm::vec2 STAT_FLYING_PARTICLE_MIN_MAX_Y_OFFSET = {-0.1f, 0.1f};
@@ -98,6 +102,7 @@ static const float MAX_HEALTH_STAT_GAIN_PARTICLE_LIFETIME_SPEED = 0.004f;
 static const float RARE_ITEM_COLLECTED_ANIMATION_MIN_ALPHA = 0.3f;
 static const float RARE_ITEM_COLLECTED_ANIMATION_LIBRARY_ICON_PULSE_FACTOR = 1.25f;
 static const float RARE_ITEM_COLLECTED_ANIMATION_LIBRARY_ICON_PULSE_DURATION_SECS = 0.1f;
+static const float RARE_ITEM_COLLECTED_ANIMATION_DURATION_SECS = 3.0f;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -269,6 +274,12 @@ void GuiObjectManager::StopRewardAnimation()
 {
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
     animationManager.StopAllAnimations();
+    
+    auto sceneToStopParticleEMitters = mScene->GetName() == game_constants::BATTLE_SCENE ? CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::WHEEL_OF_FORTUNE_SCENE) : mScene;
+    sceneToStopParticleEMitters->RemoveSceneObject(GENERIC_PARTICLE_EMITTER_SCENE_OBJECT_NAME);
+    sceneToStopParticleEMitters->RemoveSceneObject(COINS_REWARD_PARTICLE_EMITTER_SCENE_OBJECT_NAME);
+    sceneToStopParticleEMitters->RemoveSceneObject(HEALTH_REWARD_PARTICLE_EMITTER_SCENE_OBJECT_NAME);
+    
     mScene->RemoveSceneObject(GENERIC_PARTICLE_EMITTER_SCENE_OBJECT_NAME);
     mScene->RemoveSceneObject(COINS_REWARD_PARTICLE_EMITTER_SCENE_OBJECT_NAME);
     mScene->RemoveSceneObject(HEALTH_REWARD_PARTICLE_EMITTER_SCENE_OBJECT_NAME);
@@ -601,7 +612,23 @@ void GuiObjectManager::OnRareItemCollected(const events::RareItemCollectedEvent&
             }
             else
             {
-                //assert(false);
+                CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(MAX_HEALTH_GAIN_SFX);
+                
+                auto rareItemTexturePath = std::get<std::string>(ProductRepository::GetInstance().GetProductDefinition(event.mRareItemProductId).mProductTexturePathOrCardId);
+                auto rareItemTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + rareItemTexturePath);
+                auto particleDefinition = PARTICLE_EMITTER_DEFINITION_GENERIC_RARE_ITEM_LARGE;
+                
+                CoreSystemsEngine::GetInstance().GetParticleManager().ChangeParticleTexture(particleDefinition, rareItemTextureResourceId);
+                
+                CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TimeDelayAnimation>(RARE_ITEM_COLLECTED_ANIMATION_DURATION_SECS), [](){ events::EventSystem::GetInstance().DispatchEvent<events::GuiRewardAnimationFinishedEvent>(); } );
+                
+                // Rare items can only be collected in wheel, event, or shop scenes. If the base scene here is battle
+                // then we need to be looking at wheel at the top level and we spawn the particles there directly.
+                // This is necessary due to how the shader works for generic rare item particles.
+                auto sceneToSpawnParticlesIn = mScene->GetName() == game_constants::BATTLE_SCENE ? CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::WHEEL_OF_FORTUNE_SCENE) : mScene;
+                
+                mScene->RemoveSceneObject(GENERIC_PARTICLE_EMITTER_SCENE_OBJECT_NAME);
+                auto particleEmitterSceneObject = CoreSystemsEngine::GetInstance().GetParticleManager().CreateParticleEmitterAtPosition(particleDefinition, GENERIC_RARE_ITEM_PARTICLE_ORIGIN_POSITION, *sceneToSpawnParticlesIn, GENERIC_PARTICLE_EMITTER_SCENE_OBJECT_NAME, [=](float dtMillis, scene::ParticleEmitterObjectData& particleEmitterData){});
             }
         });
         
@@ -627,10 +654,6 @@ void GuiObjectManager::OnRareItemCollected(const events::RareItemCollectedEvent&
     else if (event.mRareItemProductId == REWARD_EXTRA_WEIGHT_PRODUCT_NAME)
     {
         DataRepository::GetInstance().SetNextBattleBotPlayerInitWeight(DataRepository::GetInstance().GetNextBattleBotPlayerInitWeight() + 1);
-    }
-    else
-    {
-        //assert(false);
     }
 }
 
