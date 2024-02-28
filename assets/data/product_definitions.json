@@ -2,20 +2,54 @@
     "product_definitions":
     [
         {
-            "name": "damage_gain_+1",
-            "price": 500,
-            "texture_path": "rare_item_rewards/extra_damage.png",
+            "name": "blood_diamond",
+            "price": 300,
+            "texture_path": "rare_item_rewards/blood_diamond.png",
             "shader_path": "rare_item.vs",
             "description": "Permanent +1$damage increase$for all normal cards",
             "story_rare_item_name": "Blood Diamond"
         },
         {
-            "name": "weight_gain_+1",
+            "name": "blue_sapphire",
             "price": 200,
-            "texture_path": "rare_item_rewards/extra_weight.png",
+            "texture_path": "rare_item_rewards/blue_sapphire.png",
             "shader_path": "rare_item.vs",
             "description": "Permanent +1$starting weight for$all future story$battles",
             "story_rare_item_name": "Blue Sapphire"
+        },
+        {
+            "name": "greedy_goblin",
+            "price": 400,
+            "texture_path": "rare_item_rewards/greedy_goblin.png",
+            "shader_path": "rare_item.vs",
+            "description": "Triples all coin$rewards and chance$of winning artifacts$in elite wheels",
+            "story_rare_item_name": "Greedy Goblin",
+            "unique": true
+        },
+        {
+            "name": "guardian_angel",
+            "price": 750,
+            "texture_path": "rare_item_rewards/guardian_angel.png",
+            "shader_path": "rare_item.vs",
+            "description": "Revives you once$with HALF of your$MAX HP this story",
+            "story_rare_item_name": "Guardian Angel",
+            "unique": true
+        },
+        {
+            "name": "heavy_armor",
+            "price": 350,
+            "texture_path": "rare_item_rewards/heavy_armor.png",
+            "shader_path": "rare_item.vs",
+            "description": "Adds 1 ARMOR at$the start of every$battle in this story",
+            "story_rare_item_name": "Heavy Armor"
+        },
+        {
+            "name": "demon_fangs",
+            "price": 450,
+            "texture_path": "rare_item_rewards/demon_fangs.png",
+            "shader_path": "rare_item.vs",
+            "description": "Every attack made$in battle will heal$you for 1 extra HP",
+            "story_rare_item_name": "Demon Fangs"
         },
         {
             "name": "coins_to_life",

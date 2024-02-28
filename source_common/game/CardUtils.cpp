@@ -146,7 +146,7 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
     auto& systemsEngine = CoreSystemsEngine::GetInstance();
     auto& resService = systemsEngine.GetResourceLoadingService();
     
-    const auto& sceneObjectName = strutils::StringId(cardNamePrefix + game_constants::CARD_BASE_SO_NAME_POST_FIX);
+    const auto& sceneObjectName = strutils::StringId(cardNamePrefix);
     
     if (cardOrientation == CardOrientation::BACK_FACE)
     {

@@ -94,6 +94,11 @@ public:
     
     void AddItem(ContainerEntryT&& item, EntryAdditionStrategy entryAdditionStrategy)
     {
+        if (mContainerType == ContainerType::HORIZONTAL_LINE)
+        {
+            item.mSceneObjects.front()->mBoundingRectMultiplier.x *= 0.5f;
+        }
+        
         if (entryAdditionStrategy == EntryAdditionStrategy::ADD_ON_THE_BACK)
         {
             for (auto i = 0U; i < item.mSceneObjects.size(); ++i)
@@ -243,6 +248,7 @@ public:
                 for (int i = 0; i < static_cast<int>(mItems.size()); ++i)
                 {
                     auto sceneObjectRect = scene_object_utils::GetSceneObjectBoundingRect(*mItems[i].mSceneObjects.front());
+                    
                     if (math::IsPointInsideRectangle(sceneObjectRect.bottomLeft, sceneObjectRect.topRight, worldTouchPos))
                     {
                         updateResult.mInteractionType = InteractionType::INTERACTED_WITH_ELEMENTS;

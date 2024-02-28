@@ -34,8 +34,8 @@ static const strutils::StringId PARTICLE_EMITTER_DEFINITION_DAMAGE_GAIN_SMALL = 
 static const strutils::StringId PARTICLE_EMITTER_DEFINITION_DAMAGE_GAIN_LARGE = strutils::StringId("damage_gain_large");
 static const strutils::StringId PARTICLE_EMITTER_DEFINITION_WEIGHT_GAIN_SMALL = strutils::StringId("weight_gain_small");
 static const strutils::StringId PARTICLE_EMITTER_DEFINITION_WEIGHT_GAIN_LARGE = strutils::StringId("weight_gain_large");
-static const strutils::StringId REWARD_EXTRA_WEIGHT_PRODUCT_NAME = strutils::StringId("weight_gain_+1");
-static const strutils::StringId REWARD_EXTRA_DAMAGE_PRODUCT_NAME = strutils::StringId("damage_gain_+1");
+static const strutils::StringId REWARD_EXTRA_WEIGHT_PRODUCT_NAME = strutils::StringId("blue_sapphire");
+static const strutils::StringId REWARD_EXTRA_DAMAGE_PRODUCT_NAME = strutils::StringId("blood_diamond");
 
 static const std::string OVERLAY_TEXTURE_FILE_NAME = "overlay.png";
 static const std::string COIN_VALUE_TEXT_SHADER_FILE_NAME = "animated_stat_container_value_object.vs";
@@ -556,60 +556,63 @@ void GuiObjectManager::OnRareItemCollected(const events::RareItemCollectedEvent&
 {
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
     
-    // Calculate bezier points for item animation
-    auto inventoryIconSceneObject = mScene->FindSceneObject(game_constants::GUI_INVENTORY_BUTTON_SCENE_OBJECT_NAME);
-    auto inventoryIconPosition = inventoryIconSceneObject->mPosition;
-    glm::vec3 midPosition = glm::vec3(event.mRareItemSceneObject->mPosition + inventoryIconPosition)/2.0f;
-    midPosition.y += math::RandomSign() == 1 ? RARE_ITEM_COLLECTED_ANIMATION_MIN_MAX_OFFSETS.t : RARE_ITEM_COLLECTED_ANIMATION_MIN_MAX_OFFSETS.s ;
-    
-    if (mScene->GetName() == game_constants::BATTLE_SCENE)
+    if (event.mRareItemSceneObject)
     {
-        inventoryIconPosition.x *= 2.0f;
-    }
-    
-    math::BezierCurve curve({event.mRareItemSceneObject->mPosition, midPosition, inventoryIconPosition});
-    
-    // Animate collected rare item to inventory icon
-    animationManager.StartAnimation(std::make_unique<rendering::BezierCurveAnimation>(event.mRareItemSceneObject->mPosition, curve, game_constants::RARE_ITEM_COLLECTION_ANIMATION_DURATION_SECS), [=]()
-    {
-        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(RARE_ITEM_COLLECTED_SFX);
+        // Calculate bezier points for item animation
+        auto inventoryIconSceneObject = mScene->FindSceneObject(game_constants::GUI_INVENTORY_BUTTON_SCENE_OBJECT_NAME);
+        auto inventoryIconPosition = inventoryIconSceneObject->mPosition;
+        glm::vec3 midPosition = glm::vec3(event.mRareItemSceneObject->mPosition + inventoryIconPosition)/2.0f;
+        midPosition.y += math::RandomSign() == 1 ? RARE_ITEM_COLLECTED_ANIMATION_MIN_MAX_OFFSETS.t : RARE_ITEM_COLLECTED_ANIMATION_MIN_MAX_OFFSETS.s ;
         
-        // And pulse card library icon
-        auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
-        auto originalScale = inventoryIconSceneObject->mScale;
-        animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(inventoryIconSceneObject, inventoryIconSceneObject->mPosition, originalScale * RARE_ITEM_COLLECTED_ANIMATION_LIBRARY_ICON_PULSE_FACTOR, RARE_ITEM_COLLECTED_ANIMATION_LIBRARY_ICON_PULSE_DURATION_SECS, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT | animation_flags::IGNORE_Z_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+        if (mScene->GetName() == game_constants::BATTLE_SCENE)
         {
+            inventoryIconPosition.x *= 2.0f;
+        }
+        
+        math::BezierCurve curve({event.mRareItemSceneObject->mPosition, midPosition, inventoryIconPosition});
+        
+        // Animate collected rare item to inventory icon
+        animationManager.StartAnimation(std::make_unique<rendering::BezierCurveAnimation>(event.mRareItemSceneObject->mPosition, curve, game_constants::RARE_ITEM_COLLECTION_ANIMATION_DURATION_SECS), [=]()
+        {
+            CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(RARE_ITEM_COLLECTED_SFX);
+            
+            // And pulse card library icon
             auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
-            animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(inventoryIconSceneObject, inventoryIconSceneObject->mPosition, originalScale, RARE_ITEM_COLLECTED_ANIMATION_LIBRARY_ICON_PULSE_DURATION_SECS, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT | animation_flags::IGNORE_Z_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+            auto originalScale = inventoryIconSceneObject->mScale;
+            animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(inventoryIconSceneObject, inventoryIconSceneObject->mPosition, originalScale * RARE_ITEM_COLLECTED_ANIMATION_LIBRARY_ICON_PULSE_FACTOR, RARE_ITEM_COLLECTED_ANIMATION_LIBRARY_ICON_PULSE_DURATION_SECS, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT | animation_flags::IGNORE_Z_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
             {
-                inventoryIconSceneObject->mScale = originalScale;
+                auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+                animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(inventoryIconSceneObject, inventoryIconSceneObject->mPosition, originalScale, RARE_ITEM_COLLECTED_ANIMATION_LIBRARY_ICON_PULSE_DURATION_SECS, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT | animation_flags::IGNORE_Z_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+                {
+                    inventoryIconSceneObject->mScale = originalScale;
+                });
             });
+            
+            // Handle animation/music for rare item
+            if (event.mRareItemProductId == REWARD_EXTRA_DAMAGE_PRODUCT_NAME)
+            {
+                CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(MAX_HEALTH_GAIN_SFX);
+                AnimateStatGainParticles(EXTRA_DAMAGE_WEIGHT_PARTICLE_ORIGIN_POSITION, StatGainParticleType::DAMAGE);
+            }
+            else if (event.mRareItemProductId == REWARD_EXTRA_WEIGHT_PRODUCT_NAME)
+            {
+                CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(MAX_HEALTH_GAIN_SFX);
+                AnimateStatGainParticles(EXTRA_DAMAGE_WEIGHT_PARTICLE_ORIGIN_POSITION, StatGainParticleType::WEIGHT);
+            }
+            else
+            {
+                //assert(false);
+            }
         });
         
-        // Handle animation/music for rare item
-        if (event.mRareItemProductId == REWARD_EXTRA_DAMAGE_PRODUCT_NAME)
+        // And its alpha
+        animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(event.mRareItemSceneObject, RARE_ITEM_COLLECTED_ANIMATION_MIN_ALPHA, game_constants::RARE_ITEM_COLLECTION_ANIMATION_DURATION_SECS), [=](){ event.mRareItemSceneObject->mInvisible = true; });
+        
+        if (mScene->GetName() != game_constants::BATTLE_SCENE)
         {
-            CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(MAX_HEALTH_GAIN_SFX);
-            AnimateStatGainParticles(EXTRA_DAMAGE_WEIGHT_PARTICLE_ORIGIN_POSITION, StatGainParticleType::DAMAGE);
+            // And its scale for non battle scenes
+            animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(event.mRareItemSceneObject, glm::vec3(), inventoryIconSceneObject->mScale * 2.0f, game_constants::RARE_ITEM_COLLECTION_ANIMATION_DURATION_SECS, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT | animation_flags::IGNORE_Z_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){});
         }
-        else if (event.mRareItemProductId == REWARD_EXTRA_WEIGHT_PRODUCT_NAME)
-        {
-            CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(MAX_HEALTH_GAIN_SFX);
-            AnimateStatGainParticles(EXTRA_DAMAGE_WEIGHT_PARTICLE_ORIGIN_POSITION, StatGainParticleType::WEIGHT);
-        }
-        else
-        {
-            assert(false);
-        }
-    });
-    
-    // And its alpha
-    animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(event.mRareItemSceneObject, RARE_ITEM_COLLECTED_ANIMATION_MIN_ALPHA, game_constants::RARE_ITEM_COLLECTION_ANIMATION_DURATION_SECS), [=](){ event.mRareItemSceneObject->mInvisible = true; });
-    
-    if (mScene->GetName() != game_constants::BATTLE_SCENE)
-    {
-        // And its scale for non battle scenes
-        animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(event.mRareItemSceneObject, glm::vec3(), inventoryIconSceneObject->mScale * 2.0f, game_constants::RARE_ITEM_COLLECTION_ANIMATION_DURATION_SECS, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT | animation_flags::IGNORE_Z_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){});
     }
     
     // Handle data updates for rare item
@@ -627,7 +630,7 @@ void GuiObjectManager::OnRareItemCollected(const events::RareItemCollectedEvent&
     }
     else
     {
-        assert(false);
+        //assert(false);
     }
 }
 

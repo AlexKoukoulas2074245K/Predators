@@ -40,7 +40,6 @@ namespace game_constants
     inline const std::string CARD_FREE_MOVING_ANIMATION_NAME_PRE_FIX = "free_moving_card_";
     inline const std::string BOARD_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME_PRE_FIX = "board_side_effect_top_value_";
     inline const std::string BOARD_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME_PRE_FIX = "board_side_effect_bot_value_";
-    inline const std::string CARD_BASE_SO_NAME_POST_FIX = "_card";
     inline const std::string STORY_MAP_NODE_PORTRAIT_SO_NAME_POST_FIX = "_portrait";
     inline const std::string STORY_MAP_NODE_TEXT_SO_NAME_POST_FIX = "_text";
     inline const std::string STORY_MAP_NODE_SECONDARY_TEXT_SO_NAME_POST_FIX = "_text_secondary";

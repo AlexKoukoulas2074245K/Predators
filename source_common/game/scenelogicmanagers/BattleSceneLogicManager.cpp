@@ -1002,6 +1002,8 @@ void BattleSceneLogicManager::UpdateMiscSceneObjects(const float dtMillis)
             cardHighlighterObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
             cardHighlighterObject->mPosition = localPlayerHeldCards[i]->mSceneObject->mPosition;
             cardHighlighterObject->mPosition.z += game_constants::ACTION_HIGLIGHTER_Z_OFFSET;
+            
+            localPlayerHeldCards[i]->mSceneObject->mPosition.z -= game_constants::ACTION_HIGLIGHTER_Z_OFFSET;
         }
     }
     
@@ -1461,10 +1463,29 @@ void BattleSceneLogicManager::OnImmediateCardDestructionWithReposition(const eve
     const auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
     auto battleScene = sceneManager.FindScene(game_constants::BATTLE_SCENE);
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
-    
     const auto& cards = event.mIsBoardCard ?
         mBoardState->GetPlayerStates()[(event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)].mPlayerBoardCards:
         mBoardState->GetPlayerStates()[(event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)].mPlayerHeldCards;
+    
+    if (!event.mIsBoardCard)
+    {
+        DestroyCardHighlighterAtIndex(event.mCardIndex);
+        
+        for (int i = 0; i < cards.size(); ++i)
+        {
+            auto cardHighlighterName = strutils::StringId(CARD_HIGHLIGHTER_SCENE_OBJECT_NAME_PREFIX + std::to_string(i));
+            auto existingCardHighlighter = battleScene->FindSceneObject(cardHighlighterName);
+            
+            if (existingCardHighlighter)
+            {
+                if (event.mCardIndex < i)
+                {
+                    existingCardHighlighter->mName = strutils::StringId(CARD_HIGHLIGHTER_SCENE_OBJECT_NAME_PREFIX + std::to_string(i - 1));
+                }
+            }
+        }
+    }
+    
     const auto& cardIndicesToDestroy = event.mIsBoardCard ?
         mBoardState->GetPlayerStates()[(event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)].mBoardCardIndicesToDestroy:
         mBoardState->GetPlayerStates()[(event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)].mHeldCardIndicesToDestroy;
@@ -1474,6 +1495,7 @@ void BattleSceneLogicManager::OnImmediateCardDestructionWithReposition(const eve
         mPlayerBoardCardSceneObjectWrappers[(event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)]:
         mPlayerHeldCardSceneObjectWrappers[(event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)];
     battleScene->RemoveSceneObject(cardSoWrappers[event.mCardIndex]->mSceneObject->mName);
+    
     
     cardSoWrappers.erase(cardSoWrappers.begin() + event.mCardIndex);
     
