@@ -5,6 +5,7 @@
 ///  Created by Alex Koukoulas on 27/10/2023
 ///------------------------------------------------------------------------------------------------
 
+#include <game/ArtifactProductIds.h>
 #include <game/Cards.h>
 #include <game/CardUtils.h>
 #include <game/events/EventSystem.h>
@@ -117,6 +118,16 @@ void CardAttackGameAction::VSetNewGameState()
         {
             activePlayerState.mPlayerHealth -= damage;
             mAmountOfHealthDamaged = damage;
+        }
+        
+        auto demonFangsCount = DataRepository::GetInstance().GetStoryArtifactCount(artifacts::DEMON_FANGS);
+        if (demonFangsCount > 0 && mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX)
+        {
+            int oldHealth = mBoardState->GetInactivePlayerState().mPlayerHealth;
+            
+            mBoardState->GetInactivePlayerState().mPlayerHealth = math::Min(mBoardState->GetInactivePlayerState().mPlayerHealth + demonFangsCount, DataRepository::GetInstance().GetStoryMaxHealth());
+        
+            mLifestealHealedAtLeast1Hp = oldHealth != mBoardState->GetInactivePlayerState().mPlayerHealth;
         }
         
         if ((mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::RODENT_LIFESTEAL) != 0)
@@ -277,6 +288,11 @@ void CardAttackGameAction::VInitAnimation()
                             else
                             {
                                 events::EventSystem::GetInstance().DispatchEvent<events::HealthChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
+                            }
+                            
+                            if (DataRepository::GetInstance().GetStoryArtifactCount(artifacts::DEMON_FANGS) > 0 && mLifestealHealedAtLeast1Hp)
+                            {
+                                events::EventSystem::GetInstance().DispatchEvent<events::HealthChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX);
                             }
                             
                             if ((mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::RODENT_LIFESTEAL) != 0 && mLifestealHealedAtLeast1Hp)
