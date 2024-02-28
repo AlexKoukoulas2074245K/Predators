@@ -7,6 +7,7 @@
 
 #include <game/AnimatedButton.h>
 #include <game/AnimatedStatContainer.h>
+#include <game/ArtifactProductIds.h>
 #include <game/BoardState.h>
 #include <game/CardUtils.h>
 #include <game/events/EventSystem.h>
@@ -2222,8 +2223,14 @@ void BattleSceneLogicManager::OnCardHistoryEntryAddition(const events::CardHisto
 
 void BattleSceneLogicManager::OnStoryBattleWon(const events::StoryBattleWonEvent&)
 {
-    auto battleCoinRewards = DataRepository::GetInstance().GetNextBattleTopPlayerHealth();
     auto healthReward = DataRepository::GetInstance().GetNextStoryOpponentDamage();
+    auto battleCoinRewards = DataRepository::GetInstance().GetNextBattleTopPlayerHealth();
+    
+    auto greedyGoblinCount = DataRepository::GetInstance().GetStoryArtifactCount(artifacts::GREEDY_GOBLIN);
+    if (greedyGoblinCount > 0)
+    {
+        battleCoinRewards *= 2 * greedyGoblinCount;
+    }
     
     // Add victory coin loot indicator and animate coins to gui
     auto coinsLootIndicatorSceneObject = mActiveScene->FindSceneObject(COINS_LOOT_INDICATOR_SCENE_OBJECT_NAME);

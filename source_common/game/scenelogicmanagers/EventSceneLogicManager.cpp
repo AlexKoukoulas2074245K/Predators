@@ -13,6 +13,7 @@
 #include <engine/utils/PlatformMacros.h>
 #include <engine/scene/SceneManager.h>
 #include <game/AnimatedButton.h>
+#include <game/ArtifactProductIds.h>
 #include <game/Cards.h>
 #include <game/events/EventSystem.h>
 #include <game/GuiObjectManager.h>
@@ -168,6 +169,13 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
     /// Gold Coin cart event
     {
         auto coinsToGain = math::ControlledRandomInt(15, 30) + 10 * (DataRepository::GetInstance().GetCurrentStoryMapNodeCoord().x + (DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::NORMAL_MAP ? game_constants::TUTORIAL_NODE_MAP_DIMENSIONS.s : 0));
+        
+        auto greedyGoblinCount = DataRepository::GetInstance().GetStoryArtifactCount(artifacts::GREEDY_GOBLIN);
+        if (greedyGoblinCount > 0)
+        {
+            coinsToGain *= 2 * greedyGoblinCount;
+        }
+        
         mRegisteredStoryEvents.emplace_back
         (
             StoryRandomEventData

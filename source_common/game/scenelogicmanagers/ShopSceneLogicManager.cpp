@@ -18,6 +18,7 @@
 #include <engine/scene/SceneManager.h>
 #include <engine/sound/SoundManager.h>
 #include <game/AnimatedButton.h>
+#include <game/ArtifactProductIds.h>
 #include <game/Cards.h>
 #include <game/CardTooltipController.h>
 #include <game/CardUtils.h>
@@ -1263,10 +1264,17 @@ void ShopSceneLogicManager::OnBuyProductAttempt(const size_t productShelfIndex, 
         }
         else if (product->mProductName == LIFE_TO_COINS_PRODUCT_NAME)
         {
+            auto coinReward = LIFE_TO_COINS_RATE.second;
+            auto greedyGoblinCount = DataRepository::GetInstance().GetStoryArtifactCount(artifacts::GREEDY_GOBLIN);
+            if (greedyGoblinCount > 0)
+            {
+                coinReward *= 2 * greedyGoblinCount;
+            }
+            
             auto& storyCurrenteHealth = DataRepository::GetInstance().StoryCurrentHealth();
             storyCurrenteHealth.SetDisplayedValue(storyCurrenteHealth.GetValue() - LIFE_TO_COINS_RATE.first);
             storyCurrenteHealth.SetValue(storyCurrenteHealth.GetValue() - LIFE_TO_COINS_RATE.first);
-            events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(LIFE_TO_COINS_RATE.second, product->mSceneObjects.front()->mPosition);
+            events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(coinReward, product->mSceneObjects.front()->mPosition);
         }
         else if (product->mProductName == COINS_TO_LIFE_PRODUCT_NAME)
         {

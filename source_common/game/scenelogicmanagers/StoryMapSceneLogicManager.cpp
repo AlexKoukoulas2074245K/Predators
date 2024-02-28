@@ -147,7 +147,7 @@ void StoryMapSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     RegisterForEvents();
     
     mGuiManager = std::make_shared<GuiObjectManager>(scene);
-    
+
     mSwipeCamera = scene->GetCamera();
     mScene = scene;
     

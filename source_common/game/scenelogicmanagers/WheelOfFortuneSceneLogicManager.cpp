@@ -12,6 +12,7 @@
 #include <engine/utils/PlatformMacros.h>
 #include <engine/scene/SceneManager.h>
 #include <game/AnimatedButton.h>
+#include <game/ArtifactProductIds.h>
 #include <game/DataRepository.h>
 #include <game/GuiObjectManager.h>
 #include <game/events/EventSystem.h>
@@ -38,8 +39,8 @@ static const glm::vec3 FINAL_BOSS_TITLE_COLOR = {0.86f, 0.1f, 0.1f};
 static const glm::vec3 COIN_VALUE_TEXT_COLOR = {0.80f, 0.71f, 0.11f};
 static const glm::vec3 REWARD_TEXT_SCALE = {0.00032f, 0.00032f, 0.00032f};
 
-static const int EXTRA_HP_REWARD_VALUE = 10;
-static const int REWARD_COUNT = 12;
+static constexpr int EXTRA_HP_REWARD_VALUE = 10;
+static constexpr int REWARD_COUNT = 12;
 
 static const float FADE_IN_OUT_DURATION_SECS = 1.0f;
 static const float REWARD_TEXT_STAGGERED_FADE_IN_SECS = 0.1f;
@@ -115,28 +116,40 @@ void WheelOfFortuneSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> s
     {
         case WheelOfFortuneType::ELITE:
         {
-            const auto& firstRareItemProductName = rareItemProductNames[math::ControlledRandomInt() % rareItemProductNames.size()];
-            auto secondRareItemProductName = rareItemProductNames[math::ControlledRandomInt() % rareItemProductNames.size()];
-            while (secondRareItemProductName == firstRareItemProductName)
+            auto rareItemsCount = DataRepository::GetInstance().GetStoryArtifactCount(artifacts::GREEDY_GOBLIN);
+            rareItemsCount = rareItemsCount == 0 ? 2 : rareItemsCount * 2 * 2;
+            rareItemsCount = math::Min(REWARD_COUNT, rareItemsCount);
+            
+            std::unordered_set<strutils::StringId, strutils::StringIdHasher> rareItemSelection;
+            while (rareItemSelection.size() < rareItemsCount && rareItemSelection.size() < rareItemProductNames.size())
             {
-                secondRareItemProductName = rareItemProductNames[math::ControlledRandomInt() % rareItemProductNames.size()];
+                rareItemSelection.insert(rareItemProductNames[math::ControlledRandomInt() % rareItemProductNames.size()]);
             }
-
+            
             mWheelRewards =
             {
                 REWARD_EXTRA_15_COINS_PRODUCT_NAME,
                 REWARD_EXTRA_HP_PRODUCT_NAME,
                 REWARD_EXTRA_50_COINS_PRODUCT_NAME,
                 REWARD_EXTRA_15_COINS_PRODUCT_NAME,
-                firstRareItemProductName,
+                REWARD_REFILL_HP_PRODUCT_NAME,
                 REWARD_EXTRA_HP_PRODUCT_NAME,
                 REWARD_EXTRA_100_COINS_PRODUCT_NAME,
                 REWARD_EXTRA_HP_PRODUCT_NAME,
                 REWARD_EXTRA_15_COINS_PRODUCT_NAME,
                 REWARD_REFILL_HP_PRODUCT_NAME,
-                REWARD_EXTRA_50_COINS_PRODUCT_NAME,
-                secondRareItemProductName
+                REWARD_EXTRA_HP_PRODUCT_NAME,
+                REWARD_EXTRA_50_COINS_PRODUCT_NAME
             };
+            
+            const auto step = REWARD_COUNT/rareItemSelection.size();
+            auto index = 0;
+            auto initIndex = 4;
+            for (auto& rareItemName: rareItemSelection)
+            {
+                mWheelRewards[(initIndex + (index * step)) % REWARD_COUNT] = rareItemName;
+                index++;
+            }
         } break;
             
         case WheelOfFortuneType::TUTORIAL_BOSS:
@@ -293,17 +306,20 @@ std::shared_ptr<GuiObjectManager> WheelOfFortuneSceneLogicManager::VGetGuiObject
 
 void WheelOfFortuneSceneLogicManager::OnWheelItemSelected(const int itemIndex, const std::shared_ptr<scene::SceneObject> selectedSceneObject)
 {
+    auto greedyGoblinCoinMultiplier = DataRepository::GetInstance().GetStoryArtifactCount(artifacts::GREEDY_GOBLIN);
+    greedyGoblinCoinMultiplier = greedyGoblinCoinMultiplier == 0 ? 1 : 2 * greedyGoblinCoinMultiplier;
+    
     if (mWheelRewards.at(itemIndex) == REWARD_EXTRA_15_COINS_PRODUCT_NAME)
     {
-        events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(15, REWARD_ORIGIN_POSITION);
+        events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(15 * greedyGoblinCoinMultiplier, REWARD_ORIGIN_POSITION);
     }
     else if (mWheelRewards.at(itemIndex) == REWARD_EXTRA_50_COINS_PRODUCT_NAME)
     {
-        events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(50, REWARD_ORIGIN_POSITION);
+        events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(50 * greedyGoblinCoinMultiplier, REWARD_ORIGIN_POSITION);
     }
     else if (mWheelRewards.at(itemIndex) == REWARD_EXTRA_100_COINS_PRODUCT_NAME)
     {
-        events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(100, REWARD_ORIGIN_POSITION);
+        events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(100 * greedyGoblinCoinMultiplier, REWARD_ORIGIN_POSITION);
     }
     else if (mWheelRewards.at(itemIndex) == REWARD_EXTRA_HP_PRODUCT_NAME)
     {
