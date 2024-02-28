@@ -28,6 +28,8 @@
 static const std::string ARTIFACT_ITEM_ENTRY_SHADER = "artifact_container_entry.vs";
 static const std::string ARTIFACT_TEXT_ITEM_ENTRY_SHADER = "artifact_text_container_entry.vs";
 static const std::string MUTATION_ITEM_ENTRY_SHADER = "mutation_container_entry.vs";
+static const std::string UNIQUE_ARTIFACT_ICON_TEXTURE_FILE_NAME = "single_use_stamp.png";
+static const std::string UNIQUE_ARTIFACT_ICON_SHADER_FILE_NAME = "artifact_single_use_icon_container_entry.vs";
 
 static const strutils::StringId BACK_BUTTON_NAME = strutils::StringId("back_button");
 static const strutils::StringId ARTIFACTS_TITLE_SCENE_OBJECT_NAME = strutils::StringId("inventory_artifacts_title");
@@ -43,8 +45,10 @@ static const glm::vec3 ITEM_TOOLTIP_BASE_SCALE = {0.274f, 0.274f, 1/10.0f};
 static const glm::vec3 ARTIFACT_CONTAINER_ITEM_ENTRY_SCALE = {0.173f, 0.142f, 2.0f};
 static const glm::vec3 MUTATION_CONTAINER_ITEM_ENTRY_SCALE = {0.34f, 0.142f, 2.0f};
 static const glm::vec3 ARTIFACT_TEXT_SCALE = {0.00025f, 0.00025f, 0.00025f};
-static const glm::vec3 ARTIFACT_NAME_TEXT_OFFSET = glm::vec3(-0.06f, 0.05f, 0.1f);
-static const glm::vec3 ARTIFACT_COUNT_TEXT_OFFSET = glm::vec3(-0.06f, 0.0f, 0.1f);
+static const glm::vec3 ARTIFACT_NAME_TEXT_OFFSET = {-0.06f, 0.05f, 0.1f};
+static const glm::vec3 ARTIFACT_COUNT_TEXT_OFFSET = {-0.06f, 0.0f, 0.1f};
+static const glm::vec3 ARTIFACT_UNIQUE_ICON_SCALE = {0.05f, 0.05f, 0.05f};
+static const glm::vec3 ARTIFACT_UNIQUE_ICON_OFFSET = {-0.05f, -0.0f, 0.1f};
 
 //static const glm::vec2 MUTATION_ITEM_ENTRY_CUTOFF_VALUES = {-0.27f, 0.2f};
 static const glm::vec2 MUTATION_ITEM_CONTAINER_CUTOFF_VALUES = {-0.15f, 0.15f};
@@ -229,24 +233,18 @@ void InventorySceneLogicManager::UpdateItemContainer(const float dtMillis, std::
             sceneObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time + i;
         }
     }
-    
-    const auto& inputStateManager = CoreSystemsEngine::GetInstance().GetInputStateManager();
-    
+
     if (itemContainer)
     {
         static int sToolTipIndices[2] = {-1, -1};
         static float sToolTipPointeePosYCoords[2] = {0.0f, 0.0f};
+        static float sToolTipPointeePosXCoords[2] = {0.0f, 0.0f};
         
         int& sToolTipIndex = itemContainer == mArtifactsItemContainer ? sToolTipIndices[0] : sToolTipIndices[1];
         float& sToolTipPointeePosY = itemContainer == mArtifactsItemContainer ? sToolTipPointeePosYCoords[0] : sToolTipPointeePosYCoords[1];
-
-        const auto& itemContainerUpdateResult = itemContainer->Update(dtMillis);
+        float& sToolTipPointeePosX = itemContainer == mArtifactsItemContainer ? sToolTipPointeePosXCoords[0] : sToolTipPointeePosXCoords[1];
         
-        if (inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON) && itemContainerUpdateResult.mInteractionType != InteractionType::NONE)
-        {
-            mSelectedItemIndex = -1;
-            DestroyItemTooltip();
-        }
+        const auto& itemContainerUpdateResult = itemContainer->Update(dtMillis);
         
         if (itemContainerUpdateResult.mInteractionType == InteractionType::INTERACTED_WITH_ELEMENTS)
         {
@@ -255,25 +253,39 @@ void InventorySceneLogicManager::UpdateItemContainer(const float dtMillis, std::
                 sToolTipIndex = itemContainerUpdateResult.mInteractedElementIndex;
                 auto interactedElementEntry = itemContainer->GetItems()[itemContainerUpdateResult.mInteractedElementIndex];
                 
+                DestroyItemTooltip();
+                
                 sToolTipPointeePosY = interactedElementEntry.mSceneObjects.front()->mPosition.y;
+                sToolTipPointeePosX = interactedElementEntry.mSceneObjects.front()->mPosition.x;
                 
                 auto productDescription = ProductRepository::GetInstance().GetProductDefinition(interactedElementEntry.mArtifactOrMutationName).mDescription;
                 CreateItemTooltip(interactedElementEntry.mSceneObjects.front()->mPosition, productDescription);
             }
         }
-        
-        if (!inputStateManager.VButtonPressed(input::Button::MAIN_BUTTON))
+        else if (itemContainerUpdateResult.mInteractionType == InteractionType::INTERACTED_WITH_CONTAINER_AREA)
         {
-            mSelectedItemIndex = -1;
+            DestroyItemTooltip();
         }
         
         if (sToolTipIndex != -1)
         {
             auto interactedElementEntry = itemContainer->GetItems()[sToolTipIndex];
-            if (math::Abs(interactedElementEntry.mSceneObjects.front()->mPosition.y - sToolTipPointeePosY) > 0.01f)
+            
+            if (itemContainer == mArtifactsItemContainer)
             {
-                sToolTipIndex = -1;
-                DestroyItemTooltip();
+                if (math::Abs(interactedElementEntry.mSceneObjects.front()->mPosition.y - sToolTipPointeePosY) > 0.01f)
+                {
+                    sToolTipIndex = -1;
+                    DestroyItemTooltip();
+                }
+            }
+            else
+            {
+                if (math::Abs(interactedElementEntry.mSceneObjects.front()->mPosition.x - sToolTipPointeePosX) > 0.01f)
+                {
+                    sToolTipIndex = -1;
+                    DestroyItemTooltip();
+                }
             }
         }
     }
@@ -332,25 +344,6 @@ void InventorySceneLogicManager::CreateItemEntriesAndContainer()
     // Create artifact entries
     //TODO: mutations here
     auto mutationCount = 0;
-//    for (const auto& artifactEntry: DataRepository::GetInstance().GetCurrentStoryArtifacts())
-//    {
-//        mutationCount += artifactEntry.second;
-//        const auto& artifactItemProduct = ProductRepository::GetInstance().GetProductDefinition(artifactEntry.first);
-//
-//        auto artifactSceneObject = mScene->CreateSceneObject();
-//        artifactSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + MUTATION_ITEM_ENTRY_SHADER);
-//        artifactSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + std::get<std::string>(artifactItemProduct.mProductTexturePathOrCardId));
-//        artifactSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MIN_X_UNIFORM_NAME] = MUTATION_ITEM_ENTRY_CUTOFF_VALUES.s;
-//        artifactSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MAX_X_UNIFORM_NAME] = MUTATION_ITEM_ENTRY_CUTOFF_VALUES.t;
-//        artifactSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
-//        artifactSceneObject->mScale = ITEM_ENTRY_SCALE;
-//
-//        ItemEntry itemEntry;
-//        itemEntry.mArtifactOrMutationName = artifactEntry.first;
-//        itemEntry.mSceneObjects.push_back(artifactSceneObject);
-//
-//        mMutationsItemContainer->AddItem(std::move(itemEntry), EntryAdditionStrategy::ADD_ON_THE_BACK);
-//    }
     
     mArtifactsItemContainer = std::make_unique<SwipeableContainer<ItemEntry>>
     (
@@ -380,20 +373,6 @@ void InventorySceneLogicManager::CreateItemEntriesAndContainer()
         artifactSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
         artifactSceneObject->mScale = ITEM_ENTRY_SCALE;
         
-        auto artifactCountTextSceneObject = mScene->CreateSceneObject();
-        artifactCountTextSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + ARTIFACT_TEXT_ITEM_ENTRY_SHADER);
-        
-        scene::TextSceneObjectData artifactCountText;
-        artifactCountText.mText = std::to_string(artifactEntry.second) + " x";
-        artifactCountText.mFontName = game_constants::DEFAULT_FONT_NAME;
-        
-        artifactCountTextSceneObject->mSceneObjectTypeData = std::move(artifactCountText);
-        artifactCountTextSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MIN_Y_UNIFORM_NAME] = shaderCutoffValues.s;
-        artifactCountTextSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MAX_Y_UNIFORM_NAME] = shaderCutoffValues.t;
-        artifactCountTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
-        artifactCountTextSceneObject->mScale = ARTIFACT_TEXT_SCALE;
-        artifactCountTextSceneObject->mPosition += ARTIFACT_COUNT_TEXT_OFFSET;
-        
         auto artifactNameTextSceneObject = mScene->CreateSceneObject();
         artifactNameTextSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + ARTIFACT_TEXT_ITEM_ENTRY_SHADER);
         
@@ -411,8 +390,40 @@ void InventorySceneLogicManager::CreateItemEntriesAndContainer()
         ItemEntry itemEntry;
         itemEntry.mArtifactOrMutationName = artifactEntry.first;
         itemEntry.mSceneObjects.push_back(artifactSceneObject);
-        itemEntry.mSceneObjects.push_back(artifactCountTextSceneObject);
         itemEntry.mSceneObjects.push_back(artifactNameTextSceneObject);
+        
+        if (artifactItemProduct.mUnique)
+        {
+            auto artifactUniqueIconSceneObject = mScene->CreateSceneObject();
+            artifactUniqueIconSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + UNIQUE_ARTIFACT_ICON_SHADER_FILE_NAME);
+            artifactUniqueIconSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + UNIQUE_ARTIFACT_ICON_TEXTURE_FILE_NAME);
+            artifactUniqueIconSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MIN_Y_UNIFORM_NAME] = shaderCutoffValues.s;
+            artifactUniqueIconSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MAX_Y_UNIFORM_NAME] = shaderCutoffValues.t;
+            artifactUniqueIconSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+            artifactUniqueIconSceneObject->mScale = ITEM_ENTRY_SCALE;
+            artifactUniqueIconSceneObject->mScale = ARTIFACT_UNIQUE_ICON_SCALE;
+            artifactUniqueIconSceneObject->mPosition += ARTIFACT_UNIQUE_ICON_OFFSET;
+            
+            itemEntry.mSceneObjects.push_back(artifactUniqueIconSceneObject);
+        }
+        else
+        {
+            auto artifactCountTextSceneObject = mScene->CreateSceneObject();
+            artifactCountTextSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + ARTIFACT_TEXT_ITEM_ENTRY_SHADER);
+            
+            scene::TextSceneObjectData artifactCountText;
+            artifactCountText.mText = std::to_string(artifactEntry.second) + " x";
+            artifactCountText.mFontName = game_constants::DEFAULT_FONT_NAME;
+            
+            artifactCountTextSceneObject->mSceneObjectTypeData = std::move(artifactCountText);
+            artifactCountTextSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MIN_Y_UNIFORM_NAME] = shaderCutoffValues.s;
+            artifactCountTextSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MAX_Y_UNIFORM_NAME] = shaderCutoffValues.t;
+            artifactCountTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+            artifactCountTextSceneObject->mScale = ARTIFACT_TEXT_SCALE;
+            artifactCountTextSceneObject->mPosition += ARTIFACT_COUNT_TEXT_OFFSET;
+            
+            itemEntry.mSceneObjects.push_back(artifactCountTextSceneObject);
+        }
         
         mArtifactsItemContainer->AddItem(std::move(itemEntry), EntryAdditionStrategy::ADD_ON_THE_BACK);
     }

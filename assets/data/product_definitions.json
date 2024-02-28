@@ -23,8 +23,7 @@
             "texture_path": "rare_item_rewards/greedy_goblin.png",
             "shader_path": "rare_item.vs",
             "description": "Doubles all coin$rewards and chance$of seeing artifacts$in elite wheels",
-            "story_rare_item_name": "Greedy Goblin",
-            "unique": true
+            "story_rare_item_name": "Greedy Goblin"
         },
         {
             "name": "guardian_angel",

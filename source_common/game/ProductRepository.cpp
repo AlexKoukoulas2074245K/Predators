@@ -99,7 +99,13 @@ void ProductRepository::LoadProductDefinitions()
             storyRareItemName = productDefinitionObject["story_rare_item_name"].get<std::string>();
         }
         
-        mProductDefinitions.emplace(std::make_pair(productName, ProductDefinition(productName, productTexturePath, shaderPath, productDescription, productPrice, storyRareItemName)));
+        bool unique = false;
+        if (productDefinitionObject.count("unique"))
+        {
+            unique = productDefinitionObject["unique"].get<bool>();
+        }
+        
+        mProductDefinitions.emplace(std::make_pair(productName, ProductDefinition(productName, productTexturePath, shaderPath, productDescription, productPrice, storyRareItemName, unique)));
     }
 }
 

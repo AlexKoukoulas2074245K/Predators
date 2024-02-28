@@ -19,13 +19,14 @@
 
 struct ProductDefinition
 {
-    ProductDefinition(const strutils::StringId& productName, const std::variant<int, std::string>& productTexturePathOrCardId, const std::string& shaderPath, const std::string& description, const int price, const std::string& storyRareItemName = "")
+    ProductDefinition(const strutils::StringId& productName, const std::variant<int, std::string>& productTexturePathOrCardId, const std::string& shaderPath, const std::string& description, const int price, const std::string& storyRareItemName = "", const bool unique = false)
         : mProductName(productName)
         , mProductTexturePathOrCardId(productTexturePathOrCardId)
         , mShaderPath(shaderPath)
         , mDescription(description)
         , mPrice(price)
         , mStoryRareItemName(storyRareItemName)
+        , mUnique(unique)
     {
     }
     
@@ -35,6 +36,7 @@ struct ProductDefinition
     const std::string mDescription;
     const int mPrice;
     const std::string mStoryRareItemName;
+    const bool mUnique;
 };
 
 ///------------------------------------------------------------------------------------------------
