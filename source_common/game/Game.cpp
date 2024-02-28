@@ -36,7 +36,6 @@
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/GameActionFactory.h>
 #include <game/GuiObjectManager.h>
-#include <game/ProductIds.h>
 #include <game/ProductRepository.h>
 #include <game/scenelogicmanagers/BattleSceneLogicManager.h>
 #include <game/scenelogicmanagers/CardLibrarySceneLogicManager.h>
@@ -164,29 +163,13 @@ void Game::Init()
 ///------------------------------------------------------------------------------------------------
 
 void Game::Update(const float dtMillis)
-{    
-    static bool doneFakePurchase = true;
-    if (!doneFakePurchase && apple_utils::HasLoadedProducts())
-    {
-        apple_utils::InitiateProductPurchase(product_ids::COINS_M, [](apple_utils::PurchaseResultData purchaseResultData)
-        {
-            if (purchaseResultData.mWasSuccessful)
-            {
-                auto successfulTransactionIds = DataRepository::GetInstance().GetSuccessfulTransactionIds();
-                successfulTransactionIds.push_back(purchaseResultData.mTransactionId);
-                DataRepository::GetInstance().SetSuccessfulTransactionIds(successfulTransactionIds);
-                DataRepository::GetInstance().FlushStateToFile();
-            }
-            logging::Log(logging::LogType::INFO, "Purchase finished for product: %s, with transaction id: %s, and outcome %s", purchaseResultData.mProductId.c_str(), purchaseResultData.mTransactionId.c_str(), purchaseResultData.mWasSuccessful ? "successful": "unsuccessful");
-        });
-        doneFakePurchase = true;
-    }
+{
     
-    // Pending Card Packs
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
     auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
     auto cardPackRewardScene = sceneManager.FindScene(game_constants::CARD_PACK_REWARD_SCENE_NAME);
     
+    // Cloud Data Sync
     if
     (
         DataRepository::GetInstance().CanSurfaceCloudDataScene() &&
@@ -198,6 +181,7 @@ void Game::Update(const float dtMillis)
     {
         mGameSceneTransitionManager->ChangeToScene(game_constants::CLOUD_DATA_CONFIRMATION_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
     }
+    // Pending Card Packs
     else if
     (
         !DataRepository::GetInstance().GetPendingCardPacks().empty() &&

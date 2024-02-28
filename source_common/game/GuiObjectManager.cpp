@@ -7,6 +7,7 @@
 
 #include <game/AnimatedButton.h>
 #include <game/AnimatedStatContainer.h>
+#include <game/ArtifactProductIds.h>
 #include <game/GuiObjectManager.h>
 #include <game/GameConstants.h>
 #include <game/events/EventSystem.h>
@@ -36,9 +37,6 @@ static const strutils::StringId PARTICLE_EMITTER_DEFINITION_DAMAGE_GAIN_LARGE = 
 static const strutils::StringId PARTICLE_EMITTER_DEFINITION_WEIGHT_GAIN_SMALL = strutils::StringId("weight_gain_small");
 static const strutils::StringId PARTICLE_EMITTER_DEFINITION_WEIGHT_GAIN_LARGE = strutils::StringId("weight_gain_large");
 static const strutils::StringId PARTICLE_EMITTER_DEFINITION_GENERIC_RARE_ITEM_LARGE = strutils::StringId("generic_rare_item_large");
-
-static const strutils::StringId REWARD_EXTRA_WEIGHT_PRODUCT_NAME = strutils::StringId("blue_sapphire");
-static const strutils::StringId REWARD_EXTRA_DAMAGE_PRODUCT_NAME = strutils::StringId("blood_diamond");
 
 static const std::string OVERLAY_TEXTURE_FILE_NAME = "overlay.png";
 static const std::string COIN_VALUE_TEXT_SHADER_FILE_NAME = "animated_stat_container_value_object.vs";
@@ -600,12 +598,12 @@ void GuiObjectManager::OnRareItemCollected(const events::RareItemCollectedEvent&
             });
             
             // Handle animation/music for rare item
-            if (event.mRareItemProductId == REWARD_EXTRA_DAMAGE_PRODUCT_NAME)
+            if (event.mRareItemProductId == artifacts::BLOOD_DIAMOND)
             {
                 CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(MAX_HEALTH_GAIN_SFX);
                 AnimateStatGainParticles(EXTRA_DAMAGE_WEIGHT_PARTICLE_ORIGIN_POSITION, StatGainParticleType::DAMAGE);
             }
-            else if (event.mRareItemProductId == REWARD_EXTRA_WEIGHT_PRODUCT_NAME)
+            else if (event.mRareItemProductId == artifacts::BLUE_SAPPHIRE)
             {
                 CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(MAX_HEALTH_GAIN_SFX);
                 AnimateStatGainParticles(EXTRA_DAMAGE_WEIGHT_PARTICLE_ORIGIN_POSITION, StatGainParticleType::WEIGHT);
@@ -644,14 +642,14 @@ void GuiObjectManager::OnRareItemCollected(const events::RareItemCollectedEvent&
     
     // Handle data updates for rare item
     DataRepository::GetInstance().AddStoryArtifact(event.mRareItemProductId);
-    if (event.mRareItemProductId == REWARD_EXTRA_DAMAGE_PRODUCT_NAME)
+    if (event.mRareItemProductId == artifacts::BLOOD_DIAMOND)
     {
         auto existingDamageModifierIter = DataRepository::GetInstance().GetStoryPlayerCardStatModifiers().find(CardStatType::DAMAGE);
         auto modifierValue = existingDamageModifierIter == DataRepository::GetInstance().GetStoryPlayerCardStatModifiers().cend() ? 1 : existingDamageModifierIter->second + 1;
         
         DataRepository::GetInstance().SetStoryPlayerCardStatModifier(CardStatType::DAMAGE, modifierValue);
     }
-    else if (event.mRareItemProductId == REWARD_EXTRA_WEIGHT_PRODUCT_NAME)
+    else if (event.mRareItemProductId == artifacts::BLUE_SAPPHIRE)
     {
         DataRepository::GetInstance().SetNextBattleBotPlayerInitWeight(DataRepository::GetInstance().GetNextBattleBotPlayerInitWeight() + 1);
     }

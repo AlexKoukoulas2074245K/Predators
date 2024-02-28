@@ -19,7 +19,7 @@
 #include <game/events/EventSystem.h>
 #include <game/scenelogicmanagers/MainMenuSceneLogicManager.h>
 #include <game/DataRepository.h>
-#include <game/ProductIds.h>
+#include <game/IAPProductIds.h>
 #include <game/ProductRepository.h>
 #include <game/utils/GiftingUtils.h>
 #include <SDL_events.h>
@@ -289,7 +289,7 @@ void MainMenuSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     CheckForEmptyProgression();
 #if defined(MACOS) || defined(MOBILE_FLOW)
     cloudkit_utils::QueryPlayerProgress([=](cloudkit_utils::QueryResultData resultData){ OnCloudQueryCompleted(resultData); });
-    apple_utils::LoadStoreProducts({ product_ids::STORY_HEALTH_REFILL, product_ids::COINS_S, product_ids::COINS_M, product_ids::COINS_L });
+    apple_utils::LoadStoreProducts({ iap_product_ids::STORY_HEALTH_REFILL, iap_product_ids::COINS_S, iap_product_ids::COINS_M, iap_product_ids::COINS_L });
 #endif
  
     CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(MAIN_MENU_THEME_MUSIC);

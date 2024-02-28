@@ -25,7 +25,7 @@
 #include <game/GameSceneTransitionManager.h>
 #include <game/GuiObjectManager.h>
 #include <game/DataRepository.h>
-#include <game/ProductIds.h>
+#include <game/IAPProductIds.h>
 #include <game/ProductRepository.h>
 #include <game/scenelogicmanagers/ShopSceneLogicManager.h>
 #if defined(MACOS) || defined(MOBILE_FLOW)

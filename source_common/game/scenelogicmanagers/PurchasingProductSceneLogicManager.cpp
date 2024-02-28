@@ -15,7 +15,7 @@
 #include <game/AnimatedButton.h>
 #include <game/Cards.h>
 #include <game/DataRepository.h>
-#include <game/ProductIds.h>
+#include <game/IAPProductIds.h>
 #include <game/events/EventSystem.h>
 #include <game/scenelogicmanagers/PurchasingProductSceneLogicManager.h>
 #include <SDL_events.h>
@@ -234,7 +234,7 @@ void PurchasingProductSceneLogicManager::InitSubScene(const SubSceneType subScen
             std::get<scene::TextSceneObjectData>(scene->FindSceneObject(TITLE_SCENE_OBJECT_NAME)->mSceneObjectTypeData).mText = "Purchase Successful!";
             
             auto purchasedProductName = DataRepository::GetInstance().GetPermaShopProductNameToPurchase();
-            if (purchasedProductName == product_ids::COINS_S || purchasedProductName == product_ids::COINS_M || purchasedProductName == product_ids::COINS_L)
+            if (purchasedProductName == iap_product_ids::COINS_S || purchasedProductName == iap_product_ids::COINS_M || purchasedProductName == iap_product_ids::COINS_L)
             {
                 scene::TextSceneObjectData textDataPurchaseOutcomeTop;
                 textDataPurchaseOutcomeTop.mFontName = game_constants::DEFAULT_FONT_NAME;
@@ -245,7 +245,7 @@ void PurchasingProductSceneLogicManager::InitSubScene(const SubSceneType subScen
                 purchaseOutcomeTextTopSceneObject->mPosition.y += SUCCESSFUL_COINS_PURCHASE_TEXT_Y_OFFSET;
                 purchaseOutcomeTextTopSceneObject->mScale = BUTTON_SCALE;
             }
-            else if (purchasedProductName == product_ids::STORY_HEALTH_REFILL)
+            else if (purchasedProductName == iap_product_ids::STORY_HEALTH_REFILL)
             {
                 scene::TextSceneObjectData textDataPurchaseOutcomeTop;
                 textDataPurchaseOutcomeTop.mFontName = game_constants::DEFAULT_FONT_NAME;

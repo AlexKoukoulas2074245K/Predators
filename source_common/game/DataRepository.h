@@ -256,6 +256,7 @@ public:
     void AddShopBoughtProductCoordinates(const std::pair<int, int>& shopBoughtProductCoordinates);
     
     const std::vector<std::pair<strutils::StringId, int>>& GetCurrentStoryArtifacts() const;
+    int GetStoryArtifactCount(const strutils::StringId& storyArtifact) const;
     void ClearCurrentStoryArtifacts();
     void AddStoryArtifact(const strutils::StringId& storyArtifact);
     void SetCurrentStoryArtifacts(const std::vector<std::pair<strutils::StringId, int>>& storyArtifacts);

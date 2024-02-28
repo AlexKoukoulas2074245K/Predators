@@ -796,6 +796,23 @@ const std::vector<std::pair<strutils::StringId, int>>& DataRepository::GetCurren
 
 ///------------------------------------------------------------------------------------------------
 
+int DataRepository::GetStoryArtifactCount(const strutils::StringId& storyArtifact) const
+{
+    auto storyArtifactIter = std::find_if(mCurrentStoryArtifacts.begin(), mCurrentStoryArtifacts.end(), [&](const std::pair<strutils::StringId, int>& artifactEntry)
+    {
+        return artifactEntry.first == storyArtifact;
+    });
+    
+    if (storyArtifactIter != mCurrentStoryArtifacts.end())
+    {
+        return storyArtifactIter->second;
+    }
+    
+    return 0;
+}
+
+///------------------------------------------------------------------------------------------------
+
 void DataRepository::ClearCurrentStoryArtifacts()
 {
     mCurrentStoryArtifacts.clear();
