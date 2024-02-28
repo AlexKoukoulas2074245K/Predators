@@ -5,6 +5,7 @@
 ///  Created by Alex Koukoulas on 02/01/2024
 ///------------------------------------------------------------------------------------------------
 
+#include <game/ArtifactProductIds.h>
 #include <game/Cards.h>
 #include <game/CardUtils.h>
 #include <game/events/EventSystem.h>
@@ -91,6 +92,9 @@ void HeroCardEntryGameAction::VSetNewGameState()
         mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerArmorRecharge = FINAL_BOSS_ARMOR;
     }
     
+    // Add player armor
+    auto heavyArmorCount = DataRepository::GetInstance().GetStoryArtifactCount(artifacts::HEAVY_ARMOR);
+    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerArmorRecharge = heavyArmorCount;
 }
 
 ///------------------------------------------------------------------------------------------------

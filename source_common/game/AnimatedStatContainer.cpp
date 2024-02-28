@@ -102,10 +102,14 @@ AnimatedStatContainerUpdateResult AnimatedStatContainer::Update(const float dtMi
             mFinishedAnimating = false;
             auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
             auto originalValueScale = valueCrystalSo->mScale;
-            animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(valueCrystalSo, valueCrystalSo->mPosition, originalValueScale * 1.5f, MAX_VALUE_CHANGE_DELAY_SECS/3, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT | animation_flags::IGNORE_Z_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+            auto originalValuePosition = valueCrystalSo->mPosition;
+            auto targetValuePosition = originalValuePosition;
+            targetValuePosition.z += 1.0f;
+            
+            animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(valueCrystalSo, targetValuePosition, originalValueScale * 1.5f, MAX_VALUE_CHANGE_DELAY_SECS/3, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
             {
                 auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
-                animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(mSceneObjects.back(), mSceneObjects.back()->mPosition, originalValueScale, MAX_VALUE_CHANGE_DELAY_SECS/3, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT | animation_flags::IGNORE_Z_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+                animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(mSceneObjects.back(), originalValuePosition, originalValueScale, MAX_VALUE_CHANGE_DELAY_SECS/3, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
                 {
                     mFinishedAnimating = true;
                     mSceneObjects.back()->mScale = STAT_CRYSTAL_VALUE_SCALE * mScaleFactor;
@@ -113,10 +117,14 @@ AnimatedStatContainerUpdateResult AnimatedStatContainer::Update(const float dtMi
             }, ANIMATED_STAT_CONTAINER_ANIMATION_NAME);
             
             auto originalGemScale = baseCrystalSo->mScale;
-            animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(baseCrystalSo, baseCrystalSo->mPosition, originalGemScale * 1.5f, MAX_VALUE_CHANGE_DELAY_SECS/3, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT | animation_flags::IGNORE_Z_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+            auto originalGemPosition = baseCrystalSo->mPosition;
+            auto targetGemPosition = originalGemPosition;
+            targetGemPosition.z += 1.0f;
+            
+            animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(baseCrystalSo, targetGemPosition, originalGemScale * 1.5f, MAX_VALUE_CHANGE_DELAY_SECS/3, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
             {
                 auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
-                animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(mSceneObjects.front(), mSceneObjects.front()->mPosition, originalGemScale, MAX_VALUE_CHANGE_DELAY_SECS/3, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT | animation_flags::IGNORE_Z_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+                animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(mSceneObjects.front(), originalGemPosition, originalGemScale, MAX_VALUE_CHANGE_DELAY_SECS/3, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
                 {
                     mFinishedAnimating = true;
                     mSceneObjects.front()->mScale = STAT_CRYSTAL_SCALE * mScaleFactor;
