@@ -65,6 +65,7 @@ private:
     int mEffectValue;
     float mAnimationDelayCounterSecs;
     bool mCardTokenCase;
+    bool mBuffingSingleUseCardCase;
     effects::EffectBoardModifierMask mCardBoardEffectMask;
     std::vector<std::string> mEffectComponents;
     std::vector<AffectedCardEntry> mAffectedCards;

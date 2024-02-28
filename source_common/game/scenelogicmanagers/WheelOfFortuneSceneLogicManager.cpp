@@ -109,7 +109,20 @@ void WheelOfFortuneSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> s
     }
     
     const auto wheelType = DataRepository::GetInstance().GetCurrentWheelOfFortuneType();
-    const auto& rareItemProductNames = ProductRepository::GetInstance().GetRareItemProductNames();
+    auto rareItemProductNames = ProductRepository::GetInstance().GetRareItemProductNames();
+    for (auto iter = rareItemProductNames.begin(); iter != rareItemProductNames.end();)
+    {
+        if (ProductRepository::GetInstance().GetProductDefinition(*iter).mUnique &&
+            DataRepository::GetInstance().GetStoryArtifactCount(*iter) > 0)
+        {
+            iter = rareItemProductNames.erase(iter);
+        }
+        else
+        {
+            iter++;
+        }
+    }
+    
     auto titleSceneObject = scene->FindSceneObject(WHEEL_OF_FORTUNE_TITLE_SCENE_OBJECT_NAME);
     
     switch (wheelType)

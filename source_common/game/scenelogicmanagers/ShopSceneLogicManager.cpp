@@ -725,8 +725,21 @@ void ShopSceneLogicManager::CreateProducts()
     
     if (DataRepository::GetInstance().GetCurrentShopBehaviorType() == ShopBehaviorType::STORY_SHOP)
     {
-        // Get random rare items for the first shelf
-        const auto& rareItemProductNames = ProductRepository::GetInstance().GetRareItemProductNames();
+        // Get random rare items for the first shelf. Exclude already owned unique items
+        auto rareItemProductNames = ProductRepository::GetInstance().GetRareItemProductNames();
+        for (auto iter = rareItemProductNames.begin(); iter != rareItemProductNames.end();)
+        {
+            if (ProductRepository::GetInstance().GetProductDefinition(*iter).mUnique &&
+                DataRepository::GetInstance().GetStoryArtifactCount(*iter) > 0)
+            {
+                iter = rareItemProductNames.erase(iter);
+            }
+            else
+            {
+                iter++;
+            }
+        }
+        
         const auto& firstRareItemProductName = rareItemProductNames[math::ControlledRandomInt() % rareItemProductNames.size()];
         auto secondRareItemProductName = rareItemProductNames[math::ControlledRandomInt() % rareItemProductNames.size()];
         while (secondRareItemProductName == firstRareItemProductName)

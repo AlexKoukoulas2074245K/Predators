@@ -81,10 +81,13 @@ void CardEffectGameAction::VSetNewGameState()
     auto& activePlayerState = mBoardState->GetActivePlayerState();
     auto cardId = activePlayerState.mPlayerBoardCards.back();
     const auto& cardEffectData = CardDataRepository::GetInstance().GetCardData(cardId, mBoardState->GetActivePlayerIndex());
+    mBuffingSingleUseCardCase = false;
     
     // Handle single use spells
     if (cardEffectData.mIsSingleUse)
     {
+        mBuffingSingleUseCardCase = true;
+        
         // Erase spell from deck
         activePlayerState.mPlayerDeckCards.erase(std::remove(activePlayerState.mPlayerDeckCards.begin(), activePlayerState.mPlayerDeckCards.end(), cardId), activePlayerState.mPlayerDeckCards.end());
         if (activePlayerState.mPlayerDeckCards.empty())
@@ -205,7 +208,7 @@ void CardEffectGameAction::VInitAnimation()
     // Force release all held/moving cards back to position
     for (const auto& affectedCardEntry: mAffectedCards)
     {
-        if (!affectedCardEntry.mIsBoardCard)
+        if (!affectedCardEntry.mIsBoardCard && !mBuffingSingleUseCardCase)
         {
             events::EventSystem::GetInstance().DispatchEvent<events::ForceSendCardBackToPositionEvent>(static_cast<int>(affectedCardEntry.mCardIndex), affectedCardEntry.mIsBoardCard, mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
         }
