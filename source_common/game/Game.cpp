@@ -384,7 +384,76 @@ void Game::CreateDebugWidgets()
         card_utils::ExportCardData(CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(mGameSceneTransitionManager->GetActiveSceneStack().top().mActiveSceneName));
     }
     ImGui::End();
-
+    
+    // Manipulating Story Data
+    ImGui::Begin("Story Data", nullptr, GLOBAL_IMGUI_WINDOW_FLAGS);
+    
+    {
+        static size_t artifactIndex = 0;
+        static std::vector<strutils::StringId> artifactNames = ProductRepository::GetInstance().GetRareItemProductNames();
+        
+        ImGui::PushID("AddArtifact");
+        if (ImGui::BeginCombo(" ", artifactNames.at(artifactIndex).GetString().c_str()))
+        {
+            for (size_t n = 0U; n < artifactNames.size(); n++)
+            {
+                const bool isSelected = (artifactIndex == n);
+                if (ImGui::Selectable(artifactNames.at(n).GetString().c_str(), isSelected))
+                {
+                    artifactIndex = n;
+                }
+                if (isSelected)
+                {
+                    ImGui::SetItemDefaultFocus();
+                }
+            }
+            ImGui::EndCombo();
+        }
+        ImGui::PopID();
+        ImGui::SameLine();
+        if (ImGui::Button("Add Artifact"))
+        {
+            DataRepository::GetInstance().AddStoryArtifact(artifactNames.at(artifactIndex));
+            DataRepository::GetInstance().FlushStateToFile();
+        }
+    }
+    
+    {
+        static size_t artifactIndex = 0;
+        static std::vector<strutils::StringId> artifactNames = ProductRepository::GetInstance().GetRareItemProductNames();
+        
+        ImGui::PushID("RemoveArtifact");
+        if (ImGui::BeginCombo(" ", artifactNames.at(artifactIndex).GetString().c_str()))
+        {
+            for (size_t n = 0U; n < artifactNames.size(); n++)
+            {
+                const bool isSelected = (artifactIndex == n);
+                if (ImGui::Selectable(artifactNames.at(n).GetString().c_str(), isSelected))
+                {
+                    artifactIndex = n;
+                }
+                if (isSelected)
+                {
+                    ImGui::SetItemDefaultFocus();
+                }
+            }
+            ImGui::EndCombo();
+        }
+        ImGui::PopID();
+        ImGui::SameLine();
+        if (ImGui::Button("Remove Artifact"))
+        {
+            auto currentStoryArtifacts = DataRepository::GetInstance().GetCurrentStoryArtifacts();
+            currentStoryArtifacts.erase(std::remove_if(currentStoryArtifacts.begin(), currentStoryArtifacts.end(), [=](const std::pair<strutils::StringId, int>& artifactEntry)
+            {
+                return artifactEntry.first == artifactNames.at(artifactIndex);
+            }), currentStoryArtifacts.end());
+            DataRepository::GetInstance().SetCurrentStoryArtifacts(currentStoryArtifacts);
+            DataRepository::GetInstance().FlushStateToFile();
+        }
+    }
+    
+    ImGui::End();
     
     // Manipulating Persistent Data
     ImGui::Begin("Persistent Data", nullptr, GLOBAL_IMGUI_WINDOW_FLAGS);

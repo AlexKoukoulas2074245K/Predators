@@ -51,6 +51,23 @@
             "story_rare_item_name": "Demon Fangs"
         },
         {
+            "name": "bunny_hop",
+            "price": 150,
+            "texture_path": "rare_item_rewards/bunny_hop.png",
+            "shader_path": "rare_item.vs",
+            "description": "Allows you to skip$one location in the$story map",
+            "story_rare_item_name": "Bunny Hop",
+            "unique": true
+        },
+        {
+            "name": "sleazy_sleeves",
+            "price": 500,
+            "texture_path": "rare_item_rewards/sleazy_sleeves.png",
+            "shader_path": "rare_item.vs",
+            "description": "Allows you to draw$1 extra card at the$start of your turn in$future story battles",
+            "story_rare_item_name": "Sleazy Sleeves"
+        },
+        {
             "name": "coins_to_life",
             "price": 0,
             "texture_path": "shop_items/coins_to_life_icon.png",

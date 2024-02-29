@@ -13,6 +13,7 @@
 #include <engine/utils/PlatformMacros.h>
 #include <engine/scene/SceneManager.h>
 #include <game/AnimatedButton.h>
+#include <game/ArtifactProductIds.h>
 #include <game/Cards.h>
 #include <game/events/EventSystem.h>
 #include <game/DataRepository.h>
@@ -22,11 +23,15 @@
 ///------------------------------------------------------------------------------------------------
 
 static const std::string CUSTOM_COLOR_SHADER_FILE_NAME = "basic_custom_color.vs";
+static const std::string SKIP_BUTTON_ICON_SHADER_FILE_NAME = "rare_item.vs";
+static const std::string SKIP_BUTTON_ICON_TEXTURE_FILE_NAME = "rare_item_rewards/bunny_hop.png";
 
 static const strutils::StringId VISIT_MAP_NODE_SCENE_NAME = strutils::StringId("visit_map_node_scene");
 static const strutils::StringId NODE_DESCRIPTION_TEXT_SCENE_OBJECT_NAME = strutils::StringId("node_description_text");
+static const strutils::StringId SKIP_BUTTON_ICON_SCENE_OBJECT_NAME = strutils::StringId("skip_button_icon");
 static const strutils::StringId VISIT_BUTTON_NAME = strutils::StringId("visit_button");
 static const strutils::StringId BACK_BUTTON_NAME = strutils::StringId("back_button");
+static const strutils::StringId SKIP_BUTTON_NAME = strutils::StringId("skip_button");
 
 static const glm::vec3 BUTTON_SCALE = {0.0004f, 0.0004f, 0.0004f};
 static const glm::vec3 WHITE_NODE_DESC_COLOR = {0.96f, 0.96f, 0.96f};
@@ -34,15 +39,24 @@ static const glm::vec3 RED_NODE_DESC_COLOR = {0.86f, 0.1f, 0.1f};
 static const glm::vec3 DARK_ORANGE_NODE_DESC_COLOR = {0.9f, 0.27f, 0.125f};
 static const glm::vec3 ORANGE_NODE_DESC_COLOR = {0.96f, 0.47f, 0.25f};
 static const glm::vec3 PURPLE_NODE_DESC_COLOR = {0.66f, 0.35f, 1.0f};
+static const glm::vec3 SKIP_BUTTON_ICON_SCALE = {0.1f, 0.1f, 1.0f};
 
 static const glm::vec2 NODE_DESC_MIN_MAX_X_OFFSETS = {-0.1f, -0.23f};
 static const glm::vec2 NODE_DESC_MIN_MAX_Y_OFFSETS = {0.14f, -0.11f};
 
 static const float VISIT_BUTTON_HOR_DISTANCE_FROM_NODE = 0.1f;
 static const float VISIT_BUTTON_Y_OFFSET_FROM_NODE = 0.05f;
+static const float VISIT_BUTTON_Y_OFFSET_FROM_NODE_WITH_BUNNY_HOP = 0.07f;
 
 static const float BACK_BUTTON_HOR_DISTANCE_FROM_NODE = 0.1f;
 static const float BACK_BUTTON_Y_OFFSET_FROM_NODE = -0.03f;
+static const float BACK_BUTTON_Y_OFFSET_FROM_NODE_WITH_BUNNY_HOP = -0.05f;
+
+static const float SKIP_BUTTON_HOR_DISTANCE_FROM_NODE = 0.1f;
+static const float SKIP_BUTTON_Y_OFFSET_FROM_NODE = 0.011f;
+static const float SKIP_BUTTON_ICON_HOR_DISTANCE_FROM_NODE = 0.13f;
+static const float SKIP_BUTTON_ICON_Y_OFFSET_FROM_NODE = -0.0005f;
+
 static const float BUTTON_Z = 24.0f;
 static const float STAGGERED_ITEM_ALPHA_DELAY_SECS = 0.1f;
 static const float FADE_IN_OUT_DURATION_SECS = 0.25f;
@@ -92,12 +106,19 @@ void VisitMapNodeSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> sce
     auto& targetNodePosition = DataRepository::GetInstance().GetSelectedStoryMapNodePosition();
     auto& previousSceneCameraPosition = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(mPreviousScene)->GetCamera().GetPosition();
     
+    auto* selectedNodeData = DataRepository::GetInstance().GetSelectedStoryMapNodeData();
+    bool shouldShowSkipNodeAction = DataRepository::GetInstance().GetStoryArtifactCount(artifacts::BUNNY_HOP) > 0 &&
+                       selectedNodeData->mNodeType != StoryMap::NodeType::BOSS_ENCOUNTER &&
+                       selectedNodeData->mNodeType != StoryMap::NodeType::SHOP &&
+                       (selectedNodeData->mCoords != game_constants::TUTORIAL_MAP_BOSS_COORD || DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::NORMAL_MAP);
+    
     // Don't visit Tent node
     if (DataRepository::GetInstance().GetSelectedStoryMapNodeData()->mCoords != DataRepository::GetInstance().GetCurrentStoryMapNodeCoord())
     {
         auto visitButtonPosition = targetNodePosition;
+        
         visitButtonPosition.x += (targetNodePosition.x < previousSceneCameraPosition.x ? VISIT_BUTTON_HOR_DISTANCE_FROM_NODE : -1.5f * VISIT_BUTTON_HOR_DISTANCE_FROM_NODE);
-        visitButtonPosition.y += VISIT_BUTTON_Y_OFFSET_FROM_NODE;
+        visitButtonPosition.y += shouldShowSkipNodeAction ? VISIT_BUTTON_Y_OFFSET_FROM_NODE_WITH_BUNNY_HOP : VISIT_BUTTON_Y_OFFSET_FROM_NODE;
         visitButtonPosition.z = BUTTON_Z;
         mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
         (
@@ -115,10 +136,43 @@ void VisitMapNodeSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> sce
         ));
     }
     
+    // Bunny Hop
+    if (shouldShowSkipNodeAction)
+    {
+        auto skipButtonPosition = targetNodePosition;
+        skipButtonPosition.x += (targetNodePosition.x < previousSceneCameraPosition.x ? SKIP_BUTTON_HOR_DISTANCE_FROM_NODE : -1.5f * BACK_BUTTON_HOR_DISTANCE_FROM_NODE);
+        skipButtonPosition.y += SKIP_BUTTON_Y_OFFSET_FROM_NODE;
+        skipButtonPosition.z = BUTTON_Z;
+        mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
+        (
+            skipButtonPosition,
+            BUTTON_SCALE,
+            game_constants::DEFAULT_FONT_NAME,
+            "Skip",
+            SKIP_BUTTON_NAME,
+            [=]()
+            {
+                mTransitioning = true;
+                SkipNode();
+            },
+            *scene
+        ));
+        
+        auto skipButtonIconPosition = targetNodePosition;
+        skipButtonIconPosition.x += (targetNodePosition.x < previousSceneCameraPosition.x ? 1.4f * SKIP_BUTTON_ICON_HOR_DISTANCE_FROM_NODE : -1.5f * SKIP_BUTTON_ICON_HOR_DISTANCE_FROM_NODE);
+        skipButtonIconPosition.y += SKIP_BUTTON_ICON_Y_OFFSET_FROM_NODE;
+        skipButtonIconPosition.z = BUTTON_Z;
+        
+        auto skipButtonIconSceneObject = scene->CreateSceneObject(SKIP_BUTTON_ICON_SCENE_OBJECT_NAME);
+        skipButtonIconSceneObject->mPosition = skipButtonIconPosition;
+        skipButtonIconSceneObject->mScale = SKIP_BUTTON_ICON_SCALE;
+        skipButtonIconSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + SKIP_BUTTON_ICON_TEXTURE_FILE_NAME);
+        skipButtonIconSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + SKIP_BUTTON_ICON_SHADER_FILE_NAME);
+    }
     
     auto backButtonPosition = targetNodePosition;
     backButtonPosition.x += (targetNodePosition.x < previousSceneCameraPosition.x ? BACK_BUTTON_HOR_DISTANCE_FROM_NODE : -1.5f * BACK_BUTTON_HOR_DISTANCE_FROM_NODE);
-    backButtonPosition.y += BACK_BUTTON_Y_OFFSET_FROM_NODE;
+    backButtonPosition.y += shouldShowSkipNodeAction ? BACK_BUTTON_Y_OFFSET_FROM_NODE_WITH_BUNNY_HOP : BACK_BUTTON_Y_OFFSET_FROM_NODE;
     backButtonPosition.z = BUTTON_Z;
     mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
     (
@@ -268,6 +322,27 @@ void VisitMapNodeSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene> 
 std::shared_ptr<GuiObjectManager> VisitMapNodeSceneLogicManager::VGetGuiObjectManager()
 {
     return nullptr;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void VisitMapNodeSceneLogicManager::SkipNode()
+{
+    auto* selectedNodeData = DataRepository::GetInstance().GetSelectedStoryMapNodeData();
+    
+    assert(selectedNodeData);
+    
+    auto currentStoryArtifacts = DataRepository::GetInstance().GetCurrentStoryArtifacts();
+    currentStoryArtifacts.erase(std::remove_if(currentStoryArtifacts.begin(), currentStoryArtifacts.end(), [](const std::pair<strutils::StringId, int>& artifactEntry)
+    {
+        return artifactEntry.first == artifacts::BUNNY_HOP;
+    }), currentStoryArtifacts.end());
+    DataRepository::GetInstance().SetCurrentStoryArtifacts(currentStoryArtifacts);
+    
+    
+    DataRepository::GetInstance().SetCurrentStoryMapNodeCoord(selectedNodeData->mCoords);
+    DataRepository::GetInstance().FlushStateToFile();
+    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_MAP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
 }
 
 ///------------------------------------------------------------------------------------------------

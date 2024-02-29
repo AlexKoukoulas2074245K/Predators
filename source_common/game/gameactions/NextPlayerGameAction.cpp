@@ -12,7 +12,9 @@
 #include <engine/scene/Scene.h>
 #include <engine/utils/Logging.h>
 #include <engine/utils/PlatformMacros.h>
+#include <game/ArtifactProductIds.h>
 #include <game/events/EventSystem.h>
+#include <game/DataRepository.h>
 #include <game/GameConstants.h>
 #include <game/gameactions/CardAttackGameAction.h>
 #include <game/gameactions/CardDestructionGameAction.h>
@@ -112,6 +114,11 @@ void NextPlayerGameAction::VSetNewGameState()
         if (previousPlayerIndex == 0)
         {
             mGameActionEngine->AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
+            
+            for (int i = 0; i < DataRepository::GetInstance().GetStoryArtifactCount(artifacts::SLEAZY_SLEEVES); ++i)
+            {
+                mGameActionEngine->AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
+            }
         }
     }
 }

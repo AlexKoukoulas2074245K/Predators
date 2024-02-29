@@ -162,36 +162,34 @@ void CardAttackGameAction::VSetNewGameState()
             { GameOverResurrectionCheckGameAction::VICTORIOUS_PLAYER_INDEX_PARAM, std::to_string(attackingPlayerIndex)}
         });
     }
-    else
+   
+    // Check for rodents respawn flow
+    if (attackingCardData.mCardFamily == game_constants::RODENTS_FAMILY_NAME)
     {
-        // Check for rodents respawn flow
-        if (attackingCardData.mCardFamily == game_constants::RODENTS_FAMILY_NAME)
+        if (math::ControlledRandomFloat() <= game_constants::RODENTS_RESPAWN_CHANCE || (mBoardState->GetPlayerStates()[attackingPlayerIndex].mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::DIG_NO_FAIL) != 0)
         {
-            if (math::ControlledRandomFloat() <= game_constants::RODENTS_RESPAWN_CHANCE || (mBoardState->GetPlayerStates()[attackingPlayerIndex].mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::DIG_NO_FAIL) != 0)
+            mGameActionEngine->AddGameAction(RODENTS_DIG_ANIMATION_GAME_ACTION_NAME,
             {
-                mGameActionEngine->AddGameAction(RODENTS_DIG_ANIMATION_GAME_ACTION_NAME,
-                {
-                    { RodentsDigAnimationGameAction::CARD_INDEX_PARAM, std::to_string(cardIndex) },
-                    { RodentsDigAnimationGameAction::PLAYER_INDEX_PARAM, std::to_string(attackingPlayerIndex) }
-                });
-                return;
-            }
-        }
-        
-        // Hero cards do not get destroyed at the end of turn
-        if (mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX && cardIndex == 0 && mBoardState->GetInactivePlayerState().mHasHeroCard)
-        {
+                { RodentsDigAnimationGameAction::CARD_INDEX_PARAM, std::to_string(cardIndex) },
+                { RodentsDigAnimationGameAction::PLAYER_INDEX_PARAM, std::to_string(attackingPlayerIndex) }
+            });
             return;
         }
-        
-        mGameActionEngine->AddGameAction(CARD_DESTRUCTION_GAME_ACTION_NAME,
-        {
-            { CardDestructionGameAction::CARD_INDICES_PARAM, {"[" + std::to_string(cardIndex) + "]"}},
-            { CardDestructionGameAction::PLAYER_INDEX_PARAM, std::to_string(attackingPlayerIndex)},
-            { CardDestructionGameAction::IS_BOARD_CARD_PARAM, "true"},
-            { CardDestructionGameAction::IS_TRAP_TRIGGER_PARAM, "false"},
-        });
     }
+    
+    // Hero cards do not get destroyed at the end of turn
+    if (mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX && cardIndex == 0 && mBoardState->GetInactivePlayerState().mHasHeroCard)
+    {
+        return;
+    }
+    
+    mGameActionEngine->AddGameAction(CARD_DESTRUCTION_GAME_ACTION_NAME,
+    {
+        { CardDestructionGameAction::CARD_INDICES_PARAM, {"[" + std::to_string(cardIndex) + "]"}},
+        { CardDestructionGameAction::PLAYER_INDEX_PARAM, std::to_string(attackingPlayerIndex)},
+        { CardDestructionGameAction::IS_BOARD_CARD_PARAM, "true"},
+        { CardDestructionGameAction::IS_TRAP_TRIGGER_PARAM, "false"},
+    });
 }
 
 ///------------------------------------------------------------------------------------------------

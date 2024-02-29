@@ -31,6 +31,7 @@ public:
     std::shared_ptr<GuiObjectManager> VGetGuiObjectManager() override;
     
 private:
+    void SkipNode();
     void InitializeNodeVisitData();
     
 private:

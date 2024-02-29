@@ -24,6 +24,8 @@ inline const strutils::StringId GREEDY_GOBLIN = strutils::StringId("greedy_gobli
 inline const strutils::StringId GUARDIAN_ANGEL = strutils::StringId("guardian_angel");
 inline const strutils::StringId HEAVY_ARMOR = strutils::StringId("heavy_armor");
 inline const strutils::StringId DEMON_FANGS = strutils::StringId("demon_fangs");
+inline const strutils::StringId BUNNY_HOP = strutils::StringId("bunny_hop");
+inline const strutils::StringId SLEAZY_SLEEVES = strutils::StringId("sleazy_sleeves");
 
 }
 
