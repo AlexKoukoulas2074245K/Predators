@@ -12,6 +12,7 @@
 #include <engine/utils/Logging.h>
 #include <engine/utils/PlatformMacros.h>
 #include <engine/scene/SceneManager.h>
+#include <engine/sound/SoundManager.h>
 #include <game/AnimatedButton.h>
 #include <game/ArtifactProductIds.h>
 #include <game/Cards.h>
@@ -27,7 +28,14 @@ static const strutils::StringId EVENT_DESCRIPTION_SCENE_OBJECT_NAME = strutils::
 static const strutils::StringId EVENT_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("event_button");
 static const strutils::StringId DEFEAT_SCENE_NAME = strutils::StringId("defeat_scene");
 static const strutils::StringId ANIMATED_STAT_CONTAINER_ANIMATION_NAME = strutils::StringId("animated_stat_container_animation");
+static const strutils::StringId GUARDIAN_ANGEL_ICON_SCENE_OBJECT_NAME = strutils::StringId("guardian_angel_icon");
 
+static const std::string VICTORY_SFX = "sfx_victory";
+static const std::string GUARDIAN_ANGEL_ICON_SHADER_FILE_NAME = "rare_item.vs";
+static const std::string GUARDIAN_ANGEL_ICON_TEXTURE_FILE_NAME = "rare_item_rewards/guardian_angel.png";
+
+static const glm::vec3 GUARDIAN_ANGEL_ICON_INIT_SCALE = {0.001f, 0.001f, 0.001f};
+static const glm::vec3 GUARDIAN_ANGEL_ICON_END_SCALE = {0.4f, 0.4f, 0.4f};
 static const glm::vec3 BUTTON_SCALE = {0.0004f, 0.0004f, 0.0004f};
 static const glm::vec3 EVENT_DESCRIPTION_TEXT_SCALE = {0.0004f, 0.0004f, 0.0004f};
 static const glm::vec3 EVENT_PORTRAIT_SCALE = {0.4f, 0.4f, 0.4f};
@@ -39,6 +47,9 @@ static const float EVENT_PORTRAIT_ALPHA = 0.75f;
 static const float EVENT_PORTRAIT_SNAP_TO_EDGE_SCALE_OFFSET_FACTOR = 0.09f;
 static const float EVENT_DESCRIPTION_TEXT_SNAP_TO_EDGE_SCALE_OFFSET_FACTOR = 1500.0f;
 static const float EVENT_BUTTON_SNAP_TO_EDGE_OFFSET_FACTOR = 1500.0f;
+static const float ANIMATION_STEP_DURATION = 2.0f;
+static const float ANIMATION_MAX_ALPHA = 0.6f;
+static const float GUARDIAN_ANGEL_ICON_Z = 20.0f;
 
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
 {
@@ -91,6 +102,7 @@ void EventSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     CreateEventScreen(DataRepository::GetInstance().GetCurrentEventScreenIndex());
     
     DataRepository::GetInstance().SetCurrentStoryMapSceneType(StoryMapSceneType::EVENT);
+    CoreSystemsEngine::GetInstance().GetSoundManager().PreloadSfx(VICTORY_SFX);
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -107,12 +119,54 @@ void EventSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene
         return;
     }
     
-    auto& progressionHealth = DataRepository::GetInstance().StoryCurrentHealth();
-    if (progressionHealth.GetDisplayedValue() <= 0)
+    if (mGuiManager->GetStoryHealthContainerCurrentValue() != DataRepository::GetInstance().StoryCurrentHealth().GetDisplayedValue())
     {
-        events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(DEFEAT_SCENE_NAME, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
-        mTransitioning = true;
         return;
+    }
+    
+    if (mGuiManager->GetStoryHealthContainerCurrentValue() <= 0)
+    {
+        // Resurrection case
+        if (DataRepository::GetInstance().GetStoryArtifactCount(artifacts::GUARDIAN_ANGEL) > 0)
+        {
+            // Commit health values
+            auto& progressionHealth = DataRepository::GetInstance().StoryCurrentHealth();
+            progressionHealth.SetValue(DataRepository::GetInstance().GetStoryMaxHealth()/2);
+            progressionHealth.SetDisplayedValue(progressionHealth.GetValue());
+            
+            // And artifact changes
+            auto currentStoryArtifacts = DataRepository::GetInstance().GetCurrentStoryArtifacts();
+            currentStoryArtifacts.erase(std::remove_if(currentStoryArtifacts.begin(), currentStoryArtifacts.end(), [](const std::pair<strutils::StringId, int>& artifactEntry)
+            {
+                return artifactEntry.first == artifacts::GUARDIAN_ANGEL;
+            }), currentStoryArtifacts.end());
+            DataRepository::GetInstance().SetCurrentStoryArtifacts(currentStoryArtifacts);
+            DataRepository::GetInstance().FlushStateToFile();
+            
+            // Play Sound
+            CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(VICTORY_SFX);
+            
+            // And animate icon
+            auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+            auto guardianAngelIconSceneObject = mScene->CreateSceneObject(GUARDIAN_ANGEL_ICON_SCENE_OBJECT_NAME);
+            guardianAngelIconSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = ANIMATION_MAX_ALPHA;
+            guardianAngelIconSceneObject->mPosition.z = GUARDIAN_ANGEL_ICON_Z;
+            guardianAngelIconSceneObject->mScale = GUARDIAN_ANGEL_ICON_INIT_SCALE;
+            guardianAngelIconSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + GUARDIAN_ANGEL_ICON_SHADER_FILE_NAME);
+            guardianAngelIconSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + GUARDIAN_ANGEL_ICON_TEXTURE_FILE_NAME);
+            
+            animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(guardianAngelIconSceneObject, guardianAngelIconSceneObject->mPosition, GUARDIAN_ANGEL_ICON_END_SCALE, ANIMATION_STEP_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){});
+            animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(guardianAngelIconSceneObject, 0.0f, ANIMATION_STEP_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+            {
+                mScene->RemoveSceneObject(GUARDIAN_ANGEL_ICON_SCENE_OBJECT_NAME);
+            });
+        }
+        else
+        {
+            events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(DEFEAT_SCENE_NAME, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+            mTransitioning = true;
+            return;
+        }
     }
     
     if (!CoreSystemsEngine::GetInstance().GetAnimationManager().IsAnimationPlaying(ANIMATED_STAT_CONTAINER_ANIMATION_NAME))
@@ -168,7 +222,7 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
     ///------------------------------------------------------------------------------------------------
     /// Gold Coin cart event
     {
-        auto coinsToGain = math::ControlledRandomInt(15, 30) + 10 * (DataRepository::GetInstance().GetCurrentStoryMapNodeCoord().x + (DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::NORMAL_MAP ? game_constants::TUTORIAL_NODE_MAP_DIMENSIONS.s : 0));
+        auto coinsToGain = math::ControlledRandomInt(15, 30) + 8 * (DataRepository::GetInstance().GetCurrentStoryMapNodeCoord().x + (DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::NORMAL_MAP ? game_constants::TUTORIAL_NODE_MAP_DIMENSIONS.s : 0));
         
         auto greedyGoblinCount = DataRepository::GetInstance().GetStoryArtifactCount(artifacts::GREEDY_GOBLIN);
         if (greedyGoblinCount > 0)
@@ -203,8 +257,8 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
     ///------------------------------------------------------------------------------------------------
     /// Lava Trap event
     {
-        auto guaranteedHpLoss = math::ControlledRandomInt(1, 2);
-        auto randomHpLoss = math::ControlledRandomInt(5, 10);
+        auto guaranteedHpLoss = math::ControlledRandomInt(1, 2) + (DataRepository::GetInstance().GetCurrentStoryMapNodeCoord().x + (DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::NORMAL_MAP ? game_constants::TUTORIAL_NODE_MAP_DIMENSIONS.s : 0));
+        auto randomHpLoss = math::ControlledRandomInt(5, 15) + (DataRepository::GetInstance().GetCurrentStoryMapNodeCoord().x + (DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::NORMAL_MAP ? game_constants::TUTORIAL_NODE_MAP_DIMENSIONS.s : 0));
         auto failedJump = math::ControlledRandomInt(1, 3) == 1;
         
         mRegisteredStoryEvents.emplace_back

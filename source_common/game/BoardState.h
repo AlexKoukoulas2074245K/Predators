@@ -48,6 +48,7 @@ struct PlayerState
     int mPlayedCardComboThisTurn = 0;
     bool mZeroCostTime = false;
     bool mHasHeroCard = false;
+    bool mHasResurrectionActive = false;
 };
 
 ///------------------------------------------------------------------------------------------------

@@ -285,6 +285,13 @@ void GuiObjectManager::StopRewardAnimation()
 
 ///------------------------------------------------------------------------------------------------
 
+int GuiObjectManager::GetStoryHealthContainerCurrentValue() const
+{
+    return mHealthStatContainer->GetDisplayedValue();
+}
+
+///------------------------------------------------------------------------------------------------
+
 void GuiObjectManager::AnimateStatParticlesToGui(const glm::vec3& originPosition, const StatParticleType statParticleType, const long long statAmount)
 {
     auto forBattleScene = mScene->GetName() == game_constants::BATTLE_SCENE;

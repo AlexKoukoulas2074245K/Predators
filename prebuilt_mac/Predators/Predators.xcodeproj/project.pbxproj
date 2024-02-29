@@ -18,6 +18,7 @@
 		191617E17721C2C19E20E920 /* IResource.h in Sources */ = {isa = PBXBuildFile; fileRef = 99B2042795EEDA27C28F2D84 /* IResource.h */; };
 		19AB2555F153D36FD08A7E15 /* MeshResource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DDD0E1D0B63F40D725F02A35 /* MeshResource.cpp */; };
 		1AFC9A98EB4CEF5FA6491FA6 /* ResourceLoadingService.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 052939A977343440F86F0858 /* ResourceLoadingService.cpp */; };
+		1CCC5789FF5408133FB546D4 /* GameOverResurrectionCheckGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFD7A79DFEB8C26EAD0A4B2C /* GameOverResurrectionCheckGameAction.cpp */; };
 		1ECC3C6E351A36D1C71615E0 /* Logging.h in Sources */ = {isa = PBXBuildFile; fileRef = 43A25A1E55390D38AC6A5742 /* Logging.h */; };
 		216990DC394003275C5EA33D /* Fonts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BB8C2E3FACC90180DAAE4F40 /* Fonts.cpp */; };
 		217E8CF7479A3687C606C49A /* DemonPunchGameAction.h in Sources */ = {isa = PBXBuildFile; fileRef = 29BF26174D9E7C9DDE03C263 /* DemonPunchGameAction.h */; };
@@ -51,6 +52,7 @@
 		5BEFD96D266F53B603C278C1 /* TypeTraits.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 988043F06556266668BE5677 /* TypeTraits.cpp */; };
 		63011B7BE17965C680A05EAD /* BaseDataFileSerializer.h in Sources */ = {isa = PBXBuildFile; fileRef = 30D02CEC6861EBD7441E2004 /* BaseDataFileSerializer.h */; };
 		65D2F7E38372F0525D4554EF /* ProductRepository.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA762FD26B23DF71586603AB /* ProductRepository.cpp */; };
+		690176D1275D471759B1ADE0 /* GameOverResurrectionCheckGameAction.h in Sources */ = {isa = PBXBuildFile; fileRef = 7DCA9605B61DCB2766DFEF29 /* GameOverResurrectionCheckGameAction.h */; };
 		69A3B6CA894565C4F51E1123 /* SoundManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 7AC3E452BAA560B6D8B1349E /* SoundManager.h */; };
 		6A2CEF823BB7D7D42F2CBDE3 /* CloudDataConfirmationSceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 0A90C5CE1FAAD720E2DE0541 /* CloudDataConfirmationSceneLogicManager.h */; };
 		6B29A2EA7B3D661771AB8A2D /* RenderingUtils.h in Sources */ = {isa = PBXBuildFile; fileRef = 8AE4C68818CCB619974358E0 /* RenderingUtils.h */; };
@@ -310,6 +312,7 @@
 		7AC3E452BAA560B6D8B1349E /* SoundManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = SoundManager.h; sourceTree = "<group>"; };
 		7C92E4EC0FBCD6AFCA53FD77 /* ResourceLoadingService.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = ResourceLoadingService.h; sourceTree = "<group>"; };
 		7D4191C7F308A5D9EA7C2AA2 /* ZeroCostTimeGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = ZeroCostTimeGameAction.cpp; sourceTree = "<group>"; };
+		7DCA9605B61DCB2766DFEF29 /* GameOverResurrectionCheckGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = GameOverResurrectionCheckGameAction.h; path = GameOverResurrectionCheckGameAction.h; sourceTree = "<group>"; };
 		7F068929D88F95729D0195E3 /* BackgroundMusicPlayer.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; path = BackgroundMusicPlayer.mm; sourceTree = "<group>"; };
 		82DFED0E0B1AB607780AED60 /* Animations.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = Animations.h; sourceTree = "<group>"; };
 		8360B79E5EF0CAFD8B87FA71 /* VictorySceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = VictorySceneLogicManager.h; sourceTree = "<group>"; };
@@ -516,6 +519,7 @@
 		AC5001F27481566AA578E367 /* HealNextDinoDamageGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = HealNextDinoDamageGameAction.h; sourceTree = "<group>"; };
 		AD86196C948CE14DCBBE5446 /* IResourceLoader.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = IResourceLoader.h; sourceTree = "<group>"; };
 		AF00ED29CB00CC04153903B3 /* MeteorDamageGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = MeteorDamageGameAction.cpp; sourceTree = "<group>"; };
+		AFD7A79DFEB8C26EAD0A4B2C /* GameOverResurrectionCheckGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = GameOverResurrectionCheckGameAction.cpp; path = GameOverResurrectionCheckGameAction.cpp; sourceTree = "<group>"; };
 		B645F5160C1B36C70F708518 /* ImageSurfaceLoader.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = ImageSurfaceLoader.cpp; sourceTree = "<group>"; };
 		B83F90BE48846F5019309046 /* DataFileLoader.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = DataFileLoader.h; sourceTree = "<group>"; };
 		B9F3932EFA60BBA205F7A350 /* ProductRepository.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = ProductRepository.h; sourceTree = "<group>"; };
@@ -971,6 +975,8 @@
 				6C924DB12412DDB3523F5262 /* MeteorDamageGameAction.h */,
 				7D4191C7F308A5D9EA7C2AA2 /* ZeroCostTimeGameAction.cpp */,
 				BFE780D4DDD5228CD5379906 /* ZeroCostTimeGameAction.h */,
+				AFD7A79DFEB8C26EAD0A4B2C /* GameOverResurrectionCheckGameAction.cpp */,
+				7DCA9605B61DCB2766DFEF29 /* GameOverResurrectionCheckGameAction.h */,
 			);
 			path = gameactions;
 			sourceTree = "<group>";
@@ -1472,6 +1478,8 @@
 				23992D61972F8EB117394F4A /* InventorySceneLogicManager.cpp in Sources */,
 				F67CA88A7A221B0E1B044CC0 /* InventorySceneLogicManager.h in Sources */,
 				314B9518354FC35C5114E0C7 /* ArtifactProductIds.h in Sources */,
+				1CCC5789FF5408133FB546D4 /* GameOverResurrectionCheckGameAction.cpp in Sources */,
+				690176D1275D471759B1ADE0 /* GameOverResurrectionCheckGameAction.h in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

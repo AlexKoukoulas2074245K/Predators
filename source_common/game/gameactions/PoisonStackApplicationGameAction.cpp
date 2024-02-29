@@ -17,12 +17,12 @@
 #include <game/scenelogicmanagers/BattleSceneLogicManager.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/PoisonStackApplicationGameAction.h>
-#include <game/gameactions/GameOverGameAction.h>
+#include <game/gameactions/GameOverResurrectionCheckGameAction.h>
 
 ///------------------------------------------------------------------------------------------------
 
 static const std::string POISON_SFX = "sfx_sizzling";
-static const strutils::StringId GAME_OVER_GAME_ACTION_NAME = strutils::StringId("GameOverGameAction");
+static const strutils::StringId GAME_OVER_CHECK_GAME_ACTION_NAME = strutils::StringId("GameOverResurrectionCheckGameAction");
 static const strutils::StringId POISON_GAS_PARTICLE_NAME = strutils::StringId("poison_smoke");
 static const float DURATION_SECS_PER_STACK = 0.2f;
 static const float POISON_SMOKE_Z_OFFSET = -0.09f;
@@ -75,9 +75,9 @@ void PoisonStackApplicationGameAction::VSetNewGameState()
         events::EventSystem::GetInstance().DispatchEvent<events::HealthChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
         mPendingDurationSecs = 0.0f;
         activePlayerState.mPlayerHealth = 0;
-        mGameActionEngine->AddGameAction(GAME_OVER_GAME_ACTION_NAME,
+        mGameActionEngine->AddGameAction(GAME_OVER_CHECK_GAME_ACTION_NAME,
         {
-            { GameOverGameAction::VICTORIOUS_PLAYER_INDEX_PARAM, std::to_string(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX ? game_constants::LOCAL_PLAYER_INDEX : game_constants::REMOTE_PLAYER_INDEX) }
+            { GameOverResurrectionCheckGameAction::VICTORIOUS_PLAYER_INDEX_PARAM, std::to_string(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX ? game_constants::LOCAL_PLAYER_INDEX : game_constants::REMOTE_PLAYER_INDEX) }
         });
     }
 }

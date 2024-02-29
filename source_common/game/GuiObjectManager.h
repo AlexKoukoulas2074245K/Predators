@@ -40,6 +40,7 @@ public:
     void ResetDisplayedCurrencyCoins();
     void ForceSetStoryHealthValue(const int storyHealthValue);
     void StopRewardAnimation();
+    int GetStoryHealthContainerCurrentValue() const;
     
 private:
     enum class StatParticleType

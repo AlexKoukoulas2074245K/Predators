@@ -10,7 +10,6 @@
 #include <game/events/EventSystem.h>
 #include <game/gameactions/CardDestructionGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
-#include <game/gameactions/GameOverGameAction.h>
 #include <game/scenelogicmanagers/BattleSceneLogicManager.h>
 #include <engine/rendering/AnimationManager.h>
 #include <engine/rendering/ParticleManager.h>

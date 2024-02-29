@@ -2245,6 +2245,21 @@ void BattleSceneLogicManager::OnStoryBattleWon(const events::StoryBattleWonEvent
     mGuiManager->ForceSetStoryHealthValue(mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth);
     mAnimatedStatContainers[1].second->ChangeTrackedValue(&DataRepository::GetInstance().StoryCurrentHealth().GetDisplayedValue());
     
+    // Commit Artifact changes
+    if (mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mHasResurrectionActive)
+    {
+        DataRepository::GetInstance().SetStoryArtifactCount(artifacts::GUARDIAN_ANGEL, 1);
+    }
+    else
+    {
+        auto currentStoryArtifacts = DataRepository::GetInstance().GetCurrentStoryArtifacts();
+        currentStoryArtifacts.erase(std::remove_if(currentStoryArtifacts.begin(), currentStoryArtifacts.end(), [](const std::pair<strutils::StringId, int>& artifactEntry)
+        {
+            return artifactEntry.first == artifacts::GUARDIAN_ANGEL;
+        }), currentStoryArtifacts.end());
+        DataRepository::GetInstance().SetCurrentStoryArtifacts(currentStoryArtifacts);
+    }
+    
     auto eligibleHealthPointsAdded = 0;
     while (DataRepository::GetInstance().StoryCurrentHealth().GetValue() < DataRepository::GetInstance().GetStoryMaxHealth() && eligibleHealthPointsAdded < healthReward)
     {

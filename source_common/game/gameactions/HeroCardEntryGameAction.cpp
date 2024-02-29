@@ -95,6 +95,9 @@ void HeroCardEntryGameAction::VSetNewGameState()
     // Add player armor
     auto heavyArmorCount = DataRepository::GetInstance().GetStoryArtifactCount(artifacts::HEAVY_ARMOR);
     mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerArmorRecharge = heavyArmorCount;
+    
+    // Add resurrection
+    mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mHasResurrectionActive = DataRepository::GetInstance().GetStoryArtifactCount(artifacts::GUARDIAN_ANGEL);
 }
 
 ///------------------------------------------------------------------------------------------------

@@ -13,7 +13,7 @@
 #include <game/gameactions/CardDestructionGameAction.h>
 #include <game/gameactions/CardHistoryEntryAdditionGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
-#include <game/gameactions/GameOverGameAction.h>
+#include <game/gameactions/GameOverResurrectionCheckGameAction.h>
 #include <game/gameactions/RodentsDigAnimationGameAction.h>
 #include <game/scenelogicmanagers/BattleSceneLogicManager.h>
 #include <engine/rendering/AnimationManager.h>
@@ -32,7 +32,7 @@ const std::string CARD_MEDIUM_ATTACK_SFX = "sfx_medium_attack";
 const std::string CARD_HEAVY_ATTACK_SFX = "sfx_heavy_attack";
 const std::string CARD_SHIELD_ATTACK_SFX = "sfx_shield";
 
-static const strutils::StringId GAME_OVER_GAME_ACTION_NAME = strutils::StringId("GameOverGameAction");
+static const strutils::StringId GAME_OVER_CHECK_GAME_ACTION_NAME = strutils::StringId("GameOverResurrectionCheckGameAction");
 static const strutils::StringId CARD_DESTRUCTION_GAME_ACTION_NAME = strutils::StringId("CardDestructionGameAction");
 static const strutils::StringId CARD_HISTORY_ENTRY_ADDITION_GAME_ACTION_NAME = strutils::StringId("CardHistoryEntryAdditionGameAction");
 static const strutils::StringId RODENTS_DIG_ANIMATION_GAME_ACTION_NAME = strutils::StringId("RodentsDigAnimationGameAction");
@@ -157,9 +157,9 @@ void CardAttackGameAction::VSetNewGameState()
     if (activePlayerState.mPlayerHealth <= 0)
     {
         activePlayerState.mPlayerHealth = 0;
-        mGameActionEngine->AddGameAction(GAME_OVER_GAME_ACTION_NAME,
+        mGameActionEngine->AddGameAction(GAME_OVER_CHECK_GAME_ACTION_NAME,
         {
-            { GameOverGameAction::VICTORIOUS_PLAYER_INDEX_PARAM, std::to_string(attackingPlayerIndex)}
+            { GameOverResurrectionCheckGameAction::VICTORIOUS_PLAYER_INDEX_PARAM, std::to_string(attackingPlayerIndex)}
         });
     }
     else

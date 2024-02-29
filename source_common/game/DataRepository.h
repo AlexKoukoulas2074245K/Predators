@@ -257,6 +257,7 @@ public:
     
     const std::vector<std::pair<strutils::StringId, int>>& GetCurrentStoryArtifacts() const;
     int GetStoryArtifactCount(const strutils::StringId& storyArtifact) const;
+    void SetStoryArtifactCount(const strutils::StringId& storyArtifact, int newCount);
     void ClearCurrentStoryArtifacts();
     void AddStoryArtifact(const strutils::StringId& storyArtifact);
     void SetCurrentStoryArtifacts(const std::vector<std::pair<strutils::StringId, int>>& storyArtifacts);

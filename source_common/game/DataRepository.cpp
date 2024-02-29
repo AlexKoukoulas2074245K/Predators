@@ -813,6 +813,21 @@ int DataRepository::GetStoryArtifactCount(const strutils::StringId& storyArtifac
 
 ///------------------------------------------------------------------------------------------------
 
+void DataRepository::SetStoryArtifactCount(const strutils::StringId& storyArtifact, int newCount)
+{
+    for (auto& artifactEntry: mCurrentStoryArtifacts)
+    {
+        if (artifactEntry.first == storyArtifact)
+        {
+            artifactEntry.second = newCount;
+        }
+    }
+    
+    SetCurrentStoryArtifacts(mCurrentStoryArtifacts);
+}
+
+///------------------------------------------------------------------------------------------------
+
 void DataRepository::ClearCurrentStoryArtifacts()
 {
     mCurrentStoryArtifacts.clear();

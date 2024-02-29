@@ -9,7 +9,7 @@
 #include <game/CardUtils.h>
 #include <game/events/EventSystem.h>
 #include <game/gameactions/GameActionEngine.h>
-#include <game/gameactions/GameOverGameAction.h>
+#include <game/gameactions/GameOverResurrectionCheckGameAction.h>
 #include <game/gameactions/InsectVirusGameAction.h>
 #include <game/scenelogicmanagers/BattleSceneLogicManager.h>
 #include <engine/rendering/AnimationManager.h>
@@ -21,7 +21,7 @@
 
 ///------------------------------------------------------------------------------------------------
 
-static const strutils::StringId GAME_OVER_GAME_ACTION_NAME = strutils::StringId("GameOverGameAction");
+static const strutils::StringId GAME_OVER_CHECK_GAME_ACTION_NAME = strutils::StringId("GameOverResurrectionCheckGameAction");
 
 ///------------------------------------------------------------------------------------------------
 
@@ -64,9 +64,9 @@ void InsectVirusGameAction::VSetNewGameState()
     if (activePlayerState.mPlayerHealth <= 0)
     {
         activePlayerState.mPlayerHealth = 0;
-        mGameActionEngine->AddGameAction(GAME_OVER_GAME_ACTION_NAME,
+        mGameActionEngine->AddGameAction(GAME_OVER_CHECK_GAME_ACTION_NAME,
         {
-            { GameOverGameAction::VICTORIOUS_PLAYER_INDEX_PARAM, std::to_string((mBoardState->GetActivePlayerIndex() + 1) % mBoardState->GetPlayerCount())}
+            { GameOverResurrectionCheckGameAction::VICTORIOUS_PLAYER_INDEX_PARAM, std::to_string((mBoardState->GetActivePlayerIndex() + 1) % mBoardState->GetPlayerCount())}
         });
     }
 }

@@ -10,7 +10,7 @@
 #include <game/events/EventSystem.h>
 #include <game/gameactions/DemonPunchGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
-#include <game/gameactions/GameOverGameAction.h>
+#include <game/gameactions/GameOverResurrectionCheckGameAction.h>
 #include <game/scenelogicmanagers/BattleSceneLogicManager.h>
 #include <engine/rendering/AnimationManager.h>
 #include <engine/rendering/ParticleManager.h>
@@ -29,7 +29,7 @@ static const std::string DEMON_PUNCH_ICON_TEXTURE_FILE_NAME = "demon_punch.png";
 static const std::string DEMON_PUNCH_ICON_EFFECT_TEXTURE_FILE_NAME = "trap_mask.png";
 
 static const strutils::StringId DEMON_PUNCH_PARTICLE_NAME = strutils::StringId("card_play");
-static const strutils::StringId GAME_OVER_GAME_ACTION_NAME = strutils::StringId("GameOverGameAction");
+static const strutils::StringId GAME_OVER_CHECK_GAME_ACTION_NAME = strutils::StringId("GameOverResurrectionCheckGameAction");
 static const strutils::StringId DEMON_PUNCH_ICON_SCENE_OBJECT_NAME = strutils::StringId("demon_punch_icon");
 
 static const glm::vec3 DEMON_PUNCH_ICON_INIT_SCALE = {0.001f, 0.001f, 0.001f};
@@ -82,9 +82,9 @@ void DemonPunchGameAction::VSetNewGameState()
         if (inactivePlayerState.mPlayerHealth <= 0)
         {
             inactivePlayerState.mPlayerHealth = 0;
-            mGameActionEngine->AddGameAction(GAME_OVER_GAME_ACTION_NAME,
+            mGameActionEngine->AddGameAction(GAME_OVER_CHECK_GAME_ACTION_NAME,
             {
-                { GameOverGameAction::VICTORIOUS_PLAYER_INDEX_PARAM, std::to_string(mBoardState->GetActivePlayerIndex())}
+                { GameOverResurrectionCheckGameAction::VICTORIOUS_PLAYER_INDEX_PARAM, std::to_string(mBoardState->GetActivePlayerIndex())}
             });
         }
     }
@@ -156,6 +156,7 @@ void DemonPunchGameAction::VInitAnimation()
         
         CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(EXPLOSION_SFX);
         CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE)->GetCamera().Shake(SHAKE_DURATION, SHAKE_STRENGTH);
+        CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE)->RemoveSceneObject(DEMON_PUNCH_ICON_SCENE_OBJECT_NAME);
     });
 }
 

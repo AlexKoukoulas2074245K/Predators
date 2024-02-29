@@ -8,7 +8,7 @@
 #include <game/Cards.h>
 #include <game/CardUtils.h>
 #include <game/gameactions/GameActionEngine.h>
-#include <game/gameactions/GameOverGameAction.h>
+#include <game/gameactions/GameOverResurrectionCheckGameAction.h>
 #include <game/gameactions/CardDestructionGameAction.h>
 #include <game/GameConstants.h>
 #include <game/events/EventSystem.h>
@@ -24,7 +24,7 @@
 
 const std::string MeteorDamageGameAction::METEOR_DAMAGE_PARAM = "meteorDamage";
 
-static const strutils::StringId GAME_OVER_GAME_ACTION_NAME = strutils::StringId("GameOverGameAction");
+static const strutils::StringId GAME_OVER_CHECK_GAME_ACTION_NAME = strutils::StringId("GameOverResurrectionCheckGameAction");
 static const strutils::StringId METEOR_SCENE_OBJECT_NAME = strutils::StringId("meteor");
 static const strutils::StringId METEOR_IMPACT_PARTICLE_NAME = strutils::StringId("meteor_impact");
 
@@ -81,9 +81,9 @@ void MeteorDamageGameAction::VSetNewGameState()
         if (inactivePlayerState.mPlayerHealth <= 0)
         {
             inactivePlayerState.mPlayerHealth = 0;
-            mGameActionEngine->AddGameAction(GAME_OVER_GAME_ACTION_NAME,
+            mGameActionEngine->AddGameAction(GAME_OVER_CHECK_GAME_ACTION_NAME,
             {
-                { GameOverGameAction::VICTORIOUS_PLAYER_INDEX_PARAM, std::to_string(mBoardState->GetActivePlayerIndex())}
+                { GameOverResurrectionCheckGameAction::VICTORIOUS_PLAYER_INDEX_PARAM, std::to_string(mBoardState->GetActivePlayerIndex())}
             });
         }
     }

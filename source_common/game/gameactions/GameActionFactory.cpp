@@ -16,6 +16,7 @@
 #include <game/gameactions/DrawCardGameAction.h>
 #include <game/gameactions/GameActionFactory.h>
 #include <game/gameactions/GameOverGameAction.h>
+#include <game/gameactions/GameOverResurrectionCheckGameAction.h>
 #include <game/gameactions/GoldenCardPlayedEffectGameAction.h>
 #include <game/gameactions/HealNextDinoDamageGameAction.h>
 #include <game/gameactions/HeroCardEntryGameAction.h>
@@ -81,6 +82,7 @@ void GameActionFactory::RegisterGameActions()
     REGISTER_ACTION(MeteorCardSacrificeGameAction);
     REGISTER_ACTION(MeteorDamageGameAction);
     REGISTER_ACTION(ZeroCostTimeGameAction);
+    REGISTER_ACTION(GameOverResurrectionCheckGameAction);
     std::sort(REGISTERED_ACTION_NAMES.begin(), REGISTERED_ACTION_NAMES.end(), [&](const strutils::StringId& lhs, const strutils::StringId& rhs)
     {
         return lhs.GetString() < rhs.GetString();
@@ -126,6 +128,7 @@ std::unique_ptr<BaseGameAction> GameActionFactory::CreateGameAction(const struti
     ACTION_CASE(MeteorCardSacrificeGameAction);
     ACTION_CASE(MeteorDamageGameAction);
     ACTION_CASE(ZeroCostTimeGameAction);
+    ACTION_CASE(GameOverResurrectionCheckGameAction);
     assert(false && "Invalid game action name");
     return nullptr;
 }
