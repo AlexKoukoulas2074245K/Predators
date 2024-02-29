@@ -24,7 +24,7 @@ static const strutils::StringId IDLE_GAME_ACTION_NAME = strutils::StringId("Idle
 static const strutils::StringId DRAW_CARD_GAME_ACTION_NAME = strutils::StringId("DrawCardGameAction");
 static const strutils::StringId PLAY_CARD_GAME_ACTION_NAME = strutils::StringId("PlayCardGameAction");
 static const strutils::StringId NEXT_PLAYER_GAME_ACTION_NAME = strutils::StringId("NextPlayerGameAction");
-static const strutils::StringId GAME_OVER_CHECK_GAME_ACTION_NAME = strutils::StringId("GameOverResurectionCheckGameAction");
+static const strutils::StringId GAME_OVER_GAME_ACTION_NAME = strutils::StringId("GameOverGameAction");
 static const strutils::StringId CARD_ATTACK_GAME_ACTION_NAME = strutils::StringId("CardAttackGameAction");
 static const strutils::StringId TRAP_TRIGGERED_ANIMATION_GAME_ACTION_NAME = strutils::StringId("TrapTriggeredAnimationGameAction");
 static const strutils::StringId CARD_DESTRUCTION_GAME_ACTION_NAME = strutils::StringId("CardDestructionGameAction");
@@ -980,15 +980,15 @@ void GameActionTests::SimulateBattle(strutils::StringId topDeckFamilyName /*= st
         mBoardState->GetPlayerStates()[1].mPlayerInitialDeckCards = mBoardState->GetPlayerStates()[1].mPlayerDeckCards;
         
         mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
-        while (mActionEngine->GetActiveGameActionName() != IDLE_GAME_ACTION_NAME && mActionEngine->GetActiveGameActionName() != GAME_OVER_CHECK_GAME_ACTION_NAME)
+        while (mActionEngine->GetActiveGameActionName() != IDLE_GAME_ACTION_NAME && mActionEngine->GetActiveGameActionName() != GAME_OVER_GAME_ACTION_NAME)
         {
             mActionEngine->Update(0);
         }
         
-        while (mActionEngine->GetActiveGameActionName() != GAME_OVER_CHECK_GAME_ACTION_NAME)
+        while (mActionEngine->GetActiveGameActionName() != GAME_OVER_GAME_ACTION_NAME)
         {
             mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get());
-            while (mActionEngine->GetActiveGameActionName() != IDLE_GAME_ACTION_NAME && mActionEngine->GetActiveGameActionName() != GAME_OVER_CHECK_GAME_ACTION_NAME)
+            while (mActionEngine->GetActiveGameActionName() != IDLE_GAME_ACTION_NAME && mActionEngine->GetActiveGameActionName() != GAME_OVER_GAME_ACTION_NAME)
             {
                 mActionEngine->Update(0);
                 

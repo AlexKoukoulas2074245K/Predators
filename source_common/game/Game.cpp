@@ -387,7 +387,45 @@ void Game::CreateDebugWidgets()
     
     // Manipulating Story Data
     ImGui::Begin("Story Data", nullptr, GLOBAL_IMGUI_WINDOW_FLAGS);
-    
+    {
+        static size_t selectedCardIndex = 0;
+        static std::vector<std::pair<std::string, int>> cardNamesAndIds;
+        if (cardNamesAndIds.empty())
+        {
+            auto allCardIds = CardDataRepository::GetInstance().GetAllCardIds();
+            for (auto cardId: allCardIds)
+            {
+                const auto& cardData = CardDataRepository::GetInstance().GetCardData(cardId, 0);
+                cardNamesAndIds.emplace_back(std::make_pair(cardData.mCardName.GetString(), cardId));
+            }
+        }
+        
+        if (ImGui::BeginCombo(" ", cardNamesAndIds.at(selectedCardIndex).first.c_str()))
+        {
+            for (size_t n = 0U; n < cardNamesAndIds.size(); n++)
+            {
+                const bool isSelected = (selectedCardIndex == n);
+                if (ImGui::Selectable(cardNamesAndIds.at(n).first.c_str(), isSelected))
+                {
+                    selectedCardIndex = n;
+                }
+                if (isSelected)
+                {
+                    ImGui::SetItemDefaultFocus();
+                }
+            }
+            ImGui::EndCombo();
+        }
+        
+        ImGui::SameLine();
+        if (ImGui::Button("Add Card to Deck"))
+        {
+            auto currentStoryDeck = DataRepository::GetInstance().GetCurrentStoryPlayerDeck();
+            currentStoryDeck.push_back(cardNamesAndIds.at(selectedCardIndex).second);
+            DataRepository::GetInstance().SetCurrentStoryPlayerDeck(currentStoryDeck);
+            DataRepository::GetInstance().FlushStateToFile();
+        }
+    }
     {
         static size_t artifactIndex = 0;
         static std::vector<strutils::StringId> artifactNames = ProductRepository::GetInstance().GetRareItemProductNames();
@@ -457,6 +495,45 @@ void Game::CreateDebugWidgets()
     
     // Manipulating Persistent Data
     ImGui::Begin("Persistent Data", nullptr, GLOBAL_IMGUI_WINDOW_FLAGS);
+    
+    static size_t selectedCardIndex = 0;
+    static std::vector<std::pair<std::string, int>> cardNamesAndIds;
+    if (cardNamesAndIds.empty())
+    {
+        auto allCardIds = CardDataRepository::GetInstance().GetAllCardIds();
+        for (auto cardId: allCardIds)
+        {
+            const auto& cardData = CardDataRepository::GetInstance().GetCardData(cardId, 0);
+            cardNamesAndIds.emplace_back(std::make_pair(cardData.mCardName.GetString(), cardId));
+        }
+    }
+    
+    if (ImGui::BeginCombo(" ", cardNamesAndIds.at(selectedCardIndex).first.c_str()))
+    {
+        for (size_t n = 0U; n < cardNamesAndIds.size(); n++)
+        {
+            const bool isSelected = (selectedCardIndex == n);
+            if (ImGui::Selectable(cardNamesAndIds.at(n).first.c_str(), isSelected))
+            {
+                selectedCardIndex = n;
+            }
+            if (isSelected)
+            {
+                ImGui::SetItemDefaultFocus();
+            }
+        }
+        ImGui::EndCombo();
+    }
+    
+    ImGui::SameLine();
+    if (ImGui::Button("Unlock Card"))
+    {
+        auto unlockedCardIds = DataRepository::GetInstance().GetUnlockedCardIds();
+        unlockedCardIds.push_back(cardNamesAndIds.at(selectedCardIndex).second);
+        DataRepository::GetInstance().SetUnlockedCardIds(unlockedCardIds);
+        DataRepository::GetInstance().FlushStateToFile();
+    }
+    
     if (ImGui::Button("Clear Unlocked & Golden Cards"))
     {
         DataRepository::GetInstance().ClearGoldenCardIdMap();

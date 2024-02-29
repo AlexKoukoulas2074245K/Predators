@@ -257,7 +257,7 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
     ///------------------------------------------------------------------------------------------------
     /// Lava Trap event
     {
-        auto guaranteedHpLoss = math::ControlledRandomInt(1, 2) + (DataRepository::GetInstance().GetCurrentStoryMapNodeCoord().x + (DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::NORMAL_MAP ? game_constants::TUTORIAL_NODE_MAP_DIMENSIONS.s : 0));
+        auto guaranteedHpLoss = math::ControlledRandomInt(1, 2) + (DataRepository::GetInstance().GetCurrentStoryMapNodeCoord().x + (DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::NORMAL_MAP ? game_constants::TUTORIAL_NODE_MAP_DIMENSIONS.s : 0))/2;
         auto randomHpLoss = math::ControlledRandomInt(5, 15) + (DataRepository::GetInstance().GetCurrentStoryMapNodeCoord().x + (DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::NORMAL_MAP ? game_constants::TUTORIAL_NODE_MAP_DIMENSIONS.s : 0));
         auto failedJump = math::ControlledRandomInt(1, 3) == 1;
         

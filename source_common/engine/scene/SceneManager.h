@@ -33,6 +33,7 @@ public:
     void LoadPredefinedObjectsFromDescriptorForScene(std::shared_ptr<Scene> scene);
     void SortSceneObjects(std::shared_ptr<Scene> scene);
     void RemoveScene(const strutils::StringId& sceneName);
+    void RepositionSceneToTheEnd(std::shared_ptr<Scene> scene);
     
     [[nodiscard]] std::size_t GetSceneCount() const;
     [[nodiscard]] const std::vector<std::shared_ptr<Scene>>& GetScenes() const;

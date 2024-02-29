@@ -223,6 +223,10 @@ bool Camera::IsShaking() const
 
 void Camera::StopShake()
 {
+    if (mShakeData.mShakeCurrentRadius > SHAKE_MIN_RADIUS)
+    {
+        SetPosition(mShakeData.mPreShakePosition);
+    }
     mShakeData.mShakeCurrentRadius = 0.0f;
 }
 

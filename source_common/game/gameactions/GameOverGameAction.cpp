@@ -41,7 +41,7 @@ static const strutils::StringId HERO_CARD_DESTRUCTION_PARTICLE_NAME = strutils::
 
 static const float CARD_CAMERA_SHAKE_DURATION = 0.25f;
 static const float CARD_CAMERA_SHAKE_STRENGTH = 0.005f;
-static const float CARD_DISSOLVE_SPEED = 0.0006f;
+static const float CARD_DISSOLVE_SPEED = 0.0005f;
 static const float MAX_CARD_DISSOLVE_VALUE = 1.2f;
 static const float EXPLOSION_DELAY_SECS = 0.8f;
 

@@ -70,43 +70,42 @@ void PostNextPlayerGameAction::VSetNewGameState()
     mBoardState->GetInactivePlayerState().mPlayerHeldCards.clear();
     mBoardState->GetInactivePlayerState().mPlayerHeldCardStatOverrides.clear();
     
-    bool permanentEffectExists = false;
+    
+    // Here we keep track of permanent board & card modifiers and save them
+    // to be reintroduced after the original data is cleared a few lines later
+    CardStatOverrides globalCardStatModifiersBuilder;
+    effects::EffectBoardModifierMask boardModifierMaskBuilder = effects::board_modifier_masks::NONE;
+    
     if ((mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::PERMANENT_CONTINUAL_WEIGHT_REDUCTION) != 0)
     {
-        mBoardState->GetInactivePlayerState().mBoardModifiers.mGlobalCardStatModifiers.erase(CardStatType::DAMAGE);
-        mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask = effects::board_modifier_masks::PERMANENT_CONTINUAL_WEIGHT_REDUCTION;
-        permanentEffectExists = true;
+        globalCardStatModifiersBuilder[CardStatType::WEIGHT] = mBoardState->GetInactivePlayerState().mBoardModifiers.mGlobalCardStatModifiers.at(CardStatType::WEIGHT);
+        boardModifierMaskBuilder |= effects::board_modifier_masks::PERMANENT_CONTINUAL_WEIGHT_REDUCTION;
     }
     
     if ((mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::EVERY_THIRD_CARD_PLAYED_HAS_ZERO_COST) != 0)
     {
-        mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask = effects::board_modifier_masks::EVERY_THIRD_CARD_PLAYED_HAS_ZERO_COST;
-        permanentEffectExists = true;
+        boardModifierMaskBuilder |= effects::board_modifier_masks::EVERY_THIRD_CARD_PLAYED_HAS_ZERO_COST;
     }
     
     if ((mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::INSECT_VIRUS) != 0)
     {
-        mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask = effects::board_modifier_masks::INSECT_VIRUS;
-        permanentEffectExists = true;
+        boardModifierMaskBuilder |= effects::board_modifier_masks::INSECT_VIRUS;
     }
     
-    if (!permanentEffectExists)
+    bool clearedDebuff = !mBoardState->GetInactivePlayerState().mBoardModifiers.mGlobalCardStatModifiers.empty();
+    mBoardState->GetInactivePlayerState().mBoardModifiers.mGlobalCardStatModifiers = globalCardStatModifiersBuilder;
+    mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask = boardModifierMaskBuilder;
+    
+    // For hero cards only
+    if (mBoardState->GetInactivePlayerState().mHasHeroCard && clearedDebuff)
     {
-        bool clearedDebuff = !mBoardState->GetInactivePlayerState().mBoardModifiers.mGlobalCardStatModifiers.empty();
-        mBoardState->GetInactivePlayerState().mBoardModifiers.mGlobalCardStatModifiers.clear();
-        mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask = effects::board_modifier_masks::NONE;
-        
-        // For hero cards only
-        if (mBoardState->GetInactivePlayerState().mHasHeroCard && clearedDebuff)
+        mGameActionEngine->AddGameAction(CARD_BUFFED_DEBUFFED_ANIMATION_GAME_ACTION_NAME,
         {
-            mGameActionEngine->AddGameAction(CARD_BUFFED_DEBUFFED_ANIMATION_GAME_ACTION_NAME,
-            {
-                { CardBuffedDebuffedAnimationGameAction::CARD_INDEX_PARAM, "0"},
-                { CardBuffedDebuffedAnimationGameAction::PLAYER_INDEX_PARAM, std::to_string(game_constants::REMOTE_PLAYER_INDEX)},
-                { CardBuffedDebuffedAnimationGameAction::IS_BOARD_CARD_PARAM, "true" },
-                { CardBuffedDebuffedAnimationGameAction::SCALE_FACTOR_PARAM, std::to_string(CARD_SCALE_UP_FACTOR) }
-            });
-        }
+            { CardBuffedDebuffedAnimationGameAction::CARD_INDEX_PARAM, "0"},
+            { CardBuffedDebuffedAnimationGameAction::PLAYER_INDEX_PARAM, std::to_string(game_constants::REMOTE_PLAYER_INDEX)},
+            { CardBuffedDebuffedAnimationGameAction::IS_BOARD_CARD_PARAM, "true" },
+            { CardBuffedDebuffedAnimationGameAction::SCALE_FACTOR_PARAM, std::to_string(CARD_SCALE_UP_FACTOR) }
+        });
     }
     
     if (mBoardState->GetInactivePlayerState().mZeroCostTime)

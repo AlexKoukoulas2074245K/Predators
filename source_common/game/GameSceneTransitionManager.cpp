@@ -154,11 +154,16 @@ void GameSceneTransitionManager::ChangeToScene
     }
     
     // Create scene from scratch if non-existent
-    auto newScene = sceneManager.FindScene(sceneName);
-    if (!newScene)
+    auto scene = sceneManager.FindScene(sceneName);
+    if (!scene)
     {
-        newScene = sceneManager.CreateScene(sceneName);
+        scene = sceneManager.CreateScene(sceneName);
     }
+    else
+    {
+        sceneManager.RepositionSceneToTheEnd(scene);
+    }
+    
     
     // Modal scene
     if (sceneChangeType == SceneChangeType::MODAL_SCENE)
@@ -183,14 +188,14 @@ void GameSceneTransitionManager::ChangeToScene
         else
         {
             // Create and setup overlay object for transition
-            auto overlaySceneObject = newScene->CreateSceneObject(game_constants::OVERLAY_SCENE_OBJECT_NAME);
+            auto overlaySceneObject = scene->CreateSceneObject(game_constants::OVERLAY_SCENE_OBJECT_NAME);
             overlaySceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
             overlaySceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + OVERLAY_TEXTURE_FILE_NAME);
             overlaySceneObject->mScale *= OVERLAY_SCALE;
             overlaySceneObject->mPosition.z = OVERLAY_Z;
             
             // Start darkening transition animation
-            newScene->SetLoaded(true);
+            scene->SetLoaded(true);
             auto newSceneNameCopy = sceneName;
             CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(overlaySceneObject, MODAL_MAX_ALPHA, OVERLAY_ANIMATION_TARGET_DURATION_SECS, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_IN), [=]()
             {

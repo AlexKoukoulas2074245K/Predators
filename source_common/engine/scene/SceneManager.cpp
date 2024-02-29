@@ -226,7 +226,7 @@ void SceneManager::SortSceneObjects(std::shared_ptr<Scene> scene)
 {
     auto& sceneObjects = scene->GetSceneObjects();
     std::sort(sceneObjects.begin(), sceneObjects.end(), [&](const std::shared_ptr<scene::SceneObject>& lhs, const std::shared_ptr<scene::SceneObject>& rhs)
-              {
+    {
         return lhs->mPosition.z < rhs->mPosition.z;
     });
 }
@@ -236,7 +236,7 @@ void SceneManager::SortSceneObjects(std::shared_ptr<Scene> scene)
 void SceneManager::RemoveScene(const strutils::StringId& sceneName)
 {
     auto findIter = std::find_if(mScenes.begin(), mScenes.end(), [&](const std::shared_ptr<Scene>& scene)
-                                 {
+    {
         return scene->GetName() == sceneName;
     });
     if (findIter != mScenes.end())
@@ -249,6 +249,21 @@ void SceneManager::RemoveScene(const strutils::StringId& sceneName)
         mScenes.erase(findIter);
         UnloadUnusedTextures();
     }
+}
+
+///------------------------------------------------------------------------------------------------
+
+void SceneManager::RepositionSceneToTheEnd(std::shared_ptr<Scene> sceneToReposition)
+{
+    auto findIter = std::find_if(mScenes.begin(), mScenes.end(), [&](const std::shared_ptr<Scene>& scene)
+    {
+        return scene->GetName() == sceneToReposition->GetName();
+    });
+    
+    assert(findIter != mScenes.end());
+    
+    mScenes.erase(findIter);
+    mScenes.push_back(sceneToReposition);
 }
 
 ///------------------------------------------------------------------------------------------------
