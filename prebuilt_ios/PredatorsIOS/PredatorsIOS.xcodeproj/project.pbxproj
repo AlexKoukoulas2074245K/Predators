@@ -199,6 +199,7 @@
 		B6E67DBC068AE07FB4029313 /* RodentsDigAnimationGameAction.h in Sources */ = {isa = PBXBuildFile; fileRef = 262BEE079FB81F24BE02CE73 /* RodentsDigAnimationGameAction.h */; };
 		B7D15E15CCD322ECF9B33EC3 /* ISceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 8AAC9EE5A84B083F6DDC6065 /* ISceneLogicManager.h */; };
 		B9E0EC0CC1D7407BA1057AC1 /* PurchasingProductSceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F819D43A317A367558BD5C4 /* PurchasingProductSceneLogicManager.cpp */; };
+		BB35EBBCD586FC0B59FFEA8C /* BunnyHopSceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = C25CCB8584C6376ECC40455C /* BunnyHopSceneLogicManager.h */; };
 		BB5025C3ABC5304A8FEF477D /* StoryDeserializer.h in Sources */ = {isa = PBXBuildFile; fileRef = 2EFEAA42540EE199342FF02C /* StoryDeserializer.h */; };
 		BE61AB91666D512DCBABF147 /* GoldenCardPlayedEffectGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 28CE98C2AE21D8079AF2E907 /* GoldenCardPlayedEffectGameAction.cpp */; };
 		BF4CEDCB9F4DDCD1D778AA1F /* CardTooltipController.h in Sources */ = {isa = PBXBuildFile; fileRef = B25A5742A2E334B615B7DF40 /* CardTooltipController.h */; };
@@ -226,6 +227,7 @@
 		E822BAEB6AFB1F91FA785FA4 /* ParticleManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 07E6A4152BAC640B7D892FEF /* ParticleManager.h */; };
 		EA274B4B2C79679D22E66FFE /* EventSceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = F72AEDE4A21BC185F5CFF4B1 /* EventSceneLogicManager.h */; };
 		EAD29D4944FA967EBE7A3F02 /* AppleSoundUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 671D233B7E849F2BBBC15370 /* AppleSoundUtils.mm */; };
+		EBE208E85351C34D800BF7EF /* BunnyHopSceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FAE72E929E0AECAC7D9538A4 /* BunnyHopSceneLogicManager.cpp */; };
 		EBEFA620C8D9661F146184A5 /* BattleSerializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3EF46F1C3E89ECBC526B9A73 /* BattleSerializer.cpp */; };
 		EC6B40F9D118BE289BAC787D /* ValueWithDelayedDisplay.h in Sources */ = {isa = PBXBuildFile; fileRef = 0B062A7E99DAE588F6ABB076 /* ValueWithDelayedDisplay.h */; };
 		EEA262762C6AAD524ED6F91E /* InsectDuplicationGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F8E2E92C3F1233C55CD9F31A /* InsectDuplicationGameAction.cpp */; };
@@ -595,6 +597,7 @@
 		C16A1AADA07DA3267641EB14 /* VisitMapNodeSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = VisitMapNodeSceneLogicManager.cpp; sourceTree = "<group>"; };
 		C1EE7DB5748D9F470F44737E /* VictorySceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = VictorySceneLogicManager.cpp; sourceTree = "<group>"; };
 		C2440AC9D2351884CB46159D /* PlayerActionGenerationEngine.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = PlayerActionGenerationEngine.h; sourceTree = "<group>"; };
+		C25CCB8584C6376ECC40455C /* BunnyHopSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = BunnyHopSceneLogicManager.h; path = BunnyHopSceneLogicManager.h; sourceTree = "<group>"; };
 		C69E036C35A40F11663C3BAB /* CardPackRewardSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = CardPackRewardSceneLogicManager.cpp; sourceTree = "<group>"; };
 		C6B01E95D9ABF46EECA93F96 /* Animations.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = Animations.cpp; sourceTree = "<group>"; };
 		C6B0CAD74EFA916793470522 /* CardLibrarySceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = CardLibrarySceneLogicManager.h; sourceTree = "<group>"; };
@@ -638,6 +641,7 @@
 		F8E2E92C3F1233C55CD9F31A /* InsectDuplicationGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = InsectDuplicationGameAction.cpp; sourceTree = "<group>"; };
 		F9EB4E0575AF02884C3ED019 /* BackgroundMusicPlayer.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; path = BackgroundMusicPlayer.mm; sourceTree = "<group>"; };
 		FA2C2292DA5BBCC5E166153C /* CardBuffedDebuffedAnimationGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = CardBuffedDebuffedAnimationGameAction.h; sourceTree = "<group>"; };
+		FAE72E929E0AECAC7D9538A4 /* BunnyHopSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = BunnyHopSceneLogicManager.cpp; path = BunnyHopSceneLogicManager.cpp; sourceTree = "<group>"; };
 		FAFAD2C13EAEAAFA959795DD /* EventSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = EventSceneLogicManager.cpp; sourceTree = "<group>"; };
 		FC7FB6D156D6379E6C2D6D23 /* CardBuffedDebuffedAnimationGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = CardBuffedDebuffedAnimationGameAction.cpp; sourceTree = "<group>"; };
 		FCD986CB07334B2433EB426D /* SerializationDefinitions.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = SerializationDefinitions.h; sourceTree = "<group>"; };
@@ -1132,6 +1136,8 @@
 				264789DE2DF822FF785C751C /* InventorySceneLogicManager.h */,
 				0BF5D202DB385FB6CA3DD5E1 /* CardInspectionSceneLogicManager.cpp */,
 				A6E0DB997225D0F75C221040 /* CardInspectionSceneLogicManager.h */,
+				FAE72E929E0AECAC7D9538A4 /* BunnyHopSceneLogicManager.cpp */,
+				C25CCB8584C6376ECC40455C /* BunnyHopSceneLogicManager.h */,
 			);
 			path = scenelogicmanagers;
 			sourceTree = "<group>";
@@ -1624,6 +1630,8 @@
 				3ECDE4E39DE2542936D16288 /* ArtifactProductIds.h in Sources */,
 				95F12E6340C77F1386A2AA2D /* CardInspectionSceneLogicManager.cpp in Sources */,
 				8895C5F96BE42615AA272C88 /* CardInspectionSceneLogicManager.h in Sources */,
+				EBE208E85351C34D800BF7EF /* BunnyHopSceneLogicManager.cpp in Sources */,
+				BB35EBBCD586FC0B59FFEA8C /* BunnyHopSceneLogicManager.h in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

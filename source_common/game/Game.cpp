@@ -38,6 +38,7 @@
 #include <game/GuiObjectManager.h>
 #include <game/ProductRepository.h>
 #include <game/scenelogicmanagers/BattleSceneLogicManager.h>
+#include <game/scenelogicmanagers/BunnyHopSceneLogicManager.h>
 #include <game/scenelogicmanagers/CardInspectionSceneLogicManager.h>
 #include <game/scenelogicmanagers/CardLibrarySceneLogicManager.h>
 #include <game/scenelogicmanagers/CardPackRewardSceneLogicManager.h>
@@ -124,6 +125,7 @@ void Game::Init()
     
     mGameSceneTransitionManager = std::make_unique<GameSceneTransitionManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<BattleSceneLogicManager>();
+    mGameSceneTransitionManager->RegisterSceneLogicManager<BunnyHopSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<CardInspectionSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<CardLibrarySceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<CardPackRewardSceneLogicManager>();

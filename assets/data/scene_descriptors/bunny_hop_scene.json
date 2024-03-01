@@ -1,0 +1,25 @@
+{
+    "children_scenes":
+    [
+    ],
+    
+    "scene_objects":
+    [
+        {
+            "name": "background",
+            "texture": "repeating_sky.png",
+            "scale": { "x": 1.2, "y": 1.2, "z": 1.1 },
+            "position": { "x": 0.0, "y": 0.0, "z": 1.0 },
+            "shader": "repeating_sky.vs",
+            "alpha": 1.0
+        },
+        {
+            "name": "bunny_hop_icon",
+            "texture": "bunny_hop_icon.png",
+            "scale": { "x": 0.2, "y": 0.2, "z": 0.2 },
+            "position": { "x": 0.0, "y": 0.0, "z": 2.0 },
+            "shader": "basic.vs",
+            "alpha": 1.0
+        }
+    ]
+}

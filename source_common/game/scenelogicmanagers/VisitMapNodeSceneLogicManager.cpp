@@ -26,6 +26,7 @@ static const std::string CUSTOM_COLOR_SHADER_FILE_NAME = "basic_custom_color.vs"
 static const std::string SKIP_BUTTON_ICON_SHADER_FILE_NAME = "rare_item.vs";
 static const std::string SKIP_BUTTON_ICON_TEXTURE_FILE_NAME = "rare_item_rewards/bunny_hop.png";
 
+static const strutils::StringId BUNNY_HOP_SCENE_NAME = strutils::StringId("bunny_hop_scene");
 static const strutils::StringId VISIT_MAP_NODE_SCENE_NAME = strutils::StringId("visit_map_node_scene");
 static const strutils::StringId NODE_DESCRIPTION_TEXT_SCENE_OBJECT_NAME = strutils::StringId("node_description_text");
 static const strutils::StringId SKIP_BUTTON_ICON_SCENE_OBJECT_NAME = strutils::StringId("skip_button_icon");
@@ -342,7 +343,7 @@ void VisitMapNodeSceneLogicManager::SkipNode()
     
     DataRepository::GetInstance().SetCurrentStoryMapNodeCoord(selectedNodeData->mCoords);
     DataRepository::GetInstance().FlushStateToFile();
-    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_MAP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
+    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(BUNNY_HOP_SCENE_NAME, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
 }
 
 ///------------------------------------------------------------------------------------------------

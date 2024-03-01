@@ -36,12 +36,14 @@
 		33F13529D488520827DCC6DD /* HoundSummoningGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DA5C864B99855517C4F977C7 /* HoundSummoningGameAction.cpp */; };
 		3404AFE81C1263670F2BD149 /* MathUtils.h in Sources */ = {isa = PBXBuildFile; fileRef = 2096C38A74EAF730ECCA5E36 /* MathUtils.h */; };
 		35F728B607B03C1170EA30BB /* MeteorCardSacrificeGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 033AD052532328553D7C1AB8 /* MeteorCardSacrificeGameAction.cpp */; };
+		3682362D632C8632DAEEE85A /* BunnyHopSceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = CC6E9D2B3F68C7578FBD2C2F /* BunnyHopSceneLogicManager.h */; };
 		3800CC997FE9DCC2CADAF5E2 /* TypeTraits.h in Sources */ = {isa = PBXBuildFile; fileRef = 6E2183A368D71198F98D6738 /* TypeTraits.h */; };
 		3D0B74E401CD9DB2D3AF3061 /* RenderingUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 59B053AEBDD62B4FCAB8E05D /* RenderingUtils.cpp */; };
 		3E3B65024B721F5CCC0D71E0 /* Animations.h in Sources */ = {isa = PBXBuildFile; fileRef = 82DFED0E0B1AB607780AED60 /* Animations.h */; };
 		41A2979384DB0E1648E87DC2 /* CloudDataConfirmationSceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5BD45E193E73BAA2C5DD3337 /* CloudDataConfirmationSceneLogicManager.cpp */; };
 		45963ED9A5DA3C4EB9144646 /* TextureResource.h in Sources */ = {isa = PBXBuildFile; fileRef = 989BFF482B72A00F213431FE /* TextureResource.h */; };
 		4E9ADD55CB0B5CA8962F347E /* StringUtils.h in Sources */ = {isa = PBXBuildFile; fileRef = EF61AB7D638A80B4ABD5D5B7 /* StringUtils.h */; };
+		50377591B102A475A8E190FF /* BunnyHopSceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 20D14EB52698B636EAE5EDB8 /* BunnyHopSceneLogicManager.cpp */; };
 		5285724978640648FFD94960 /* TextureResource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93D83DB41AD868D09B2A3C94 /* TextureResource.cpp */; };
 		52E04351601B4B0D40066C6A /* GiftingUtils.h in Sources */ = {isa = PBXBuildFile; fileRef = 54B9F7B7FC4B3D5056E01F2F /* GiftingUtils.h */; };
 		532521F009DF925259026C23 /* SerializationDefinitions.h in Sources */ = {isa = PBXBuildFile; fileRef = F05BCACB9D0D7193765BB311 /* SerializationDefinitions.h */; };
@@ -274,6 +276,7 @@
 		14207B709EC0713AAB9C29C8 /* ParticleManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = ParticleManager.cpp; sourceTree = "<group>"; };
 		1B15A1EEB522F75EE7E24E55 /* CoreSystemsEngine.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = CoreSystemsEngine.h; sourceTree = "<group>"; };
 		2096C38A74EAF730ECCA5E36 /* MathUtils.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = MathUtils.h; sourceTree = "<group>"; };
+		20D14EB52698B636EAE5EDB8 /* BunnyHopSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = BunnyHopSceneLogicManager.cpp; path = BunnyHopSceneLogicManager.cpp; sourceTree = "<group>"; };
 		221289B3E3FA84B55F4C25E2 /* SceneManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = SceneManager.h; sourceTree = "<group>"; };
 		255CBE3395586957104E385D /* ShaderLoader.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = ShaderLoader.cpp; sourceTree = "<group>"; };
 		29BF26174D9E7C9DDE03C263 /* DemonPunchGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = DemonPunchGameAction.h; sourceTree = "<group>"; };
@@ -531,6 +534,7 @@
 		C93CFFE8EE51C27FEBFD1AF9 /* DisconnectedSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = DisconnectedSceneLogicManager.cpp; sourceTree = "<group>"; };
 		CAEF02928D06B177B1091C5F /* ImageSurfaceResource.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = ImageSurfaceResource.h; sourceTree = "<group>"; };
 		CC1DB90079164B1337D075DD /* VictorySceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = VictorySceneLogicManager.cpp; sourceTree = "<group>"; };
+		CC6E9D2B3F68C7578FBD2C2F /* BunnyHopSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = BunnyHopSceneLogicManager.h; path = BunnyHopSceneLogicManager.h; sourceTree = "<group>"; };
 		CDA82AC01781CC5D7781923C /* PrivacyPolicySceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = PrivacyPolicySceneLogicManager.cpp; sourceTree = "<group>"; };
 		CF33F7C72612B80A9AB49895 /* InputStateManagerPlatformImpl.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = InputStateManagerPlatformImpl.cpp; sourceTree = "<group>"; };
 		D099CB93E6198C3BE5F73FDE /* IInputStateManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = IInputStateManager.h; sourceTree = "<group>"; };
@@ -1033,6 +1037,8 @@
 				EA4BE6D43FAFFC7BB605FA13 /* InventorySceneLogicManager.h */,
 				81F22110C14FF606EB9F7F12 /* CardInspectionSceneLogicManager.cpp */,
 				F2BCD29EF72262DDF246C0FD /* CardInspectionSceneLogicManager.h */,
+				20D14EB52698B636EAE5EDB8 /* BunnyHopSceneLogicManager.cpp */,
+				CC6E9D2B3F68C7578FBD2C2F /* BunnyHopSceneLogicManager.h */,
 			);
 			path = scenelogicmanagers;
 			sourceTree = "<group>";
@@ -1488,6 +1494,8 @@
 				690176D1275D471759B1ADE0 /* GameOverResurrectionCheckGameAction.h in Sources */,
 				7974920127E72B9465921323 /* CardInspectionSceneLogicManager.cpp in Sources */,
 				E88EC6BFF3E6479DEE4C7096 /* CardInspectionSceneLogicManager.h in Sources */,
+				50377591B102A475A8E190FF /* BunnyHopSceneLogicManager.cpp in Sources */,
+				3682362D632C8632DAEEE85A /* BunnyHopSceneLogicManager.h in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

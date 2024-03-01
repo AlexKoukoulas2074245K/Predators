@@ -10,6 +10,7 @@
 
 ///------------------------------------------------------------------------------------------------
 
+#include <game/Cards.h>
 #include <game/events/EventSystem.h>
 #include <game/scenelogicmanagers/ISceneLogicManager.h>
 #include <memory>
@@ -41,6 +42,7 @@ private:
     void TransitionToEventScreen(const int screenIndex);
     void CreateEventScreen(const int screenIndex);
     void CollectRareItem(const strutils::StringId& rareItemName);
+    void AnimateAndDeleteCardFromDeck(const int deckCardIndex, const bool unlockBlockingAtEndOfDeletion);
     
 private:
     class StoryRandomEventButtonData
@@ -98,8 +100,10 @@ private:
     std::vector<StoryRandomEventData> mRegisteredStoryEvents;
     std::shared_ptr<GuiObjectManager> mGuiManager;
     std::shared_ptr<scene::Scene> mScene;
+    std::shared_ptr<CardSoWrapper> mCardSoWrapper;
     int mCurrentEventIndex;
     int mCurrentEventScreenIndex;
+    bool mTransitioning;
     bool mBlockInteraction;
 };
 

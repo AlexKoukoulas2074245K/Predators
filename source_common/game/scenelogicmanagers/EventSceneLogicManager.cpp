@@ -16,6 +16,7 @@
 #include <game/AnimatedButton.h>
 #include <game/ArtifactProductIds.h>
 #include <game/Cards.h>
+#include <game/CardUtils.h>
 #include <game/events/EventSystem.h>
 #include <game/GuiObjectManager.h>
 #include <game/DataRepository.h>
@@ -30,11 +31,18 @@ static const strutils::StringId EVENT_BUTTON_SCENE_OBJECT_NAME = strutils::Strin
 static const strutils::StringId DEFEAT_SCENE_NAME = strutils::StringId("defeat_scene");
 static const strutils::StringId ANIMATED_STAT_CONTAINER_ANIMATION_NAME = strutils::StringId("animated_stat_container_animation");
 static const strutils::StringId GUARDIAN_ANGEL_ICON_SCENE_OBJECT_NAME = strutils::StringId("guardian_angel_icon");
+static const strutils::StringId DISSOLVE_THRESHOLD_UNIFORM_NAME = strutils::StringId("dissolve_threshold");
+static const strutils::StringId DISSOLVE_MAGNITUDE_UNIFORM_NAME = strutils::StringId("dissolve_magnitude");
+static const strutils::StringId CARD_ORIGIN_X_UNIFORM_NAME = strutils::StringId("card_origin_x");
+static const strutils::StringId CARD_ORIGIN_Y_UNIFORM_NAME = strutils::StringId("card_origin_y");
 
+static const std::string CARD_TO_DELETE_SCENE_OBJECT_NAME_PREFIX = "card_to_delete";
 static const std::string VICTORY_SFX = "sfx_victory";
 static const std::string GUARDIAN_ANGEL_ICON_SHADER_FILE_NAME = "rare_item.vs";
 static const std::string GUARDIAN_ANGEL_ICON_TEXTURE_FILE_NAME = "rare_item_rewards/guardian_angel.png";
 static const std::string RARE_ITEM_SHADER = "rare_item.vs";
+static const std::string DISSOLVE_TEXTURE_FILE_NAME = "dissolve.png";
+static const std::string CARD_DISSOLVE_SHADER_FILE_NAME = "card_dissolve.vs";
 
 static const glm::vec3 GUARDIAN_ANGEL_ICON_INIT_SCALE = {0.001f, 0.001f, 0.001f};
 static const glm::vec3 GUARDIAN_ANGEL_ICON_END_SCALE = {0.4f, 0.4f, 0.4f};
@@ -44,6 +52,10 @@ static const glm::vec3 EVENT_PORTRAIT_SCALE = {0.4f, 0.4f, 0.4f};
 static const glm::vec3 EVENT_PORTRAIT_POSITION = {-0.1f, 0.0f, 0.8f};
 static const glm::vec3 RARE_ITEM_INIT_SCALE = glm::vec3(0.0001f, 0.0001f, 0.0001f);
 static const glm::vec3 RARE_ITEM_TARGET_SCALE = glm::vec3(0.3f, 0.3f, 0.3f);
+static const glm::vec3 CARD_TO_BE_DELETED_INIT_SCALE = {-0.0001f, 0.0001f, 0.0001f};
+static const glm::vec3 CARD_TO_BE_DELETED_TARGET_SCALE = {-0.250f, 0.250f, 0.125f};
+
+static const glm::vec2 CARD_DISSOLVE_EFFECT_MAG_RANGE = {3.0f, 6.0f};
 
 static const float EVENT_SCREEN_FADE_IN_OUT_DURATION_SECS = 0.25f;
 static const float EVENT_SCREEN_ITEM_Z = 1.0f;
@@ -55,7 +67,9 @@ static const float ANIMATION_STEP_DURATION = 2.0f;
 static const float ANIMATION_MAX_ALPHA = 0.6f;
 static const float GUARDIAN_ANGEL_ICON_Z = 20.0f;
 static const float RARE_ITEM_Z_OFFSET = 0.1f;
-static const float RARE_ITEM_COLLECTION_ANIMATION_DURATION_SECS = 1.5f;
+static const float RARE_ITEM_COLLECTION_ANIMATION_DURATION_SECS = 1.0f;
+static const float CARD_DELETION_ANIMATION_DURATION_SECS = 2.0f;
+static const float MAX_CARD_DISSOLVE_VALUE = 1.2f;
 
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
 {
@@ -95,6 +109,7 @@ void EventSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 {
     mScene = scene;
     
+    mTransitioning = false;
     mBlockInteraction = false;
     
     mCurrentEventButtons.clear();
@@ -115,12 +130,20 @@ void EventSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 
 void EventSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene::Scene>)
 {
+    static float time = 0.0f;
+    time += dtMillis * 0.001f;
+            
     if (!mScene->GetCamera().IsShaking())
     {
         mGuiManager->Update(dtMillis);
     }
     
-    if (mBlockInteraction)
+    if (mCardSoWrapper)
+    {
+        mCardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
+    }
+    
+    if (mTransitioning || mBlockInteraction)
     {
         return;
     }
@@ -170,7 +193,7 @@ void EventSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene
         else
         {
             events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(DEFEAT_SCENE_NAME, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
-            mBlockInteraction = true;
+            mTransitioning = true;
             return;
         }
     }
@@ -422,6 +445,45 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
         );
     }
     
+    /// ---------------------------------------------------------------------------------------------------------------
+    /// Sacrificial Vase Event
+    {
+        auto rareItemRewardName = rareItemProductNames[math::ControlledRandomInt() % rareItemProductNames.size()];
+        auto rareItemRewardDisplayName = ProductRepository::GetInstance().GetProductDefinition(rareItemRewardName).mStoryRareItemName;
+        auto cardIndexToDelete = static_cast<int>(math::ControlledRandomInt() % DataRepository::GetInstance().GetCurrentStoryPlayerDeck().size());
+        
+        mRegisteredStoryEvents.emplace_back
+        (
+            StoryRandomEventData
+            ({
+                StoryRandomEventScreenData("events/sacrificial_vase.png", {"You see a faint glowing light", "inside an abandoned house.", "When you enter the house", "you see a giant runic vase."},
+                {
+                    StoryRandomEventButtonData("Continue", 1)
+                }),
+                StoryRandomEventScreenData("events/sacrificial_vase.png", {"You see some faint markings", "inscribed on the vase:", "\"A sacrifice for a reward\"", "Will you sacrifice a card", "for the so called  \"reward\"?"},
+                {
+                    StoryRandomEventButtonData("Do it (-1 card +1 random artifact)", 2, [=]()
+                    {
+                        AnimateAndDeleteCardFromDeck(cardIndexToDelete, false);
+                        CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TimeDelayAnimation>(CARD_DELETION_ANIMATION_DURATION_SECS * 2), [=]()
+                        {
+                            CollectRareItem(rareItemRewardName);
+                            DataRepository::GetInstance().FlushStateToFile();
+                        });
+                    }),
+                    StoryRandomEventButtonData("Leave the house", 3)
+                }),
+                StoryRandomEventScreenData("events/sacrificial_vase.png", {"", "The sacrifice was", "performed successfully", "You collected " + rareItemRewardDisplayName + "!"},
+                {
+                    StoryRandomEventButtonData("Continue", 4)
+                }),
+                StoryRandomEventScreenData("events/sacrificial_vase.png", {"", "You quickly exited the house."},
+                {
+                    StoryRandomEventButtonData("Continue", 4)
+                }),
+            }, [](){ return DataRepository::GetInstance().GetCurrentStoryPlayerDeck().size() > 3; })
+        );
+    }
     
     for (auto i = 0; i < mRegisteredStoryEvents.size(); ++i)
     {
@@ -437,7 +499,6 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
         {
             mCurrentEventIndex = (mCurrentEventIndex + 1) % mRegisteredStoryEvents.size();
         }
-        mCurrentEventIndex = 3;
         DataRepository::GetInstance().SetCurrentEventIndex(mCurrentEventIndex);
     }
 }
@@ -446,7 +507,7 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
 
 void EventSceneLogicManager::TransitionToEventScreen(const int screenIndex)
 {
-    mBlockInteraction = true;
+    mTransitioning = true;
     
     if (screenIndex >= static_cast<int>(mRegisteredStoryEvents[mCurrentEventIndex].mEventScreens.size()))
     {
@@ -581,7 +642,7 @@ void EventSceneLogicManager::CreateEventScreen(const int screenIndex)
             sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
             CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, sceneObject->mName == EVENT_PORTRAIT_SCENE_OBJECT_NAME ? EVENT_PORTRAIT_ALPHA : 1.0f, EVENT_SCREEN_FADE_IN_OUT_DURATION_SECS), [=]()
             {
-                mBlockInteraction = false;
+                mTransitioning = false;
             });
         }
     }
@@ -608,6 +669,49 @@ void EventSceneLogicManager::CollectRareItem(const strutils::StringId& rareItemN
     {
         mBlockInteraction = false;
         events::EventSystem::GetInstance().DispatchEvent<events::RareItemCollectedEvent>(rareItemName, rareItemSceneObject);
+    });
+}
+
+///------------------------------------------------------------------------------------------------
+
+void EventSceneLogicManager::AnimateAndDeleteCardFromDeck(const int deckCardIndex, const bool unlockBlockingAtEndOfDeletion)
+{
+    // Delete card from deck
+    auto playerDeck = DataRepository::GetInstance().GetCurrentStoryPlayerDeck();
+    auto cardId = playerDeck.at(deckCardIndex);
+    playerDeck.erase(playerDeck.begin() + deckCardIndex);
+    DataRepository::GetInstance().SetCurrentStoryPlayerDeck(playerDeck);
+    
+    // Gather card data
+    auto cardData = CardDataRepository::GetInstance().GetCardData(cardId, game_constants::LOCAL_PLAYER_INDEX);
+    const auto& cardIdToGoldenCardEnabledMap = DataRepository::GetInstance().GetGoldenCardIdMap();
+    bool isGoldenCard = cardIdToGoldenCardEnabledMap.count(cardId) && cardIdToGoldenCardEnabledMap.at(cardId);
+    
+    // Prepare card scene object to be deleted
+    auto cardSoWrapper = card_utils::CreateCardSoWrapper(&cardData, glm::vec3(), CARD_TO_DELETE_SCENE_OBJECT_NAME_PREFIX, CardOrientation::FRONT_FACE, isGoldenCard ? CardRarity::GOLDEN : CardRarity::NORMAL, false, false, true, {}, {}, *mScene);
+    cardSoWrapper->mSceneObject->mPosition = mScene->FindSceneObject(EVENT_PORTRAIT_SCENE_OBJECT_NAME)->mPosition;
+    cardSoWrapper->mSceneObject->mPosition.z += RARE_ITEM_Z_OFFSET;
+    cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
+    cardSoWrapper->mSceneObject->mScale = CARD_TO_BE_DELETED_INIT_SCALE;
+    cardSoWrapper->mSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CARD_DISSOLVE_SHADER_FILE_NAME);
+    cardSoWrapper->mSceneObject->mEffectTextureResourceIds[1] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + DISSOLVE_TEXTURE_FILE_NAME);
+    cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] = 0.0f;
+    cardSoWrapper->mSceneObject->mShaderFloatUniformValues[CARD_ORIGIN_X_UNIFORM_NAME] = cardSoWrapper->mSceneObject->mPosition.x;
+    cardSoWrapper->mSceneObject->mShaderFloatUniformValues[CARD_ORIGIN_Y_UNIFORM_NAME] = cardSoWrapper->mSceneObject->mPosition.y;
+    cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_MAGNITUDE_UNIFORM_NAME] = math::RandomFloat(CARD_DISSOLVE_EFFECT_MAG_RANGE.x, CARD_DISSOLVE_EFFECT_MAG_RANGE.y);
+    
+    // First scale
+    mBlockInteraction = true;
+    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObject, cardSoWrapper->mSceneObject->mPosition, CARD_TO_BE_DELETED_TARGET_SCALE, CARD_DELETION_ANIMATION_DURATION_SECS), [=]()
+    {
+        // Then animate card deletion
+        CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME], MAX_CARD_DISSOLVE_VALUE, CARD_DELETION_ANIMATION_DURATION_SECS), [=]()
+        {
+            if (unlockBlockingAtEndOfDeletion)
+            {
+                mBlockInteraction = false;
+            }
+        });
     });
 }
 
