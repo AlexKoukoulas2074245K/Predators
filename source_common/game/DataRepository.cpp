@@ -758,6 +758,20 @@ void DataRepository::SetNextUnseenSpellCardId(const int nextUnseenSpellCardId)
 
 ///------------------------------------------------------------------------------------------------
 
+const int& DataRepository::GetNextInspectedCardId() const
+{
+    return mNextInspectedCardId;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void DataRepository::SetNextInspectedCardId(const int nextInspectedCardId)
+{
+    mNextInspectedCardId = nextInspectedCardId;
+}
+
+///------------------------------------------------------------------------------------------------
+
 const std::vector<std::pair<int, int>>& DataRepository::GetCurrentShopBoughtProductCoordinates() const
 {
     return mCurrentShopBoughtProductCoordinates;

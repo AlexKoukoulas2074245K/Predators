@@ -250,6 +250,9 @@ public:
     const int& GetNextUnseenSpellCardId() const;
     void SetNextUnseenSpellCardId(const int nextUnseenSpellCardId);
     
+    const int& GetNextInspectedCardId() const;
+    void SetNextInspectedCardId(const int nextInspectedCardId);
+    
     const std::vector<std::pair<int, int>>& GetCurrentShopBoughtProductCoordinates() const;
     void ClearShopBoughtProductCoordinates();
     void SetShopBoughtProductCoordinates(const std::vector<std::pair<int, int>>& shopBoughtProductCoordinates);
@@ -353,6 +356,7 @@ private:
     int mNextStoryOpponentDamage = 0;
     int mCurrentStorySecondsPlayed = 0;
     int mNextUnseenSpellCardId = 0;
+    int mNextInspectedCardId = 0;
     bool mIsCurrentlyPlayingStoryMode = false;
     bool mCanSurfaceCloudDataScene = false;
     bool mAudioEnabled = false;

@@ -40,6 +40,7 @@
 ///------------------------------------------------------------------------------------------------
 
 static const strutils::StringId HISTORY_SCENE = strutils::StringId("battle_history_scene");
+static const strutils::StringId CARD_INSPECTION_SCENE = strutils::StringId("card_inspection_scene");
 static const strutils::StringId CARD_HISTORY_CONTAINER_NAME = strutils::StringId("card_history_container");
 static const strutils::StringId COINS_LOOT_INDICATOR_SCENE_OBJECT_NAME = strutils::StringId("coins_loot_indicator");
 static const strutils::StringId HEALTH_LOOT_INDICATOR_SCENE_OBJECT_NAME = strutils::StringId("health_loot_indicator");
@@ -942,6 +943,7 @@ void BattleSceneLogicManager::UpdateMiscSceneObjects(const float dtMillis)
     time += dtMillis * 0.001f;
     
     const auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
+    const auto& inputStateManager = CoreSystemsEngine::GetInstance().GetInputStateManager();
     auto battleScene = sceneManager.FindScene(game_constants::BATTLE_SCENE);
     
     // Card Interactive Elements
@@ -1142,6 +1144,29 @@ void BattleSceneLogicManager::UpdateMiscSceneObjects(const float dtMillis)
         {
             auto tooltipTextSceneObject = battleScene->FindSceneObject(CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES[i]);
             tooltipTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = math::Min(1.0f, tooltipTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] +  dtMillis * CARD_TOOLTIP_TEXT_REVEAL_SPEED);
+        }
+    }
+    
+    // Check for opponent card inspection
+    auto& localPlayerCards = mPlayerHeldCardSceneObjectWrappers[game_constants::LOCAL_PLAYER_INDEX];
+    bool freeMovingCardExists = std::find_if(localPlayerCards.begin(), localPlayerCards.end(), [&](const std::shared_ptr<CardSoWrapper>& cardSoWrapper){ return cardSoWrapper->mState == CardSoState::FREE_MOVING; }) != localPlayerCards.cend();
+    if (!freeMovingCardExists)
+    {
+        auto worldTouchPos = inputStateManager.VGetPointingPosInWorldSpace(battleScene->GetCamera().GetViewMatrix(), battleScene->GetCamera().GetProjMatrix());
+        for (auto& cardSoWrapper: mPlayerBoardCardSceneObjectWrappers[game_constants::REMOTE_PLAYER_INDEX])
+        {
+            auto cardBaseSceneObject = cardSoWrapper->mSceneObject;
+            auto sceneObjectRect = scene_object_utils::GetSceneObjectBoundingRect(*cardBaseSceneObject);
+            
+            bool cursorInSceneObject = math::IsPointInsideRectangle(sceneObjectRect.bottomLeft, sceneObjectRect.topRight, worldTouchPos);
+            
+            if (cursorInSceneObject && inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON))
+            {
+                DataRepository::GetInstance().SetNextInspectedCardId(cardSoWrapper->mCardData.mCardId);
+                CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(battleScene->GetUpdateTimeSpeedFactor(), 0.0f, game_constants::SCENE_SPEED_DILATION_ANIMATION_DURATION_SECS), [](){}, game_constants::SCENE_SPEED_DILATION_ANIMATION_NAME);
+                events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(CARD_INSPECTION_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+                break;
+            }
         }
     }
     

@@ -462,7 +462,7 @@
             "family": "demons_normal",
             "name": "Dark Magic",
             "effect": "DAMAGE +1 FAMILY BOARD HELD",
-            "tooltip": "ATTACK +1 for ALL$Demons on hand &$board",
+            "tooltip": "ATTACK +1 for$ALL Demons on$hand & board",
             "texture": "story_cards/demon_wizard.png",
             "shader": "basic.vs",
             "single_use": false
@@ -491,7 +491,7 @@
             "family": "demons_medium",
             "name": "Chaos Magic",
             "effect": "DAMAGE +4 FAMILY BOARD HELD",
-            "tooltip": "ATTACK +4 for ALL$Demons on hand &$board",
+            "tooltip": "ATTACK +4 for$ALL Demons on$hand & board",
             "texture": "story_cards/demon_ritual.png",
             "shader": "basic.vs",
             "single_use": false

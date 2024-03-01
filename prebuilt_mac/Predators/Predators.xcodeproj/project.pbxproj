@@ -62,6 +62,7 @@
 		722CEFE99DD625CCB4EFD4F5 /* MeteorCardSacrificeGameAction.h in Sources */ = {isa = PBXBuildFile; fileRef = 0D2EE6F1A4CAB84F3A35A450 /* MeteorCardSacrificeGameAction.h */; };
 		727597BF236993C7788D69DD /* GiftingUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9B369C56C71CD22B4F909799 /* GiftingUtils.cpp */; };
 		77F8C741493973A71A6DBA22 /* ImageSurfaceResource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 53CDE03B92A8F220738E44FE /* ImageSurfaceResource.cpp */; };
+		7974920127E72B9465921323 /* CardInspectionSceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 81F22110C14FF606EB9F7F12 /* CardInspectionSceneLogicManager.cpp */; };
 		7A14147B43076FC43E6D5662 /* SoundManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F701DBE1A8A6D1664BEF16A3 /* SoundManager.cpp */; };
 		7A35378576E3FCE89E70ABA4 /* SceneManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FB79D70FA4FA614F184AFE40 /* SceneManager.cpp */; };
 		7B9789451DEA62BACC400C76 /* CloudKitUtils.h in Sources */ = {isa = PBXBuildFile; fileRef = 0B7F76FD2D5492C5AB3ABFFD /* CloudKitUtils.h */; };
@@ -220,6 +221,7 @@
 		E2240B574B476A510E0FEE8A /* AppleSoundUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = EFF6CA715340BD63F4562F60 /* AppleSoundUtils.mm */; };
 		E24F8BEB335EFB8866189742 /* BaseDataFileSerializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 903005ABB6F4A9CB6247ABDC /* BaseDataFileSerializer.cpp */; };
 		E7F3EF85172DB9E9D9AF8321 /* ImageSurfaceLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B645F5160C1B36C70F708518 /* ImageSurfaceLoader.cpp */; };
+		E88EC6BFF3E6479DEE4C7096 /* CardInspectionSceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = F2BCD29EF72262DDF246C0FD /* CardInspectionSceneLogicManager.h */; };
 		F2C17A279E5E5256D4401C90 /* DataFileLoader.h in Sources */ = {isa = PBXBuildFile; fileRef = B83F90BE48846F5019309046 /* DataFileLoader.h */; };
 		F467390ABB511496E18AF585 /* SceneManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 221289B3E3FA84B55F4C25E2 /* SceneManager.h */; };
 		F51ECBEA53C3E1BE870B0612 /* ShaderResource.h in Sources */ = {isa = PBXBuildFile; fileRef = 13FDFD19955883B3085E4725 /* ShaderResource.h */; };
@@ -314,6 +316,7 @@
 		7D4191C7F308A5D9EA7C2AA2 /* ZeroCostTimeGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = ZeroCostTimeGameAction.cpp; sourceTree = "<group>"; };
 		7DCA9605B61DCB2766DFEF29 /* GameOverResurrectionCheckGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = GameOverResurrectionCheckGameAction.h; path = GameOverResurrectionCheckGameAction.h; sourceTree = "<group>"; };
 		7F068929D88F95729D0195E3 /* BackgroundMusicPlayer.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; path = BackgroundMusicPlayer.mm; sourceTree = "<group>"; };
+		81F22110C14FF606EB9F7F12 /* CardInspectionSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = CardInspectionSceneLogicManager.cpp; path = CardInspectionSceneLogicManager.cpp; sourceTree = "<group>"; };
 		82DFED0E0B1AB607780AED60 /* Animations.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = Animations.h; sourceTree = "<group>"; };
 		8360B79E5EF0CAFD8B87FA71 /* VictorySceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = VictorySceneLogicManager.h; sourceTree = "<group>"; };
 		88B55A70915E2429F0F03C71 /* MeshResource.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = MeshResource.h; sourceTree = "<group>"; };
@@ -549,6 +552,7 @@
 		EFF6CA715340BD63F4562F60 /* AppleSoundUtils.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; path = AppleSoundUtils.mm; sourceTree = "<group>"; };
 		F05BCACB9D0D7193765BB311 /* SerializationDefinitions.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = SerializationDefinitions.h; sourceTree = "<group>"; };
 		F16121E2A49D2514A725F7AA /* SceneObjectUtils.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = SceneObjectUtils.cpp; sourceTree = "<group>"; };
+		F2BCD29EF72262DDF246C0FD /* CardInspectionSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = CardInspectionSceneLogicManager.h; path = CardInspectionSceneLogicManager.h; sourceTree = "<group>"; };
 		F2FC1889E08EEFD36C0B6476 /* AnimationManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = AnimationManager.h; sourceTree = "<group>"; };
 		F3DCD97E5C6A637C6DD4BC0B /* Fonts.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = Fonts.h; sourceTree = "<group>"; };
 		F701DBE1A8A6D1664BEF16A3 /* SoundManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = SoundManager.cpp; sourceTree = "<group>"; };
@@ -1027,6 +1031,8 @@
 				A72D11039C8A9248FD700909 /* UnseenSpellSceneLogicManager.h */,
 				6AE12F8036EDECFB15372035 /* InventorySceneLogicManager.cpp */,
 				EA4BE6D43FAFFC7BB605FA13 /* InventorySceneLogicManager.h */,
+				81F22110C14FF606EB9F7F12 /* CardInspectionSceneLogicManager.cpp */,
+				F2BCD29EF72262DDF246C0FD /* CardInspectionSceneLogicManager.h */,
 			);
 			path = scenelogicmanagers;
 			sourceTree = "<group>";
@@ -1480,6 +1486,8 @@
 				314B9518354FC35C5114E0C7 /* ArtifactProductIds.h in Sources */,
 				1CCC5789FF5408133FB546D4 /* GameOverResurrectionCheckGameAction.cpp in Sources */,
 				690176D1275D471759B1ADE0 /* GameOverResurrectionCheckGameAction.h in Sources */,
+				7974920127E72B9465921323 /* CardInspectionSceneLogicManager.cpp in Sources */,
+				E88EC6BFF3E6479DEE4C7096 /* CardInspectionSceneLogicManager.h in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
