@@ -28,6 +28,8 @@ static const std::string BATTLE_THEME_MUSIC = "battle_theme";
 static const std::string MINI_BOSS_THEME_MUSIC = "mini_boss_theme";
 static const std::string FINAL_BOSS_THEME_MUSIC = "final_boss_theme";
 static const std::string VICTORY_THEME_MUSIC = "victory_theme";
+static const std::string EMPTY_MUSIC = "empty_music";
+static const std::string VICTORY_SFX = "sfx_victory";
 
 static const strutils::StringId STORY_VICTORY_SCENE_NAME = strutils::StringId("victory_scene");
 static const strutils::StringId CARD_SELECTION_REWARD_SCENE_NAME = strutils::StringId("card_selection_reward_scene");
@@ -60,6 +62,8 @@ void BattleInitialSetupAndAnimationGameAction::VSetNewGameState()
 
 void BattleInitialSetupAndAnimationGameAction::VInitAnimation()
 {
+    CoreSystemsEngine::GetInstance().GetSoundManager().PreloadSfx(VICTORY_SFX);
+    
     auto battleScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE);
     auto boardSceneObject = battleScene->FindSceneObject(BOARD_SCENE_OBJECT_NAME);
     
@@ -84,7 +88,8 @@ void BattleInitialSetupAndAnimationGameAction::VInitAnimation()
     }
     else
     {
-        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(VICTORY_THEME_MUSIC, true);
+        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(EMPTY_MUSIC);
+        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(VICTORY_SFX);
     }
     
     // Animate board to target position

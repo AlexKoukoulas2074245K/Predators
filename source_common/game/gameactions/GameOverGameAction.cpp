@@ -24,7 +24,7 @@ const std::string GameOverGameAction::VICTORIOUS_PLAYER_INDEX_PARAM = "victoriou
 
 static const std::string CARD_DISSOLVE_SHADER_FILE_NAME = "card_dissolve.vs";
 static const std::string DISSOLVE_TEXTURE_FILE_NAME = "dissolve.png";
-static const std::string VICTORY_THEME_MUSIC = "victory_theme";
+static const std::string VICTORY_SFX = "sfx_victory";
 static const std::string STORY_VICTORY_THEME_MUSIC = "story_victory_theme";
 static const std::string EMPTY_MUSIC = "empty_music";
 static const std::string EXPLOSION_SFX = "sfx_explosion";
@@ -72,13 +72,11 @@ void GameOverGameAction::VInitAnimation()
     auto& scene = *CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE);
     
     CoreSystemsEngine::GetInstance().GetSoundManager().PreloadSfx(EXPLOSION_SFX);
+    CoreSystemsEngine::GetInstance().GetSoundManager().PreloadSfx(VICTORY_SFX);
     
     if (!DataRepository::GetInstance().GetNextStoryOpponentName().empty() && !DataRepository::GetInstance().GetQuickPlayData())
     {
-        if (DataRepository::GetInstance().GetCurrentStoryMapNodeType() == StoryMap::NodeType::BOSS_ENCOUNTER)
-        {
-            CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(EMPTY_MUSIC);
-        }
+        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(EMPTY_MUSIC);
         
         if (std::stoi(mExtraActionParams.at(VICTORIOUS_PLAYER_INDEX_PARAM)) == game_constants::LOCAL_PLAYER_INDEX)
         {
@@ -186,11 +184,12 @@ ActionAnimationUpdateResult GameOverGameAction::VUpdateAnimation(const float dtM
                     
                     if (isStoryFinalBoss)
                     {
-                        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(STORY_VICTORY_THEME_MUSIC, true);
+                        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(STORY_VICTORY_THEME_MUSIC);
                     }
                     else
                     {
-                        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(VICTORY_THEME_MUSIC, true);
+                        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(EMPTY_MUSIC);
+                        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(VICTORY_SFX);
                     }
                     
                     return ActionAnimationUpdateResult::FINISHED;

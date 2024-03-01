@@ -77,6 +77,11 @@
 
 - (void) loadSoundWithName:(NSString *)soundName filePath:(NSString *)filePath
 {
+    if ([_soundLibrary objectForKey:filePath] != nil)
+    {
+        return;
+    }
+    
     NSString* sandboxFilePath = [NSBundle.mainBundle pathForResource:filePath ofType:@"wav"];
     
     AudioFileID fileID = [self openAudioFile:sandboxFilePath];

@@ -164,7 +164,6 @@ void Game::Init()
 
 void Game::Update(const float dtMillis)
 {
-    
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
     auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
     auto cardPackRewardScene = sceneManager.FindScene(game_constants::CARD_PACK_REWARD_SCENE_NAME);
