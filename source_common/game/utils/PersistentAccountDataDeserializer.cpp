@@ -65,6 +65,16 @@ PersistentAccountDataDeserializer::PersistentAccountDataDeserializer(DataReposit
         dataRepository.SetAudioEnabled(persistentDataJson["audio_enabled"].get<bool>());
     }
     
+    if (persistentDataJson.count("gold_carts_ignored"))
+    {
+        dataRepository.SetGoldCartsIgnored(persistentDataJson["gold_carts_ignored"].get<int>());
+    }
+    
+    if (persistentDataJson.count("has_seen_mountain_of_gold_event"))
+    {
+        dataRepository.SetHasSeenMountainOfGoldEvent(persistentDataJson["has_seen_mountain_of_gold_event"].get<bool>());
+    }
+    
     if (persistentDataJson.count("golden_card_id_map"))
     {
         dataRepository.ClearGoldenCardIdMap();

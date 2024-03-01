@@ -276,27 +276,82 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
             coinsToGain *= 2 * greedyGoblinCount;
         }
         
+        if (DataRepository::GetInstance().HasSeenMountainOfGoldEvent())
+        {
+            mRegisteredStoryEvents.emplace_back
+            (
+                StoryRandomEventData
+                ({
+                    StoryRandomEventScreenData("events/gold_coin_cart.png", {"", "You found a cart full of", "gold coins!"},
+                    {
+                        StoryRandomEventButtonData("Collect " + std::to_string(coinsToGain) + " Gold Coins", 1, [=]()
+                        {
+                            events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(coinsToGain, mScene->FindSceneObject(EVENT_PORTRAIT_SCENE_OBJECT_NAME)->mPosition);
+                        })
+                    }),
+                    StoryRandomEventScreenData("events/gold_coin_cart.png", {"", "You collected " + std::to_string(coinsToGain) + " gold coins!"},
+                    {
+                        StoryRandomEventButtonData("Continue", 3)
+                    })
+                }, [](){ return true; })
+            );
+        }
+        else
+        {
+            mRegisteredStoryEvents.emplace_back
+            (
+                StoryRandomEventData
+                ({
+                    StoryRandomEventScreenData("events/gold_coin_cart.png", {"", "You found a cart full of", "gold coins!"},
+                    {
+                        StoryRandomEventButtonData("Collect " + std::to_string(coinsToGain) + " Gold Coins", 1, [=]()
+                        {
+                            DataRepository::GetInstance().SetGoldCartsIgnored(0);
+                            events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(coinsToGain, mScene->FindSceneObject(EVENT_PORTRAIT_SCENE_OBJECT_NAME)->mPosition);
+                        }),
+                        StoryRandomEventButtonData("Ignore Cart", 2, [=]()
+                        {
+                            DataRepository::GetInstance().SetGoldCartsIgnored(DataRepository::GetInstance().GetGoldCartsIgnored() + 1);
+                        })
+                    }),
+                    StoryRandomEventScreenData("events/gold_coin_cart.png", {"", "You collected " + std::to_string(coinsToGain) + " gold coins!"},
+                    {
+                        StoryRandomEventButtonData("Continue", 3)
+                    }),
+                    StoryRandomEventScreenData("events/gold_coin_cart.png", {"You decided that someone", "might need the gold coins", " more... Perhaps your luck", " might change in the future.."},
+                    {
+                        StoryRandomEventButtonData("Continue", 3)
+                    })
+                }, [](){ return true; })
+            );
+        }
+    }
+    
+    ///------------------------------------------------------------------------------------------------
+    /// Mountain of Gold Event
+    {
+        auto goldCoinsToGain = 3000;
         mRegisteredStoryEvents.emplace_back
         (
             StoryRandomEventData
             ({
-                StoryRandomEventScreenData("events/gold_coin_cart.png", {"", "You found a cart full of", "gold coins!"},
+                StoryRandomEventScreenData("events/mountain_of_gold.png", {"A gigantic flood of coins", "rains down from the sky!", "A deep voice echoes from", "somewhere in the sky..."},
                 {
-                    StoryRandomEventButtonData("Collect " + std::to_string(coinsToGain) + " Gold Coins", 1, [=]()
+                    StoryRandomEventButtonData("Continue", 1)
+                }),
+                StoryRandomEventScreenData("events/mountain_of_gold.png", {"\"This is you reward traveller", "for all the gold carts you", "left behind to be used by", "those in greater need!\""},
+                {
+                    StoryRandomEventButtonData("Collect " + std::to_string(goldCoinsToGain) + " Gold Coins!", 2, [=]()
                     {
-                        events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(coinsToGain, mScene->FindSceneObject(EVENT_PORTRAIT_SCENE_OBJECT_NAME)->mPosition);
-                    }),
-                    StoryRandomEventButtonData("Ignore Cart", 2)
+                        events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(goldCoinsToGain, mScene->FindSceneObject(EVENT_PORTRAIT_SCENE_OBJECT_NAME)->mPosition);
+                        DataRepository::GetInstance().SetHasSeenMountainOfGoldEvent(true);
+                    })
                 }),
-                StoryRandomEventScreenData("events/gold_coin_cart.png", {"", "You collected " + std::to_string(coinsToGain) + " gold coins!"},
-                {
-                    StoryRandomEventButtonData("Continue", 3)
-                }),
-                StoryRandomEventScreenData("events/gold_coin_cart.png", {"", "You got suspicious and", "ignored the gold coin cart..."},
+                StoryRandomEventScreenData("events/mountain_of_gold.png", {"", "You collected " + std::to_string(goldCoinsToGain) + " gold coins!"},
                 {
                     StoryRandomEventButtonData("Continue", 3)
                 })
-            }, [](){ return true; })
+            }, [](){ return DataRepository::GetInstance().GetGoldCartsIgnored() > 2 && !DataRepository::GetInstance().HasSeenMountainOfGoldEvent(); })
         );
     }
     
@@ -306,7 +361,7 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
         auto guaranteedHpLoss = math::ControlledRandomInt(1, 2) + (DataRepository::GetInstance().GetCurrentStoryMapNodeCoord().x + (DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::NORMAL_MAP ? game_constants::TUTORIAL_NODE_MAP_DIMENSIONS.s : 0))/2;
         auto randomHpLoss = math::ControlledRandomInt(5, 15) + (DataRepository::GetInstance().GetCurrentStoryMapNodeCoord().x + (DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::NORMAL_MAP ? game_constants::TUTORIAL_NODE_MAP_DIMENSIONS.s : 0));
         auto failedJump = math::ControlledRandomInt(1, 3) == 1;
-        
+
         mRegisteredStoryEvents.emplace_back
         (
             StoryRandomEventData
@@ -324,7 +379,7 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
                             auto& progressionHealth = DataRepository::GetInstance().StoryCurrentHealth();
                             progressionHealth.SetValue(progressionHealth.GetValue() - randomHpLoss);
                             progressionHealth.SetDisplayedValue(progressionHealth.GetDisplayedValue() - randomHpLoss);
-                            
+
                             mScene->GetCamera().Shake(1.0f, 0.05f);
                         }
                     }),
@@ -333,7 +388,7 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
                         auto& progressionHealth = DataRepository::GetInstance().StoryCurrentHealth();
                         progressionHealth.SetValue(progressionHealth.GetValue() - guaranteedHpLoss);
                         progressionHealth.SetDisplayedValue(progressionHealth.GetDisplayedValue() - guaranteedHpLoss);
-                        
+
                         mScene->GetCamera().Shake(0.4f, 0.002f);
                     })
                 }),
@@ -352,14 +407,14 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
             }, [](){ return true; })
         );
     }
-    
+
     ///------------------------------------------------------------------------------------------------
     /// Mysterious Spring event
     {
         auto guaranteedHpGain = math::ControlledRandomInt(10, 15);
         auto randomHpLoss = math::ControlledRandomInt(5, 10);
         auto failedMaxDrink = math::ControlledRandomInt(1, 2) == 1;
-        
+
         mRegisteredStoryEvents.emplace_back
         (
             StoryRandomEventData
@@ -377,7 +432,7 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
                             auto& progressionHealth = DataRepository::GetInstance().StoryCurrentHealth();
                             progressionHealth.SetValue(progressionHealth.GetValue() - randomHpLoss);
                             progressionHealth.SetDisplayedValue(progressionHealth.GetDisplayedValue() - randomHpLoss);
-                            
+
                             mScene->GetCamera().Shake(1.0f, 0.05f);
                         }
                         else
@@ -407,14 +462,14 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
             }, [](){ return DataRepository::GetInstance().StoryCurrentHealth().GetValue() < 0.9f * DataRepository::GetInstance().GetStoryMaxHealth(); })
         );
     }
-    
+
     /// ---------------------------------------------------------------------------------------------------------------
     /// Two Doors Event
     {
         auto coinReward = 300;
         auto rareItemRewardName = rareItemProductNames[math::ControlledRandomInt() % rareItemProductNames.size()];
         auto rareItemRewardDisplayName = ProductRepository::GetInstance().GetProductDefinition(rareItemRewardName).mStoryRareItemName;
-        
+
         mRegisteredStoryEvents.emplace_back
         (
             StoryRandomEventData
@@ -445,14 +500,14 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
             }, [](){ return DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::NORMAL_MAP; })
         );
     }
-    
+
     /// ---------------------------------------------------------------------------------------------------------------
     /// Sacrificial Vase Event
     {
         auto rareItemRewardName = rareItemProductNames[math::ControlledRandomInt() % rareItemProductNames.size()];
         auto rareItemRewardDisplayName = ProductRepository::GetInstance().GetProductDefinition(rareItemRewardName).mStoryRareItemName;
         auto cardIndexToDelete = static_cast<int>(math::ControlledRandomInt() % DataRepository::GetInstance().GetCurrentStoryPlayerDeck().size());
-        
+
         mRegisteredStoryEvents.emplace_back
         (
             StoryRandomEventData

@@ -772,6 +772,21 @@ void DataRepository::SetNextInspectedCardId(const int nextInspectedCardId)
 
 ///------------------------------------------------------------------------------------------------
 
+const int& DataRepository::GetGoldCartsIgnored() const
+{
+    return mGoldCartsIgnored;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void DataRepository::SetGoldCartsIgnored(const int goldCartsIgnored)
+{
+    mGoldCartsIgnored = goldCartsIgnored;
+    mPersistentDataSerializer->GetState()["gold_carts_ignored"] = mGoldCartsIgnored;
+}
+
+///------------------------------------------------------------------------------------------------
+
 const std::vector<std::pair<int, int>>& DataRepository::GetCurrentShopBoughtProductCoordinates() const
 {
     return mCurrentShopBoughtProductCoordinates;
@@ -1033,6 +1048,21 @@ void DataRepository::SetAudioEnabled(const bool audioEnabled)
 {
     mAudioEnabled = audioEnabled;
     mPersistentDataSerializer->GetState()["audio_enabled"] = mAudioEnabled;
+}
+
+///------------------------------------------------------------------------------------------------
+
+const bool& DataRepository::HasSeenMountainOfGoldEvent() const
+{
+    return mHasSeenMountainOfGoldEvent;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void DataRepository::SetHasSeenMountainOfGoldEvent(const bool hasSeenMountainOfGoldEvent)
+{
+    mHasSeenMountainOfGoldEvent = hasSeenMountainOfGoldEvent;
+    mPersistentDataSerializer->GetState()["has_seen_mountain_of_gold_event"] = mHasSeenMountainOfGoldEvent;
 }
 
 ///------------------------------------------------------------------------------------------------

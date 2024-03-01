@@ -253,6 +253,9 @@ public:
     const int& GetNextInspectedCardId() const;
     void SetNextInspectedCardId(const int nextInspectedCardId);
     
+    const int& GetGoldCartsIgnored() const;
+    void SetGoldCartsIgnored(const int goldCartsIgnored);
+    
     const std::vector<std::pair<int, int>>& GetCurrentShopBoughtProductCoordinates() const;
     void ClearShopBoughtProductCoordinates();
     void SetShopBoughtProductCoordinates(const std::vector<std::pair<int, int>>& shopBoughtProductCoordinates);
@@ -294,6 +297,9 @@ public:
     
     const bool& IsAudioEnabled() const;
     void SetAudioEnabled(const bool musicEnabled);
+    
+    const bool& HasSeenMountainOfGoldEvent() const;
+    void SetHasSeenMountainOfGoldEvent(const bool hasSeenMountainOfGoldEvent);
     
     ForeignCloudDataFoundType GetForeignProgressionDataFound() const;
     void SetForeignProgressionDataFound(const ForeignCloudDataFoundType foreignProgressionDataFound);
@@ -357,9 +363,11 @@ private:
     int mCurrentStorySecondsPlayed = 0;
     int mNextUnseenSpellCardId = 0;
     int mNextInspectedCardId = 0;
+    int mGoldCartsIgnored = 0;
     bool mIsCurrentlyPlayingStoryMode = false;
     bool mCanSurfaceCloudDataScene = false;
     bool mAudioEnabled = false;
+    bool mHasSeenMountainOfGoldEvent = false;
 };
 
 ///------------------------------------------------------------------------------------------------
