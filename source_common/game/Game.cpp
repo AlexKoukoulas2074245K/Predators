@@ -512,6 +512,7 @@ void Game::CreateDebugWidgets()
         }
     }
     
+    ImGui::PushID("CardUnlock");
     if (ImGui::BeginCombo(" ", cardNamesAndIds.at(selectedCardIndex).first.c_str()))
     {
         for (size_t n = 0U; n < cardNamesAndIds.size(); n++)
@@ -528,6 +529,7 @@ void Game::CreateDebugWidgets()
         }
         ImGui::EndCombo();
     }
+    ImGui::PopID();
     
     ImGui::SameLine();
     if (ImGui::Button("Unlock Card"))
@@ -585,6 +587,7 @@ void Game::CreateDebugWidgets()
         { "Golden", CardPackType::GOLDEN }
     };
     
+    ImGui::PushID("CardPacks");
     if (ImGui::BeginCombo(" ", cardPackNamesAndTypes.at(cardPackIndex).first.c_str()))
     {
         for (size_t n = 0U; n < cardPackNamesAndTypes.size(); n++)
@@ -601,6 +604,7 @@ void Game::CreateDebugWidgets()
         }
         ImGui::EndCombo();
     }
+    ImGui::PopID();
     
     ImGui::SameLine();
     if (ImGui::Button("Add Pack"))
