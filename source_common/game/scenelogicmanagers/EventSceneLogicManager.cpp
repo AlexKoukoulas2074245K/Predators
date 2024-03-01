@@ -122,6 +122,7 @@ void EventSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     SelectRandomStoryEvent();
     CreateEventScreen(DataRepository::GetInstance().GetCurrentEventScreenIndex());
     
+    CardDataRepository::GetInstance().LoadCardData(true);
     DataRepository::GetInstance().SetCurrentStoryMapSceneType(StoryMapSceneType::EVENT);
     CoreSystemsEngine::GetInstance().GetSoundManager().PreloadSfx(VICTORY_SFX);
 }

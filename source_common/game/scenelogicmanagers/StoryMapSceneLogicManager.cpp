@@ -251,7 +251,7 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
             
             if (currentMapCoord.x == game_constants::STORY_MAP_BOSS_COORD.x - 1 && DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::NORMAL_MAP)
             {
-                SetMapPositionTo(mapNodeData.mPosition);
+                SetMapPositionTo(mStoryMap->GetMapData().at(MapCoord(game_constants::STORY_MAP_BOSS_COORD.x, game_constants::STORY_MAP_BOSS_COORD.y)).mPosition);
             }
             else
             {

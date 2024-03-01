@@ -69,6 +69,7 @@ inline const std::string EFFECT_COMPONENT_INSECT_VIRUS                          
 inline const std::string EFFECT_COMPONENT_HOUND_SUMMONING                       = "HOUND_SUMMON";
 inline const std::string EFFECT_COMPONENT_METEOR                                = "METEOR";
 inline const std::string EFFECT_COMPONENT_EVERY_THIRD_CARD_PLAYED_HAS_ZERO_COST = "EVERY_THIRD_CARD_PLAYED_HAS_ZERO_COST";
+inline const std::string EFFECT_COMPONENT_ADD_POISON_STACKS                     = "ADD_POISON_STACKS";
 
 inline const std::unordered_set<std::string> STATIC_EFFECT_COMPONENT_NAMES =
 {
@@ -100,7 +101,8 @@ inline const std::unordered_set<std::string> STATIC_EFFECT_COMPONENT_NAMES =
     EFFECT_COMPONENT_INSECT_VIRUS,
     EFFECT_COMPONENT_HOUND_SUMMONING,
     EFFECT_COMPONENT_METEOR,
-    EFFECT_COMPONENT_EVERY_THIRD_CARD_PLAYED_HAS_ZERO_COST
+    EFFECT_COMPONENT_EVERY_THIRD_CARD_PLAYED_HAS_ZERO_COST,
+    EFFECT_COMPONENT_ADD_POISON_STACKS
 };
 
 ///------------------------------------------------------------------------------------------------

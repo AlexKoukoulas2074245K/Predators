@@ -141,10 +141,10 @@ void WheelOfFortuneSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> s
             
             mWheelRewards =
             {
-                REWARD_EXTRA_15_COINS_PRODUCT_NAME,
+                REWARD_REFILL_HP_PRODUCT_NAME,
                 REWARD_EXTRA_HP_PRODUCT_NAME,
                 REWARD_EXTRA_50_COINS_PRODUCT_NAME,
-                REWARD_EXTRA_15_COINS_PRODUCT_NAME,
+                REWARD_EXTRA_HP_PRODUCT_NAME,
                 REWARD_REFILL_HP_PRODUCT_NAME,
                 REWARD_EXTRA_HP_PRODUCT_NAME,
                 REWARD_EXTRA_100_COINS_PRODUCT_NAME,

@@ -561,6 +561,24 @@
             "texture": "rodent_combo.png",
             "shader": "basic.vs",
             "single_use": true
+        },
+        {
+            "weight": 3,
+            "family": "insects",
+            "name": "Acid Rain",
+            "effect": "CLEAR_EFFECTS ADD_POISON_STACKS 6",
+            "tooltip": "Clears all active$effects on your side$and adds 6 poison$to the opponent$",
+            "texture": "acid_rain.png",
+            "shader": "basic.vs",
+            "single_use": true
+        },
+        {
+            "damage": 6,
+            "weight": 5,
+            "family": "dinosaurs",
+            "name": "Pterodactyl",
+            "texture": "pterodactyl.png",
+            "shader": "basic.vs"
         }
     ]
 }

@@ -681,6 +681,20 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
         events::EventSystem::GetInstance().DispatchEvent<events::ArmorChangeChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX, mBoardState->GetActivePlayerState().mPlayerCurrentArmor);
     }
     
+    // Armor effect
+    if (std::find(mEffectComponents.cbegin(), mEffectComponents.cend(), effects::EFFECT_COMPONENT_ADD_POISON_STACKS) != mEffectComponents.cend())
+    {
+        int poisonStack = mEffectValue;
+        if ((mBoardState->GetInactivePlayerState().mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::DOUBLE_POISON_ATTACKS) != 0)
+        {
+            poisonStack *= 2;
+        }
+        
+        mBoardState->GetInactivePlayerState().mPlayerPoisonStack += poisonStack;
+        
+        events::EventSystem::GetInstance().DispatchEvent<events::PoisonStackChangeChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX, mBoardState->GetInactivePlayerState().mPlayerPoisonStack);
+    }
+    
     // Next turn effect
     if (std::find(mEffectComponents.cbegin(), mEffectComponents.cend(), effects::EFFECT_COMPONENT_ENEMY_BOARD_DEBUFF) != mEffectComponents.cend())
     {

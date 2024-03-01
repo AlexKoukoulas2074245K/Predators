@@ -165,6 +165,12 @@ bool PlayerActionGenerationEngine::IsCardHighPriority(const CardData& cardData, 
     else if
     (
         cardData.IsSpell() &&
+        strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_ADD_POISON_STACKS)
+    ) return true;
+    
+    else if
+    (
+        cardData.IsSpell() &&
         strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_DOUBLE_NEXT_DINO_DAMAGE)
     ) return true;
     
