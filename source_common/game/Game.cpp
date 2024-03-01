@@ -150,13 +150,16 @@ void Game::Init()
     if (ios_utils::IsIPad())
     {
         game_constants::GAME_BOARD_BASED_SCENE_ZOOM_FACTOR = 120.0f;
+        game_constants::GAME_BOARD_GUI_DISTANCE_FACTOR = 2.0f;
     }
     else
     {
         game_constants::GAME_BOARD_BASED_SCENE_ZOOM_FACTOR = 130.0f;
+        game_constants::GAME_BOARD_GUI_DISTANCE_FACTOR = 2.16666f;
     }
 #else
     game_constants::GAME_BOARD_BASED_SCENE_ZOOM_FACTOR = 120.0f;
+    game_constants::GAME_BOARD_GUI_DISTANCE_FACTOR = 2.0f;
 #endif
 
     mGameSceneTransitionManager->ChangeToScene(MAIN_MENU_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);

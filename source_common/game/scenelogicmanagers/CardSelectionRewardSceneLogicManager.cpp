@@ -499,10 +499,10 @@ void CardSelectionRewardSceneLogicManager::OnConfirmationButtonPressed()
             
             if (mPreviousScene == game_constants::BATTLE_SCENE)
             {
-                midPosition.x *= 2.0f;
-                midPosition.y *= 2.0f;
-                cardLibraryIconPosition.x *= 2.0f;
-                cardLibraryIconPosition.y *= 2.0f;
+                midPosition.x *= game_constants::GAME_BOARD_GUI_DISTANCE_FACTOR;
+                midPosition.y *= game_constants::GAME_BOARD_GUI_DISTANCE_FACTOR;
+                cardLibraryIconPosition.x *= game_constants::GAME_BOARD_GUI_DISTANCE_FACTOR;
+                cardLibraryIconPosition.y *= game_constants::GAME_BOARD_GUI_DISTANCE_FACTOR;
             }
             
             math::BezierCurve curve({firstPosition, midPosition, cardLibraryIconPosition});

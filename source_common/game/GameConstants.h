@@ -241,6 +241,7 @@ namespace game_constants
     inline const glm::ivec2 TUTORIAL_NODE_MAP_DIMENSIONS = {7, 3};
 
     inline float GAME_BOARD_BASED_SCENE_ZOOM_FACTOR = 120.0f;
+    inline float GAME_BOARD_GUI_DISTANCE_FACTOR = 2.0f;
 
     inline constexpr std::pair<int, int> CARD_DELETION_PRODUCT_COORDS = std::make_pair(2, 4);
 

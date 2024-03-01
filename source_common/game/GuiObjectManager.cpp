@@ -582,7 +582,7 @@ void GuiObjectManager::OnRareItemCollected(const events::RareItemCollectedEvent&
         
         if (mScene->GetName() == game_constants::BATTLE_SCENE)
         {
-            inventoryIconPosition.x *= 2.0f;
+            inventoryIconPosition.x *= game_constants::GAME_BOARD_GUI_DISTANCE_FACTOR;
         }
         
         math::BezierCurve curve({event.mRareItemSceneObject->mPosition, midPosition, inventoryIconPosition});
