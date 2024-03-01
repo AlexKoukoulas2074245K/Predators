@@ -40,6 +40,7 @@ private:
     void SelectRandomStoryEvent();
     void TransitionToEventScreen(const int screenIndex);
     void CreateEventScreen(const int screenIndex);
+    void CollectRareItem(const strutils::StringId& rareItemName);
     
 private:
     class StoryRandomEventButtonData
@@ -99,7 +100,7 @@ private:
     std::shared_ptr<scene::Scene> mScene;
     int mCurrentEventIndex;
     int mCurrentEventScreenIndex;
-    bool mTransitioning;
+    bool mBlockInteraction;
 };
 
 ///------------------------------------------------------------------------------------------------

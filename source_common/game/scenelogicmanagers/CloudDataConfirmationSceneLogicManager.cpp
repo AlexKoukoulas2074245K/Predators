@@ -90,7 +90,7 @@ void CloudDataConfirmationSceneLogicManager::VInitScene(std::shared_ptr<scene::S
         cloudDataUsageType == ForeignCloudDataFoundType::OPTIONAL ? USE_CLOUD_DATA_BUTTON_POSITION : OK_BUTTON_POSITION,
         BUTTON_SCALE,
         game_constants::DEFAULT_FONT_NAME,
-        cloudDataUsageType == ForeignCloudDataFoundType::OPTIONAL ? "Use Cloud Data" : "Ok",
+        cloudDataUsageType == ForeignCloudDataFoundType::OPTIONAL ? "Use Cloud Data" : "Continue",
         USE_CLOUD_DATA_BUTTON_NAME,
         [=]()
         {

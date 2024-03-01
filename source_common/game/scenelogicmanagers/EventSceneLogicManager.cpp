@@ -19,6 +19,7 @@
 #include <game/events/EventSystem.h>
 #include <game/GuiObjectManager.h>
 #include <game/DataRepository.h>
+#include <game/ProductRepository.h>
 #include <game/scenelogicmanagers/EventSceneLogicManager.h>
 
 ///------------------------------------------------------------------------------------------------
@@ -33,6 +34,7 @@ static const strutils::StringId GUARDIAN_ANGEL_ICON_SCENE_OBJECT_NAME = strutils
 static const std::string VICTORY_SFX = "sfx_victory";
 static const std::string GUARDIAN_ANGEL_ICON_SHADER_FILE_NAME = "rare_item.vs";
 static const std::string GUARDIAN_ANGEL_ICON_TEXTURE_FILE_NAME = "rare_item_rewards/guardian_angel.png";
+static const std::string RARE_ITEM_SHADER = "rare_item.vs";
 
 static const glm::vec3 GUARDIAN_ANGEL_ICON_INIT_SCALE = {0.001f, 0.001f, 0.001f};
 static const glm::vec3 GUARDIAN_ANGEL_ICON_END_SCALE = {0.4f, 0.4f, 0.4f};
@@ -40,6 +42,8 @@ static const glm::vec3 BUTTON_SCALE = {0.0004f, 0.0004f, 0.0004f};
 static const glm::vec3 EVENT_DESCRIPTION_TEXT_SCALE = {0.0004f, 0.0004f, 0.0004f};
 static const glm::vec3 EVENT_PORTRAIT_SCALE = {0.4f, 0.4f, 0.4f};
 static const glm::vec3 EVENT_PORTRAIT_POSITION = {-0.1f, 0.0f, 0.8f};
+static const glm::vec3 RARE_ITEM_INIT_SCALE = glm::vec3(0.0001f, 0.0001f, 0.0001f);
+static const glm::vec3 RARE_ITEM_TARGET_SCALE = glm::vec3(0.3f, 0.3f, 0.3f);
 
 static const float EVENT_SCREEN_FADE_IN_OUT_DURATION_SECS = 0.25f;
 static const float EVENT_SCREEN_ITEM_Z = 1.0f;
@@ -50,6 +54,8 @@ static const float EVENT_BUTTON_SNAP_TO_EDGE_OFFSET_FACTOR = 1500.0f;
 static const float ANIMATION_STEP_DURATION = 2.0f;
 static const float ANIMATION_MAX_ALPHA = 0.6f;
 static const float GUARDIAN_ANGEL_ICON_Z = 20.0f;
+static const float RARE_ITEM_Z_OFFSET = 0.1f;
+static const float RARE_ITEM_COLLECTION_ANIMATION_DURATION_SECS = 1.5f;
 
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
 {
@@ -89,7 +95,7 @@ void EventSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 {
     mScene = scene;
     
-    mTransitioning = false;
+    mBlockInteraction = false;
     
     mCurrentEventButtons.clear();
     mGuiManager = std::make_shared<GuiObjectManager>(scene);
@@ -114,7 +120,7 @@ void EventSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene
         mGuiManager->Update(dtMillis);
     }
     
-    if (mTransitioning)
+    if (mBlockInteraction)
     {
         return;
     }
@@ -164,7 +170,7 @@ void EventSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene
         else
         {
             events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(DEFEAT_SCENE_NAME, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
-            mTransitioning = true;
+            mBlockInteraction = true;
             return;
         }
     }
@@ -217,6 +223,22 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
     auto currentNodeSeed = DataRepository::GetInstance().GetCurrentStoryMapNodeSeed();
     math::SetControlSeed(currentNodeSeed);
     
+    // Get random rare items for the first shelf. Exclude already owned unique items
+    auto rareItemProductNames = ProductRepository::GetInstance().GetRareItemProductNames();
+    for (auto iter = rareItemProductNames.begin(); iter != rareItemProductNames.end();)
+    {
+        if (ProductRepository::GetInstance().GetProductDefinition(*iter).mUnique &&
+            DataRepository::GetInstance().GetStoryArtifactCount(*iter) > 0)
+        {
+            iter = rareItemProductNames.erase(iter);
+        }
+        else
+        {
+            iter++;
+        }
+    }
+
+    
     mRegisteredStoryEvents.clear();
     
     ///------------------------------------------------------------------------------------------------
@@ -244,11 +266,11 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
                 }),
                 StoryRandomEventScreenData("events/gold_coin_cart.png", {"", "You collected " + std::to_string(coinsToGain) + " gold coins!"},
                 {
-                    StoryRandomEventButtonData("Ok", 3)
+                    StoryRandomEventButtonData("Continue", 3)
                 }),
                 StoryRandomEventScreenData("events/gold_coin_cart.png", {"", "You got suspicious and", "ignored the gold coin cart..."},
                 {
-                    StoryRandomEventButtonData("Ok", 3)
+                    StoryRandomEventButtonData("Continue", 3)
                 })
             }, [](){ return true; })
         );
@@ -293,15 +315,15 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
                 }),
                 StoryRandomEventScreenData("events/lava_trap.png", {"", "You failed the jump, fell", "and got severely damaged.."},
                 {
-                    StoryRandomEventButtonData("Ok", 5)
+                    StoryRandomEventButtonData("Continue", 5)
                 }),
                 StoryRandomEventScreenData("events/lava_trap.png", {"", "You successfully jumped", "over the clif without", "a scratch!"},
                 {
-                    StoryRandomEventButtonData("Ok", 5)
+                    StoryRandomEventButtonData("Continue", 5)
                 }),
                 StoryRandomEventScreenData("events/lava_trap.png", {"", "You decided to circle around,", "stepping on the hot ground..."},
                 {
-                    StoryRandomEventButtonData("Ok", 5)
+                    StoryRandomEventButtonData("Continue", 5)
                 }),
             }, [](){ return true; })
         );
@@ -348,19 +370,58 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
                 }),
                 StoryRandomEventScreenData("events/mysterious_spring.png", {"", "You drank greedily, only to", "soon realize that the spring", "was poisoned!"},
                 {
-                    StoryRandomEventButtonData("Ok", 5)
+                    StoryRandomEventButtonData("Continue", 5)
                 }),
                 StoryRandomEventScreenData("events/mysterious_spring.png", {"You drank greedily. As much", "as you could. A serene aura", "surrounded you and made", " you feel exceptionally", " refreshed!"},
                 {
-                    StoryRandomEventButtonData("Ok", 5)
+                    StoryRandomEventButtonData("Continue", 5)
                 }),
                 StoryRandomEventScreenData("events/mysterious_spring.png", {"", "You decided to a quick,", "safe sip and felt", "slightly refreshed."},
                 {
-                    StoryRandomEventButtonData("Ok", 5)
+                    StoryRandomEventButtonData("Continue", 5)
                 }),
             }, [](){ return DataRepository::GetInstance().StoryCurrentHealth().GetValue() < 0.9f * DataRepository::GetInstance().GetStoryMaxHealth(); })
         );
     }
+    
+    /// ---------------------------------------------------------------------------------------------------------------
+    /// Two Doors Event
+    {
+        auto coinReward = 300;
+        auto rareItemRewardName = rareItemProductNames[math::ControlledRandomInt() % rareItemProductNames.size()];
+        auto rareItemRewardDisplayName = ProductRepository::GetInstance().GetProductDefinition(rareItemRewardName).mStoryRareItemName;
+        
+        mRegisteredStoryEvents.emplace_back
+        (
+            StoryRandomEventData
+            ({
+                StoryRandomEventScreenData("events/two_doors.png", {"You decide to enter a small", "fort. It looks abandoned.", "In the hallway you see", "2 doors."},
+                {
+                    StoryRandomEventButtonData("Continue", 1)
+                }),
+                StoryRandomEventScreenData("events/two_doors.png", {"The first door reads:", "\"Your heart desires gold\"", "the second reads:", "\"Your soul craves the lost\"", "Which door will choose?"},
+                {
+                    StoryRandomEventButtonData("First Door  (get " + std::to_string(coinReward) + " coins)", 2, [=]()
+                    {
+                        events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(coinReward, mScene->FindSceneObject(EVENT_PORTRAIT_SCENE_OBJECT_NAME)->mPosition);
+                    }),
+                    StoryRandomEventButtonData("Second Door  (get random Artifact)", 3, [=]()
+                    {
+                        CollectRareItem(rareItemRewardName);
+                    })
+                }),
+                StoryRandomEventScreenData("events/two_doors.png", {"", "You collected " + std::to_string(coinReward) + " gold coins!"},
+                {
+                    StoryRandomEventButtonData("Continue", 4)
+                }),
+                StoryRandomEventScreenData("events/two_doors.png", {"", "You collected " + rareItemRewardDisplayName + "!"},
+                {
+                    StoryRandomEventButtonData("Continue", 4)
+                }),
+            }, [](){ return DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::NORMAL_MAP; })
+        );
+    }
+    
     
     for (auto i = 0; i < mRegisteredStoryEvents.size(); ++i)
     {
@@ -376,6 +437,7 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
         {
             mCurrentEventIndex = (mCurrentEventIndex + 1) % mRegisteredStoryEvents.size();
         }
+        mCurrentEventIndex = 3;
         DataRepository::GetInstance().SetCurrentEventIndex(mCurrentEventIndex);
     }
 }
@@ -384,7 +446,7 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
 
 void EventSceneLogicManager::TransitionToEventScreen(const int screenIndex)
 {
-    mTransitioning = true;
+    mBlockInteraction = true;
     
     if (screenIndex >= static_cast<int>(mRegisteredStoryEvents[mCurrentEventIndex].mEventScreens.size()))
     {
@@ -519,12 +581,34 @@ void EventSceneLogicManager::CreateEventScreen(const int screenIndex)
             sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
             CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, sceneObject->mName == EVENT_PORTRAIT_SCENE_OBJECT_NAME ? EVENT_PORTRAIT_ALPHA : 1.0f, EVENT_SCREEN_FADE_IN_OUT_DURATION_SECS), [=]()
             {
-                mTransitioning = false;
+                mBlockInteraction = false;
             });
         }
     }
 
     OnWindowResize(events::WindowResizeEvent());
+}
+
+///------------------------------------------------------------------------------------------------
+
+void EventSceneLogicManager::CollectRareItem(const strutils::StringId& rareItemName)
+{
+    const auto& rareItemDefinition = ProductRepository::GetInstance().GetProductDefinition(rareItemName);
+    
+    auto rareItemSceneObject = mScene->CreateSceneObject();
+    rareItemSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + RARE_ITEM_SHADER);
+    rareItemSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + std::get<std::string>(rareItemDefinition.mProductTexturePathOrCardId));
+    rareItemSceneObject->mPosition = mScene->FindSceneObject(EVENT_PORTRAIT_SCENE_OBJECT_NAME)->mPosition;
+    rareItemSceneObject->mPosition.z += RARE_ITEM_Z_OFFSET;
+    rareItemSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
+    rareItemSceneObject->mScale = RARE_ITEM_INIT_SCALE;
+    mBlockInteraction = true;
+    
+    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(rareItemSceneObject, rareItemSceneObject->mPosition, RARE_ITEM_TARGET_SCALE, RARE_ITEM_COLLECTION_ANIMATION_DURATION_SECS), [=]()
+    {
+        mBlockInteraction = false;
+        events::EventSystem::GetInstance().DispatchEvent<events::RareItemCollectedEvent>(rareItemName, rareItemSceneObject);
+    });
 }
 
 ///------------------------------------------------------------------------------------------------
