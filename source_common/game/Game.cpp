@@ -152,12 +152,14 @@ void Game::Init()
     if (ios_utils::IsIPad())
     {
         game_constants::GAME_BOARD_BASED_SCENE_ZOOM_FACTOR = 120.0f;
-        game_constants::GAME_BOARD_GUI_DISTANCE_FACTOR = 2.0f;
+        game_constants::GAME_BOARD_GUI_DISTANCE_FACTOR = 2.16666f;
+        game_constants::IN_GAME_MOBILE_ONLY_FREE_MOVING_CARD_Y_OFFSET = 0.025f;
     }
     else
     {
         game_constants::GAME_BOARD_BASED_SCENE_ZOOM_FACTOR = 130.0f;
         game_constants::GAME_BOARD_GUI_DISTANCE_FACTOR = 2.16666f;
+        game_constants::IN_GAME_MOBILE_ONLY_FREE_MOVING_CARD_Y_OFFSET = 0.05f;
     }
 #else
     game_constants::GAME_BOARD_BASED_SCENE_ZOOM_FACTOR = 120.0f;

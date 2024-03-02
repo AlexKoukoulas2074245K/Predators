@@ -15,6 +15,7 @@
 @property AVAudioPlayer* musicPlayer;
 @property BOOL firstAppStateCall;
 @property BOOL nextMusicUnlooped;
+@property BOOL audioEnabled;
 @property NSString* currentPlayingMusicPath;
 @property NSString* nextQueuedMusicPath;
 @property float targetMusicVolume;

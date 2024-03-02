@@ -46,8 +46,8 @@ static const std::string CARD_DISSOLVE_SHADER_FILE_NAME = "card_dissolve.vs";
 
 static const glm::vec3 GUARDIAN_ANGEL_ICON_INIT_SCALE = {0.001f, 0.001f, 0.001f};
 static const glm::vec3 GUARDIAN_ANGEL_ICON_END_SCALE = {0.4f, 0.4f, 0.4f};
-static const glm::vec3 BUTTON_SCALE = {0.0004f, 0.0004f, 0.0004f};
-static const glm::vec3 EVENT_DESCRIPTION_TEXT_SCALE = {0.0004f, 0.0004f, 0.0004f};
+static const glm::vec3 BUTTON_SCALE = {0.00035f, 0.00035f, 0.00035f};
+static const glm::vec3 EVENT_DESCRIPTION_TEXT_SCALE = {0.00035f, 0.00035f, 0.00035f};
 static const glm::vec3 EVENT_PORTRAIT_SCALE = {0.4f, 0.4f, 0.4f};
 static const glm::vec3 EVENT_PORTRAIT_POSITION = {-0.1f, 0.0f, 0.8f};
 static const glm::vec3 RARE_ITEM_INIT_SCALE = glm::vec3(0.0001f, 0.0001f, 0.0001f);
@@ -493,7 +493,7 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
                 {
                     StoryRandomEventButtonData("Continue", 4)
                 }),
-                StoryRandomEventScreenData("events/two_doors.png", {"", "You collected " + rareItemRewardDisplayName + "!"},
+                StoryRandomEventScreenData("events/two_doors.png", {"", "You got " + rareItemRewardDisplayName + "!"},
                 {
                     StoryRandomEventButtonData("Continue", 4)
                 }),
@@ -529,7 +529,7 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
                     }),
                     StoryRandomEventButtonData("Leave the house", 3)
                 }),
-                StoryRandomEventScreenData("events/sacrificial_vase.png", {"", "The sacrifice was", "performed successfully", "You collected " + rareItemRewardDisplayName + "!"},
+                StoryRandomEventScreenData("events/sacrificial_vase.png", {"", "The sacrifice was", "performed successfully", "You got " + rareItemRewardDisplayName + "!"},
                 {
                     StoryRandomEventButtonData("Continue", 4)
                 }),

@@ -30,7 +30,7 @@ static const strutils::StringId UNSEEN_SPELL_SCENE_NAME = strutils::StringId("un
 static const glm::vec3 BUTTON_SCALE = {0.0005f, 0.0005f, 0.0005f};
 static const glm::vec3 CONTINUE_BUTTON_POSITION = {-0.071f, -0.163f, 23.1f};
 static const glm::vec3 CARD_REWARD_DEFAULT_SCALE = {-0.273f, 0.2512f, 2.0f};
-static const glm::vec3 CARD_TOOLTIP_POSITION_OFFSET = {0.0f, 0.1f, 0.0f};
+static const glm::vec3 CARD_TOOLTIP_POSITION_OFFSET = {0.0f, 0.1f, 2.0f};
 static const glm::vec3 CARD_TOOLTIP_BASE_SCALE = {0.274f, 0.274f, 1/10.0f};
 static const glm::vec3 SPELL_CARD_POSITION = {0.0f, -0.0f, 23.2f};
 

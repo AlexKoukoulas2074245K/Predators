@@ -68,7 +68,6 @@ void PlaySound(const std::string& soundResPath, const bool loopedSfxOrUnloopedMu
             [musicPlayer playMusicWith:objectiveCresPath unloopedMusic:loopedSfxOrUnloopedMusic];
         }
     }
-    
 }
 
 ///------------------------------------------------------------------------------------------------

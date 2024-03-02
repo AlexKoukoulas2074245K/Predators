@@ -42,7 +42,7 @@ static const std::string MAIN_MENU_THEME_MUSIC = "main_menu_theme";
 static const std::string STORY_DECK_NAMES[AVAILABLE_STORY_DECKS_COUNT] =
 {
     "Dinosaurs",
-    "Rodents",
+    "Gnawers",
     "Insects"
 };
 

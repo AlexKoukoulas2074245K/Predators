@@ -17,6 +17,7 @@
 
 @interface SfxPlayer (Private)
 - (BOOL) initOpenAL;
+- (BOOL) deinitOpenAL;
 - (NSUInteger) nextAvailableSource;
 - (AudioFileID) openAudioFile:(NSString*)fileName;
 - (UInt32) audioFileSize:(AudioFileID)fileDescriptor;
@@ -31,6 +32,8 @@
     _soundLibrary = [[NSMutableDictionary alloc] init];
     _targetSfxVolume = MAX_SFX_VOLUME;
     _audioEnabled = YES;
+    _device = nil;
+    _context = nil;
     
     BOOL result = [self initOpenAL];
     if (!result) return nil;
@@ -50,10 +53,24 @@
 - (void) setAudioEnabledWith:(BOOL)audioEnabled
 {
     _audioEnabled = audioEnabled;
+    
+    if (_audioEnabled)
+    {
+        ALC_CALL(alcMakeContextCurrent(_context));
+    }
+    else
+    {
+        ALC_CALL(alcMakeContextCurrent(NULL));
+    }
 }
 
 - (BOOL) initOpenAL
 {
+    if (_context && _device)
+    {
+        return YES;
+    }
+    
     _device = alcOpenDevice(NULL);
      
     if (_device)
@@ -78,6 +95,11 @@
 - (void) loadSoundWithName:(NSString *)soundName filePath:(NSString *)filePath
 {
     if ([_soundLibrary objectForKey:filePath] != nil)
+    {
+        return;
+    }
+    
+    if (!_audioEnabled)
     {
         return;
     }

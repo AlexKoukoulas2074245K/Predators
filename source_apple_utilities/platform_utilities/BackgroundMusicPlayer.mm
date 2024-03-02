@@ -33,6 +33,11 @@ static const float DISABLED_AUDIO_MUSIC_VOLUME = 0.0f;
 
 - (void) playMusicWith:(NSString*) soundResPath unloopedMusic:(BOOL) unloopedMusic
 {
+    if (!_audioEnabled)
+    {
+        return;
+    }
+    
     NSString* sandboxFilePath = [NSBundle.mainBundle pathForResource:soundResPath ofType:@"flac"];
     
     if (sandboxFilePath != nil)
@@ -90,7 +95,7 @@ static const float DISABLED_AUDIO_MUSIC_VOLUME = 0.0f;
     }
     else
     {
-        if (_musicPlayer != nil)
+        if (_musicPlayer != nil && _audioEnabled)
         {
             [_musicPlayer play];
         }
@@ -137,11 +142,21 @@ static const float DISABLED_AUDIO_MUSIC_VOLUME = 0.0f;
 
 - (void) setAudioEnabledWith:(BOOL) audioEnabled
 {
+    _audioEnabled = audioEnabled;
     _targetMusicVolume = audioEnabled ? ENABLED_AUDIO_MUSIC_VOLUME : DISABLED_AUDIO_MUSIC_VOLUME;
     
     if (_musicPlayer != nil)
     {
         _musicPlayer.volume = _targetMusicVolume;
+        
+        if (audioEnabled)
+        {
+            [_musicPlayer play];
+        }
+        else
+        {
+            [_musicPlayer pause];
+        }
     }
 }
 
