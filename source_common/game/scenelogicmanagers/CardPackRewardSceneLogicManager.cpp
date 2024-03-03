@@ -63,7 +63,7 @@ static const glm::vec3 CARD_REWARD_INIT_SCALE = glm::vec3(0.001f, 0.001f, 2.0f);
 static const glm::vec3 CARD_REWARD_DEFAULT_SCALE = glm::vec3(-0.273f, 0.2512f, 2.0f);
 static const glm::vec3 CARD_REWARD_EXPANDED_SCALE = 1.25f * CARD_REWARD_DEFAULT_SCALE;
 static const glm::vec3 CARD_TOOLTIP_POSITION_OFFSET = {0.0f, 0.1f, 0.0f};
-static const glm::vec3 CARD_TOOLTIP_BASE_SCALE = {0.274f, 0.274f, 1/10.0f};
+static const glm::vec3 CARD_TOOLTIP_BASE_SCALE = {0.3f, 0.274f, 1/10.0f};
 
 static const float PACK_EXPLOSION_NOISE_MAG = 0.006f;
 static const float PACK_EXPLOSION_VELOCITY_MAG = 0.06f;

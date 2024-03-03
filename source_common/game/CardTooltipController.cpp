@@ -22,6 +22,7 @@ static const strutils::StringId CARD_TOOLTIP_TEXT_SCENE_OBJECT_NAMES [game_const
 };
 
 static const std::string CARD_TOOLTIP_TEXTURE_FILE_NAME = "tooltip.png";
+static const std::string CARD_TOOLTIP_VERTICAL_TEXTURE_FILE_NAME = "tooltip_vertical.png";
 static const std::string CARD_TOOLTIP_SHADER_FILE_NAME = "diagonal_reveal.vs";
 
 static const glm::vec3 CARD_TOOLTIP_BASE_OFFSET = {0.06f, 0.033f, 0.2f};
@@ -33,7 +34,7 @@ static const glm::vec3 CARD_TOOLTIP_TEXT_OFFSETS[game_constants::CARD_TOOLTIP_TE
     { -0.055f, -0.019f, 0.1f }
 };
 
-static const float CARD_TOOLTIP_MAX_REVEAL_THRESHOLD = 2.0f;
+static const float CARD_TOOLTIP_MAX_REVEAL_THRESHOLD = 2.5f;
 static const float CARD_TOOLTIP_REVEAL_SPEED = 1.0f/200.0f;
 static const float CARD_TOOLTIP_TEXT_REVEAL_SPEED = 1.0f/500.0f;
 static const float CARD_TOOLTIP_FLIPPED_X_OFFSET = -0.17f;
@@ -59,7 +60,7 @@ CardTooltipController::CardTooltipController
     tooltipSceneObject->mPosition = position + CARD_TOOLTIP_BASE_OFFSET;
     tooltipSceneObject->mPosition.x += horFlipped ? CARD_TOOLTIP_FLIPPED_X_OFFSET : 0.046f;
     tooltipSceneObject->mPosition.y += verFlipped ? CARD_TOOLTIP_FLIPPED_Y_OFFSET : 0.0f;
-    tooltipSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CARD_TOOLTIP_TEXTURE_FILE_NAME);
+    tooltipSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + (verFlipped ? CARD_TOOLTIP_VERTICAL_TEXTURE_FILE_NAME : CARD_TOOLTIP_TEXTURE_FILE_NAME));
     tooltipSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CARD_TOOLTIP_SHADER_FILE_NAME);
     tooltipSceneObject->mInvisible = startHidden;
     tooltipSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
