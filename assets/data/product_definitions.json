@@ -6,7 +6,7 @@
             "price": 300,
             "texture_path": "rare_item_rewards/blood_diamond.png",
             "shader_path": "rare_item.vs",
-            "description": "Permanent +1$damage increase$for all normal cards",
+            "description": "Permanent +1<damage>$increase for all$normal cards",
             "story_rare_item_name": "Blood Diamond"
         },
         {
@@ -14,7 +14,7 @@
             "price": 200,
             "texture_path": "rare_item_rewards/blue_sapphire.png",
             "shader_path": "rare_item.vs",
-            "description": "Permanent +1$starting weight for$all future story$battles",
+            "description": "Permanent +1$STARTING <weight> for$all future story$battles",
             "story_rare_item_name": "Blue Sapphire"
         },
         {
@@ -22,7 +22,7 @@
             "price": 400,
             "texture_path": "rare_item_rewards/greedy_goblin.png",
             "shader_path": "rare_item.vs",
-            "description": "Doubles all coin$rewards and chance$of seeing artifacts$in elite wheels",
+            "description": "Doubles all <coin> rewards$and chance of seeing$artifacts in$elite wheels",
             "story_rare_item_name": "Greedy Goblin",
             "unique": true
         },
@@ -31,7 +31,7 @@
             "price": 750,
             "texture_path": "rare_item_rewards/guardian_angel.png",
             "shader_path": "rare_item.vs",
-            "description": "Revives you once$with HALF of your$MAX HP this story",
+            "description": "Revives you once$with HALF of your$MAX<health> this story",
             "story_rare_item_name": "Guardian Angel",
             "unique": true
         },
@@ -40,7 +40,7 @@
             "price": 350,
             "texture_path": "rare_item_rewards/heavy_armor.png",
             "shader_path": "rare_item.vs",
-            "description": "Adds 1 ARMOR at$the start of every$battle in this story",
+            "description": "Adds +1<armor> at$the start of every$battle in this story",
             "story_rare_item_name": "Heavy Armor"
         },
         {
@@ -48,7 +48,7 @@
             "price": 450,
             "texture_path": "rare_item_rewards/demon_fangs.png",
             "shader_path": "rare_item.vs",
-            "description": "Every attack made$in battle will heal$you for 1 extra HP",
+            "description": "Every attack made$in battle will heal$you for 1 EXTRA<health>",
             "story_rare_item_name": "Demon Fangs"
         },
         {
@@ -72,37 +72,37 @@
             "name": "coins_to_life",
             "price": 0,
             "texture_path": "shop_items/coins_to_life_icon.png",
-            "description": " $Convert 100 coins$to 15 health points"
+            "description": " $Convert 100<coin> to$15<health>"
         },
         {
             "name": "life_to_coins",
             "price": 0,
             "texture_path": "shop_items/life_to_coins_icon.png",
-            "description": " $Convert 30 health$points to 100 coins"
+            "description": " $Convert 30<health> to$100<coin>"
         },
         {
             "name": "card_deletion",
             "price": 100,
             "texture_path": "shop_items/delete_card_icon.png",
-            "description": "Delete a card from$your story deck for$100 coins"
+            "description": "Delete a card from$your story deck for"
         },
         {
             "name": "coins_s",
             "price": 1000,
             "texture_path": "shop_items/coins_s.png",
-            "description": " $Get an extra 1000$ coins!"
+            "description": " $Get an extra 1000<coin>!"
         },
         {
             "name": "coins_m",
             "price": 5500,
             "texture_path": "shop_items/coins_m.png",
-            "description": " $Get an extra 5500$ coins!"
+            "description": " $Get an extra 5500<coin>!"
         },
         {
             "name": "coins_l",
             "price": 11500,
             "texture_path": "shop_items/coins_l.png",
-            "description": " $Get an extra 11500$ coins!"
+            "description": " $Get an extra 11500<coin>!"
         },
         {
             "name": "normal_card_pack",
@@ -121,31 +121,31 @@
             "price": 100,
             "texture_path": "rare_item_rewards/refill_hp.png",
             "shader_path": "rare_item.vs",
-            "description": "Fully refills your$active story health!"
+            "description": "Fully refills your$active story<health>!"
         },
         {
             "name": "extra_hp",
             "price": 10,
             "texture_path": "rare_item_rewards/extra_hp.png",
-            "description": "Increases story MAX$HEALTH by 10!"
+            "description": "Increases story MAX<health>$by 10!"
         },
         {
             "name": "extra_15_coins",
             "price": 15,
             "texture_path": "rare_item_rewards/extra_15_coins.png",
-            "description": "+15 coins"
+            "description": "+15<coin>"
         },
         {
             "name": "extra_50_coins",
             "price": 50,
             "texture_path": "rare_item_rewards/extra_50_coins.png",
-            "description": "+50 coins"
+            "description": "+50<coin>"
         },
         {
             "name": "extra_100_coins",
             "price": 100,
             "texture_path": "rare_item_rewards/extra_100_coins.png",
-            "description": "+100 coins"
+            "description": "+100<coin>"
         }
     ]
 }

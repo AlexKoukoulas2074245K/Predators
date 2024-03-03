@@ -14,6 +14,7 @@
 #include <engine/utils/OSMessageBox.h>
 #include <game/Cards.h>
 #include <game/GameConstants.h>
+#include <game/GameSymbolicGlyphNames.h>
 #include <game/DataRepository.h>
 #include <nlohmann/json.hpp>
 
@@ -328,6 +329,12 @@ void CardDataRepository::LoadCardData(bool loadCardAssets)
         {
             cardData.mCardEffect = cardObject["effect"].get<std::string>();
             cardData.mCardEffectTooltip = cardObject["tooltip"].get<std::string>();
+            
+            // preprocess effect
+            for (const auto& symbolicNameEntry: symbolic_glyph_names::SYMBOLIC_NAMES)
+            {
+                strutils::StringReplaceAllOccurences("<" + symbolicNameEntry.first.GetString() + ">", std::string(1, symbolicNameEntry.second), cardData.mCardEffectTooltip);
+            }
             
             assert(strutils::StringSplit(cardData.mCardEffectTooltip, '$').size() <= game_constants::CARD_TOOLTIP_TEXT_ROWS_COUNT);
         }

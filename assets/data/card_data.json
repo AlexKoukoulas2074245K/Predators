@@ -170,7 +170,7 @@
             "family": "rodents",
             "name": "Fluff Attack",
             "effect": "DAMAGE +2 FAMILY BOARD HELD",
-            "tooltip": "Attack +2 for ALL$Rodents on hand &$board",
+            "tooltip": "+2<damage> for ALL$Gnawers on hand &$board",
             "texture": "rodents_attack.png",
             "shader": "basic.vs"
         },
@@ -179,7 +179,7 @@
             "family": "rodents",
             "name": "Fuzzy Speed",
             "effect": "DRAW +2 GAIN_2_WEIGHT",
-            "tooltip": " $Draw 2 Cards and$gain 2 WEIGHT",
+            "tooltip": " $Draw 2 Cards and$gain +2<weight>",
             "texture": "fuzz_speed.png",
             "shader": "basic.vs",
             "single_use": true
@@ -189,7 +189,7 @@
             "family": "dinosaurs",
             "name": "Throwing Net",
             "effect": "DAMAGE -2 ENEMY_BOARD_DEBUFF",
-            "tooltip": "ATTACK -2 for ALL$normal cards the$opponent plays on$their next turn",
+            "tooltip": "-2<damage> for ALL$normal cards the$opponent plays on$their next turn",
             "texture": "net.png",
             "shader": "basic.vs"
         },
@@ -207,7 +207,7 @@
             "family": "dinosaurs",
             "name": "Feathery Dino",
             "effect": "WEIGHT -2 FAMILY HELD",
-            "tooltip": " $WEIGHT -2 for ALL$Dinosaurs on hand",
+            "tooltip": " $-2<weight> for ALL$Dinosaurs on hand",
             "texture": "dino_with_feathers.png",
             "shader": "basic.vs"
         },
@@ -235,7 +235,7 @@
             "family": "dinosaurs",
             "name": "Mighty Dino Roar",
             "effect": "DOUBLE_NEXT_DINO_DAMAGE",
-            "tooltip": "Doubles the$ATTACK of the$next dinosaur you$play this turn",
+            "tooltip": "Doubles the <damage>$of the next$dinosaur you$play this turn",
             "texture": "mighty_roar.png",
             "shader": "basic.vs"
         },
@@ -244,7 +244,7 @@
             "family": "insects",
             "name": "Toxic Wave",
             "effect": "DOUBLE_POISON_ATTACKS",
-            "tooltip": "Doubles the poison$stacks taken by the$opponent this turn",
+            "tooltip": "Doubles the <poison>$taken by the$opponent this turn",
             "texture": "poison_smoke.png",
             "shader": "basic.vs"
         },
@@ -253,7 +253,7 @@
             "family": "dinosaurs",
             "name": "Metal Claws",
             "effect": "DAMAGE +1 FAMILY BOARD HELD",
-            "tooltip": "ATTACK +1 for ALL$Dinosaurs on your$hand & board",
+            "tooltip": "+1<damage> for ALL$Dinosaurs on your$hand & board",
             "texture": "metal_claw.png",
             "shader": "basic.vs"
         },
@@ -262,7 +262,7 @@
             "family": "dinosaurs",
             "name": "Impending Doom",
             "effect": "PERMANENT_CONTINUAL_WEIGHT_REDUCTION WEIGHT FAMILY HELD",
-            "tooltip": "Continually reduce$Weight by 1 for ALL$Dinosaurs held and$drawn every turn",
+            "tooltip": "Continually reduce <weight>$by 1 for ALL$Dinosaurs held and$drawn every turn",
             "texture": "impending_doom.png",
             "shader": "basic.vs",
             "single_use": true
@@ -272,7 +272,7 @@
             "family": "rodents",
             "name": "Digging Time",
             "effect": "DIG_NO_FAIL",
-            "tooltip": "ALL Rodents you$play this turn will$successfully dig",
+            "tooltip": "ALL Gnawers you$play this turn will$successfully dig",
             "texture": "rodents_digging_holes.png",
             "shader": "basic.vs",
             "single_use": true
@@ -317,7 +317,7 @@
             "family": "dinosaurs",
             "name": "Dino Armor",
             "effect": "ARMOR +2",
-            "tooltip": "Gives +2 ARMOR$now and at the start$of every new turn",
+            "tooltip": "Gives +2<armor> now and$at the start of every$new turn",
             "texture": "dino_armor.png",
             "shader": "basic.vs",
             "single_use": true
@@ -327,7 +327,7 @@
             "family": "insects",
             "name": "Toxic Bomb",
             "effect": "TOXIC_BOMB",
-            "tooltip": "Expends all leftover$weight, to inflict$that much poison to$the opponent",
+            "tooltip": "Expends all leftover$weight, to inflict$that much <poison> to$the opponent",
             "texture": "toxic_bomb.png",
             "particle_effect": "toxic_bomb",
             "particle_shake_duration": 1.0,
@@ -350,7 +350,7 @@
             "family": "dinosaurs",
             "name": "Dino Snack",
             "effect": "HEAL_NEXT_DINO_DAMAGE",
-            "tooltip": "The next dinosaur$played will HEAL$you for 100% of its$current ATTACK",
+            "tooltip": "The next dinosaur$played will HEAL$you for 100% of its$current <damage>",
             "texture": "hungry_dinosaur.png",
             "shader": "basic.vs",
             "single_use": true
@@ -370,7 +370,7 @@
             "family": "insects",
             "name": "Leech Virus",
             "effect": "INSECT_VIRUS",
-            "tooltip": "The opponent looses$and you gain 1 HP$for every card they$play, every turn",
+            "tooltip": "The opponent looses$-1<health> and you gain$+1<health> for every card$they play, every turn",
             "texture": "insect_virus.png",
             "shader": "basic.vs",
             "single_use": true
@@ -452,7 +452,7 @@
             "family": "demons_normal",
             "name": "Demon Punch",
             "effect": "DEMON_PUNCH",
-            "tooltip": "Expends all leftover$weight, to inflict$that much damage$to the opponent",
+            "tooltip": "Expends all leftover$<weight>, to inflict that much$damage to the$opponent",
             "texture": "demon_punch.png",
             "shader": "basic.vs",
             "single_use": true
@@ -462,7 +462,7 @@
             "family": "demons_normal",
             "name": "Dark Magic",
             "effect": "DAMAGE +1 FAMILY BOARD HELD",
-            "tooltip": "ATTACK +1 for$ALL Demons on$hand & board",
+            "tooltip": "+1<damage> for ALL Demons$on hand & board",
             "texture": "story_cards/demon_wizard.png",
             "shader": "basic.vs",
             "single_use": false
@@ -472,7 +472,7 @@
             "family": "demons_medium",
             "name": "Demon Glare",
             "effect": "DAMAGE -2 ENEMY_BOARD_DEBUFF",
-            "tooltip": "ATTACK -2 for ALL$normal cards the$opponent plays on$their next turn",
+            "tooltip": "-2<damage> for ALL$normal cards the$opponent plays on$their next turn",
             "texture": "story_cards/demon_strength.png",
             "shader": "basic.vs",
             "single_use": true
@@ -491,7 +491,7 @@
             "family": "demons_medium",
             "name": "Chaos Magic",
             "effect": "DAMAGE +4 FAMILY BOARD HELD",
-            "tooltip": "ATTACK +4 for$ALL Demons on$hand & board",
+            "tooltip": "+4<damage> for ALL Demons$on hand & board",
             "texture": "story_cards/demon_ritual.png",
             "shader": "basic.vs",
             "single_use": false
@@ -537,7 +537,7 @@
             "family": "demons_hard",
             "name": "Chaos Glare",
             "effect": "DAMAGE -6 ENEMY_BOARD_DEBUFF",
-            "tooltip": "ATTACK -6 for$ALL normal cards$the opponent plays$on their next turn",
+            "tooltip": "-6<damage> for$ALL normal cards$the opponent plays$on their next turn",
             "texture": "story_cards/elite_demon_strength.png",
             "shader": "basic.vs",
             "single_use": true
@@ -547,7 +547,7 @@
             "family": "dinosaurs",
             "name": "Meteor",
             "effect": "METEOR",
-            "tooltip": "Sacrifices a normal$held dinosaur card$to inflict double$its attack in damage",
+            "tooltip": "Sacrifices a normal$held dinosaur card$to inflict double$its <damage> in damage",
             "texture": "meteor.png",
             "shader": "basic.vs",
             "single_use": true
@@ -557,7 +557,7 @@
             "family": "rodents",
             "name": "Rodent Combo",
             "effect": "EVERY_THIRD_CARD_PLAYED_HAS_ZERO_COST",
-            "tooltip": "For the rest of this$battle, every third$card played costs 0$weight",
+            "tooltip": "For the rest of this$battle, every third$card played costs 0<weight>$",
             "texture": "rodent_combo.png",
             "shader": "basic.vs",
             "single_use": true
@@ -567,7 +567,7 @@
             "family": "insects",
             "name": "Acid Rain",
             "effect": "CLEAR_EFFECTS ADD_POISON_STACKS 6",
-            "tooltip": "Clears all active$effects on your side$and adds 6 poison$to the opponent$",
+            "tooltip": "Clears all active$effects on your side$and adds 6<poison>$to the opponent$",
             "texture": "acid_rain.png",
             "shader": "basic.vs",
             "single_use": true

@@ -93,12 +93,6 @@ void FontRepository::LoadFont(const std::string& fontName, const resources::Reso
         }
         
         font.mGlyphs[static_cast<char>(std::stoi(charObject["id"].get<std::string>()))] = glyph;
-        
-        if (std::stoi(charObject["id"].get<std::string>()) == 128)
-        {
-            auto c = static_cast<char>(std::stoi(charObject["id"].get<std::string>()));
-            c++;
-        }
     }
     
     mFontMap[font.mFontName] = font;

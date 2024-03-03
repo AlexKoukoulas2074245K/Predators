@@ -5,6 +5,7 @@
 ///  Created by Alex Koukoulas on 04/02/2024                                                       
 ///------------------------------------------------------------------------------------------------
 
+#include <game/GameSymbolicGlyphNames.h>
 #include <game/ProductRepository.h>
 #include <engine/CoreSystemsEngine.h>
 #include <engine/resloading/DataFileResource.h>
@@ -87,6 +88,13 @@ void ProductRepository::LoadProductDefinitions()
         std::string productTexturePath = productDefinitionObject["texture_path"].get<std::string>();
         std::string shaderPath = resources::ResourceLoadingService::RES_SHADERS_ROOT + "basic.vs";
         std::string productDescription = productDefinitionObject["description"].get<std::string>();
+        
+        // preprocess product description
+        for (const auto& symbolicNameEntry: symbolic_glyph_names::SYMBOLIC_NAMES)
+        {
+            strutils::StringReplaceAllOccurences("<" + symbolicNameEntry.first.GetString() + ">", std::string(1, symbolicNameEntry.second), productDescription);
+        }
+        
         std::string storyRareItemName = "";
         
         if (productDefinitionObject.count("shader_path"))

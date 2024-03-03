@@ -28,6 +28,54 @@
 		},
 		"chars": {
 			"char": [
+                {
+                    "id": "1",
+                    "x": "250",
+                    "y": "896",
+                    "width": "72",
+                    "height": "128",
+                    "xoffset": "10",
+                    "yoffset": "14",
+                    "xadvance": "0",
+                    "page": "0",
+                    "chnl": "15"
+                },
+                {
+                    "id": "2",
+                    "x": "322",
+                    "y": "898",
+                    "width": "65",
+                    "height": "126",
+                    "xoffset": "10",
+                    "yoffset": "14",
+                    "xadvance": "0",
+                    "page": "0",
+                    "chnl": "15"
+                },
+                {
+                    "id": "3",
+                    "x": "387",
+                    "y": "899",
+                    "width": "124",
+                    "height": "125",
+                    "xoffset": "10",
+                    "yoffset": "14",
+                    "xadvance": "0",
+                    "page": "0",
+                    "chnl": "15"
+                },
+                {
+                    "id": "4",
+                    "x": "511",
+                    "y": "902",
+                    "width": "94",
+                    "height": "122",
+                    "xoffset": "10",
+                    "yoffset": "14",
+                    "xadvance": "0",
+                    "page": "0",
+                    "chnl": "15"
+                },
 				{
 					"id": "32",
 					"x": "1005",

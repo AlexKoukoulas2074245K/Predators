@@ -18,6 +18,7 @@
 #include <game/Cards.h>
 #include <game/CardUtils.h>
 #include <game/events/EventSystem.h>
+#include <game/GameSymbolicGlyphNames.h>
 #include <game/GuiObjectManager.h>
 #include <game/DataRepository.h>
 #include <game/ProductRepository.h>
@@ -304,7 +305,7 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
                 ({
                     StoryRandomEventScreenData("events/gold_coin_cart.png", {"", "You found a cart full of", "gold coins!"},
                     {
-                        StoryRandomEventButtonData("Collect " + std::to_string(coinsToGain) + " Gold Coins", 1, [=]()
+                        StoryRandomEventButtonData("Collect " + std::to_string(coinsToGain) + "<coin>", 1, [=]()
                         {
                             DataRepository::GetInstance().SetGoldCartsIgnored(0);
                             events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(coinsToGain, mScene->FindSceneObject(EVENT_PORTRAIT_SCENE_OBJECT_NAME)->mPosition);
@@ -341,7 +342,7 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
                 }),
                 StoryRandomEventScreenData("events/mountain_of_gold.png", {"\"This is you reward traveller", "for all the gold carts you", "left behind to be used by", "those in greater need!\""},
                 {
-                    StoryRandomEventButtonData("Collect " + std::to_string(goldCoinsToGain) + " Gold Coins!", 2, [=]()
+                    StoryRandomEventButtonData("Collect " + std::to_string(goldCoinsToGain) + "<coin>!", 2, [=]()
                     {
                         events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(goldCoinsToGain, mScene->FindSceneObject(EVENT_PORTRAIT_SCENE_OBJECT_NAME)->mPosition);
                         DataRepository::GetInstance().SetHasSeenMountainOfGoldEvent(true);
@@ -480,7 +481,7 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
                 }),
                 StoryRandomEventScreenData("events/two_doors.png", {"The first door reads:", "\"Your heart desires gold\"", "the second reads:", "\"Your soul craves the lost\"", "Which door will choose?"},
                 {
-                    StoryRandomEventButtonData("First Door  (get " + std::to_string(coinReward) + " coins)", 2, [=]()
+                    StoryRandomEventButtonData("First Door  (get " + std::to_string(coinReward) + "<coin>)", 2, [=]()
                     {
                         events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(coinReward, mScene->FindSceneObject(EVENT_PORTRAIT_SCENE_OBJECT_NAME)->mPosition);
                     }),
@@ -529,7 +530,7 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
                     }),
                     StoryRandomEventButtonData("Leave the house", 3)
                 }),
-                StoryRandomEventScreenData("events/sacrificial_vase.png", {"", "The sacrifice was", "performed successfully", "You got " + rareItemRewardDisplayName + "!"},
+                StoryRandomEventScreenData("events/sacrificial_vase.png", {"", "The sacrifice was", "performed successfully.", "You got " + rareItemRewardDisplayName + "!"},
                 {
                     StoryRandomEventButtonData("Continue", 4)
                 }),
@@ -653,12 +654,19 @@ void EventSceneLogicManager::CreateEventScreen(const int screenIndex)
     int screenButtonIndex = 0;
     for (const auto& screenButton: screenData.mEventScreenButtons)
     {
+        auto buttonText = screenButton.mButtonText;
+        // preprocess button text
+        for (const auto& symbolicNameEntry: symbolic_glyph_names::SYMBOLIC_NAMES)
+        {
+            strutils::StringReplaceAllOccurences("<" + symbolicNameEntry.first.GetString() + ">", std::string(1, symbolicNameEntry.second), buttonText);
+        }
+        
         mCurrentEventButtons.emplace_back(std::make_unique<AnimatedButton>
         (
             glm::vec3(0.0f, -0.07f - screenButtonIndex * 0.08f, EVENT_SCREEN_ITEM_Z),
             BUTTON_SCALE,
             game_constants::DEFAULT_FONT_NAME,
-            screenButton.mButtonText,
+            buttonText,
             strutils::StringId(EVENT_BUTTON_SCENE_OBJECT_NAME),
             [=]()
             {
