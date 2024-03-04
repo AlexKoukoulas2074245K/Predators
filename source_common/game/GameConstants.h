@@ -162,6 +162,7 @@ namespace game_constants
     inline constexpr int BOT_PLAYER_DEFAULT_WEIGHT_LIMIT = 10;
     inline constexpr int STORY_DEFAULT_MAX_HEALTH = 80;
     inline constexpr int ZERO_COST_TIME_WEIGHT_VALUE = 100;
+    inline constexpr int MAX_MUTATION_LEVEL = 10;
 
     inline const float CARD_COMPONENT_Z_OFFSET = 0.1f;
     inline const float CARD_BOUNDING_RECT_X_MULTIPLIER = 0.5f;

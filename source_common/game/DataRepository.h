@@ -107,6 +107,7 @@ struct QuickPlayData
     BattleControlType mBattleControlType;
     std::vector<int> mTopPlayerDeck;
     std::vector<int> mBotPlayerDeck;
+    int mMutationLevel = 0;
 };
 
 ///------------------------------------------------------------------------------------------------
@@ -201,6 +202,9 @@ public:
     
     const int& GetGamesFinishedCount() const;
     void SetGamesFinishedCount(const int gamesFinishedCount);
+    
+    const int& GetVictoriesCount() const;
+    void SetVictoriesCount(const int victoriesCount);
     
     const int& GetStoryMaxHealth() const;
     void SetStoryMaxHealth(const int storyMaxHealth);
@@ -347,6 +351,7 @@ private:
     ValueWithDelayedDisplay<int> mStoryCurrentHealth;
     ValueWithDelayedDisplay<long long> mCurrencyCoins;
     int mGamesFinishedCount = 0;
+    int mVictoriesCount = 0;
     int mStoryMaxHealth = 0;
     int mStoryMapGenerationSeed = 0;
     int mCurrentStoryMapNodeSeed = 0;

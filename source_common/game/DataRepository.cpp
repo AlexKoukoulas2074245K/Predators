@@ -383,6 +383,21 @@ void DataRepository::SetGamesFinishedCount(const int gamesFinishedCount)
 
 ///------------------------------------------------------------------------------------------------
 
+const int& DataRepository::GetVictoriesCount() const
+{
+    return mVictoriesCount;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void DataRepository::SetVictoriesCount(const int victoriesCount)
+{
+    mVictoriesCount = victoriesCount;
+    mPersistentDataSerializer->GetState()["victories_count"] = mVictoriesCount;
+}
+
+///------------------------------------------------------------------------------------------------
+
 const int& DataRepository::GetCurrentEventScreenIndex() const
 {
     return mCurrentEventScreenIndex;

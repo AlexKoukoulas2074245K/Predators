@@ -5,8 +5,8 @@
 ///  Created by Alex Koukoulas on 03/03/2024
 ///------------------------------------------------------------------------------------------------
 
-#ifndef IAPProductIds_h
-#define IAPProductIds_h
+#ifndef GameSymbolicGlyphNames_h
+#define GameSymbolicGlyphNames_h
 
 ///------------------------------------------------------------------------------------------------
 
@@ -24,6 +24,7 @@ inline const strutils::StringId DAMAGE("damage");
 inline const strutils::StringId WEIGHT("weight");
 inline const strutils::StringId ARMOR("armor");
 inline const strutils::StringId POISON("poison");
+inline const strutils::StringId SKULL("skull");
 
 inline const std::unordered_map<strutils::StringId, char, strutils::StringIdHasher> SYMBOLIC_NAMES =
 {
@@ -33,6 +34,7 @@ inline const std::unordered_map<strutils::StringId, char, strutils::StringIdHash
     { WEIGHT, 2},
     { POISON, 3},
     { ARMOR, 4},
+    { SKULL, 5}
 };
 
 }

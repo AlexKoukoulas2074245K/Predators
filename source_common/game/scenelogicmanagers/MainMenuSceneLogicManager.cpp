@@ -8,6 +8,7 @@
 #include <engine/CoreSystemsEngine.h>
 #include <engine/utils/PlatformMacros.h>
 #include <engine/rendering/AnimationManager.h>
+#include <engine/resloading/ShaderResource.h>
 #include <engine/utils/BaseDataFileDeserializer.h>
 #include <engine/utils/Date.h>
 #include <engine/utils/Logging.h>
@@ -17,6 +18,7 @@
 #include <game/AnimatedButton.h>
 #include <game/Cards.h>
 #include <game/events/EventSystem.h>
+#include <game/GameSymbolicGlyphNames.h>
 #include <game/scenelogicmanagers/MainMenuSceneLogicManager.h>
 #include <game/DataRepository.h>
 #include <game/IAPProductIds.h>
@@ -35,9 +37,18 @@
 static constexpr int AVAILABLE_STORY_DECKS_COUNT = 3;
 static constexpr int MIN_DECK_ENTRIES_TO_SCROLL = 4;
 
+static const std::string MUTATION_CHANGES_TEXT_SCENE_OBJECT_NAME_PREFIX = "mutation_changes_text_";
 static const std::string SELECTABLE_BUTTON_SHADER_FILE_NAME = "basic_custom_color.vs";
 static const std::string DECK_ENTRY_SHADER = "card_family_selection_swipe_entry.vs";
 static const std::string DECK_ENTRY_MASK_TEXTURE_FILE_NAME = "trap_mask.png";
+static const std::string BRAZIER_TEXTURE_FILE_NAME = "brazier.png";
+static const std::string MUTATION_FIRE_SHADER_FILE_NAME = "fire.vs";
+static const std::string MUTATION_FIRE_TEXTURE_FILE_NAME = "fire.png";
+static const std::string MUTATION_TEXTURE_FILE_NAME = "virus.png";
+static const std::string PLUS_BUTTON_TEXTURE_FILE_NAME = "plus_button.png";
+static const std::string MINUS_BUTTON_TEXTURE_FILE_NAME = "minus_button.png";
+static const std::string MUTATION_MESH_FILE_NAME = "virus.obj";
+static const std::string MUTATION_SHADER_FILE_NAME = "virus.vs";
 static const std::string MAIN_MENU_THEME_MUSIC = "main_menu_theme";
 static const std::string STORY_DECK_NAMES[AVAILABLE_STORY_DECKS_COUNT] =
 {
@@ -46,6 +57,13 @@ static const std::string STORY_DECK_NAMES[AVAILABLE_STORY_DECKS_COUNT] =
     "Insects"
 };
 
+static const strutils::StringId FIRE_ALPHA_ANIMATION_NAME = strutils::StringId("fire_alpha_animation");
+static const strutils::StringId FIRE_RED_COLOR_ANIMATION_NAME = strutils::StringId("fire_red_color_animation");
+static const strutils::StringId FIRE_GREEN_COLOR_ANIMATION_NAME = strutils::StringId("fire_green_color_animation");
+static const strutils::StringId MUTATION_PULSE_ANIMATION_NAME = strutils::StringId("mutation_pulse_animation");
+static const strutils::StringId BRAZIER_SCENE_OBJECT_NAME = strutils::StringId("brazier");
+static const strutils::StringId MUTATION_FIRE_SCENE_OBJECT_NAME = strutils::StringId("mutation_fire");
+static const strutils::StringId MUTATION_SCENE_OBJECT_NAME = strutils::StringId("mutation");
 static const strutils::StringId PRIVACY_POLICY_SCENE = strutils::StringId("privacy_policy_scene");
 static const strutils::StringId GIFT_CODE_CLAIM_SCENE = strutils::StringId("gift_code_claim_scene");
 static const strutils::StringId BOARD_SCENE_OBJECT_NAME = strutils::StringId("board");
@@ -63,6 +81,8 @@ static const strutils::StringId REPLAY_BATTLE_MODE_BUTTON_NAME = strutils::Strin
 static const strutils::StringId ENTER_GIFT_CODE_BUTTON_NAME = strutils::StringId("enter_gift_code_button");
 static const strutils::StringId PRIVACY_POLICY_BUTTON_NAME = strutils::StringId("privacy_policy_button");
 static const strutils::StringId BACK_BUTTON_NAME = strutils::StringId("back_button");
+static const strutils::StringId MUTATION_PLUS_BUTTON_NAME = strutils::StringId("mutation_plus");
+static const strutils::StringId MUTATION_MINUS_BUTTON_NAME = strutils::StringId("mutation_minus");
 static const strutils::StringId TITLE_SCENE_OBJECT_NAME = strutils::StringId("predators_title");
 static const strutils::StringId TOP_DECK_TEXT_SCENE_OBJECT_NAME = strutils::StringId("top_deck_text");
 static const strutils::StringId BOT_DECK_TEXT_SCENE_OBJECT_NAME = strutils::StringId("bot_deck_text");
@@ -75,6 +95,8 @@ static const strutils::StringId NEW_STORY_CONFIRMATION_TEXT_TOP_NAME = strutils:
 static const strutils::StringId NEW_STORY_CONFIRMATION_TEXT_MIDDLE_NAME = strutils::StringId("new_story_confirmation_text_middle");
 static const strutils::StringId NEW_STORY_CONFIRMATION_TEXT_BOT_NAME = strutils::StringId("new_story_confirmation_text_bot");
 static const strutils::StringId STORY_DECK_SELECTION_PROMPT_SCENE_OBJECT_NAME = strutils::StringId("story_deck_selection_prompt");
+static const strutils::StringId MUTATION_SELECTION_PROMPT_SCENE_OBJECT_NAME = strutils::StringId("mutation_selection_prompt");
+static const strutils::StringId MUTATION_VALUE_SCENE_OBJECT_NAME = strutils::StringId("mutation_value");
 static const strutils::StringId START_NEW_STORY_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("start_new_story_button");
 static const strutils::StringId STORY_HEALTH_REFILL_PRODUCT_NAME = strutils::StringId("story_health_refill");
 static const strutils::StringId NORMAL_PACK_PRODUCT_NAME = strutils::StringId("normal_card_pack");
@@ -82,6 +104,15 @@ static const strutils::StringId GOLDEN_PACK_PRODUCT_NAME = strutils::StringId("g
 static const strutils::StringId COINS_S_PRODUCT_NAME = strutils::StringId("coins_s");
 static const strutils::StringId COINS_M_PRODUCT_NAME = strutils::StringId("coins_m");
 static const strutils::StringId COINS_L_PRODUCT_NAME = strutils::StringId("coins_l");
+static const strutils::StringId POINT_LIGHT_POSITION_UNIFORM_NAME = strutils::StringId("point_light_position");
+static const strutils::StringId DIFFUSE_COLOR_UNIFORM_NAME = strutils::StringId("mat_diffuse");
+static const strutils::StringId AMBIENT_COLOR_UNIFORM_NAME = strutils::StringId("mat_ambient");
+static const strutils::StringId SPEC_COLOR_UNIFORM_NAME = strutils::StringId("mat_spec");
+static const strutils::StringId POINT_LIGHT_POWER_UNIFORM_NAME = strutils::StringId("point_light_power");
+static const strutils::StringId AFFECTED_BY_LIGHT_UNIFORM_NAME = strutils::StringId("affected_by_light");
+static const strutils::StringId COLOR_FACTOR_R_UNIFORM_NAME = strutils::StringId("color_factor_r");
+static const strutils::StringId COLOR_FACTOR_G_UNIFORM_NAME = strutils::StringId("color_factor_g");
+static const strutils::StringId COLOR_FACTOR_B_UNIFORM_NAME = strutils::StringId("color_factor_b");
 static const strutils::StringId STORY_DECK_SCENE_OBJECT_NAMES[AVAILABLE_STORY_DECKS_COUNT] =
 {
     strutils::StringId("selected_deck_dinosaurs"),
@@ -93,6 +124,10 @@ static const glm::vec2 STORY_DECK_ENTRY_CUTOFF_VALUES = {-0.25f, 0.15f};
 static const glm::vec2 STORY_DECK_SELECTION_CONTAINER_CUTOFF_VALUES = {-0.1f, 0.1f};
 
 static const glm::vec3 BUTTON_SCALE = {0.0005f, 0.0005f, 0.0005f};
+static const glm::vec3 MUTATION_CHANGE_TEXT_SCALE = {0.0002f, 0.0002f, 0.0002f};
+static const glm::vec3 MUTATION_CHANGE_TEXT_INIT_POSITION = {0.06, 0.088f, 1.0f};
+static const glm::vec3 PLUS_BUTTON_SCALE = {0.075f, 0.075f, 0.075f};
+static const glm::vec3 MINUS_BUTTON_SCALE = {0.075f, 0.075f, 0.075f};
 static const glm::vec3 STORY_DECK_NAME_SCALES = {0.00035f, 0.00035f, 0.00035f};
 static const glm::vec3 CONTINUE_STORY_BUTTON_POSITION = {-0.142f, 0.09f, 0.1f};
 static const glm::vec3 NO_PROGRESS_NEW_STORY_BUTTON_POSITION = {-0.091f, 0.06f, 0.1f};
@@ -102,11 +137,24 @@ static const glm::vec3 CARD_LIBRARY_BUTTON_POSITION = {0.0f, 0.05f, 0.1f};
 static const glm::vec3 SHOP_BUTTON_POSITION = {0.0f, -0.01f, 0.1f};
 static const glm::vec3 EXTRAS_BUTTON_POSITION = {0.0f, -0.06f, 0.1f};
 static const glm::vec3 OPTIONS_BUTTON_POSITION = {0.0f, -0.120f, 0.1f};
+static const glm::vec3 MUTATION_PLUS_BUTTON_POSITION = {-0.198f, -0.083f, 0.1f};
+static const glm::vec3 MUTATION_MINUS_BUTTON_POSITION = {-0.106f, -0.083f, 0.1f};
 static const glm::vec3 QUIT_BUTTON_POSITION = {0.0f, -0.180f, 0.1f};
 static const glm::vec3 ENTER_GIFT_CODE_BUTTON_POSITION = {-0.135f, 0.085f, 0.1f};
 static const glm::vec3 PRIVACY_POLICY_BUTTON_POSITION = {-0.125f, 0.005f, 0.1f};
-
+static const glm::vec3 POINT_LIGHT_POSITION = { -1.0f, 0.0f, -1.0f };
+static const glm::vec3 DIFFUSE_COLOR = { 1.0f, 1.0f, 1.0f };
+static const glm::vec3 SPEC_COLOR = { 1.0f, 1.0f, 1.0f };
+static const glm::vec3 AMB_COLOR = { 1.0f, 0.0f, 0.0f };
+static const glm::vec3 BRAZIER_POSITION = { -0.149f, -0.030f, 1.5f };
+static const glm::vec3 BRAZIER_SCALE = { 0.1f, 0.057f, 0.1f };
+static const glm::vec3 MUTATION_POSITION = { -0.027f, -0.0f, 1.0f };
+static const glm::vec3 MUTATION_SCALE = { 0.05f, 0.05f, 0.05f };
+static const glm::vec3 MUTATION_FIRE_POSITION = { -0.145f, 0.044f, 1.0f };
+static const glm::vec3 MUTATION_VALUE_POSITION = { -0.133f, 0.02f, 2.0f };
+static const glm::vec3 MUTATION_FIRE_SCALE = { 0.104f, 0.127f, 0.05f };
 static const glm::vec3 BACK_BUTTON_POSITION = {0.148f, -0.148f, 0.1f};
+static const glm::vec3 SELECT_MUTATION_BACK_BUTTON_POSITION = {0.148f, -0.18f, 23.1f};
 static const glm::vec3 DESELECTED_BUTTON_COLOR = { 1.0f, 1.0f, 1.0f};
 static const glm::vec3 SELECTED_BUTTON_COLOR = {0.0f, 0.66f, 0.66f};
 static const glm::vec3 NEW_STORY_CONFIRMATION_BUTTON_POSITION = {-0.132f, -0.103f, 23.1f};
@@ -115,7 +163,9 @@ static const glm::vec3 NEW_STORY_CONFIRMATION_TEXT_TOP_POSITION = {-0.267f, 0.09
 static const glm::vec3 NEW_STORY_CONFIRMATION_TEXT_MIDDLE_POSITION = {-0.282f, 0.039f, 23.1f};
 static const glm::vec3 NEW_STORY_CONFIRMATION_TEXT_BOT_POSITION = {-0.205f, -0.012f, 23.1f};
 static const glm::vec3 NEW_STORY_DECK_SELECTION_TEXT_POSITION = {-0.169f, 0.115f, 0.1f};
+static const glm::vec3 MUTATION_SELECTION_TEXT_POSITION = {-0.179f, 0.135f, 0.1f};
 static const glm::vec3 START_NEW_STORY_BUTTON_POSITION = {-0.055f, -0.145f, 23.1f};
+static const glm::vec3 SELECT_MUTATION_START_BUTTON_POSITION = {-0.055f, -0.18f, 23.1f};
 static const glm::vec3 STORY_DECK_NAME_POSITIONS[AVAILABLE_STORY_DECKS_COUNT] =
 {
     { -0.202f, 0.054f, 0.1f},
@@ -132,6 +182,10 @@ static const float STAGGERED_ITEM_ALPHA_DELAY_SECS = 0.1f;
 static const float DECK_SELECTED_MAX_SCALE_FACTOR = 1.15f;
 static const float DECK_SELECTED_MIN_SCALE_FACTOR = 0.65f;
 static const float DECK_SELECTION_ANIMATION_DURATION_SECS = 0.4f;
+static const float MUTATION_ROTATION_SPEED = 1.0f/1000.0f;
+static const float POINT_LIGHT_POWER = 8.0f;
+static const float FIRE_COLOR_R_INCREMENTS = 0.1f;
+static const float FIRE_COLOR_G_INCREMENTS = 0.1f;
 
 static const math::Rectangle STORY_DECK_SELECTION_CONTAINER_TOP_BOUNDS = {{-0.25f, -0.08f}, {0.2f, 0.01f}};
 
@@ -143,7 +197,22 @@ static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
 static const std::unordered_set<strutils::StringId, strutils::StringIdHasher> STATIC_SCENE_ELEMENTS =
 {
     TITLE_SCENE_OBJECT_NAME,
-    BOARD_SCENE_OBJECT_NAME
+    BOARD_SCENE_OBJECT_NAME,
+    MUTATION_SCENE_OBJECT_NAME
+};
+
+static const std::vector<std::string> MUTATION_TEXTS =
+{
+    "50% less <coin> rewards",
+    "50% increased shop prices",
+    "All opponents have more<weight>",
+    "All opponents have more<health>",
+    "Your normal cards have -1<damage>",
+    "All your cards have +1<weight>",
+    "All opponents have more<damage>",
+    "No healing after first boss",
+    "All normal fights are elite",
+    "Final boss revives",
 };
 
 static const std::unordered_map<strutils::StringId, BattleControlType, strutils::StringIdHasher> BATTLE_MODE_BUTTON_NAMES_TO_BATTLE_CONTROL_TYPE =
@@ -305,6 +374,7 @@ void MainMenuSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     mTransitioningToSubScene = false;
     mNeedToSetBoardPositionAndZoomFactor = true;
     mShouldPushToPreviousSceneStack = true;
+    CreateMutationObject(scene);
     InitSubScene(SubSceneType::MAIN, scene);
 }
 
@@ -312,6 +382,21 @@ void MainMenuSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 
 void MainMenuSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene::Scene> scene)
 {
+    static float time = 0.0f;
+    time += dtMillis/1000.0f;
+    
+    auto mutationFireSceneObject = scene->FindSceneObject(MUTATION_FIRE_SCENE_OBJECT_NAME);
+    if (mutationFireSceneObject)
+    {
+        mutationFireSceneObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
+    }
+    
+    auto mutationSceneObject = scene->FindSceneObject(MUTATION_SCENE_OBJECT_NAME);
+    if (mutationSceneObject)
+    {
+        mutationSceneObject->mRotation.y += dtMillis * MUTATION_ROTATION_SPEED;
+    }
+    
     if (mTransitioningToSubScene || DataRepository::GetInstance().GetForeignProgressionDataFound() != ForeignCloudDataFoundType::NONE)
     {
         return;
@@ -669,9 +754,113 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                 }
             }
             
+            if (DataRepository::GetInstance().GetVictoriesCount() > 0)
+            {
+                mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
+                (
+                    START_NEW_STORY_BUTTON_POSITION,
+                    BUTTON_SCALE,
+                    game_constants::DEFAULT_FONT_NAME,
+                    "Select",
+                    START_NEW_STORY_BUTTON_SCENE_OBJECT_NAME,
+                    [=]()
+                    {
+                        TransitionToSubScene(SubSceneType::MUTATION_SELECTION, scene);
+                    },
+                    *scene
+                ));
+            }
+            else
+            {
+                mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
+                (
+                    START_NEW_STORY_BUTTON_POSITION,
+                    BUTTON_SCALE,
+                    game_constants::DEFAULT_FONT_NAME,
+                    "Start",
+                    START_NEW_STORY_BUTTON_SCENE_OBJECT_NAME,
+                    [=]()
+                    {
+                        DataRepository::GetInstance().SetCurrentStoryPlayerDeck(mQuickPlayData->mBotPlayerDeck);
+                        DataRepository::GetInstance().FlushStateToFile();
+                        StartNewStory();
+                    },
+                    *scene
+                ));
+            }
+            
             mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
             (
-                START_NEW_STORY_BUTTON_POSITION,
+                BACK_BUTTON_POSITION,
+                BUTTON_SCALE,
+                game_constants::DEFAULT_FONT_NAME,
+                "Back",
+                BACK_BUTTON_NAME,
+                [=](){ TransitionToSubScene(SubSceneType::MAIN, scene); },
+                *scene
+            ));
+            
+            DeckSelected(0, false, scene);
+        } break;
+            
+        case SubSceneType::MUTATION_SELECTION:
+        {
+            scene::TextSceneObjectData textMutationSelectionPrompt;
+            textMutationSelectionPrompt.mFontName = game_constants::DEFAULT_FONT_NAME;
+            textMutationSelectionPrompt.mText = "Select Mutation Level";
+            auto mutationSelectionTextSceneObject = scene->CreateSceneObject(MUTATION_SELECTION_PROMPT_SCENE_OBJECT_NAME);
+            mutationSelectionTextSceneObject->mSceneObjectTypeData = std::move(textMutationSelectionPrompt);
+            mutationSelectionTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+            mutationSelectionTextSceneObject->mPosition = MUTATION_SELECTION_TEXT_POSITION;
+            mutationSelectionTextSceneObject->mScale = BUTTON_SCALE;
+            
+            scene::TextSceneObjectData textMutationValue;
+            textMutationValue.mFontName = game_constants::DEFAULT_FONT_NAME;
+            textMutationValue.mText = "0";
+            auto mutationValueSceneObject = scene->CreateSceneObject(MUTATION_VALUE_SCENE_OBJECT_NAME);
+            mutationValueSceneObject->mSceneObjectTypeData = std::move(textMutationValue);
+            mutationValueSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+            mutationValueSceneObject->mPosition = MUTATION_VALUE_POSITION;
+            mutationValueSceneObject->mScale = BUTTON_SCALE;
+            
+            auto mutationFireSceneObject = scene->CreateSceneObject(MUTATION_FIRE_SCENE_OBJECT_NAME);
+            mutationFireSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + MUTATION_FIRE_SHADER_FILE_NAME);
+            mutationFireSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + MUTATION_FIRE_TEXTURE_FILE_NAME);
+            mutationFireSceneObject->mPosition = MUTATION_FIRE_POSITION;
+            mutationFireSceneObject->mScale = MUTATION_FIRE_SCALE;
+            mutationFireSceneObject->mShaderFloatUniformValues[COLOR_FACTOR_R_UNIFORM_NAME] = 1.0f;
+            mutationFireSceneObject->mShaderFloatUniformValues[COLOR_FACTOR_G_UNIFORM_NAME] = 1.0f;
+            mutationFireSceneObject->mShaderFloatUniformValues[COLOR_FACTOR_B_UNIFORM_NAME] = 1.0f;
+            mutationFireSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+            
+            auto brazierSceneObject = scene->CreateSceneObject(BRAZIER_SCENE_OBJECT_NAME);
+            brazierSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + BRAZIER_TEXTURE_FILE_NAME);
+            brazierSceneObject->mPosition = BRAZIER_POSITION;
+            brazierSceneObject->mScale = BRAZIER_SCALE;
+            
+            mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
+            (
+                MUTATION_PLUS_BUTTON_POSITION,
+                PLUS_BUTTON_SCALE,
+                PLUS_BUTTON_TEXTURE_FILE_NAME,
+                MUTATION_PLUS_BUTTON_NAME,
+                [=](){ SetMutationLevel(math::Min(game_constants::MAX_MUTATION_LEVEL, mQuickPlayData->mMutationLevel + 1), scene); },
+                *scene
+            ));
+            
+            mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
+            (
+                 MUTATION_MINUS_BUTTON_POSITION,
+                 MINUS_BUTTON_SCALE,
+                 MINUS_BUTTON_TEXTURE_FILE_NAME,
+                 MUTATION_MINUS_BUTTON_NAME,
+                 [=](){ SetMutationLevel(math::Max(0, mQuickPlayData->mMutationLevel - 1), scene); },
+                 *scene
+            ));
+            
+            mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
+            (
+                SELECT_MUTATION_START_BUTTON_POSITION,
                 BUTTON_SCALE,
                 game_constants::DEFAULT_FONT_NAME,
                 "Start",
@@ -684,10 +873,21 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                 },
                 *scene
             ));
+        
+            mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
+            (
+                SELECT_MUTATION_BACK_BUTTON_POSITION,
+                BUTTON_SCALE,
+                game_constants::DEFAULT_FONT_NAME,
+                "Back",
+                BACK_BUTTON_NAME,
+                [=](){ GoToPreviousSubScene(scene); },
+                *scene
+            ));
             
-            DeckSelected(0, false, scene);
+            SetMutationLevel(0, scene);
         } break;
-            
+        
         case SubSceneType::EXTRAS:
         {
             mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
@@ -743,14 +943,26 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
     size_t sceneObjectIndex = 0;
     for (auto sceneObject: scene->GetSceneObjects())
     {
-        if (STATIC_SCENE_ELEMENTS.count(sceneObject->mName))
+        if (sceneObject->mName == MUTATION_SCENE_OBJECT_NAME)
+        {
+            if (mActiveSubScene != SubSceneType::MUTATION_SELECTION)
+            {
+                continue;
+            }
+            else
+            {
+                sceneObject->mInvisible = false;
+            }
+        }
+        else if (STATIC_SCENE_ELEMENTS.count(sceneObject->mName))
         {
             continue;
         }
         
         if (sceneObject->mName == STORY_DECK_SCENE_OBJECT_NAMES[0] ||
             sceneObject->mName == STORY_DECK_SCENE_OBJECT_NAMES[1] ||
-            sceneObject->mName == STORY_DECK_SCENE_OBJECT_NAMES[2])
+            sceneObject->mName == STORY_DECK_SCENE_OBJECT_NAMES[2] ||
+            sceneObject->mName == MUTATION_FIRE_SCENE_OBJECT_NAME)
         {
             continue;
         }
@@ -770,7 +982,14 @@ void MainMenuSceneLogicManager::TransitionToSubScene(const SubSceneType subScene
     mTransitioningToSubScene = true;
     for (auto sceneObject: scene->GetSceneObjects())
     {
-        if (STATIC_SCENE_ELEMENTS.count(sceneObject->mName))
+        if (sceneObject->mName == MUTATION_SCENE_OBJECT_NAME)
+        {
+            if (mActiveSubScene != SubSceneType::MUTATION_SELECTION)
+            {
+                continue;
+            }
+        }
+        else if (STATIC_SCENE_ELEMENTS.count(sceneObject->mName))
         {
             continue;
         }
@@ -921,6 +1140,90 @@ bool MainMenuSceneLogicManager::IsDisconnected() const
 #else
     return !window_utils::IsConnectedToTheInternet();
 #endif
+}
+
+///------------------------------------------------------------------------------------------------
+
+void MainMenuSceneLogicManager::CreateMutationObject(std::shared_ptr<scene::Scene> scene)
+{
+    auto mutationSceneObject = scene->CreateSceneObject(MUTATION_SCENE_OBJECT_NAME);
+    mutationSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + MUTATION_TEXTURE_FILE_NAME);
+    mutationSceneObject->mMeshResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_MESHES_ROOT + MUTATION_MESH_FILE_NAME);
+    mutationSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + MUTATION_SHADER_FILE_NAME);
+    mutationSceneObject->mShaderVec3UniformValues[POINT_LIGHT_POSITION_UNIFORM_NAME] = POINT_LIGHT_POSITION;
+    mutationSceneObject->mShaderVec3UniformValues[DIFFUSE_COLOR_UNIFORM_NAME] = DIFFUSE_COLOR;
+    mutationSceneObject->mShaderVec3UniformValues[SPEC_COLOR_UNIFORM_NAME] = SPEC_COLOR;
+    mutationSceneObject->mShaderVec3UniformValues[AMBIENT_COLOR_UNIFORM_NAME] = AMB_COLOR;
+    mutationSceneObject->mShaderFloatUniformValues[POINT_LIGHT_POWER_UNIFORM_NAME] = POINT_LIGHT_POWER;
+    mutationSceneObject->mShaderBoolUniformValues[AFFECTED_BY_LIGHT_UNIFORM_NAME] = true;
+
+    mutationSceneObject->mPosition = MUTATION_POSITION;
+    mutationSceneObject->mScale = MUTATION_SCALE;
+    mutationSceneObject->mInvisible = true;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void MainMenuSceneLogicManager::SetMutationLevel(const int mutationLevel, std::shared_ptr<scene::Scene> scene)
+{
+    int valueDelta = mutationLevel - mQuickPlayData->mMutationLevel;
+    mQuickPlayData->mMutationLevel = mutationLevel;
+    auto mutationValueSceneObject = scene->FindSceneObject(MUTATION_VALUE_SCENE_OBJECT_NAME);
+    std::get<scene::TextSceneObjectData>(mutationValueSceneObject->mSceneObjectTypeData).mText = std::to_string(mutationLevel);
+    
+    auto boundingRect = scene_object_utils::GetSceneObjectBoundingRect(*mutationValueSceneObject);
+    auto textLength = boundingRect.topRight.x - boundingRect.bottomLeft.x;
+    mutationValueSceneObject->mPosition.x = MUTATION_VALUE_POSITION.x - textLength/2.0f;
+    
+    auto fireSceneObject = scene->FindSceneObject(MUTATION_FIRE_SCENE_OBJECT_NAME);
+    auto mutationSceneObject = scene->FindSceneObject(MUTATION_SCENE_OBJECT_NAME);
+    
+    auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+    
+    animationManager.StopAnimation(FIRE_ALPHA_ANIMATION_NAME);
+    animationManager.StopAnimation(FIRE_RED_COLOR_ANIMATION_NAME);
+    animationManager.StopAnimation(FIRE_GREEN_COLOR_ANIMATION_NAME);
+    animationManager.StopAnimation(MUTATION_PULSE_ANIMATION_NAME);
+    
+    animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(fireSceneObject, mQuickPlayData->mMutationLevel ? 1.0f : 0.0f, 0.5f), [](){}, FIRE_ALPHA_ANIMATION_NAME);
+    animationManager.StartAnimation(std::make_unique<rendering::TweenValueAnimation>(fireSceneObject->mShaderFloatUniformValues[COLOR_FACTOR_R_UNIFORM_NAME], 1.0f - mQuickPlayData->mMutationLevel * FIRE_COLOR_R_INCREMENTS, 0.5f), [](){}, FIRE_RED_COLOR_ANIMATION_NAME);
+    animationManager.StartAnimation(std::make_unique<rendering::TweenValueAnimation>(fireSceneObject->mShaderFloatUniformValues[COLOR_FACTOR_G_UNIFORM_NAME], 1.0f + mQuickPlayData->mMutationLevel * FIRE_COLOR_G_INCREMENTS, 0.5f), [](){}, FIRE_GREEN_COLOR_ANIMATION_NAME);
+    
+    if (valueDelta != 0)
+    {
+        animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(mutationSceneObject, mutationSceneObject->mPosition, MUTATION_SCALE * (valueDelta > 0 ? 1.25f : 0.8f), 0.1f, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+        {
+            auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+            animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(mutationSceneObject, mutationSceneObject->mPosition, MUTATION_SCALE, 0.1f, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+            {
+                mutationSceneObject->mScale = MUTATION_SCALE;
+            }, MUTATION_PULSE_ANIMATION_NAME);
+        }, MUTATION_PULSE_ANIMATION_NAME);
+    }
+    
+    for (auto i = 0; i < game_constants::MAX_MUTATION_LEVEL; ++i)
+    {
+        scene->RemoveSceneObject(strutils::StringId(MUTATION_CHANGES_TEXT_SCENE_OBJECT_NAME_PREFIX + std::to_string(i)));
+    }
+    
+    for (auto i = 0; i < mQuickPlayData->mMutationLevel; ++i)
+    {
+        scene::TextSceneObjectData textMutationChange;
+        textMutationChange.mFontName = game_constants::DEFAULT_FONT_NAME;
+        
+        auto text = MUTATION_TEXTS[i];
+        for (const auto& symbolicNameEntry: symbolic_glyph_names::SYMBOLIC_NAMES)
+        {
+            strutils::StringReplaceAllOccurences("<" + symbolicNameEntry.first.GetString() + ">", std::string(1, symbolicNameEntry.second), text);
+        }
+        
+        textMutationChange.mText = std::string(1, symbolic_glyph_names::SYMBOLIC_NAMES.at(symbolic_glyph_names::SKULL)) + text;
+        auto mutationChangeSceneObject = scene->CreateSceneObject(strutils::StringId(MUTATION_CHANGES_TEXT_SCENE_OBJECT_NAME_PREFIX + std::to_string(i)));
+        mutationChangeSceneObject->mSceneObjectTypeData = std::move(textMutationChange);
+        mutationChangeSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
+        mutationChangeSceneObject->mPosition = MUTATION_CHANGE_TEXT_INIT_POSITION - glm::vec3(0.0f, i * 0.025f, 0.0f);
+        mutationChangeSceneObject->mScale = MUTATION_CHANGE_TEXT_SCALE;
+    }
 }
 
 ///------------------------------------------------------------------------------------------------

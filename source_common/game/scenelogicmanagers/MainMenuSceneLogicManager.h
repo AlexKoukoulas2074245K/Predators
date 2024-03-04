@@ -42,6 +42,7 @@ private:
         STORY_MODE,
         NEW_STORY_CONFIRMATION,
         NEW_STORY_DECK_SELECTION,
+        MUTATION_SELECTION,
         EXTRAS
     };
     
@@ -60,6 +61,9 @@ private:
     void StartNewStory();
     void OnEnterGiftCodeButtonPressed();
     bool IsDisconnected() const;
+    void CreateMutationObject(std::shared_ptr<scene::Scene> scene);
+    void SetMutationLevel(const int mutationLevel, std::shared_ptr<scene::Scene> scene);
+    
 private:
     std::vector<std::unique_ptr<AnimatedButton>> mAnimatedButtons;
     std::unique_ptr<SwipeableContainer<CardFamilyEntry>> mCardFamilyContainerTop;

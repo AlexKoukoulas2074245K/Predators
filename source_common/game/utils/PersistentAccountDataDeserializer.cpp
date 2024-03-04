@@ -35,6 +35,11 @@ PersistentAccountDataDeserializer::PersistentAccountDataDeserializer(DataReposit
         dataRepository.SetGamesFinishedCount(persistentDataJson["games_finished_count"].get<int>());
     }
     
+    if (persistentDataJson.count("victories_count"))
+    {
+        dataRepository.SetVictoriesCount(persistentDataJson["victories_count"].get<int>());
+    }
+    
     if (persistentDataJson.count("unlocked_card_ids"))
     {
         dataRepository.SetUnlockedCardIds(persistentDataJson["unlocked_card_ids"].get<std::vector<int>>());

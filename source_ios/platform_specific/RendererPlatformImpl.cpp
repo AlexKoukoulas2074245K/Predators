@@ -45,6 +45,8 @@ static const strutils::StringId POINT_LIGHT_POSITIONS_UNIFORM_NAME = strutils::S
 static const strutils::StringId POINT_LIGHT_POWERS_UNIFORM_NAME = strutils::StringId("point_light_powers");
 static const strutils::StringId IS_TEXTURE_SHEET_UNIFORM_NAME = strutils::StringId("texture_sheet");
 static const strutils::StringId CUSTOM_ALPHA_UNIFORM_NAME = strutils::StringId("custom_alpha");
+static const strutils::StringId ROT_MATRIX_UNIFORM_NAME  = strutils::StringId("rot");
+static const strutils::StringId IS_AFFECTED_BY_LIGHT_UNIFORM_NAME = strutils::StringId("affected_by_light");
 
 static const glm::ivec4 RENDER_TO_TEXTURE_VIEWPORT = {-1536, -1024, 4096, 4096};
 static const glm::vec4 RENDER_TO_TEXTURE_CLEAR_COLOR = {1.0f, 1.0f, 1.0f, 0.0f};
@@ -91,16 +93,20 @@ public:
         
         glm::mat4 world(1.0f);
         world = glm::translate(world, mSceneObject.mPosition);
-        world = glm::rotate(world, mSceneObject.mRotation.x, math::X_AXIS);
-        world = glm::rotate(world, mSceneObject.mRotation.y, math::Y_AXIS);
-        world = glm::rotate(world, mSceneObject.mRotation.z, math::Z_AXIS);
+        glm::mat4 rot(1.0f);
+        rot = glm::rotate(rot, mSceneObject.mRotation.x, math::X_AXIS);
+        rot = glm::rotate(rot, mSceneObject.mRotation.y, math::Y_AXIS);
+        rot = glm::rotate(rot, mSceneObject.mRotation.z, math::Z_AXIS);
+        world *= rot;
         world = glm::scale(world, mSceneObject.mScale);
         
         currentShader->SetFloat(CUSTOM_ALPHA_UNIFORM_NAME, 1.0f);
+        currentShader->SetBool(IS_AFFECTED_BY_LIGHT_UNIFORM_NAME, mSceneObject.mShaderBoolUniformValues.count(IS_AFFECTED_BY_LIGHT_UNIFORM_NAME) ? mSceneObject.mShaderBoolUniformValues.at(IS_AFFECTED_BY_LIGHT_UNIFORM_NAME) : false);
         currentShader->SetBool(IS_TEXTURE_SHEET_UNIFORM_NAME, false);
         currentShader->SetMatrix4fv(WORLD_MATRIX_UNIFORM_NAME, world);
         currentShader->SetMatrix4fv(VIEW_MATRIX_UNIFORM_NAME, mCamera.GetViewMatrix());
         currentShader->SetMatrix4fv(PROJ_MATRIX_UNIFORM_NAME, mCamera.GetProjMatrix());
+        currentShader->SetMatrix4fv(ROT_MATRIX_UNIFORM_NAME, rot);
         
         for (const auto& vec3Entry: mSceneObject.mShaderVec3UniformValues) currentShader->SetFloatVec3(vec3Entry.first, vec3Entry.second);
         for (const auto& floatEntry: mSceneObject.mShaderFloatUniformValues) currentShader->SetFloat(floatEntry.first, floatEntry.second);

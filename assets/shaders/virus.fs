@@ -11,6 +11,9 @@ in vec3 normal_interp;
 
 uniform sampler2D tex;
 uniform vec3 point_light_position;
+uniform vec3 mat_diffuse;
+uniform vec3 mat_spec;
+uniform vec3 mat_ambient;
 uniform float point_light_power;
 uniform float custom_alpha;
 uniform bool affected_by_light;
@@ -40,12 +43,12 @@ void main()
             float diffuse_factor = max(dot(normal, light_direction), 0.0f);
             if (diffuse_factor > 0.0f)
             {
-                diffuse_color = vec4(0.6f, 0.6f, 0.6f, 1.0f) /* mat_diffuse */ * diffuse_factor;
+                diffuse_color = vec4(mat_diffuse.rgb, 1.0f) /* mat_diffuse */ * diffuse_factor;
                 diffuse_color = clamp(diffuse_color, 0.0f, 1.0f);
 
                 vec3 reflected_direction = normalize(reflect(-light_direction, normal));
 
-                specular_color = vec4(0.8f, 0.8f, 0.8f, 1.0f) /* mat_spec */ * pow(max(dot(view_direction, reflected_direction), 0.0f), 1.0f /* shiny */);
+                specular_color = vec4(mat_spec.rgb, 1.0f) /* mat_spec */ * pow(max(dot(view_direction, reflected_direction), 0.0f), 1.0f /* shiny */);
                 specular_color = clamp(specular_color, 0.0f, 1.0f);
             }
             
@@ -55,7 +58,7 @@ void main()
             light_accumulator.rgb += (diffuse_color * attenuation + specular_color * attenuation).rgb;
         }
         
-        frag_color = frag_color * vec4(0.5f, 0.5f, 0.5f, 1.0f) /* ambient_light_color */ + light_accumulator;
+        frag_color = frag_color * vec4(mat_ambient.rgb, 1.0f) /* ambient_light_color */ + light_accumulator;
     }
     
     frag_color.a *= custom_alpha;
