@@ -83,7 +83,7 @@ void DataRepository::ResetStoryData()
     mNextBattleBotPlayerWeightLimit = 0;
     mNextStoryOpponentDamage = 0;
     mCurrentStorySecondsPlayed = 0;
-    
+    mCurrentStoryMutationLevel = 0;
     mIsCurrentlyPlayingStoryMode = false;
     
     SetNextBotPlayerDeck(CardDataRepository::GetInstance().GetCardIdsByFamily(game_constants::RODENTS_FAMILY_NAME));
@@ -798,6 +798,21 @@ void DataRepository::SetGoldCartsIgnored(const int goldCartsIgnored)
 {
     mGoldCartsIgnored = goldCartsIgnored;
     mPersistentDataSerializer->GetState()["gold_carts_ignored"] = mGoldCartsIgnored;
+}
+
+///------------------------------------------------------------------------------------------------
+
+const int& DataRepository::GetCurrentStoryMutationLevel() const
+{
+    return mCurrentStoryMutationLevel;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void DataRepository::SetCurrentStoryMutationLevel(const int storyMutationLevel)
+{
+    mCurrentStoryMutationLevel = storyMutationLevel;
+    mStoryDataSerializer->GetState()["current_story_mutation_level"] = mCurrentStoryMutationLevel;
 }
 
 ///------------------------------------------------------------------------------------------------

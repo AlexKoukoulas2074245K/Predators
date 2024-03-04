@@ -59,6 +59,11 @@ StoryDeserializer::StoryDeserializer(DataRepository& dataRepository)
         dataRepository.SetCurrentStoryPlayerDeck(storyJson["current_story_player_deck"].get<std::vector<int>>());
     }
     
+    if (storyJson.count("current_story_mutation_level"))
+    {
+        dataRepository.SetCurrentStoryMutationLevel(storyJson["current_story_mutation_level"].get<int>());
+    }
+    
     if (storyJson.count("next_top_player_deck"))
     {
         dataRepository.SetNextTopPlayerDeck(storyJson["next_top_player_deck"].get<std::vector<int>>());

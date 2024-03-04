@@ -260,6 +260,9 @@ public:
     const int& GetGoldCartsIgnored() const;
     void SetGoldCartsIgnored(const int goldCartsIgnored);
     
+    const int& GetCurrentStoryMutationLevel() const;
+    void SetCurrentStoryMutationLevel(const int storyMutationLevel);
+    
     const std::vector<std::pair<int, int>>& GetCurrentShopBoughtProductCoordinates() const;
     void ClearShopBoughtProductCoordinates();
     void SetShopBoughtProductCoordinates(const std::vector<std::pair<int, int>>& shopBoughtProductCoordinates);
@@ -357,6 +360,7 @@ private:
     int mCurrentStoryMapNodeSeed = 0;
     int mNextCardPackSeed = 0;
     int mCurrentEventScreenIndex = 0;
+    int mCurrentStoryMutationLevel = 0;
     int mCurrentEventIndex = 0;
     int mNextBattleTopPlayerHealth = 0;
     int mNextBattleBotPlayerHealth = 0;

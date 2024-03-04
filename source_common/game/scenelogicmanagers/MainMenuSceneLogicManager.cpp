@@ -781,6 +781,7 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                     START_NEW_STORY_BUTTON_SCENE_OBJECT_NAME,
                     [=]()
                     {
+                        DataRepository::GetInstance().SetCurrentStoryMutationLevel(0);
                         DataRepository::GetInstance().SetCurrentStoryPlayerDeck(mQuickPlayData->mBotPlayerDeck);
                         DataRepository::GetInstance().FlushStateToFile();
                         StartNewStory();
@@ -867,6 +868,7 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                 START_NEW_STORY_BUTTON_SCENE_OBJECT_NAME,
                 [=]()
                 {
+                    DataRepository::GetInstance().SetCurrentStoryMutationLevel(mQuickPlayData->mMutationLevel);
                     DataRepository::GetInstance().SetCurrentStoryPlayerDeck(mQuickPlayData->mBotPlayerDeck);
                     DataRepository::GetInstance().FlushStateToFile();
                     StartNewStory();
