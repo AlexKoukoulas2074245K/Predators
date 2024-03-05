@@ -220,6 +220,16 @@ CardData CardDataRepository::GetCardData(const int cardId, const size_t forPlaye
                 {
                     cardData.mCardWeight += storyCardStatModifiers.at(CardStatType::WEIGHT);
                 }
+                
+                if (DataRepository::GetInstance().DoesCurrentStoryHaveMutation(game_constants::MUTATION_INCREASED_CARD_WEIGHT))
+                {
+                    cardData.mCardWeight++;
+                }
+                
+                if (!cardData.IsSpell() && DataRepository::GetInstance().DoesCurrentStoryHaveMutation(game_constants::MUTATION_REDUCED_NORMAL_CARD_DAMAGE))
+                {
+                    cardData.mCardDamage = math::Max(0, cardData.mCardDamage - 1);
+                }
             }
         }
         

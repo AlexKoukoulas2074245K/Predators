@@ -552,8 +552,12 @@ void CardSelectionRewardSceneLogicManager::OnLeavingCardSelection()
         DataRepository::GetInstance().SetCurrentStoryMapType(StoryMapType::NORMAL_MAP);
         DataRepository::GetInstance().SetCurrentStoryMapNodeCoord(game_constants::STORY_MAP_INIT_COORD);
         DataRepository::GetInstance().SetCurrentStoryMapSceneType(StoryMapSceneType::STORY_MAP);
-        DataRepository::GetInstance().StoryCurrentHealth().SetValue(DataRepository::GetInstance().GetStoryMaxHealth());
-        DataRepository::GetInstance().StoryCurrentHealth().SetDisplayedValue(DataRepository::GetInstance().GetStoryMaxHealth());
+        
+        if (!DataRepository::GetInstance().DoesCurrentStoryHaveMutation(game_constants::MUTATION_NO_HEAL_AFTER_FIRST_BOSS))
+        {
+            DataRepository::GetInstance().StoryCurrentHealth().SetValue(DataRepository::GetInstance().GetStoryMaxHealth());
+            DataRepository::GetInstance().StoryCurrentHealth().SetDisplayedValue(DataRepository::GetInstance().GetStoryMaxHealth());
+        }
     }
     
     DataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::BATTLE);

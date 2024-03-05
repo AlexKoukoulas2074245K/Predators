@@ -24,7 +24,7 @@
 const std::string DemonPunchGameAction::DEMON_PUNCH_DAMAGE_PARAM = "demonPunchDamage";
 
 static const std::string EXPLOSION_SFX = "sfx_explosion";
-static const std::string DEMON_PUNCH_ICON_SHADER_FILE_NAME = "board_side_stat_effect.vs";
+static const std::string DEMON_PUNCH_ICON_SHADER_FILE_NAME = "demon_punch.vs";
 static const std::string DEMON_PUNCH_ICON_TEXTURE_FILE_NAME = "demon_punch.png";
 static const std::string DEMON_PUNCH_ICON_EFFECT_TEXTURE_FILE_NAME = "trap_mask.png";
 

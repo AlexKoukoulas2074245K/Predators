@@ -123,6 +123,9 @@ static const float BOSS_STAT_FACTOR = 1.25f;
 static const float TUTORIAL_MAP_DOWNSCALE_FACTOR = 1.0f/3.0f;
 static const float FINAL_BOSS_HEALTH = 35.0f;
 static const float MINI_BOSS_HEALTH = 20.0f;
+static const float MUTATION_WEIGHT_MULTIPLIER = 1.15f;
+static const float MUTATION_HEALTH_MULTIPLIER = 1.3f;
+static const float MUTATION_DAMAGE_MULTIPLIER = 1.15f;
 
 static const int MAP_PATH_SEGMENTS_FACTOR = 30;
 static const int MAP_GENERATION_PASSES = 8;
@@ -532,6 +535,21 @@ void StoryMap::CreateMapSceneObjects()
                 }
             }
             
+            if (DataRepository::GetInstance().DoesCurrentStoryHaveMutation(game_constants::MUTATION_INCREASED_STARTING_WEIGHT_FOR_OPPONENTS))
+            {
+                defaultWeightRange *= MUTATION_WEIGHT_MULTIPLIER;
+            }
+            
+            if (DataRepository::GetInstance().DoesCurrentStoryHaveMutation(game_constants::MUTATION_INCREASED_STARTING_HEALTH_FOR_OPPONENTS))
+            {
+                defaultHealthRange *= MUTATION_HEALTH_MULTIPLIER;
+            }
+            
+            if (DataRepository::GetInstance().DoesCurrentStoryHaveMutation(game_constants::MUTATION_INCREASED_STARTING_DAMAGE_FOR_OPPONENTS))
+            {
+                defaultDamageRange *= MUTATION_DAMAGE_MULTIPLIER;
+            }
+            
             // Final stat values
             auto nodeOpponentHealth = math::ControlledRandomFloat(defaultHealthRange.s, defaultHealthRange.t);
             auto nodeOpponentDamage = math::ControlledRandomFloat(defaultDamageRange.s, defaultDamageRange.t);
@@ -880,11 +898,26 @@ StoryMap::NodeType StoryMap::SelectNodeTypeForCoord(const MapCoord& mapCoord) co
         auto randomIndex = math::ControlledRandomInt(0, static_cast<int>(availableNodeTypes.size()) - 1);
         for (const auto& nodeType: availableNodeTypes)
         {
-            if (randomIndex-- == 0) return nodeType;
+            if (randomIndex-- == 0)
+            {
+                if (DataRepository::GetInstance().DoesCurrentStoryHaveMutation(game_constants::MUTATION_ALL_NORMAL_FIGHTS_BECOME_ELITE) && nodeType == NodeType::NORMAL_ENCOUNTER)
+                {
+                    return NodeType::ELITE_ENCOUNTER;
+                }
+                
+                return nodeType;
+            }
         }
     }
     
-    return NodeType::NORMAL_ENCOUNTER;
+    if (DataRepository::GetInstance().DoesCurrentStoryHaveMutation(game_constants::MUTATION_ALL_NORMAL_FIGHTS_BECOME_ELITE))
+    {
+        return NodeType::ELITE_ENCOUNTER;
+    }
+    else
+    {
+        return NodeType::NORMAL_ENCOUNTER;
+    }
 }
 
 ///------------------------------------------------------------------------------------------------
