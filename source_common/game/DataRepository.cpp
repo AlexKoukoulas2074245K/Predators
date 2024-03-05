@@ -846,6 +846,13 @@ const int& DataRepository::GetCurrentStoryMutationLevel() const
 
 ///------------------------------------------------------------------------------------------------
 
+bool DataRepository::DoesCurrentStoryHaveMutation(const int storyMutationLevel) const
+{
+    return mCurrentStoryMutationLevel >= storyMutationLevel;
+}
+
+///------------------------------------------------------------------------------------------------
+
 void DataRepository::SetCurrentStoryMutationLevel(const int storyMutationLevel)
 {
     mCurrentStoryMutationLevel = storyMutationLevel;

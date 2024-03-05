@@ -782,6 +782,11 @@ void ShopSceneLogicManager::CreateProducts()
             auto productDefinitionName = strutils::StringId("card_" + std::to_string(cardId));
             
             auto cardPrice = cardData.IsSpell() ? SPELL_CARD_REWARD_PRICE : NORMAL_CARD_REWARD_PRICE;
+            if (DataRepository::GetInstance().DoesCurrentStoryHaveMutation(game_constants::MUTATION_INCREASED_SHOP_PRICES))
+            {
+                cardPrice *= 2;
+            }
+            
             ProductRepository::GetInstance().InsertDynamicProductDefinition(productDefinitionName, ProductDefinition(productDefinitionName, cardId, "", cardData.mCardEffectTooltip, cardPrice));
             mProducts[1][col] = std::make_unique<ProductInstance>(productDefinitionName);
         }
@@ -887,6 +892,13 @@ void ShopSceneLogicManager::CreateProducts()
             if (productDefinition.mPrice > 0)
             {
                 auto priceTagSceneObject = mScene->CreateSceneObject(strutils::StringId(PRODUCT_NAME_PREFIX + std::to_string(shelfIndex) + "_" + std::to_string(shelfItemIndex) + "_tag"));
+                auto dynamicProductPrice = productDefinition.mPrice;
+                if (DataRepository::GetInstance().GetCurrentShopBehaviorType() == ShopBehaviorType::STORY_SHOP &&
+                    !productDefinition.mStoryRareItemName.empty() &&
+                    DataRepository::GetInstance().DoesCurrentStoryHaveMutation(game_constants::MUTATION_INCREASED_SHOP_PRICES))
+                {
+                    dynamicProductPrice *= 2;
+                }
                 
                 if (IsProductCoins(shelfIndex, shelfItemIndex) || product->mProductName == STORY_HEALTH_REFILL_PRODUCT_NAME)
                 {
@@ -894,7 +906,7 @@ void ShopSceneLogicManager::CreateProducts()
                 }
                 else
                 {
-                    priceTagSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + PRICE_TAG_TEXTURE_FILE_NAME_PREFIX + std::to_string(std::to_string(productDefinition.mPrice).size()) + ".png");
+                    priceTagSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + PRICE_TAG_TEXTURE_FILE_NAME_PREFIX + std::to_string(std::to_string(dynamicProductPrice).size()) + ".png");
                 }
                 
                 priceTagSceneObject->mPosition = SHELF_ITEM_TARGET_BASE_POSITIONS[shelfIndex] + PRODUCT_PRICE_TAG_POSITION_OFFSET;
@@ -907,7 +919,7 @@ void ShopSceneLogicManager::CreateProducts()
                 
                 scene::TextSceneObjectData priceTextData;
                 priceTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
-                priceTextData.mText = "|" + std::to_string(productDefinition.mPrice);
+                priceTextData.mText = "|" + std::to_string(dynamicProductPrice);
                 
                 if (IsProductCoins(shelfIndex, shelfItemIndex) || product->mProductName == STORY_HEALTH_REFILL_PRODUCT_NAME)
                 {
@@ -918,7 +930,7 @@ void ShopSceneLogicManager::CreateProducts()
                 priceTextSceneObject->mPosition = SHELF_ITEM_TARGET_BASE_POSITIONS[shelfIndex] + PRODUCT_PRICE_TAG_TEXT_POSITION_OFFSET;
                 priceTextSceneObject->mSceneObjectTypeData = std::move(priceTextData);
                 priceTextSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + BASIC_CUSTOM_COLOR_SHADER_FILE_NAME);
-                priceTextSceneObject->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = productDefinition.mPrice > DataRepository::GetInstance().CurrencyCoins().GetValue() ? COIN_RED_VALUE_TEXT_COLOR : COIN_NORMAL_VALUE_TEXT_COLOR;
+                priceTextSceneObject->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = dynamicProductPrice > DataRepository::GetInstance().CurrencyCoins().GetValue() ? COIN_RED_VALUE_TEXT_COLOR : COIN_NORMAL_VALUE_TEXT_COLOR;
                 priceTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
                 priceTextSceneObject->mScale = PRICE_TAG_TEXT_SCALE;
                 priceTextSceneObject->mSnapToEdgeBehavior = scene::SnapToEdgeBehavior::SNAP_TO_LEFT_EDGE;
@@ -1208,8 +1220,16 @@ void ShopSceneLogicManager::OnBuyProductAttempt(const size_t productShelfIndex, 
     auto currentCoinsValue = DataRepository::GetInstance().CurrencyCoins().GetValue();
     auto currentHealthValue = DataRepository::GetInstance().StoryCurrentHealth().GetValue();
     
+    auto dynamicProductPrice = productDefinition.mPrice;
+    if (DataRepository::GetInstance().GetCurrentShopBehaviorType() == ShopBehaviorType::STORY_SHOP &&
+        !productDefinition.mStoryRareItemName.empty() &&
+        DataRepository::GetInstance().DoesCurrentStoryHaveMutation(game_constants::MUTATION_INCREASED_SHOP_PRICES))
+    {
+        dynamicProductPrice *= 2;
+    }
+    
     // Insufficient funds/health case
-    if ((productDefinition.mPrice > currentCoinsValue && !IsProductCoins(productShelfIndex, productShelfItemIndex) && product->mProductName != STORY_HEALTH_REFILL_PRODUCT_NAME) ||
+    if ((dynamicProductPrice > currentCoinsValue && !IsProductCoins(productShelfIndex, productShelfItemIndex) && product->mProductName != STORY_HEALTH_REFILL_PRODUCT_NAME) ||
         (product->mProductName == COINS_TO_LIFE_PRODUCT_NAME && COINS_TO_LIFE_RATE.first > currentCoinsValue) ||
         (product->mProductName == LIFE_TO_COINS_PRODUCT_NAME && LIFE_TO_COINS_RATE.first >= currentHealthValue) ||
         (product->mProductName == COINS_TO_LIFE_PRODUCT_NAME && DataRepository::GetInstance().StoryCurrentHealth().GetValue() == DataRepository::GetInstance().GetStoryMaxHealth()) ||
@@ -1305,9 +1325,9 @@ void ShopSceneLogicManager::OnBuyProductAttempt(const size_t productShelfIndex, 
         // Story shop puchase completion
         if (DataRepository::GetInstance().GetCurrentShopBehaviorType() == ShopBehaviorType::STORY_SHOP && product->mProductName != STORY_HEALTH_REFILL_PRODUCT_NAME)
         {
-            if (productDefinition.mPrice > 0)
+            if (dynamicProductPrice > 0)
             {
-                ChangeAndAnimateCoinValueReduction(productDefinition.mPrice);
+                ChangeAndAnimateCoinValueReduction(dynamicProductPrice);
             }
             
             // Fade out tag and price scene objects
@@ -1519,9 +1539,17 @@ void ShopSceneLogicManager::UpdateProductPriceTags()
                 continue;
             }
             
-            if (productDefinition.mPrice > 0)
+            auto dynamicProductPrice = productDefinition.mPrice;
+            if (DataRepository::GetInstance().GetCurrentShopBehaviorType() == ShopBehaviorType::STORY_SHOP &&
+                !productDefinition.mStoryRareItemName.empty() &&
+                DataRepository::GetInstance().DoesCurrentStoryHaveMutation(game_constants::MUTATION_INCREASED_SHOP_PRICES))
             {
-                product->mSceneObjects[2]->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = productDefinition.mPrice > DataRepository::GetInstance().CurrencyCoins().GetValue() ? COIN_RED_VALUE_TEXT_COLOR : COIN_NORMAL_VALUE_TEXT_COLOR;
+                dynamicProductPrice *= 2;
+            }
+            
+            if (dynamicProductPrice > 0)
+            {
+                product->mSceneObjects[2]->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = dynamicProductPrice > DataRepository::GetInstance().CurrencyCoins().GetValue() ? COIN_RED_VALUE_TEXT_COLOR : COIN_NORMAL_VALUE_TEXT_COLOR;
             }
         }
     }

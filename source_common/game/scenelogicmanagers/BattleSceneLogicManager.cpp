@@ -2257,6 +2257,11 @@ void BattleSceneLogicManager::OnStoryBattleWon(const events::StoryBattleWonEvent
         battleCoinRewards *= 2 * greedyGoblinCount;
     }
     
+    if (DataRepository::GetInstance().DoesCurrentStoryHaveMutation(game_constants::MUTATION_HALF_COINS))
+    {
+        battleCoinRewards /= 2;
+    }
+    
     // Add victory coin loot indicator and animate coins to gui
     auto coinsLootIndicatorSceneObject = mActiveScene->FindSceneObject(COINS_LOOT_INDICATOR_SCENE_OBJECT_NAME);
     coinsLootIndicatorSceneObject->mInvisible = false;

@@ -264,6 +264,7 @@ public:
     void SetGoldCartsIgnored(const int goldCartsIgnored);
     
     const int& GetCurrentStoryMutationLevel() const;
+    bool DoesCurrentStoryHaveMutation(const int storyMutationLevel) const;
     void SetCurrentStoryMutationLevel(const int storyMutationLevel);
     
     const std::vector<std::pair<int, int>>& GetCurrentShopBoughtProductCoordinates() const;

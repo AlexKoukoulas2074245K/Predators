@@ -319,20 +319,17 @@ std::shared_ptr<GuiObjectManager> WheelOfFortuneSceneLogicManager::VGetGuiObject
 
 void WheelOfFortuneSceneLogicManager::OnWheelItemSelected(const int itemIndex, const std::shared_ptr<scene::SceneObject> selectedSceneObject)
 {
-    auto greedyGoblinCoinMultiplier = DataRepository::GetInstance().GetStoryArtifactCount(artifacts::GREEDY_GOBLIN);
-    greedyGoblinCoinMultiplier = greedyGoblinCoinMultiplier == 0 ? 1 : 2 * greedyGoblinCoinMultiplier;
-    
     if (mWheelRewards.at(itemIndex) == REWARD_EXTRA_15_COINS_PRODUCT_NAME)
     {
-        events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(15 * greedyGoblinCoinMultiplier, REWARD_ORIGIN_POSITION);
+        events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(15, REWARD_ORIGIN_POSITION);
     }
     else if (mWheelRewards.at(itemIndex) == REWARD_EXTRA_50_COINS_PRODUCT_NAME)
     {
-        events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(50 * greedyGoblinCoinMultiplier, REWARD_ORIGIN_POSITION);
+        events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(50, REWARD_ORIGIN_POSITION);
     }
     else if (mWheelRewards.at(itemIndex) == REWARD_EXTRA_100_COINS_PRODUCT_NAME)
     {
-        events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(100 * greedyGoblinCoinMultiplier, REWARD_ORIGIN_POSITION);
+        events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(100, REWARD_ORIGIN_POSITION);
     }
     else if (mWheelRewards.at(itemIndex) == REWARD_EXTRA_HP_PRODUCT_NAME)
     {

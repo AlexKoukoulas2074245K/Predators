@@ -163,6 +163,16 @@ namespace game_constants
     inline constexpr int STORY_DEFAULT_MAX_HEALTH = 80;
     inline constexpr int ZERO_COST_TIME_WEIGHT_VALUE = 100;
     inline constexpr int MAX_MUTATION_LEVEL = 10;
+    inline constexpr int MUTATION_HALF_COINS = 1;
+    inline constexpr int MUTATION_INCREASED_SHOP_PRICES = 2;
+    inline constexpr int MUTATION_INCREASED_STARTING_WEIGHT_FOR_OPPONENTS = 3;
+    inline constexpr int MUTATION_INCREASED_STARTING_HEALTH_FOR_OPPONENTS = 4;
+    inline constexpr int MUTATION_REDUCED_NORMAL_CARD_DAMAGE = 5;
+    inline constexpr int MUTATION_INCREASED_CARD_WEIGHT = 6;
+    inline constexpr int MUTATION_INCREASED_STARTING_DAMAGE_FOR_OPPONENTS = 7;
+    inline constexpr int MUTATION_NO_HEAL_AFTER_FIRST_BOSS = 8;
+    inline constexpr int MUTATION_ALL_NORMAL_FIGHTS_BECOME_ELITE = 9;
+    inline constexpr int MUTATION_FINAL_BOSS_REVIVES = 10;
 
     inline const float CARD_COMPONENT_Z_OFFSET = 0.1f;
     inline const float CARD_BOUNDING_RECT_X_MULTIPLIER = 0.5f;
@@ -255,8 +265,8 @@ namespace game_constants
 
     inline const std::vector<std::string> MUTATION_TEXTS =
     {
-        "50% less <coin> rewards",
-        "50% increased shop prices",
+        "Less <coin> from battles/events",
+        "Cards/Artifacts cost more <coin>",
         "All opponents have more<weight>",
         "All opponents have more<health>",
         "Your normal cards have -1<damage>",

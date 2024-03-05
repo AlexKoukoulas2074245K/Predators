@@ -125,7 +125,7 @@ static const glm::vec2 STORY_DECK_SELECTION_CONTAINER_CUTOFF_VALUES = {-0.1f, 0.
 
 static const glm::vec3 BUTTON_SCALE = {0.0005f, 0.0005f, 0.0005f};
 static const glm::vec3 MUTATION_CHANGE_TEXT_SCALE = {0.0002f, 0.0002f, 0.0002f};
-static const glm::vec3 MUTATION_CHANGE_TEXT_INIT_POSITION = {0.06, 0.088f, 1.0f};
+static const glm::vec3 MUTATION_CHANGE_TEXT_INIT_POSITION = {0.05, 0.088f, 1.0f};
 static const glm::vec3 PLUS_BUTTON_SCALE = {0.075f, 0.075f, 0.075f};
 static const glm::vec3 MINUS_BUTTON_SCALE = {0.075f, 0.075f, 0.075f};
 static const glm::vec3 STORY_DECK_NAME_SCALES = {0.00035f, 0.00035f, 0.00035f};

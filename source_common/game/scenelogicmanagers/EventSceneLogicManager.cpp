@@ -277,6 +277,11 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
             coinsToGain *= 2 * greedyGoblinCount;
         }
         
+        if (DataRepository::GetInstance().DoesCurrentStoryHaveMutation(game_constants::MUTATION_HALF_COINS))
+        {
+            coinsToGain /= 2;
+        }
+        
         if (DataRepository::GetInstance().HasSeenMountainOfGoldEvent())
         {
             mRegisteredStoryEvents.emplace_back
@@ -332,6 +337,18 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
     /// Mountain of Gold Event
     {
         auto goldCoinsToGain = 3000;
+        
+        auto greedyGoblinCount = DataRepository::GetInstance().GetStoryArtifactCount(artifacts::GREEDY_GOBLIN);
+        if (greedyGoblinCount > 0)
+        {
+            goldCoinsToGain *= 2 * greedyGoblinCount;
+        }
+        
+        if (DataRepository::GetInstance().DoesCurrentStoryHaveMutation(game_constants::MUTATION_HALF_COINS))
+        {
+            goldCoinsToGain /= 2;
+        }
+        
         mRegisteredStoryEvents.emplace_back
         (
             StoryRandomEventData
