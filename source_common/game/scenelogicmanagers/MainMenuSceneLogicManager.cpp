@@ -367,6 +367,7 @@ void MainMenuSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     DataRepository::GetInstance().SetIsCurrentlyPlayingStoryMode(false);
     
     mQuickPlayData = std::make_unique<QuickPlayData>();
+    mQuickPlayData->mMutationLevel = math::Min(game_constants::MAX_MUTATION_LEVEL, DataRepository::GetInstance().GetMaxMutationLevelWithAtLeastOneVictory() + 1);
     
     CardDataRepository::GetInstance().LoadCardData(true);
     mPreviousSubSceneStack = std::stack<SubSceneType>();
@@ -754,7 +755,7 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                 }
             }
             
-            if (DataRepository::GetInstance().GetVictoriesCount() > 0)
+            if (DataRepository::GetInstance().GetMutationLevelVictories(0) > 0)
             {
                 mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
                 (
@@ -845,7 +846,12 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                 PLUS_BUTTON_SCALE,
                 PLUS_BUTTON_TEXTURE_FILE_NAME,
                 MUTATION_PLUS_BUTTON_NAME,
-                [=](){ SetMutationLevel(math::Min(game_constants::MAX_MUTATION_LEVEL, mQuickPlayData->mMutationLevel + 1), scene); },
+                [=]()
+                {
+                    auto maxMutationLevelAllowed = math::Min(game_constants::MAX_MUTATION_LEVEL, DataRepository::GetInstance().GetMaxMutationLevelWithAtLeastOneVictory() + 1);
+                    SetMutationLevel(math::Min(maxMutationLevelAllowed, mQuickPlayData->mMutationLevel + 1), scene);
+                                     
+                },
                 *scene
             ));
             
@@ -887,7 +893,7 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                 *scene
             ));
             
-            SetMutationLevel(0, scene);
+            SetMutationLevel(mQuickPlayData->mMutationLevel, scene);
         } break;
         
         case SubSceneType::EXTRAS:

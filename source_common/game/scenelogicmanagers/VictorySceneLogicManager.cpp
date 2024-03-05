@@ -233,7 +233,11 @@ void VictorySceneLogicManager::InitSubScene(const SubSceneType subSceneType, std
                     }
                     
                     DataRepository::GetInstance().SetGamesFinishedCount(DataRepository::GetInstance().GetGamesFinishedCount() + 1);
-                    DataRepository::GetInstance().SetVictoriesCount(DataRepository::GetInstance().GetVictoriesCount() + 1);
+                    
+                    auto currentMutationLevel = DataRepository::GetInstance().GetCurrentStoryMutationLevel();
+                    auto currentMutationLevelVictories = DataRepository::GetInstance().GetMutationLevelVictories(currentMutationLevel);
+                    
+                    DataRepository::GetInstance().SetMutationLevelVictories(currentMutationLevel, currentMutationLevelVictories + 1);
                     DataRepository::GetInstance().FlushStateToFile();
                     
                     events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::MAIN_MENU_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);

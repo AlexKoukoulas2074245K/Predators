@@ -24,7 +24,8 @@ DataRepository& DataRepository::GetInstance()
 ///------------------------------------------------------------------------------------------------
 
 DataRepository::DataRepository()
-    : mStoryCurrentHealth(0)
+    : mStoryMutationLevelVictories(game_constants::MAX_MUTATION_LEVEL + 1, 0)
+    , mStoryCurrentHealth(0)
     , mCurrencyCoins(0)
 {
     mPersistentDataSerializer = std::make_unique<PersistentAccountDataSerializer>();
@@ -383,21 +384,6 @@ void DataRepository::SetGamesFinishedCount(const int gamesFinishedCount)
 
 ///------------------------------------------------------------------------------------------------
 
-const int& DataRepository::GetVictoriesCount() const
-{
-    return mVictoriesCount;
-}
-
-///------------------------------------------------------------------------------------------------
-
-void DataRepository::SetVictoriesCount(const int victoriesCount)
-{
-    mVictoriesCount = victoriesCount;
-    mPersistentDataSerializer->GetState()["victories_count"] = mVictoriesCount;
-}
-
-///------------------------------------------------------------------------------------------------
-
 const int& DataRepository::GetCurrentEventScreenIndex() const
 {
     return mCurrentEventScreenIndex;
@@ -530,6 +516,57 @@ void DataRepository::SetStoryDeletedCardIds(const std::vector<int>& storyDeleted
 {
     mStoryDeletedCards = storyDeletedCardIds;
     mStoryDataSerializer->GetState()["story_deleted_cards"] = mStoryDeletedCards;
+}
+
+///------------------------------------------------------------------------------------------------
+
+int DataRepository::GetMaxMutationLevelWithAtLeastOneVictory() const
+{
+    for (int i = game_constants::MAX_MUTATION_LEVEL; i >= 0; i--)
+    {
+        if (mStoryMutationLevelVictories[i] > 0)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
+///------------------------------------------------------------------------------------------------
+
+const std::vector<int>& DataRepository::GetAllMutationLevelVictoryCounts() const
+{
+    return mStoryMutationLevelVictories;
+}
+
+///------------------------------------------------------------------------------------------------
+
+const int& DataRepository::GetMutationLevelVictories(const int mutationLevel) const
+{
+    assert(mutationLevel >= 0 && mutationLevel <= game_constants::MAX_MUTATION_LEVEL);
+    return mStoryMutationLevelVictories[mutationLevel];
+}
+
+///------------------------------------------------------------------------------------------------
+
+void DataRepository::SetAllMutationLevelVictoryCounts(const std::vector<int>& mutationLevelVictoryCounts)
+{
+    // Done this way for backwards compatibility safety (older game file with less mutations)
+    for (auto i = 0; i < mutationLevelVictoryCounts.size(); ++i)
+    {
+        mStoryMutationLevelVictories[i] = mutationLevelVictoryCounts[i];
+    }
+    
+    mPersistentDataSerializer->GetState()["mutation_level_victories"] = mStoryMutationLevelVictories;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void DataRepository::SetMutationLevelVictories(const int mutationLevel, const int victoryCount)
+{
+    assert(mutationLevel >= 0 && mutationLevel <= game_constants::MAX_MUTATION_LEVEL);
+    mStoryMutationLevelVictories[mutationLevel] = victoryCount;
+    mPersistentDataSerializer->GetState()["mutation_level_victories"] = mStoryMutationLevelVictories;
 }
 
 ///------------------------------------------------------------------------------------------------

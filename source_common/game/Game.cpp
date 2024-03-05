@@ -504,6 +504,32 @@ void Game::CreateDebugWidgets()
     // Manipulating Persistent Data
     ImGui::Begin("Persistent Data", nullptr, GLOBAL_IMGUI_WINDOW_FLAGS);
     
+    static std::string mutationLevelString; mutationLevelString.resize(3);
+    static std::string victoriesString; victoriesString.resize(4);
+    
+    ImGui::PushID("MutationLevel");
+    ImGui::Text("Mutation Level");
+    ImGui::SameLine();
+    ImGui::SetNextItemWidth(30.0f);
+    ImGui::InputText("##hidelabel", &mutationLevelString[0], mutationLevelString.size());
+    ImGui::PopID();
+    ImGui::SameLine();
+    ImGui::PushID("Victories");
+    ImGui::Text("Victories");
+    ImGui::SameLine();
+    ImGui::SetNextItemWidth(40.0f);
+    ImGui::InputText("##hidelabel", &victoriesString[0], victoriesString.size());
+    ImGui::PopID();
+    
+    ImGui::SameLine();
+    if (ImGui::Button("Set Victories"))
+    {
+        auto mutationLevel = std::stoi(mutationLevelString);
+        auto victoryCount = std::stoi(victoriesString);
+        DataRepository::GetInstance().SetMutationLevelVictories(mutationLevel, victoryCount);
+        DataRepository::GetInstance().FlushStateToFile();
+    }
+    
     static size_t selectedCardIndex = 0;
     static std::vector<std::pair<std::string, int>> cardNamesAndIds;
     if (cardNamesAndIds.empty())

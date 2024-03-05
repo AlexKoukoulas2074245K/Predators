@@ -194,6 +194,12 @@ public:
     const std::vector<int>& GetStoryDeletedCardIds() const;
     void SetStoryDeletedCardIds(const std::vector<int>& storyDeletedCardIds);
     
+    const std::vector<int>& GetAllMutationLevelVictoryCounts() const;
+    int GetMaxMutationLevelWithAtLeastOneVictory() const;
+    const int& GetMutationLevelVictories(const int mutationLevel) const;
+    void SetAllMutationLevelVictoryCounts(const std::vector<int>& mutationLevelVictoryCounts);
+    void SetMutationLevelVictories(const int mutationLevel, const int victoryCount);
+    
     const std::vector<std::string>& GetSuccessfulTransactionIds() const;
     void SetSuccessfulTransactionIds(const std::vector<std::string>& successfulTransactionIds);
     
@@ -202,9 +208,6 @@ public:
     
     const int& GetGamesFinishedCount() const;
     void SetGamesFinishedCount(const int gamesFinishedCount);
-    
-    const int& GetVictoriesCount() const;
-    void SetVictoriesCount(const int victoriesCount);
     
     const int& GetStoryMaxHealth() const;
     void SetStoryMaxHealth(const int storyMaxHealth);
@@ -338,6 +341,7 @@ private:
     std::vector<int> mStoryDeletedCards;
     std::vector<int> mNewCardIds;
     std::vector<int> mSeenOpponentSpellCardIds;
+    std::vector<int> mStoryMutationLevelVictories;
     std::vector<std::string> mSuccessfulTransactionIds;
     std::vector<std::string> mGiftCodesClaimed;
     std::vector<std::pair<int, int>> mCurrentShopBoughtProductCoordinates;
@@ -354,7 +358,6 @@ private:
     ValueWithDelayedDisplay<int> mStoryCurrentHealth;
     ValueWithDelayedDisplay<long long> mCurrencyCoins;
     int mGamesFinishedCount = 0;
-    int mVictoriesCount = 0;
     int mStoryMaxHealth = 0;
     int mStoryMapGenerationSeed = 0;
     int mCurrentStoryMapNodeSeed = 0;
