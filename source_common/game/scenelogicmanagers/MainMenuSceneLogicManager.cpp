@@ -201,20 +201,6 @@ static const std::unordered_set<strutils::StringId, strutils::StringIdHasher> ST
     MUTATION_SCENE_OBJECT_NAME
 };
 
-static const std::vector<std::string> MUTATION_TEXTS =
-{
-    "50% less <coin> rewards",
-    "50% increased shop prices",
-    "All opponents have more<weight>",
-    "All opponents have more<health>",
-    "Your normal cards have -1<damage>",
-    "All your cards have +1<weight>",
-    "All opponents have more<damage>",
-    "No healing after first boss",
-    "All normal fights are elite",
-    "Final boss revives",
-};
-
 static const std::unordered_map<strutils::StringId, BattleControlType, strutils::StringIdHasher> BATTLE_MODE_BUTTON_NAMES_TO_BATTLE_CONTROL_TYPE =
 {
     { NORMAL_BATTLE_MODE_BUTTON_NAME, BattleControlType::AI_TOP_ONLY },
@@ -1219,7 +1205,7 @@ void MainMenuSceneLogicManager::SetMutationLevel(const int mutationLevel, std::s
         scene::TextSceneObjectData textMutationChange;
         textMutationChange.mFontName = game_constants::DEFAULT_FONT_NAME;
         
-        auto text = MUTATION_TEXTS[i];
+        auto text = game_constants::MUTATION_TEXTS[i];
         for (const auto& symbolicNameEntry: symbolic_glyph_names::SYMBOLIC_NAMES)
         {
             strutils::StringReplaceAllOccurences("<" + symbolicNameEntry.first.GetString() + ">", std::string(1, symbolicNameEntry.second), text);

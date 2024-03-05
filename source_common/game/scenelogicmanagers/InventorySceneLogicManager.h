@@ -49,15 +49,16 @@ private:
     void CreateItemEntriesAndContainer();
     void CreateItemTooltip(const glm::vec3& itemOriginPostion, const std::string& tooltipText);
     void DestroyItemTooltip();
+    void UpdateMutationInteraction(const float dtMillis, std::shared_ptr<scene::Scene> scene);
     
 private:
     std::shared_ptr<scene::Scene> mScene;
     std::vector<std::unique_ptr<AnimatedButton>> mAnimatedButtons;
     std::unique_ptr<SwipeableContainer<ItemEntry>> mArtifactsItemContainer;
-    std::unique_ptr<SwipeableContainer<ItemEntry>> mMutationsItemContainer;
     std::unique_ptr<CardTooltipController> mItemTooltipController;
     int mSelectedItemIndex;
     bool mTransitioning;
+    bool mShowingMutationText;
 };
 
 ///------------------------------------------------------------------------------------------------

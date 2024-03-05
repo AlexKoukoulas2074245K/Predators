@@ -39,6 +39,6 @@ void main()
     }
     
     gl_Position = proj * view * world * vec4(position, 1.0f);
-    frag_unprojected_pos = (world * vec4(position, 1.0f)).rgb;
-    frag_pos = gl_Position.rgb;
+    frag_unprojected_pos = vec3((world * vec4(position, 1.0f)).rg, 0.0f);
+    frag_pos = vec3(gl_Position.rg, 0.0f);
 }

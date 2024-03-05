@@ -252,6 +252,20 @@ namespace game_constants
         { RODENTS_FAMILY_NAME, "rodents_attack.png" },
         { DINOSAURS_FAMILY_NAME, "mighty_roar.png" }
     };
+
+    inline const std::vector<std::string> MUTATION_TEXTS =
+    {
+        "50% less <coin> rewards",
+        "50% increased shop prices",
+        "All opponents have more<weight>",
+        "All opponents have more<health>",
+        "Your normal cards have -1<damage>",
+        "All your cards have +1<weight>",
+        "All opponents have more<damage>",
+        "No healing after first boss",
+        "All normal fights are elite",
+        "Final boss revives",
+    };
 }
 
 ///------------------------------------------------------------------------------------------------
