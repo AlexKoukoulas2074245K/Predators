@@ -225,6 +225,10 @@ void VictorySceneLogicManager::InitSubScene(const SubSceneType subSceneType, std
                 BACK_TO_MAIN_MENU_BUTTON_NAME,
                 [=]()
                 {
+                    auto currentMutationLevel = DataRepository::GetInstance().GetCurrentStoryMutationLevel();
+                    auto currentMutationLevelVictories = DataRepository::GetInstance().GetMutationLevelVictories(currentMutationLevel);
+                    DataRepository::GetInstance().SetMutationLevelVictories(currentMutationLevel, currentMutationLevelVictories + 1);
+                    
                     DataRepository::GetInstance().ResetStoryData();
                     
                     if (DataRepository::GetInstance().GetGamesFinishedCount() == 0)
@@ -234,10 +238,6 @@ void VictorySceneLogicManager::InitSubScene(const SubSceneType subSceneType, std
                     
                     DataRepository::GetInstance().SetGamesFinishedCount(DataRepository::GetInstance().GetGamesFinishedCount() + 1);
                     
-                    auto currentMutationLevel = DataRepository::GetInstance().GetCurrentStoryMutationLevel();
-                    auto currentMutationLevelVictories = DataRepository::GetInstance().GetMutationLevelVictories(currentMutationLevel);
-                    
-                    DataRepository::GetInstance().SetMutationLevelVictories(currentMutationLevel, currentMutationLevelVictories + 1);
                     DataRepository::GetInstance().FlushStateToFile();
                     
                     events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::MAIN_MENU_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);

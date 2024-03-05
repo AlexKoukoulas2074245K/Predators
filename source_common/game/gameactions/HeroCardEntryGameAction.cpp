@@ -98,6 +98,7 @@ void HeroCardEntryGameAction::VSetNewGameState()
     
     // Add resurrection
     mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mHasResurrectionActive = DataRepository::GetInstance().GetStoryArtifactCount(artifacts::GUARDIAN_ANGEL);
+    mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mHasResurrectionActive = DataRepository::GetInstance().DoesCurrentStoryHaveMutation(game_constants::MUTATION_FINAL_BOSS_REVIVES) && DataRepository::GetInstance().GetCurrentStoryMapNodeType() == StoryMap::NodeType::BOSS_ENCOUNTER;
 }
 
 ///------------------------------------------------------------------------------------------------

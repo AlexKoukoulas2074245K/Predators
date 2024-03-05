@@ -198,21 +198,42 @@ void WheelOfFortuneSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> s
             titleSceneObject->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = FINAL_BOSS_TITLE_COLOR;
             titleSceneObject->mPosition.x += 0.04f;
             
-            mWheelRewards =
+            if (DataRepository::GetInstance().DoesCurrentStoryHaveMutation(game_constants::MUTATION_FINAL_BOSS_REVIVES))
             {
-                REWARD_NORMAL_PACK_NAME,
-                REWARD_NORMAL_PACK_NAME,
-                REWARD_GOLDEN_PACK_NAME,
-                REWARD_NORMAL_PACK_NAME,
-                REWARD_NORMAL_PACK_NAME,
-                REWARD_NORMAL_PACK_NAME,
-                REWARD_GOLDEN_PACK_NAME,
-                REWARD_NORMAL_PACK_NAME,
-                REWARD_NORMAL_PACK_NAME,
-                REWARD_NORMAL_PACK_NAME,
-                REWARD_GOLDEN_PACK_NAME,
-                REWARD_NORMAL_PACK_NAME
-            };
+                mWheelRewards =
+                {
+                    REWARD_GOLDEN_PACK_NAME,
+                    REWARD_GOLDEN_PACK_NAME,
+                    REWARD_GOLDEN_PACK_NAME,
+                    REWARD_GOLDEN_PACK_NAME,
+                    REWARD_GOLDEN_PACK_NAME,
+                    REWARD_GOLDEN_PACK_NAME,
+                    REWARD_GOLDEN_PACK_NAME,
+                    REWARD_GOLDEN_PACK_NAME,
+                    REWARD_GOLDEN_PACK_NAME,
+                    REWARD_GOLDEN_PACK_NAME,
+                    REWARD_GOLDEN_PACK_NAME,
+                    REWARD_GOLDEN_PACK_NAME
+                };
+            }
+            else
+            {
+                mWheelRewards =
+                {
+                    REWARD_NORMAL_PACK_NAME,
+                    REWARD_NORMAL_PACK_NAME,
+                    REWARD_GOLDEN_PACK_NAME,
+                    REWARD_NORMAL_PACK_NAME,
+                    REWARD_NORMAL_PACK_NAME,
+                    REWARD_NORMAL_PACK_NAME,
+                    REWARD_GOLDEN_PACK_NAME,
+                    REWARD_NORMAL_PACK_NAME,
+                    REWARD_NORMAL_PACK_NAME,
+                    REWARD_NORMAL_PACK_NAME,
+                    REWARD_GOLDEN_PACK_NAME,
+                    REWARD_NORMAL_PACK_NAME
+                };
+            }
         } break;
     }
     

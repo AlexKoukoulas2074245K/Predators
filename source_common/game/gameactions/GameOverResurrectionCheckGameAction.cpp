@@ -17,6 +17,7 @@
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
 #include <engine/sound/SoundManager.h>
+#include <engine/utils/FileUtils.h>
 #include <engine/utils/Logging.h>
 
 ///------------------------------------------------------------------------------------------------
@@ -24,8 +25,11 @@
 const std::string GameOverResurrectionCheckGameAction::VICTORIOUS_PLAYER_INDEX_PARAM = "victoriousPlayerIndex";
 
 static const std::string VICTORY_SFX = "sfx_victory";
+static const std::string EVIL_LAUGH_SFX = "sfx_laugh";
 static const std::string GUARDIAN_ANGEL_ICON_SHADER_FILE_NAME = "rare_item.vs";
 static const std::string GUARDIAN_ANGEL_ICON_TEXTURE_FILE_NAME = "rare_item_rewards/guardian_angel.png";
+static const std::string FINAL_BOSS_RESURRECTION_SHADER_FILE_NAME = "demon_punch.vs";
+static const std::string FINAL_BOSS_RESURRECTION_EFFECT_TEXTURE_FILE_NAME = "trap_mask.png";
 
 static const strutils::StringId GAME_OVER_GAME_ACTION_NAME = strutils::StringId("GameOverGameAction");
 static const strutils::StringId GAME_OVER_CHECK_GAME_ACTION_NAME = strutils::StringId("GameOverResurrectionCheckGameAction");
@@ -84,7 +88,11 @@ void GameOverResurrectionCheckGameAction::VInitAnimation()
     {
         mAnimationState = AnimationState::ANIMATING_ARTIFACT;
         CoreSystemsEngine::GetInstance().GetSoundManager().PreloadSfx(VICTORY_SFX);
-        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(VICTORY_SFX);
+        CoreSystemsEngine::GetInstance().GetSoundManager().PreloadSfx(EVIL_LAUGH_SFX);
+        
+        bool localPlayerResurrecting = std::stoi(mExtraActionParams.at(VICTORIOUS_PLAYER_INDEX_PARAM)) == game_constants::REMOTE_PLAYER_INDEX;
+
+        CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(localPlayerResurrecting ? VICTORY_SFX : EVIL_LAUGH_SFX);
         
         auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
         auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
@@ -94,9 +102,21 @@ void GameOverResurrectionCheckGameAction::VInitAnimation()
         guardianAngelIconSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = ANIMATION_MAX_ALPHA;
         guardianAngelIconSceneObject->mPosition.z = GUARDIAN_ANGEL_ICON_Z;
         guardianAngelIconSceneObject->mScale = GUARDIAN_ANGEL_ICON_INIT_SCALE;
-        guardianAngelIconSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + GUARDIAN_ANGEL_ICON_SHADER_FILE_NAME);
-        guardianAngelIconSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + GUARDIAN_ANGEL_ICON_TEXTURE_FILE_NAME);
-
+        
+        if (localPlayerResurrecting)
+        {
+            guardianAngelIconSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + GUARDIAN_ANGEL_ICON_SHADER_FILE_NAME);
+            guardianAngelIconSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + GUARDIAN_ANGEL_ICON_TEXTURE_FILE_NAME);
+        }
+        else
+        {
+            // "Localize" dynamically created hero card texture. This path could have come from an iPhone app.
+            auto heroCardTextureFileName = fileutils::GetFileName(DataRepository::GetInstance().GetNextStoryOpponentTexturePath());
+            guardianAngelIconSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + "story_cards/" + heroCardTextureFileName);
+            guardianAngelIconSceneObject->mEffectTextureResourceIds[0] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + FINAL_BOSS_RESURRECTION_EFFECT_TEXTURE_FILE_NAME);
+            guardianAngelIconSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + FINAL_BOSS_RESURRECTION_SHADER_FILE_NAME);
+        }
+        
         animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(guardianAngelIconSceneObject, guardianAngelIconSceneObject->mPosition, GUARDIAN_ANGEL_ICON_END_SCALE, ANIMATION_STEP_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){});
         animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(guardianAngelIconSceneObject, 0.0f, ANIMATION_STEP_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
         {
