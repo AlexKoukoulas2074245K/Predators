@@ -34,6 +34,7 @@ public:
     void VUpdate(const float dtMillis, std::shared_ptr<scene::Scene> activeScene) override;
     void VDestroyScene(std::shared_ptr<scene::Scene> scene) override;
     std::shared_ptr<GuiObjectManager> VGetGuiObjectManager() override;
+    void VCreateDebugWidgets() override;
     
 private:
     void RegisterForEvents();

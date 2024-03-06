@@ -607,3 +607,76 @@ void StoryMapSceneLogicManager::ResetSelectedMapNode()
 }
 
 ///------------------------------------------------------------------------------------------------
+
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
+    #include <imgui/backends/imgui_impl_sdl2.h>
+    #define CREATE_DEBUG_WIDGETS
+#elif __APPLE__
+    #include <TargetConditionals.h>
+    #if TARGET_IPHONE_SIMULATOR || TARGET_OS_IPHONE
+        #undef CREATE_DEBUG_WIDGETS
+    #else
+        #include <imgui/backends/imgui_impl_sdl2.h>
+        #define CREATE_DEBUG_WIDGETS
+    #endif
+#endif
+
+#if ((!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)) && (defined(CREATE_DEBUG_WIDGETS))
+void StoryMapSceneLogicManager::VCreateDebugWidgets()
+{
+    static size_t mapCoordIndex = 0;
+    static std::vector<std::string> mapCoords;
+    if (mapCoords.empty() || mapCoords.size() != mStoryMap->GetMapData().size())
+    {
+        mapCoords.clear();
+        for (const auto& mapData: mStoryMap->GetMapData())
+        {
+            mapCoords.push_back(mapData.first.ToString());
+        }
+        mapCoords.pop_back();
+    }
+    
+    ImGui::Begin("Map Manipulation", nullptr, GLOBAL_IMGUI_WINDOW_FLAGS);
+    ImGui::SeparatorText("Map Coord");
+    ImGui::PushID("MapCoords");
+    ImGui::SetNextItemWidth(80.0f);
+    if (ImGui::BeginCombo(" ", mapCoords.at(mapCoordIndex).c_str()))
+    {
+        for (size_t n = 0U; n < mapCoords.size(); n++)
+        {
+            const bool isSelected = (mapCoordIndex == n);
+            if (ImGui::Selectable(mapCoords.at(n).c_str(), isSelected))
+            {
+                mapCoordIndex = n;
+            }
+            if (isSelected)
+            {
+                ImGui::SetItemDefaultFocus();
+            }
+        }
+        ImGui::EndCombo();
+    }
+    ImGui::PopID();
+    ImGui::SameLine();
+    if (ImGui::Button("Go"))
+    {
+        for (const auto& mapData: mStoryMap->GetMapData())
+        {
+            if (mapData.first.ToString() == mapCoords.at(mapCoordIndex))
+            {
+                DataRepository::GetInstance().SetCurrentStoryMapNodeCoord(mapData.second.mCoords);
+                DataRepository::GetInstance().FlushStateToFile();
+                events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(strutils::StringId("bunny_hop_scene"), SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
+                break;
+            }
+        }
+    }
+    ImGui::End();
+}
+#else
+void StoryMapSceneLogicManager::VCreateDebugWidgets()
+{
+}
+#endif
+
+///------------------------------------------------------------------------------------------------
