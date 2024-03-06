@@ -37,7 +37,7 @@ static const std::string OPTIONAL_CLOUD_DATA_TEXT_SCENE_OBJECT_NAME_PREFIX = "cl
 static const std::string MANDATORY_CLOUD_DATA_TEXT_SCENE_OBJECT_NAME_PREFIX = "cloud_data_mandatory_";
 
 static const glm::vec3 BUTTON_SCALE = {0.00045, 0.00045, 0.00045};
-static const glm::vec3 OK_BUTTON_POSITION = {-0.033f, -0.1f, 23.1};
+static const glm::vec3 OK_BUTTON_POSITION = {-0.083f, -0.1f, 23.1};
 static const glm::vec3 USE_CLOUD_DATA_BUTTON_POSITION = {-0.131f, -0.09f, 23.1f};
 static const glm::vec3 USE_LOCAL_DATA_BUTTON_POSITION = {-0.151f, -0.175f, 23.1f};
 

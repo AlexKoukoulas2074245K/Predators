@@ -190,6 +190,11 @@ void DataRepository::AddPendingCardPack(const CardPackType cardPackType)
         }
         
         mPersistentDataSerializer->GetState()["pending_card_packs"] = pendingCardPacksJson;
+        
+        auto duration = std::chrono::system_clock::now().time_since_epoch();
+        auto secsSinceEpoch = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
+        mSuccessfulTransactionIds.push_back(std::to_string(secsSinceEpoch));
+        mPersistentDataSerializer->GetState()["successful_transaction_ids"] = mSuccessfulTransactionIds;
     }
     else
     {

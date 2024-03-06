@@ -396,6 +396,7 @@ void Game::CreateDebugWidgets()
     // Manipulating Story Data
     ImGui::Begin("Story Data", nullptr, GLOBAL_IMGUI_WINDOW_FLAGS);
     {
+        ImGui::SeparatorText("Cards");
         static size_t selectedCardIndex = 0;
         static std::vector<std::pair<std::string, int>> cardNamesAndIds;
         if (cardNamesAndIds.empty())
@@ -438,6 +439,7 @@ void Game::CreateDebugWidgets()
         static size_t artifactIndex = 0;
         static std::vector<strutils::StringId> artifactNames = ProductRepository::GetInstance().GetRareItemProductNames();
         
+        ImGui::SeparatorText("Artifacts");
         ImGui::PushID("AddArtifact");
         if (ImGui::BeginCombo(" ", artifactNames.at(artifactIndex).GetString().c_str()))
         {
@@ -507,6 +509,7 @@ void Game::CreateDebugWidgets()
     static std::string mutationLevelString; mutationLevelString.resize(3);
     static std::string victoriesString; victoriesString.resize(4);
     
+    ImGui::SeparatorText("Mutations");
     ImGui::PushID("MutationLevel");
     ImGui::Text("Mutation Level");
     ImGui::SameLine();
@@ -542,6 +545,7 @@ void Game::CreateDebugWidgets()
         }
     }
     
+    ImGui::SeparatorText("Cards");
     ImGui::PushID("CardUnlock");
     if (ImGui::BeginCombo(" ", cardNamesAndIds.at(selectedCardIndex).first.c_str()))
     {
@@ -583,6 +587,7 @@ void Game::CreateDebugWidgets()
         DataRepository::GetInstance().FlushStateToFile();
     }
     
+    ImGui::SeparatorText("Coins");
     static int coinAmount = 0;
     ImGui::SliderInt("Coin Value", &coinAmount, -1000, 1000);
     ImGui::SameLine();
@@ -617,6 +622,7 @@ void Game::CreateDebugWidgets()
         { "Golden", CardPackType::GOLDEN }
     };
     
+    ImGui::SeparatorText("Card Packs");
     ImGui::PushID("CardPacks");
     if (ImGui::BeginCombo(" ", cardPackNamesAndTypes.at(cardPackIndex).first.c_str()))
     {

@@ -64,7 +64,7 @@
         {
             "name": "cloud_data_mandatory_text_2",
             "font": "font",
-            "text": "It contains purchases not seen in this device",
+            "text": "They contain critical events/purchases and",
             "scale": { "x": 0.0004, "y": 0.0004, "z": 0.0004 },
             "position": { "x": -0.368, "y": 0.035, "z": 23.1 },
             "alpha": 0.0
@@ -72,7 +72,7 @@
         {
             "name": "cloud_data_mandatory_text_3",
             "font": "font",
-            "text": "and will be used to update your local data.",
+            "text": "will be used to update your local data.",
             "scale": { "x": 0.0004, "y": 0.0004, "z": 0.0004 },
             "position": { "x": -0.343, "y": -0.013, "z": 23.1 },
             "alpha": 0.0

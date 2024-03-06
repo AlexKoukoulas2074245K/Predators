@@ -37,7 +37,7 @@ static const glm::vec3 BACK_TO_MAIN_MENU_BUTTON_POSITION = {-0.142f, -0.083f, 23
 static const glm::vec3 VICTORY_INTRO_TEXT_TOP_POSITION = {-0.25f, 0.07f, 23.1f};
 static const glm::vec3 VICTORY_INTRO_TEXT_MID_POSITION = {-0.292f, 0.019f, 23.1f};
 static const glm::vec3 VICTORY_INTRO_TEXT_BOT_POSITION = {-0.302f, -0.031f, 23.1f};
-static const glm::vec3 VICTORY_RESULTS_TEXT_TOP_POSITION = {-0.186f, 0.07f, 23.1f};
+static const glm::vec3 VICTORY_RESULTS_TEXT_TOP_POSITION = {-0.123f, 0.07f, 23.1f};
 static const glm::vec3 VICTORY_RESULTS_TEXT_BOT_POSITION = {-0.191f, 0.019f, 23.1f};
 
 static const float SUBSCENE_ITEM_FADE_IN_OUT_DURATION_SECS = 0.25f;
@@ -176,7 +176,16 @@ void VictorySceneLogicManager::InitSubScene(const SubSceneType subSceneType, std
             
             scene::TextSceneObjectData textDataVictoryIntroBot;
             textDataVictoryIntroBot.mFontName = game_constants::DEFAULT_FONT_NAME;
-            textDataVictoryIntroBot.mText = "attempt you can try out adding Mutations!";
+            
+            if (DataRepository::GetInstance().GetCurrentStoryMutationLevel() > 0)
+            {
+                textDataVictoryIntroBot.mText = "attempt you can try adding more Mutations!";
+            }
+            else
+            {
+                textDataVictoryIntroBot.mText = "attempt you can try out adding Mutations!";
+            }
+            
             auto textVictoryIntroBotSceneObject = scene->CreateSceneObject(VICTORY_INTRO_TEXT_BOT_NAME);
             textVictoryIntroBotSceneObject->mSceneObjectTypeData = std::move(textDataVictoryIntroBot);
             textVictoryIntroBotSceneObject->mPosition = VICTORY_INTRO_TEXT_BOT_POSITION;
@@ -198,7 +207,7 @@ void VictorySceneLogicManager::InitSubScene(const SubSceneType subSceneType, std
         {
             scene::TextSceneObjectData textDataVictoryResultsTop;
             textDataVictoryResultsTop.mFontName = game_constants::DEFAULT_FONT_NAME;
-            textDataVictoryResultsTop.mText = "Highest level achieved: " + std::to_string(DataRepository::GetInstance().GetCurrentStoryMapNodeCoord().x + (DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::NORMAL_MAP ? game_constants::TUTORIAL_NODE_MAP_DIMENSIONS.s : 0)) + "";
+            textDataVictoryResultsTop.mText = "Mutation level: " + std::to_string(DataRepository::GetInstance().GetCurrentStoryMutationLevel());
             auto textVictoryResultsTopSceneObject = scene->CreateSceneObject(VICTORY_RESULTS_TEXT_TOP_NAME);
             textVictoryResultsTopSceneObject->mSceneObjectTypeData = std::move(textDataVictoryResultsTop);
             textVictoryResultsTopSceneObject->mPosition = VICTORY_RESULTS_TEXT_TOP_POSITION;
