@@ -94,11 +94,6 @@ public:
     
     void AddItem(ContainerEntryT&& item, EntryAdditionStrategy entryAdditionStrategy)
     {
-        if (mContainerType == ContainerType::HORIZONTAL_LINE)
-        {
-            item.mSceneObjects.front()->mBoundingRectMultiplier.x *= 0.5f;
-        }
-        
         if (entryAdditionStrategy == EntryAdditionStrategy::ADD_ON_THE_BACK)
         {
             for (auto i = 0U; i < item.mSceneObjects.size(); ++i)

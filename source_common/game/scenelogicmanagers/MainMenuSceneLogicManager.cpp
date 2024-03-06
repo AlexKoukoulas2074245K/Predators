@@ -148,7 +148,7 @@ static const glm::vec3 SPEC_COLOR = { 1.0f, 1.0f, 1.0f };
 static const glm::vec3 AMB_COLOR = { 1.0f, 0.0f, 0.0f };
 static const glm::vec3 BRAZIER_POSITION = { -0.149f, -0.030f, 1.5f };
 static const glm::vec3 BRAZIER_SCALE = { 0.1f, 0.057f, 0.1f };
-static const glm::vec3 MUTATION_POSITION = { -0.027f, -0.0f, 1.0f };
+static const glm::vec3 MUTATION_POSITION = { -0.044f, -0.0f, 1.0f };
 static const glm::vec3 MUTATION_SCALE = { 0.05f, 0.05f, 0.05f };
 static const glm::vec3 MUTATION_FIRE_POSITION = { -0.145f, 0.044f, 1.0f };
 static const glm::vec3 MUTATION_VALUE_POSITION = { -0.133f, 0.02f, 2.0f };
@@ -164,7 +164,7 @@ static const glm::vec3 NEW_STORY_CONFIRMATION_TEXT_MIDDLE_POSITION = {-0.282f, 0
 static const glm::vec3 NEW_STORY_CONFIRMATION_TEXT_BOT_POSITION = {-0.205f, -0.012f, 23.1f};
 static const glm::vec3 NEW_STORY_DECK_SELECTION_TEXT_POSITION = {-0.169f, 0.115f, 0.1f};
 static const glm::vec3 MUTATION_SELECTION_TEXT_POSITION = {-0.179f, 0.135f, 0.1f};
-static const glm::vec3 START_NEW_STORY_BUTTON_POSITION = {-0.055f, -0.145f, 23.1f};
+static const glm::vec3 START_NEW_STORY_BUTTON_POSITION = {-0.065f, -0.145f, 23.1f};
 static const glm::vec3 SELECT_MUTATION_START_BUTTON_POSITION = {-0.055f, -0.18f, 23.1f};
 static const glm::vec3 STORY_DECK_NAME_POSITIONS[AVAILABLE_STORY_DECKS_COUNT] =
 {
@@ -1200,23 +1200,40 @@ void MainMenuSceneLogicManager::SetMutationLevel(const int mutationLevel, std::s
         scene->RemoveSceneObject(strutils::StringId(MUTATION_CHANGES_TEXT_SCENE_OBJECT_NAME_PREFIX + std::to_string(i)));
     }
     
-    for (auto i = 0; i < mQuickPlayData->mMutationLevel; ++i)
+    if (mQuickPlayData->mMutationLevel == 0)
     {
+        int i = 3;
+        
         scene::TextSceneObjectData textMutationChange;
         textMutationChange.mFontName = game_constants::DEFAULT_FONT_NAME;
+        textMutationChange.mText = "No Mutations";
         
-        auto text = game_constants::MUTATION_TEXTS[i];
-        for (const auto& symbolicNameEntry: symbolic_glyph_names::SYMBOLIC_NAMES)
-        {
-            strutils::StringReplaceAllOccurences("<" + symbolicNameEntry.first.GetString() + ">", std::string(1, symbolicNameEntry.second), text);
-        }
-        
-        textMutationChange.mText = std::string(1, symbolic_glyph_names::SYMBOLIC_NAMES.at(symbolic_glyph_names::SKULL)) + text;
         auto mutationChangeSceneObject = scene->CreateSceneObject(strutils::StringId(MUTATION_CHANGES_TEXT_SCENE_OBJECT_NAME_PREFIX + std::to_string(i)));
         mutationChangeSceneObject->mSceneObjectTypeData = std::move(textMutationChange);
         mutationChangeSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
         mutationChangeSceneObject->mPosition = MUTATION_CHANGE_TEXT_INIT_POSITION - glm::vec3(0.0f, i * 0.025f, 0.0f);
-        mutationChangeSceneObject->mScale = MUTATION_CHANGE_TEXT_SCALE;
+        mutationChangeSceneObject->mScale = MUTATION_CHANGE_TEXT_SCALE * 2.0f;
+    }
+    else
+    {
+        for (auto i = 0; i < mQuickPlayData->mMutationLevel; ++i)
+        {
+            scene::TextSceneObjectData textMutationChange;
+            textMutationChange.mFontName = game_constants::DEFAULT_FONT_NAME;
+            
+            auto text = game_constants::MUTATION_TEXTS[i];
+            for (const auto& symbolicNameEntry: symbolic_glyph_names::SYMBOLIC_NAMES)
+            {
+                strutils::StringReplaceAllOccurences("<" + symbolicNameEntry.first.GetString() + ">", std::string(1, symbolicNameEntry.second), text);
+            }
+            
+            textMutationChange.mText = std::string(1, symbolic_glyph_names::SYMBOLIC_NAMES.at(symbolic_glyph_names::SKULL)) + text;
+            auto mutationChangeSceneObject = scene->CreateSceneObject(strutils::StringId(MUTATION_CHANGES_TEXT_SCENE_OBJECT_NAME_PREFIX + std::to_string(i)));
+            mutationChangeSceneObject->mSceneObjectTypeData = std::move(textMutationChange);
+            mutationChangeSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
+            mutationChangeSceneObject->mPosition = MUTATION_CHANGE_TEXT_INIT_POSITION - glm::vec3(0.0f, i * 0.025f, 0.0f);
+            mutationChangeSceneObject->mScale = MUTATION_CHANGE_TEXT_SCALE;
+        }
     }
 }
 

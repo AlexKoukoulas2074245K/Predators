@@ -108,10 +108,10 @@ void PostNextPlayerGameAction::VSetNewGameState()
         });
     }
     
+    mBoardState->GetInactivePlayerState().mPlayedCardComboThisTurn = 0;
     if (mBoardState->GetInactivePlayerState().mZeroCostTime)
     {
         mBoardState->GetInactivePlayerState().mZeroCostTime = false;
-        mBoardState->GetInactivePlayerState().mPlayedCardComboThisTurn = 0;
         events::EventSystem::GetInstance().DispatchEvent<events::ZeroCostTimeEvent>(false, mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX);
     }
     
