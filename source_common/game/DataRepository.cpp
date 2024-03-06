@@ -520,6 +520,7 @@ const std::vector<strutils::StringId>& DataRepository::GetSeenTutorials() const
 void DataRepository::SetSeenTutorials(const std::vector<strutils::StringId>& seenTutorials)
 {
     mSeenTutorials = seenTutorials;
+    mPersistentDataSerializer->GetState()["seen_tutorials"].clear();
     
     for (const auto& tutorialName: mSeenTutorials)
     {
