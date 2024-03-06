@@ -335,10 +335,10 @@ TEST_F(GameActionTests, TestDoubleFluffAttackFollowedByBunny)
     EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH - (GET_CARD_DAMAGE("Bunny") + 2 + 2)); // Bunny original attack = 1. Fluff Attack + 2. Fluff Attack + 2. Final attack = 5.
 }
 
-TEST_F(GameActionTests, TestDoubleFluffAttackFollowedByBunnyAndVampireRodents)
+TEST_F(GameActionTests, TestDoubleFluffAttackFollowedByBunnyAndVampireGnawers)
 {
     mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {GET_CARD_ID("Bunny")}; // Top player has a deck of bunnies
-    mBoardState->GetPlayerStates()[1].mPlayerDeckCards = {GET_CARD_ID("Bunny"), GET_CARD_ID("Fluff Attack"), GET_CARD_ID("Vampire Rodents")}; // Bot player has a deck of Bunnies(2,1), Fluff Attack and Vampire Rodents
+    mBoardState->GetPlayerStates()[1].mPlayerDeckCards = {GET_CARD_ID("Bunny"), GET_CARD_ID("Fluff Attack"), GET_CARD_ID("Vampire Gnawers")}; // Bot player has a deck of Bunnies(2,1), Fluff Attack and Vampire Gnawers
     
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
@@ -347,14 +347,14 @@ TEST_F(GameActionTests, TestDoubleFluffAttackFollowedByBunnyAndVampireRodents)
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
     
     mBoardState->GetPlayerStates()[1].mPlayerHealth = TEST_DEFAULT_PLAYER_HEALTH - 6;
-    mBoardState->GetPlayerStates()[1].mPlayerTotalWeightAmmo = GET_CARD_WEIGHT("Fluff Attack") + GET_CARD_WEIGHT("Bunny") + GET_CARD_WEIGHT("Vampire Rodents");
-    mBoardState->GetPlayerStates()[1].mPlayerCurrentWeightAmmo = GET_CARD_WEIGHT("Fluff Attack") + GET_CARD_WEIGHT("Bunny") + GET_CARD_WEIGHT("Vampire Rodents");
-    mBoardState->GetPlayerStates()[1].mPlayerHeldCards = {GET_CARD_ID("Bunny"), GET_CARD_ID("Fluff Attack"), GET_CARD_ID("Fluff Attack"), GET_CARD_ID("Vampire Rodents")};  // Bot player has 2 fluff attacks, a bunny and Vampire Rodents
+    mBoardState->GetPlayerStates()[1].mPlayerTotalWeightAmmo = GET_CARD_WEIGHT("Fluff Attack") + GET_CARD_WEIGHT("Bunny") + GET_CARD_WEIGHT("Vampire Gnawers");
+    mBoardState->GetPlayerStates()[1].mPlayerCurrentWeightAmmo = GET_CARD_WEIGHT("Fluff Attack") + GET_CARD_WEIGHT("Bunny") + GET_CARD_WEIGHT("Vampire Gnawers");
+    mBoardState->GetPlayerStates()[1].mPlayerHeldCards = {GET_CARD_ID("Bunny"), GET_CARD_ID("Fluff Attack"), GET_CARD_ID("Fluff Attack"), GET_CARD_ID("Vampire Gnawers")};  // Bot player has 2 fluff attacks, a bunny and Vampire Gnawers
     
     mActionEngine->AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "1" }}); // First Fluff Attack is played
     mActionEngine->AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "1" }}); // Second Fluff Attack is played
     mActionEngine->AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "0" }}); // Bunny is played
-    mActionEngine->AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "0" }}); // Vampire Rodents is played
+    mActionEngine->AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "0" }}); // Vampire Gnawers is played
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     
     UpdateUntilActionOrIdle(CARD_ATTACK_GAME_ACTION_NAME);
@@ -846,18 +846,18 @@ TEST_F(GameActionTests, TestImpendingDoomAndFeatheryDinoEffects)
     EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, 30 - GET_CARD_DAMAGE("Dilophosaurus")); // Dilophosaurus can be played due to reduced weight cost and also has +2 attack due to Metal Claws
 }
 
-TEST_F(GameActionTests, TestRodentComboWeightReductionEffect)
+TEST_F(GameActionTests, TestGnawerComboWeightReductionEffect)
 {
-    mBoardState->GetPlayerStates()[0].mPlayerDeckCards = { GET_CARD_ID("Rodent Combo"), GET_CARD_ID("Bunny"), GET_CARD_ID("Rex") }; // Top player has a deck of Rodent Combos, Bunnies and a Rex
+    mBoardState->GetPlayerStates()[0].mPlayerDeckCards = { GET_CARD_ID("Gnawer Combo"), GET_CARD_ID("Bunny"), GET_CARD_ID("Rex") }; // Top player has a deck of Gnawer Combos, Bunnies and a Rex
     
     mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
     UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
     
-    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = GET_CARD_WEIGHT("Rodent Combo") + 2 * GET_CARD_WEIGHT("Bunny");
-    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = GET_CARD_WEIGHT("Rodent Combo") + 2 * GET_CARD_WEIGHT("Bunny");
-    mBoardState->GetPlayerStates()[0].mPlayerHeldCards = { GET_CARD_ID("Rodent Combo"), GET_CARD_ID("Bunny"), GET_CARD_ID("Bunny"), GET_CARD_ID("Rex") };
+    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = GET_CARD_WEIGHT("Gnawer Combo") + 2 * GET_CARD_WEIGHT("Bunny");
+    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = GET_CARD_WEIGHT("Gnawer Combo") + 2 * GET_CARD_WEIGHT("Bunny");
+    mBoardState->GetPlayerStates()[0].mPlayerHeldCards = { GET_CARD_ID("Gnawer Combo"), GET_CARD_ID("Bunny"), GET_CARD_ID("Bunny"), GET_CARD_ID("Rex") };
     
-    mActionEngine->AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "0" }}); // Rodent Combo is played
+    mActionEngine->AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "0" }}); // Gnawer Combo is played
     mActionEngine->AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "0" }}); // First Bunny is played
     mActionEngine->AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "0" }}); // Second Bunny is played, ZeroCostTime activates
     mActionEngine->AddGameAction(PLAY_CARD_GAME_ACTION_NAME, {{ PlayCardGameAction::LAST_PLAYED_CARD_INDEX_PARAM, "0" }}); // Rex can also be played, ZeroCostTime gets disabled
