@@ -292,7 +292,7 @@ int GuiObjectManager::GetStoryHealthContainerCurrentValue() const
 
 ///------------------------------------------------------------------------------------------------
 
-void GuiObjectManager::AnimateStatParticlesToGui(const glm::vec3& originPosition, const StatParticleType statParticleType, const long long statAmount)
+void GuiObjectManager::AnimateStatParticlesFlyingToGui(const glm::vec3& originPosition, const StatParticleType statParticleType, const long long statAmount)
 {
     auto forBattleScene = mScene->GetName() == game_constants::BATTLE_SCENE;
     auto& particleManager = CoreSystemsEngine::GetInstance().GetParticleManager();
@@ -523,7 +523,7 @@ void GuiObjectManager::OnCoinReward(const events::CoinRewardEvent& event)
 {
     mBattleLootHealthRefillCase = false;
     DataRepository::GetInstance().CurrencyCoins().SetValue(DataRepository::GetInstance().CurrencyCoins().GetValue() + event.mCoinAmount);
-    AnimateStatParticlesToGui(event.mAnimationOriginPosition, StatParticleType::COINS, event.mCoinAmount);
+    AnimateStatParticlesFlyingToGui(event.mAnimationOriginPosition, StatParticleType::COINS, event.mCoinAmount);
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -543,7 +543,7 @@ void GuiObjectManager::OnHealthRefillReward(const events::HealthRefillRewardEven
         DataRepository::GetInstance().StoryCurrentHealth().SetValue(DataRepository::GetInstance().StoryCurrentHealth().GetValue() + event.mHealthAmount);
     }
 
-    AnimateStatParticlesToGui(event.mAnimationOriginPosition, StatParticleType::HEALTH, event.mHealthAmount);
+    AnimateStatParticlesFlyingToGui(event.mAnimationOriginPosition, StatParticleType::HEALTH, event.mHealthAmount);
 }
 
 ///------------------------------------------------------------------------------------------------

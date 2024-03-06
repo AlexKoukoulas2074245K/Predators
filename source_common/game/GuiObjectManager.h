@@ -56,7 +56,7 @@ private:
         WEIGHT
     };
     
-    void AnimateStatParticlesToGui(const glm::vec3& originPosition, const StatParticleType statParticleType, const long long coinAmount);
+    void AnimateStatParticlesFlyingToGui(const glm::vec3& originPosition, const StatParticleType statParticleType, const long long coinAmount);
     void AnimateStatGainParticles(const glm::vec3& originPosition, const StatGainParticleType statGainParticleType);
     void SetCoinValueText();
     void OnSettingsButtonPressed();
