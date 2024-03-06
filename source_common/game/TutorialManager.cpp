@@ -6,25 +6,29 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <engine/CoreSystemsEngine.h>
+#include <engine/input/IInputStateManager.h>
+#include <engine/rendering/AnimationManager.h>
 #include <engine/resloading/DataFileResource.h>
 #include <engine/resloading/ResourceLoadingService.h>
-#include <engine/utils/BaseDataFileDeserializer.h>
-#include <engine/utils/Logging.h>
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneManager.h>
 #include <engine/scene/SceneObject.h>
+#include <engine/scene/SceneObjectUtils.h>
+#include <engine/utils/BaseDataFileDeserializer.h>
+#include <engine/utils/Logging.h>
+#include <game/AnimatedButton.h>
 #include <game/DataRepository.h>
 #include <game/TutorialManager.h>
 #include <nlohmann/json.hpp>
 
 ///------------------------------------------------------------------------------------------------
 
-static constexpr int TUTORIAL_TEXT_ROWS_COUNT = 7;
+static constexpr int TUTORIAL_TEXT_ROWS_COUNT = 9;
 
 static const strutils::StringId TUTORIAL_BASE_SCENE_OBJECT_NAME = strutils::StringId("tutorial_base");
 static const strutils::StringId TUTORIAL_REVEAL_THRESHOLD_UNIFORM_NAME = strutils::StringId("reveal_threshold");
 static const strutils::StringId TUTORIAL_REVEAL_RGB_EXPONENT_UNIFORM_NAME = strutils::StringId("reveal_rgb_exponent");
-static const strutils::StringId TUTORIAL_TEXT_SCENE_OBJECT_NAMES [TUTORIAL_TEXT_ROWS_COUNT] =
+static const strutils::StringId TUTORIAL_TEXT_SCENE_OBJECT_NAMES[TUTORIAL_TEXT_ROWS_COUNT] =
 {
     strutils::StringId("tutorial_text_0"),
     strutils::StringId("tutorial_text_1"),
@@ -33,34 +37,50 @@ static const strutils::StringId TUTORIAL_TEXT_SCENE_OBJECT_NAMES [TUTORIAL_TEXT_
     strutils::StringId("tutorial_text_4"),
     strutils::StringId("tutorial_text_5"),
     strutils::StringId("tutorial_text_6"),
+    strutils::StringId("tutorial_text_7"),
+    strutils::StringId("tutorial_text_8")
 };
 
 static const std::string TUTORIAL_TEXTURE_FILE_NAME = "tutorial.png";
 static const std::string TUTORIAL_SHADER_FILE_NAME = "diagonal_reveal.vs";
+static const std::string CHECKBOX_EMPTY_TEXTURE_FILE_NAME = "checkbox_empty.png";
+static const std::string CHECKBOX_FILLED_TEXTURE_FILE_NAME = "checkbox_filled_black.png";
 
 static const glm::vec3 TUTORIAL_BASE_POSITION = {0.0f, 0.0f, 27.0f};
 static const glm::vec3 TUTORIAL_TEXT_SCALE = {0.00032f, 0.00032f, 0.00032f};
 static const glm::vec3 TUTORIAL_BASE_SCALE = {0.4f, 0.4f, 0.4f};
+static const glm::vec3 CHECKBOX_SCALE = {0.07f, 0.07f, 0.07f};
 static const glm::vec3 TUTORIAL_TEXT_OFFSETS[TUTORIAL_TEXT_ROWS_COUNT] =
 {
-    { -0.042f, 0.137f, 0.1f},
+    { -0.117f, 0.137f, 0.1f}, // Tutorial Title
+    {  0.119f, 0.132f, 0.1f }, // Tutorials checkbox
     { -0.13f, 0.097f, 0.1f },
     { -0.13f, 0.063f, 0.1f },
     { -0.13f, 0.029f, 0.1f },
     { -0.13f, -0.005f, 0.1f },
     { -0.13f, -0.039f, 0.1f },
     { -0.13f, -0.073f, 0.1f },
+    { -0.044f, -0.121f, 0.1f }, // Continue button
 };
 
 static const float TUTORIAL_MAX_REVEAL_THRESHOLD = 2.5f;
 static const float TUTORIAL_REVEAL_SPEED = 1.0f/200.0f;
 static const float TUTORIAL_TEXT_REVEAL_SPEED = 1.0f/500.0f;
+static const float TUTORIAL_REVEAL_RGB_EXPONENT = 1.127f;
+static const float TUTORIAL_FADE_OUT_DURATION_SECS = 0.5f;
+static const float TUTORIAL_DELETION_DELAY_SECS = 0.6f;
 
 ///------------------------------------------------------------------------------------------------
 
 TutorialManager::TutorialManager()
 {
     events::EventSystem::GetInstance().RegisterForEvent<events::TutorialTriggerEvent>(this, &TutorialManager::OnTutorialTrigger);
+}
+
+///------------------------------------------------------------------------------------------------
+
+TutorialManager::~TutorialManager()
+{
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -126,11 +146,13 @@ void TutorialManager::CreateTutorial()
 {
     const auto& tutorialDefinition = mTutorialDefinitions.at(mActiveTutorials.front());
     
+    // Add tutorial to be surfaced to perm. seen tutorials
     auto seenTutorials = DataRepository::GetInstance().GetSeenTutorials();
     seenTutorials.push_back(mActiveTutorials.front());
     DataRepository::GetInstance().SetSeenTutorials(seenTutorials);
     DataRepository::GetInstance().FlushStateToFile();
 
+    // Create custom scene
     auto tutorialScene = CoreSystemsEngine::GetInstance().GetSceneManager().CreateScene(game_constants::TUTORIAL_SCENE_NAME);
     tutorialScene->SetLoaded(true);
     
@@ -143,16 +165,37 @@ void TutorialManager::CreateTutorial()
     
     tutorialSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
     tutorialSceneObject->mShaderFloatUniformValues[TUTORIAL_REVEAL_THRESHOLD_UNIFORM_NAME] = 0.0f;
-    tutorialSceneObject->mShaderFloatUniformValues[TUTORIAL_REVEAL_RGB_EXPONENT_UNIFORM_NAME] =  1.127f;
+    tutorialSceneObject->mShaderFloatUniformValues[TUTORIAL_REVEAL_RGB_EXPONENT_UNIFORM_NAME] = TUTORIAL_REVEAL_RGB_EXPONENT;
     
     mTutorialSceneObjects.push_back(tutorialSceneObject);
     
     auto tutorialTextRows = strutils::StringSplit(tutorialDefinition.mTutorialDescription, '$');
-    tutorialTextRows.insert(tutorialTextRows.begin(), "Tutorial");
+    tutorialTextRows.insert(tutorialTextRows.begin(), "Tutorials Enabled");
+    tutorialTextRows.insert(tutorialTextRows.begin() + 1, "");
+    
+    // Tutorials checkbox
+    {
+        auto tutorialCheckboxSceneObject = tutorialScene->CreateSceneObject(TUTORIAL_TEXT_SCENE_OBJECT_NAMES[1]);
+        tutorialCheckboxSceneObject->mScale = CHECKBOX_SCALE;
+        tutorialCheckboxSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CHECKBOX_EMPTY_TEXTURE_FILE_NAME);
+        tutorialCheckboxSceneObject->mPosition = tutorialSceneObject->mPosition;
+        tutorialCheckboxSceneObject->mPosition += TUTORIAL_TEXT_OFFSETS[1];
+        tutorialCheckboxSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+        tutorialCheckboxSceneObject->mBoundingRectMultiplier /= 2.0f;
+        
+        mTutorialSceneObjects.push_back(tutorialCheckboxSceneObject);
+        SetCheckboxValue(true);
+    }
+    
+    tutorialTextRows.resize(TUTORIAL_TEXT_ROWS_COUNT);
     
     for (auto i = 0U; i < tutorialTextRows.size(); ++i)
     {
-        assert(i < TUTORIAL_TEXT_ROWS_COUNT);
+        if (tutorialTextRows[i].empty())
+        {
+            continue;
+        }
+        
         auto tutorialTextSceneObject = tutorialScene->CreateSceneObject(TUTORIAL_TEXT_SCENE_OBJECT_NAMES[i]);
         tutorialTextSceneObject->mScale = TUTORIAL_TEXT_SCALE;
         tutorialTextSceneObject->mPosition = tutorialSceneObject->mPosition;
@@ -166,6 +209,63 @@ void TutorialManager::CreateTutorial()
         
         mTutorialSceneObjects.push_back(tutorialTextSceneObject);
     }
+   
+    // Continue button
+    {
+        mContinueButton = std::make_unique<AnimatedButton>
+        (
+            tutorialSceneObject->mPosition + TUTORIAL_TEXT_OFFSETS[8],
+            TUTORIAL_TEXT_SCALE,
+            game_constants::DEFAULT_FONT_BLACK_NAME,
+            "Continue",
+            TUTORIAL_TEXT_SCENE_OBJECT_NAMES[8],
+            [=]()
+            {
+                auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+                animationManager.StartAnimation(std::make_unique<rendering::TimeDelayAnimation>(TUTORIAL_DELETION_DELAY_SECS), [=]()
+                {
+                    DestroyTutorial();
+                });
+                FadeOutTutorial();
+            },
+            *tutorialScene
+        );
+        
+        mContinueButton->GetSceneObject()->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+        mTutorialSceneObjects.push_back(mContinueButton->GetSceneObject());
+    }
+}
+
+///------------------------------------------------------------------------------------------------
+
+void TutorialManager::FadeOutTutorial()
+{
+    auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+    
+    for (auto sceneObject: mTutorialSceneObjects)
+    {
+        animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, 0.0f, TUTORIAL_FADE_OUT_DURATION_SECS), [=]()
+        {
+            sceneObject->mInvisible = true;
+        });
+    }
+}
+
+///------------------------------------------------------------------------------------------------
+
+void TutorialManager::DestroyTutorial()
+{
+    CoreSystemsEngine::GetInstance().GetSceneManager().RemoveScene(game_constants::TUTORIAL_SCENE_NAME);
+    mActiveTutorials.erase(mActiveTutorials.begin());
+    
+    // Suppress any other queued up tutorials
+    if (!DataRepository::GetInstance().AreTutorialsEnabled())
+    {
+        mActiveTutorials.clear();
+    }
+    
+    mTutorialSceneObjects.clear();
+    mContinueButton = nullptr;
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -181,6 +281,27 @@ void TutorialManager::UpdateActiveTutorial(const float dtMillis)
         {
             auto tutorialTextSceneObject = mTutorialSceneObjects[i];
             tutorialTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = math::Min(1.0f, tutorialTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] +  dtMillis * TUTORIAL_TEXT_REVEAL_SPEED);
+        }
+        
+        // Continue button interaction
+        mContinueButton->Update(dtMillis);
+        
+        // Checkbox interaction
+        auto tutorialScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::TUTORIAL_SCENE_NAME);
+        const auto& inputStateManager = CoreSystemsEngine::GetInstance().GetInputStateManager();
+        auto worldTouchPos = inputStateManager.VGetPointingPosInWorldSpace(tutorialScene->GetCamera().GetViewMatrix(), tutorialScene->GetCamera().GetProjMatrix());
+
+        auto checkboxSceneObjectRect = scene_object_utils::GetSceneObjectBoundingRect(*tutorialScene->FindSceneObject(TUTORIAL_TEXT_SCENE_OBJECT_NAMES[1]));
+        auto checkboxTextSceneObjectRect = scene_object_utils::GetSceneObjectBoundingRect(*tutorialScene->FindSceneObject(TUTORIAL_TEXT_SCENE_OBJECT_NAMES[1]));
+        
+        if
+        (
+            inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON) &&
+            (math::IsPointInsideRectangle(checkboxSceneObjectRect.bottomLeft, checkboxSceneObjectRect.topRight, worldTouchPos) ||
+            math::IsPointInsideRectangle(checkboxTextSceneObjectRect.bottomLeft, checkboxTextSceneObjectRect.topRight, worldTouchPos))
+        )
+        {
+            ToggleCheckbox();
         }
     }
 }
@@ -217,6 +338,32 @@ void TutorialManager::OnTutorialTrigger(const events::TutorialTriggerEvent& even
     }
     
     mActiveTutorials.push_back(event.mTutorialName);
+}
+
+///------------------------------------------------------------------------------------------------
+
+void TutorialManager::ToggleCheckbox()
+{
+    auto tutorialScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::TUTORIAL_SCENE_NAME);
+    auto checkBoxSceneObject = tutorialScene->FindSceneObject(TUTORIAL_TEXT_SCENE_OBJECT_NAMES[1]);
+    
+    bool checkBoxValue = checkBoxSceneObject->mTextureResourceId == CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CHECKBOX_FILLED_TEXTURE_FILE_NAME) ? false : true;
+    SetCheckboxValue(checkBoxValue);
+    
+    DataRepository::GetInstance().SetTutorialsEnabled(checkBoxValue);
+    DataRepository::GetInstance().FlushStateToFile();
+}
+
+///------------------------------------------------------------------------------------------------
+
+void TutorialManager::SetCheckboxValue(const bool checkboxValue)
+{
+    resources::ResourceId checkboxFilledTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CHECKBOX_FILLED_TEXTURE_FILE_NAME);
+    resources::ResourceId checkboxEmptyTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CHECKBOX_EMPTY_TEXTURE_FILE_NAME);
+    
+    auto tutorialScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::TUTORIAL_SCENE_NAME);
+    auto checkBoxSceneObject = tutorialScene->FindSceneObject(TUTORIAL_TEXT_SCENE_OBJECT_NAMES[1]);
+    checkBoxSceneObject->mTextureResourceId = checkboxValue ? checkboxFilledTextureResourceId : checkboxEmptyTextureResourceId;
 }
 
 ///------------------------------------------------------------------------------------------------

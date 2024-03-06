@@ -35,13 +35,17 @@ static const strutils::StringId QUIT_BUTTON_NAME = strutils::StringId("quit_butt
 static const strutils::StringId PAUSED_TEXT_SCENE_OBJECT_NAME = strutils::StringId("paused_text");
 static const strutils::StringId MUSIC_CHECKBOX_SCENE_OBJECT_NAME = strutils::StringId("music_checkbox");
 static const strutils::StringId MUSIC_CHECKBOX_TEXT_SCENE_OBJECT_NAME = strutils::StringId("music_checkbox_text");
+static const strutils::StringId TUTORIALS_CHECKBOX_SCENE_OBJECT_NAME = strutils::StringId("tutorials_checkbox");
+static const strutils::StringId TUTORIALS_CHECKBOX_TEXT_SCENE_OBJECT_NAME = strutils::StringId("tutorials_checkbox_text");
 static const strutils::StringId QUIT_CONFIRMATION_BUTTON_NAME = strutils::StringId("quit_confirmation");
 static const strutils::StringId QUIT_CANCELLATION_BUTTON_NAME = strutils::StringId("quit_cancellation");
 static const strutils::StringId QUIT_CONFIRMATION_TEXT_TOP_NAME = strutils::StringId("quit_confirmation_text_top");
 static const strutils::StringId QUIT_CONFIRMATION_TEXT_BOT_NAME = strutils::StringId("quit_confirmation_text_bot");
 
-static const glm::vec3 MUSIC_CHECKBOX_TEXT_POSITION = {-0.085f, 0.05f, 23.1f};
-static const glm::vec3 MUSIC_CHECKBOX_POSITION = {0.04f, 0.037f, 23.1f};
+static const glm::vec3 TUTORIALS_CHECKBOX_TEXT_POSITION = {-0.111f, 0.1f, 23.1f};
+static const glm::vec3 TUTORIALS_CHECKBOX_POSITION = {0.077f, 0.087f, 23.1f};
+static const glm::vec3 MUSIC_CHECKBOX_TEXT_POSITION = {-0.085f, 0.028f, 23.1f};
+static const glm::vec3 MUSIC_CHECKBOX_POSITION = {0.04f, 0.018f, 23.1f};
 static const glm::vec3 BUTTON_SCALE = {0.0005f, 0.0005f, 0.0005f};
 static const glm::vec3 CONTINUE_BUTTON_POSITION = {-0.091f, -0.06f, 23.1f};
 static const glm::vec3 QUIT_BUTTON_POSITION = {-0.041f, -0.163f, 23.1f};
@@ -107,17 +111,30 @@ void SettingsSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
     const auto& inputStateManager = CoreSystemsEngine::GetInstance().GetInputStateManager();
     auto worldTouchPos = inputStateManager.VGetPointingPosInWorldSpace(scene->GetCamera().GetViewMatrix(), scene->GetCamera().GetProjMatrix());
 
-    auto checkboxSceneObjectRect = scene_object_utils::GetSceneObjectBoundingRect(*scene->FindSceneObject(MUSIC_CHECKBOX_SCENE_OBJECT_NAME));
-    auto checkboxTextSceneObjectRect = scene_object_utils::GetSceneObjectBoundingRect(*scene->FindSceneObject(MUSIC_CHECKBOX_TEXT_SCENE_OBJECT_NAME));
+    auto musicCheckboxSceneObjectRect = scene_object_utils::GetSceneObjectBoundingRect(*scene->FindSceneObject(MUSIC_CHECKBOX_SCENE_OBJECT_NAME));
+    auto musicCheckboxTextSceneObjectRect = scene_object_utils::GetSceneObjectBoundingRect(*scene->FindSceneObject(MUSIC_CHECKBOX_TEXT_SCENE_OBJECT_NAME));
     
     if
     (
         inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON) &&
-        (math::IsPointInsideRectangle(checkboxSceneObjectRect.bottomLeft, checkboxSceneObjectRect.topRight, worldTouchPos) ||
-        math::IsPointInsideRectangle(checkboxTextSceneObjectRect.bottomLeft, checkboxTextSceneObjectRect.topRight, worldTouchPos))
+        (math::IsPointInsideRectangle(musicCheckboxSceneObjectRect.bottomLeft, musicCheckboxSceneObjectRect.topRight, worldTouchPos) ||
+        math::IsPointInsideRectangle(musicCheckboxTextSceneObjectRect.bottomLeft, musicCheckboxTextSceneObjectRect.topRight, worldTouchPos))
     )
     {
         ToggleMusicCheckbox(scene);
+    }
+    
+    auto tutorialsCheckboxSceneObjectRect = scene_object_utils::GetSceneObjectBoundingRect(*scene->FindSceneObject(TUTORIALS_CHECKBOX_SCENE_OBJECT_NAME));
+    auto tutorialsCheckboxTextSceneObjectRect = scene_object_utils::GetSceneObjectBoundingRect(*scene->FindSceneObject(TUTORIALS_CHECKBOX_TEXT_SCENE_OBJECT_NAME));
+    
+    if
+    (
+        inputStateManager.VButtonTapped(input::Button::MAIN_BUTTON) &&
+        (math::IsPointInsideRectangle(tutorialsCheckboxSceneObjectRect.bottomLeft, tutorialsCheckboxSceneObjectRect.topRight, worldTouchPos) ||
+        math::IsPointInsideRectangle(tutorialsCheckboxTextSceneObjectRect.bottomLeft, tutorialsCheckboxTextSceneObjectRect.topRight, worldTouchPos))
+    )
+    {
+        ToggleTutorialsCheckbox(scene);
     }
     
     // Animated buttons
@@ -177,6 +194,28 @@ void SettingsSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
     {
         case SubSceneType::MAIN:
         {
+            // Tutorials checkbox
+            auto tutorialsCheckboxSceneObject = scene->CreateSceneObject(TUTORIALS_CHECKBOX_SCENE_OBJECT_NAME);
+            tutorialsCheckboxSceneObject->mPosition = TUTORIALS_CHECKBOX_POSITION;
+            tutorialsCheckboxSceneObject->mScale = CHECKBOX_SCALE;
+            tutorialsCheckboxSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CHECKBOX_EMPTY_TEXTURE_FILE_NAME);
+            tutorialsCheckboxSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+            tutorialsCheckboxSceneObject->mInvisible = false;
+            tutorialsCheckboxSceneObject->mBoundingRectMultiplier /= 2.0f;
+            
+            scene::TextSceneObjectData tutorialsCheckboxTextData;
+            tutorialsCheckboxTextData.mFontName = game_constants::DEFAULT_FONT_NAME;
+            tutorialsCheckboxTextData.mText = "Tutorials";
+            
+            auto tutorialsCheckboxTextSceneObject = scene->CreateSceneObject(TUTORIALS_CHECKBOX_TEXT_SCENE_OBJECT_NAME);
+            tutorialsCheckboxTextSceneObject->mSceneObjectTypeData = std::move(tutorialsCheckboxTextData);
+            tutorialsCheckboxTextSceneObject->mPosition = TUTORIALS_CHECKBOX_TEXT_POSITION;
+            tutorialsCheckboxTextSceneObject->mScale = BUTTON_SCALE;
+            tutorialsCheckboxTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+            tutorialsCheckboxTextSceneObject->mInvisible = false;
+            
+            SetTutorialsCheckboxValue(scene, DataRepository::GetInstance().AreTutorialsEnabled());
+            
             // Music checkbox
             auto musicCheckboxSceneObject = scene->CreateSceneObject(MUSIC_CHECKBOX_SCENE_OBJECT_NAME);
             musicCheckboxSceneObject->mPosition = MUSIC_CHECKBOX_POSITION;
@@ -345,6 +384,30 @@ void SettingsSceneLogicManager::SetMusicCheckboxValue(std::shared_ptr<scene::Sce
     resources::ResourceId checkboxEmptyTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CHECKBOX_EMPTY_TEXTURE_FILE_NAME);
     
     auto checkBoxSceneObject = scene->FindSceneObject(MUSIC_CHECKBOX_SCENE_OBJECT_NAME);
+    checkBoxSceneObject->mTextureResourceId = checkboxValue ? checkboxFilledTextureResourceId : checkboxEmptyTextureResourceId;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void SettingsSceneLogicManager::ToggleTutorialsCheckbox(std::shared_ptr<scene::Scene> scene)
+{
+    auto checkBoxSceneObject = scene->FindSceneObject(TUTORIALS_CHECKBOX_SCENE_OBJECT_NAME);
+    
+    bool checkBoxValue = checkBoxSceneObject->mTextureResourceId == CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CHECKBOX_FILLED_TEXTURE_FILE_NAME) ? false : true;
+    SetTutorialsCheckboxValue(scene, checkBoxValue);
+    
+    DataRepository::GetInstance().SetTutorialsEnabled(checkBoxValue);
+    DataRepository::GetInstance().FlushStateToFile();
+}
+
+///------------------------------------------------------------------------------------------------
+
+void SettingsSceneLogicManager::SetTutorialsCheckboxValue(std::shared_ptr<scene::Scene> scene, const bool checkboxValue)
+{
+    resources::ResourceId checkboxFilledTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CHECKBOX_FILLED_TEXTURE_FILE_NAME);
+    resources::ResourceId checkboxEmptyTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CHECKBOX_EMPTY_TEXTURE_FILE_NAME);
+    
+    auto checkBoxSceneObject = scene->FindSceneObject(TUTORIALS_CHECKBOX_SCENE_OBJECT_NAME);
     checkBoxSceneObject->mTextureResourceId = checkboxValue ? checkboxFilledTextureResourceId : checkboxEmptyTextureResourceId;
 }
 

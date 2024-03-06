@@ -43,7 +43,8 @@ private:
     void TransitionToSubScene(const SubSceneType subSceneType, std::shared_ptr<scene::Scene> scene);
     void ToggleMusicCheckbox(std::shared_ptr<scene::Scene> scene);
     void SetMusicCheckboxValue(std::shared_ptr<scene::Scene> scene, const bool checkboxValue);
-    
+    void ToggleTutorialsCheckbox(std::shared_ptr<scene::Scene> scene);
+    void SetTutorialsCheckboxValue(std::shared_ptr<scene::Scene> scene, const bool checkboxValue);
 private:
     std::vector<std::unique_ptr<AnimatedButton>> mAnimatedButtons;
     SubSceneType mActiveSubScene;

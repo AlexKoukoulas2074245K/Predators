@@ -38,12 +38,13 @@ struct TutorialDefinition
 ///------------------------------------------------------------------------------------------------
 
 namespace scene { class SceneObject; }
+class AnimatedButton;
 class TutorialManager final : public events::IListener
 {
     friend class Game;
 public:
     TutorialManager();
-    ~TutorialManager() = default;
+    ~TutorialManager();
     TutorialManager(const TutorialManager&) = delete;
     TutorialManager(TutorialManager&&) = delete;
     const TutorialManager& operator = (const TutorialManager&) = delete;
@@ -57,13 +58,18 @@ public:
     
 private:
     void CreateTutorial();
+    void FadeOutTutorial();
+    void DestroyTutorial();
     void UpdateActiveTutorial(const float dtMillis);
     void OnTutorialTrigger(const events::TutorialTriggerEvent&);
+    void ToggleCheckbox();
+    void SetCheckboxValue(const bool checkboxValue);
     
 private:
     std::vector<strutils::StringId> mActiveTutorials;
     std::unordered_map<strutils::StringId, TutorialDefinition, strutils::StringIdHasher> mTutorialDefinitions;
     std::vector<std::shared_ptr<scene::SceneObject>> mTutorialSceneObjects;
+    std::unique_ptr<AnimatedButton> mContinueButton;
 };
 
 ///------------------------------------------------------------------------------------------------
