@@ -42,11 +42,16 @@
 
 - (void) pauseSfx
 {
+    ALC_CALL(alcMakeContextCurrent(NULL));
     _targetSfxVolume = 0.0f;
 }
 
 - (void) resumeSfx
 {
+    if (_audioEnabled)
+    {
+        ALC_CALL(alcMakeContextCurrent(_context));
+    }
     _targetSfxVolume = MAX_SFX_VOLUME;
 }
 

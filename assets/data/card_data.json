@@ -226,7 +226,7 @@
             "family": "insects",
             "name": "Insect Duplication",
             "effect": "DUPLICATE_NEXT_INSECT",
-            "tooltip": "Duplicates the next$insect played this$turn",
+            "tooltip": "Duplicates the next$Insect played this$turn",
             "texture": "insect_duplication.png",
             "shader": "basic.vs"
         },
@@ -235,7 +235,7 @@
             "family": "dinosaurs",
             "name": "Mighty Dino Roar",
             "effect": "DOUBLE_NEXT_DINO_DAMAGE",
-            "tooltip": "Doubles the <damage>$of the next$dinosaur you$play this turn",
+            "tooltip": "Doubles the <damage>$of the next$Dinosaur you$play this turn",
             "texture": "mighty_roar.png",
             "shader": "basic.vs"
         },
@@ -338,9 +338,9 @@
         {
             "weight": 4,
             "family": "rodents",
-            "name": "Vampire Rodents",
+            "name": "Vampire Gnawers",
             "effect": "RODENT_LIFESTEAL_ON_ATTACKS",
-            "tooltip": "All rodent attacks$will HEAL you this$turn for every point$of damage dealt",
+            "tooltip": "All Gnawer attacks$will HEAL you this$turn for every point$of damage dealt",
             "texture": "vampire_bunny.png",
             "shader": "basic.vs",
             "single_use": true
@@ -350,7 +350,7 @@
             "family": "dinosaurs",
             "name": "Dino Snack",
             "effect": "HEAL_NEXT_DINO_DAMAGE",
-            "tooltip": "The next dinosaur$played will HEAL$you for 100% of its$current <damage>",
+            "tooltip": "The next Dinosaur$played will HEAL$you for 100% of its$current <damage>",
             "texture": "hungry_dinosaur.png",
             "shader": "basic.vs",
             "single_use": true
@@ -360,7 +360,7 @@
             "family": "insects",
             "name": "MegaSwarm",
             "effect": "INSECT_MEGASWARM",
-            "tooltip": "Spawns 3 random$insects from your$deck",
+            "tooltip": "Spawns 3 random$Insects from your$deck",
             "texture": "insect_megaswarm.png",
             "shader": "basic.vs",
             "single_use": true
@@ -547,7 +547,7 @@
             "family": "dinosaurs",
             "name": "Meteor",
             "effect": "METEOR",
-            "tooltip": "Sacrifices a normal$held dinosaur card$to inflict double$its <damage> in damage",
+            "tooltip": "Sacrifices a normal$held Dinosaur card$to inflict double$its <damage> in damage",
             "texture": "meteor.png",
             "shader": "basic.vs",
             "single_use": true
@@ -555,7 +555,7 @@
         {
             "weight": 5,
             "family": "rodents",
-            "name": "Rodent Combo",
+            "name": "Gnawer Combo",
             "effect": "EVERY_THIRD_CARD_PLAYED_HAS_ZERO_COST",
             "tooltip": "For the rest of this$battle, every third$card played costs 0<weight>$",
             "texture": "rodent_combo.png",
