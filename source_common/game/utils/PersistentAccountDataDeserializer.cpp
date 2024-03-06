@@ -55,6 +55,11 @@ PersistentAccountDataDeserializer::PersistentAccountDataDeserializer(DataReposit
         dataRepository.SetSeenOpponentSpellCardIds(persistentDataJson["seen_opponent_spell_card_ids"].get<std::vector<int>>());
     }
     
+    if (persistentDataJson.count("seen_tutorial_ids"))
+    {
+        dataRepository.SetSeenTutorialIds(persistentDataJson["seen_tutorial_ids"].get<std::vector<int>>());
+    }
+    
     if (persistentDataJson.count("successful_transaction_ids"))
     {
         dataRepository.SetSuccessfulTransactionIds(persistentDataJson["successful_transaction_ids"].get<std::vector<std::string>>());
@@ -68,6 +73,11 @@ PersistentAccountDataDeserializer::PersistentAccountDataDeserializer(DataReposit
     if (persistentDataJson.count("audio_enabled"))
     {
         dataRepository.SetAudioEnabled(persistentDataJson["audio_enabled"].get<bool>());
+    }
+    
+    if (persistentDataJson.count("tutorials_enabled"))
+    {
+        dataRepository.SetTutorialsEnabled(persistentDataJson["tutorials_enabled"].get<bool>());
     }
     
     if (persistentDataJson.count("gold_carts_ignored"))

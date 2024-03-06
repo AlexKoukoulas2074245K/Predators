@@ -510,6 +510,21 @@ void DataRepository::SetSeenOpponentSpellCardIds(const std::vector<int>& seenOpp
 
 ///------------------------------------------------------------------------------------------------
 
+const std::vector<int>& DataRepository::GetSeenTutorialIds() const
+{
+    return mSeenTutorialIds;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void DataRepository::SetSeenTutorialIds(const std::vector<int>& seenTutorialIds)
+{
+    mSeenTutorialIds = seenTutorialIds;
+    mPersistentDataSerializer->GetState()["seen_tutorial_ids"] = mSeenTutorialIds;
+}
+
+///------------------------------------------------------------------------------------------------
+
 const std::vector<int>& DataRepository::GetStoryDeletedCardIds() const
 {
     return mStoryDeletedCards;
@@ -1127,6 +1142,21 @@ void DataRepository::SetAudioEnabled(const bool audioEnabled)
 {
     mAudioEnabled = audioEnabled;
     mPersistentDataSerializer->GetState()["audio_enabled"] = mAudioEnabled;
+}
+
+///------------------------------------------------------------------------------------------------
+
+const bool& DataRepository::AreTutorialsEnabled() const
+{
+    return mTutorialsEnabled;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void DataRepository::SetTutorialsEnabled(const bool tutorialsEnabled)
+{
+    mTutorialsEnabled = tutorialsEnabled;
+    mPersistentDataSerializer->GetState()["tutorials_enabled"] = mTutorialsEnabled;
 }
 
 ///------------------------------------------------------------------------------------------------

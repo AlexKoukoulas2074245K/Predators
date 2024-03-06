@@ -191,6 +191,9 @@ public:
     const std::vector<int>& GetSeenOpponentSpellCardIds() const;
     void SetSeenOpponentSpellCardIds(const std::vector<int>& seenOpponentSpellCardIds);
     
+    const std::vector<int>& GetSeenTutorialIds() const;
+    void SetSeenTutorialIds(const std::vector<int>& seenTutorialIds);
+    
     const std::vector<int>& GetStoryDeletedCardIds() const;
     void SetStoryDeletedCardIds(const std::vector<int>& storyDeletedCardIds);
     
@@ -309,6 +312,9 @@ public:
     const bool& IsAudioEnabled() const;
     void SetAudioEnabled(const bool musicEnabled);
     
+    const bool& AreTutorialsEnabled() const;
+    void SetTutorialsEnabled(const bool tutorialsEnabled);
+    
     const bool& HasSeenMountainOfGoldEvent() const;
     void SetHasSeenMountainOfGoldEvent(const bool hasSeenMountainOfGoldEvent);
     
@@ -342,6 +348,7 @@ private:
     std::vector<int> mStoryDeletedCards;
     std::vector<int> mNewCardIds;
     std::vector<int> mSeenOpponentSpellCardIds;
+    std::vector<int> mSeenTutorialIds;
     std::vector<int> mStoryMutationLevelVictories;
     std::vector<std::string> mSuccessfulTransactionIds;
     std::vector<std::string> mGiftCodesClaimed;
@@ -381,6 +388,7 @@ private:
     bool mCanSurfaceCloudDataScene = false;
     bool mAudioEnabled = false;
     bool mHasSeenMountainOfGoldEvent = false;
+    bool mTutorialsEnabled = true;
 };
 
 ///------------------------------------------------------------------------------------------------
