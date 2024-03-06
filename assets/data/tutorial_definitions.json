@@ -1,0 +1,9 @@
+{
+    "tutorial_definitions":
+    [
+        {
+            "name": "test_tutorial",
+            "description": "This is a test tutorial$this is the second row$some more information$here goes the fourth row$row five here, hello!$and six row finally, phew"
+        }
+    ]
+}

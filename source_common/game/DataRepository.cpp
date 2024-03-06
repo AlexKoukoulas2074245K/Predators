@@ -510,17 +510,21 @@ void DataRepository::SetSeenOpponentSpellCardIds(const std::vector<int>& seenOpp
 
 ///------------------------------------------------------------------------------------------------
 
-const std::vector<int>& DataRepository::GetSeenTutorialIds() const
+const std::vector<strutils::StringId>& DataRepository::GetSeenTutorials() const
 {
-    return mSeenTutorialIds;
+    return mSeenTutorials;
 }
 
 ///------------------------------------------------------------------------------------------------
 
-void DataRepository::SetSeenTutorialIds(const std::vector<int>& seenTutorialIds)
+void DataRepository::SetSeenTutorials(const std::vector<strutils::StringId>& seenTutorials)
 {
-    mSeenTutorialIds = seenTutorialIds;
-    mPersistentDataSerializer->GetState()["seen_tutorial_ids"] = mSeenTutorialIds;
+    mSeenTutorials = seenTutorials;
+    
+    for (const auto& tutorialName: mSeenTutorials)
+    {
+        mPersistentDataSerializer->GetState()["seen_tutorials"].push_back(tutorialName.GetString());
+    }
 }
 
 ///------------------------------------------------------------------------------------------------

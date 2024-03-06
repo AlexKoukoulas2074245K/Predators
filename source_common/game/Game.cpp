@@ -60,6 +60,7 @@
 #include <game/scenelogicmanagers/VictorySceneLogicManager.h>
 #include <game/scenelogicmanagers/VisitMapNodeSceneLogicManager.h>
 #include <game/scenelogicmanagers/WheelOfFortuneSceneLogicManager.h>
+#include <game/TutorialManager.h>
 
 #if defined(MOBILE_FLOW)
 #include <platform_specific/IOSUtils.h>
@@ -123,6 +124,9 @@ void Game::Init()
         mGameSceneTransitionManager->PopModalScene();
     });
     
+    mTutorialManager = std::make_unique<TutorialManager>();
+    mTutorialManager->LoadTutorialDefinitions();
+    
     mGameSceneTransitionManager = std::make_unique<GameSceneTransitionManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<BattleSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<BunnyHopSceneLogicManager>();
@@ -147,7 +151,7 @@ void Game::Init()
     mGameSceneTransitionManager->RegisterSceneLogicManager<VictorySceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<VisitMapNodeSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<WheelOfFortuneSceneLogicManager>();
-
+    
 #if defined(MOBILE_FLOW)
     if (ios_utils::IsIPad())
     {
@@ -202,6 +206,7 @@ void Game::Update(const float dtMillis)
         mGameSceneTransitionManager->ChangeToScene(game_constants::CARD_PACK_REWARD_SCENE_NAME, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
     }
 
+    mTutorialManager->Update(dtMillis);
     mGameSceneTransitionManager->Update(dtMillis);
 }
 
@@ -505,6 +510,65 @@ void Game::CreateDebugWidgets()
     
     // Manipulating Persistent Data
     ImGui::Begin("Persistent Data", nullptr, GLOBAL_IMGUI_WINDOW_FLAGS);
+    
+    static std::string tutorialName;
+    if (tutorialName.empty())
+    {
+        tutorialName.resize(30);
+    }
+    
+    ImGui::SeparatorText("Tutorials");
+    
+    {
+        static size_t selectedTutorialNameIndex = 0;
+        static std::vector<std::string> tutorialNames;
+        if (tutorialNames.empty())
+        {
+            auto tutorialDefinitions = mTutorialManager->GetTutorialDefinitions();
+            for (const auto& tutorialDefinition: tutorialDefinitions)
+            {
+                tutorialNames.push_back(tutorialDefinition.first.GetString());
+            }
+        }
+    
+        ImGui::Text("Tutorial Name");
+        ImGui::SameLine();
+        ImGui::PushID("ShowTutorial");
+        ImGui::SetNextItemWidth(200.0f);
+        if (ImGui::BeginCombo(" ", tutorialNames.at(selectedTutorialNameIndex).c_str()))
+        {
+            for (size_t n = 0U; n < tutorialNames.size(); n++)
+            {
+                const bool isSelected = (selectedTutorialNameIndex == n);
+                if (ImGui::Selectable(tutorialNames.at(n).c_str(), isSelected))
+                {
+                    selectedTutorialNameIndex = n;
+                }
+                if (isSelected)
+                {
+                    ImGui::SetItemDefaultFocus();
+                }
+            }
+            ImGui::EndCombo();
+        }
+        ImGui::PopID();
+        ImGui::SameLine();
+        if (ImGui::Button("Show Tutorial"))
+        {
+            auto tutorialNameId = strutils::StringId(tutorialNames.at(selectedTutorialNameIndex));
+            auto seenTutorials = DataRepository::GetInstance().GetSeenTutorials();
+            seenTutorials.erase(std::remove(seenTutorials.begin(), seenTutorials.end(), tutorialNameId), seenTutorials.end());
+            DataRepository::GetInstance().SetSeenTutorials(seenTutorials);
+            events::EventSystem::GetInstance().DispatchEvent<events::TutorialTriggerEvent>(tutorialNameId);
+        }
+    }
+    
+    
+    if (ImGui::Button("Clear Seen Tutorials"))
+    {
+        DataRepository::GetInstance().SetSeenTutorials({});
+        DataRepository::GetInstance().FlushStateToFile();
+    }
     
     static std::string mutationLevelString; mutationLevelString.resize(3);
     static std::string victoriesString; victoriesString.resize(4);

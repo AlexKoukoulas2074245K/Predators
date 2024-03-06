@@ -348,6 +348,19 @@ class BlockInteractionWithHeldCardsEvent final
 
 ///------------------------------------------------------------------------------------------------
 
+class TutorialTriggerEvent final
+{
+public:
+    TutorialTriggerEvent(const strutils::StringId& tutorialName)
+        : mTutorialName(tutorialName)
+    {
+    }
+    
+    const strutils::StringId mTutorialName;
+};
+
+///------------------------------------------------------------------------------------------------
+
 class RareItemCollectedEvent final
 {
 public:

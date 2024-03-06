@@ -55,9 +55,19 @@ PersistentAccountDataDeserializer::PersistentAccountDataDeserializer(DataReposit
         dataRepository.SetSeenOpponentSpellCardIds(persistentDataJson["seen_opponent_spell_card_ids"].get<std::vector<int>>());
     }
     
-    if (persistentDataJson.count("seen_tutorial_ids"))
+    if (persistentDataJson.count("seen_tutorials"))
     {
-        dataRepository.SetSeenTutorialIds(persistentDataJson["seen_tutorial_ids"].get<std::vector<int>>());
+        std::vector<strutils::StringId> seenTutorials;
+        
+        if (!persistentDataJson["seen_tutorials"].is_null())
+        {
+            for (auto entryIter = persistentDataJson["seen_tutorials"].begin(); entryIter != persistentDataJson["seen_tutorials"].end(); ++entryIter)
+            {
+                seenTutorials.push_back(strutils::StringId(entryIter.value()));
+            }
+        }
+        
+        dataRepository.SetSeenTutorials(seenTutorials);
     }
     
     if (persistentDataJson.count("successful_transaction_ids"))

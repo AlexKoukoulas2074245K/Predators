@@ -191,8 +191,8 @@ public:
     const std::vector<int>& GetSeenOpponentSpellCardIds() const;
     void SetSeenOpponentSpellCardIds(const std::vector<int>& seenOpponentSpellCardIds);
     
-    const std::vector<int>& GetSeenTutorialIds() const;
-    void SetSeenTutorialIds(const std::vector<int>& seenTutorialIds);
+    const std::vector<strutils::StringId>& GetSeenTutorials() const;
+    void SetSeenTutorials(const std::vector<strutils::StringId>& seenTutorials);
     
     const std::vector<int>& GetStoryDeletedCardIds() const;
     void SetStoryDeletedCardIds(const std::vector<int>& storyDeletedCardIds);
@@ -348,8 +348,8 @@ private:
     std::vector<int> mStoryDeletedCards;
     std::vector<int> mNewCardIds;
     std::vector<int> mSeenOpponentSpellCardIds;
-    std::vector<int> mSeenTutorialIds;
     std::vector<int> mStoryMutationLevelVictories;
+    std::vector<strutils::StringId> mSeenTutorials;
     std::vector<std::string> mSuccessfulTransactionIds;
     std::vector<std::string> mGiftCodesClaimed;
     std::vector<std::pair<int, int>> mCurrentShopBoughtProductCoordinates;

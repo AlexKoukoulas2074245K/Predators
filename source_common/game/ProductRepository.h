@@ -10,7 +10,6 @@
 
 ///------------------------------------------------------------------------------------------------
 
-#include <game/ProductRepository.h>
 #include <engine/utils/StringUtils.h>
 #include <unordered_map>
 #include <variant>

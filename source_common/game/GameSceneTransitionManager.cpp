@@ -32,7 +32,6 @@ GameSceneTransitionManager::GameSceneTransitionManager()
     : mLoadingScreenMinDelaySecs(0.0f)
     , mFirstTimeLoadingScreenMaxAlpha(true)
     , mTransitionAnimationsDisabled(false)
-    
 {
 }
 
@@ -90,10 +89,11 @@ void GameSceneTransitionManager::Update(const float dtMillis)
         }
     }
     
-    if (activeScene->IsLoaded())
+    bool activeTutorialExists = sceneManager.FindScene(game_constants::TUTORIAL_SCENE_NAME) != nullptr;
+    if (activeScene->IsLoaded() && !activeTutorialExists)
     {
         mActiveSceneStack.top().mActiveSceneLogicManager->VUpdate(dtMillis, activeScene);
-    }    
+    }
 }
 
 ///------------------------------------------------------------------------------------------------

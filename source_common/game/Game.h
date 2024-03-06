@@ -16,6 +16,7 @@
 ///------------------------------------------------------------------------------------------------
 
 class GameSceneTransitionManager;
+class TutorialManager;
 class Game final
 {
 public:
@@ -31,6 +32,7 @@ public:
     
 private:
     std::unique_ptr<GameSceneTransitionManager> mGameSceneTransitionManager;
+    std::unique_ptr<TutorialManager> mTutorialManager;
     std::unique_ptr<events::IListener> mSceneChangeEventListener;
     std::unique_ptr<events::IListener> mPopModalSceneEventListener;
 };
