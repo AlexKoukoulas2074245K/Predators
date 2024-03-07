@@ -917,21 +917,32 @@ void ShopSceneLogicManager::CreateProducts()
                     dynamicProductPrice *= 2;
                 }
                 
+                
+                priceTagSceneObject->mPosition = SHELF_ITEM_TARGET_BASE_POSITIONS[shelfIndex] + PRODUCT_PRICE_TAG_POSITION_OFFSET;
+                priceTagSceneObject->mScale = PRICE_TAG_SCALE;
+                priceTagSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+                priceTagSceneObject->mSnapToEdgeBehavior = scene::SnapToEdgeBehavior::SNAP_TO_LEFT_EDGE;
+                priceTagSceneObject->mSnapToEdgeScaleOffsetFactor = 1.1f + 0.75f * shelfItemIndex;
+                
                 if (IsProductCoins(shelfIndex, shelfItemIndex) || product->mProductName == STORY_HEALTH_REFILL_PRODUCT_NAME)
                 {
-                    priceTagSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + PRICE_TAG_TEXTURE_FILE_NAME_PREFIX + "3.png");
+                    if (permaShopPriceString.size() > 6)
+                    {
+                        priceTagSceneObject->mSnapToEdgeScaleOffsetFactor /= 1.5f;
+                        priceTagSceneObject->mScale.x *= 1.5f;
+                        priceTagSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + PRICE_TAG_TEXTURE_FILE_NAME_PREFIX + "4.png");
+                    }
+                    else
+                    {
+                        priceTagSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + PRICE_TAG_TEXTURE_FILE_NAME_PREFIX + "3.png");
+                    }
                 }
                 else
                 {
                     priceTagSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + PRICE_TAG_TEXTURE_FILE_NAME_PREFIX + std::to_string(std::to_string(dynamicProductPrice).size()) + ".png");
                 }
                 
-                priceTagSceneObject->mPosition = SHELF_ITEM_TARGET_BASE_POSITIONS[shelfIndex] + PRODUCT_PRICE_TAG_POSITION_OFFSET;
-                priceTagSceneObject->mScale = PRICE_TAG_SCALE;
                 
-                priceTagSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
-                priceTagSceneObject->mSnapToEdgeBehavior = scene::SnapToEdgeBehavior::SNAP_TO_LEFT_EDGE;
-                priceTagSceneObject->mSnapToEdgeScaleOffsetFactor = 1.1f + 0.75f * shelfItemIndex;
                 product->mSceneObjects.push_back(priceTagSceneObject);
                 
                 scene::TextSceneObjectData priceTextData;
