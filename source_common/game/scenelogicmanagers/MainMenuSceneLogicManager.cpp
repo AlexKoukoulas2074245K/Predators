@@ -50,6 +50,7 @@ static const std::string MINUS_BUTTON_TEXTURE_FILE_NAME = "minus_button.png";
 static const std::string MUTATION_MESH_FILE_NAME = "virus.obj";
 static const std::string MUTATION_SHADER_FILE_NAME = "virus.vs";
 static const std::string MAIN_MENU_THEME_MUSIC = "main_menu_theme";
+static const std::string LOCK_ICON_TEXTURE_FILE_NAME = "lock.png";
 static const std::string STORY_DECK_NAMES[AVAILABLE_STORY_DECKS_COUNT] =
 {
     "Dinosaurs",
@@ -86,6 +87,8 @@ static const strutils::StringId MUTATION_MINUS_BUTTON_NAME = strutils::StringId(
 static const strutils::StringId TITLE_SCENE_OBJECT_NAME = strutils::StringId("predators_title");
 static const strutils::StringId TOP_DECK_TEXT_SCENE_OBJECT_NAME = strutils::StringId("top_deck_text");
 static const strutils::StringId BOT_DECK_TEXT_SCENE_OBJECT_NAME = strutils::StringId("bot_deck_text");
+static const strutils::StringId LOCK_LIBRARY_SCENE_OBJECT_NAME = strutils::StringId("library_lock");
+static const strutils::StringId LOCK_SHOP_SCENE_OBJECT_NAME = strutils::StringId("shop_lock");
 static const strutils::StringId STORY_DECK_CONTAINER_SCENE_OBJECT_NAME = strutils::StringId("story_deck_container");
 static const strutils::StringId TOP_DECK_CONTAINER_SCENE_OBJECT_NAME = strutils::StringId("top_deck_container");
 static const strutils::StringId BOT_DECK_CONTAINER_SCENE_OBJECT_NAME = strutils::StringId("bot_deck_container");
@@ -124,6 +127,9 @@ static const glm::vec2 STORY_DECK_ENTRY_CUTOFF_VALUES = {-0.25f, 0.15f};
 static const glm::vec2 STORY_DECK_SELECTION_CONTAINER_CUTOFF_VALUES = {-0.1f, 0.1f};
 
 static const glm::vec3 BUTTON_SCALE = {0.0005f, 0.0005f, 0.0005f};
+static const glm::vec3 LOCK_SCALE = {0.05f, 0.05f, 0.05f};
+static const glm::vec3 LOCK_POSITION_OFFSET = {-0.04f, -0.003f, 0.0f};
+static const glm::vec3 LOCKED_BUTTON_COLOR = {0.5f, 0.5f, 0.5f};
 static const glm::vec3 MUTATION_CHANGE_TEXT_SCALE = {0.0002f, 0.0002f, 0.0002f};
 static const glm::vec3 MUTATION_CHANGE_TEXT_INIT_POSITION = {0.05, 0.088f, 1.0f};
 static const glm::vec3 PLUS_BUTTON_SCALE = {0.075f, 0.075f, 0.075f};
@@ -480,6 +486,14 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                 *scene
             ));
             
+            if (DataRepository::GetInstance().GetGamesFinishedCount() == 0)
+            {
+                auto lockSceneObject = scene->CreateSceneObject(LOCK_LIBRARY_SCENE_OBJECT_NAME);
+                lockSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + LOCK_ICON_TEXTURE_FILE_NAME);
+                lockSceneObject->mScale = LOCK_SCALE;
+                lockSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+            }
+            
             mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
             (
                 CARD_LIBRARY_BUTTON_POSITION,
@@ -489,11 +503,26 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                 CARD_LIBRARY_BUTTON_NAME,
                 [=]()
                 {
-                    DataRepository::GetInstance().SetCurrentCardLibraryBehaviorType(CardLibraryBehaviorType::CARD_LIBRARY);
-                    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::CARD_LIBRARY_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+                    if (DataRepository::GetInstance().GetGamesFinishedCount() == 0)
+                    {
+                        events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::FIRST_GAME_LOCK_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+                    }
+                    else
+                    {
+                        DataRepository::GetInstance().SetCurrentCardLibraryBehaviorType(CardLibraryBehaviorType::CARD_LIBRARY);
+                        events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::CARD_LIBRARY_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+                    }
                 },
                 *scene
             ));
+            
+            if (DataRepository::GetInstance().GetGamesFinishedCount() == 0)
+            {
+                auto lockSceneObject = scene->CreateSceneObject(LOCK_SHOP_SCENE_OBJECT_NAME);
+                lockSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + LOCK_ICON_TEXTURE_FILE_NAME);
+                lockSceneObject->mScale = LOCK_SCALE;
+                lockSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+            }
             
             mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
             (
@@ -507,6 +536,10 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                     if (IsDisconnected())
                     {
                         events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::DISCONNECTED_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+                    }
+                    else if (DataRepository::GetInstance().GetGamesFinishedCount() == 0)
+                    {
+                        events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::FIRST_GAME_LOCK_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
                     }
                     else
                     {
@@ -569,6 +602,24 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                 auto boundingRect = scene_object_utils::GetSceneObjectBoundingRect(*animatedButton->GetSceneObject());
                 auto textLength = boundingRect.topRight.x - boundingRect.bottomLeft.x;
                 animatedButton->GetSceneObject()->mPosition.x -= textLength/2.0f;
+            }
+            
+            auto libraryLockSceneObject = scene->FindSceneObject(LOCK_LIBRARY_SCENE_OBJECT_NAME);
+            if (libraryLockSceneObject)
+            {
+                auto cardLibrarySceneObject = scene->FindSceneObject(CARD_LIBRARY_BUTTON_NAME);
+                cardLibrarySceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + game_constants::BASIC_CUSTOM_COLOR_SHADER_FILE_NAME);
+                cardLibrarySceneObject->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = LOCKED_BUTTON_COLOR;
+                libraryLockSceneObject->mPosition = cardLibrarySceneObject->mPosition + LOCK_POSITION_OFFSET;
+            }
+            
+            auto shopLockSceneObject = scene->FindSceneObject(LOCK_SHOP_SCENE_OBJECT_NAME);
+            if (shopLockSceneObject)
+            {
+                auto shopSceneObject = scene->FindSceneObject(SHOP_BUTTON_NAME);
+                shopSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + game_constants::BASIC_CUSTOM_COLOR_SHADER_FILE_NAME);
+                shopSceneObject->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = LOCKED_BUTTON_COLOR;
+                shopLockSceneObject->mPosition = shopSceneObject->mPosition + LOCK_POSITION_OFFSET;
             }
         } break;
            

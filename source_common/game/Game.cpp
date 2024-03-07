@@ -47,6 +47,7 @@
 #include <game/scenelogicmanagers/DefeatSceneLogicManager.h>
 #include <game/scenelogicmanagers/DisconnectedSceneLogicManager.h>
 #include <game/scenelogicmanagers/EventSceneLogicManager.h>
+#include <game/scenelogicmanagers/FirstGameLockSceneLogicManager.h>
 #include <game/scenelogicmanagers/GiftCodeClaimSceneLogicManager.h>
 #include <game/scenelogicmanagers/InventorySceneLogicManager.h>
 #include <game/scenelogicmanagers/LoadingSceneLogicManager.h>
@@ -138,6 +139,7 @@ void Game::Init()
     mGameSceneTransitionManager->RegisterSceneLogicManager<DefeatSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<DisconnectedSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<EventSceneLogicManager>();
+    mGameSceneTransitionManager->RegisterSceneLogicManager<FirstGameLockSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<GiftCodeClaimSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<InventorySceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<LoadingSceneLogicManager>();
@@ -179,7 +181,7 @@ void Game::Update(const float dtMillis)
 {
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
     auto& sceneManager = CoreSystemsEngine::GetInstance().GetSceneManager();
-    auto cardPackRewardScene = sceneManager.FindScene(game_constants::CARD_PACK_REWARD_SCENE_NAME);
+    auto cardPackRewardScene = sceneManager.FindScene(game_constants::CARD_PACK_REWARD_SCENE);
     
     // Cloud Data Sync
     if
@@ -187,7 +189,7 @@ void Game::Update(const float dtMillis)
         DataRepository::GetInstance().CanSurfaceCloudDataScene() &&
         DataRepository::GetInstance().GetForeignProgressionDataFound() != ForeignCloudDataFoundType::NONE &&
         mGameSceneTransitionManager->GetActiveSceneStack().top().mActiveSceneName == MAIN_MENU_SCENE &&
-        !sceneManager.FindScene(game_constants::LOADING_SCENE_NAME) &&
+        !sceneManager.FindScene(game_constants::LOADING_SCENE) &&
         !animationManager.IsAnimationPlaying(game_constants::OVERLAY_DARKENING_ANIMATION_NAME)
     )
     {
@@ -199,11 +201,11 @@ void Game::Update(const float dtMillis)
         !DataRepository::GetInstance().GetPendingCardPacks().empty() &&
         mGameSceneTransitionManager->GetActiveSceneStack().top().mActiveSceneName == MAIN_MENU_SCENE &&
         (!cardPackRewardScene || !cardPackRewardScene->FindSceneObject(game_constants::OVERLAY_SCENE_OBJECT_NAME)) &&
-        !sceneManager.FindScene(game_constants::LOADING_SCENE_NAME) &&
+        !sceneManager.FindScene(game_constants::LOADING_SCENE) &&
         !animationManager.IsAnimationPlaying(game_constants::OVERLAY_DARKENING_ANIMATION_NAME)
     )
     {
-        mGameSceneTransitionManager->ChangeToScene(game_constants::CARD_PACK_REWARD_SCENE_NAME, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+        mGameSceneTransitionManager->ChangeToScene(game_constants::CARD_PACK_REWARD_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
     }
 
     mTutorialManager->Update(dtMillis);
@@ -573,7 +575,7 @@ void Game::CreateDebugWidgets()
     static std::string mutationLevelString; mutationLevelString.resize(3);
     static std::string victoriesString; victoriesString.resize(4);
     
-    ImGui::SeparatorText("Mutations");
+    ImGui::SeparatorText("Game Stats");
     ImGui::PushID("MutationLevel");
     ImGui::Text("Mutation Level");
     ImGui::SameLine();
@@ -594,6 +596,38 @@ void Game::CreateDebugWidgets()
         auto mutationLevel = std::stoi(mutationLevelString);
         auto victoryCount = std::stoi(victoriesString);
         DataRepository::GetInstance().SetMutationLevelVictories(mutationLevel, victoryCount);
+        DataRepository::GetInstance().FlushStateToFile();
+    }
+    
+    if (ImGui::Button("Clear All Victories"))
+    {
+        for (auto i = 0; i <= game_constants::MAX_MUTATION_LEVEL; ++i)
+        {
+            DataRepository::GetInstance().SetMutationLevelVictories(i, 0);
+        }
+        
+        DataRepository::GetInstance().FlushStateToFile();
+    }
+    
+    
+    static std::string gamesFinishedString; gamesFinishedString.resize(4);
+    ImGui::PushID("GamesFinished");
+    ImGui::Text("Games");
+    ImGui::SameLine();
+    ImGui::SetNextItemWidth(40.0f);
+    ImGui::InputText("##hidelabel", &gamesFinishedString[0], gamesFinishedString.size());
+    ImGui::PopID();
+    ImGui::SameLine();
+    if (ImGui::Button("Set Games Finished"))
+    {
+        auto gamesFinishedCount = std::stoi(gamesFinishedString);
+        DataRepository::GetInstance().SetGamesFinishedCount(gamesFinishedCount);
+        DataRepository::GetInstance().FlushStateToFile();
+    }
+    
+    if (ImGui::Button("Clear Games Finished"))
+    {
+        DataRepository::GetInstance().SetGamesFinishedCount(0);
         DataRepository::GetInstance().FlushStateToFile();
     }
     

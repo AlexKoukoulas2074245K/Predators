@@ -153,7 +153,7 @@ void TutorialManager::CreateTutorial()
     DataRepository::GetInstance().FlushStateToFile();
 
     // Create custom scene
-    auto tutorialScene = CoreSystemsEngine::GetInstance().GetSceneManager().CreateScene(game_constants::TUTORIAL_SCENE_NAME);
+    auto tutorialScene = CoreSystemsEngine::GetInstance().GetSceneManager().CreateScene(game_constants::TUTORIAL_SCENE);
     tutorialScene->SetLoaded(true);
     
     auto tutorialSceneObject = tutorialScene->CreateSceneObject(TUTORIAL_BASE_SCENE_OBJECT_NAME);
@@ -255,7 +255,7 @@ void TutorialManager::FadeOutTutorial()
 
 void TutorialManager::DestroyTutorial()
 {
-    CoreSystemsEngine::GetInstance().GetSceneManager().RemoveScene(game_constants::TUTORIAL_SCENE_NAME);
+    CoreSystemsEngine::GetInstance().GetSceneManager().RemoveScene(game_constants::TUTORIAL_SCENE);
     mActiveTutorials.erase(mActiveTutorials.begin());
     
     // Suppress any other queued up tutorials
@@ -287,7 +287,7 @@ void TutorialManager::UpdateActiveTutorial(const float dtMillis)
         mContinueButton->Update(dtMillis);
         
         // Checkbox interaction
-        auto tutorialScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::TUTORIAL_SCENE_NAME);
+        auto tutorialScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::TUTORIAL_SCENE);
         const auto& inputStateManager = CoreSystemsEngine::GetInstance().GetInputStateManager();
         auto worldTouchPos = inputStateManager.VGetPointingPosInWorldSpace(tutorialScene->GetCamera().GetViewMatrix(), tutorialScene->GetCamera().GetProjMatrix());
 
@@ -344,7 +344,7 @@ void TutorialManager::OnTutorialTrigger(const events::TutorialTriggerEvent& even
 
 void TutorialManager::ToggleCheckbox()
 {
-    auto tutorialScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::TUTORIAL_SCENE_NAME);
+    auto tutorialScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::TUTORIAL_SCENE);
     auto checkBoxSceneObject = tutorialScene->FindSceneObject(TUTORIAL_TEXT_SCENE_OBJECT_NAMES[1]);
     
     bool checkBoxValue = checkBoxSceneObject->mTextureResourceId == CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CHECKBOX_FILLED_TEXTURE_FILE_NAME) ? false : true;
@@ -361,7 +361,7 @@ void TutorialManager::SetCheckboxValue(const bool checkboxValue)
     resources::ResourceId checkboxFilledTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CHECKBOX_FILLED_TEXTURE_FILE_NAME);
     resources::ResourceId checkboxEmptyTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + CHECKBOX_EMPTY_TEXTURE_FILE_NAME);
     
-    auto tutorialScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::TUTORIAL_SCENE_NAME);
+    auto tutorialScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::TUTORIAL_SCENE);
     auto checkBoxSceneObject = tutorialScene->FindSceneObject(TUTORIAL_TEXT_SCENE_OBJECT_NAMES[1]);
     checkBoxSceneObject->mTextureResourceId = checkboxValue ? checkboxFilledTextureResourceId : checkboxEmptyTextureResourceId;
 }

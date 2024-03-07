@@ -141,9 +141,10 @@ namespace game_constants
     inline const strutils::StringId INVENTORY_SCENE = strutils::StringId("inventory_scene");
     inline const strutils::StringId WHEEL_OF_FORTUNE_SCENE = strutils::StringId("wheel_of_fortune_scene");
     inline const strutils::StringId CLOUD_DATA_CONFIRMATION_SCENE = strutils::StringId("cloud_data_confirmation_scene");
-    inline const strutils::StringId LOADING_SCENE_NAME = strutils::StringId("loading_scene");
-    inline const strutils::StringId CARD_PACK_REWARD_SCENE_NAME = strutils::StringId("card_pack_reward_scene");
-    inline const strutils::StringId TUTORIAL_SCENE_NAME = strutils::StringId("tutorial_scene");
+    inline const strutils::StringId FIRST_GAME_LOCK_SCENE = strutils::StringId("first_game_lock_scene");
+    inline const strutils::StringId LOADING_SCENE = strutils::StringId("loading_scene");
+    inline const strutils::StringId CARD_PACK_REWARD_SCENE = strutils::StringId("card_pack_reward_scene");
+    inline const strutils::StringId TUTORIAL_SCENE = strutils::StringId("tutorial_scene");
 
     // General Game Constants
     inline constexpr int REMOTE_PLAYER_INDEX = 0;

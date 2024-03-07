@@ -1,0 +1,33 @@
+{
+    "children_scenes":
+    [
+    ],
+    
+    "scene_objects":
+    [
+        {
+            "name": "title",
+            "font": "font",
+            "text": "Can't Access Yet",
+            "scale": { "x": 0.0007, "y": 0.0007, "z": 0.0007 },
+            "position": { "x": -0.203, "y": 0.177, "z": 23.1 },
+            "alpha": 0.0
+        },
+        {
+            "name": "text_0",
+            "font": "font",
+            "text": "You need to play your first story",
+            "scale": { "x": 0.0005, "y": 0.0005, "z": 0.0005 },
+            "position": { "x": -0.297, "y": 0.077, "z": 23.1 },
+            "alpha": 0.0
+        },
+        {
+            "name": "text_1",
+            "font": "font",
+            "text": "before accessing this!",
+            "scale": { "x": 0.0005, "y": 0.0005, "z": 0.0005 },
+            "position": { "x": -0.187, "y": 0.007, "z": 23.1 },
+            "alpha": 0.0
+        }
+    ]
+}

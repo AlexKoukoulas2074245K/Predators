@@ -86,7 +86,7 @@ static constexpr int PACK_MAX_SHAKE_STEPS = 100;
 
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
 {
-    game_constants::CARD_PACK_REWARD_SCENE_NAME
+    game_constants::CARD_PACK_REWARD_SCENE
 };
 
 static const std::unordered_set<strutils::StringId, strutils::StringIdHasher> STATIC_SCENE_ELEMENTS =
@@ -426,7 +426,7 @@ void CardPackRewardSceneLogicManager::RegisterForEvents()
 
 void CardPackRewardSceneLogicManager::OnWindowResize(const events::WindowResizeEvent&)
 {
-    CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::CARD_PACK_REWARD_SCENE_NAME)->RecalculatePositionOfEdgeSnappingSceneObjects();
+    CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::CARD_PACK_REWARD_SCENE)->RecalculatePositionOfEdgeSnappingSceneObjects();
 }
 
 ///------------------------------------------------------------------------------------------------
