@@ -191,6 +191,7 @@ public:
     const std::vector<int>& GetSeenOpponentSpellCardIds() const;
     void SetSeenOpponentSpellCardIds(const std::vector<int>& seenOpponentSpellCardIds);
     
+    bool HasSeenTutorial(const strutils::StringId& tutorial) const;
     const std::vector<strutils::StringId>& GetSeenTutorials() const;
     void SetSeenTutorials(const std::vector<strutils::StringId>& seenTutorials);
     

@@ -510,6 +510,13 @@ void DataRepository::SetSeenOpponentSpellCardIds(const std::vector<int>& seenOpp
 
 ///------------------------------------------------------------------------------------------------
 
+bool DataRepository::HasSeenTutorial(const strutils::StringId& tutorial) const
+{
+    return std::find(mSeenTutorials.cbegin(), mSeenTutorials.cend(), tutorial) != mSeenTutorials.cend();
+}
+
+///------------------------------------------------------------------------------------------------
+
 const std::vector<strutils::StringId>& DataRepository::GetSeenTutorials() const
 {
     return mSeenTutorials;

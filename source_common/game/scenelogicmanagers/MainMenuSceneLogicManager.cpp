@@ -52,6 +52,7 @@ static const std::string MUTATION_MESH_FILE_NAME = "virus.obj";
 static const std::string MUTATION_SHADER_FILE_NAME = "virus.vs";
 static const std::string MAIN_MENU_THEME_MUSIC = "main_menu_theme";
 static const std::string LOCK_ICON_TEXTURE_FILE_NAME = "lock.png";
+static const std::string NEW_CARD_INDICATOR_SHADER_FILE_NAME = "new_indicator.vs";
 static const std::string STORY_DECK_NAMES[AVAILABLE_STORY_DECKS_COUNT] =
 {
     "Dinosaurs",
@@ -90,6 +91,8 @@ static const strutils::StringId TOP_DECK_TEXT_SCENE_OBJECT_NAME = strutils::Stri
 static const strutils::StringId BOT_DECK_TEXT_SCENE_OBJECT_NAME = strutils::StringId("bot_deck_text");
 static const strutils::StringId LOCK_LIBRARY_SCENE_OBJECT_NAME = strutils::StringId("library_lock");
 static const strutils::StringId LOCK_SHOP_SCENE_OBJECT_NAME = strutils::StringId("shop_lock");
+static const strutils::StringId UNLOCKED_LIBRARY_SCENE_OBJECT_NAME = strutils::StringId("library_unlocked");
+static const strutils::StringId UNLOCKED_SHOP_SCENE_OBJECT_NAME = strutils::StringId("shop_unlocked");
 static const strutils::StringId STORY_DECK_CONTAINER_SCENE_OBJECT_NAME = strutils::StringId("story_deck_container");
 static const strutils::StringId TOP_DECK_CONTAINER_SCENE_OBJECT_NAME = strutils::StringId("top_deck_container");
 static const strutils::StringId BOT_DECK_CONTAINER_SCENE_OBJECT_NAME = strutils::StringId("bot_deck_container");
@@ -128,8 +131,10 @@ static const glm::vec2 STORY_DECK_ENTRY_CUTOFF_VALUES = {-0.25f, 0.15f};
 static const glm::vec2 STORY_DECK_SELECTION_CONTAINER_CUTOFF_VALUES = {-0.1f, 0.1f};
 
 static const glm::vec3 BUTTON_SCALE = {0.0005f, 0.0005f, 0.0005f};
+static const glm::vec3 NEW_INDICATOR_SCALE = {0.00035f, 0.00035f, 0.00035f};
 static const glm::vec3 LOCK_SCALE = {0.05f, 0.05f, 0.05f};
 static const glm::vec3 LOCK_POSITION_OFFSET = {-0.04f, -0.003f, 0.0f};
+static const glm::vec3 UNLOCKED_TEXT_POSITION_OFFSET = {-0.09f, -0.003f, 0.0f};
 static const glm::vec3 LOCKED_BUTTON_COLOR = {0.5f, 0.5f, 0.5f};
 static const glm::vec3 MUTATION_CHANGE_TEXT_SCALE = {0.0002f, 0.0002f, 0.0002f};
 static const glm::vec3 MUTATION_CHANGE_TEXT_INIT_POSITION = {0.05, 0.088f, 1.0f};
@@ -430,6 +435,18 @@ void MainMenuSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
             DeckSelected(containerUpdateResult.mInteractedElementIndex, false, scene);
         }
     }
+    
+    auto unlockedCardLibrarySceneObject = scene->FindSceneObject(UNLOCKED_LIBRARY_SCENE_OBJECT_NAME);
+    if (unlockedCardLibrarySceneObject)
+    {
+        unlockedCardLibrarySceneObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
+    }
+    
+    auto unlockedShopLibrarySceneObject = scene->FindSceneObject(UNLOCKED_SHOP_SCENE_OBJECT_NAME);
+    if (unlockedShopLibrarySceneObject)
+    {
+        unlockedShopLibrarySceneObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
+    }
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -495,6 +512,19 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                 lockSceneObject->mScale = LOCK_SCALE;
                 lockSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
             }
+            else if (!DataRepository::GetInstance().HasSeenTutorial(tutorials::CARD_LIBRARY_TUTORIAL))
+            {
+                scene::TextSceneObjectData textNewIndicatorData;
+                textNewIndicatorData.mText = "NEW";
+                textNewIndicatorData.mFontName = game_constants::DEFAULT_FONT_NAME;
+                
+                auto newLibraryIndicatorSceneObject = scene->CreateSceneObject(UNLOCKED_LIBRARY_SCENE_OBJECT_NAME);
+                newLibraryIndicatorSceneObject->mSceneObjectTypeData = std::move(textNewIndicatorData);
+                newLibraryIndicatorSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + NEW_CARD_INDICATOR_SHADER_FILE_NAME);
+                newLibraryIndicatorSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MIN_Y_UNIFORM_NAME] = -1.0f;
+                newLibraryIndicatorSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MAX_Y_UNIFORM_NAME] = 1.0f;
+                newLibraryIndicatorSceneObject->mScale = NEW_INDICATOR_SCALE;
+            }
             
             mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
             (
@@ -513,6 +543,12 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                     {
                         DataRepository::GetInstance().SetCurrentCardLibraryBehaviorType(CardLibraryBehaviorType::CARD_LIBRARY);
                         events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::CARD_LIBRARY_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+                        
+                        auto unlockedLibrarySceneObject = scene->FindSceneObject(UNLOCKED_LIBRARY_SCENE_OBJECT_NAME);
+                        if (unlockedLibrarySceneObject)
+                        {
+                            CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(unlockedLibrarySceneObject, 0.0f, SUBSCENE_ITEM_FADE_IN_OUT_DURATION_SECS), [](){});
+                        }
                     }
                 },
                 *scene
@@ -524,6 +560,19 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                 lockSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + LOCK_ICON_TEXTURE_FILE_NAME);
                 lockSceneObject->mScale = LOCK_SCALE;
                 lockSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+            }
+            else if (!DataRepository::GetInstance().HasSeenTutorial(tutorials::PERMA_SHOP_TUTORIAL))
+            {
+                scene::TextSceneObjectData textNewIndicatorData;
+                textNewIndicatorData.mText = "NEW";
+                textNewIndicatorData.mFontName = game_constants::DEFAULT_FONT_NAME;
+                
+                auto newShopIndicatorSceneObject = scene->CreateSceneObject(UNLOCKED_SHOP_SCENE_OBJECT_NAME);
+                newShopIndicatorSceneObject->mSceneObjectTypeData = std::move(textNewIndicatorData);
+                newShopIndicatorSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + NEW_CARD_INDICATOR_SHADER_FILE_NAME);
+                newShopIndicatorSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MIN_Y_UNIFORM_NAME] = -1.0f;
+                newShopIndicatorSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MAX_Y_UNIFORM_NAME] = 1.0f;
+                newShopIndicatorSceneObject->mScale = NEW_INDICATOR_SCALE;
             }
             
             mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
@@ -622,6 +671,20 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                 shopSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + game_constants::BASIC_CUSTOM_COLOR_SHADER_FILE_NAME);
                 shopSceneObject->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = LOCKED_BUTTON_COLOR;
                 shopLockSceneObject->mPosition = shopSceneObject->mPosition + LOCK_POSITION_OFFSET;
+            }
+            
+            auto unlockedLibrarySceneObject = scene->FindSceneObject(UNLOCKED_LIBRARY_SCENE_OBJECT_NAME);
+            if (unlockedLibrarySceneObject)
+            {
+                auto cardLibrarySceneObject = scene->FindSceneObject(CARD_LIBRARY_BUTTON_NAME);
+                unlockedLibrarySceneObject->mPosition = cardLibrarySceneObject->mPosition + UNLOCKED_TEXT_POSITION_OFFSET;
+            }
+            
+            auto unlockedShopSceneObject = scene->FindSceneObject(UNLOCKED_SHOP_SCENE_OBJECT_NAME);
+            if (unlockedShopSceneObject)
+            {
+                auto shopSceneObject = scene->FindSceneObject(SHOP_BUTTON_NAME);
+                unlockedShopSceneObject->mPosition = shopSceneObject->mPosition + UNLOCKED_TEXT_POSITION_OFFSET;
             }
         } break;
            

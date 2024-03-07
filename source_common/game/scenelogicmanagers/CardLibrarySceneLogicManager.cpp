@@ -378,6 +378,12 @@ void CardLibrarySceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr
     {
         events::EventSystem::GetInstance().DispatchEvent<events::TutorialTriggerEvent>(tutorials::CARD_LIBRARY_TUTORIAL);
         mHasSentTutorialTrigger = true;
+        
+        // Tutorials might be disabled so we need to force this seen
+        // to not make the NEW indicator sticky on the main menu.
+        auto seenTutorials = DataRepository::GetInstance().GetSeenTutorials();
+        seenTutorials.push_back(tutorials::CARD_LIBRARY_TUTORIAL);
+        DataRepository::GetInstance().SetSeenTutorials(seenTutorials);
     }
     
     for (auto i = 0; i < mCardContainer->GetItems().size(); ++i)

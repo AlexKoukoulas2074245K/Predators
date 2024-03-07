@@ -258,6 +258,15 @@ void ShopSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene:
     {
         events::EventSystem::GetInstance().DispatchEvent<events::TutorialTriggerEvent>(DataRepository::GetInstance().GetCurrentShopBehaviorType() == ShopBehaviorType::STORY_SHOP ? tutorials::STORY_SHOP_TUTORIAL : tutorials::PERMA_SHOP_TUTORIAL);
         mHasSentTutorialTrigger = true;
+        
+        if (DataRepository::GetInstance().GetCurrentShopBehaviorType() == ShopBehaviorType::PERMA_SHOP)
+        {
+            // Tutorials might be disabled so we need to force this seen
+            // to not make the NEW indicator sticky on the main menu.
+            auto seenTutorials = DataRepository::GetInstance().GetSeenTutorials();
+            seenTutorials.push_back(tutorials::PERMA_SHOP_TUTORIAL);
+            DataRepository::GetInstance().SetSeenTutorials(seenTutorials);
+        }
     }
     
     switch (mSceneState)
