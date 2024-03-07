@@ -35,7 +35,7 @@ static const glm::vec2 TEXT_ENTRY_CUTOFF_VALUES = {-0.193f, 0.173f};
 
 static const float SUBSCENE_ITEM_FADE_IN_OUT_DURATION_SECS = 0.25f;
 static const float STAGGERED_ITEM_ALPHA_DELAY_SECS = 0.01f;
-static const float TEXT_SPEED = 0.0001f;
+static const float TEXT_SPEED = 0.00006f;
 static const float WARP_Y = 2.2f;
 
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
