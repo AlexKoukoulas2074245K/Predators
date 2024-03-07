@@ -16,6 +16,7 @@
 #include <game/gameactions/InsectDuplicationGameAction.h>
 #include <game/GameRuleEngine.h>
 #include <game/scenelogicmanagers/BattleSceneLogicManager.h>
+#include <game/TutorialManager.h>
 #include <engine/rendering/AnimationManager.h>
 #include <engine/rendering/ParticleManager.h>
 #include <engine/scene/SceneManager.h>
@@ -40,6 +41,8 @@ static const strutils::StringId CARD_PLAY_PARTICLE_NAME = strutils::StringId("ca
 static const strutils::StringId HEAL_NEXT_DINO_DAMAGE_GAME_ACTION_NAME = strutils::StringId("HealNextDinoDamageGameAction");
 static const strutils::StringId INSECT_VIRUS_GAME_ACTION_NAME = strutils::StringId("InsectVirusGameAction");
 static const strutils::StringId ZERO_COST_TIME_GAME_ACTION_NAME = strutils::StringId("ZeroCostTimeGameAction");
+static const strutils::StringId HISTORY_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("history_button");
+static const strutils::StringId END_TURN_TUTORIAL_GAME_ACTION_NAME = strutils::StringId("EndTurnTutorialGameAction");
 
 static const float CARD_CAMERA_SHAKE_DURATION = 0.25f;
 static const float CARD_CAMERA_SHAKE_STRENGTH = 0.005f;
@@ -201,6 +204,28 @@ void PlayCardGameAction::VSetNewGameState()
     {
         mGameActionEngine->AddGameAction(ZERO_COST_TIME_GAME_ACTION_NAME, {});
     }
+    
+    if (mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX)
+    {
+        bool shouldSendEndGameTutorialTrigger = true;
+        if (!activePlayerState.mPlayerHeldCards.empty())
+        {
+            for (int i = 0; i < activePlayerState.mPlayerHeldCards.size(); ++i)
+            {
+                const auto& cardData = CardDataRepository::GetInstance().GetCardData(activePlayerState.mPlayerHeldCards[i], game_constants::LOCAL_PLAYER_INDEX);
+                if (mGameRuleEngine->CanCardBePlayed(&cardData, i, game_constants::LOCAL_PLAYER_INDEX))
+                {
+                    shouldSendEndGameTutorialTrigger = false;
+                    break;
+                }
+            }
+        }
+        
+        if (shouldSendEndGameTutorialTrigger)
+        {
+            mGameActionEngine->AddGameAction(END_TURN_TUTORIAL_GAME_ACTION_NAME);
+        }
+    }
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -325,6 +350,18 @@ void PlayCardGameAction::AnimatedCardToBoard(std::shared_ptr<CardSoWrapper> last
         );
         
         lastPlayedCardSoWrapper->mSceneObject->mShaderBoolUniformValues[game_constants::IS_HELD_CARD_UNIFORM_NAME] = false;
+        
+        if (mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX && !lastPlayedCardSoWrapper->mCardData.IsSpell())
+        {
+            auto historyButtonPosition = scene->FindSceneObject(HISTORY_BUTTON_SCENE_OBJECT_NAME)->mPosition;
+            historyButtonPosition.x *= game_constants::GAME_BOARD_GUI_DISTANCE_FACTOR;
+            historyButtonPosition.x -= 0.003f;
+            
+            auto arrowOriginPosition = historyButtonPosition;
+            arrowOriginPosition.y += 0.05f;
+            
+            events::EventSystem::GetInstance().DispatchEvent<events::TutorialTriggerEvent>(tutorials::BATTLE_HISTORY_TUTORIAL, arrowOriginPosition, historyButtonPosition);
+        }
         
         const auto& seenSpellCardIds = DataRepository::GetInstance().GetSeenOpponentSpellCardIds();
         if (mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX && lastPlayedCardSoWrapper->mCardData.IsSpell() && std::find(seenSpellCardIds.begin(), seenSpellCardIds.end(), lastPlayedCardSoWrapper->mCardData.mCardId) == seenSpellCardIds.end())

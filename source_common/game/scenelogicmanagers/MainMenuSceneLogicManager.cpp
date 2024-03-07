@@ -23,6 +23,7 @@
 #include <game/DataRepository.h>
 #include <game/IAPProductIds.h>
 #include <game/ProductRepository.h>
+#include <game/TutorialManager.h>
 #include <game/utils/GiftingUtils.h>
 #include <SDL_events.h>
 #if defined(MACOS) || defined(MOBILE_FLOW)
@@ -170,7 +171,8 @@ static const glm::vec3 NEW_STORY_CONFIRMATION_TEXT_MIDDLE_POSITION = {-0.282f, 0
 static const glm::vec3 NEW_STORY_CONFIRMATION_TEXT_BOT_POSITION = {-0.205f, -0.012f, 23.1f};
 static const glm::vec3 NEW_STORY_DECK_SELECTION_TEXT_POSITION = {-0.169f, 0.115f, 0.1f};
 static const glm::vec3 MUTATION_SELECTION_TEXT_POSITION = {-0.179f, 0.135f, 0.1f};
-static const glm::vec3 START_NEW_STORY_BUTTON_POSITION = {-0.065f, -0.145f, 23.1f};
+static const glm::vec3 START_NEW_STORY_BUTTON_POSITION = {-0.049f, -0.145f, 23.1f};
+static const glm::vec3 SELECT_DECK_BUTTON_POSITION = {-0.065f, -0.145f, 23.1f};
 static const glm::vec3 SELECT_MUTATION_START_BUTTON_POSITION = {-0.055f, -0.18f, 23.1f};
 static const glm::vec3 STORY_DECK_NAME_POSITIONS[AVAILABLE_STORY_DECKS_COUNT] =
 {
@@ -796,7 +798,7 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
             {
                 mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
                 (
-                    START_NEW_STORY_BUTTON_POSITION,
+                    SELECT_DECK_BUTTON_POSITION,
                     BUTTON_SCALE,
                     game_constants::DEFAULT_FONT_NAME,
                     "Select",
@@ -1015,6 +1017,12 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
         sceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
         CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, 1.0f, SUBSCENE_ITEM_FADE_IN_OUT_DURATION_SECS, animation_flags::NONE, sceneObjectIndex++ * STAGGERED_ITEM_ALPHA_DELAY_SECS), [=]()
         {
+            if (mActiveSubScene == SubSceneType::NEW_STORY_DECK_SELECTION)
+            {
+                events::EventSystem::GetInstance().DispatchEvent<events::TutorialTriggerEvent>(tutorials::SELECT_DECK_1_TUTORIAL);
+                events::EventSystem::GetInstance().DispatchEvent<events::TutorialTriggerEvent>(tutorials::SELECT_DECK_2_TUTORIAL);
+                events::EventSystem::GetInstance().DispatchEvent<events::TutorialTriggerEvent>(tutorials::SELECT_DECK_3_TUTORIAL);
+            }
             mTransitioningToSubScene = false;
         });
     }

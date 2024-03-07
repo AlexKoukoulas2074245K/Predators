@@ -850,7 +850,18 @@ StoryMap::NodeType StoryMap::SelectNodeTypeForCoord(const MapCoord& mapCoord) co
     {
         return NodeType::STARTING_LOCATION;
     }
-    
+    // First nodes should always be normal encounters
+    else if (mapCoord.mCol == 1)
+    {
+        if (DataRepository::GetInstance().DoesCurrentStoryHaveMutation(game_constants::MUTATION_ALL_NORMAL_FIGHTS_BECOME_ELITE))
+        {
+            return NodeType::ELITE_ENCOUNTER;
+        }
+        else
+        {
+            return NodeType::NORMAL_ENCOUNTER;
+        }
+    }
     // Last map coord
     else if (mapCoord == MapCoord(mMapDimensions.x - 1, mMapDimensions.y/2))
     {

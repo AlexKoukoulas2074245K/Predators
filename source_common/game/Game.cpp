@@ -532,39 +532,86 @@ void Game::CreateDebugWidgets()
                 tutorialNames.push_back(tutorialDefinition.first.GetString());
             }
         }
-    
-        ImGui::Text("Tutorial Name");
-        ImGui::SameLine();
-        ImGui::PushID("ShowTutorial");
-        ImGui::SetNextItemWidth(200.0f);
-        if (ImGui::BeginCombo(" ", tutorialNames.at(selectedTutorialNameIndex).c_str()))
+        
         {
-            for (size_t n = 0U; n < tutorialNames.size(); n++)
+            ImGui::Text("Tutorial Name");
+            ImGui::SameLine();
+            ImGui::PushID("ShowTutorial");
+            ImGui::SetNextItemWidth(200.0f);
+            if (ImGui::BeginCombo(" ", tutorialNames.at(selectedTutorialNameIndex).c_str()))
             {
-                const bool isSelected = (selectedTutorialNameIndex == n);
-                if (ImGui::Selectable(tutorialNames.at(n).c_str(), isSelected))
+                for (size_t n = 0U; n < tutorialNames.size(); n++)
                 {
-                    selectedTutorialNameIndex = n;
+                    const bool isSelected = (selectedTutorialNameIndex == n);
+                    if (ImGui::Selectable(tutorialNames.at(n).c_str(), isSelected))
+                    {
+                        selectedTutorialNameIndex = n;
+                    }
+                    if (isSelected)
+                    {
+                        ImGui::SetItemDefaultFocus();
+                    }
                 }
-                if (isSelected)
-                {
-                    ImGui::SetItemDefaultFocus();
-                }
+                ImGui::EndCombo();
             }
-            ImGui::EndCombo();
-        }
-        ImGui::PopID();
-        ImGui::SameLine();
-        if (ImGui::Button("Show Tutorial"))
-        {
-            auto tutorialNameId = strutils::StringId(tutorialNames.at(selectedTutorialNameIndex));
-            auto seenTutorials = DataRepository::GetInstance().GetSeenTutorials();
-            seenTutorials.erase(std::remove(seenTutorials.begin(), seenTutorials.end(), tutorialNameId), seenTutorials.end());
-            DataRepository::GetInstance().SetSeenTutorials(seenTutorials);
-            events::EventSystem::GetInstance().DispatchEvent<events::TutorialTriggerEvent>(tutorialNameId);
+            ImGui::PopID();
+            ImGui::SameLine();
+            if (ImGui::Button("Show Tutorial"))
+            {
+                auto tutorialNameId = strutils::StringId(tutorialNames.at(selectedTutorialNameIndex));
+                auto seenTutorials = DataRepository::GetInstance().GetSeenTutorials();
+                seenTutorials.erase(std::remove(seenTutorials.begin(), seenTutorials.end(), tutorialNameId), seenTutorials.end());
+                DataRepository::GetInstance().SetSeenTutorials(seenTutorials);
+                events::EventSystem::GetInstance().DispatchEvent<events::TutorialTriggerEvent>(tutorialNameId);
+            }
         }
     }
     
+    {
+        static size_t selectedTutorialToResetNameIndex = 0;
+        static std::vector<std::string> tutorialNamesToReset;
+        if (tutorialNamesToReset.empty())
+        {
+            auto tutorialDefinitions = mTutorialManager->GetTutorialDefinitions();
+            for (const auto& tutorialDefinition: tutorialDefinitions)
+            {
+                tutorialNamesToReset.push_back(tutorialDefinition.first.GetString());
+            }
+        }
+        
+        {
+            ImGui::Text("Tutorial Name");
+            ImGui::SameLine();
+            ImGui::PushID("ClearTutorial");
+            ImGui::SetNextItemWidth(200.0f);
+            if (ImGui::BeginCombo(" ", tutorialNamesToReset.at(selectedTutorialToResetNameIndex).c_str()))
+            {
+                for (size_t n = 0U; n < tutorialNamesToReset.size(); n++)
+                {
+                    const bool isSelected = (selectedTutorialToResetNameIndex == n);
+                    if (ImGui::Selectable(tutorialNamesToReset.at(n).c_str(), isSelected))
+                    {
+                        selectedTutorialToResetNameIndex = n;
+                    }
+                    if (isSelected)
+                    {
+                        ImGui::SetItemDefaultFocus();
+                    }
+                }
+                ImGui::EndCombo();
+            }
+            ImGui::PopID();
+            ImGui::SameLine();
+            if (ImGui::Button("Reset Tutorial"))
+            {
+                auto tutorialNameId = strutils::StringId(tutorialNamesToReset.at(selectedTutorialToResetNameIndex));
+                auto seenTutorials = DataRepository::GetInstance().GetSeenTutorials();
+                seenTutorials.erase(std::remove(seenTutorials.begin(), seenTutorials.end(), tutorialNameId), seenTutorials.end());
+                DataRepository::GetInstance().SetSeenTutorials(seenTutorials);
+                DataRepository::GetInstance().FlushStateToFile();
+            }
+        }
+    }
     
     if (ImGui::Button("Clear Seen Tutorials"))
     {

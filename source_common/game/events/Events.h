@@ -351,12 +351,16 @@ class BlockInteractionWithHeldCardsEvent final
 class TutorialTriggerEvent final
 {
 public:
-    TutorialTriggerEvent(const strutils::StringId& tutorialName)
+    TutorialTriggerEvent(const strutils::StringId& tutorialName, const glm::vec3& arrowOriginPosition = glm::vec3(), const glm::vec3& arrowTargetPosition = glm::vec3())
         : mTutorialName(tutorialName)
+        , mArrowOriginPosition(arrowOriginPosition)
+        , mArrowTargetPosition(arrowTargetPosition)
     {
     }
     
-    const strutils::StringId mTutorialName;
+    strutils::StringId mTutorialName;
+    glm::vec3 mArrowOriginPosition;
+    glm::vec3 mArrowTargetPosition;
 };
 
 ///------------------------------------------------------------------------------------------------

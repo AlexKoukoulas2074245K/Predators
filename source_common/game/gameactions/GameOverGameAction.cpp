@@ -9,6 +9,7 @@
 #include <game/CardUtils.h>
 #include <game/gameactions/GameOverGameAction.h>
 #include <game/scenelogicmanagers/BattleSceneLogicManager.h>
+#include <game/TutorialManager.h>
 #include <engine/rendering/AnimationManager.h>
 #include <engine/rendering/ParticleManager.h>
 #include <engine/scene/SceneManager.h>
@@ -80,6 +81,7 @@ void GameOverGameAction::VInitAnimation()
         
         if (std::stoi(mExtraActionParams.at(VICTORIOUS_PLAYER_INDEX_PARAM)) == game_constants::LOCAL_PLAYER_INDEX)
         {
+            events::EventSystem::GetInstance().DispatchEvent<events::TutorialTriggerEvent>(tutorials::BATTLE_VICTORY_TUTORIAL);
             mExplosionDelaySecs = EXPLOSION_DELAY_SECS;
             mAnimationState = AnimationState::EXPLOSIONS;
             mExplosionCounter = 0;

@@ -18,6 +18,7 @@
 #include <engine/utils/Logging.h>
 #include <game/AnimatedButton.h>
 #include <game/DataRepository.h>
+#include <game/GameSymbolicGlyphNames.h>
 #include <game/TutorialManager.h>
 #include <nlohmann/json.hpp>
 
@@ -26,6 +27,7 @@
 static constexpr int TUTORIAL_TEXT_ROWS_COUNT = 9;
 
 static const strutils::StringId TUTORIAL_BASE_SCENE_OBJECT_NAME = strutils::StringId("tutorial_base");
+static const strutils::StringId TUTORIAL_ARROW_SCENE_OBJECT_NAME = strutils::StringId("tutorial_arrow");
 static const strutils::StringId TUTORIAL_REVEAL_THRESHOLD_UNIFORM_NAME = strutils::StringId("reveal_threshold");
 static const strutils::StringId TUTORIAL_REVEAL_RGB_EXPONENT_UNIFORM_NAME = strutils::StringId("reveal_rgb_exponent");
 static const strutils::StringId TUTORIAL_TEXT_SCENE_OBJECT_NAMES[TUTORIAL_TEXT_ROWS_COUNT] =
@@ -43,6 +45,7 @@ static const strutils::StringId TUTORIAL_TEXT_SCENE_OBJECT_NAMES[TUTORIAL_TEXT_R
 
 static const std::string TUTORIAL_TEXTURE_FILE_NAME = "tutorial.png";
 static const std::string TUTORIAL_SHADER_FILE_NAME = "diagonal_reveal.vs";
+static const std::string TUTORIAL_ARROW_TEXTURE_FILE_NAME = "tutorial_arrow.png";
 static const std::string CHECKBOX_EMPTY_TEXTURE_FILE_NAME = "checkbox_empty.png";
 static const std::string CHECKBOX_FILLED_TEXTURE_FILE_NAME = "checkbox_filled_black.png";
 
@@ -50,16 +53,17 @@ static const glm::vec3 TUTORIAL_BASE_POSITION = {0.0f, 0.0f, 27.0f};
 static const glm::vec3 TUTORIAL_TEXT_SCALE = {0.00032f, 0.00032f, 0.00032f};
 static const glm::vec3 TUTORIAL_BASE_SCALE = {0.4f, 0.4f, 0.4f};
 static const glm::vec3 CHECKBOX_SCALE = {0.07f, 0.07f, 0.07f};
+static const glm::vec3 ARROW_SCALE = {0.14f, 0.14f, 0.14f};
 static const glm::vec3 TUTORIAL_TEXT_OFFSETS[TUTORIAL_TEXT_ROWS_COUNT] =
 {
     { -0.117f, 0.137f, 0.1f}, // Tutorial Title
     {  0.119f, 0.132f, 0.1f }, // Tutorials checkbox
-    { -0.13f, 0.097f, 0.1f },
-    { -0.13f, 0.063f, 0.1f },
-    { -0.13f, 0.029f, 0.1f },
-    { -0.13f, -0.005f, 0.1f },
-    { -0.13f, -0.039f, 0.1f },
-    { -0.13f, -0.073f, 0.1f },
+    { -0.139f, 0.097f, 0.1f },
+    { -0.139f, 0.063f, 0.1f },
+    { -0.139f, 0.029f, 0.1f },
+    { -0.139f, -0.005f, 0.1f },
+    { -0.139f, -0.039f, 0.1f },
+    { -0.139f, -0.073f, 0.1f },
     { -0.044f, -0.121f, 0.1f }, // Continue button
 };
 
@@ -69,6 +73,9 @@ static const float TUTORIAL_TEXT_REVEAL_SPEED = 1.0f/500.0f;
 static const float TUTORIAL_REVEAL_RGB_EXPONENT = 1.127f;
 static const float TUTORIAL_FADE_OUT_DURATION_SECS = 0.5f;
 static const float TUTORIAL_DELETION_DELAY_SECS = 0.6f;
+static const float TUTORIAL_ARROW_SPEED = 0.0001f;
+static const float TUTORIAL_ARROW_BOUNCE_DURATION_SECS = 1.0f;
+static const float TUTORIAL_ARROW_Z = 27.2f;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -101,7 +108,7 @@ bool TutorialManager::HasAnyActiveTutorial() const
 
 bool TutorialManager::IsTutorialActive(const strutils::StringId& tutorialName) const
 {
-    return std::find(mActiveTutorials.cbegin(), mActiveTutorials.cend(), tutorialName) != mActiveTutorials.cend();
+    return std::find_if(mActiveTutorials.cbegin(), mActiveTutorials.cend(), [&](const events::TutorialTriggerEvent& event){ return event.mTutorialName == tutorialName; }) != mActiveTutorials.cend();
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -116,8 +123,13 @@ void TutorialManager::LoadTutorialDefinitions()
     {
         strutils::StringId tutorialName = strutils::StringId(tutorialDefinitionObject["name"].get<std::string>());
         std::string tutorialDescription = tutorialDefinitionObject["description"].get<std::string>();
+        bool showArrow = false;
+        if (tutorialDefinitionObject.count("show_arrow"))
+        {
+            showArrow = tutorialDefinitionObject["show_arrow"].get<bool>();
+        }
         
-        mTutorialDefinitions.emplace(std::make_pair(tutorialName, TutorialDefinition(tutorialName, tutorialDescription)));
+        mTutorialDefinitions.emplace(std::make_pair(tutorialName, TutorialDefinition(tutorialName, tutorialDescription, showArrow)));
     }
 }
 
@@ -144,11 +156,11 @@ void TutorialManager::Update(const float dtMillis)
 
 void TutorialManager::CreateTutorial()
 {
-    const auto& tutorialDefinition = mTutorialDefinitions.at(mActiveTutorials.front());
+    const auto& tutorialDefinition = mTutorialDefinitions.at(mActiveTutorials.front().mTutorialName);
     
     // Add tutorial to be surfaced to perm. seen tutorials
     auto seenTutorials = DataRepository::GetInstance().GetSeenTutorials();
-    seenTutorials.push_back(mActiveTutorials.front());
+    seenTutorials.push_back(mActiveTutorials.front().mTutorialName);
     DataRepository::GetInstance().SetSeenTutorials(seenTutorials);
     DataRepository::GetInstance().FlushStateToFile();
 
@@ -205,6 +217,12 @@ void TutorialManager::CreateTutorial()
         scene::TextSceneObjectData textData;
         textData.mFontName = game_constants::DEFAULT_FONT_BLACK_NAME;
         textData.mText = tutorialTextRows[i];
+        
+        for (const auto& symbolicNameEntry: symbolic_glyph_names::SYMBOLIC_NAMES)
+        {
+            strutils::StringReplaceAllOccurences("<" + symbolicNameEntry.first.GetString() + ">", std::string(1, symbolicNameEntry.second), textData.mText);
+        }
+        
         tutorialTextSceneObject->mSceneObjectTypeData = std::move(textData);
         
         mTutorialSceneObjects.push_back(tutorialTextSceneObject);
@@ -233,6 +251,26 @@ void TutorialManager::CreateTutorial()
         
         mContinueButton->GetSceneObject()->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
         mTutorialSceneObjects.push_back(mContinueButton->GetSceneObject());
+    }
+    
+    // Arrow
+    {
+        if (tutorialDefinition.mShowArrow)
+        {
+            auto arrowSceneObject = tutorialScene->CreateSceneObject(TUTORIAL_ARROW_SCENE_OBJECT_NAME);
+            arrowSceneObject->mScale = ARROW_SCALE;
+            arrowSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + TUTORIAL_ARROW_TEXTURE_FILE_NAME);
+            arrowSceneObject->mPosition.x = mActiveTutorials.front().mArrowOriginPosition.x;
+            arrowSceneObject->mPosition.y = mActiveTutorials.front().mArrowOriginPosition.y;
+            arrowSceneObject->mPosition.z = TUTORIAL_ARROW_Z;
+            auto vecToTarget = mActiveTutorials.front().mArrowTargetPosition - arrowSceneObject->mPosition;
+            vecToTarget.z = 0.0f;
+            arrowSceneObject->mRotation.z = -math::Arctan2(vecToTarget.x, vecToTarget.y);
+            arrowSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+            
+            CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::BouncePositionAnimation>(arrowSceneObject, vecToTarget * TUTORIAL_ARROW_SPEED, TUTORIAL_ARROW_BOUNCE_DURATION_SECS, animation_flags::ANIMATE_CONTINUOUSLY), [](){});
+            mTutorialSceneObjects.push_back(arrowSceneObject);
+        }
     }
 }
 
@@ -337,7 +375,7 @@ void TutorialManager::OnTutorialTrigger(const events::TutorialTriggerEvent& even
         return;
     }
     
-    mActiveTutorials.push_back(event.mTutorialName);
+    mActiveTutorials.push_back(event);
 }
 
 ///------------------------------------------------------------------------------------------------

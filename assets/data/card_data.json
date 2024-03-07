@@ -217,7 +217,7 @@
             "name": "Gust of Wind",
             "effect": "CLEAR_EFFECTS",
             "particle_effect": "feathers",
-            "tooltip": "Clears all active$effects on your side$of the board",
+            "tooltip": "Clears ALL active$effects on your side$of the board",
             "texture": "tornado.png",
             "shader": "basic.vs"
         },
@@ -235,7 +235,7 @@
             "family": "dinosaurs",
             "name": "Mighty Dino Roar",
             "effect": "DOUBLE_NEXT_DINO_DAMAGE",
-            "tooltip": "Doubles the <damage>$of the next$Dinosaur you$play this turn",
+            "tooltip": "Doubles the <damage> of the$next Dinosaur you$play this turn",
             "texture": "mighty_roar.png",
             "shader": "basic.vs"
         },

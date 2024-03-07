@@ -19,6 +19,7 @@
 #include <game/GameSceneTransitionManager.h>
 #include <game/ProductRepository.h>
 #include <game/scenelogicmanagers/WheelOfFortuneSceneLogicManager.h>
+#include <game/TutorialManager.h>
 #include <game/WheelOfFortuneController.h>
 
 ///------------------------------------------------------------------------------------------------
@@ -97,6 +98,7 @@ void WheelOfFortuneSceneLogicManager::VInitSceneCamera(std::shared_ptr<scene::Sc
 
 void WheelOfFortuneSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 {
+    events::EventSystem::GetInstance().DispatchEvent<events::TutorialTriggerEvent>(tutorials::BATTLE_WHEEL_REWARD_TUTORIAL);
     mScene = scene;
     mWheelRewards.clear();
     mWheelRewards.resize(REWARD_COUNT);

@@ -2,12 +2,93 @@
     "tutorial_definitions":
     [
         {
-            "name": "test_tutorial",
-            "description": "This is a test tutorial$this is the second row$some more information$here goes the fourth row$row five here, hello!$and six row finally, phew"
+            "name": "select_deck_1",
+            "description": "Welcome to your first$Realm of Beasts story!$This is a tutorial box.$If at any point you want$to stop seeing tutorials,$click the checkbox above."
         },
         {
-            "name": "test_tutorial2",
-            "description": "This is a tutorial no2!$this is the second row$some more information$here goes the fourth row$row five here, hello!$and six row finally, phew"
+            "name": "select_deck_2",
+            "description": "Stories are your attempts$to beat the game.$In this screen you can$select the deck for your$first story attempt!"
+        },
+        {
+            "name": "select_deck_3",
+            "description": "Dinosaurs have immense$strength, and high cost.$Gnawers can dig,$surviving the end of turn.$Insects can poison the$enemy, killing them slowly!"
+        },
+        {
+            "name": "story_map_1",
+            "description": "This is a Story Map.$Here you will go through$many battles & events$on your way to reach the$final boss of the map!",
+            "show_arrow": true
+        },
+        {
+            "name": "battle_1",
+            "description": "This is your first Battle.$This is your opponent's$Health(<health>). Bring it down$to 0 to win this battle!",
+            "show_arrow": true
+        },
+        {
+            "name": "battle_2",
+            "description": "This is your Health(<health>).$If it reaches 0 at any$point in the story, it is$game over, and time for a$new story!",
+            "show_arrow": true
+        },
+        {
+            "name": "battle_3",
+            "description": "Both players need to use$their Weight(<weight>) crystals$to play cards each turn.$Each turn the available <weight>$will refresh, and also$increase up to a max!",
+            "show_arrow": true
+        },
+        {
+            "name": "battle_armor",
+            "description": "Your opponent has$Armor(<armor>). <armor> protects <health>$and recharges every turn.",
+            "show_arrow": true
+        },
+        {
+            "name": "battle_history",
+            "description": "Your opponent played a$card. If at any point you$want to check what took$place in a battle, you$can visit the History tab!",
+            "show_arrow": true
+        },
+        {
+            "name": "battle_end_turn",
+            "description": "To end your turn click on$the Turn Indicator button.$Any Normal cards on your$side of the board will$attack the opponent.",
+            "show_arrow": true
+        },
+        {
+            "name": "battle_drew_normal_card",
+            "description": "You just drew a Normal$card! Normal cards have$Attack(<damage>) and will hit$the opponent at the end$of the turn, before they$get destroyed."
+        },
+        {
+            "name": "battle_drew_spell_card",
+            "description": "You just drew a Spell$card! Spell cards have$effects that instantly$activate when played!$Highlight a Spell card$to read about its effect."
+        },
+        {
+            "name": "battle_drew_single_use_spell_card",
+            "description": "You just drew a Single$Use Spell card! Single$Use Spells have a star$symbol and can only be$played once during the$course of a battle!"
+        },
+        {
+            "name": "battle_how_to_play_a_card",
+            "description": "You can play any card$for which you have enough$leftover <weight> for.$Just drag & drop it close$ to the highlighted$indicator on the board."
+        },
+        {
+            "name": "battle_victory",
+            "description": "You defeated your first$opponent. Great job!$Defeated enemies will$reward you with coins(<coin>),$a small amount of <health>$back and more..."
+        },
+        {
+            "name": "battle_card_selection_reward",
+            "description": "All battles will reward$you with a selection of 3$cards to pick one and add$to your story deck pool.$Click Skip Rewards if you$ don't want any."
+        },
+        {
+            "name": "battle_wheel_reward",
+            "description": "Elite Battles will also$reward you with a rare$Wheel of Fortune,$containing many$powerful rewards!"
+        },
+        {
+            "name": "event",
+            "description": "Events are mini scenarios$where you can make$different choices that$will affect many aspects$of this story."
+        },
+        {
+            "name": "new_artifact_in_bag",
+            "description": "You received an Artifact!$Artifacts are rare items$with powerful effects$that can completely turn$the tables in your favor$during this story!",
+            "show_arrow": true
+        },
+        {
+            "name": "new_card_in_deck",
+            "description": "Your current story deck$pool can be inspected by$clicking on the Deck icon.",
+            "show_arrow": true
         }
     ]
 }

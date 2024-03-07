@@ -236,8 +236,8 @@ namespace game_constants
     inline const glm::vec3 HEALTH_CRYSTAL_BOT_POSITION = {-0.105f, -0.03f, 2.0f};
     inline const glm::vec3 ARMOR_CONTAINER_TOP_POSITION = {-0.105f, 0.036f, 2.05f};
     inline const glm::vec3 ARMOR_CONTAINER_BOT_POSITION = {-0.105f, -0.024f, 2.05f};
-    inline const glm::vec3 WEIGHT_CRYSTAL_TOP_POSITION = {0.095f, 0.03f, 2.0f};
-    inline const glm::vec3 WEIGHT_CRYSTAL_BOT_POSITION = {0.095f, -0.03f, 2.0f};
+    inline const glm::vec3 WEIGHT_CRYSTAL_TOP_POSITION = {0.1f, 0.03f, 2.0f};
+    inline const glm::vec3 WEIGHT_CRYSTAL_BOT_POSITION = {0.1f, -0.03f, 2.0f};
     inline const glm::vec3 POISON_STACK_TOP_POSITION = {-0.105f, 0.005f, 2.0f};
     inline const glm::vec3 POISON_STACK_BOT_POSITION = {-0.105f, -0.055f, 2.0f};
     inline const glm::vec3 GAME_BOARD_INIT_POSITION = {-0.039f, 0.011f, 0.0f };

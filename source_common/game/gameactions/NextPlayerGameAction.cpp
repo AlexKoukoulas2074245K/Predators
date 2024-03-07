@@ -36,6 +36,7 @@ static const strutils::StringId POST_NEXT_PLAYER_GAME_ACTION_NAME = strutils::St
 static const strutils::StringId CARD_DESTRUCTION_GAME_ACTION_NAME = strutils::StringId("CardDestructionGameAction");
 static const strutils::StringId CARD_HISTORY_ENTRY_ADDITION_GAME_ACTION_NAME = strutils::StringId("CardHistoryEntryAdditionGameAction");
 static const strutils::StringId POISON_STACK_APPLICATION_GAME_ACTION_NAME = strutils::StringId("PoisonStackApplicationGameAction");
+static const strutils::StringId TUTORIAL_HOW_TO_PLAY_A_CARD_GAME_ACTION_NAME = strutils::StringId("HowToPlayACardTutorialGameAction");
 
 ///------------------------------------------------------------------------------------------------
 
@@ -119,6 +120,8 @@ void NextPlayerGameAction::VSetNewGameState()
             {
                 mGameActionEngine->AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
             }
+            
+            mGameActionEngine->AddGameAction(TUTORIAL_HOW_TO_PLAY_A_CARD_GAME_ACTION_NAME);
         }
     }
 }

@@ -21,6 +21,7 @@
 #include <game/GuiObjectManager.h>
 #include <game/DataRepository.h>
 #include <game/scenelogicmanagers/StoryMapSceneLogicManager.h>
+#include <game/TutorialManager.h>
 #include <thread>
 
 ///------------------------------------------------------------------------------------------------
@@ -46,6 +47,7 @@ static const glm::vec2 TUTORIAL_MAP_SWIPE_Y_BOUNDS = {-0.24375f, 0.24375};
 
 static const glm::vec3 MAP_NAME_POSITION = {-0.225f, 0.2f, 19.0f};
 static const glm::vec3 MAP_NAME_SCALE = {0.00065f, 0.00065f, 0.00065f};
+static const glm::vec3 TUTORIAL_ARROW_OFFSET = {0.0f, -0.425f, 0.0f};
 
 static const float DISTANCE_TO_TARGET_NODE_THRESHOLD = 0.01f;
 static const float CAMERA_NOT_MOVED_THRESHOLD = 0.0001f;
@@ -58,6 +60,9 @@ static const float SWIPE_VELOCITY_MIN_MAGNITUDE_TO_START_MOVING = 0.0001f;
 static const float MAX_CAMERA_DISTANCE_TO_REGISTER_NODE_TAP = 0.01f;
 static const float MAP_NAME_FADE_IN_OUT_DURATION_SECS = 0.75f;
 static const float MAP_FADE_OUT_DELAY_SECS = 1.5f;
+static const float MAP_TUTORIAL_BOSS_X_OFFSET = -0.238f;
+static const float BAG_INVENTORY_TUTORIAL_X_OFFSET = 0.004f;
+static const float BAG_INVENTORY_TUTORIAL_ARROW_Y_OFFSET = -0.12f;
 
 #if defined(NDEBUG) || defined(MOBILE_FLOW)
 static const float FRESH_MAP_ANIMATION_SPEED = 2.0f;
@@ -233,7 +238,11 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
             mGuiManager->ForceSetStoryHealthValue(DataRepository::GetInstance().StoryCurrentHealth().GetValue());
             
             mMapUpdateState = MapUpdateState::FRESH_MAP_ANIMATION;
-            SetMapPositionTo(mStoryMap->GetMapData().at(MapCoord(mapBossCoord.x, mapBossCoord.y)).mPosition);
+            auto mapBossPosition = mStoryMap->GetMapData().at(MapCoord(mapBossCoord.x, mapBossCoord.y)).mPosition;
+            auto cameraStartingPosition = mapBossPosition;
+            cameraStartingPosition.x += MAP_TUTORIAL_BOSS_X_OFFSET;
+            
+            SetMapPositionTo(cameraStartingPosition);
             
             mFreshMapCameraAnimationInitPosition = mScene->GetCamera().GetPosition();
             mCameraTargetPos = mStoryMap->GetMapData().at(MapCoord(mapInitCoord.x, mapInitCoord.y)).mPosition;
@@ -243,6 +252,8 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
             mCameraTargetPos.y = math::Max(mMapSwipeYBounds.s, math::Min(mMapSwipeYBounds.t, mCameraTargetPos.y));
             
             mCameraTargetPos.z = mScene->GetCamera().GetPosition().z;
+            
+            events::EventSystem::GetInstance().DispatchEvent<events::TutorialTriggerEvent>(tutorials::STORY_MAP_1_TUTORIAL, mapBossPosition + TUTORIAL_ARROW_OFFSET, mapBossPosition);
         }
         // Subsequent map enters. Set position to average between current map coord and active nodes
         else
@@ -265,6 +276,30 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
                 }
                 
                 SetMapPositionTo(positionAccum/static_cast<float>(positionInfluenceCount));
+            }
+            
+            auto deckIconPosition = mScene->FindSceneObject(game_constants::GUI_STORY_CARDS_BUTTON_SCENE_OBJECT_NAME)->mPosition;
+            
+            // Undo camera scrolling
+            deckIconPosition -= mScene->GetCamera().GetPosition();
+            deckIconPosition.x += BAG_INVENTORY_TUTORIAL_X_OFFSET;
+            
+            auto tutorialArrowPosition = deckIconPosition;
+            tutorialArrowPosition.y += BAG_INVENTORY_TUTORIAL_ARROW_Y_OFFSET;
+            
+            events::EventSystem::GetInstance().DispatchEvent<events::TutorialTriggerEvent>(tutorials::NEW_CARD_IN_DECK_TUTORIAL, tutorialArrowPosition, deckIconPosition);
+            
+            if (DataRepository::GetInstance().GetCurrentStoryArtifacts().size() > 0)
+            {
+                auto inventoryIconPosition = mScene->FindSceneObject(game_constants::GUI_INVENTORY_BUTTON_SCENE_OBJECT_NAME)->mPosition;
+                inventoryIconPosition.x += BAG_INVENTORY_TUTORIAL_X_OFFSET;
+                
+                // Undo camera scrolling
+                inventoryIconPosition -= mScene->GetCamera().GetPosition();
+                
+                tutorialArrowPosition = inventoryIconPosition;
+                tutorialArrowPosition.y += BAG_INVENTORY_TUTORIAL_ARROW_Y_OFFSET;
+                events::EventSystem::GetInstance().DispatchEvent<events::TutorialTriggerEvent>(tutorials::NEW_ARTIFACT_IN_BAG_TUTORIAL, tutorialArrowPosition, inventoryIconPosition);
             }
         }
 

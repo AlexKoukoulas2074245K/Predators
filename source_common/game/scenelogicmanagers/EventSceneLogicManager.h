@@ -105,6 +105,7 @@ private:
     int mCurrentEventScreenIndex;
     bool mTransitioning;
     bool mBlockInteraction;
+    bool mHasSentTutorialTrigger;
 };
 
 ///------------------------------------------------------------------------------------------------

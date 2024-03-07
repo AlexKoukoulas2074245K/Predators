@@ -19,6 +19,7 @@
 #include <game/GameRuleEngine.h>
 #include <game/gameactions/DrawCardGameAction.h>
 #include <game/scenelogicmanagers/BattleSceneLogicManager.h>
+#include <game/TutorialManager.h>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -98,6 +99,23 @@ void DrawCardGameAction::VInitAnimation()
                 if (cardSoWrapper->mState != CardSoState::FREE_MOVING)
                 {
                     cardSoWrapper->mState = CardSoState::IDLE;
+                }
+                
+                if (!remotePlayerActive)
+                {
+                    if (cardSoWrapper->mCardData.IsSpell())
+                    {
+                        events::EventSystem::GetInstance().DispatchEvent<events::TutorialTriggerEvent>(tutorials::BATTLE_DREW_SPELL_TUTORIAL);
+                        
+                        if (cardSoWrapper->mCardData.mIsSingleUse)
+                        {
+                            events::EventSystem::GetInstance().DispatchEvent<events::TutorialTriggerEvent>(tutorials::BATTLE_DREW_SINGLE_USE_SPELL_TUTORIAL);
+                        }
+                    }
+                    else
+                    {
+                        events::EventSystem::GetInstance().DispatchEvent<events::TutorialTriggerEvent>(tutorials::BATTLE_DREW_NORMAL_CARD_TUTORIAL);
+                    }
                 }
             });
             mPendingAnimations++;

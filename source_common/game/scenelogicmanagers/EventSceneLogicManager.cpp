@@ -23,6 +23,7 @@
 #include <game/DataRepository.h>
 #include <game/ProductRepository.h>
 #include <game/scenelogicmanagers/EventSceneLogicManager.h>
+#include <game/TutorialManager.h>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -109,7 +110,7 @@ void EventSceneLogicManager::VInitSceneCamera(std::shared_ptr<scene::Scene>)
 void EventSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 {
     mScene = scene;
-    
+    mHasSentTutorialTrigger = false;
     mTransitioning = false;
     mBlockInteraction = false;
     
@@ -135,6 +136,11 @@ void EventSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene
     static float time = 0.0f;
     time += dtMillis * 0.001f;
             
+    if (!mHasSentTutorialTrigger)
+    {
+        events::EventSystem::GetInstance().DispatchEvent<events::TutorialTriggerEvent>(tutorials::EVENT_TUTORIAL);
+    }
+    
     if (!mScene->GetCamera().IsShaking())
     {
         mGuiManager->Update(dtMillis);

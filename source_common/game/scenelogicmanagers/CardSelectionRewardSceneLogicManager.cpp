@@ -14,7 +14,6 @@
 #include <engine/scene/SceneManager.h>
 #include <engine/scene/SceneObjectUtils.h>
 #include <engine/sound/SoundManager.h>
-
 #include <game/AnimatedButton.h>
 #include <game/CardUtils.h>
 #include <game/CardTooltipController.h>
@@ -23,6 +22,7 @@
 #include <game/GameSceneTransitionManager.h>
 #include <game/DataRepository.h>
 #include <game/scenelogicmanagers/CardSelectionRewardSceneLogicManager.h>
+#include <game/TutorialManager.h>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -423,7 +423,13 @@ void CardSelectionRewardSceneLogicManager::CreateCardRewards(std::shared_ptr<sce
         mCardRewards.back()->mSceneObject->mScale = CARD_REWARD_DEFAULT_SCALE;
         mCardRewards.back()->mSceneObject->mShaderBoolUniformValues[DARKEN_UNIFORM_NAME] = false;
         mCardRewards.back()->mSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CARD_REWARD_SHADER_FILE_NAME);
-        CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(mCardRewards.back()->mSceneObject, 1.0f, FADE_IN_OUT_DURATION_SECS, animation_flags::NONE, CARD_REWARD_SURFACE_DELAY_SECS + i * CARD_REWARD_SURFACE_DELAY_SECS), [=](){});
+        CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(mCardRewards.back()->mSceneObject, 1.0f, FADE_IN_OUT_DURATION_SECS, animation_flags::NONE, CARD_REWARD_SURFACE_DELAY_SECS + i * CARD_REWARD_SURFACE_DELAY_SECS), [=]()
+        {
+            if (i == 2)
+            {
+                events::EventSystem::GetInstance().DispatchEvent<events::TutorialTriggerEvent>(tutorials::BATTLE_CARD_SELECTION_REWARD_TUTORIAL);
+            }
+        });
         
         if (cardRewardsPool.size() > 1)
         {

@@ -539,10 +539,18 @@ void BattleSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scen
         
         UpdateMiscSceneObjects(dtMillis);
         
-        auto foundActiveStatContainer = std::find_if(mAnimatedStatContainers.cbegin(), mAnimatedStatContainers.cend(), [](const std::pair<bool, std::unique_ptr<AnimatedStatContainer>>& statContainerEntry)
+        bool foundActiveStatContainer = false;
+        for (auto& animatedStatContainer: mAnimatedStatContainers)
         {
-            return statContainerEntry.first;
-        }) != mAnimatedStatContainers.cend();
+            if (animatedStatContainer.first)
+            {
+                foundActiveStatContainer = true;
+            }
+            else
+            {
+                animatedStatContainer.second->RealignBaseAndValueSceneObjects();
+            }
+        }
         
         if (!foundActiveStatContainer || mActionEngine->GetActiveGameActionName() == GAME_OVER_GAME_ACTION_NAME)
         {
