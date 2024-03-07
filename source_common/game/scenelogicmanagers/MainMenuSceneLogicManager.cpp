@@ -82,6 +82,7 @@ static const strutils::StringId QUIT_BUTTON_NAME = strutils::StringId("quit_butt
 static const strutils::StringId NORMAL_BATTLE_MODE_BUTTON_NAME = strutils::StringId("normal_battle_mode_button");
 static const strutils::StringId AI_DEMO_BATTLE_MODE_BUTTON_NAME = strutils::StringId("ai_demo_battle_mode_button");
 static const strutils::StringId REPLAY_BATTLE_MODE_BUTTON_NAME = strutils::StringId("replay_battle_mode_button");
+static const strutils::StringId STATS_BUTTON_NAME = strutils::StringId("stats_button");
 static const strutils::StringId ENTER_GIFT_CODE_BUTTON_NAME = strutils::StringId("enter_gift_code_button");
 static const strutils::StringId PRIVACY_POLICY_BUTTON_NAME = strutils::StringId("privacy_policy_button");
 static const strutils::StringId CREDITS_BUTTON_NAME = strutils::StringId("credits_button");
@@ -154,8 +155,9 @@ static const glm::vec3 OPTIONS_BUTTON_POSITION = {0.0f, -0.120f, 0.1f};
 static const glm::vec3 MUTATION_PLUS_BUTTON_POSITION = {-0.198f, -0.083f, 0.1f};
 static const glm::vec3 MUTATION_MINUS_BUTTON_POSITION = {-0.106f, -0.083f, 0.1f};
 static const glm::vec3 QUIT_BUTTON_POSITION = {0.0f, -0.180f, 0.1f};
-static const glm::vec3 ENTER_GIFT_CODE_BUTTON_POSITION = {-0.135f, 0.085f, 0.1f};
-static const glm::vec3 PRIVACY_POLICY_BUTTON_POSITION = {-0.125f, 0.005f, 0.1f};
+static const glm::vec3 STATS_BUTTON_POSITION = {-0.076f, 0.105f, 0.1f};
+static const glm::vec3 ENTER_GIFT_CODE_BUTTON_POSITION = {-0.135f, 0.045f, 0.1f};
+static const glm::vec3 PRIVACY_POLICY_BUTTON_POSITION = {-0.125f, -0.015f, 0.1f};
 static const glm::vec3 CREDITS_BUTTON_POSITION = {-0.052f, -0.075f, 0.1f};
 static const glm::vec3 POINT_LIGHT_POSITION = { -1.0f, 0.0f, -1.0f };
 static const glm::vec3 DIFFUSE_COLOR = { 1.0f, 1.0f, 1.0f };
@@ -1003,6 +1005,20 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
         
         case SubSceneType::EXTRAS:
         {
+            mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
+            (
+                STATS_BUTTON_POSITION,
+                BUTTON_SCALE,
+                game_constants::DEFAULT_FONT_NAME,
+                "Statistics",
+                STATS_BUTTON_NAME,
+                [=]()
+                {
+                    
+                },
+                *scene
+            ));
+            
             mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
             (
                 ENTER_GIFT_CODE_BUTTON_POSITION,
