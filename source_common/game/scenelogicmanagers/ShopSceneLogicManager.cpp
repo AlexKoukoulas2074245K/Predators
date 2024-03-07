@@ -29,6 +29,7 @@
 #include <game/IAPProductIds.h>
 #include <game/ProductRepository.h>
 #include <game/scenelogicmanagers/ShopSceneLogicManager.h>
+#include <game/TutorialManager.h>
 #if defined(MACOS) || defined(MOBILE_FLOW)
 #include <platform_utilities/AppleUtils.h>
 #include <platform_utilities/CloudKitUtils.h>
@@ -199,6 +200,7 @@ void ShopSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     mGuiManager = std::make_shared<GuiObjectManager>(scene);
     mAnimatingCoinValue = false;
     mWaitingForPermaProductAnimation = false;
+    mHasSentTutorialTrigger = false;
     
     if (DataRepository::GetInstance().GetCurrentShopBehaviorType() == ShopBehaviorType::PERMA_SHOP)
     {
@@ -250,6 +252,12 @@ void ShopSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene:
                 mProducts[shelfIndex][shelfItemIndex] = nullptr;
             }
         }
+    }
+    
+    if (!mHasSentTutorialTrigger)
+    {
+        events::EventSystem::GetInstance().DispatchEvent<events::TutorialTriggerEvent>(DataRepository::GetInstance().GetCurrentShopBehaviorType() == ShopBehaviorType::STORY_SHOP ? tutorials::STORY_SHOP_TUTORIAL : tutorials::PERMA_SHOP_TUTORIAL);
+        mHasSentTutorialTrigger = true;
     }
     
     switch (mSceneState)

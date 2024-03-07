@@ -139,6 +139,7 @@ void EventSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scene
     if (!mHasSentTutorialTrigger)
     {
         events::EventSystem::GetInstance().DispatchEvent<events::TutorialTriggerEvent>(tutorials::EVENT_TUTORIAL);
+        mHasSentTutorialTrigger = true;
     }
     
     if (!mScene->GetCamera().IsShaking())

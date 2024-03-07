@@ -41,6 +41,10 @@ namespace tutorials
     inline const strutils::StringId EVENT_TUTORIAL = strutils::StringId("event");
     inline const strutils::StringId NEW_ARTIFACT_IN_BAG_TUTORIAL = strutils::StringId("new_artifact_in_bag");
     inline const strutils::StringId NEW_CARD_IN_DECK_TUTORIAL = strutils::StringId("new_card_in_deck");
+    inline const strutils::StringId STORY_SHOP_TUTORIAL = strutils::StringId("story_shop");
+    inline const strutils::StringId PERMA_SHOP_TUTORIAL = strutils::StringId("perma_shop");
+    inline const strutils::StringId CARD_LIBRARY_TUTORIAL = strutils::StringId("card_library");
+    inline const strutils::StringId MUTATIONS_TUTORIAL = strutils::StringId("mutations");
 }
 
 ///------------------------------------------------------------------------------------------------

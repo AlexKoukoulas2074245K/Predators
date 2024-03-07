@@ -20,6 +20,7 @@
 #include <game/GuiObjectManager.h>
 #include <game/DataRepository.h>
 #include <game/scenelogicmanagers/CardLibrarySceneLogicManager.h>
+#include <game/TutorialManager.h>
 
 ///------------------------------------------------------------------------------------------------
 
@@ -154,6 +155,7 @@ void CardLibrarySceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scen
     mSelectedCardIndex = -1;
     mCoinAnimationValue = 0.0f;
     mAnimatingCoinValue = false;
+    mHasSentTutorialTrigger = false;
     
     switch (DataRepository::GetInstance().GetCurrentCardLibraryBehaviorType())
     {
@@ -370,6 +372,12 @@ void CardLibrarySceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr
     if (mTransitioning)
     {
         return;
+    }
+    
+    if (!mHasSentTutorialTrigger && DataRepository::GetInstance().GetCurrentCardLibraryBehaviorType() == CardLibraryBehaviorType::CARD_LIBRARY)
+    {
+        events::EventSystem::GetInstance().DispatchEvent<events::TutorialTriggerEvent>(tutorials::CARD_LIBRARY_TUTORIAL);
+        mHasSentTutorialTrigger = true;
     }
     
     for (auto i = 0; i < mCardContainer->GetItems().size(); ++i)

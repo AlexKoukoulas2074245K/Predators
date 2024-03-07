@@ -72,6 +72,7 @@ private:
     int mSelectedCardIndex;
     bool mTransitioning;
     bool mAnimatingCoinValue;
+    bool mHasSentTutorialTrigger;
 };
 
 ///------------------------------------------------------------------------------------------------

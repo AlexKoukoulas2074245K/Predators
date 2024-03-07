@@ -155,7 +155,7 @@ static const glm::vec3 SPEC_COLOR = { 1.0f, 1.0f, 1.0f };
 static const glm::vec3 AMB_COLOR = { 1.0f, 0.0f, 0.0f };
 static const glm::vec3 BRAZIER_POSITION = { -0.149f, -0.030f, 1.5f };
 static const glm::vec3 BRAZIER_SCALE = { 0.1f, 0.057f, 0.1f };
-static const glm::vec3 MUTATION_POSITION = { -0.044f, -0.0f, 1.0f };
+static const glm::vec3 MUTATION_POSITION = { -0.04f, -0.0f, 1.0f };
 static const glm::vec3 MUTATION_SCALE = { 0.05f, 0.05f, 0.05f };
 static const glm::vec3 MUTATION_FIRE_POSITION = { -0.145f, 0.044f, 1.0f };
 static const glm::vec3 MUTATION_VALUE_POSITION = { -0.133f, 0.02f, 2.0f };
@@ -1022,6 +1022,10 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                 events::EventSystem::GetInstance().DispatchEvent<events::TutorialTriggerEvent>(tutorials::SELECT_DECK_1_TUTORIAL);
                 events::EventSystem::GetInstance().DispatchEvent<events::TutorialTriggerEvent>(tutorials::SELECT_DECK_2_TUTORIAL);
                 events::EventSystem::GetInstance().DispatchEvent<events::TutorialTriggerEvent>(tutorials::SELECT_DECK_3_TUTORIAL);
+            }
+            else if (mActiveSubScene == SubSceneType::MUTATION_SELECTION)
+            {
+                events::EventSystem::GetInstance().DispatchEvent<events::TutorialTriggerEvent>(tutorials::MUTATIONS_TUTORIAL);
             }
             mTransitioningToSubScene = false;
         });

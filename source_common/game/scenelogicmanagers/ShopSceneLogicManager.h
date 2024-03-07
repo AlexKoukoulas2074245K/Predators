@@ -101,6 +101,7 @@ private:
     float mCoinAnimationValue;
     bool mAnimatingCoinValue;
     bool mWaitingForPermaProductAnimation;
+    bool mHasSentTutorialTrigger;
 };
 
 ///------------------------------------------------------------------------------------------------

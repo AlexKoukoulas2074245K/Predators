@@ -3,7 +3,7 @@
     [
         {
             "name": "select_deck_1",
-            "description": "Welcome to your first$Realm of Beasts story!$This is a tutorial box.$If at any point you want$to stop seeing tutorials,$click the checkbox above."
+            "description": "Welcome to your first$Realm of Beasts story!$This is a tutorial box.$If at any point you want$to stop seeing tutorials,$tap the checkbox above."
         },
         {
             "name": "select_deck_2",
@@ -40,12 +40,12 @@
         },
         {
             "name": "battle_history",
-            "description": "Your opponent played a$card. If at any point you$want to check what took$place in a battle, you$can visit the History tab!",
+            "description": "If at any point you$want to check what took$place in a battle, you$can visit the History tab!",
             "show_arrow": true
         },
         {
             "name": "battle_end_turn",
-            "description": "To end your turn click on$the Turn Indicator button.$Any Normal cards on your$side of the board will$attack the opponent.",
+            "description": "To end your turn tap on$the Turn Indicator button.$Any Normal cards on your$side of the board will$attack the opponent.",
             "show_arrow": true
         },
         {
@@ -70,7 +70,7 @@
         },
         {
             "name": "battle_card_selection_reward",
-            "description": "All battles will reward$you with a selection of 3$cards to pick one and add$to your story deck pool.$Click Skip Rewards if you$ don't want any."
+            "description": "All battles will reward$you with a selection of 3$cards to pick one and add$to your story deck pool.$Tap on Skip Rewards if$you don't want any."
         },
         {
             "name": "battle_wheel_reward",
@@ -81,13 +81,29 @@
             "description": "Events are mini scenarios$where you can make$different choices that$will affect many aspects$of this story."
         },
         {
+            "name": "story_shop",
+            "description": "DemoBob's story shop is$where you can spend your$ <coin> in exchange for $Artifacts, Cards, and$many other boosts for$your current story."
+        },
+        {
+            "name": "perma_shop",
+            "description": "This is the Perma Shop.$Here you can purchase$ <coin> and Card Packs!$Card Packs add new$Cards to your permanently$unlocked Card Library!"
+        },
+        {
+            "name": "card_library",
+            "description": "This is your Card Library.$Here you can inspect all$unlocked cards that have$a chance to be collected$in stories depending on$which deck is chosen."
+        },
+        {
             "name": "new_artifact_in_bag",
             "description": "You received an Artifact!$Artifacts are rare items$with powerful effects$that can completely turn$the tables in your favor$during this story!",
             "show_arrow": true
         },
         {
+            "name": "mutations",
+            "description": "You unlocked Mutations!$Mutations add constraints$and increase the$difficulty of the story$significantly!"
+        },
+        {
             "name": "new_card_in_deck",
-            "description": "Your current story deck$pool can be inspected by$clicking on the Deck icon.",
+            "description": "Your current story deck$pool can be inspected by$tapping on the Deck icon.",
             "show_arrow": true
         }
     ]
