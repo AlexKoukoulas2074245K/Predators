@@ -44,6 +44,7 @@
 #include <game/scenelogicmanagers/CardPackRewardSceneLogicManager.h>
 #include <game/scenelogicmanagers/CardSelectionRewardSceneLogicManager.h>
 #include <game/scenelogicmanagers/CloudDataConfirmationSceneLogicManager.h>
+#include <game/scenelogicmanagers/CreditsSceneLogicManager.h>
 #include <game/scenelogicmanagers/DefeatSceneLogicManager.h>
 #include <game/scenelogicmanagers/DisconnectedSceneLogicManager.h>
 #include <game/scenelogicmanagers/EventSceneLogicManager.h>
@@ -136,6 +137,7 @@ void Game::Init()
     mGameSceneTransitionManager->RegisterSceneLogicManager<CardPackRewardSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<CardSelectionRewardSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<CloudDataConfirmationSceneLogicManager>();
+    mGameSceneTransitionManager->RegisterSceneLogicManager<CreditsSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<DefeatSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<DisconnectedSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<EventSceneLogicManager>();

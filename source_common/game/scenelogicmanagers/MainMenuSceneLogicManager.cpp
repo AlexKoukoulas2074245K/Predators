@@ -68,6 +68,7 @@ static const strutils::StringId BRAZIER_SCENE_OBJECT_NAME = strutils::StringId("
 static const strutils::StringId MUTATION_FIRE_SCENE_OBJECT_NAME = strutils::StringId("mutation_fire");
 static const strutils::StringId MUTATION_SCENE_OBJECT_NAME = strutils::StringId("mutation");
 static const strutils::StringId PRIVACY_POLICY_SCENE = strutils::StringId("privacy_policy_scene");
+static const strutils::StringId CREDITS_SCENE = strutils::StringId("credits_scene");
 static const strutils::StringId GIFT_CODE_CLAIM_SCENE = strutils::StringId("gift_code_claim_scene");
 static const strutils::StringId BOARD_SCENE_OBJECT_NAME = strutils::StringId("board");
 static const strutils::StringId STORY_MODE_BUTTON_NAME = strutils::StringId("story_mode_button");
@@ -83,6 +84,7 @@ static const strutils::StringId AI_DEMO_BATTLE_MODE_BUTTON_NAME = strutils::Stri
 static const strutils::StringId REPLAY_BATTLE_MODE_BUTTON_NAME = strutils::StringId("replay_battle_mode_button");
 static const strutils::StringId ENTER_GIFT_CODE_BUTTON_NAME = strutils::StringId("enter_gift_code_button");
 static const strutils::StringId PRIVACY_POLICY_BUTTON_NAME = strutils::StringId("privacy_policy_button");
+static const strutils::StringId CREDITS_BUTTON_NAME = strutils::StringId("credits_button");
 static const strutils::StringId BACK_BUTTON_NAME = strutils::StringId("back_button");
 static const strutils::StringId MUTATION_PLUS_BUTTON_NAME = strutils::StringId("mutation_plus");
 static const strutils::StringId MUTATION_MINUS_BUTTON_NAME = strutils::StringId("mutation_minus");
@@ -154,6 +156,7 @@ static const glm::vec3 MUTATION_MINUS_BUTTON_POSITION = {-0.106f, -0.083f, 0.1f}
 static const glm::vec3 QUIT_BUTTON_POSITION = {0.0f, -0.180f, 0.1f};
 static const glm::vec3 ENTER_GIFT_CODE_BUTTON_POSITION = {-0.135f, 0.085f, 0.1f};
 static const glm::vec3 PRIVACY_POLICY_BUTTON_POSITION = {-0.125f, 0.005f, 0.1f};
+static const glm::vec3 CREDITS_BUTTON_POSITION = {-0.052f, -0.075f, 0.1f};
 static const glm::vec3 POINT_LIGHT_POSITION = { -1.0f, 0.0f, -1.0f };
 static const glm::vec3 DIFFUSE_COLOR = { 1.0f, 1.0f, 1.0f };
 static const glm::vec3 SPEC_COLOR = { 1.0f, 1.0f, 1.0f };
@@ -1031,6 +1034,20 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                 [=]()
                 {
                     events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(PRIVACY_POLICY_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+                },
+                *scene
+            ));
+            
+            mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
+            (
+                CREDITS_BUTTON_POSITION,
+                BUTTON_SCALE,
+                game_constants::DEFAULT_FONT_NAME,
+                "Credits",
+                CREDITS_BUTTON_NAME,
+                [=]()
+                {
+                    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(CREDITS_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
                 },
                 *scene
             ));

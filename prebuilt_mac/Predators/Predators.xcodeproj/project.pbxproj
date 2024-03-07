@@ -54,6 +54,7 @@
 		56FE158897FF886F6757E9DC /* PurchasingProductSceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 015DEBE74E403FDB72EDA711 /* PurchasingProductSceneLogicManager.h */; };
 		590BC49901179FB522AD2223 /* OSMessageBox.h in Sources */ = {isa = PBXBuildFile; fileRef = EEC2E35013E2E8B9B7A912C6 /* OSMessageBox.h */; };
 		5BEFD96D266F53B603C278C1 /* TypeTraits.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 988043F06556266668BE5677 /* TypeTraits.cpp */; };
+		5F1B4D675106AED4A7CB17B4 /* CreditsSceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93285DBAAECD150BF0EF2824 /* CreditsSceneLogicManager.cpp */; };
 		63011B7BE17965C680A05EAD /* BaseDataFileSerializer.h in Sources */ = {isa = PBXBuildFile; fileRef = 30D02CEC6861EBD7441E2004 /* BaseDataFileSerializer.h */; };
 		65D2F7E38372F0525D4554EF /* ProductRepository.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA762FD26B23DF71586603AB /* ProductRepository.cpp */; };
 		67BF0E4567CA2E857FB3DF03 /* GameSymbolicGlyphNames.h in Sources */ = {isa = PBXBuildFile; fileRef = 3B9109D055E8533B89646901 /* GameSymbolicGlyphNames.h */; };
@@ -197,6 +198,7 @@
 		AB8BE70E221B1F59FE2585FD /* MeteorDamageGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF00ED29CB00CC04153903B3 /* MeteorDamageGameAction.cpp */; };
 		ADC69F64499EF1C541D5D6B6 /* InsectMegaSwarmGameAction.h in Sources */ = {isa = PBXBuildFile; fileRef = 47F27B74AAE9C13EA689A65D /* InsectMegaSwarmGameAction.h */; };
 		AEBAABE4C4BC0F6D887BFBCB /* ImageSurfaceLoader.h in Sources */ = {isa = PBXBuildFile; fileRef = D979EC9B74F12857F47E4007 /* ImageSurfaceLoader.h */; };
+		B0AC765145ED3AAC53A82ECB /* CreditsSceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = D8E3DDD86A494D64EA3FA90E /* CreditsSceneLogicManager.h */; };
 		B62265711118E09D2429CF53 /* ZeroCostTimeGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7D4191C7F308A5D9EA7C2AA2 /* ZeroCostTimeGameAction.cpp */; };
 		B93B8EF4DD15C349B51AED67 /* ZeroCostTimeGameAction.h in Sources */ = {isa = PBXBuildFile; fileRef = BFE780D4DDD5228CD5379906 /* ZeroCostTimeGameAction.h */; };
 		BA2C1928AE63ABB11CDC9B7B /* PurchasingProductSceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 47EB8F34B93CBDF0240A8C13 /* PurchasingProductSceneLogicManager.cpp */; };
@@ -526,6 +528,7 @@
 		928B0D4A2B5D7B7D0025DF3F /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = ../../../../../Library/Developer/SDL2.framework; sourceTree = "<group>"; };
 		928B0D4B2B5D7B7E0025DF3F /* SDL2_image.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_image.framework; path = ../../../../../Library/Developer/SDL2_image.framework; sourceTree = "<group>"; };
 		92CA97402B65132B00B53B01 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
+		93285DBAAECD150BF0EF2824 /* CreditsSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = CreditsSceneLogicManager.cpp; path = CreditsSceneLogicManager.cpp; sourceTree = "<group>"; };
 		93D83DB41AD868D09B2A3C94 /* TextureResource.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = TextureResource.cpp; sourceTree = "<group>"; };
 		988043F06556266668BE5677 /* TypeTraits.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = TypeTraits.cpp; sourceTree = "<group>"; };
 		989BFF482B72A00F213431FE /* TextureResource.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = TextureResource.h; sourceTree = "<group>"; };
@@ -558,6 +561,7 @@
 		D49ADB67B2E3809A798E1E0E /* ArtifactProductIds.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = ArtifactProductIds.h; sourceTree = "<group>"; };
 		D64C3227BB47CA8611283D51 /* wglew.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = wglew.h; sourceTree = "<group>"; };
 		D8216CC78F9B7DEB0BEC7678 /* AppleSoundUtils.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = AppleSoundUtils.h; sourceTree = "<group>"; };
+		D8E3DDD86A494D64EA3FA90E /* CreditsSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = CreditsSceneLogicManager.h; path = CreditsSceneLogicManager.h; sourceTree = "<group>"; };
 		D979EC9B74F12857F47E4007 /* ImageSurfaceLoader.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = ImageSurfaceLoader.h; sourceTree = "<group>"; };
 		DA5C864B99855517C4F977C7 /* HoundSummoningGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = HoundSummoningGameAction.cpp; sourceTree = "<group>"; };
 		DCEAD9F885485B966870FA76 /* InsectVirusGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = InsectVirusGameAction.cpp; sourceTree = "<group>"; };
@@ -1066,6 +1070,8 @@
 				CC6E9D2B3F68C7578FBD2C2F /* BunnyHopSceneLogicManager.h */,
 				42689A869E83670E591CB2DE /* FirstGameLockSceneLogicManager.cpp */,
 				5418D5ABF4D49FCF1AB825B4 /* FirstGameLockSceneLogicManager.h */,
+				93285DBAAECD150BF0EF2824 /* CreditsSceneLogicManager.cpp */,
+				D8E3DDD86A494D64EA3FA90E /* CreditsSceneLogicManager.h */,
 			);
 			path = scenelogicmanagers;
 			sourceTree = "<group>";
@@ -1532,6 +1538,8 @@
 				901AABBE9D0E70F6FBC7021F /* HowToPlayACardTutorialGameAction.h in Sources */,
 				D7A418B76B12FAD2354E46D0 /* EndTurnTutorialGameAction.cpp in Sources */,
 				6984904FE08FD23A002754ED /* EndTurnTutorialGameAction.h in Sources */,
+				5F1B4D675106AED4A7CB17B4 /* CreditsSceneLogicManager.cpp in Sources */,
+				B0AC765145ED3AAC53A82ECB /* CreditsSceneLogicManager.h in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
