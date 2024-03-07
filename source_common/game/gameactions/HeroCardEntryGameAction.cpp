@@ -35,14 +35,14 @@ static const strutils::StringId CARD_PLAY_PARTICLE_EMITTER_NAME = strutils::Stri
 
 static const glm::vec3 HEALTH_VALUE_TEXT_OFFSET = {0.001, 0.001, 0.02f};
 static const glm::vec3 HEALTH_BASE_OFFSET = {-0.0005f, 0.03f, 0.12f};
-static const glm::vec3 TUTORIAL_BATTLE_1_ARROW_ORIGIN_POSITION = {-0.208f, -0.05f, 0.0f};
-static const glm::vec3 TUTORIAL_BATTLE_1_ARROW_TARGET_POSITION = {-0.208f, 0.10f, 0.0f};
-static const glm::vec3 TUTORIAL_BATTLE_2_ARROW_ORIGIN_POSITION = {-0.215f, 0.06f, 0.0f};
-static const glm::vec3 TUTORIAL_BATTLE_2_ARROW_TARGET_POSITION = {-0.215f, -0.09f, 0.0f};
-static const glm::vec3 TUTORIAL_BATTLE_3_ARROW_ORIGIN_POSITION = {0.197f, 0.07f, 0.0f};
-static const glm::vec3 TUTORIAL_BATTLE_3_ARROW_TARGET_POSITION = {0.197f, -0.08f, 0.0f};
-static const glm::vec3 TUTORIAL_BATTLE_4_ARROW_ORIGIN_POSITION = {-0.208f, -0.05f, 0.0f};
-static const glm::vec3 TUTORIAL_BATTLE_4_ARROW_TARGET_POSITION = {-0.208f, 0.10f, 0.0f};
+static const glm::vec3 TUTORIAL_BATTLE_1_ARROW_ORIGIN_POSITION = {-0.104f, -0.025f, 0.0f};
+static const glm::vec3 TUTORIAL_BATTLE_1_ARROW_TARGET_POSITION = {-0.104f, 0.05f, 0.0f};
+static const glm::vec3 TUTORIAL_BATTLE_2_ARROW_ORIGIN_POSITION = {-0.1075f, 0.03f, 0.0f};
+static const glm::vec3 TUTORIAL_BATTLE_2_ARROW_TARGET_POSITION = {-0.1075f, -0.045f, 0.0f};
+static const glm::vec3 TUTORIAL_BATTLE_3_ARROW_ORIGIN_POSITION = {0.0985f, 0.035f, 0.0f};
+static const glm::vec3 TUTORIAL_BATTLE_3_ARROW_TARGET_POSITION = {0.0985f, -0.04f, 0.0f};
+static const glm::vec3 TUTORIAL_BATTLE_4_ARROW_ORIGIN_POSITION = {-0.104f, -0.025f, 0.0f};
+static const glm::vec3 TUTORIAL_BATTLE_4_ARROW_TARGET_POSITION = {-0.104f, 0.10f, 0.0f};
 
 static const float CARD_CAMERA_SHAKE_DURATION = 0.25f;
 static const float CARD_CAMERA_SHAKE_STRENGTH = 0.005f;
@@ -218,13 +218,13 @@ ActionAnimationUpdateResult HeroCardEntryGameAction::VUpdateAnimation(const floa
         {
             animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(topHealthContainerBase, mTargetHealthCrystalBasePosition, mTargetHealthCrystalBaseScale, HEALTH_CRYSTAL_ANIMATION_DURATION_SECS, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT | animation_flags::IGNORE_Z_COMPONENT, HEALTH_CRYSTAL_ANIMATION_DELAY_SECS, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
             {
-                events::EventSystem::GetInstance().DispatchEvent<events::TutorialTriggerEvent>(tutorials::BATTLE_1_TUTORIAL, TUTORIAL_BATTLE_1_ARROW_ORIGIN_POSITION, TUTORIAL_BATTLE_1_ARROW_TARGET_POSITION);
-                events::EventSystem::GetInstance().DispatchEvent<events::TutorialTriggerEvent>(tutorials::BATTLE_2_TUTORIAL, TUTORIAL_BATTLE_2_ARROW_ORIGIN_POSITION, TUTORIAL_BATTLE_2_ARROW_TARGET_POSITION);
-                events::EventSystem::GetInstance().DispatchEvent<events::TutorialTriggerEvent>(tutorials::BATTLE_3_TUTORIAL, TUTORIAL_BATTLE_3_ARROW_ORIGIN_POSITION, TUTORIAL_BATTLE_3_ARROW_TARGET_POSITION);
+                events::EventSystem::GetInstance().DispatchEvent<events::TutorialTriggerEvent>(tutorials::BATTLE_1_TUTORIAL, TUTORIAL_BATTLE_1_ARROW_ORIGIN_POSITION * game_constants::GAME_BOARD_GUI_DISTANCE_FACTOR, TUTORIAL_BATTLE_1_ARROW_TARGET_POSITION *  game_constants::GAME_BOARD_GUI_DISTANCE_FACTOR);
+                events::EventSystem::GetInstance().DispatchEvent<events::TutorialTriggerEvent>(tutorials::BATTLE_2_TUTORIAL, TUTORIAL_BATTLE_2_ARROW_ORIGIN_POSITION * game_constants::GAME_BOARD_GUI_DISTANCE_FACTOR, TUTORIAL_BATTLE_2_ARROW_TARGET_POSITION *  game_constants::GAME_BOARD_GUI_DISTANCE_FACTOR);
+                events::EventSystem::GetInstance().DispatchEvent<events::TutorialTriggerEvent>(tutorials::BATTLE_3_TUTORIAL, TUTORIAL_BATTLE_3_ARROW_ORIGIN_POSITION * game_constants::GAME_BOARD_GUI_DISTANCE_FACTOR, TUTORIAL_BATTLE_3_ARROW_TARGET_POSITION * game_constants::GAME_BOARD_GUI_DISTANCE_FACTOR);
                 
                 if (mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerCurrentArmor > 0)
                 {
-                    events::EventSystem::GetInstance().DispatchEvent<events::TutorialTriggerEvent>(tutorials::BATTLE_ARMOR_TUTORIAL, TUTORIAL_BATTLE_4_ARROW_ORIGIN_POSITION, TUTORIAL_BATTLE_4_ARROW_TARGET_POSITION);
+                    events::EventSystem::GetInstance().DispatchEvent<events::TutorialTriggerEvent>(tutorials::BATTLE_ARMOR_TUTORIAL, TUTORIAL_BATTLE_4_ARROW_ORIGIN_POSITION * game_constants::GAME_BOARD_GUI_DISTANCE_FACTOR, TUTORIAL_BATTLE_4_ARROW_TARGET_POSITION * game_constants::GAME_BOARD_GUI_DISTANCE_FACTOR);
                     
                     events::EventSystem::GetInstance().DispatchEvent<events::ArmorChangeChangeAnimationTriggerEvent>(true, mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mPlayerCurrentArmor);
                 }

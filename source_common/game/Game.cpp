@@ -158,7 +158,7 @@ void Game::Init()
     if (ios_utils::IsIPad())
     {
         game_constants::GAME_BOARD_BASED_SCENE_ZOOM_FACTOR = 120.0f;
-        game_constants::GAME_BOARD_GUI_DISTANCE_FACTOR = 2.4f;
+        game_constants::GAME_BOARD_GUI_DISTANCE_FACTOR = 2.45f;
         game_constants::IN_GAME_MOBILE_ONLY_FREE_MOVING_CARD_Y_OFFSET = 0.025f;
     }
     else
