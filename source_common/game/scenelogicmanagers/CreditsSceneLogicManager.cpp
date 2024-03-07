@@ -29,14 +29,14 @@ static const std::string TEXT_ENTRY_SHADER_FILE_NAME = "text_container_entry.vs"
 static const glm::vec3 BUTTON_SCALE = {0.0004f, 0.0004f, 0.0004f};
 static const glm::vec3 CONTINUE_BUTTON_POSITION = {-0.078f, -0.211f, 23.1f};
 static const glm::vec3 TEXT_SCALE = glm::vec3(0.0004f, 0.0004f, 0.0004f);
-static const glm::vec3 TEXT_INIT_POSITION = {-0.25f, -0.2f, 23.2f};
+static const glm::vec3 TEXT_INIT_POSITION = {0.0f, -0.2f, 23.2f};
 
 static const glm::vec2 TEXT_ENTRY_CUTOFF_VALUES = {-0.193f, 0.173f};
 
 static const float SUBSCENE_ITEM_FADE_IN_OUT_DURATION_SECS = 0.25f;
 static const float STAGGERED_ITEM_ALPHA_DELAY_SECS = 0.01f;
 static const float TEXT_SPEED = 0.0001f;
-static const float WARP_Y = 2.1f;
+static const float WARP_Y = 2.2f;
 
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
 {
@@ -122,6 +122,11 @@ void CreditsSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
         textSceneObject->mPosition = TEXT_INIT_POSITION;
         textSceneObject->mPosition.y -= lineCounter * 0.05f;
         textSceneObject->mScale = TEXT_SCALE;
+        
+        auto boundingRect = scene_object_utils::GetSceneObjectBoundingRect(*textSceneObject);
+        auto textLength = boundingRect.topRight.x - boundingRect.bottomLeft.x;
+        textSceneObject->mPosition.x -= textLength/2.0f;
+        
         textSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MIN_Y_UNIFORM_NAME] = TEXT_ENTRY_CUTOFF_VALUES.s;
         textSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MAX_Y_UNIFORM_NAME] = TEXT_ENTRY_CUTOFF_VALUES.t;
         textSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + TEXT_ENTRY_SHADER_FILE_NAME);
