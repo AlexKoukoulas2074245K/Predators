@@ -830,7 +830,6 @@ void ShopSceneLogicManager::CreateProducts()
         mProducts[1][2] = std::make_unique<ProductInstance>(COINS_M_PRODUCT_NAME);
         mProducts[1][4] = std::make_unique<ProductInstance>(COINS_L_PRODUCT_NAME);
         
-        
         // Third Shelf
         if (!shouldHideNormalPacks)
         {

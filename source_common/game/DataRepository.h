@@ -204,6 +204,11 @@ public:
     void SetAllMutationLevelVictoryCounts(const std::vector<int>& mutationLevelVictoryCounts);
     void SetMutationLevelVictories(const int mutationLevel, const int victoryCount);
     
+    const std::vector<int>& GetAllMutationLevelBestTimes() const;
+    const int& GetMutationLevelBestTime(const int mutationLevel) const;
+    void SetAllMutationLevelBestTimes(const std::vector<int>& mutationLevelBestTimes);
+    void SetMutationLevelBestTime(const int mutationLevel, const int bestTimeSecs);
+    
     const std::vector<std::string>& GetSuccessfulTransactionIds() const;
     void SetSuccessfulTransactionIds(const std::vector<std::string>& successfulTransactionIds);
     
@@ -350,6 +355,7 @@ private:
     std::vector<int> mNewCardIds;
     std::vector<int> mSeenOpponentSpellCardIds;
     std::vector<int> mStoryMutationLevelVictories;
+    std::vector<int> mStoryMutationLevelBestTimes;
     std::vector<strutils::StringId> mSeenTutorials;
     std::vector<std::string> mSuccessfulTransactionIds;
     std::vector<std::string> mGiftCodesClaimed;

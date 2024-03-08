@@ -45,6 +45,11 @@ PersistentAccountDataDeserializer::PersistentAccountDataDeserializer(DataReposit
         dataRepository.SetAllMutationLevelVictoryCounts(persistentDataJson["mutation_level_victories"].get<std::vector<int>>());
     }
     
+    if (persistentDataJson.count("mutation_level_best_times"))
+    {
+        dataRepository.SetAllMutationLevelBestTimes(persistentDataJson["mutation_level_best_times"].get<std::vector<int>>());
+    }
+    
     if (persistentDataJson.count("new_card_ids"))
     {
         dataRepository.SetNewCardIds(persistentDataJson["new_card_ids"].get<std::vector<int>>());

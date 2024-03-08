@@ -25,6 +25,7 @@ DataRepository& DataRepository::GetInstance()
 
 DataRepository::DataRepository()
     : mStoryMutationLevelVictories(game_constants::MAX_MUTATION_LEVEL + 1, 0)
+    , mStoryMutationLevelBestTimes(game_constants::MAX_MUTATION_LEVEL + 1, 1000000)
     , mStoryCurrentHealth(0)
     , mCurrencyCoins(0)
 {
@@ -599,6 +600,43 @@ void DataRepository::SetMutationLevelVictories(const int mutationLevel, const in
     assert(mutationLevel >= 0 && mutationLevel <= game_constants::MAX_MUTATION_LEVEL);
     mStoryMutationLevelVictories[mutationLevel] = victoryCount;
     mPersistentDataSerializer->GetState()["mutation_level_victories"] = mStoryMutationLevelVictories;
+}
+
+///------------------------------------------------------------------------------------------------
+
+const std::vector<int>& DataRepository::GetAllMutationLevelBestTimes() const
+{
+    return mStoryMutationLevelBestTimes;
+}
+
+///------------------------------------------------------------------------------------------------
+
+const int& DataRepository::GetMutationLevelBestTime(const int mutationLevel) const
+{
+    assert(mutationLevel >= 0 && mutationLevel <= game_constants::MAX_MUTATION_LEVEL);
+    return mStoryMutationLevelBestTimes[mutationLevel];
+}
+
+///------------------------------------------------------------------------------------------------
+
+void DataRepository::SetAllMutationLevelBestTimes(const std::vector<int>& mutationLevelBestTimes)
+{
+    // Done this way for backwards compatibility safety (older game file with less mutations)
+    for (auto i = 0; i < mutationLevelBestTimes.size(); ++i)
+    {
+        mStoryMutationLevelBestTimes[i] = mutationLevelBestTimes[i];
+    }
+    
+    mPersistentDataSerializer->GetState()["mutation_level_best_times"] = mStoryMutationLevelBestTimes;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void DataRepository::SetMutationLevelBestTime(const int mutationLevel, const int bestTimeSecs)
+{
+    assert(mutationLevel >= 0 && mutationLevel <= game_constants::MAX_MUTATION_LEVEL);
+    mStoryMutationLevelBestTimes[mutationLevel] = bestTimeSecs;
+    mPersistentDataSerializer->GetState()["mutation_level_best_times"] = mStoryMutationLevelBestTimes;
 }
 
 ///------------------------------------------------------------------------------------------------

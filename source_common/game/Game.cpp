@@ -623,29 +623,57 @@ void Game::CreateDebugWidgets()
     
     static std::string mutationLevelString; mutationLevelString.resize(3);
     static std::string victoriesString; victoriesString.resize(4);
+    static std::string bestTimeSecondsString; bestTimeSecondsString.resize(6);
     
-    ImGui::SeparatorText("Game Stats");
-    ImGui::PushID("MutationLevel");
-    ImGui::Text("Mutation Level");
-    ImGui::SameLine();
-    ImGui::SetNextItemWidth(30.0f);
-    ImGui::InputText("##hidelabel", &mutationLevelString[0], mutationLevelString.size());
-    ImGui::PopID();
-    ImGui::SameLine();
-    ImGui::PushID("Victories");
-    ImGui::Text("Victories");
-    ImGui::SameLine();
-    ImGui::SetNextItemWidth(40.0f);
-    ImGui::InputText("##hidelabel", &victoriesString[0], victoriesString.size());
-    ImGui::PopID();
-    
-    ImGui::SameLine();
-    if (ImGui::Button("Set Victories"))
     {
-        auto mutationLevel = std::stoi(mutationLevelString);
-        auto victoryCount = std::stoi(victoriesString);
-        DataRepository::GetInstance().SetMutationLevelVictories(mutationLevel, victoryCount);
-        DataRepository::GetInstance().FlushStateToFile();
+        ImGui::SeparatorText("Game Stats");
+        ImGui::PushID("MutationLevel");
+        ImGui::Text("Mutation Level");
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(30.0f);
+        ImGui::InputText("##hidelabel", &mutationLevelString[0], mutationLevelString.size());
+        ImGui::PopID();
+        ImGui::SameLine();
+        ImGui::PushID("Victories");
+        ImGui::Text("Victories");
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(40.0f);
+        ImGui::InputText("##hidelabel", &victoriesString[0], victoriesString.size());
+        ImGui::PopID();
+        
+        ImGui::SameLine();
+        if (ImGui::Button("Set Victories"))
+        {
+            auto mutationLevel = std::stoi(mutationLevelString);
+            auto victoryCount = std::stoi(victoriesString);
+            DataRepository::GetInstance().SetMutationLevelVictories(mutationLevel, victoryCount);
+            DataRepository::GetInstance().FlushStateToFile();
+        }
+    }
+    
+    {
+        ImGui::PushID("MutationLevelBestTime");
+        ImGui::Text("Mutation Level");
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(30.0f);
+        ImGui::InputText("##hidelabel", &mutationLevelString[0], mutationLevelString.size());
+        ImGui::PopID();
+        ImGui::SameLine();
+        ImGui::PushID("BestTimeSecs");
+        ImGui::Text("Best Time Secs");
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(100.0f);
+        ImGui::InputText("##hidelabel", &bestTimeSecondsString[0], bestTimeSecondsString.size());
+        ImGui::PopID();
+        
+        ImGui::SameLine();
+        if (ImGui::Button("Set Best Time"))
+        {
+            auto mutationLevel = std::stoi(mutationLevelString);
+            auto bestTimeSecs = std::stoi(bestTimeSecondsString);
+            DataRepository::GetInstance().SetMutationLevelBestTime(mutationLevel, bestTimeSecs);
+            DataRepository::GetInstance().FlushStateToFile();
+        }
     }
     
     if (ImGui::Button("Clear All Victories"))

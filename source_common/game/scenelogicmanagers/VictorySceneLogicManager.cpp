@@ -238,6 +238,9 @@ void VictorySceneLogicManager::InitSubScene(const SubSceneType subSceneType, std
                     auto currentMutationLevelVictories = DataRepository::GetInstance().GetMutationLevelVictories(currentMutationLevel);
                     DataRepository::GetInstance().SetMutationLevelVictories(currentMutationLevel, currentMutationLevelVictories + 1);
                     
+                    auto currentMutationLevelBestTime = DataRepository::GetInstance().GetMutationLevelBestTime(currentMutationLevel);
+                    DataRepository::GetInstance().SetMutationLevelBestTime(currentMutationLevel, math::Min(DataRepository::GetInstance().GetCurrentStorySecondsPlayed(), currentMutationLevelBestTime));
+                    
                     DataRepository::GetInstance().ResetStoryData();
                     
                     if (DataRepository::GetInstance().GetGamesFinishedCount() == 0)
