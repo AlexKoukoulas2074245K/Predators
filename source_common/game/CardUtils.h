@@ -73,7 +73,7 @@ void PlayCardAttackSfx(const int pendingDamage, const int amountOfArmorDamaged);
 
 ///------------------------------------------------------------------------------------------------
 
-void ExportCardData(std::shared_ptr<scene::Scene> scene);
+void ExportCardData(const strutils::StringId& expansionId, std::shared_ptr<scene::Scene> scene);
 
 ///------------------------------------------------------------------------------------------------
 

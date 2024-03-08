@@ -11,6 +11,12 @@
         "demons_boss"
     ],
     
+    "expansions":
+    [
+        {"id": "vanilla", "name": "Vanilla"},
+        {"id": "second_generation", "name": "The Second Generation"}
+    ],
+    
     "card_data":
     [
         {
@@ -19,7 +25,8 @@
             "family": "rodents",
             "name": "Beaver",
             "texture": "beaver.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         },
         {
             "damage": 3,
@@ -27,7 +34,8 @@
             "family": "rodents",
             "name": "Rat",
             "texture": "rat.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         },
         {
             "damage": 3,
@@ -35,7 +43,8 @@
             "family": "rodents",
             "name": "Squirrel",
             "texture": "squirrel.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         },
         {
             "damage": 2,
@@ -43,7 +52,8 @@
             "family": "rodents",
             "name": "Bunny",
             "texture": "bunny.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         },
         {
             "damage": 3,
@@ -51,7 +61,8 @@
             "family": "rodents",
             "name": "Ground Hog",
             "texture": "ground_hog.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         },
         {
             "damage": 2,
@@ -59,7 +70,8 @@
             "family": "rodents",
             "name": "Guinea Pig",
             "texture": "guinea_pig.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         },
         {
             "damage": 2,
@@ -67,7 +79,8 @@
             "family": "insects",
             "name": "Dragonfly",
             "texture": "dragonfly.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         },
         {
             "damage": 1,
@@ -75,7 +88,8 @@
             "family": "insects",
             "name": "Fly",
             "texture": "fly.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         },
         {
             "damage": 3,
@@ -83,7 +97,8 @@
             "family": "insects",
             "name": "Bee",
             "texture": "bee.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         },
         {
             "damage": 4,
@@ -91,7 +106,8 @@
             "family": "insects",
             "name": "Beetle",
             "texture": "beetle.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         },
         {
             "damage": 1,
@@ -99,7 +115,8 @@
             "family": "insects",
             "name": "Ladybug",
             "texture": "ladybug.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         },
         {
             "damage": 4,
@@ -107,7 +124,8 @@
             "family": "insects",
             "name": "Mantis",
             "texture": "mantis.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         },
         {
             "damage": 2,
@@ -115,7 +133,8 @@
             "family": "insects",
             "name": "Mosquito",
             "texture": "mosquito.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         },
         {
             "damage": 8,
@@ -123,7 +142,8 @@
             "family": "dinosaurs",
             "name": "Brachiosaurus",
             "texture": "brachiosaurus.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         },
         {
             "damage": 8,
@@ -131,7 +151,8 @@
             "family": "dinosaurs",
             "name": "Rex",
             "texture": "rex.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         },
         {
             "damage": 6,
@@ -139,7 +160,8 @@
             "family": "dinosaurs",
             "name": "Stegosaurus",
             "texture": "stegosaurus.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         },
         {
             "damage": 7,
@@ -147,7 +169,8 @@
             "family": "dinosaurs",
             "name": "Triceratops",
             "texture": "triceratops.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         },
         {
             "damage": 5,
@@ -155,7 +178,8 @@
             "family": "dinosaurs",
             "name": "Dilophosaurus",
             "texture": "dilophosaurus.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         },
         {
             "damage": 5,
@@ -163,7 +187,8 @@
             "family": "dinosaurs",
             "name": "Velociraptor",
             "texture": "velociraptor.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         },
         {
             "weight": 2,
@@ -172,7 +197,8 @@
             "effect": "DAMAGE +2 FAMILY BOARD HELD",
             "tooltip": "+2<damage> for ALL$Gnawers on hand &$board",
             "texture": "rodents_attack.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         },
         {
             "weight": 0,
@@ -182,7 +208,8 @@
             "tooltip": " $Draw 2 Cards and$gain +2<weight>",
             "texture": "fuzz_speed.png",
             "shader": "basic.vs",
-            "single_use": true
+            "single_use": true,
+            "expansion": "vanilla"
         },
         {
             "weight": 1,
@@ -191,7 +218,8 @@
             "effect": "DAMAGE -2 ENEMY_BOARD_DEBUFF",
             "tooltip": "-2<damage> for ALL$normal cards the$opponent plays on$their next turn",
             "texture": "net.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         },
         {
             "weight": 1,
@@ -200,7 +228,8 @@
             "effect": "KILL",
             "tooltip": "Destroy the next$normal card played$on the opponent's$next turn",
             "texture": "trap.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         },
         {
             "weight": 1,
@@ -209,7 +238,8 @@
             "effect": "WEIGHT -2 FAMILY HELD",
             "tooltip": " $-2<weight> for ALL$Dinosaurs on hand",
             "texture": "dino_with_feathers.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         },
         {
             "weight": 0,
@@ -219,7 +249,8 @@
             "particle_effect": "feathers",
             "tooltip": "Clears ALL active$effects on your side$of the board",
             "texture": "tornado.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         },
         {
             "weight": 1,
@@ -228,7 +259,8 @@
             "effect": "DUPLICATE_NEXT_INSECT",
             "tooltip": "Duplicates the next$Insect played this$turn",
             "texture": "insect_duplication.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         },
         {
             "weight": 1,
@@ -237,7 +269,8 @@
             "effect": "DOUBLE_NEXT_DINO_DAMAGE",
             "tooltip": "Doubles the <damage> of the$next Dinosaur you$play this turn",
             "texture": "mighty_roar.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         },
         {
             "weight": 1,
@@ -246,7 +279,8 @@
             "effect": "DOUBLE_POISON_ATTACKS",
             "tooltip": "Doubles the <poison>$taken by the$opponent this turn",
             "texture": "poison_smoke.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         },
         {
             "weight": 0,
@@ -255,7 +289,8 @@
             "effect": "DAMAGE +1 FAMILY BOARD HELD",
             "tooltip": "+1<damage> for ALL$Dinosaurs on your$hand & board",
             "texture": "metal_claw.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         },
         {
             "weight": 4,
@@ -265,7 +300,8 @@
             "tooltip": "Continually reduce <weight>$by 1 for ALL$Dinosaurs held and$drawn every turn",
             "texture": "impending_doom.png",
             "shader": "basic.vs",
-            "single_use": true
+            "single_use": true,
+            "expansion": "vanilla"
         },
         {
             "weight": 2,
@@ -275,7 +311,8 @@
             "tooltip": "ALL Gnawers you$play this turn will$successfully dig",
             "texture": "rodents_digging_holes.png",
             "shader": "basic.vs",
-            "single_use": true
+            "single_use": true,
+            "expansion": "vanilla"
         },
         {
             "weight": 1,
@@ -285,7 +322,8 @@
             "tooltip": "Draw a random$SPELL card from$your deck",
             "texture": "bunny_selecting_spell_card.png",
             "shader": "basic.vs",
-            "single_use": false
+            "single_use": false,
+            "expansion": "vanilla"
         },
         {
             "damage": 5,
@@ -293,7 +331,8 @@
             "family": "rodents",
             "name": "Capybara",
             "texture": "capybara.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         },
         {
             "damage": 3,
@@ -301,7 +340,8 @@
             "family": "rodents",
             "name": "Gopher",
             "texture": "gopher.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         },
         {
             "weight": 2,
@@ -310,7 +350,8 @@
             "effect": "CARD_TOKEN",
             "tooltip": "Takes the form$of a random card$in your deck",
             "texture": "story_cards/event.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         },
         {
             "weight": 2,
@@ -320,7 +361,8 @@
             "tooltip": "Gives +2<armor> now and$at the start of every$new turn",
             "texture": "dino_armor.png",
             "shader": "basic.vs",
-            "single_use": true
+            "single_use": true,
+            "expansion": "vanilla"
         },
         {
             "weight": 0,
@@ -333,7 +375,8 @@
             "particle_shake_duration": 1.0,
             "particle_shake_strength": 0.03,
             "shader": "basic.vs",
-            "single_use": true
+            "single_use": true,
+            "expansion": "vanilla"
         },
         {
             "weight": 4,
@@ -343,7 +386,8 @@
             "tooltip": "All Gnawer attacks$will HEAL you this$turn for every point$of damage dealt",
             "texture": "vampire_bunny.png",
             "shader": "basic.vs",
-            "single_use": true
+            "single_use": true,
+            "expansion": "vanilla"
         },
         {
             "weight": 2,
@@ -353,7 +397,8 @@
             "tooltip": "The next Dinosaur$played will HEAL$you for 100% of its$current <damage>",
             "texture": "hungry_dinosaur.png",
             "shader": "basic.vs",
-            "single_use": true
+            "single_use": true,
+            "expansion": "vanilla"
         },
         {
             "weight": 5,
@@ -363,7 +408,8 @@
             "tooltip": "Spawns 3 random$Insects from your$deck",
             "texture": "insect_megaswarm.png",
             "shader": "basic.vs",
-            "single_use": true
+            "single_use": true,
+            "expansion": "vanilla"
         },
         {
             "weight": 3,
@@ -373,7 +419,8 @@
             "tooltip": "The opponent looses$-1<health> and you gain$+1<health> for every card$they play, every turn",
             "texture": "insect_virus.png",
             "shader": "basic.vs",
-            "single_use": true
+            "single_use": true,
+            "expansion": "vanilla"
         },
         {
             "damage": 3,
@@ -381,7 +428,8 @@
             "family": "demons",
             "name": "Scarlet Hound",
             "texture": "story_cards/hound_demon_red.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         },
         {
             "damage": 4,
@@ -389,7 +437,8 @@
             "family": "demons",
             "name": "Sapphire Hound",
             "texture": "story_cards/hound_demon_sapphire.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         },
         {
             "damage": 4,
@@ -397,7 +446,8 @@
             "family": "demons",
             "name": "Feral Hound",
             "texture": "story_cards/hound_demon_feral.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         },
         {
             "damage": 4,
@@ -405,7 +455,8 @@
             "family": "demons",
             "name": "Drake Hound",
             "texture": "story_cards/hound_demon_drake.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         },
         {
             "damage": 5,
@@ -413,7 +464,8 @@
             "family": "demons",
             "name": "Burning Hound",
             "texture": "story_cards/hound_demon_burning.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         },
         {
             "damage": 6,
@@ -421,7 +473,8 @@
             "family": "demons",
             "name": "Dark Hound",
             "texture": "story_cards/hound_demon_dark.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         },
         {
             "damage": 1,
@@ -429,7 +482,8 @@
             "family": "demons_normal",
             "name": "Baby Demon",
             "texture": "story_cards/baby_demon.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         },
         {
             "damage": 2,
@@ -437,7 +491,8 @@
             "family": "demons_normal",
             "name": "Dark Baby",
             "texture": "story_cards/dark_demon_baby.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         },
         {
             "damage": 3,
@@ -445,7 +500,8 @@
             "family": "demons_normal",
             "name": "Clown Imp",
             "texture": "story_cards/small_imp.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         },
         {
             "weight": 1,
@@ -455,7 +511,8 @@
             "tooltip": "Expends all leftover$<weight>, to inflict that much$damage to the$opponent",
             "texture": "demon_punch.png",
             "shader": "basic.vs",
-            "single_use": true
+            "single_use": true,
+            "expansion": "vanilla"
         },
         {
             "weight": 4,
@@ -465,7 +522,8 @@
             "tooltip": "+1<damage> for ALL Demons$on hand & board",
             "texture": "story_cards/demon_wizard.png",
             "shader": "basic.vs",
-            "single_use": false
+            "single_use": false,
+            "expansion": "vanilla"
         },
         {
             "weight": 5,
@@ -475,7 +533,8 @@
             "tooltip": "-2<damage> for ALL$normal cards the$opponent plays on$their next turn",
             "texture": "story_cards/demon_strength.png",
             "shader": "basic.vs",
-            "single_use": true
+            "single_use": true,
+            "expansion": "vanilla"
         },
         {
             "weight": 5,
@@ -484,7 +543,8 @@
             "effect": "HOUND_SUMMON 1",
             "tooltip": "Spawns 1 random$demon hound",
             "texture": "demon_hound_ally.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         },
         {
             "weight": 6,
@@ -494,7 +554,8 @@
             "tooltip": "+4<damage> for ALL Demons$on hand & board",
             "texture": "story_cards/demon_ritual.png",
             "shader": "basic.vs",
-            "single_use": false
+            "single_use": false,
+            "expansion": "vanilla"
         },
         {
             "weight": 9,
@@ -504,7 +565,8 @@
             "tooltip": "Spawns 3 random$demon hounds",
             "texture": "demon_hound_summoning.png",
             "shader": "basic.vs",
-            "single_use": true
+            "single_use": true,
+            "expansion": "vanilla"
         },
         {
             "damage": 6,
@@ -512,7 +574,8 @@
             "family": "demons_hard",
             "name": "Ghost Assassin",
             "texture": "story_cards/elite_demon_0.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         },
         {
             "weight": 8,
@@ -522,7 +585,8 @@
             "tooltip": "Destroy the next$normal card played$on the opponent's$next turn",
             "texture": "story_cards/demon_trap.png",
             "shader": "basic.vs",
-            "single_use": true
+            "single_use": true,
+            "expansion": "vanilla"
         },
         {
             "damage": 8,
@@ -530,7 +594,8 @@
             "family": "demons_hard",
             "name": "Chaos Wizard",
             "texture": "story_cards/elite_demon_wizard_0.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         },
         {
             "weight": 8,
@@ -540,7 +605,8 @@
             "tooltip": "-6<damage> for$ALL normal cards$the opponent plays$on their next turn",
             "texture": "story_cards/elite_demon_strength.png",
             "shader": "basic.vs",
-            "single_use": true
+            "single_use": true,
+            "expansion": "vanilla"
         },
         {
             "weight": 5,
@@ -550,7 +616,8 @@
             "tooltip": "Sacrifices a normal$held Dinosaur card$to inflict double$its <damage> in damage",
             "texture": "meteor.png",
             "shader": "basic.vs",
-            "single_use": true
+            "single_use": true,
+            "expansion": "vanilla"
         },
         {
             "weight": 5,
@@ -560,7 +627,8 @@
             "tooltip": "For the rest of this$battle, every third$card played costs 0<weight>$",
             "texture": "rodent_combo.png",
             "shader": "basic.vs",
-            "single_use": true
+            "single_use": true,
+            "expansion": "vanilla"
         },
         {
             "weight": 3,
@@ -570,7 +638,8 @@
             "tooltip": "Clears all active$effects on your side$and adds 6<poison>$to the opponent$",
             "texture": "acid_rain.png",
             "shader": "basic.vs",
-            "single_use": true
+            "single_use": true,
+            "expansion": "second_generation"
         },
         {
             "damage": 6,
@@ -578,7 +647,8 @@
             "family": "dinosaurs",
             "name": "Pterodactyl",
             "texture": "pterodactyl.png",
-            "shader": "basic.vs"
+            "shader": "basic.vs",
+            "expansion": "second_generation"
         }
     ]
 }

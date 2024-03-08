@@ -14,6 +14,7 @@
 #include <game/CardUtils.h>
 #include <game/DataRepository.h>
 #include <fstream>
+#include <engine/utils/FileUtils.h>
 #include <engine/utils/PlatformMacros.h>
 #include <engine/utils/StringUtils.h>
 #if defined(MACOS) || defined(MOBILE_FLOW)
@@ -479,7 +480,7 @@ void PlayCardAttackSfx(const int pendingDamage, const int amountOfArmorDamaged)
 
 ///------------------------------------------------------------------------------------------------
 
-void ExportCardData(std::shared_ptr<scene::Scene> scene)
+void ExportCardData(const strutils::StringId& expansionId, std::shared_ptr<scene::Scene> scene)
 {
     CardDataRepository::GetInstance().LoadCardData(true);
     
@@ -506,6 +507,21 @@ void ExportCardData(std::shared_ptr<scene::Scene> scene)
             return !lhsCardData.IsSpell();
         }
     });
+    
+    // Filter out cards not in selected expansion
+    cardIdsToExport.erase(std::remove_if(cardIdsToExport.begin(), cardIdsToExport.end(), [=](const int cardId)
+    {
+        return CardDataRepository::GetInstance().GetCardData(cardId, game_constants::REMOTE_PLAYER_INDEX).mExpansion != expansionId;
+    }), cardIdsToExport.end());
+    
+    // Delete existing exported cards
+#if defined(MACOS) || defined(MOBILE_FLOW)
+    const auto existingExportedFiles = fileutils::GetAllFilenamesInDirectory(apple_utils::GetPersistentDataDirectoryPath() + "card_exports/");
+    for (const auto& file: existingExportedFiles)
+    {
+        std::remove((apple_utils::GetPersistentDataDirectoryPath() + "card_exports/" + file).c_str());
+    }
+#endif
     
     for (auto i = 0; i < cardIdsToExport.size(); ++i)
     {

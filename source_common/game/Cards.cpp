@@ -249,6 +249,13 @@ const std::unordered_set<strutils::StringId, strutils::StringIdHasher>& CardData
 
 ///------------------------------------------------------------------------------------------------
 
+const std::unordered_map<strutils::StringId, ExpansionData, strutils::StringIdHasher>& CardDataRepository::GetCardExpansions() const
+{
+    return mCardExpansions;
+}
+
+///------------------------------------------------------------------------------------------------
+
 strutils::StringId CardDataRepository::GuessCurrentStoryDeckFamily() const
 {
     auto currentStoryDeck = DataRepository::GetInstance().GetCurrentStoryPlayerDeck();
@@ -307,6 +314,15 @@ void CardDataRepository::LoadCardData(bool loadCardAssets)
     for (const auto& cardFamily: cardDataJson["card_families"])
     {
         mCardFamilies.insert(strutils::StringId(cardFamily.get<std::string>()));
+    }
+    
+    for (const auto& cardExpansionObject: cardDataJson["expansions"])
+    {
+        ExpansionData expansionData;
+        expansionData.mExpansionId = strutils::StringId(cardExpansionObject["id"].get<std::string>());
+        expansionData.mExpansionName = cardExpansionObject["name"].get<std::string>();
+        
+        mCardExpansions[expansionData.mExpansionId] = std::move(expansionData);
     }
     
     std::unordered_set<int> cardIdsSeenThisLoad;
@@ -381,6 +397,13 @@ void CardDataRepository::LoadCardData(bool loadCardAssets)
         if (cardData.mCardFamily != game_constants::DEMONS_GENERIC_FAMILY_NAME && cardData.mCardName != game_constants::EMPTY_DECK_TOKEN_CARD_NAME && !mCardFamilies.count(cardData.mCardFamily))
         {
             ospopups::ShowMessageBox(ospopups::MessageBoxType::ERROR, ("Cannot find family \"" + cardData.mCardFamily.GetString() + "\" for card with id=" + std::to_string(cardData.mCardId)).c_str());
+        }
+        
+        // Make sure card has a registered card expansion
+        cardData.mExpansion = strutils::StringId(cardObject["expansion"].get<std::string>());
+        if (!mCardExpansions.count(cardData.mExpansion))
+        {
+            ospopups::ShowMessageBox(ospopups::MessageBoxType::ERROR, ("Cannot find expansion \"" + cardData.mExpansion.GetString() + "\" for card with id=" + std::to_string(cardData.mCardId)).c_str());
         }
         
         if (loadCardAssets)

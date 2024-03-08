@@ -60,6 +60,14 @@ using CardStatOverrides = std::unordered_map<CardStatType, int>;
 
 ///------------------------------------------------------------------------------------------------
 
+struct ExpansionData
+{
+    strutils::StringId mExpansionId;
+    std::string mExpansionName;
+};
+
+///------------------------------------------------------------------------------------------------
+
 struct CardData
 {
     bool IsSpell() const { return !mCardEffect.empty(); }
@@ -71,6 +79,7 @@ struct CardData
     float mParticleShakeDurationSecs;
     float mParticleShakeStrength;
     strutils::StringId mCardName;
+    strutils::StringId mExpansion;
     std::string mCardEffect;
     std::string mCardEffectTooltip;
     strutils::StringId mCardFamily;
@@ -115,6 +124,7 @@ public:
     CardData GetCardDataByCardName(const strutils::StringId& cardName, const size_t forPlayerIndex) const;
     CardData GetCardData(const int cardId, const size_t forPlayerIndex) const;
     const std::unordered_set<strutils::StringId, strutils::StringIdHasher>& GetCardFamilies() const;
+    const std::unordered_map<strutils::StringId, ExpansionData, strutils::StringIdHasher>& GetCardExpansions() const;
     strutils::StringId GuessCurrentStoryDeckFamily() const;
     
     void CleanDeckFromTempIds(std::vector<int>& deck);
@@ -127,6 +137,7 @@ private:
     
 private:
     std::unordered_map<int, CardData> mCardDataMap;
+    std::unordered_map<strutils::StringId, ExpansionData, strutils::StringIdHasher> mCardExpansions;
     std::unordered_set<strutils::StringId, strutils::StringIdHasher> mCardFamilies;
     std::vector<int> mFreshAccountUnlockedCardIds;
     std::unordered_map<strutils::StringId, std::vector<int>, strutils::StringIdHasher> mStoryStartingFamilyCards;

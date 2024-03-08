@@ -399,10 +399,45 @@ void Game::CreateDebugWidgets()
 //    }
 //    ImGui::End();
     ImGui::Begin("Card Data Export", nullptr, GLOBAL_IMGUI_WINDOW_FLAGS);
-    if (ImGui::Button("Export Cards"))
     {
-        card_utils::ExportCardData(CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(mGameSceneTransitionManager->GetActiveSceneStack().top().mActiveSceneName));
+        static size_t selectedExpansionIndex = 0;
+        static std::vector<strutils::StringId> expansionIds;
+        if (expansionIds.empty())
+        {
+            for (const auto& expansion: CardDataRepository::GetInstance().GetCardExpansions())
+            {
+                expansionIds.push_back(expansion.second.mExpansionId);
+            }
+        }
+        
+        ImGui::Text("Expansion");
+        ImGui::SameLine();
+        ImGui::PushID("Expansions");
+        ImGui::SetNextItemWidth(200.0f);
+        if (ImGui::BeginCombo(" ", expansionIds.at(selectedExpansionIndex).GetString().c_str()))
+        {
+            for (size_t n = 0U; n < expansionIds.size(); n++)
+            {
+                const bool isSelected = (selectedExpansionIndex == n);
+                if (ImGui::Selectable(expansionIds.at(n).GetString().c_str(), isSelected))
+                {
+                    selectedExpansionIndex = n;
+                }
+                if (isSelected)
+                {
+                    ImGui::SetItemDefaultFocus();
+                }
+            }
+            ImGui::EndCombo();
+        }
+        ImGui::PopID();
+        ImGui::SameLine();
+        if (ImGui::Button("Export Cards"))
+        {
+            card_utils::ExportCardData(expansionIds.at(selectedExpansionIndex), CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(mGameSceneTransitionManager->GetActiveSceneStack().top().mActiveSceneName));
+        }
     }
+    
     ImGui::End();
     
     // Manipulating Story Data
