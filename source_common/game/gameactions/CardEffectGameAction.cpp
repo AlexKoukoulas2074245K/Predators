@@ -703,15 +703,6 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
         }
     }
     
-    // Draw effect
-    if (std::find(mEffectComponents.cbegin(), mEffectComponents.cend(), effects::EFFECT_COMPONENT_DRAW) != mEffectComponents.cend())
-    {
-        for (auto i = 0; i < mEffectValue; ++i)
-        {
-            mGameActionEngine->AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
-        }
-    }
-    
     // Draw spell effect
     if (std::find(mEffectComponents.cbegin(), mEffectComponents.cend(), effects::EFFECT_COMPONENT_DRAW_RANDOM_SPELL) != mEffectComponents.cend())
     {
@@ -871,6 +862,15 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
         });
         
         affectedHeldCardIter++;
+    }
+    
+    // Draw effect
+    if (std::find(mEffectComponents.cbegin(), mEffectComponents.cend(), effects::EFFECT_COMPONENT_DRAW) != mEffectComponents.cend())
+    {
+        for (auto i = 0; i < mEffectValue; ++i)
+        {
+            mGameActionEngine->AddGameAction(DRAW_CARD_GAME_ACTION_NAME);
+        }
     }
     
     // For non-headless behavior

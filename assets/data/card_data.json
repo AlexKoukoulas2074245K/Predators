@@ -669,6 +669,16 @@
             "texture": "muscly_rat.png",
             "shader": "basic.vs",
             "expansion": "second_generation"
+        },
+        {
+            "weight": 3,
+            "family": "rodents",
+            "name": "Kingly Cheese",
+            "effect": "DRAW +2 DAMAGE FAMILY BOARD HELD",
+            "tooltip": "Draw 2 Cards &$+2<damage> for ALL$Gnawers on hand &$board",
+            "texture": "cheese_buff.png",
+            "shader": "basic.vs",
+            "expansion": "second_generation"
         }
     ]
 }
