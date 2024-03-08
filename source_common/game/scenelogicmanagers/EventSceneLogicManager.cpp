@@ -566,6 +566,45 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
         );
     }
     
+    /// ---------------------------------------------------------------------------------------------------------------
+    /// Blood Knife Event
+    {
+        auto rareItemRewardName = rareItemProductNames[math::ControlledRandomInt() % rareItemProductNames.size()];
+        auto rareItemRewardDisplayName = ProductRepository::GetInstance().GetProductDefinition(rareItemRewardName).mStoryRareItemName;
+
+        mRegisteredStoryEvents.emplace_back
+        (
+            StoryRandomEventData
+            ({
+                StoryRandomEventScreenData("events/blood_knife.png", {"You see a bloody knife", "on top of dusty old desk.", "Next to it, a small but", "extremely heavy stone is", "sitting on top of something."},
+                {
+                    StoryRandomEventButtonData("Continue", 1)
+                }),
+                StoryRandomEventScreenData("events/blood_knife.png", {"You see a note next to", "the knife:", "\"The only way the stone", "will move is with a bit", "of fresh life force...\""},
+                {
+                    StoryRandomEventButtonData("Donate (-50%<health> +1 random artifact)", 2, [=]()
+                    {
+                        auto& progressionHealth = DataRepository::GetInstance().StoryCurrentHealth();
+                        progressionHealth.SetValue(progressionHealth.GetValue()/2);
+                        progressionHealth.SetDisplayedValue(progressionHealth.GetValue());
+
+                        mScene->GetCamera().Shake(1.0f, 0.05f);
+                        CollectRareItem(rareItemRewardName);
+                    }),
+                    StoryRandomEventButtonData("Leave the desk", 3)
+                }),
+                StoryRandomEventScreenData("events/blood_knife.png", {"", "The stone can now be moved.", "You got " + rareItemRewardDisplayName + "!"},
+                {
+                    StoryRandomEventButtonData("Continue", 4)
+                }),
+                StoryRandomEventScreenData("events/blood_knife.png", {"", "You left the knife alone."},
+                {
+                    StoryRandomEventButtonData("Continue", 4)
+                }),
+            }, [](){ return true; })
+        );
+    }
+    
     for (auto i = 0; i < mRegisteredStoryEvents.size(); ++i)
     {
         logging::Log(logging::LogType::INFO, "Event %d applicable=%s", i, mRegisteredStoryEvents[i].mApplicabilityFunction() ? "true" : "false");
@@ -580,6 +619,7 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
         {
             mCurrentEventIndex = (mCurrentEventIndex + 1) % mRegisteredStoryEvents.size();
         }
+        mCurrentEventIndex = 6;
         DataRepository::GetInstance().SetCurrentEventIndex(mCurrentEventIndex);
     }
 }
