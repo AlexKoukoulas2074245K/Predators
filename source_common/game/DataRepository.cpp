@@ -866,6 +866,21 @@ void DataRepository::SetCurrentStorySecondPlayed(const int currentStorySecondsPl
 
 ///------------------------------------------------------------------------------------------------
 
+const int& DataRepository::GetTotalSecondsPlayed() const
+{
+    return mTotalSecondsPlayed;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void DataRepository::SetTotalSecondsPlayed(const int totalSecondsPlayed)
+{
+    mTotalSecondsPlayed = totalSecondsPlayed;
+    mPersistentDataSerializer->GetState()["total_seconds_played"] = mTotalSecondsPlayed;
+}
+
+///------------------------------------------------------------------------------------------------
+
 const int& DataRepository::GetNextUnseenSpellCardId() const
 {
     return mNextUnseenSpellCardId;

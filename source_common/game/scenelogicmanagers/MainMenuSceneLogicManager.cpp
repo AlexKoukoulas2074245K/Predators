@@ -68,6 +68,7 @@ static const strutils::StringId BRAZIER_SCENE_OBJECT_NAME = strutils::StringId("
 static const strutils::StringId MUTATION_FIRE_SCENE_OBJECT_NAME = strutils::StringId("mutation_fire");
 static const strutils::StringId MUTATION_SCENE_OBJECT_NAME = strutils::StringId("mutation");
 static const strutils::StringId PRIVACY_POLICY_SCENE = strutils::StringId("privacy_policy_scene");
+static const strutils::StringId STATS_SCENE = strutils::StringId("stats_scene");
 static const strutils::StringId CREDITS_SCENE = strutils::StringId("credits_scene");
 static const strutils::StringId GIFT_CODE_CLAIM_SCENE = strutils::StringId("gift_code_claim_scene");
 static const strutils::StringId BOARD_SCENE_OBJECT_NAME = strutils::StringId("board");
@@ -1014,7 +1015,7 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                 STATS_BUTTON_NAME,
                 [=]()
                 {
-                    
+                    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(STATS_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
                 },
                 *scene
             ));

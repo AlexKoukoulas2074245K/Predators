@@ -263,6 +263,9 @@ public:
     const int& GetCurrentStorySecondsPlayed() const;
     void SetCurrentStorySecondPlayed(const int currentStorySecondsPlayed);
     
+    const int& GetTotalSecondsPlayed() const;
+    void SetTotalSecondsPlayed(const int totalSecondsPlayed);
+    
     const int& GetNextUnseenSpellCardId() const;
     void SetNextUnseenSpellCardId(const int nextUnseenSpellCardId);
     
@@ -388,6 +391,7 @@ private:
     int mNextBattleBotPlayerWeightLimit = 0;
     int mNextStoryOpponentDamage = 0;
     int mCurrentStorySecondsPlayed = 0;
+    int mTotalSecondsPlayed = 0;
     int mNextUnseenSpellCardId = 0;
     int mNextInspectedCardId = 0;
     int mGoldCartsIgnored = 0;

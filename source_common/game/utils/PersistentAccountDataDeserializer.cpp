@@ -100,6 +100,11 @@ PersistentAccountDataDeserializer::PersistentAccountDataDeserializer(DataReposit
         dataRepository.SetGoldCartsIgnored(persistentDataJson["gold_carts_ignored"].get<int>());
     }
     
+    if (persistentDataJson.count("total_seconds_played"))
+    {
+        dataRepository.SetTotalSecondsPlayed(persistentDataJson["total_seconds_played"].get<int>());
+    }
+    
     if (persistentDataJson.count("has_seen_mountain_of_gold_event"))
     {
         dataRepository.SetHasSeenMountainOfGoldEvent(persistentDataJson["has_seen_mountain_of_gold_event"].get<bool>());

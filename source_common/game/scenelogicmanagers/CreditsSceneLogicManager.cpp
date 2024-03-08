@@ -75,24 +75,21 @@ void CreditsSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 {
     mTransitioning = false;
     
-    if (mAnimatedButtons.empty())
-    {
-        mAnimatedButtons.clear();
-        mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
-        (
-            CONTINUE_BUTTON_POSITION,
-            BUTTON_SCALE,
-            game_constants::DEFAULT_FONT_NAME,
-            "Continue",
-            CONTINUE_BUTTON_NAME,
-            [=]()
-            {
-                mTransitioning = true;
-                events::EventSystem::GetInstance().DispatchEvent<events::PopSceneModalEvent>();
-            },
-            *scene
-        ));
-    }
+    mAnimatedButtons.clear();
+    mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
+    (
+        CONTINUE_BUTTON_POSITION,
+        BUTTON_SCALE,
+        game_constants::DEFAULT_FONT_NAME,
+        "Continue",
+        CONTINUE_BUTTON_NAME,
+        [=]()
+        {
+            mTransitioning = true;
+            events::EventSystem::GetInstance().DispatchEvent<events::PopSceneModalEvent>();
+        },
+        *scene
+    ));
     
     bool textElementsExist = !mTextSceneObjects.empty();
     if (textElementsExist)
@@ -196,6 +193,11 @@ void CreditsSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene> scene
         CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, 0.0f, SUBSCENE_ITEM_FADE_IN_OUT_DURATION_SECS), [=]()
         {
             sceneObject->mInvisible = true;
+            
+            if (sceneObject->mName == CONTINUE_BUTTON_NAME)
+            {
+                scene->RemoveSceneObject(sceneObject->mName);
+            }
         });
     }
 }

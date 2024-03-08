@@ -57,6 +57,7 @@
 #include <game/scenelogicmanagers/PurchasingProductSceneLogicManager.h>
 #include <game/scenelogicmanagers/SettingsSceneLogicManager.h>
 #include <game/scenelogicmanagers/ShopSceneLogicManager.h>
+#include <game/scenelogicmanagers/StatsSceneLogicManager.h>
 #include <game/scenelogicmanagers/StoryMapSceneLogicManager.h>
 #include <game/scenelogicmanagers/UnseenSpellSceneLogicManager.h>
 #include <game/scenelogicmanagers/VictorySceneLogicManager.h>
@@ -150,6 +151,7 @@ void Game::Init()
     mGameSceneTransitionManager->RegisterSceneLogicManager<PurchasingProductSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<SettingsSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<ShopSceneLogicManager>();
+    mGameSceneTransitionManager->RegisterSceneLogicManager<StatsSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<StoryMapSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<UnseenSpellSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<VictorySceneLogicManager>();
@@ -229,6 +231,7 @@ void Game::OnOneSecondElapsed()
     if (DataRepository::GetInstance().IsCurrentlyPlayingStoryMode())
     {
         DataRepository::GetInstance().SetCurrentStorySecondPlayed(DataRepository::GetInstance().GetCurrentStorySecondsPlayed() + 1);
+        DataRepository::GetInstance().SetTotalSecondsPlayed(DataRepository::GetInstance().GetTotalSecondsPlayed() + 1);
     }
 }
 
