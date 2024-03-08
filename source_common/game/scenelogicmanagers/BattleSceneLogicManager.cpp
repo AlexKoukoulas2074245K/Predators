@@ -222,6 +222,7 @@ void BattleSceneLogicManager::VInitSceneCamera(std::shared_ptr<scene::Scene> sce
 void BattleSceneLogicManager::InitBattleScene(std::shared_ptr<scene::Scene> scene)
 {
     RegisterForEvents();
+    CoreSystemsEngine::GetInstance().GetResourceLoadingService().UnloadAllDynamicallyCreatedTextures();
     CardDataRepository::GetInstance().LoadCardData(true);
     
     mPreviousProspectiveBoardCardsPushState = ProspectiveBoardCardsPushState::NONE;

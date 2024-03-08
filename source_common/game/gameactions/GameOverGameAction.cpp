@@ -153,6 +153,7 @@ ActionAnimationUpdateResult GameOverGameAction::VUpdateAnimation(const float dtM
                         cardSoWrapper->mSceneObject->mShaderFloatUniformValues[CARD_ORIGIN_X_UNIFORM_NAME] = cardSoWrapper->mSceneObject->mPosition.x;
                         cardSoWrapper->mSceneObject->mShaderFloatUniformValues[CARD_ORIGIN_Y_UNIFORM_NAME] = cardSoWrapper->mSceneObject->mPosition.y;
                         cardSoWrapper->mSceneObject->mShaderFloatUniformValues[DISSOLVE_MAGNITUDE_UNIFORM_NAME] = math::RandomFloat(CARD_DISSOLVE_EFFECT_MAG_RANGE.x, CARD_DISSOLVE_EFFECT_MAG_RANGE.y);
+                        cardSoWrapper->mSceneObject->mPosition.z += 1.0f;
                         mAnimationState = AnimationState::DISSOLVE;
                         
                         events::EventSystem::GetInstance().DispatchEvent<events::StoryBattleWonEvent>();

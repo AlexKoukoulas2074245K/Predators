@@ -191,6 +191,9 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
         cardComponents.back()->mPosition.y += game_constants::IN_GAME_CARD_PORTRAIT_Y_OFFSET;
         cardComponents.back()->mPosition.z += game_constants::CARD_COMPONENT_Z_OFFSET;
         
+        int weight = 0;
+        int damage = 0;
+        
         if (cardData->IsSpell())
         {
             // Create weight icon
@@ -208,7 +211,7 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
             scene::TextSceneObjectData weightTextData;
             weightTextData.mFontName = game_constants::FONT_PLACEHOLDER_WEIGHT_NAME;
             
-            int weight = math::Max(0, cardStatOverrides.count(CardStatType::WEIGHT) ? cardStatOverrides.at(CardStatType::WEIGHT) : cardData->mCardWeight);
+            weight = math::Max(0, cardStatOverrides.count(CardStatType::WEIGHT) ? cardStatOverrides.at(CardStatType::WEIGHT) : cardData->mCardWeight);
 //            if (globalStatModifiers.count(CardStatType::WEIGHT))
 //            {
 //                weight = math::Max(0, weight + globalStatModifiers.at(CardStatType::WEIGHT));
@@ -239,7 +242,7 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
             scene::TextSceneObjectData damageTextData;
             damageTextData.mFontName = game_constants::FONT_PLACEHOLDER_DAMAGE_NAME;
             
-            int damage = math::Max(0, cardStatOverrides.count(CardStatType::DAMAGE) ? cardStatOverrides.at(CardStatType::DAMAGE) : cardData->mCardDamage);
+            damage = math::Max(0, cardStatOverrides.count(CardStatType::DAMAGE) ? cardStatOverrides.at(CardStatType::DAMAGE) : cardData->mCardDamage);
             if (isOnBoard && globalStatModifiers.count(CardStatType::DAMAGE))
             {
                 damage = math::Max(0, damage + globalStatModifiers.at(CardStatType::DAMAGE));
@@ -290,7 +293,7 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
             scene::TextSceneObjectData weightTextData;
             weightTextData.mFontName = game_constants::FONT_PLACEHOLDER_WEIGHT_NAME;
             
-            int weight = math::Max(0, cardStatOverrides.count(CardStatType::WEIGHT) ? cardStatOverrides.at(CardStatType::WEIGHT) : cardData->mCardWeight);
+            weight = math::Max(0, cardStatOverrides.count(CardStatType::WEIGHT) ? cardStatOverrides.at(CardStatType::WEIGHT) : cardData->mCardWeight);
             if (globalStatModifiers.count(CardStatType::WEIGHT))
             {
                 weight = math::Max(0, weight + globalStatModifiers.at(CardStatType::WEIGHT));
@@ -390,10 +393,12 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
             generatedTextureOverridePostfixSS << "_golden";
         }
         
+        generatedTextureOverridePostfixSS << "_damage_" << damage << "_weight_" << weight;
+        
         rendering::CollateSceneObjectsIntoOne(GENERATED_R2T_NAME_PREFIX + (forRemotePlayer ? "0_id_" : "1_id_") + std::to_string(cardData->mCardId) + generatedTextureOverridePostfixSS.str(), position, cardComponents, "", scene);
         cardComponents.front()->mShaderResourceId = resService.LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + CARD_SHADER_FILE_NAME);
         
-        int weight = math::Max(0, cardStatOverrides.count(CardStatType::WEIGHT) ? cardStatOverrides.at(CardStatType::WEIGHT) : cardData->mCardWeight);
+        weight = math::Max(0, cardStatOverrides.count(CardStatType::WEIGHT) ? cardStatOverrides.at(CardStatType::WEIGHT) : cardData->mCardWeight);
         if (!cardData->IsSpell())
         {
             if (globalStatModifiers.count(CardStatType::WEIGHT))
@@ -404,7 +409,7 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
         
         cardComponents.front()->mShaderIntUniformValues[game_constants::CARD_WEIGHT_INTERACTIVE_MODE_UNIFORM_NAME] = canCardBePlayed ? (weight < cardData->mCardWeight ? game_constants::CARD_INTERACTIVE_MODE_INTERACTIVE : game_constants::CARD_INTERACTIVE_MODE_DEFAULT) : game_constants::CARD_INTERACTIVE_MODE_NONINTERACTIVE;
         
-        int damage = math::Max(0, cardStatOverrides.count(CardStatType::DAMAGE) ? cardStatOverrides.at(CardStatType::DAMAGE) : cardData->mCardDamage);
+        damage = math::Max(0, cardStatOverrides.count(CardStatType::DAMAGE) ? cardStatOverrides.at(CardStatType::DAMAGE) : cardData->mCardDamage);
         if (isOnBoard && globalStatModifiers.count(CardStatType::DAMAGE))
         {
             damage = math::Max(0, damage + globalStatModifiers.at(CardStatType::DAMAGE));

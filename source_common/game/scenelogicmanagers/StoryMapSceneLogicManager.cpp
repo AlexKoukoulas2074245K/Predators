@@ -130,6 +130,8 @@ void StoryMapSceneLogicManager::VInitSceneCamera(std::shared_ptr<scene::Scene>)
 
 void StoryMapSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
 {
+    CoreSystemsEngine::GetInstance().GetResourceLoadingService().UnloadAllDynamicallyCreatedTextures();
+    
     if (DataRepository::GetInstance().GetStoryMapGenerationSeed() == 0)
     {
         events::EventSystem::GetInstance().DispatchEvent<events::LoadingProgressPrefixTextOverrideEvent>("Generating New Story: ");
