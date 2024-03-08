@@ -677,6 +677,36 @@ TEST_F(GameActionTests, TestNetFollowedByMightyDinoRoarEffects)
     EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH - GET_CARD_DAMAGE("Dilophosaurus") + 2 - 2 * GET_CARD_DAMAGE("Dilophosaurus") + 2); // First dilophosaurus has double attack minus the Net damage reduction, the second one has normal attack minus the Net damage reduction
 }
 
+TEST_F(GameActionTests, TestNetFollowedByPumpedGnawer)
+{
+    mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {GET_CARD_ID("Throwing Net")}; // Top player has a deck of Mighty Dino Roars (w=2) and  Dilophosaurus (d=5,w=4)
+    
+    mBoardState->GetPlayerStates()[1].mPlayerDeckCards = {GET_CARD_ID("Pumped Gnawer"), GET_CARD_ID("Bunny"), GET_CARD_ID("Squirrel")}; // Top player has a deck of Pumped Gnawers, Bunnies and Squirrels
+    
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = GET_CARD_WEIGHT("Throwing Net");
+    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = GET_CARD_WEIGHT("Throwing Net");
+    mBoardState->GetPlayerStates()[0].mPlayerHeldCards = {GET_CARD_ID("Throwing Net")};
+    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Throwing Net played
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mBoardState->GetPlayerStates()[1].mPlayerTotalWeightAmmo = GET_CARD_WEIGHT("Pumped Gnawer") + GET_CARD_WEIGHT("Bunny") + GET_CARD_WEIGHT("Squirrel");
+    mBoardState->GetPlayerStates()[1].mPlayerCurrentWeightAmmo = GET_CARD_WEIGHT("Pumped Gnawer") + GET_CARD_WEIGHT("Bunny") + GET_CARD_WEIGHT("Squirrel");
+    mBoardState->GetPlayerStates()[1].mPlayerHeldCards = {GET_CARD_ID("Pumped Gnawer"), GET_CARD_ID("Bunny"), GET_CARD_ID("Squirrel")};
+    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Pumped Gnawer is played
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Bunny & Squirrel are played. Bunny has tripple attack
+    
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(DRAW_CARD_GAME_ACTION_NAME);
+    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH - GET_CARD_DAMAGE("Squirrel") + 2 - 3 * GET_CARD_DAMAGE("Bunny") + 2); // Bunnny has tripple attack
+}
+
 TEST_F(GameActionTests, TestDinoSnackFollowedByMightyDinoRoarEffect)
 {
     mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {GET_CARD_ID("Mighty Dino Roar"), GET_CARD_ID("Dilophosaurus"), GET_CARD_ID("Dino Snack")}; // Top player has a deck of Mighty Dino Roars (w=2), Dilophosaurus (d=5,w=4) and Dino Snack (w=5);
