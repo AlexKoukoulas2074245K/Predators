@@ -591,7 +591,7 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
                         mScene->GetCamera().Shake(1.0f, 0.05f);
                         CollectRareItem(rareItemRewardName);
                     }),
-                    StoryRandomEventButtonData("Leave the desk", 3)
+                    StoryRandomEventButtonData("Don't touch the knife", 3)
                 }),
                 StoryRandomEventScreenData("events/blood_knife.png", {"", "The stone can now be moved.", "You got " + rareItemRewardDisplayName + "!"},
                 {
@@ -619,7 +619,6 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
         {
             mCurrentEventIndex = (mCurrentEventIndex + 1) % mRegisteredStoryEvents.size();
         }
-        mCurrentEventIndex = 6;
         DataRepository::GetInstance().SetCurrentEventIndex(mCurrentEventIndex);
     }
 }
