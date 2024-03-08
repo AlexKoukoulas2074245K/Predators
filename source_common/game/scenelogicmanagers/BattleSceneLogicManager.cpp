@@ -546,7 +546,7 @@ void BattleSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scen
             {
                 foundActiveStatContainer = true;
             }
-            else
+            else if (mActionEngine->GetActiveGameActionName() != HERO_CARD_ENTRY_GAME_ACTION_NAME)
             {
                 animatedStatContainer.second->RealignBaseAndValueSceneObjects();
             }

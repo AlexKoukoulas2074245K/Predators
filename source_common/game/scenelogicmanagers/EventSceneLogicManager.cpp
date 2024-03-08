@@ -63,8 +63,8 @@ static const float EVENT_SCREEN_FADE_IN_OUT_DURATION_SECS = 0.25f;
 static const float EVENT_SCREEN_ITEM_Z = 1.0f;
 static const float EVENT_PORTRAIT_ALPHA = 0.75f;
 static const float EVENT_PORTRAIT_SNAP_TO_EDGE_SCALE_OFFSET_FACTOR = 0.09f;
-static const float EVENT_DESCRIPTION_TEXT_SNAP_TO_EDGE_SCALE_OFFSET_FACTOR = 1500.0f;
-static const float EVENT_BUTTON_SNAP_TO_EDGE_OFFSET_FACTOR = 1500.0f;
+static const float EVENT_DESCRIPTION_TEXT_SNAP_TO_EDGE_SCALE_OFFSET_FACTOR = 1600.0f;
+static const float EVENT_BUTTON_SNAP_TO_EDGE_OFFSET_FACTOR = 1600.0f;
 static const float ANIMATION_STEP_DURATION = 2.0f;
 static const float ANIMATION_MAX_ALPHA = 0.6f;
 static const float GUARDIAN_ANGEL_ICON_Z = 20.0f;
@@ -592,6 +592,7 @@ void EventSceneLogicManager::TransitionToEventScreen(const int screenIndex)
     
     if (screenIndex >= static_cast<int>(mRegisteredStoryEvents[mCurrentEventIndex].mEventScreens.size()))
     {
+        DataRepository::GetInstance().SetCurrentEventIndex(-1);
         events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_MAP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
         return;
     }
