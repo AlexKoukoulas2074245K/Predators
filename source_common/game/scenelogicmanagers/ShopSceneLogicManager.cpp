@@ -815,6 +815,10 @@ void ShopSceneLogicManager::CreateProducts()
     }
     else if (DataRepository::GetInstance().GetCurrentShopBehaviorType() == ShopBehaviorType::PERMA_SHOP)
     {
+        auto totalCardPoolSize = DataRepository::GetInstance().GetUnlockedCardIds().size() + CardDataRepository::GetInstance().GetCardPackLockedCardRewardsPool().size();
+        bool shouldHideNormalPacks = DataRepository::GetInstance().GetUnlockedCardIds().size() == totalCardPoolSize;
+        bool shouldHideGoldenPacks = DataRepository::GetInstance().GetGoldenCardIdMap().size() == totalCardPoolSize;
+        
         // First Shelf
         if (DataRepository::GetInstance().StoryCurrentHealth().GetValue() <= DataRepository::GetInstance().GetStoryMaxHealth()/2)
         {
@@ -827,9 +831,16 @@ void ShopSceneLogicManager::CreateProducts()
         mProducts[1][4] = std::make_unique<ProductInstance>(COINS_L_PRODUCT_NAME);
         
         
-        // Thid Shelf
-        mProducts[2][1] = std::make_unique<ProductInstance>(NORMAL_PACK_PRODUCT_NAME);
-        mProducts[2][3] = std::make_unique<ProductInstance>(GOLDEN_PACK_PRODUCT_NAME);
+        // Third Shelf
+        if (!shouldHideNormalPacks)
+        {
+            mProducts[2][1] = std::make_unique<ProductInstance>(NORMAL_PACK_PRODUCT_NAME);
+        }
+        
+        if (!shouldHideGoldenPacks)
+        {
+            mProducts[2][3] = std::make_unique<ProductInstance>(GOLDEN_PACK_PRODUCT_NAME);
+        }
     }
     
     for (int shelfIndex = 0; shelfIndex < SHELF_COUNT; ++shelfIndex)
