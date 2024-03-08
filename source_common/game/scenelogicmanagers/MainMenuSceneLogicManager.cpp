@@ -459,6 +459,7 @@ void MainMenuSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
 
 void MainMenuSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene>)
 {
+    CoreSystemsEngine::GetInstance().GetResourceLoadingService().UnloadAllDynamicallyCreatedTextures();
 }
 
 ///------------------------------------------------------------------------------------------------

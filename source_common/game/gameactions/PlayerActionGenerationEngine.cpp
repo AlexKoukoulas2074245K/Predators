@@ -152,6 +152,18 @@ bool PlayerActionGenerationEngine::IsCardHighPriority(const CardData& cardData, 
     else if
     (
         cardData.IsSpell() &&
+        strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_RANDOM_HAND_BUFF_ATTACK)
+    ) return true;
+        
+    else if
+    (
+        cardData.IsSpell() &&
+        strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_TRIPPLES_LOWEST_ATTACK_ON_HAND)
+    ) return true;
+    
+    else if
+    (
+        cardData.IsSpell() &&
         strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_CLEAR_EFFECTS) &&
         (math::RandomInt(0, 1) == 1 || mActionGenerationType != ActionGenerationType::OPTIMISED)
     ) return true;

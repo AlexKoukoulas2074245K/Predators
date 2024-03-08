@@ -649,6 +649,26 @@
             "texture": "pterodactyl.png",
             "shader": "basic.vs",
             "expansion": "second_generation"
+        },
+        {
+            "weight": 2,
+            "family": "rodents",
+            "name": "Magic Carrot",
+            "effect": "RANDOM_HAND_BUFF_ATTACK 5",
+            "tooltip": "+5<damage> to a random$Gnawer in your hand$",
+            "texture": "shiny_carrot.png",
+            "shader": "basic.vs",
+            "expansion": "second_generation"
+        },
+        {
+            "weight": 3,
+            "family": "rodents",
+            "name": "Pumped Gnawer",
+            "effect": "TRIPPLES_LOWEST_ATTACK_ON_HAND",
+            "tooltip": "Tripples the <damage> of the$Gnawer in your hand$with the smallest <damage>",
+            "texture": "muscly_rat.png",
+            "shader": "basic.vs",
+            "expansion": "second_generation"
         }
     ]
 }

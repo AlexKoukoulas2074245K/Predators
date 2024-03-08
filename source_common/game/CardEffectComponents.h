@@ -70,6 +70,8 @@ inline const std::string EFFECT_COMPONENT_HOUND_SUMMONING                       
 inline const std::string EFFECT_COMPONENT_METEOR                                = "METEOR";
 inline const std::string EFFECT_COMPONENT_EVERY_THIRD_CARD_PLAYED_HAS_ZERO_COST = "EVERY_THIRD_CARD_PLAYED_HAS_ZERO_COST";
 inline const std::string EFFECT_COMPONENT_ADD_POISON_STACKS                     = "ADD_POISON_STACKS";
+inline const std::string EFFECT_COMPONENT_RANDOM_HAND_BUFF_ATTACK               = "RANDOM_HAND_BUFF_ATTACK";
+inline const std::string EFFECT_COMPONENT_TRIPPLES_LOWEST_ATTACK_ON_HAND        = "TRIPPLES_LOWEST_ATTACK_ON_HAND";
 
 inline const std::unordered_set<std::string> STATIC_EFFECT_COMPONENT_NAMES =
 {
@@ -102,7 +104,9 @@ inline const std::unordered_set<std::string> STATIC_EFFECT_COMPONENT_NAMES =
     EFFECT_COMPONENT_HOUND_SUMMONING,
     EFFECT_COMPONENT_METEOR,
     EFFECT_COMPONENT_EVERY_THIRD_CARD_PLAYED_HAS_ZERO_COST,
-    EFFECT_COMPONENT_ADD_POISON_STACKS
+    EFFECT_COMPONENT_ADD_POISON_STACKS,
+    EFFECT_COMPONENT_RANDOM_HAND_BUFF_ATTACK,
+    EFFECT_COMPONENT_TRIPPLES_LOWEST_ATTACK_ON_HAND
 };
 
 ///------------------------------------------------------------------------------------------------

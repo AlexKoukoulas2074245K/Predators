@@ -213,7 +213,7 @@ void PlayCardGameAction::VSetNewGameState()
             for (int i = 0; i < activePlayerState.mPlayerHeldCards.size(); ++i)
             {
                 const auto& cardData = CardDataRepository::GetInstance().GetCardData(activePlayerState.mPlayerHeldCards[i], game_constants::LOCAL_PLAYER_INDEX);
-                if (mGameRuleEngine->CanCardBePlayed(&cardData, i, game_constants::LOCAL_PLAYER_INDEX))
+                if (mGameRuleEngine && mGameRuleEngine->CanCardBePlayed(&cardData, i, game_constants::LOCAL_PLAYER_INDEX))
                 {
                     shouldSendEndGameTutorialTrigger = false;
                     break;

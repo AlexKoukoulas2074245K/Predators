@@ -400,6 +400,60 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
             mAffectedBoardCardsStatType = AffectedStatType::WEIGHT;
         }
         
+        // Random buff damage of card hand
+        else if (effectComponent == effects::EFFECT_COMPONENT_RANDOM_HAND_BUFF_ATTACK)
+        {
+            mAffectedBoardCardsStatType = AffectedStatType::DAMAGE;
+            
+            if (!heldCards.empty() && std::find_if(heldCards.cbegin(), heldCards.cend(), [&](const int cardId){ return !CardDataRepository::GetInstance().GetCardData(cardId, mBoardState->GetActivePlayerIndex()).IsSpell(); }) != heldCards.cend())
+            {
+                auto randomHeldCardIndex = math::ControlledRandomInt() % heldCards.size();
+                while (CardDataRepository::GetInstance().GetCardData(heldCards[randomHeldCardIndex], mBoardState->GetActivePlayerIndex()).IsSpell())
+                {
+                    randomHeldCardIndex = math::ControlledRandomInt() % heldCards.size();
+                }
+                affectedHeldCardIndices.emplace_back(randomHeldCardIndex);
+            }
+        }
+        
+        // Tripples lowest normal card's damage on hand
+        else if (effectComponent == effects::EFFECT_COMPONENT_TRIPPLES_LOWEST_ATTACK_ON_HAND)
+        {
+            mAffectedBoardCardsStatType = AffectedStatType::DAMAGE;
+            
+            // Filter out spell cards and find lowest attack card
+            int selectedCardIndex = -1;
+            int minDamageFound = 20;
+            for (int i = 0; i < heldCards.size(); ++i)
+            {
+                const auto& cardData = CardDataRepository::GetInstance().GetCardData(heldCards[i], mBoardState->GetActivePlayerIndex());
+                if (!cardData.IsSpell() && cardData.mCardDamage < minDamageFound)
+                {
+                    minDamageFound = cardData.mCardDamage;
+                    selectedCardIndex = i;
+                }
+            }
+            
+            // Adjust or create held card stat override and buff
+            if (selectedCardIndex != -1)
+            {
+                auto& activePlayerState = mBoardState->GetActivePlayerState();
+                auto& playerHeldCardStatOverrides = activePlayerState.mPlayerHeldCardStatOverrides;
+                
+                if (playerHeldCardStatOverrides.size() > selectedCardIndex && playerHeldCardStatOverrides[selectedCardIndex].count(CardStatType::DAMAGE))
+                {
+                    playerHeldCardStatOverrides[selectedCardIndex][CardStatType::DAMAGE] *= 3;
+                }
+                else if (playerHeldCardStatOverrides.size() <= selectedCardIndex)
+                {
+                    playerHeldCardStatOverrides.resize(selectedCardIndex + 1);
+                    playerHeldCardStatOverrides[selectedCardIndex][CardStatType::DAMAGE] = CardDataRepository::GetInstance().GetCardData(heldCards[selectedCardIndex], mBoardState->GetActivePlayerIndex()).mCardDamage * 3;
+                }
+                
+                affectedHeldCardIndices.push_back(selectedCardIndex);
+            }
+        }
+        
         // Clear effects component
         else if (effectComponent == effects::EFFECT_COMPONENT_CLEAR_EFFECTS)
         {
