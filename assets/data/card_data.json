@@ -700,6 +700,60 @@
             "texture": "dragon_debuff.png",
             "shader": "basic.vs",
             "expansion": "vanilla"
+        },
+        {
+            "damage": 5,
+            "weight": 4,
+            "family": "insects",
+            "name": "Black Widow",
+            "texture": "black_widow.png",
+            "shader": "basic.vs",
+            "expansion": "second_generation"
+        },
+        {
+            "damage": 3,
+            "weight": 3,
+            "family": "insects",
+            "name": "Cockroach",
+            "texture": "cockroach.png",
+            "shader": "basic.vs",
+            "expansion": "second_generation"
+        },
+        {
+            "damage": 2,
+            "weight": 1,
+            "family": "insects",
+            "name": "Butterfly",
+            "texture": "butterfly.png",
+            "shader": "basic.vs",
+            "expansion": "second_generation"
+        },
+        {
+            "damage": 3,
+            "weight": 2,
+            "family": "insects",
+            "name": "Cricket",
+            "texture": "cricket.png",
+            "shader": "basic.vs",
+            "expansion": "second_generation"
+        },
+        {
+            "damage": 3,
+            "weight": 2,
+            "family": "dinosaurs",
+            "name": "Baby Dino",
+            "texture": "baby_dino.png",
+            "shader": "basic.vs",
+            "expansion": "second_generation"
+        },
+        {
+            "damage": 4,
+            "weight": 3,
+            "family": "rodents",
+            "name": "Hedgehog",
+            "texture": "hedgehog.png",
+            "shader": "basic.vs",
+            "expansion": "second_generation"
         }
     ]
 }

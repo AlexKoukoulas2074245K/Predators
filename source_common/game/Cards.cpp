@@ -23,24 +23,32 @@
 static const std::vector<strutils::StringId> FRESH_ACCOUNT_UNLOCKED_CARD_NAMES =
 {
     // All family story starting cards
-    strutils::StringId("Stegosaurus"), strutils::StringId("Triceratops"), strutils::StringId("Dilophosaurus"), strutils::StringId("Velociraptor"),
+    strutils::StringId("Stegosaurus"), strutils::StringId("Baby Dino"), strutils::StringId("Dilophosaurus"), strutils::StringId("Brachiosaurus"),
     strutils::StringId("Bunny"), strutils::StringId("Squirrel"), strutils::StringId("Ground Hog"), strutils::StringId("Guinea Pig"),
-    strutils::StringId("Fly"), strutils::StringId("Ladybug"), strutils::StringId("Beetle"), strutils::StringId("Mosquito"),
+    strutils::StringId("Fly"), strutils::StringId("Ladybug"), strutils::StringId("Cockroach"), strutils::StringId("Mosquito"),
     
     // Rest of available cards
     strutils::StringId("Dragonfly"),
+    strutils::StringId("Toxic Wave"),
+    strutils::StringId("Insect Duplication"),
+    
+    strutils::StringId("Squirrel"),
+    strutils::StringId("Beaver"),
     strutils::StringId("Fluff Attack"),
     strutils::StringId("Bear Trap"),
     strutils::StringId("Gust of Wind"),
-    strutils::StringId("Toxic Wave"),
-    strutils::StringId("Metal Claws")
+    
+    strutils::StringId("Metal Claws"),
+    strutils::StringId("Mighty Dino Roar"),
+    strutils::StringId("Throwing Net"),
+    strutils::StringId("Triceratops"),
 };
 
 static const std::unordered_map<strutils::StringId, std::vector<strutils::StringId>, strutils::StringIdHasher> FAMILY_STORY_STARTING_CARD_NAMES =
 {
-    { game_constants::DINOSAURS_FAMILY_NAME, { strutils::StringId("Stegosaurus"), strutils::StringId("Triceratops"), strutils::StringId("Dilophosaurus"), strutils::StringId("Velociraptor") }},
+    { game_constants::DINOSAURS_FAMILY_NAME, { strutils::StringId("Stegosaurus"), strutils::StringId("Baby Dino"), strutils::StringId("Dilophosaurus"), strutils::StringId("Brachiosaurus") }},
     { game_constants::RODENTS_FAMILY_NAME,   { strutils::StringId("Bunny"), strutils::StringId("Squirrel"), strutils::StringId("Ground Hog"), strutils::StringId("Guinea Pig") }},
-    { game_constants::INSECTS_FAMILY_NAME,   { strutils::StringId("Fly"), strutils::StringId("Ladybug"), strutils::StringId("Beetle"), strutils::StringId("Mosquito") }}
+    { game_constants::INSECTS_FAMILY_NAME,   { strutils::StringId("Fly"), strutils::StringId("Ladybug"), strutils::StringId("Cockroach"), strutils::StringId("Mosquito") }}
 };
 
 ///------------------------------------------------------------------------------------------------

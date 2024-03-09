@@ -759,6 +759,12 @@ void Game::CreateDebugWidgets()
     }
     
     ImGui::SeparatorText("Cards");
+    if (ImGui::Button("Unlock All Cards"))
+    {
+        DataRepository::GetInstance().SetUnlockedCardIds(CardDataRepository::GetInstance().GetAllCardIds());
+        DataRepository::GetInstance().FlushStateToFile();
+    }
+    
     ImGui::PushID("CardUnlock");
     if (ImGui::BeginCombo(" ", cardNamesAndIds.at(selectedCardIndex).first.c_str()))
     {
