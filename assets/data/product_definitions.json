@@ -36,6 +36,15 @@
             "unique": true
         },
         {
+            "name": "massive_meal",
+            "price": 250,
+            "texture_path": "rare_item_rewards/massive_meal.png",
+            "shader_path": "rare_item.vs",
+            "description": "+1<damage> & +1<weight> for ALL$cards in your deck",
+            "story_rare_item_name": "Massive Meal",
+            "unique": true
+        },
+        {
             "name": "heavy_armor",
             "price": 350,
             "texture_path": "rare_item_rewards/heavy_armor.png",

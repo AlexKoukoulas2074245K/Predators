@@ -792,6 +792,35 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
         );
     }
     
+    /// ---------------------------------------------------------------------------------------------------------------
+    /// Supersize Feast Event
+    {
+        mRegisteredStoryEvents.emplace_back
+        (
+         StoryRandomEventData
+         (
+          strutils::StringId("Supersize Feast"),
+          {
+              StoryRandomEventScreenData("events/supersize_feast.png", {"You enter a tavern and see", "a gigantic feast. This massive", "meal will give you some", "much needed strength, but", "also make you a LOT heavier."},
+              {
+                  StoryRandomEventButtonData("Eat it (+1<damage> & +1<weight> for ALL cards)", 1, 0.0f, [=]()
+                  {
+                      CollectRareItem(artifacts::MASSIVE_MEAL);
+                  }),
+                  StoryRandomEventButtonData("Ignore Feast", 2)
+              }),
+              StoryRandomEventScreenData("events/supersize_feast.png", {"You threw yourself on the", "table and devoured the food!", "You felt extremely full and","heavy afterward..."},
+              {
+                  StoryRandomEventButtonData("Continue", 3)
+              }),
+              StoryRandomEventScreenData("events/supersize_feast.png", {"You gather every ounce of", "mental strength and decide", "not to indulge in the meal."},
+              {
+                  StoryRandomEventButtonData("Continue", 3)
+              })
+          }, [](){ return true; })
+        );
+    }
+    
     for (auto i = 0; i < mRegisteredStoryEvents.size(); ++i)
     {
         logging::Log(logging::LogType::INFO, "Event %d %s applicable=%s", i, mRegisteredStoryEvents[i].mEventName.GetString().c_str(), mRegisteredStoryEvents[i].mApplicabilityFunction() ? "true" : "false");

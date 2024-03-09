@@ -25,6 +25,7 @@ inline const strutils::StringId GUARDIAN_ANGEL = strutils::StringId("guardian_an
 inline const strutils::StringId HEAVY_ARMOR = strutils::StringId("heavy_armor");
 inline const strutils::StringId DEMON_FANGS = strutils::StringId("demon_fangs");
 inline const strutils::StringId BUNNY_HOP = strutils::StringId("bunny_hop");
+inline const strutils::StringId MASSIVE_MEAL = strutils::StringId("massive_meal");
 inline const strutils::StringId SLEAZY_SLEEVES = strutils::StringId("sleazy_sleeves");
 
 }

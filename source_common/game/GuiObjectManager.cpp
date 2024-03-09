@@ -656,6 +656,18 @@ void GuiObjectManager::OnRareItemCollected(const events::RareItemCollectedEvent&
         
         DataRepository::GetInstance().SetStoryPlayerCardStatModifier(CardStatType::DAMAGE, modifierValue);
     }
+    else if (event.mRareItemProductId == artifacts::MASSIVE_MEAL)
+    {
+        auto existingDamageModifierIter = DataRepository::GetInstance().GetStoryPlayerCardStatModifiers().find(CardStatType::DAMAGE);
+        auto modifierValue = existingDamageModifierIter == DataRepository::GetInstance().GetStoryPlayerCardStatModifiers().cend() ? 1 : existingDamageModifierIter->second + 1;
+        
+        DataRepository::GetInstance().SetStoryPlayerCardStatModifier(CardStatType::DAMAGE, modifierValue);
+        
+        auto existingWeightModifierIter = DataRepository::GetInstance().GetStoryPlayerCardStatModifiers().find(CardStatType::WEIGHT);
+        modifierValue = existingWeightModifierIter == DataRepository::GetInstance().GetStoryPlayerCardStatModifiers().cend() ? 1 : existingWeightModifierIter->second + 1;
+        
+        DataRepository::GetInstance().SetStoryPlayerCardStatModifier(CardStatType::WEIGHT, modifierValue);
+    }
     else if (event.mRareItemProductId == artifacts::BLUE_SAPPHIRE)
     {
         DataRepository::GetInstance().SetNextBattleBotPlayerInitWeight(DataRepository::GetInstance().GetNextBattleBotPlayerInitWeight() + 1);
