@@ -184,6 +184,11 @@ StoryDeserializer::StoryDeserializer(DataRepository& dataRepository)
         dataRepository.SetCurrentStoryMapNodeCoord(glm::ivec2(storyJson["current_story_map_node_coord"]["col"].get<int>(), storyJson["current_story_map_node_coord"]["row"].get<int>()));
     }
     
+    if (storyJson.count("pre_boss_mid_map_node_coord"))
+    {
+        dataRepository.SetPreBossMidMapNodeCoord(glm::ivec2(storyJson["pre_boss_mid_map_node_coord"]["col"].get<int>(), storyJson["pre_boss_mid_map_node_coord"]["row"].get<int>()));
+    }
+    
     if (storyJson.count("next_story_opponent_path"))
     {
         dataRepository.SetNextStoryOpponentTexturePath(storyJson["next_story_opponent_path"].get<std::string>());

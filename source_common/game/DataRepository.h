@@ -294,6 +294,9 @@ public:
     const glm::ivec2& GetCurrentStoryMapNodeCoord() const;
     void SetCurrentStoryMapNodeCoord(const glm::ivec2& currentStoryMapNodeCoord);
     
+    const glm::ivec2& GetPreBossMidMapNodeCoord() const;
+    void SetPreBossMidMapNodeCoord(const glm::ivec2& preBossMidMapNodeCoord);
+    
     const StoryMap::NodeData* GetSelectedStoryMapNodeData() const;
     void SetSelectedStoryMapNodeData(const StoryMap::NodeData* selectedStoryMapNodeData);
     
@@ -371,6 +374,7 @@ private:
     std::string mPermaShopProductNameToPurchase;
     glm::vec3 mSelectedStoryMapNodePosition = {};
     glm::ivec2 mCurrentStoryMapNodeCoord = game_constants::STORY_MAP_INIT_COORD;
+    glm::ivec2 mPreBossMidMapNodeCoord = game_constants::STORY_MAP_INIT_COORD;
     StoryMap::NodeType mCurrentStoryMapNodeType = StoryMap::NodeType::NORMAL_ENCOUNTER;
     const StoryMap::NodeData* mSelectedStoryMapNodeData = nullptr;
     ValueWithDelayedDisplay<int> mStoryCurrentHealth;

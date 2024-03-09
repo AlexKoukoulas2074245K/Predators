@@ -318,6 +318,17 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
         }
         
         CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::TUTORIAL_MAP ? TUTORIAL_MAP_THEME_MUSIC : MAIN_MAP_THEME_MUSIC);
+        
+        std::vector<glm::ivec2> preBossMapCoords;
+        for (const auto& mapEntry: mStoryMap->GetMapData())
+        {
+            if (mapEntry.first.mCol == mStoryMap->GetMapDimensions().x - 2)
+            {
+                preBossMapCoords.push_back(mapEntry.second.mCoords);
+            }
+        }
+        DataRepository::GetInstance().SetPreBossMidMapNodeCoord(preBossMapCoords[preBossMapCoords.size()/2]);
+        DataRepository::GetInstance().FlushStateToFile();
     }
     
     switch (mMapUpdateState)

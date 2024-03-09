@@ -64,6 +64,7 @@ void DataRepository::ResetStoryData()
     mStoryDeletedCards.clear();
     
     mSelectedStoryMapNodePosition = {};
+    mPreBossMidMapNodeCoord = game_constants::TUTORIAL_MAP_INIT_COORD;
     mCurrentStoryMapNodeCoord = game_constants::TUTORIAL_MAP_INIT_COORD;
     mCurrentStoryMapNodeType = StoryMap::NodeType::NORMAL_ENCOUNTER;
     mCurrentCardLibraryBehaviorType = CardLibraryBehaviorType::CARD_LIBRARY;
@@ -1078,6 +1079,25 @@ void DataRepository::SetCurrentStoryMapNodeCoord(const glm::ivec2& currentStoryM
     currentStoryMapCoordJson["col"] = currentStoryMapNodeCoord.x;
     currentStoryMapCoordJson["row"] = currentStoryMapNodeCoord.y;
     mStoryDataSerializer->GetState()["current_story_map_node_coord"] = currentStoryMapCoordJson;
+}
+
+///------------------------------------------------------------------------------------------------
+
+const glm::ivec2& DataRepository::GetPreBossMidMapNodeCoord() const
+{
+    return mPreBossMidMapNodeCoord;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void DataRepository::SetPreBossMidMapNodeCoord(const glm::ivec2& preBossMidMapNodeCoord)
+{
+    mPreBossMidMapNodeCoord = preBossMidMapNodeCoord;
+    
+    nlohmann::json preBossMidMapCoordJson;
+    preBossMidMapCoordJson["col"] = preBossMidMapNodeCoord.x;
+    preBossMidMapCoordJson["row"] = preBossMidMapNodeCoord.y;
+    mStoryDataSerializer->GetState()["pre_boss_mid_map_node_coord"] = preBossMidMapCoordJson;
 }
 
 ///------------------------------------------------------------------------------------------------

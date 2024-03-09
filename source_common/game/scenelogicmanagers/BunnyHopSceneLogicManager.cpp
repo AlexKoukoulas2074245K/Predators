@@ -8,6 +8,7 @@
 #include <engine/CoreSystemsEngine.h>
 #include <engine/rendering/AnimationManager.h>
 #include <engine/scene/SceneManager.h>
+#include <game/DataRepository.h>
 #include <game/scenelogicmanagers/BunnyHopSceneLogicManager.h>
 
 ///------------------------------------------------------------------------------------------------
@@ -46,6 +47,12 @@ void BunnyHopSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     auto bunnyHopIconSceneObject = scene->FindSceneObject(BUNNY_HOP_ICON_SCENE_OBJECT_NAME);
     bunnyHopIconSceneObject->mPosition = BUNNY_ICON_INIT_POSITION;
     auto targetPosition = BUNNY_ICON_END_POSITION;
+    
+    // Eagle event hides bunny icon
+    if (DataRepository::GetInstance().GetCurrentStoryMapNodeCoord() == DataRepository::GetInstance().GetPreBossMidMapNodeCoord())
+    {
+        bunnyHopIconSceneObject->mInvisible = true;
+    }
     
     CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(bunnyHopIconSceneObject, targetPosition, bunnyHopIconSceneObject->mScale, BUNNY_HOP_ANIMATION_DURATION_SECS), []()
     {

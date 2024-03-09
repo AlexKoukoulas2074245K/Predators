@@ -37,9 +37,11 @@ static const strutils::StringId DISSOLVE_THRESHOLD_UNIFORM_NAME = strutils::Stri
 static const strutils::StringId DISSOLVE_MAGNITUDE_UNIFORM_NAME = strutils::StringId("dissolve_magnitude");
 static const strutils::StringId CARD_ORIGIN_X_UNIFORM_NAME = strutils::StringId("card_origin_x");
 static const strutils::StringId CARD_ORIGIN_Y_UNIFORM_NAME = strutils::StringId("card_origin_y");
+static const strutils::StringId BUNNY_HOP_SCENE_NAME = strutils::StringId("bunny_hop_scene");
 
 static const std::string CARD_TO_DELETE_SCENE_OBJECT_NAME_PREFIX = "card_to_delete";
 static const std::string VICTORY_SFX = "sfx_victory";
+static const std::string CARD_COLLECTED_SFX = "sfx_collected";
 static const std::string GUARDIAN_ANGEL_ICON_SHADER_FILE_NAME = "rare_item.vs";
 static const std::string GUARDIAN_ANGEL_ICON_TEXTURE_FILE_NAME = "rare_item_rewards/guardian_angel.png";
 static const std::string RARE_ITEM_SHADER = "rare_item.vs";
@@ -56,8 +58,10 @@ static const glm::vec3 RARE_ITEM_INIT_SCALE = glm::vec3(0.0001f, 0.0001f, 0.0001
 static const glm::vec3 RARE_ITEM_TARGET_SCALE = glm::vec3(0.3f, 0.3f, 0.3f);
 static const glm::vec3 CARD_TO_BE_DELETED_INIT_SCALE = {-0.0001f, 0.0001f, 0.0001f};
 static const glm::vec3 CARD_TO_BE_DELETED_TARGET_SCALE = {-0.250f, 0.250f, 0.125f};
+static const glm::vec3 CARD_ADDED_TO_COLLECTION_TARGET_SCALE = {-0.035f, 0.035f, 0.035f};
 
 static const glm::vec2 CARD_DISSOLVE_EFFECT_MAG_RANGE = {3.0f, 6.0f};
+static const glm::vec2 CARD_BOUGHT_ANIMATION_MIN_MAX_OFFSETS = {-0.3f, 0.3f};
 
 static const float EVENT_SCREEN_FADE_IN_OUT_DURATION_SECS = 0.25f;
 static const float EVENT_SCREEN_ITEM_Z = 1.0f;
@@ -72,6 +76,10 @@ static const float RARE_ITEM_Z_OFFSET = 0.1f;
 static const float RARE_ITEM_COLLECTION_ANIMATION_DURATION_SECS = 1.0f;
 static const float CARD_DELETION_ANIMATION_DURATION_SECS = 2.0f;
 static const float MAX_CARD_DISSOLVE_VALUE = 1.2f;
+static const float CARD_BOUGHT_ANIMATION_DURATION_SECS = 1.0f;
+static const float CARD_BOUGHT_ANIMATION_MIN_ALPHA = 0.3f;
+static const float CARD_BOUGHT_ANIMATION_LIBRARY_ICON_PULSE_FACTOR = 1.25f;
+static const float CARD_BOUGHT_ANIMATION_LIBRARY_ICON_PULSE_DURATION_SECS = 0.1f;
 
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
 {
@@ -127,6 +135,7 @@ void EventSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     CardDataRepository::GetInstance().LoadCardData(true);
     DataRepository::GetInstance().SetCurrentStoryMapSceneType(StoryMapSceneType::EVENT);
     CoreSystemsEngine::GetInstance().GetSoundManager().PreloadSfx(VICTORY_SFX);
+    CoreSystemsEngine::GetInstance().GetSoundManager().PreloadSfx(CARD_COLLECTED_SFX);
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -621,9 +630,124 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
         );
     }
     
+    /// ---------------------------------------------------------------------------------------------------------------
+    /// Cheese or Artifact Event
+    {
+        auto rareItemRewardName = rareItemProductNames[math::ControlledRandomInt() % rareItemProductNames.size()];
+        auto rareItemRewardDisplayName = ProductRepository::GetInstance().GetProductDefinition(rareItemRewardName).mStoryRareItemName;
+        auto healthReward = 20;
+        
+        mRegisteredStoryEvents.emplace_back
+        (
+            StoryRandomEventData
+            (
+             strutils::StringId("Cheese or Artifact"),
+             {
+                StoryRandomEventScreenData("events/cheese_or_artifact.png", {"You find a very expensive", "looking platter with a glorious", "wheel of cheese sitting on it."},
+                {
+                    StoryRandomEventButtonData("Continue", 1)
+                }),
+                StoryRandomEventScreenData("events/cheese_or_artifact.png", {"Upon closer inspection you", "also notice an urn containing", "a shiny object next to", "the platter. Which of the two", "will you choose?"},
+                {
+                    StoryRandomEventButtonData("Cheese (+" + std::to_string(healthReward) + "<health>)", 2, 0.0f, [=]()
+                    {
+                        auto& storyCurrentHealth = DataRepository::GetInstance().StoryCurrentHealth();
+                        auto healthRestored = math::Min(DataRepository::GetInstance().GetStoryMaxHealth(), storyCurrentHealth.GetValue() + healthReward) - storyCurrentHealth.GetValue();
+                        events::EventSystem::GetInstance().DispatchEvent<events::HealthRefillRewardEvent>(healthRestored, mScene->FindSceneObject(EVENT_PORTRAIT_SCENE_OBJECT_NAME)->mPosition);
+                    }),
+                    StoryRandomEventButtonData("Urn (+1 random artifact)", 3, 0.0f, [=]()
+                    {
+                        CollectRareItem(rareItemRewardName);
+                    })
+                }),
+                StoryRandomEventScreenData("events/cheese_or_artifact.png", {"", "You chose to devour the", "cheese wheel. It felt great,", "though you felt a bit full", "afterward.."},
+                {
+                    StoryRandomEventButtonData("Continue", 4)
+                }),
+                StoryRandomEventScreenData("events/cheese_or_artifact.png", {"", "You got " + rareItemRewardDisplayName + "!"},
+                {
+                    StoryRandomEventButtonData("Continue", 4)
+                }),
+             }, [](){ return DataRepository::GetInstance().StoryCurrentHealth().GetValue() < 0.9f * DataRepository::GetInstance().GetStoryMaxHealth(); })
+        );
+    }
+    
+    /// ---------------------------------------------------------------------------------------------------------------
+    /// Chest of Cards Event
+    {
+        auto storyDeck = DataRepository::GetInstance().GetCurrentStoryPlayerDeck();
+        auto cardRewardPool = CardDataRepository::GetInstance().GetStoryUnlockedCardRewardsPool();
+        cardRewardPool.insert(cardRewardPool.end(), storyDeck.begin(), storyDeck.end());
+        auto cardRewardId = cardRewardPool[math::ControlledRandomInt() % cardRewardPool.size()];
+        const auto& cardRewardData = CardDataRepository::GetInstance().GetCardData(cardRewardId, game_constants::LOCAL_PLAYER_INDEX);
+        
+        mRegisteredStoryEvents.emplace_back
+        (
+         StoryRandomEventData
+         (
+          strutils::StringId("Chest of Cards"),
+          {
+              StoryRandomEventScreenData("events/chest_of_cards.png", {"You find a chest filled with", "countless cards! Will you pick", "one at random?"},
+              {
+                  StoryRandomEventButtonData("Get 1 Random Card", 1, 0.0f, [=]()
+                  {
+                      AnimateAndAddCardToDeck(cardRewardId);
+                  }),
+                  StoryRandomEventButtonData("Ignore Chest", 2)
+              }),
+              StoryRandomEventScreenData("events/chest_of_cards.png", {"", "You picked up " + cardRewardData.mCardName.GetString() + "!"},
+              {
+                  StoryRandomEventButtonData("Continue", 3)
+              }),
+              StoryRandomEventScreenData("events/chest_of_cards.png", {"You decided to leave the", "chest alone and not pick up", "any cards..."},
+              {
+                  StoryRandomEventButtonData("Continue", 3)
+              })
+          }, [](){ return true; })
+        );
+    }
+    
+    /// ---------------------------------------------------------------------------------------------------------------
+    /// Eagle Flight Event
+    {
+        mRegisteredStoryEvents.emplace_back
+        (
+            StoryRandomEventData
+            (
+             strutils::StringId("Eagle Flight"),
+             {
+                StoryRandomEventScreenData("events/eagle_flight.png", {"You hear a piercing cry", "coming from high in the skies", "A giant eagle shortly after", "lands on a rock next to you!", "A mental voice reaches you..."},
+                {
+                    StoryRandomEventButtonData("Continue", 1)
+                }),
+                StoryRandomEventScreenData("events/eagle_flight.png", {"\"Adventurer...", "There is no time...", "Drop all your belongings...", "I will fly you to the", "leader of the demons...\""},
+                {
+                    StoryRandomEventButtonData("Go to final Boss (Loose all Artifacts)", 2, 0.0f, [=]()
+                    {
+                        DataRepository::GetInstance().SetCurrentStoryArtifacts({});
+                        DataRepository::GetInstance().SetCurrentStoryMapNodeCoord(DataRepository::GetInstance().GetPreBossMidMapNodeCoord());
+                        DataRepository::GetInstance().FlushStateToFile();
+                    }),
+                    StoryRandomEventButtonData("Run away", 3)
+                }),
+                StoryRandomEventScreenData("events/eagle_flight.png", {"", "You swiftly jumped on top of", "the eagle as it took flight..."},
+                {
+                    StoryRandomEventButtonData("Continue", 4, 0.0f, []()
+                    {
+                        events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(BUNNY_HOP_SCENE_NAME, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
+                    })
+                }),
+                StoryRandomEventScreenData("events/eagle_flight.png", {"", "You ran as fas as your legs", "would let you, away from", "the eagle..."},
+                {
+                    StoryRandomEventButtonData("Continue", 4)
+                }),
+            }, [](){ return DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::NORMAL_MAP; })
+        );
+    }
+    
     for (auto i = 0; i < mRegisteredStoryEvents.size(); ++i)
     {
-        logging::Log(logging::LogType::INFO, "Event %d applicable=%s", i, mRegisteredStoryEvents[i].mApplicabilityFunction() ? "true" : "false");
+        logging::Log(logging::LogType::INFO, "Event %d %s applicable=%s", i, mRegisteredStoryEvents[i].mEventName.GetString().c_str(), mRegisteredStoryEvents[i].mApplicabilityFunction() ? "true" : "false");
     }
     
     auto eventIndexSelectionRandInt = math::ControlledRandomInt(0, static_cast<int>(mRegisteredStoryEvents.size()) - 1);
@@ -648,7 +772,12 @@ void EventSceneLogicManager::TransitionToEventScreen(const int screenIndex)
     if (screenIndex >= static_cast<int>(mRegisteredStoryEvents[mCurrentEventIndex].mEventScreens.size()))
     {
         DataRepository::GetInstance().SetCurrentEventIndex(-1);
-        events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_MAP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
+        
+        if (DataRepository::GetInstance().GetCurrentStoryMapNodeCoord() != DataRepository::GetInstance().GetPreBossMidMapNodeCoord())
+        {
+            events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_MAP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
+        }
+        
         return;
     }
     
@@ -822,6 +951,63 @@ void EventSceneLogicManager::CollectRareItem(const strutils::StringId& rareItemN
     {
         mBlockInteraction = false;
         events::EventSystem::GetInstance().DispatchEvent<events::RareItemCollectedEvent>(rareItemName, rareItemSceneObject);
+    });
+}
+
+///------------------------------------------------------------------------------------------------
+
+void EventSceneLogicManager::AnimateAndAddCardToDeck(const int cardRewardId)
+{
+    auto playerDeck = DataRepository::GetInstance().GetCurrentStoryPlayerDeck();
+    playerDeck.push_back(cardRewardId);
+    DataRepository::GetInstance().SetCurrentStoryPlayerDeck(playerDeck);
+    
+    // Gather card data
+    auto cardData = CardDataRepository::GetInstance().GetCardData(cardRewardId, game_constants::LOCAL_PLAYER_INDEX);
+    const auto& cardIdToGoldenCardEnabledMap = DataRepository::GetInstance().GetGoldenCardIdMap();
+    bool isGoldenCard = cardIdToGoldenCardEnabledMap.count(cardRewardId) && cardIdToGoldenCardEnabledMap.at(cardRewardId);
+    
+    // Prepare card scene object to be added
+    auto cardSoWrapper = card_utils::CreateCardSoWrapper(&cardData, glm::vec3(), CARD_TO_DELETE_SCENE_OBJECT_NAME_PREFIX, CardOrientation::FRONT_FACE, isGoldenCard ? CardRarity::GOLDEN : CardRarity::NORMAL, false, false, true, {}, {}, *mScene);
+    cardSoWrapper->mSceneObject->mPosition = mScene->FindSceneObject(EVENT_PORTRAIT_SCENE_OBJECT_NAME)->mPosition;
+    cardSoWrapper->mSceneObject->mPosition.z += RARE_ITEM_Z_OFFSET;
+    cardSoWrapper->mSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
+    cardSoWrapper->mSceneObject->mScale = CARD_TO_BE_DELETED_INIT_SCALE;
+    
+    // First scale
+    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObject, cardSoWrapper->mSceneObject->mPosition, CARD_TO_BE_DELETED_TARGET_SCALE, CARD_DELETION_ANIMATION_DURATION_SECS), [=]()
+    {
+        auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+        
+        auto cardLibraryIconPosition = mScene->FindSceneObject(game_constants::GUI_STORY_CARDS_BUTTON_SCENE_OBJECT_NAME)->mPosition;
+        glm::vec3 midPosition = glm::vec3(cardSoWrapper->mSceneObject->mPosition + cardLibraryIconPosition)/2.0f;
+        midPosition.y += math::RandomSign() == 1 ? CARD_BOUGHT_ANIMATION_MIN_MAX_OFFSETS.t : CARD_BOUGHT_ANIMATION_MIN_MAX_OFFSETS.s ;
+        math::BezierCurve curve({cardSoWrapper->mSceneObject->mPosition, midPosition, cardLibraryIconPosition});
+        
+        // Animate bought card to card library icon
+        animationManager.StartAnimation(std::make_unique<rendering::BezierCurveAnimation>(cardSoWrapper->mSceneObject, curve, CARD_BOUGHT_ANIMATION_DURATION_SECS), [](){});
+        
+        // And its alpha
+        animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(cardSoWrapper->mSceneObject, CARD_BOUGHT_ANIMATION_MIN_ALPHA, CARD_BOUGHT_ANIMATION_DURATION_SECS), [=](){ cardSoWrapper->mSceneObject->mInvisible = true; });
+        
+        // And its scale
+        animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardSoWrapper->mSceneObject, glm::vec3(), CARD_ADDED_TO_COLLECTION_TARGET_SCALE, CARD_BOUGHT_ANIMATION_DURATION_SECS, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT | animation_flags::IGNORE_Z_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+        {
+            CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(CARD_COLLECTED_SFX);
+            
+            // And pulse card library icon
+            auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+            auto cardLibraryIconSceneObject = mScene->FindSceneObject(game_constants::GUI_STORY_CARDS_BUTTON_SCENE_OBJECT_NAME);
+            auto originalScale = cardLibraryIconSceneObject->mScale;
+            animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardLibraryIconSceneObject, cardLibraryIconSceneObject->mPosition, originalScale * CARD_BOUGHT_ANIMATION_LIBRARY_ICON_PULSE_FACTOR, CARD_BOUGHT_ANIMATION_LIBRARY_ICON_PULSE_DURATION_SECS, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT | animation_flags::IGNORE_Z_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+            {
+                auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
+                animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(cardLibraryIconSceneObject, cardLibraryIconSceneObject->mPosition, originalScale, CARD_BOUGHT_ANIMATION_LIBRARY_ICON_PULSE_DURATION_SECS, animation_flags::IGNORE_X_COMPONENT | animation_flags::IGNORE_Y_COMPONENT | animation_flags::IGNORE_Z_COMPONENT, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=]()
+                {
+                    cardLibraryIconSceneObject->mScale = originalScale;
+                });
+            });
+        });
     });
 }
 
