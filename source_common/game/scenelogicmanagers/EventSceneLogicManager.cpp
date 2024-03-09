@@ -47,6 +47,7 @@ static const std::string GUARDIAN_ANGEL_ICON_TEXTURE_FILE_NAME = "rare_item_rewa
 static const std::string RARE_ITEM_SHADER = "rare_item.vs";
 static const std::string DISSOLVE_TEXTURE_FILE_NAME = "dissolve.png";
 static const std::string CARD_DISSOLVE_SHADER_FILE_NAME = "card_dissolve.vs";
+static const std::string DISSOLVE_RARE_ITEM_SHADER_FILE_NAME = "generic_rare_item_dissolve.vs";
 
 static const glm::vec3 GUARDIAN_ANGEL_ICON_INIT_SCALE = {0.001f, 0.001f, 0.001f};
 static const glm::vec3 GUARDIAN_ANGEL_ICON_END_SCALE = {0.4f, 0.4f, 0.4f};
@@ -745,6 +746,52 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
         );
     }
     
+    /// ---------------------------------------------------------------------------------------------------------------
+    /// Tornado Event
+    {
+        const auto& storyArtifacts = DataRepository::GetInstance().GetCurrentStoryArtifacts();
+        auto artifactToDelete = strutils::StringId();
+        std::string artifactNameToDelete;
+        if (!storyArtifacts.empty())
+        {
+            auto randomIndex = math::ControlledRandomInt() % storyArtifacts.size();
+            artifactToDelete = storyArtifacts[randomIndex].first;
+            
+            artifactNameToDelete = ProductRepository::GetInstance().GetProductDefinition(artifactToDelete).mStoryRareItemName;
+        }
+        
+        auto cardIndexToDelete = static_cast<int>(math::ControlledRandomInt() % DataRepository::GetInstance().GetCurrentStoryPlayerDeck().size());
+        auto cardNameToDelete = CardDataRepository::GetInstance().GetCardData(DataRepository::GetInstance().GetCurrentStoryPlayerDeck()[cardIndexToDelete], game_constants::LOCAL_PLAYER_INDEX).mCardName.GetString();
+        
+        mRegisteredStoryEvents.emplace_back
+        (
+            StoryRandomEventData
+            (
+             strutils::StringId("Tornado"),
+             {
+                StoryRandomEventScreenData("events/tornado.png", {"You see a massive tornado", "approaching you swiftly.", "You are carrying too much", "and need to leave something", "behind to outrun the tornado..."},
+                {
+                    StoryRandomEventButtonData("Loose random card", 1, 0.0f, [=]()
+                    {
+                        AnimateAndDeleteCardFromDeck(cardIndexToDelete, true);
+                    }),
+                    StoryRandomEventButtonData("Loose random Artifact", 2, 0.0f, [=]()
+                    {
+                        AnimateAndDeleteArtifact(artifactToDelete);
+                    }),
+                }),
+                StoryRandomEventScreenData("events/tornado.png", {"", "You left " + cardNameToDelete, "behind!"},
+                {
+                    StoryRandomEventButtonData("Continue", 3)
+                }),
+                StoryRandomEventScreenData("events/tornado.png", {"", "You left " + artifactNameToDelete, "behind!"},
+                {
+                    StoryRandomEventButtonData("Continue", 3)
+                })
+            }, [](){ return DataRepository::GetInstance().GetCurrentStoryPlayerDeck().size() > 3 && DataRepository::GetInstance().GetCurrentStoryArtifacts().size() > 0; })
+        );
+    }
+    
     for (auto i = 0; i < mRegisteredStoryEvents.size(); ++i)
     {
         logging::Log(logging::LogType::INFO, "Event %d %s applicable=%s", i, mRegisteredStoryEvents[i].mEventName.GetString().c_str(), mRegisteredStoryEvents[i].mApplicabilityFunction() ? "true" : "false");
@@ -951,6 +998,49 @@ void EventSceneLogicManager::CollectRareItem(const strutils::StringId& rareItemN
     {
         mBlockInteraction = false;
         events::EventSystem::GetInstance().DispatchEvent<events::RareItemCollectedEvent>(rareItemName, rareItemSceneObject);
+    });
+}
+
+///------------------------------------------------------------------------------------------------
+
+void EventSceneLogicManager::AnimateAndDeleteArtifact(const strutils::StringId& artifactName)
+{
+    auto existingCount = DataRepository::GetInstance().GetStoryArtifactCount(artifactName);
+    if (existingCount > 1)
+    {
+        DataRepository::GetInstance().SetStoryArtifactCount(artifactName, existingCount - 1);
+    }
+    else
+    {
+        auto currentStoryArtifacts = DataRepository::GetInstance().GetCurrentStoryArtifacts();
+        currentStoryArtifacts.erase(std::remove_if(currentStoryArtifacts.begin(), currentStoryArtifacts.end(), [&](const std::pair<strutils::StringId, int>& artifactEntry)
+        {
+            return artifactEntry.first == artifactName;
+        }), currentStoryArtifacts.end());
+        DataRepository::GetInstance().SetCurrentStoryArtifacts(currentStoryArtifacts);
+    }
+    
+    const auto& rareItemDefinition = ProductRepository::GetInstance().GetProductDefinition(artifactName);
+    
+    auto rareItemSceneObject = mScene->CreateSceneObject();
+    rareItemSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + std::get<std::string>(rareItemDefinition.mProductTexturePathOrCardId));
+    rareItemSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + DISSOLVE_RARE_ITEM_SHADER_FILE_NAME);
+    rareItemSceneObject->mEffectTextureResourceIds[0] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + DISSOLVE_TEXTURE_FILE_NAME);
+    rareItemSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME] = 0.0f;
+    rareItemSceneObject->mShaderFloatUniformValues[CARD_ORIGIN_X_UNIFORM_NAME] = rareItemSceneObject->mPosition.x;
+    rareItemSceneObject->mShaderFloatUniformValues[CARD_ORIGIN_Y_UNIFORM_NAME] = rareItemSceneObject->mPosition.y;
+    rareItemSceneObject->mShaderFloatUniformValues[DISSOLVE_MAGNITUDE_UNIFORM_NAME] = math::RandomFloat(CARD_DISSOLVE_EFFECT_MAG_RANGE.x, CARD_DISSOLVE_EFFECT_MAG_RANGE.y);
+    rareItemSceneObject->mPosition = mScene->FindSceneObject(EVENT_PORTRAIT_SCENE_OBJECT_NAME)->mPosition;
+    rareItemSceneObject->mPosition.z += RARE_ITEM_Z_OFFSET;
+    rareItemSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
+    rareItemSceneObject->mScale = RARE_ITEM_INIT_SCALE;
+    
+    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(rareItemSceneObject, rareItemSceneObject->mPosition, RARE_ITEM_TARGET_SCALE, RARE_ITEM_COLLECTION_ANIMATION_DURATION_SECS), [=]()
+    {
+        // Then animate card deletion
+        CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(rareItemSceneObject->mShaderFloatUniformValues[DISSOLVE_THRESHOLD_UNIFORM_NAME], MAX_CARD_DISSOLVE_VALUE, CARD_DELETION_ANIMATION_DURATION_SECS), [=]()
+        {
+        });
     });
 }
 

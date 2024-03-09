@@ -42,6 +42,7 @@ private:
     void TransitionToEventScreen(const int screenIndex);
     void CreateEventScreen(const int screenIndex);
     void CollectRareItem(const strutils::StringId& rareItemName);
+    void AnimateAndDeleteArtifact(const strutils::StringId& artifactName);
     void AnimateAndAddCardToDeck(const int cardRewardId);
     void AnimateAndDeleteCardFromDeck(const int deckCardIndex, const bool unlockBlockingAtEndOfDeletion);
     
