@@ -8,7 +8,8 @@
         "demons_normal",
         "demons_medium",
         "demons_hard",
-        "demons_boss"
+        "demons_boss",
+        "dragon"
     ],
     
     "expansions":
@@ -679,6 +680,26 @@
             "texture": "cheese_buff.png",
             "shader": "basic.vs",
             "expansion": "second_generation"
+        },
+        {
+            "weight": 9,
+            "family": "dragon",
+            "name": "Dragon Rage",
+            "effect": "DAMAGE +2 FAMILY BOARD HELD",
+            "tooltip": "+2<damage> for the Dragon",
+            "texture": "dragon_damage.png",
+            "shader": "basic.vs",
+            "expansion": "vanilla"
+        },
+        {
+            "weight": 9,
+            "family": "dragon",
+            "name": "Dragon Wings",
+            "effect": "DAMAGE -2 ENEMY_BOARD_DEBUFF",
+            "tooltip": "-2<damage> for ALL$normal cards the$opponent plays on$their next turn",
+            "texture": "dragon_debuff.png",
+            "shader": "basic.vs",
+            "expansion": "vanilla"
         }
     ]
 }

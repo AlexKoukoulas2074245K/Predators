@@ -1187,6 +1187,7 @@ TEST_F(GameActionTests, BattleSimulation)
     cardFamiliesSet.erase(game_constants::DEMONS_MEDIUM_FAMILY_NAME);
     cardFamiliesSet.erase(game_constants::DEMONS_HARD_FAMILY_NAME);
     cardFamiliesSet.erase(game_constants::DEMONS_BOSS_FAMILY_NAME);
+    cardFamiliesSet.erase(game_constants::DRAGON_FAMILY_NAME);
     
     std::vector<strutils::StringId> cardFamilies(cardFamiliesSet.begin(), cardFamiliesSet.end());
     std::unordered_map<strutils::StringId, std::vector<strutils::StringId>, strutils::StringIdHasher> cardFamilyBattleCombinations;

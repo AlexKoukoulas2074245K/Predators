@@ -20,6 +20,7 @@
 #include <game/gameactions/PlayCardGameAction.h>
 #include <game/gameactions/GameActionEngine.h>
 #include <game/gameactions/PlayerActionGenerationEngine.h>
+#include <game/ProductRepository.h>
 #include <game/scenelogicmanagers/BattleSceneLogicManager.h>
 #include <engine/CoreSystemsEngine.h>
 #include <engine/input/IInputStateManager.h>
@@ -106,6 +107,7 @@ static const std::string TURN_COUNTER_HISTORY_ENTRY_TEXTURE_FILE_NAME = "history
 static const std::string METALLIC_TEXTURE_FILE_NAME = "metallic_texture.png";
 static const std::string HEALTH_CHANGE_TEXT_TOP_SCENE_OBJECT_NAME_PREFIX = "health_change_text_top_";
 static const std::string HEALTH_CHANGE_TEXT_BOT_SCENE_OBJECT_NAME_PREFIX = "health_change_text_bot_";
+static const std::string RARE_ITEM_SHADER = "rare_item.vs";
 
 static const glm::vec3 BOARD_SIDE_EFFECT_TOP_POSITION = { 0.0f, 0.044f, 1.0f};
 static const glm::vec3 BOARD_SIDE_EFFECT_BOT_POSITION = { 0.0f, -0.044f, 1.0f};
@@ -123,7 +125,8 @@ static const glm::vec3 HEALTH_CHANGE_TEXT_COLOR_GAIN = {0.11f, 0.8f, 0.11f};
 static const glm::vec3 HEALTH_CHANGE_TEXT_COLOR_LOSS = {0.8f, 0.11f, 0.11f};
 static const glm::vec3 HEALTH_CHANGE_TEXT_SCALE = {0.0002f, 0.0002f, 0.0002f};
 static const glm::vec3 HEALTH_CHANGE_TEXT_OFFSET = {-0.04f, 0.0f, 0.01f};
-
+static const glm::vec3 RARE_ITEM_INIT_SCALE = glm::vec3(0.0001f, 0.0001f, 0.0001f);
+static const glm::vec3 RARE_ITEM_TARGET_SCALE = glm::vec3(0.15f, 0.15f, 0.15f);
 static const glm::vec3 CARD_TOOLTIP_TEXT_OFFSETS[game_constants::CARD_TOOLTIP_TEXT_ROWS_COUNT] =
 {
     { -0.054f, 0.029f, 0.1f },
@@ -166,6 +169,8 @@ static const float REPLAY_TEXT_MAX_ALPHA = 0.75f;
 static const float HEALTH_CHANGE_TARGET_Y_OFFSET = 0.05f;
 static const float HEALTH_CHANGE_TEXT_ANIMATION_DURATION_SECS = 0.5f;
 static const float HEALTH_CHANGE_TEXT_ANIMATION_DELAY_SECS = 0.25f;
+static const float RARE_ITEM_Z_OFFSET = 10.0f;
+static const float RARE_ITEM_COLLECTION_ANIMATION_DURATION_SECS = 1.0f;
 
 #if defined(MOBILE_FLOW)
 static const float IPAD_HISTORY_BUTTON_SNAP_TO_EDGE_OFFSET_SCALE_FACTOR = 69.0f;
@@ -2260,6 +2265,11 @@ void BattleSceneLogicManager::OnStoryBattleWon(const events::StoryBattleWonEvent
     auto healthReward = DataRepository::GetInstance().GetNextStoryOpponentDamage();
     auto battleCoinRewards = DataRepository::GetInstance().GetNextBattleTopPlayerHealth();
     
+    if (DataRepository::GetInstance().GetNextStoryOpponentName() == game_constants::EMERALD_DRAGON_NAME.GetString())
+    {
+        battleCoinRewards *= 5;
+    }
+    
     auto greedyGoblinCount = DataRepository::GetInstance().GetStoryArtifactCount(artifacts::GREEDY_GOBLIN);
     if (greedyGoblinCount > 0)
     {
@@ -2283,6 +2293,40 @@ void BattleSceneLogicManager::OnStoryBattleWon(const events::StoryBattleWonEvent
     DataRepository::GetInstance().StoryCurrentHealth().SetDisplayedValue(mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth);
     mGuiManager->ForceSetStoryHealthValue(mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth);
     mAnimatedStatContainers[1].second->ChangeTrackedValue(&DataRepository::GetInstance().StoryCurrentHealth().GetDisplayedValue());
+    
+    // Emerald Dragon Event also adds an artifact
+    if (DataRepository::GetInstance().GetNextStoryOpponentName() == game_constants::EMERALD_DRAGON_NAME.GetString())
+    {
+        auto rareItemProductNames = ProductRepository::GetInstance().GetRareItemProductNames();
+        for (auto iter = rareItemProductNames.begin(); iter != rareItemProductNames.end();)
+        {
+            if (ProductRepository::GetInstance().GetProductDefinition(*iter).mUnique &&
+                DataRepository::GetInstance().GetStoryArtifactCount(*iter) > 0)
+            {
+                iter = rareItemProductNames.erase(iter);
+            }
+            else
+            {
+                iter++;
+            }
+        }
+        
+        auto rareItemReward = rareItemProductNames[math::ControlledRandomInt() % rareItemProductNames.size()];
+        const auto& rareItemDefinition = ProductRepository::GetInstance().GetProductDefinition(rareItemReward);
+        
+        auto rareItemSceneObject = mActiveScene->CreateSceneObject();
+        rareItemSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + RARE_ITEM_SHADER);
+        rareItemSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + std::get<std::string>(rareItemDefinition.mProductTexturePathOrCardId));
+        rareItemSceneObject->mPosition = mPlayerBoardCardSceneObjectWrappers[game_constants::REMOTE_PLAYER_INDEX][0]->mSceneObject->mPosition;
+        rareItemSceneObject->mPosition.z += RARE_ITEM_Z_OFFSET;
+        rareItemSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
+        rareItemSceneObject->mScale = RARE_ITEM_INIT_SCALE;
+        
+        CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(rareItemSceneObject, rareItemSceneObject->mPosition, RARE_ITEM_TARGET_SCALE, RARE_ITEM_COLLECTION_ANIMATION_DURATION_SECS), [=]()
+        {
+            events::EventSystem::GetInstance().DispatchEvent<events::RareItemCollectedEvent>(rareItemReward, rareItemSceneObject);
+        });
+    }
     
     // Commit Artifact changes
     if (mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mHasResurrectionActive)

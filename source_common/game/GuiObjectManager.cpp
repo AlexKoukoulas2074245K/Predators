@@ -578,11 +578,18 @@ void GuiObjectManager::OnRareItemCollected(const events::RareItemCollectedEvent&
         auto inventoryIconSceneObject = mScene->FindSceneObject(game_constants::GUI_INVENTORY_BUTTON_SCENE_OBJECT_NAME);
         auto inventoryIconPosition = inventoryIconSceneObject->mPosition;
         glm::vec3 midPosition = glm::vec3(event.mRareItemSceneObject->mPosition + inventoryIconPosition)/2.0f;
-        midPosition.y += math::RandomSign() == 1 ? RARE_ITEM_COLLECTED_ANIMATION_MIN_MAX_OFFSETS.t : RARE_ITEM_COLLECTED_ANIMATION_MIN_MAX_OFFSETS.s ;
         
         if (mScene->GetName() == game_constants::BATTLE_SCENE)
         {
-            inventoryIconPosition.x *= game_constants::GAME_BOARD_GUI_DISTANCE_FACTOR;
+            if (CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::WHEEL_OF_FORTUNE_SCENE))
+            {
+                midPosition.y += math::RandomSign() == 1 ? RARE_ITEM_COLLECTED_ANIMATION_MIN_MAX_OFFSETS.t : RARE_ITEM_COLLECTED_ANIMATION_MIN_MAX_OFFSETS.s ;
+                inventoryIconPosition.x *= game_constants::GAME_BOARD_GUI_DISTANCE_FACTOR;
+            }
+            else
+            {
+                midPosition.y += math::RandomSign() == 1 ? RARE_ITEM_COLLECTED_ANIMATION_MIN_MAX_OFFSETS.t/2 : RARE_ITEM_COLLECTED_ANIMATION_MIN_MAX_OFFSETS.s/2 ;
+            }
         }
         
         math::BezierCurve curve({event.mRareItemSceneObject->mPosition, midPosition, inventoryIconPosition});
@@ -603,6 +610,11 @@ void GuiObjectManager::OnRareItemCollected(const events::RareItemCollectedEvent&
                     inventoryIconSceneObject->mScale = originalScale;
                 });
             });
+            
+            if (mScene->GetName() == game_constants::BATTLE_SCENE && !CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::WHEEL_OF_FORTUNE_SCENE))
+            {
+                return;
+            }
             
             // Handle animation/music for rare item
             if (event.mRareItemProductId == artifacts::BLOOD_DIAMOND)
@@ -632,8 +644,11 @@ void GuiObjectManager::OnRareItemCollected(const events::RareItemCollectedEvent&
                 // This is necessary due to how the shader works for generic rare item particles.
                 auto sceneToSpawnParticlesIn = mScene->GetName() == game_constants::BATTLE_SCENE ? CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::WHEEL_OF_FORTUNE_SCENE) : mScene;
                 
-                mScene->RemoveSceneObject(GENERIC_PARTICLE_EMITTER_SCENE_OBJECT_NAME);
-                auto particleEmitterSceneObject = CoreSystemsEngine::GetInstance().GetParticleManager().CreateParticleEmitterAtPosition(particleDefinition, GENERIC_RARE_ITEM_PARTICLE_ORIGIN_POSITION, *sceneToSpawnParticlesIn, GENERIC_PARTICLE_EMITTER_SCENE_OBJECT_NAME, [=](float dtMillis, scene::ParticleEmitterObjectData& particleEmitterData){});
+                if (sceneToSpawnParticlesIn)
+                {
+                    mScene->RemoveSceneObject(GENERIC_PARTICLE_EMITTER_SCENE_OBJECT_NAME);
+                    auto particleEmitterSceneObject = CoreSystemsEngine::GetInstance().GetParticleManager().CreateParticleEmitterAtPosition(particleDefinition, GENERIC_RARE_ITEM_PARTICLE_ORIGIN_POSITION, *sceneToSpawnParticlesIn, GENERIC_PARTICLE_EMITTER_SCENE_OBJECT_NAME, [=](float dtMillis, scene::ParticleEmitterObjectData& particleEmitterData){});
+                }
             }
         });
         

@@ -197,6 +197,20 @@ void StatsSceneLogicManager::CreateMutationVictoriesAndBestTimesScreen(std::shar
     {
         if (victoryCounts[i] == 0)
         {
+            if (i == 0)
+            {
+                scene::TextSceneObjectData textData;
+                textData.mFontName = game_constants::DEFAULT_FONT_NAME;
+                textData.mText = "No Victories yet";
+                
+                auto textSceneObject = scene->CreateSceneObject(strutils::StringId("credits_text_mutation_level_" + std::to_string(lineCounter)));
+                textSceneObject->mSceneObjectTypeData = std::move(textData);
+                textSceneObject->mPosition = TEXT_MUTATION_LEVEL_INIT_POSITION;
+                textSceneObject->mPosition.y -= i * TEXT_ROW_HEIGHT;
+                textSceneObject->mScale = TEXT_SCALE;
+                
+                mTextSceneObjects.push_back(textSceneObject);
+            }
             break;
         }
         

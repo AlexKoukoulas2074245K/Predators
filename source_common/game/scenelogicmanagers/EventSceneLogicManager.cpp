@@ -38,6 +38,8 @@ static const strutils::StringId DISSOLVE_MAGNITUDE_UNIFORM_NAME = strutils::Stri
 static const strutils::StringId CARD_ORIGIN_X_UNIFORM_NAME = strutils::StringId("card_origin_x");
 static const strutils::StringId CARD_ORIGIN_Y_UNIFORM_NAME = strutils::StringId("card_origin_y");
 static const strutils::StringId BUNNY_HOP_SCENE_NAME = strutils::StringId("bunny_hop_scene");
+static const strutils::StringId DRAGON_RAGE_CARD_NAME = strutils::StringId("Dragon Rage");
+static const strutils::StringId DRAGON_WINGS_CARD_NAME = strutils::StringId("Dragon Wings");
 
 static const std::string CARD_TO_DELETE_SCENE_OBJECT_NAME_PREFIX = "card_to_delete";
 static const std::string VICTORY_SFX = "sfx_victory";
@@ -48,6 +50,7 @@ static const std::string RARE_ITEM_SHADER = "rare_item.vs";
 static const std::string DISSOLVE_TEXTURE_FILE_NAME = "dissolve.png";
 static const std::string CARD_DISSOLVE_SHADER_FILE_NAME = "card_dissolve.vs";
 static const std::string DISSOLVE_RARE_ITEM_SHADER_FILE_NAME = "generic_rare_item_dissolve.vs";
+static const std::string DRAGON_TEXTURE_PATH = "story_cards/dragon_attack.png";
 
 static const glm::vec3 GUARDIAN_ANGEL_ICON_INIT_SCALE = {0.001f, 0.001f, 0.001f};
 static const glm::vec3 GUARDIAN_ANGEL_ICON_END_SCALE = {0.4f, 0.4f, 0.4f};
@@ -81,6 +84,10 @@ static const float CARD_BOUGHT_ANIMATION_DURATION_SECS = 1.0f;
 static const float CARD_BOUGHT_ANIMATION_MIN_ALPHA = 0.3f;
 static const float CARD_BOUGHT_ANIMATION_LIBRARY_ICON_PULSE_FACTOR = 1.25f;
 static const float CARD_BOUGHT_ANIMATION_LIBRARY_ICON_PULSE_DURATION_SECS = 0.1f;
+
+static constexpr int DRAGON_HEALTH = 30;
+static constexpr int DRAGON_DAMAGE = 9;
+static constexpr int DRAGON_WEIGHT = 9;
 
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
 {
@@ -122,6 +129,7 @@ void EventSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     mHasSentTutorialTrigger = false;
     mTransitioning = false;
     mBlockInteraction = false;
+    mSkipNormalEventFinishingSceneChange = false;
     
     mCurrentEventButtons.clear();
     mGuiManager = std::make_shared<GuiObjectManager>(scene);
@@ -265,7 +273,6 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
     auto currentNodeSeed = DataRepository::GetInstance().GetCurrentStoryMapNodeSeed();
     math::SetControlSeed(currentNodeSeed);
     
-    // Get random rare items for the first shelf. Exclude already owned unique items
     auto rareItemProductNames = ProductRepository::GetInstance().GetRareItemProductNames();
     for (auto iter = rareItemProductNames.begin(); iter != rareItemProductNames.end();)
     {
@@ -279,7 +286,6 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
             iter++;
         }
     }
-
     
     mRegisteredStoryEvents.clear();
     
@@ -733,8 +739,9 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
                 }),
                 StoryRandomEventScreenData("events/eagle_flight.png", {"", "You swiftly jumped on top of", "the eagle as it took flight..."},
                 {
-                    StoryRandomEventButtonData("Continue", 4, 0.0f, []()
+                    StoryRandomEventButtonData("Continue", 4, 0.0f, [=]()
                     {
+                        mSkipNormalEventFinishingSceneChange = true;
                         events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(BUNNY_HOP_SCENE_NAME, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
                     })
                 }),
@@ -821,6 +828,60 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
         );
     }
     
+    /// ---------------------------------------------------------------------------------------------------------------
+    /// Dragon Attack Event
+    {
+        mRegisteredStoryEvents.emplace_back
+        (
+            StoryRandomEventData
+            (
+             strutils::StringId("Dragon Attack"),
+             {
+                StoryRandomEventScreenData("events/dragon_attack.png", {"You see a massive dragon", "blocking the path you", "intended to take...", "You can tell the dragon is", "protecting something, but it", "doesn't look aggressive..."},
+                {
+                    StoryRandomEventButtonData("Continue", 1)
+                }),
+                StoryRandomEventScreenData("events/dragon_attack.png", {"You can either try attacking", "the dragon, and claim the", "treasures its guarding for", "yourself (if you survive), or", "leave and find another route..."},
+                {
+                    StoryRandomEventButtonData("Battle the Dragon", 2),
+                    StoryRandomEventButtonData("Leave", 3)
+                }),
+                StoryRandomEventScreenData("events/dragon_attack.png", {"The dragon let out a massive", "roar, and began approaching", "you.."},
+                {
+                    StoryRandomEventButtonData("Continue", 4, 0.0f, [=]()
+                    {
+                        mSkipNormalEventFinishingSceneChange = true;
+                        
+                        // Populate opponent deck and battle control type
+                        DataRepository::GetInstance().SetNextTopPlayerDeck({ CardDataRepository::GetInstance().GetCardId(DRAGON_RAGE_CARD_NAME), CardDataRepository::GetInstance().GetCardId(DRAGON_WINGS_CARD_NAME) });
+                        DataRepository::GetInstance().SetNextBattleControlType(BattleControlType::AI_TOP_ONLY);
+                        
+                        DataRepository::GetInstance().SetNextStoryOpponentTexturePath(DRAGON_TEXTURE_PATH);
+                        DataRepository::GetInstance().SetNextStoryOpponentName(game_constants::EMERALD_DRAGON_NAME.GetString());
+                        DataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::BATTLE);
+                        
+                        // Populate opponent stats
+                        DataRepository::GetInstance().SetNextStoryOpponentDamage(DRAGON_DAMAGE);
+                        DataRepository::GetInstance().SetNextBattleTopPlayerHealth(DRAGON_HEALTH);
+                        DataRepository::GetInstance().SetNextBattleTopPlayerInitWeight(DRAGON_WEIGHT - 1);
+                        DataRepository::GetInstance().SetNextBattleTopPlayerWeightLimit(DRAGON_WEIGHT);
+                        
+                        // Populate local player stats
+                        DataRepository::GetInstance().SetNextBotPlayerDeck(DataRepository::GetInstance().GetCurrentStoryPlayerDeck());
+                        DataRepository::GetInstance().SetNextBattleBotPlayerHealth(DataRepository::GetInstance().StoryCurrentHealth().GetValue());
+                        DataRepository::GetInstance().SetNextBattleBotPlayerWeightLimit(game_constants::BOT_PLAYER_DEFAULT_WEIGHT_LIMIT);
+                        
+                        events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::BATTLE_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
+                    })
+                }),
+                StoryRandomEventScreenData("events/dragon_attack.png", {"You did not dare approach", "the dragon, and left swiftly..."},
+                {
+                    StoryRandomEventButtonData("Continue", 4)
+                }),
+            }, [](){ return true; })
+        );
+    }
+    
     for (auto i = 0; i < mRegisteredStoryEvents.size(); ++i)
     {
         logging::Log(logging::LogType::INFO, "Event %d %s applicable=%s", i, mRegisteredStoryEvents[i].mEventName.GetString().c_str(), mRegisteredStoryEvents[i].mApplicabilityFunction() ? "true" : "false");
@@ -849,7 +910,7 @@ void EventSceneLogicManager::TransitionToEventScreen(const int screenIndex)
     {
         DataRepository::GetInstance().SetCurrentEventIndex(-1);
         
-        if (DataRepository::GetInstance().GetCurrentStoryMapNodeCoord() != DataRepository::GetInstance().GetPreBossMidMapNodeCoord())
+        if (!mSkipNormalEventFinishingSceneChange)
         {
             events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_MAP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
         }
@@ -946,9 +1007,11 @@ void EventSceneLogicManager::CreateEventScreen(const int screenIndex)
             strutils::StringReplaceAllOccurences("<" + symbolicNameEntry.first.GetString() + ">", std::string(1, symbolicNameEntry.second), buttonText);
         }
         
+        auto buttonPosition = glm::vec3(0.0f, (screenData.mEventScreenButtons.size() > 1 ? -0.07f - screenButtonIndex * 0.08f : -0.1f), EVENT_SCREEN_ITEM_Z);
+        
         mCurrentEventButtons.emplace_back(std::make_unique<AnimatedButton>
         (
-            glm::vec3(0.0f, -0.07f - screenButtonIndex * 0.08f, EVENT_SCREEN_ITEM_Z),
+            buttonPosition,
             BUTTON_SCALE,
             game_constants::DEFAULT_FONT_NAME,
             buttonText,

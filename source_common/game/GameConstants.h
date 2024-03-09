@@ -125,9 +125,11 @@ namespace game_constants
     inline const strutils::StringId DEMONS_MEDIUM_FAMILY_NAME = strutils::StringId("demons_medium");
     inline const strutils::StringId DEMONS_HARD_FAMILY_NAME = strutils::StringId("demons_hard");
     inline const strutils::StringId DEMONS_BOSS_FAMILY_NAME = strutils::StringId("demons_boss");
-    
+    inline const strutils::StringId DRAGON_FAMILY_NAME = strutils::StringId("dragon");
+
     // Card Names
     inline const strutils::StringId EMPTY_DECK_TOKEN_CARD_NAME = strutils::StringId("Card Token");
+    inline const strutils::StringId EMERALD_DRAGON_NAME = strutils::StringId("Emerald Dragon");
 
     // Scenes
     inline const strutils::StringId BATTLE_SCENE = strutils::StringId("battle_scene");

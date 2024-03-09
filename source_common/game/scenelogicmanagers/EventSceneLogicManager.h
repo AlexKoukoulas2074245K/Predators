@@ -113,6 +113,7 @@ private:
     bool mTransitioning;
     bool mBlockInteraction;
     bool mHasSentTutorialTrigger;
+    bool mSkipNormalEventFinishingSceneChange;
 };
 
 ///------------------------------------------------------------------------------------------------
