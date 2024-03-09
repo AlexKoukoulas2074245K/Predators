@@ -23,12 +23,12 @@ class AnimatedButton;
 class GuiObjectManager;
 class EventSceneLogicManager final: public ISceneLogicManager, public events::IListener
 {
+    friend class Game;
 public:
     EventSceneLogicManager();
     ~EventSceneLogicManager();
     
     const std::vector<strutils::StringId>& VGetApplicableSceneNames() const override;
-    
     void VInitSceneCamera(std::shared_ptr<scene::Scene> scene) override;
     void VInitScene(std::shared_ptr<scene::Scene> scene) override;
     void VUpdate(const float dtMillis, std::shared_ptr<scene::Scene> activeScene) override;
@@ -48,18 +48,18 @@ private:
     class StoryRandomEventButtonData
     {
     public:
-        StoryRandomEventButtonData(const std::string& buttonText, const int nextScreenIndex, const std::function<void()> onClickCallback = nullptr, const int randomCounter = 0)
+        StoryRandomEventButtonData(const std::string& buttonText, const int nextScreenIndex, const float nextScreenDelaySecs = 0.0f, const std::function<void()> onClickCallback = nullptr)
             : mButtonText(buttonText)
             , mNextScreenIndex(nextScreenIndex)
+            , mNextScreenDelaySecs(nextScreenDelaySecs)
             , mOnClickCallback(onClickCallback)
-            , mRandomCounter(randomCounter)
         {
         }
         
         const std::string mButtonText;
-        int mNextScreenIndex;
+        const int mNextScreenIndex;
+        const float mNextScreenDelaySecs;
         const std::function<void()> mOnClickCallback;
-        int mRandomCounter;
     };
     
     class StoryRandomEventScreenData
@@ -85,15 +85,20 @@ private:
     class StoryRandomEventData
     {
     public:
-        StoryRandomEventData(const std::vector<StoryRandomEventScreenData>& eventScreens, std::function<bool()> applicabilityFunction)
-            : mEventScreens(eventScreens)
+        StoryRandomEventData(const strutils::StringId& eventName, const std::vector<StoryRandomEventScreenData>& eventScreens, std::function<bool()> applicabilityFunction)
+            : mEventName(eventName)
+            , mEventScreens(eventScreens)
             , mApplicabilityFunction(applicabilityFunction)
         {
         }
     
         const std::vector<StoryRandomEventScreenData> mEventScreens;
         const std::function<bool()> mApplicabilityFunction;
+        const strutils::StringId mEventName;
     };
+    
+private:
+    const std::vector<StoryRandomEventData>& GetRegisteredEvents() const;
     
 private:
     std::vector<std::unique_ptr<AnimatedButton>> mCurrentEventButtons;

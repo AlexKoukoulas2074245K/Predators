@@ -294,10 +294,12 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
             mRegisteredStoryEvents.emplace_back
             (
                 StoryRandomEventData
-                ({
+                (
+                 strutils::StringId("Gold Coin Cart"),
+                 {
                     StoryRandomEventScreenData("events/gold_coin_cart.png", {"", "You found a cart full of", "gold coins!"},
                     {
-                        StoryRandomEventButtonData("Collect " + std::to_string(coinsToGain) + " Gold Coins", 1, [=]()
+                        StoryRandomEventButtonData("Collect " + std::to_string(coinsToGain) + " Gold Coins", 1, 0.0f, [=]()
                         {
                             events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(coinsToGain, mScene->FindSceneObject(EVENT_PORTRAIT_SCENE_OBJECT_NAME)->mPosition);
                         })
@@ -314,15 +316,17 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
             mRegisteredStoryEvents.emplace_back
             (
                 StoryRandomEventData
-                ({
+                (
+                 strutils::StringId("Gold Coin Cart"),
+                 {
                     StoryRandomEventScreenData("events/gold_coin_cart.png", {"", "You found a cart full of", "gold coins!"},
                     {
-                        StoryRandomEventButtonData("Collect " + std::to_string(coinsToGain) + "<coin>", 1, [=]()
+                        StoryRandomEventButtonData("Collect " + std::to_string(coinsToGain) + "<coin>", 1, 0.0f, [=]()
                         {
                             DataRepository::GetInstance().SetGoldCartsIgnored(0);
                             events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(coinsToGain, mScene->FindSceneObject(EVENT_PORTRAIT_SCENE_OBJECT_NAME)->mPosition);
                         }),
-                        StoryRandomEventButtonData("Ignore Cart", 2, [=]()
+                        StoryRandomEventButtonData("Ignore Cart", 2, 0.0f, [=]()
                         {
                             DataRepository::GetInstance().SetGoldCartsIgnored(DataRepository::GetInstance().GetGoldCartsIgnored() + 1);
                         })
@@ -359,14 +363,16 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
         mRegisteredStoryEvents.emplace_back
         (
             StoryRandomEventData
-            ({
+            (
+             strutils::StringId("Mountain of Gold"),
+             {
                 StoryRandomEventScreenData("events/mountain_of_gold.png", {"A gigantic flood of coins", "rains down from the sky!", "A deep voice echoes from", "somewhere in the sky..."},
                 {
                     StoryRandomEventButtonData("Continue", 1)
                 }),
                 StoryRandomEventScreenData("events/mountain_of_gold.png", {"\"This is you reward traveller", "for all the gold carts you", "left behind to be used by", "those in greater need!\""},
                 {
-                    StoryRandomEventButtonData("Collect " + std::to_string(goldCoinsToGain) + "<coin>!", 2, [=]()
+                    StoryRandomEventButtonData("Collect " + std::to_string(goldCoinsToGain) + "<coin>!", 2, 0.0f, [=]()
                     {
                         events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(goldCoinsToGain, mScene->FindSceneObject(EVENT_PORTRAIT_SCENE_OBJECT_NAME)->mPosition);
                         DataRepository::GetInstance().SetHasSeenMountainOfGoldEvent(true);
@@ -390,14 +396,16 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
         mRegisteredStoryEvents.emplace_back
         (
             StoryRandomEventData
-            ({
+            (
+             strutils::StringId("Lava Trap"),
+             {
                 StoryRandomEventScreenData("events/lava_trap.png", {"", "You approach a steep cliff", "overlooking a river of lava."},
                 {
                     StoryRandomEventButtonData("Continue", 1)
                 }),
                 StoryRandomEventScreenData("events/lava_trap.png", {"You can either try jumping,", "risking a fall, or retrace your", "steps, circle down and", "around (closer to the lava),", "stepping on the hot ground."},
                 {
-                    StoryRandomEventButtonData("Risk the Jump  (33% -" + std::to_string(randomHpLoss) + "*)", failedJump ? 2 : 3, [=]()
+                    StoryRandomEventButtonData("Risk the Jump  (33% -" + std::to_string(randomHpLoss) + "*)", failedJump ? 2 : 3, 0.0f, [=]()
                     {
                         if (failedJump)
                         {
@@ -408,7 +416,7 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
                             mScene->GetCamera().Shake(1.0f, 0.05f);
                         }
                     }),
-                    StoryRandomEventButtonData("Go down and around  (100% -" + std::to_string(guaranteedHpLoss) + "*)", 4, [=]()
+                    StoryRandomEventButtonData("Go down and around  (100% -" + std::to_string(guaranteedHpLoss) + "*)", 4, 0.0f, [=]()
                     {
                         auto& progressionHealth = DataRepository::GetInstance().StoryCurrentHealth();
                         progressionHealth.SetValue(progressionHealth.GetValue() - guaranteedHpLoss);
@@ -443,14 +451,16 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
         mRegisteredStoryEvents.emplace_back
         (
             StoryRandomEventData
-            ({
+            (
+             strutils::StringId("Myserious Spring"),
+             {
                 StoryRandomEventScreenData("events/mysterious_spring.png", {"You approach a moonlit", "forest glade. An animated", "emerald water spring", "catches your eye."},
                 {
-                    StoryRandomEventButtonData("Continue", 1, [=](){})
+                    StoryRandomEventButtonData("Continue", 1, 0.0f, [=](){})
                 }),
                 StoryRandomEventScreenData("events/mysterious_spring.png", {"It looks safe to drink, however", "many skulls are littered", "throughout the lake. How", "much water should you drink?"},
                 {
-                    StoryRandomEventButtonData("LOADS  (50% Full* or 50% -" + std::to_string(randomHpLoss) + "*)", failedMaxDrink ? 2 : 3, [=]()
+                    StoryRandomEventButtonData("LOADS  (50% Full* or 50% -" + std::to_string(randomHpLoss) + "*)", failedMaxDrink ? 2 : 3, 0.0f, [=]()
                     {
                         if (failedMaxDrink)
                         {
@@ -465,7 +475,7 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
                             events::EventSystem::GetInstance().DispatchEvent<events::HealthRefillRewardEvent>(DataRepository::GetInstance().GetStoryMaxHealth() - DataRepository::GetInstance().StoryCurrentHealth().GetValue(), mScene->FindSceneObject(EVENT_PORTRAIT_SCENE_OBJECT_NAME)->mPosition);
                         }
                     }),
-                    StoryRandomEventButtonData("Just a sip  (100% +" + std::to_string(guaranteedHpGain) + "*)", 4, [=]()
+                    StoryRandomEventButtonData("Just a sip  (100% +" + std::to_string(guaranteedHpGain) + "*)", 4, 0.0f, [=]()
                     {
                         auto& storyCurrentHealth = DataRepository::GetInstance().StoryCurrentHealth();
                         auto healthRestored = math::Min(DataRepository::GetInstance().GetStoryMaxHealth(), storyCurrentHealth.GetValue() + guaranteedHpGain) - storyCurrentHealth.GetValue();
@@ -498,18 +508,20 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
         mRegisteredStoryEvents.emplace_back
         (
             StoryRandomEventData
-            ({
+            (
+             strutils::StringId("Two Doors"),
+             {
                 StoryRandomEventScreenData("events/two_doors.png", {"You decide to enter a small", "fort. It looks abandoned.", "In the hallway you see", "2 doors."},
                 {
                     StoryRandomEventButtonData("Continue", 1)
                 }),
                 StoryRandomEventScreenData("events/two_doors.png", {"The first door reads:", "\"Your heart desires gold\"", "the second reads:", "\"Your soul craves the lost\"", "Which door will choose?"},
                 {
-                    StoryRandomEventButtonData("First Door  (get " + std::to_string(coinReward) + "<coin>)", 2, [=]()
+                    StoryRandomEventButtonData("First Door  (get " + std::to_string(coinReward) + "<coin>)", 2, 0.0f, [=]()
                     {
                         events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(coinReward, mScene->FindSceneObject(EVENT_PORTRAIT_SCENE_OBJECT_NAME)->mPosition);
                     }),
-                    StoryRandomEventButtonData("Second Door  (get random Artifact)", 3, [=]()
+                    StoryRandomEventButtonData("Second Door  (get random Artifact)", 3, 0.0f, [=]()
                     {
                         CollectRareItem(rareItemRewardName);
                     })
@@ -536,14 +548,16 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
         mRegisteredStoryEvents.emplace_back
         (
             StoryRandomEventData
-            ({
+            (
+             strutils::StringId("Sacrificial Vase"),
+             {
                 StoryRandomEventScreenData("events/sacrificial_vase.png", {"You see a faint glowing light", "inside an abandoned house.", "When you enter the house", "you see a giant runic vase."},
                 {
                     StoryRandomEventButtonData("Continue", 1)
                 }),
                 StoryRandomEventScreenData("events/sacrificial_vase.png", {"You see some faint markings", "inscribed on the vase:", "\"A sacrifice for a reward\"", "Will you sacrifice a card", "for the so called  \"reward\"?"},
                 {
-                    StoryRandomEventButtonData("Do it (-1 card +1 random artifact)", 2, [=]()
+                    StoryRandomEventButtonData("Do it (-1 card +1 random artifact)", 2, CARD_DELETION_ANIMATION_DURATION_SECS * 2, [=]()
                     {
                         AnimateAndDeleteCardFromDeck(cardIndexToDelete, false);
                         CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TimeDelayAnimation>(CARD_DELETION_ANIMATION_DURATION_SECS * 2), [=]()
@@ -575,14 +589,16 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
         mRegisteredStoryEvents.emplace_back
         (
             StoryRandomEventData
-            ({
+            (
+             strutils::StringId("Blood Knife"),
+             {
                 StoryRandomEventScreenData("events/blood_knife.png", {"You see a bloody knife", "on top of dusty old desk.", "Next to it, a small but", "extremely heavy stone is", "sitting on top of something."},
                 {
                     StoryRandomEventButtonData("Continue", 1)
                 }),
                 StoryRandomEventScreenData("events/blood_knife.png", {"You see a note next to", "the knife:", "\"The only way the stone", "will move is with a bit", "of fresh life force...\""},
                 {
-                    StoryRandomEventButtonData("Donate (-50%<health> +1 random artifact)", 2, [=]()
+                    StoryRandomEventButtonData("Donate (-50%<health> +1 random artifact)", 2, 0.0f, [=]()
                     {
                         auto& progressionHealth = DataRepository::GetInstance().StoryCurrentHealth();
                         progressionHealth.SetValue(progressionHealth.GetValue()/2);
@@ -740,7 +756,16 @@ void EventSceneLogicManager::CreateEventScreen(const int screenIndex)
                 }
                 DataRepository::GetInstance().SetCurrentEventScreenIndex(screenButton.mNextScreenIndex);
                 DataRepository::GetInstance().FlushStateToFile();
-                TransitionToEventScreen(screenButton.mNextScreenIndex);
+                
+                if (screenButton.mNextScreenDelaySecs > 0.0f)
+                {
+                    mTransitioning = true;
+                    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TimeDelayAnimation>(screenButton.mNextScreenDelaySecs), [=](){ TransitionToEventScreen(screenButton.mNextScreenIndex); });
+                }
+                else
+                {
+                    TransitionToEventScreen(screenButton.mNextScreenIndex);
+                }
             },
             *mScene,
             scene::SnapToEdgeBehavior::SNAP_TO_RIGHT_EDGE,
@@ -841,6 +866,13 @@ void EventSceneLogicManager::AnimateAndDeleteCardFromDeck(const int deckCardInde
             }
         });
     });
+}
+
+///------------------------------------------------------------------------------------------------
+
+const std::vector<EventSceneLogicManager::StoryRandomEventData>& EventSceneLogicManager::GetRegisteredEvents() const
+{
+    return mRegisteredStoryEvents;
 }
 
 ///------------------------------------------------------------------------------------------------

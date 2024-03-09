@@ -876,6 +876,64 @@ void Game::CreateDebugWidgets()
     auto* activeSceneLogicManager = mGameSceneTransitionManager->GetActiveSceneLogicManager();
     activeSceneLogicManager->VCreateDebugWidgets();
     
+    if (mGameSceneTransitionManager->GetActiveSceneStack().top().mActiveSceneName == game_constants::STORY_MAP_SCENE)
+    {
+        static EventSceneLogicManager dummyEventSceneLogicManager;
+        if (dummyEventSceneLogicManager.GetRegisteredEvents().empty())
+        {
+            dummyEventSceneLogicManager.SelectRandomStoryEvent();
+        }
+        
+        const auto& registeredEvents = dummyEventSceneLogicManager.GetRegisteredEvents();
+        
+        // Events Widget
+        ImGui::Begin("Events", nullptr, GLOBAL_IMGUI_WINDOW_FLAGS);
+        
+        {
+            static size_t selectedEventNameIndex = 0;
+            static std::vector<std::string> eventNames;
+            if (eventNames.empty())
+            {
+                for (const auto& eventData: registeredEvents)
+                {
+                    eventNames.push_back(eventData.mEventName.GetString());
+                }
+            }
+            
+            {
+                ImGui::Text("Event Name");
+                ImGui::SameLine();
+                ImGui::PushID("EventName");
+                ImGui::SetNextItemWidth(200.0f);
+                if (ImGui::BeginCombo(" ", eventNames.at(selectedEventNameIndex).c_str()))
+                {
+                    for (size_t n = 0U; n < eventNames.size(); n++)
+                    {
+                        const bool isSelected = (selectedEventNameIndex == n);
+                        if (ImGui::Selectable(eventNames.at(n).c_str(), isSelected))
+                        {
+                            selectedEventNameIndex = n;
+                        }
+                        if (isSelected)
+                        {
+                            ImGui::SetItemDefaultFocus();
+                        }
+                    }
+                    ImGui::EndCombo();
+                }
+                ImGui::PopID();
+                ImGui::SameLine();
+                if (ImGui::Button("Show Event"))
+                {
+                    DataRepository::GetInstance().SetCurrentEventIndex(static_cast<int>(selectedEventNameIndex));
+                    DataRepository::GetInstance().SetCurrentEventScreenIndex(0);
+                    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::EVENT_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
+                }
+            }
+        }
+        ImGui::End();
+    }
+    
     if (!dynamic_cast<BattleSceneLogicManager*>(activeSceneLogicManager))
     {
         return;
