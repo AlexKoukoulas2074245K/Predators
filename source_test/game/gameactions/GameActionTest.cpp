@@ -901,6 +901,27 @@ TEST_F(GameActionTests, TestGnawerComboWeightReductionEffect)
     EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH - 2 * GET_CARD_DAMAGE("Bunny") - GET_CARD_DAMAGE("Rex"));
 }
 
+
+TEST_F(GameActionTests, TestDinoReversalEffect)
+{
+    mBoardState->GetPlayerStates()[0].mPlayerDeckCards = { GET_CARD_ID("Reversal"), GET_CARD_ID("Baby Dino"), GET_CARD_ID("Rex") }; // Top player has a deck of Reversal, Baby Dino and a Rex
+    
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mBoardState->GetPlayerStates()[0].mPlayerTotalWeightAmmo = GET_CARD_WEIGHT("Reversal") + GET_CARD_WEIGHT("Baby Dino");
+    mBoardState->GetPlayerStates()[0].mPlayerCurrentWeightAmmo = GET_CARD_WEIGHT("Reversal") + GET_CARD_WEIGHT("Baby Dino");
+    mBoardState->GetPlayerStates()[0].mPlayerHeldCards = { GET_CARD_ID("Reversal"), GET_CARD_ID("Baby Dino"), GET_CARD_ID("Rex") };
+    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Reversal is played
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Baby Dino is played
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH - GET_CARD_DAMAGE("Rex")); // Bot player gets damaged as much as Rex's attack is due to reversal effect
+}
+
 TEST_F(GameActionTests, TestBuffedDugOutRodentsHaveCorrectModifiersPostClearingNetWithGustOfWind)
 {
     mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {GET_CARD_ID("Throwing Net")}; // Top player has a deck of Nets

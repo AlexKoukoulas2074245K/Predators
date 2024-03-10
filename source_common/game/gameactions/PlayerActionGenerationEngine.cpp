@@ -164,6 +164,12 @@ bool PlayerActionGenerationEngine::IsCardHighPriority(const CardData& cardData, 
     else if
     (
         cardData.IsSpell() &&
+        strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_SWAP_MIN_MAX_DAMAGE)
+    ) return true;
+    
+    else if
+    (
+        cardData.IsSpell() &&
         strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_CLEAR_EFFECTS) &&
         (math::RandomInt(0, 1) == 1 || mActionGenerationType != ActionGenerationType::OPTIMISED)
     ) return true;

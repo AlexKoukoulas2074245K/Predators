@@ -43,6 +43,7 @@ static const strutils::StringId INSECT_MEGASWARM_GAME_ACTION_NAME = strutils::St
 static const strutils::StringId HOUND_SUMMONING_GAME_ACTION_NAME = strutils::StringId("HoundSummoningGameAction");
 static const strutils::StringId DEMON_PUNCH_GAME_ACTION_NAME = strutils::StringId("DemonPunchGameAction");
 static const strutils::StringId METEOR_CARD_SACRIFICE_GAME_ACTION_NAME = strutils::StringId("MeteorCardSacrificeGameAction");
+static const strutils::StringId DINO_DAMAGE_REVERSAL_GAME_ACTION_NAME = strutils::StringId("DinoDamageReversalGameAction");
 
 // Resources
 static const std::string EFFECT_SFX = "sfx_chime";
@@ -539,6 +540,12 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
         else if (effectComponent == effects::EFFECT_COMPONENT_METEOR)
         {
             mGameActionEngine->AddGameAction(METEOR_CARD_SACRIFICE_GAME_ACTION_NAME);
+        }
+        
+        // Dino Damage Reversal
+        else if (effectComponent == effects::EFFECT_COMPONENT_SWAP_MIN_MAX_DAMAGE)
+        {
+            mGameActionEngine->AddGameAction(DINO_DAMAGE_REVERSAL_GAME_ACTION_NAME);
         }
         
         // Rodents Lifesteal

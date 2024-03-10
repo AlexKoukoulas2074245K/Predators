@@ -66,6 +66,24 @@ bool GameRuleEngine::CanCardBePlayed(const CardData* cardData, const size_t card
         }
     }
     
+    if (strutils::StringContains(cardData->mCardEffect, effects::EFFECT_COMPONENT_SWAP_MIN_MAX_DAMAGE))
+    {
+        auto applicableCards = 0;
+        for (auto i = 0; i < activePlayerState.mPlayerHeldCards.size(); ++i)
+        {
+            const auto& cardData = CardDataRepository::GetInstance().GetCardData(activePlayerState.mPlayerHeldCards[i], mBoardState->GetActivePlayerIndex());
+            if (cardData.mCardFamily == game_constants::DINOSAURS_FAMILY_NAME && !cardData.IsSpell())
+            {
+                applicableCards++;
+            }
+        }
+        
+        if (applicableCards < 2)
+        {
+            return false;
+        }
+    }
+    
     return (activePlayerState.mPlayerCurrentWeightAmmo >= cardWeight || activePlayerState.mZeroCostTime) && activePlayerState.mPlayerBoardCards.size() < game_constants::MAX_BOARD_CARDS;
 }
 

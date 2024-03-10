@@ -754,6 +754,16 @@
             "texture": "hedgehog.png",
             "shader": "basic.vs",
             "expansion": "second_generation"
+        },
+        {
+            "weight": 2,
+            "family": "dinosaurs",
+            "name": "Reversal",
+            "effect": "SWAP_MIN_MAX_DAMAGE",
+            "tooltip": "Reverses the <damage> of$the highest <damage> and$lowest <damage> Dinosaurs$in your hand",
+            "texture": "dino_reversal.png",
+            "shader": "basic.vs",
+            "expansion": "second_generation"
         }
     ]
 }

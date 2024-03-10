@@ -27,6 +27,11 @@ bool saveInProgress = false;
 
 void QueryPlayerProgress(std::function<void(QueryResultData)> onQueryCompleteCallback)
 {
+    if (!apple_utils::IsConnectedToTheInternet())
+    {
+        return;
+    }
+    
     NSString* containerIdentifier = @"iCloud.com.alexkoukoulas2074245k.Predators";
     CKContainer* customContainer = [CKContainer containerWithIdentifier:containerIdentifier];
     CKDatabase* privateDatabase = [customContainer privateCloudDatabase];
@@ -73,6 +78,11 @@ void QueryPlayerProgress(std::function<void(QueryResultData)> onQueryCompleteCal
 
 void SavePlayerProgress()
 {
+    if (!apple_utils::IsConnectedToTheInternet())
+    {
+        return;
+    }
+    
     if (!currentProgressRecord)
     {
         QueryPlayerProgress([](QueryResultData){});
