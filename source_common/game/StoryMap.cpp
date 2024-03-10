@@ -703,7 +703,7 @@ void StoryMap::CreateMapSceneObjects()
     auto& particleManager = CoreSystemsEngine::GetInstance().GetParticleManager();
     auto animatedNodePathParticleEmitterSceneObject = particleManager.CreateParticleEmitterAtPosition(ANIMATED_NODE_PATH_PARTICLE_DEFINITION_NAME, glm::vec3(), *mScene, ANIMATED_NODE_PATH_PARTICLE_EMITTER_NAME, [](float dtMillis, scene::ParticleEmitterObjectData& particleEmitterData)
     {
-        for (size_t i = 0; i < particleEmitterData.mParticleCount; ++i)
+        for (size_t i = 0; i < particleEmitterData.mTotalParticlesSpawned; ++i)
         {
             if (particleEmitterData.mParticleAngles[i] > 0.0f)
             {
@@ -727,7 +727,7 @@ void StoryMap::CreateMapSceneObjects()
     });
     auto staticNodePathParticleEmitterSceneObject = particleManager.CreateParticleEmitterAtPosition(STATIC_NODE_PATH_PARTICLE_DEFINITION_NAME, glm::vec3(), *mScene, STATIC_NODE_PATH_PARTICLE_EMITTER_NAME, [](float, scene::ParticleEmitterObjectData& particleEmitterData)
     {
-        for (size_t i = 0; i < particleEmitterData.mParticleCount; ++i)
+        for (size_t i = 0; i < particleEmitterData.mTotalParticlesSpawned; ++i)
         {
             particleEmitterData.mParticleLifetimeSecs[i] = INACTIVE_NODE_PATH_LIFETIME_SECS;
             particleEmitterData.mParticleSizes[i] = MIN_NODE_PATH_SCALE;

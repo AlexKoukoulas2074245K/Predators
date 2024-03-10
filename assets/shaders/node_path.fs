@@ -21,7 +21,7 @@ void main()
     // Get texture color
     frag_color = texture(tex, vec2(finalUvX, finalUvY));
     
-    if (frag_color.a < 0.1) discard;
+    if (frag_color.a < 0.77) discard;
     
     frag_color.a *= custom_alpha;
 }

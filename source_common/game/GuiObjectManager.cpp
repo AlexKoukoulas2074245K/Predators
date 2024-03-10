@@ -101,6 +101,7 @@ static const float RARE_ITEM_COLLECTED_ANIMATION_MIN_ALPHA = 0.3f;
 static const float RARE_ITEM_COLLECTED_ANIMATION_LIBRARY_ICON_PULSE_FACTOR = 1.25f;
 static const float RARE_ITEM_COLLECTED_ANIMATION_LIBRARY_ICON_PULSE_DURATION_SECS = 0.1f;
 static const float RARE_ITEM_COLLECTED_ANIMATION_DURATION_SECS = 3.0f;
+static const float STAT_PARTICLE_EMITTER_MIN_Z = 19.0f;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -300,6 +301,9 @@ void GuiObjectManager::AnimateStatParticlesFlyingToGui(const glm::vec3& originPo
     auto particleDefinition = strutils::StringId();
     auto particleEmitterName = strutils::StringId();
     
+    auto baseEmitterPosition = originPosition;
+    baseEmitterPosition.z = math::Min(STAT_PARTICLE_EMITTER_MIN_Z, baseEmitterPosition.z);
+    
     switch (statParticleType)
     {
         case StatParticleType::COINS:
@@ -317,7 +321,7 @@ void GuiObjectManager::AnimateStatParticlesFlyingToGui(const glm::vec3& originPo
     mParticleEmitterTimeAccums[particleEmitterName] = 0.0f;
     mScene->RemoveSceneObject(particleEmitterName);
 
-    auto particleEmitterSceneObject = particleManager.CreateParticleEmitterAtPosition(particleDefinition, glm::vec3(), *mScene, particleEmitterName, [=](float dtMillis, scene::ParticleEmitterObjectData& particleEmitterData)
+    auto particleEmitterSceneObject = particleManager.CreateParticleEmitterAtPosition(particleDefinition, baseEmitterPosition, *mScene, particleEmitterName, [=](float dtMillis, scene::ParticleEmitterObjectData& particleEmitterData)
     {
         auto& particleManager = CoreSystemsEngine::GetInstance().GetParticleManager();
         auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
@@ -371,7 +375,7 @@ void GuiObjectManager::AnimateStatParticlesFlyingToGui(const glm::vec3& originPo
                 {
                     int particleIndex = particleManager.SpawnParticleAtFirstAvailableSlot(particleEmitterSceneObject);
                     
-                    particleEmitterData.mParticlePositions[particleIndex] = originPosition + STAT_PARTICLE_INIT_POSITION_OFFSET;
+                    particleEmitterData.mParticlePositions[particleIndex] = baseEmitterPosition + STAT_PARTICLE_INIT_POSITION_OFFSET;
                     
                     glm::vec3 midPosition = (particleEmitterData.mParticlePositions[particleIndex] + targetPosition)/2.0f;
                     midPosition.y += forBattleScene ?
@@ -579,7 +583,11 @@ void GuiObjectManager::OnRareItemCollected(const events::RareItemCollectedEvent&
         auto inventoryIconPosition = inventoryIconSceneObject->mPosition;
         glm::vec3 midPosition = glm::vec3(event.mRareItemSceneObject->mPosition + inventoryIconPosition)/2.0f;
         
-        if (mScene->GetName() == game_constants::BATTLE_SCENE)
+        if (mScene->GetName() != game_constants::BATTLE_SCENE)
+        {
+            midPosition.y += math::RandomSign() == 1 ? RARE_ITEM_COLLECTED_ANIMATION_MIN_MAX_OFFSETS.t : RARE_ITEM_COLLECTED_ANIMATION_MIN_MAX_OFFSETS.s ;
+        }
+        else
         {
             if (CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::WHEEL_OF_FORTUNE_SCENE))
             {
