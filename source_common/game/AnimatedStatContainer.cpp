@@ -173,7 +173,8 @@ void AnimatedStatContainer::RealignBaseAndValueSceneObjects()
     auto baseCrystalSo = mSceneObjects.front();
     auto valueCrystalSo = mSceneObjects.back();
     
-    if (mFinishedAnimating && CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE) && !CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::WHEEL_OF_FORTUNE_SCENE))
+    if (mFinishedAnimating && CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE) && !CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::WHEEL_OF_FORTUNE_SCENE) &&
+        !CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::CARD_SELECTION_REWARD_SCENE_NAME))
     {
         baseCrystalSo->mPosition = mInitCrystalBasePosition;
     }

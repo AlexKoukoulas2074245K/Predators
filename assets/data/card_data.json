@@ -552,7 +552,7 @@
             "family": "demons_medium",
             "name": "Chaos Magic",
             "effect": "DAMAGE +4 FAMILY BOARD HELD",
-            "tooltip": "+4<damage> for ALL Demons$on hand & board",
+            "tooltip": "+4<damage> for ALL$Demons on hand &$board",
             "texture": "story_cards/demon_ritual.png",
             "shader": "basic.vs",
             "single_use": false,

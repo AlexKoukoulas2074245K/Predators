@@ -859,6 +859,7 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
                         DataRepository::GetInstance().SetNextStoryOpponentTexturePath(DRAGON_TEXTURE_PATH);
                         DataRepository::GetInstance().SetNextStoryOpponentName(game_constants::EMERALD_DRAGON_NAME.GetString());
                         DataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::BATTLE);
+                        DataRepository::GetInstance().SetCurrentStoryMapNodeType(StoryMap::NodeType::ELITE_ENCOUNTER);
                         
                         // Populate opponent stats
                         DataRepository::GetInstance().SetNextStoryOpponentDamage(DRAGON_DAMAGE);
