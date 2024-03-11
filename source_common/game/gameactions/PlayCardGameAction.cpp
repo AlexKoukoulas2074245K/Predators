@@ -40,6 +40,7 @@ static const strutils::StringId CARD_HISTORY_ENTRY_ADDITION_GAME_ACTION_NAME = s
 static const strutils::StringId CARD_PLAY_PARTICLE_NAME = strutils::StringId("card_play");
 static const strutils::StringId HEAL_NEXT_DINO_DAMAGE_GAME_ACTION_NAME = strutils::StringId("HealNextDinoDamageGameAction");
 static const strutils::StringId INSECT_VIRUS_GAME_ACTION_NAME = strutils::StringId("InsectVirusGameAction");
+static const strutils::StringId SPELL_KILL_GAME_ACTION_NAME = strutils::StringId("SpellKillGameAction");
 static const strutils::StringId ZERO_COST_TIME_GAME_ACTION_NAME = strutils::StringId("ZeroCostTimeGameAction");
 static const strutils::StringId HISTORY_BUTTON_SCENE_OBJECT_NAME = strutils::StringId("history_button");
 static const strutils::StringId END_TURN_TUTORIAL_GAME_ACTION_NAME = strutils::StringId("EndTurnTutorialGameAction");
@@ -113,6 +114,21 @@ void PlayCardGameAction::VSetNewGameState()
     
     if (cardData.IsSpell())
     {
+        if ((activePlayerState.mBoardModifiers.mBoardModifierMask & effects::board_modifier_masks::SPELL_KILL_NEXT) != 0)
+        {
+            mGameActionEngine->AddGameAction(CARD_HISTORY_ENTRY_ADDITION_GAME_ACTION_NAME,
+            {
+                { CardHistoryEntryAdditionGameAction::PLAYER_INDEX_PARAM, std::to_string(mBoardState->GetActivePlayerIndex()) },
+                { CardHistoryEntryAdditionGameAction::CARD_INDEX_PARAM, std::to_string(activePlayerState.mPlayerBoardCards.size() - 1) },
+                { CardHistoryEntryAdditionGameAction::ENTRY_TYPE_TEXTURE_FILE_NAME_PARAM, CardHistoryEntryAdditionGameAction::ENTRY_TYPE_TEXTURE_FILE_NAME_DEATH },
+                { CardHistoryEntryAdditionGameAction::IS_TURN_COUNTER_PARAM, "false"}
+            });
+            
+            mGameActionEngine->AddGameAction(SPELL_KILL_GAME_ACTION_NAME);
+            activePlayerState.mBoardModifiers.mBoardModifierMask &= (~effects::board_modifier_masks::SPELL_KILL_NEXT);
+            return;
+        }
+        
         mGameActionEngine->AddGameAction(CARD_HISTORY_ENTRY_ADDITION_GAME_ACTION_NAME,
         {
             { CardHistoryEntryAdditionGameAction::PLAYER_INDEX_PARAM, std::to_string(mBoardState->GetActivePlayerIndex()) },

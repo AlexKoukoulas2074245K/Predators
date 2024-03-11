@@ -233,6 +233,23 @@ TEST_F(GameActionTests, TestBearTrapEffect)
     EXPECT_EQ(mBoardState->GetPlayerStates()[1].mPlayerBoardCards.size(), 0); // Bunny is destroyed before end of turn
 }
 
+TEST_F(GameActionTests, TestSpellDenyTrapEffect)
+{
+    mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {GET_CARD_ID("Toxic Denial")}; // Top player has a deck of Toxic Denials
+    mBoardState->GetPlayerStates()[1].mPlayerDeckCards = {GET_CARD_ID("Demon Punch")}; // Bot player has a deck Demon Punches
+    
+    mActionEngine->AddGameAction(NEXT_PLAYER_GAME_ACTION_NAME);
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Spell Deny is played
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    
+    mPlayerActionGenerationEngine->DecideAndPushNextActions(mBoardState.get()); // Demon Punch is played
+    
+    UpdateUntilActionOrIdle(IDLE_GAME_ACTION_NAME);
+    EXPECT_EQ(mBoardState->GetPlayerStates()[0].mPlayerHealth, TEST_DEFAULT_PLAYER_HEALTH); // No Damage done since Demon Punch was cancelled
+}
+
 TEST_F(GameActionTests, TestDemonTrapEffect)
 {
     mBoardState->GetPlayerStates()[0].mPlayerDeckCards = {GET_CARD_ID("Demon Trap")}; // Top player has a deck of bear traps

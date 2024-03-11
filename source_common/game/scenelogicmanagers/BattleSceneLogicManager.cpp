@@ -1919,6 +1919,10 @@ void BattleSceneLogicManager::OnBoardSideCardEffectTriggered(const events::Board
         {
             sideEffectSceneObject = battleScene->FindSceneObject(event.mForRemotePlayer ? game_constants::DEMON_KILL_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::DEMON_KILL_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME);
         }
+        else if (event.mEffectBoardModifierMask == effects::board_modifier_masks::SPELL_KILL_NEXT)
+        {
+            sideEffectSceneObject = battleScene->FindSceneObject(event.mForRemotePlayer ? game_constants::SPELL_KILL_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::SPELL_KILL_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME);
+        }
         else if (event.mEffectBoardModifierMask == effects::board_modifier_masks::DUPLICATE_NEXT_INSECT)
         {
             sideEffectSceneObject = battleScene->FindSceneObject(event.mForRemotePlayer ? game_constants::INSECT_DUPLICATION_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::INSECT_DUPLICATION_EFFECT_BOT_SCENE_OBJECT_NAME);
@@ -2025,6 +2029,10 @@ void BattleSceneLogicManager::OnBoardSideCardEffectEnded(const events::BoardSide
         else if (event.mEffectBoardModifierMask == effects::board_modifier_masks::DEMON_KILL_NEXT)
         {
             sideEffectSceneObject = battleScene->FindSceneObject(event.mForRemotePlayer ? game_constants::DEMON_KILL_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::DEMON_KILL_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME);
+        }
+        else if (event.mEffectBoardModifierMask == effects::board_modifier_masks::SPELL_KILL_NEXT)
+        {
+            sideEffectSceneObject = battleScene->FindSceneObject(event.mForRemotePlayer ? game_constants::SPELL_KILL_SIDE_EFFECT_TOP_SCENE_OBJECT_NAME : game_constants::SPELL_KILL_SIDE_EFFECT_BOT_SCENE_OBJECT_NAME);
         }
         else if (event.mEffectBoardModifierMask == effects::board_modifier_masks::DUPLICATE_NEXT_INSECT)
         {

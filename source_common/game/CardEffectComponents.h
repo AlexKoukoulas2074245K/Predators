@@ -36,6 +36,7 @@ namespace board_modifier_masks
     static constexpr EffectBoardModifierMask INSECT_VIRUS                          = 0x200;
     static constexpr EffectBoardModifierMask DEMON_KILL_NEXT                       = 0x400;
     static constexpr EffectBoardModifierMask EVERY_THIRD_CARD_PLAYED_HAS_ZERO_COST = 0x800;
+    static constexpr EffectBoardModifierMask SPELL_KILL_NEXT                       = 0x1000;
 };
 
 
@@ -73,6 +74,7 @@ inline const std::string EFFECT_COMPONENT_ADD_POISON_STACKS                     
 inline const std::string EFFECT_COMPONENT_RANDOM_HAND_BUFF_ATTACK               = "RANDOM_HAND_BUFF_ATTACK";
 inline const std::string EFFECT_COMPONENT_TRIPPLES_LOWEST_ATTACK_ON_HAND        = "TRIPPLES_LOWEST_ATTACK_ON_HAND";
 inline const std::string EFFECT_COMPONENT_SWAP_MIN_MAX_DAMAGE                   = "SWAP_MIN_MAX_DAMAGE";
+inline const std::string EFFECT_COMPONENT_SPELL_KILL                            = "SPELL_KILL";
 
 inline const std::unordered_set<std::string> STATIC_EFFECT_COMPONENT_NAMES =
 {
@@ -108,7 +110,8 @@ inline const std::unordered_set<std::string> STATIC_EFFECT_COMPONENT_NAMES =
     EFFECT_COMPONENT_ADD_POISON_STACKS,
     EFFECT_COMPONENT_RANDOM_HAND_BUFF_ATTACK,
     EFFECT_COMPONENT_TRIPPLES_LOWEST_ATTACK_ON_HAND,
-    EFFECT_COMPONENT_SWAP_MIN_MAX_DAMAGE
+    EFFECT_COMPONENT_SWAP_MIN_MAX_DAMAGE,
+    EFFECT_COMPONENT_SPELL_KILL
 };
 
 ///------------------------------------------------------------------------------------------------

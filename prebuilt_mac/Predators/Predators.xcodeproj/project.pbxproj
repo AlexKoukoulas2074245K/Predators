@@ -58,6 +58,7 @@
 		5BCF72C83D946205813D1362 /* DinoDamageReversalGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD2C3BA145B30654CC348B48 /* DinoDamageReversalGameAction.cpp */; };
 		5BEFD96D266F53B603C278C1 /* TypeTraits.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 988043F06556266668BE5677 /* TypeTraits.cpp */; };
 		5F1B4D675106AED4A7CB17B4 /* CreditsSceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93285DBAAECD150BF0EF2824 /* CreditsSceneLogicManager.cpp */; };
+		6106FDC7C9089AA9708E823B /* SpellKillGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 371E3836DDCA21BE3D96B3DA /* SpellKillGameAction.cpp */; };
 		63011B7BE17965C680A05EAD /* BaseDataFileSerializer.h in Sources */ = {isa = PBXBuildFile; fileRef = 30D02CEC6861EBD7441E2004 /* BaseDataFileSerializer.h */; };
 		65D2F7E38372F0525D4554EF /* ProductRepository.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA762FD26B23DF71586603AB /* ProductRepository.cpp */; };
 		67BF0E4567CA2E857FB3DF03 /* GameSymbolicGlyphNames.h in Sources */ = {isa = PBXBuildFile; fileRef = 3B9109D055E8533B89646901 /* GameSymbolicGlyphNames.h */; };
@@ -239,6 +240,7 @@
 		E24F8BEB335EFB8866189742 /* BaseDataFileSerializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 903005ABB6F4A9CB6247ABDC /* BaseDataFileSerializer.cpp */; };
 		E7F3EF85172DB9E9D9AF8321 /* ImageSurfaceLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B645F5160C1B36C70F708518 /* ImageSurfaceLoader.cpp */; };
 		E88EC6BFF3E6479DEE4C7096 /* CardInspectionSceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = F2BCD29EF72262DDF246C0FD /* CardInspectionSceneLogicManager.h */; };
+		F27CBDD3EDFC07B17EFCD4FA /* SpellKillGameAction.h in Sources */ = {isa = PBXBuildFile; fileRef = 0961C179C02C1EEC84922D2F /* SpellKillGameAction.h */; };
 		F2C17A279E5E5256D4401C90 /* DataFileLoader.h in Sources */ = {isa = PBXBuildFile; fileRef = B83F90BE48846F5019309046 /* DataFileLoader.h */; };
 		F467390ABB511496E18AF585 /* SceneManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 221289B3E3FA84B55F4C25E2 /* SceneManager.h */; };
 		F51ECBEA53C3E1BE870B0612 /* ShaderResource.h in Sources */ = {isa = PBXBuildFile; fileRef = 13FDFD19955883B3085E4725 /* ShaderResource.h */; };
@@ -281,6 +283,7 @@
 		06291EA0D3FF12CB3058DEF2 /* OBJMeshLoader.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = OBJMeshLoader.cpp; sourceTree = "<group>"; };
 		0724B463AFC06A5A52F1047E /* OpenGL.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = OpenGL.h; sourceTree = "<group>"; };
 		08AAC0562233A3F34613E310 /* DataFileResource.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = DataFileResource.h; sourceTree = "<group>"; };
+		0961C179C02C1EEC84922D2F /* SpellKillGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = SpellKillGameAction.h; path = SpellKillGameAction.h; sourceTree = "<group>"; };
 		0A05CE2983C7CEA1D2A25585 /* BaseDataFileDeserializer.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = BaseDataFileDeserializer.cpp; sourceTree = "<group>"; };
 		0A90C5CE1FAAD720E2DE0541 /* CloudDataConfirmationSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = CloudDataConfirmationSceneLogicManager.h; sourceTree = "<group>"; };
 		0B76483234DBB09CE4B67D37 /* IAPProductIds.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = IAPProductIds.h; sourceTree = "<group>"; };
@@ -300,6 +303,7 @@
 		3199A38C1A16A070A579BAB4 /* ParticleManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = ParticleManager.h; sourceTree = "<group>"; };
 		3419ACBD925F58B9AC9FDDD9 /* InsectVirusGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = InsectVirusGameAction.h; sourceTree = "<group>"; };
 		3714C4A3B069768E05DD0199 /* SfxPlayer.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = SfxPlayer.h; sourceTree = "<group>"; };
+		371E3836DDCA21BE3D96B3DA /* SpellKillGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = SpellKillGameAction.cpp; path = SpellKillGameAction.cpp; sourceTree = "<group>"; };
 		393520815AD90C67A6A6989C /* MathUtils.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = MathUtils.cpp; sourceTree = "<group>"; };
 		3B9109D055E8533B89646901 /* GameSymbolicGlyphNames.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = GameSymbolicGlyphNames.h; sourceTree = "<group>"; };
 		3CEE0EACCF2A12E04E607BAD /* EndTurnTutorialGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = EndTurnTutorialGameAction.cpp; sourceTree = "<group>"; };
@@ -1024,6 +1028,8 @@
 				C089129E02AA6F03D721D4D8 /* EndTurnTutorialGameAction.h */,
 				CD2C3BA145B30654CC348B48 /* DinoDamageReversalGameAction.cpp */,
 				2CBF936542888D27428121D7 /* DinoDamageReversalGameAction.h */,
+				371E3836DDCA21BE3D96B3DA /* SpellKillGameAction.cpp */,
+				0961C179C02C1EEC84922D2F /* SpellKillGameAction.h */,
 			);
 			path = gameactions;
 			sourceTree = "<group>";
@@ -1556,6 +1562,8 @@
 				BF69861DDE745262064DC807 /* StatsSceneLogicManager.h in Sources */,
 				5BCF72C83D946205813D1362 /* DinoDamageReversalGameAction.cpp in Sources */,
 				1B4B77C8237783523BD26BBB /* DinoDamageReversalGameAction.h in Sources */,
+				6106FDC7C9089AA9708E823B /* SpellKillGameAction.cpp in Sources */,
+				F27CBDD3EDFC07B17EFCD4FA /* SpellKillGameAction.h in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

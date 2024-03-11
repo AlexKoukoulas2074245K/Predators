@@ -764,6 +764,17 @@
             "texture": "dino_reversal.png",
             "shader": "basic.vs",
             "expansion": "second_generation"
+        },
+        {
+            "weight": 3,
+            "family": "insects",
+            "name": "Toxic Denial",
+            "effect": "SPELL_KILL",
+            "tooltip": "Destroys the next$spell card played$by the opponent,$cancelling its effect$",
+            "texture": "spell_deny.png",
+            "shader": "basic.vs",
+            "single_use": true,
+            "expansion": "second_generation"
         }
     ]
 }

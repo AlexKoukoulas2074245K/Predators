@@ -38,6 +38,7 @@
 #include <game/gameactions/HowToPlayACardTutorialGameAction.h>
 #include <game/gameactions/EndTurnTutorialGameAction.h>
 #include <game/gameactions/DinoDamageReversalGameAction.h>
+#include <game/gameactions/SpellKillGameAction.h>
 #include <algorithm>
 #include <vector>
 
@@ -88,6 +89,7 @@ void GameActionFactory::RegisterGameActions()
     REGISTER_ACTION(HowToPlayACardTutorialGameAction);
     REGISTER_ACTION(EndTurnTutorialGameAction);
     REGISTER_ACTION(DinoDamageReversalGameAction);
+    REGISTER_ACTION(SpellKillGameAction);
     std::sort(REGISTERED_ACTION_NAMES.begin(), REGISTERED_ACTION_NAMES.end(), [&](const strutils::StringId& lhs, const strutils::StringId& rhs)
     {
         return lhs.GetString() < rhs.GetString();
@@ -137,6 +139,7 @@ std::unique_ptr<BaseGameAction> GameActionFactory::CreateGameAction(const struti
     ACTION_CASE(HowToPlayACardTutorialGameAction);
     ACTION_CASE(EndTurnTutorialGameAction);
     ACTION_CASE(DinoDamageReversalGameAction);
+    ACTION_CASE(SpellKillGameAction);
     assert(false && "Invalid game action name");
     return nullptr;
 }
