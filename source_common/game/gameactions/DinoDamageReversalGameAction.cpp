@@ -99,6 +99,10 @@ void DinoDamageReversalGameAction::VSetNewGameState()
         return;
     }
         
+    events::EventSystem::GetInstance().DispatchEvent<events::ForceSendCardBackToPositionEvent>(static_cast<int>(mLowestDamageHeldCardIndex), false, mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
+    
+    events::EventSystem::GetInstance().DispatchEvent<events::ForceSendCardBackToPositionEvent>(static_cast<int>(mHighestDamageHeldCardIndex), false, mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
+    
     mGameActionEngine->AddGameAction(CARD_BUFFED_DEBUFFED_ANIMATION_GAME_ACTION_NAME,
     {
         { CardBuffedDebuffedAnimationGameAction::CARD_INDEX_PARAM, std::to_string(mLowestDamageHeldCardIndex)},

@@ -516,7 +516,34 @@ void Game::CreateDebugWidgets()
         ImGui::SameLine();
         if (ImGui::Button("Add Artifact"))
         {
-            DataRepository::GetInstance().AddStoryArtifact(artifactNames.at(artifactIndex));
+            static const std::string RARE_ITEM_SHADER = "rare_item.vs";
+            static const glm::vec3 RARE_ITEM_TARGET_SCALE = glm::vec3(0.3f, 0.3f, 0.3f);
+            
+            const auto& rareItemDefinition = ProductRepository::GetInstance().GetProductDefinition(artifactNames.at(artifactIndex));
+            
+            auto activeScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(mGameSceneTransitionManager->GetActiveSceneStack().top().mActiveSceneName);
+            auto activeGui = mGameSceneTransitionManager->GetActiveSceneLogicManager()->VGetGuiObjectManager();
+            
+            if (activeGui)
+            {
+                auto rareItemSceneObject = activeScene->CreateSceneObject();
+                rareItemSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + RARE_ITEM_SHADER);
+                rareItemSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + std::get<std::string>(rareItemDefinition.mProductTexturePathOrCardId));
+                rareItemSceneObject->mPosition = {0.0f, 0.0f, 5.0f};
+                rareItemSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
+                rareItemSceneObject->mScale = {0.1f, 0.1f, 0.1f};
+                
+                CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(rareItemSceneObject, rareItemSceneObject->mPosition, RARE_ITEM_TARGET_SCALE, 1.0f), [=]()
+                {
+                    events::EventSystem::GetInstance().DispatchEvent<events::RareItemCollectedEvent>(artifactNames.at(artifactIndex), rareItemSceneObject);
+                });
+                
+            }
+            else
+            {
+                DataRepository::GetInstance().AddStoryArtifact(artifactNames.at(artifactIndex));
+            }
+            
             DataRepository::GetInstance().FlushStateToFile();
         }
     }
@@ -774,9 +801,30 @@ void Game::CreateDebugWidgets()
         auto insectCards = CardDataRepository::GetInstance().GetCardIdsByFamily(game_constants::INSECTS_FAMILY_NAME);
         
         auto unlockedCards = DataRepository::GetInstance().GetUnlockedCardIds();
-        unlockedCards.insert(unlockedCards.end(), rodentCards.begin(), rodentCards.end());
-        unlockedCards.insert(unlockedCards.end(), dinosaurCards.begin(), dinosaurCards.end());
-        unlockedCards.insert(unlockedCards.end(), insectCards.begin(), insectCards.end());
+        
+        for (auto cardId: rodentCards)
+        {
+            if (std::find(unlockedCards.cbegin(), unlockedCards.cend(), cardId) == unlockedCards.cend())
+            {
+                unlockedCards.push_back(cardId);
+            }
+        }
+        
+        for (auto cardId: dinosaurCards)
+        {
+            if (std::find(unlockedCards.cbegin(), unlockedCards.cend(), cardId) == unlockedCards.cend())
+            {
+                unlockedCards.push_back(cardId);
+            }
+        }
+        
+        for (auto cardId: insectCards)
+        {
+            if (std::find(unlockedCards.cbegin(), unlockedCards.cend(), cardId) == unlockedCards.cend())
+            {
+                unlockedCards.push_back(cardId);
+            }
+        }
         
         DataRepository::GetInstance().SetUnlockedCardIds(unlockedCards);
         DataRepository::GetInstance().FlushStateToFile();

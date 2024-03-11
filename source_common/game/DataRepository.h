@@ -401,7 +401,7 @@ private:
     int mGoldCartsIgnored = 0;
     bool mIsCurrentlyPlayingStoryMode = false;
     bool mCanSurfaceCloudDataScene = false;
-    bool mAudioEnabled = false;
+    bool mAudioEnabled = true;
     bool mHasSeenMountainOfGoldEvent = false;
     bool mTutorialsEnabled = true;
 };

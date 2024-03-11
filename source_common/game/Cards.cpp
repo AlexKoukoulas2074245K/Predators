@@ -32,7 +32,6 @@ static const std::vector<strutils::StringId> FRESH_ACCOUNT_UNLOCKED_CARD_NAMES =
     strutils::StringId("Toxic Wave"),
     strutils::StringId("Insect Duplication"),
     
-    strutils::StringId("Squirrel"),
     strutils::StringId("Beaver"),
     strutils::StringId("Fluff Attack"),
     strutils::StringId("Bear Trap"),

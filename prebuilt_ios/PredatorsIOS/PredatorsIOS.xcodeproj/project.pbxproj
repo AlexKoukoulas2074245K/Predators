@@ -33,6 +33,7 @@
 		248AB59723AAC635F8D0A98B /* HoundSummoningGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9654517BE7C952D2A8F438C7 /* HoundSummoningGameAction.cpp */; };
 		27EBB117D38FD5C44627896A /* SfxPlayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = A27D8C2596AF7ECA17A6F2DA /* SfxPlayer.mm */; };
 		2969F58C235518F36C861B82 /* DefeatSceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4178EB4C8E141EA2567CCB84 /* DefeatSceneLogicManager.cpp */; };
+		2971BB082137F26FCB6CFB89 /* SpellKillGameAction.h in Sources */ = {isa = PBXBuildFile; fileRef = 743AFF32782608D3B67841C0 /* SpellKillGameAction.h */; };
 		2B706DBCDA0B9F6D0EDCE50B /* HowToPlayACardTutorialGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9FAC44CF00C765CF69DDCD0E /* HowToPlayACardTutorialGameAction.cpp */; };
 		2B75144CAA08E08DF883AA97 /* GameOverGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 89CA4A16A5270CDD56E8E8E6 /* GameOverGameAction.cpp */; };
 		2C0E72BAD4E83BD9FB74A201 /* DisconnectedSceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 43DE9ADFFC3C9592FD463AE0 /* DisconnectedSceneLogicManager.h */; };
@@ -90,6 +91,7 @@
 		63ACAC4B14C52F77FD898EB9 /* SceneManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 2D9F44C3DC0B2CD50A891B5D /* SceneManager.h */; };
 		63E96163ABEC6E53C8F22D3D /* GameOverResurrectionCheckGameAction.h in Sources */ = {isa = PBXBuildFile; fileRef = 3AF1411BD6C230A2907F2D25 /* GameOverResurrectionCheckGameAction.h */; };
 		660911608ADE1C9EEC6A9623 /* AnimatedStatContainer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 89C7A73D8D9B8551A0B90213 /* AnimatedStatContainer.cpp */; };
+		6646144C06DA606CEDA47A37 /* SpellKillGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9F78954B6542EAA33ECF95B6 /* SpellKillGameAction.cpp */; };
 		666569DB569B0BF9FF01CF1E /* GiftingUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B05ED07AC0DFFAA1307DEE86 /* GiftingUtils.cpp */; };
 		66AB165A307A903CD1E44358 /* SoundManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 4E45BF6E91E8A78C5D531D26 /* SoundManager.h */; };
 		67B1455F17EDD453F49F14AA /* ImageSurfaceResource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E3503F93D9327A645A426E67 /* ImageSurfaceResource.cpp */; };
@@ -472,6 +474,7 @@
 		7213B89F1A8AC4B38238ECEB /* Cards.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = Cards.h; sourceTree = "<group>"; };
 		72242F63EB2721BA90D32C30 /* DemonPunchGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = DemonPunchGameAction.h; sourceTree = "<group>"; };
 		737A7BF42484F5DE03FA7A46 /* SceneObjectUtils.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = SceneObjectUtils.cpp; sourceTree = "<group>"; };
+		743AFF32782608D3B67841C0 /* SpellKillGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = SpellKillGameAction.h; path = SpellKillGameAction.h; sourceTree = "<group>"; };
 		74CBE4C620C35D7D3D16AF39 /* WheelOfFortuneSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = WheelOfFortuneSceneLogicManager.h; sourceTree = "<group>"; };
 		768D33D1BE87D452631F7F3B /* CardPlayedParticleEffectGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = CardPlayedParticleEffectGameAction.h; sourceTree = "<group>"; };
 		78D3D7811D0E6320DDDA9D6F /* CloudDataConfirmationSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = CloudDataConfirmationSceneLogicManager.cpp; sourceTree = "<group>"; };
@@ -590,6 +593,7 @@
 		9B38BAF55711B5DB10AD79BC /* CreditsSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = CreditsSceneLogicManager.cpp; sourceTree = "<group>"; };
 		9CD16C8E6720141685BD7319 /* GameSymbolicGlyphNames.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = GameSymbolicGlyphNames.h; sourceTree = "<group>"; };
 		9F590974FFD4AB7AC83044F3 /* CardEffectComponents.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = CardEffectComponents.h; sourceTree = "<group>"; };
+		9F78954B6542EAA33ECF95B6 /* SpellKillGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = SpellKillGameAction.cpp; path = SpellKillGameAction.cpp; sourceTree = "<group>"; };
 		9FAC44CF00C765CF69DDCD0E /* HowToPlayACardTutorialGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = HowToPlayACardTutorialGameAction.cpp; sourceTree = "<group>"; };
 		A0365F73CFA0169F1E1060B0 /* CardLibrarySceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = CardLibrarySceneLogicManager.cpp; sourceTree = "<group>"; };
 		A1C6F7A960257F8E8065F3A9 /* FirstGameLockSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = FirstGameLockSceneLogicManager.cpp; sourceTree = "<group>"; };
@@ -906,6 +910,8 @@
 				4039A771D6D857F42240D30E /* HowToPlayACardTutorialGameAction.h */,
 				57C4D3542D61EB796A99C563 /* DinoDamageReversalGameAction.cpp */,
 				FE33019A6E810B94C00C8101 /* DinoDamageReversalGameAction.h */,
+				9F78954B6542EAA33ECF95B6 /* SpellKillGameAction.cpp */,
+				743AFF32782608D3B67841C0 /* SpellKillGameAction.h */,
 			);
 			path = gameactions;
 			sourceTree = "<group>";
@@ -1692,6 +1698,8 @@
 				EDC747C1721E18D0A0512D1C /* StatsSceneLogicManager.h in Sources */,
 				F81C3CA6FCF7E7AC5853F1B3 /* DinoDamageReversalGameAction.cpp in Sources */,
 				9BB919500993D2B3B000D4BF /* DinoDamageReversalGameAction.h in Sources */,
+				6646144C06DA606CEDA47A37 /* SpellKillGameAction.cpp in Sources */,
+				2971BB082137F26FCB6CFB89 /* SpellKillGameAction.h in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
