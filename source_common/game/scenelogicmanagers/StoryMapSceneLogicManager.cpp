@@ -225,7 +225,6 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
         mapNameTitleSceneObject->mScale = MAP_NAME_SCALE;
         mapNameTitleSceneObject->mPosition = MAP_NAME_POSITION;
         
-        // First time entering map initialisation
         auto mapInitCoord = game_constants::STORY_MAP_INIT_COORD;
         auto mapBossCoord = game_constants::STORY_MAP_BOSS_COORD;
         
@@ -235,6 +234,7 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
             mapBossCoord = game_constants::TUTORIAL_MAP_BOSS_COORD;
         }
         
+        // First time entering map initialisation
         if (currentMapCoord.x == mapInitCoord.x && currentMapCoord.y == mapInitCoord.y)
         {
             mGuiManager->ForceSetStoryHealthValue(DataRepository::GetInstance().StoryCurrentHealth().GetValue());
@@ -529,6 +529,7 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
             if (currentDistanceToNode < DISTANCE_TO_TARGET_NODE_THRESHOLD ||
                 glm::distance(initPosition, mScene->GetCamera().GetPosition()) < CAMERA_NOT_MOVED_THRESHOLD)
             {
+                events::EventSystem::GetInstance().DispatchEvent<events::TriggerRequestReviewEvent>();
                 mMapUpdateState = MapUpdateState::NAVIGATING;
             }
         } break;

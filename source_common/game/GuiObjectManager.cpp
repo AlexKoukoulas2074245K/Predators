@@ -302,7 +302,7 @@ void GuiObjectManager::AnimateStatParticlesFlyingToGui(const glm::vec3& originPo
     auto particleEmitterName = strutils::StringId();
     
     auto baseEmitterPosition = originPosition;
-    baseEmitterPosition.z = math::Min(STAT_PARTICLE_EMITTER_MIN_Z, baseEmitterPosition.z);
+    baseEmitterPosition.z = math::Max(STAT_PARTICLE_EMITTER_MIN_Z, baseEmitterPosition.z);
     
     switch (statParticleType)
     {
@@ -675,7 +675,7 @@ void GuiObjectManager::OnRareItemCollected(const events::RareItemCollectedEvent&
     if (event.mRareItemProductId == artifacts::BLOOD_DIAMOND)
     {
         auto existingDamageModifierIter = DataRepository::GetInstance().GetStoryPlayerCardStatModifiers().find(CardStatType::DAMAGE);
-        auto modifierValue = existingDamageModifierIter == DataRepository::GetInstance().GetStoryPlayerCardStatModifiers().cend() ? 1 : existingDamageModifierIter->second + 1;
+        auto modifierValue = existingDamageModifierIter == DataRepository::GetInstance().GetStoryPlayerCardStatModifiers().cend() ? 2 : existingDamageModifierIter->second + 2;
         
         DataRepository::GetInstance().SetStoryPlayerCardStatModifier(CardStatType::DAMAGE, modifierValue);
     }
@@ -693,7 +693,7 @@ void GuiObjectManager::OnRareItemCollected(const events::RareItemCollectedEvent&
     }
     else if (event.mRareItemProductId == artifacts::BLUE_SAPPHIRE)
     {
-        DataRepository::GetInstance().SetNextBattleBotPlayerInitWeight(DataRepository::GetInstance().GetNextBattleBotPlayerInitWeight() + 1);
+        DataRepository::GetInstance().SetNextBattleBotPlayerInitWeight(DataRepository::GetInstance().GetNextBattleBotPlayerInitWeight() + 2);
     }
 }
 

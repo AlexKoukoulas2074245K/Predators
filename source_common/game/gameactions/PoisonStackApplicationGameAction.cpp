@@ -24,7 +24,7 @@
 static const std::string POISON_SFX = "sfx_sizzling";
 static const strutils::StringId GAME_OVER_CHECK_GAME_ACTION_NAME = strutils::StringId("GameOverResurrectionCheckGameAction");
 static const strutils::StringId POISON_GAS_PARTICLE_NAME = strutils::StringId("poison_smoke");
-static const float DURATION_SECS_PER_STACK = 0.2f;
+static const float DURATION_SECS_PER_STACK = 0.1f;
 static const float POISON_SMOKE_Z_OFFSET = -0.09f;
 
 ///------------------------------------------------------------------------------------------------

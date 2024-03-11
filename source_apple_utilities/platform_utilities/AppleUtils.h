@@ -42,6 +42,7 @@ void LoadStoreProducts(const std::vector<std::string>& productIdsToLoad);
 std::string GetProductPrice(const std::string& productId);
 void InitiateProductPurchase(const std::string& productId, std::function<void(PurchaseResultData)> onPurchaseFinishedCallback);
 void GetMessageBoxTextInput(std::function<void(const std::string&)> inputTextReceivedCallback);
+void RequestReview();
 
 ///-----------------------------------------------------------------------------------------------
 

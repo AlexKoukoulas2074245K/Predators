@@ -882,7 +882,7 @@ void ShopSceneLogicManager::CreateProducts()
             {
                 auto shelfItemSceneObject = mScene->CreateSceneObject(strutils::StringId(PRODUCT_NAME_PREFIX + std::to_string(shelfIndex) + "_" + std::to_string(shelfItemIndex)));
                 shelfItemSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + (shouldBeMarkedAsComingSoon ? PLACEHOLDER_PRODUCT_TEXTURE_FILE_NAME : std::get<std::string>(productDefinition.mProductTexturePathOrCardId)));
-                shelfItemSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(productDefinition.mShaderPath);
+                shelfItemSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(shouldBeMarkedAsComingSoon ? resources::ResourceLoadingService::RES_SHADERS_ROOT + game_constants::DEFAULT_SHADER_NAME : productDefinition.mShaderPath);
                 shelfItemSceneObject->mPosition = SHELF_ITEM_TARGET_BASE_POSITIONS[shelfIndex] + PRODUCT_POSITION_OFFSET;
                 shelfItemSceneObject->mScale = GENERIC_PRODUCT_SCALE;
                 shelfItemSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;

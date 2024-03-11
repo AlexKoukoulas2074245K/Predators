@@ -44,6 +44,13 @@ class EmptyDeckCardTokenPlayedEvent final
 {
 };
 
+
+///------------------------------------------------------------------------------------------------
+
+class TriggerRequestReviewEvent final
+{
+};
+
 ///------------------------------------------------------------------------------------------------
 
 class ProductPurchaseEndedEvent final

@@ -50,6 +50,7 @@ public:
     void ChangeTrackedValue(const int* newValueToTrack);
     
 private:
+    const glm::vec3 mInitCrystalBasePosition;
     const int* mValueToTrack;
     const float mScaleFactor;
     int mDisplayedValue;

@@ -9,6 +9,7 @@
 #include <engine/rendering/Animations.h>
 #include <engine/rendering/AnimationManager.h>
 #include <engine/scene/Scene.h>
+#include <engine/scene/SceneManager.h>
 #include <engine/scene/SceneObjectUtils.h>
 #include <engine/utils/Logging.h>
 
@@ -37,7 +38,8 @@ AnimatedStatContainer::AnimatedStatContainer
     scene::SnapToEdgeBehavior snapToEdgeBehavior /* = scene::SnapToEdgeBehavior::NONE */,
     const float customScaleFactor /* = 1.0f */
 )
-    : mValueToTrack(valueToTrack)
+    : mInitCrystalBasePosition(position)
+    , mValueToTrack(valueToTrack)
     , mScaleFactor(customScaleFactor)
     , mDisplayedValue(*valueToTrack)
     , mValueChangeDelaySecs(0.0f)
@@ -170,6 +172,11 @@ void AnimatedStatContainer::RealignBaseAndValueSceneObjects()
 {
     auto baseCrystalSo = mSceneObjects.front();
     auto valueCrystalSo = mSceneObjects.back();
+    
+    if (mFinishedAnimating && CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::BATTLE_SCENE) && !CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::WHEEL_OF_FORTUNE_SCENE))
+    {
+        baseCrystalSo->mPosition = mInitCrystalBasePosition;
+    }
     
     std::get<scene::TextSceneObjectData>(valueCrystalSo->mSceneObjectTypeData).mText = std::to_string(mDisplayedValue);
     valueCrystalSo->mPosition = baseCrystalSo->mPosition + STAT_CRYSTAL_VALUE_POSITION_OFFSET;

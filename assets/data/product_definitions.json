@@ -6,7 +6,7 @@
             "price": 300,
             "texture_path": "rare_item_rewards/blood_diamond.png",
             "shader_path": "rare_item.vs",
-            "description": "Permanent +1<damage>$increase for all$normal cards",
+            "description": "Permanent +2<damage>$increase for all$normal cards",
             "story_rare_item_name": "Blood Diamond"
         },
         {
@@ -14,7 +14,7 @@
             "price": 200,
             "texture_path": "rare_item_rewards/blue_sapphire.png",
             "shader_path": "rare_item.vs",
-            "description": "Permanent +1$STARTING <weight> for$all future story$battles",
+            "description": "Permanent +2$STARTING <weight> for$all future story$battles",
             "story_rare_item_name": "Blue Sapphire"
         },
         {
@@ -49,7 +49,7 @@
             "price": 350,
             "texture_path": "rare_item_rewards/heavy_armor.png",
             "shader_path": "rare_item.vs",
-            "description": "Adds +1<armor> at$the start of every$battle in this story",
+            "description": "Adds +2<armor> at$the start of every$battle in this story",
             "story_rare_item_name": "Heavy Armor"
         },
         {
@@ -57,7 +57,7 @@
             "price": 450,
             "texture_path": "rare_item_rewards/demon_fangs.png",
             "shader_path": "rare_item.vs",
-            "description": "Every attack made$in battle will heal$you for 1 EXTRA<health>",
+            "description": "Every attack made$in battle will heal$you for$+2 EXTRA<health>",
             "story_rare_item_name": "Demon Fangs"
         },
         {

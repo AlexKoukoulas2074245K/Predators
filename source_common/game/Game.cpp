@@ -127,6 +127,14 @@ void Game::Init()
         mGameSceneTransitionManager->PopModalScene();
     });
     
+    mRequestReviewEventListener = eventSystem.RegisterForEvent<events::TriggerRequestReviewEvent>([=](const events::TriggerRequestReviewEvent&)
+    {
+#if defined(MACOS) || defined(MOBILE_FLOW)
+        apple_utils::RequestReview();
+#endif
+    });
+                                                                                         
+    
     mTutorialManager = std::make_unique<TutorialManager>();
     mTutorialManager->LoadTutorialDefinitions();
     
@@ -761,7 +769,16 @@ void Game::CreateDebugWidgets()
     ImGui::SeparatorText("Cards");
     if (ImGui::Button("Unlock All Cards"))
     {
-        DataRepository::GetInstance().SetUnlockedCardIds(CardDataRepository::GetInstance().GetAllCardIds());
+        auto rodentCards = CardDataRepository::GetInstance().GetCardIdsByFamily(game_constants::RODENTS_FAMILY_NAME);
+        auto dinosaurCards = CardDataRepository::GetInstance().GetCardIdsByFamily(game_constants::DINOSAURS_FAMILY_NAME);
+        auto insectCards = CardDataRepository::GetInstance().GetCardIdsByFamily(game_constants::INSECTS_FAMILY_NAME);
+        
+        auto unlockedCards = DataRepository::GetInstance().GetUnlockedCardIds();
+        unlockedCards.insert(unlockedCards.end(), rodentCards.begin(), rodentCards.end());
+        unlockedCards.insert(unlockedCards.end(), dinosaurCards.begin(), dinosaurCards.end());
+        unlockedCards.insert(unlockedCards.end(), insectCards.begin(), insectCards.end());
+        
+        DataRepository::GetInstance().SetUnlockedCardIds(unlockedCards);
         DataRepository::GetInstance().FlushStateToFile();
     }
     

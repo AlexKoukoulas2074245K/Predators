@@ -120,12 +120,12 @@ void CardAttackGameAction::VSetNewGameState()
             mAmountOfHealthDamaged = damage;
         }
         
-        auto demonFangsCount = DataRepository::GetInstance().GetStoryArtifactCount(artifacts::DEMON_FANGS);
-        if (demonFangsCount > 0 && mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX)
+        auto demonFangsLifesteal = DataRepository::GetInstance().GetStoryArtifactCount(artifacts::DEMON_FANGS) * 2;
+        if (demonFangsLifesteal > 0 && mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX)
         {
             int oldHealth = mBoardState->GetInactivePlayerState().mPlayerHealth;
             
-            mBoardState->GetInactivePlayerState().mPlayerHealth = math::Min(mBoardState->GetInactivePlayerState().mPlayerHealth + demonFangsCount, DataRepository::GetInstance().GetStoryMaxHealth());
+            mBoardState->GetInactivePlayerState().mPlayerHealth = math::Min(mBoardState->GetInactivePlayerState().mPlayerHealth + demonFangsLifesteal, DataRepository::GetInstance().GetStoryMaxHealth());
         
             mLifestealHealedAtLeast1Hp = oldHealth != mBoardState->GetInactivePlayerState().mPlayerHealth;
         }

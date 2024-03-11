@@ -14,6 +14,7 @@
 #include <codecvt>
 #include <chrono>
 #import <StoreKit/StoreKit.h>
+#import <StoreKit/SKStoreReviewController.h>
 #if __has_include(<UIKit/UIKit.h>)
 #import <UIKit/UIKit.h>
 #endif
@@ -394,9 +395,16 @@ void InitiateProductPurchase(const std::string& productId, std::function<void(Pu
 void GetMessageBoxTextInput(std::function<void(const std::string&)> inputTextReceivedCallback)
 {
     InternalGetMessageBoxTextInput(^(std::string input)
-    {
+                                   {
         inputTextReceivedCallback(input);
     });
+}
+
+///-----------------------------------------------------------------------------------------------
+
+void RequestReview()
+{
+    [SKStoreReviewController requestReview];
 }
 
 ///-----------------------------------------------------------------------------------------------

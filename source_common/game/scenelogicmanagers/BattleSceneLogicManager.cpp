@@ -538,7 +538,7 @@ void BattleSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<scen
             HandleTouchInput(dtMillis);
         }
         
-        if (mGuiManager)
+        if (mGuiManager && mActionEngine->GetActiveGameActionName() != BATTLE_INITIAL_SETUP_AND_ANIMATION_GAME_ACTION_NAME)
         {
             mGuiManager->Update(dtMillis);
         }
@@ -1408,11 +1408,6 @@ void BattleSceneLogicManager::RegisterForEvents()
 
 void BattleSceneLogicManager::OnApplicationMovedToBackground(const events::ApplicationMovedToBackgroundEvent&)
 {
-    if (mIsActive)
-    {
-        FakeSettingsButtonPressed();
-    }
-    
     if (!DataRepository::GetInstance().GetNextStoryOpponentName().empty() && !DataRepository::GetInstance().GetQuickPlayData())
     {
         DataRepository::GetInstance().SetNextBattleControlType(mCurrentBattleControlType);

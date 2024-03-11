@@ -180,6 +180,7 @@
 		992F23718D671F5FFA4F1DFC /* InsectDuplicationGameAction.h in Sources */ = {isa = PBXBuildFile; fileRef = 8738772A2C41188E4DEA7FE1 /* InsectDuplicationGameAction.h */; };
 		9932F0128409D14BDEE5F9AF /* CardPackRewardSceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C69E036C35A40F11663C3BAB /* CardPackRewardSceneLogicManager.cpp */; };
 		9AE95D1F2AEB099D18A353BD /* FirstGameLockSceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1C6F7A960257F8E8065F3A9 /* FirstGameLockSceneLogicManager.cpp */; };
+		9BB919500993D2B3B000D4BF /* DinoDamageReversalGameAction.h in Sources */ = {isa = PBXBuildFile; fileRef = FE33019A6E810B94C00C8101 /* DinoDamageReversalGameAction.h */; };
 		9BF69C4FC960D3DAD0113FA9 /* BattleDeserializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E40B33B0D48EFF2D940A533 /* BattleDeserializer.cpp */; };
 		9C60D38F311EEF6609872D90 /* StoryMapSceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 1E96D31AF14CC5E8FE6B4CCD /* StoryMapSceneLogicManager.h */; };
 		9CB9DB553B9767C10DA25E54 /* CardHistoryEntryAdditionGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C100923712073548F2E0F97B /* CardHistoryEntryAdditionGameAction.cpp */; };
@@ -249,6 +250,7 @@
 		F387EFF89C4B3BB095B1E15E /* PlatformMacros.h in Sources */ = {isa = PBXBuildFile; fileRef = 7AACE80E9655088BE13935FF /* PlatformMacros.h */; };
 		F515AD2A1219CD79E9BD1985 /* RodentsDigAnimationGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5811D5357FB7EAA7C007CCBD /* RodentsDigAnimationGameAction.cpp */; };
 		F5518A662447F238CCCAFE51 /* Animations.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C6B01E95D9ABF46EECA93F96 /* Animations.cpp */; };
+		F81C3CA6FCF7E7AC5853F1B3 /* DinoDamageReversalGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 57C4D3542D61EB796A99C563 /* DinoDamageReversalGameAction.cpp */; };
 		FBD1FF1BF1985E3606DD20ED /* GameConstants.h in Sources */ = {isa = PBXBuildFile; fileRef = B3A902E2D8B1AD656D561A89 /* GameConstants.h */; };
 		FBE139CD9A0B9FBDF4D51558 /* DataRepository.h in Sources */ = {isa = PBXBuildFile; fileRef = 6168AF2BBE3C39106C4FF693 /* DataRepository.h */; };
 		FE28BA55DF3C766F536CB175 /* CardAttackGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE73A6308D9C05803C2DD962 /* CardAttackGameAction.cpp */; };
@@ -451,6 +453,7 @@
 		54C612621F04B8DC9F79A7F7 /* BattleSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = BattleSceneLogicManager.h; sourceTree = "<group>"; };
 		54D1E9FC16CD3C543B9BED8D /* GuiObjectManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = GuiObjectManager.cpp; sourceTree = "<group>"; };
 		570D7231BD1A3A17AB11372B /* UnseenSpellSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = UnseenSpellSceneLogicManager.h; sourceTree = "<group>"; };
+		57C4D3542D61EB796A99C563 /* DinoDamageReversalGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = DinoDamageReversalGameAction.cpp; path = DinoDamageReversalGameAction.cpp; sourceTree = "<group>"; };
 		5811D5357FB7EAA7C007CCBD /* RodentsDigAnimationGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = RodentsDigAnimationGameAction.cpp; sourceTree = "<group>"; };
 		59DF82D26A3BD281A3C982D8 /* ImageSurfaceLoader.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = ImageSurfaceLoader.cpp; sourceTree = "<group>"; };
 		5A318CE9CEB831F65B4472C4 /* PersistentAccountDataDeserializer.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = PersistentAccountDataDeserializer.h; sourceTree = "<group>"; };
@@ -670,6 +673,7 @@
 		FAFAD2C13EAEAAFA959795DD /* EventSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = EventSceneLogicManager.cpp; sourceTree = "<group>"; };
 		FC7FB6D156D6379E6C2D6D23 /* CardBuffedDebuffedAnimationGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = CardBuffedDebuffedAnimationGameAction.cpp; sourceTree = "<group>"; };
 		FCD986CB07334B2433EB426D /* SerializationDefinitions.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = SerializationDefinitions.h; sourceTree = "<group>"; };
+		FE33019A6E810B94C00C8101 /* DinoDamageReversalGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = DinoDamageReversalGameAction.h; path = DinoDamageReversalGameAction.h; sourceTree = "<group>"; };
 		FE89FD7A1DD2DA6F03FD3B3C /* GoldenCardPlayedEffectGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = GoldenCardPlayedEffectGameAction.h; sourceTree = "<group>"; };
 		FF60C8A80A815F1616EF9451 /* EndTurnTutorialGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = EndTurnTutorialGameAction.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -900,6 +904,8 @@
 				FF60C8A80A815F1616EF9451 /* EndTurnTutorialGameAction.cpp */,
 				282E5CCC5F82470B2CF2D8DE /* EndTurnTutorialGameAction.h */,
 				4039A771D6D857F42240D30E /* HowToPlayACardTutorialGameAction.h */,
+				57C4D3542D61EB796A99C563 /* DinoDamageReversalGameAction.cpp */,
+				FE33019A6E810B94C00C8101 /* DinoDamageReversalGameAction.h */,
 			);
 			path = gameactions;
 			sourceTree = "<group>";
@@ -1684,6 +1690,8 @@
 				58DCD2964BFBB0B0D8D22D12 /* StatsSceneLogicManager.cpp in Sources */,
 				3EC688FAA0FE9B18FB32727E /* CreditsSceneLogicManager.h in Sources */,
 				EDC747C1721E18D0A0512D1C /* StatsSceneLogicManager.h in Sources */,
+				F81C3CA6FCF7E7AC5853F1B3 /* DinoDamageReversalGameAction.cpp in Sources */,
+				9BB919500993D2B3B000D4BF /* DinoDamageReversalGameAction.h in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
