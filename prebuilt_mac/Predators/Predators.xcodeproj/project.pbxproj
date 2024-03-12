@@ -283,7 +283,7 @@
 		06291EA0D3FF12CB3058DEF2 /* OBJMeshLoader.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = OBJMeshLoader.cpp; sourceTree = "<group>"; };
 		0724B463AFC06A5A52F1047E /* OpenGL.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = OpenGL.h; sourceTree = "<group>"; };
 		08AAC0562233A3F34613E310 /* DataFileResource.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = DataFileResource.h; sourceTree = "<group>"; };
-		0961C179C02C1EEC84922D2F /* SpellKillGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = SpellKillGameAction.h; path = SpellKillGameAction.h; sourceTree = "<group>"; };
+		0961C179C02C1EEC84922D2F /* SpellKillGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = SpellKillGameAction.h; sourceTree = "<group>"; };
 		0A05CE2983C7CEA1D2A25585 /* BaseDataFileDeserializer.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = BaseDataFileDeserializer.cpp; sourceTree = "<group>"; };
 		0A90C5CE1FAAD720E2DE0541 /* CloudDataConfirmationSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = CloudDataConfirmationSceneLogicManager.h; sourceTree = "<group>"; };
 		0B76483234DBB09CE4B67D37 /* IAPProductIds.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = IAPProductIds.h; sourceTree = "<group>"; };
@@ -298,12 +298,12 @@
 		221289B3E3FA84B55F4C25E2 /* SceneManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = SceneManager.h; sourceTree = "<group>"; };
 		255CBE3395586957104E385D /* ShaderLoader.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = ShaderLoader.cpp; sourceTree = "<group>"; };
 		29BF26174D9E7C9DDE03C263 /* DemonPunchGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = DemonPunchGameAction.h; sourceTree = "<group>"; };
-		2CBF936542888D27428121D7 /* DinoDamageReversalGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = DinoDamageReversalGameAction.h; path = DinoDamageReversalGameAction.h; sourceTree = "<group>"; };
+		2CBF936542888D27428121D7 /* DinoDamageReversalGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = DinoDamageReversalGameAction.h; sourceTree = "<group>"; };
 		30D02CEC6861EBD7441E2004 /* BaseDataFileSerializer.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = BaseDataFileSerializer.h; sourceTree = "<group>"; };
 		3199A38C1A16A070A579BAB4 /* ParticleManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = ParticleManager.h; sourceTree = "<group>"; };
 		3419ACBD925F58B9AC9FDDD9 /* InsectVirusGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = InsectVirusGameAction.h; sourceTree = "<group>"; };
 		3714C4A3B069768E05DD0199 /* SfxPlayer.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = SfxPlayer.h; sourceTree = "<group>"; };
-		371E3836DDCA21BE3D96B3DA /* SpellKillGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = SpellKillGameAction.cpp; path = SpellKillGameAction.cpp; sourceTree = "<group>"; };
+		371E3836DDCA21BE3D96B3DA /* SpellKillGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = SpellKillGameAction.cpp; sourceTree = "<group>"; };
 		393520815AD90C67A6A6989C /* MathUtils.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = MathUtils.cpp; sourceTree = "<group>"; };
 		3B9109D055E8533B89646901 /* GameSymbolicGlyphNames.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = GameSymbolicGlyphNames.h; sourceTree = "<group>"; };
 		3CEE0EACCF2A12E04E607BAD /* EndTurnTutorialGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = EndTurnTutorialGameAction.cpp; sourceTree = "<group>"; };
@@ -355,6 +355,7 @@
 		903005ABB6F4A9CB6247ABDC /* BaseDataFileSerializer.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = BaseDataFileSerializer.cpp; sourceTree = "<group>"; };
 		920C54042B80E41A006F6743 /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
 		9233DAB12B5E760200C55555 /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
+		925592CA2BA0B101001D7B97 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		926C7C1D2B7239720028766E /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		9272506A2B7D2CCC0010DF26 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		9272506C2B7D2CEF0010DF26 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
@@ -566,7 +567,7 @@
 		CAEF02928D06B177B1091C5F /* ImageSurfaceResource.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = ImageSurfaceResource.h; sourceTree = "<group>"; };
 		CC1DB90079164B1337D075DD /* VictorySceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = VictorySceneLogicManager.cpp; sourceTree = "<group>"; };
 		CC6E9D2B3F68C7578FBD2C2F /* BunnyHopSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = BunnyHopSceneLogicManager.h; sourceTree = "<group>"; };
-		CD2C3BA145B30654CC348B48 /* DinoDamageReversalGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = DinoDamageReversalGameAction.cpp; path = DinoDamageReversalGameAction.cpp; sourceTree = "<group>"; };
+		CD2C3BA145B30654CC348B48 /* DinoDamageReversalGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = DinoDamageReversalGameAction.cpp; sourceTree = "<group>"; };
 		CDA82AC01781CC5D7781923C /* PrivacyPolicySceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = PrivacyPolicySceneLogicManager.cpp; sourceTree = "<group>"; };
 		CF33F7C72612B80A9AB49895 /* InputStateManagerPlatformImpl.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = InputStateManagerPlatformImpl.cpp; sourceTree = "<group>"; };
 		D099CB93E6198C3BE5F73FDE /* IInputStateManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = IInputStateManager.h; sourceTree = "<group>"; };
@@ -731,6 +732,7 @@
 		928B07D62B5C385D0025DF3F /* Predators */ = {
 			isa = PBXGroup;
 			children = (
+				925592CA2BA0B101001D7B97 /* Info.plist */,
 				928B07DA2B5C385E0025DF3F /* Assets.xcassets */,
 				928B07E12B5C385E0025DF3F /* Predators.entitlements */,
 			);
@@ -1620,7 +1622,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 12.7;
+				MACOSX_DEPLOYMENT_TARGET = 12.4;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -1672,7 +1674,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 12.7;
+				MACOSX_DEPLOYMENT_TARGET = 12.4;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
@@ -1704,8 +1706,10 @@
 					"/Users/Code/Predators/lib/glm/**",
 					"/Users/Code/Predators/lib/googletest/**",
 				);
+				INFOPLIST_FILE = Predators/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Realm of Beasts";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.card-games";
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Bluetooth connection allows for Music & Sounds to be played while wearing wireless headphones.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainNibFile = MainMenu;
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
@@ -1713,6 +1717,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 12.4;
 				MARKETING_VERSION = 1.0;
 				OTHER_LDFLAGS = (
 					/opt/homebrew/lib/libfreetype.dylib,
@@ -1752,8 +1757,10 @@
 					"/Users/Code/Predators/lib/glm/**",
 					"/Users/Code/Predators/lib/googletest/**",
 				);
+				INFOPLIST_FILE = Predators/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Realm of Beasts";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.card-games";
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Bluetooth connection allows for Music & Sounds to be played while wearing wireless headphones.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainNibFile = MainMenu;
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
@@ -1761,6 +1768,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 12.4;
 				MARKETING_VERSION = 1.0;
 				OTHER_LDFLAGS = (
 					/opt/homebrew/lib/libfreetype.dylib,

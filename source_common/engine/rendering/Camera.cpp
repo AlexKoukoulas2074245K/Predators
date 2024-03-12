@@ -8,6 +8,18 @@
 #include <engine/CoreSystemsEngine.h>
 #include <engine/rendering/Camera.h>
 #include <engine/utils/Logging.h>
+#include <engine/utils/PlatformMacros.h>
+
+#if defined(MOBILE_FLOW)
+#include <platform_specific/IOSUtils.h>
+#endif
+
+#if defined(MACOS) || defined(MOBILE_FLOW)
+#include <platform_utilities/AppleUtils.h>
+#include <platform_utilities/CloudKitUtils.h>
+#elif defined(WINDOWS)
+#include <platform_utilities/WindowsUtils.h>
+#endif
 
 ///------------------------------------------------------------------------------------------------
 
@@ -26,6 +38,11 @@ static const float DEFAULT_CAMERA_ZNEAR       = -50.0f;
 static const float DEFAULT_CAMERA_ZFAR        = 50.0f;
 static const float DEFAULT_CAMERA_ZOOM_FACTOR = 60.0f;
 static const float SHAKE_MIN_RADIUS = 0.00001f;
+
+#if defined(MOBILE_FLOW)
+//static const float IPAD_TARGET_LANDSCAPE_ZOOM_FACTOR = 48.483414f;
+//static const float IPAD_TARGET_PORTRAIT_ZOOM_FACTOR = 20.0f;
+#endif
 
 ///------------------------------------------------------------------------------------------------
 

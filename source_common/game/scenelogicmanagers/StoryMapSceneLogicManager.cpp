@@ -529,7 +529,11 @@ void StoryMapSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
             if (currentDistanceToNode < DISTANCE_TO_TARGET_NODE_THRESHOLD ||
                 glm::distance(initPosition, mScene->GetCamera().GetPosition()) < CAMERA_NOT_MOVED_THRESHOLD)
             {
-                events::EventSystem::GetInstance().DispatchEvent<events::TriggerRequestReviewEvent>();
+                if (DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::NORMAL_MAP)
+                {
+                    events::EventSystem::GetInstance().DispatchEvent<events::TriggerRequestReviewEvent>();
+                }
+                
                 mMapUpdateState = MapUpdateState::NAVIGATING;
             }
         } break;
