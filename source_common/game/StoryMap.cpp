@@ -127,9 +127,24 @@ static const float MUTATION_WEIGHT_MULTIPLIER = 1.15f;
 static const float MUTATION_HEALTH_MULTIPLIER = 1.3f;
 static const float MUTATION_DAMAGE_MULTIPLIER = 1.15f;
 
-static const int MAP_PATH_SEGMENTS_FACTOR = 30;
-static const int MAP_GENERATION_PASSES = 8;
-static const int TUTORIAL_MAP_GENERATION_PASSES = 2;
+static constexpr int MAP_PATH_SEGMENTS_FACTOR = 30;
+static constexpr int MAP_GENERATION_PASSES = 8;
+static constexpr int TUTORIAL_MAP_GENERATION_PASSES = 2;
+static constexpr int POSSIBLE_STAT_OFFSETS_COUNT = 10;
+
+static const glm::ivec3 SAME_ENCOUNTER_COLUMN_STAT_OFFSETS[POSSIBLE_STAT_OFFSETS_COUNT] =
+{
+    { -1,  2, -1 },
+    {  1, -2,  1 },
+    {  1,  1, -2 },
+    { -2,  1,  1 },
+    {  2, -4,  2 },
+    { -2,  4, -2 },
+    {  1, -4,  3 },
+    { -1,  4, -3 },
+    {  3, -4,  1 },
+    { -3,  4, -1 }
+};
 
 #if defined(NDEBUG) || defined(MOBILE_FLOW)
 static const float NODES_CLOSE_ENOUGH_THRESHOLD = 0.050f;
@@ -351,6 +366,7 @@ void StoryMap::CreateMapSceneObjects()
             generatedDemonNames.emplace_back(GenerateControlledRandomDemonName());
         }
     }
+    
     std::sort(generatedDemonNames.begin(), generatedDemonNames.end(), [](const std::string& lhs, const std::string& rhs)
     {
         return lhs.size() < rhs.size();
@@ -359,6 +375,19 @@ void StoryMap::CreateMapSceneObjects()
     // Do a DFS to find all reachable coords
     std::unordered_set<MapCoord, MapCoordHasher> coordsThatCanBeReached;
     DepthFirstSearchOnCurrentCoords(mCurrentMapCoord, coordsThatCanBeReached);
+    
+    // The first normal and elite encounters for a Map column will
+    // set the stats that the rest normal/elite encounters respectively
+    // will offset to match them.
+    struct RegisteredColumnStats
+    {
+        int mDamage;
+        int mHealth;
+        int mWeight;
+    };
+    std::unordered_map<NodeType, std::unordered_map<int, RegisteredColumnStats>> encounterRegisteredStatSumsPerMapColumn;
+    encounterRegisteredStatSumsPerMapColumn[NodeType::NORMAL_ENCOUNTER];
+    encounterRegisteredStatSumsPerMapColumn[NodeType::ELITE_ENCOUNTER];
     
     // All node meshes
     for (const auto& mapNodeEntry: mMapData)
@@ -554,6 +583,26 @@ void StoryMap::CreateMapSceneObjects()
             auto nodeOpponentHealth = math::ControlledRandomFloat(defaultHealthRange.s, defaultHealthRange.t);
             auto nodeOpponentDamage = math::ControlledRandomFloat(defaultDamageRange.s, defaultDamageRange.t);
             auto nodeOpponentWeight = math::ControlledRandomFloat(defaultWeightRange.s, defaultWeightRange.t);
+            
+            // If a registered stat sum (for this Elite or Normal encounter) already exists for this level,
+            // pick randomly a stat offset entry to apply so the same stat sum is achieved.
+            if (mapNodeEntry.second.mNodeType == NodeType::NORMAL_ENCOUNTER || mapNodeEntry.second.mNodeType == NodeType::ELITE_ENCOUNTER)
+            {
+                auto& respectiveMap = encounterRegisteredStatSumsPerMapColumn.at(mapNodeEntry.second.mNodeType);
+                if (respectiveMap.count(mapNodeEntry.first.mCol))
+                {
+                    const auto& registeredStats = respectiveMap.at(mapNodeEntry.first.mCol);
+                    const auto& selectedStatOffset = SAME_ENCOUNTER_COLUMN_STAT_OFFSETS[math::ControlledRandomInt() % POSSIBLE_STAT_OFFSETS_COUNT];
+                    
+                    nodeOpponentDamage = math::Max(1, registeredStats.mDamage + selectedStatOffset.r);
+                    nodeOpponentHealth = math::Max(1, registeredStats.mHealth + selectedStatOffset.g);
+                    nodeOpponentWeight = math::Max(1, registeredStats.mWeight + selectedStatOffset.b);
+                }
+                else
+                {
+                    respectiveMap[mapNodeEntry.first.mCol] = { static_cast<int>(nodeOpponentDamage), static_cast<int>(nodeOpponentHealth), static_cast<int>(nodeOpponentWeight) };
+                }
+            }
             
             // Health Icon
             nodeHealthIconSceneObject = mScene->CreateSceneObject(strutils::StringId(mapNodeEntry.first.ToString() + game_constants::STORY_MAP_NODE_HEALTH_ICON_SO_NAME_POST_FIX));

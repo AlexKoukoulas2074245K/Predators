@@ -38,7 +38,7 @@ public:
 private:
     void RegisterForEvents();
     void OnWindowResize(const events::WindowResizeEvent& event);
-    void SelectRandomStoryEvent();
+    void SelectRandomStoryEvent(const bool debugDeterministic = false);
     void TransitionToEventScreen(const int screenIndex);
     void CreateEventScreen(const int screenIndex);
     void CollectRareItem(const strutils::StringId& rareItemName);

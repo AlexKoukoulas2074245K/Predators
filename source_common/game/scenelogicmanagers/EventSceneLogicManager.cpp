@@ -268,8 +268,9 @@ void EventSceneLogicManager::OnWindowResize(const events::WindowResizeEvent&)
 
 ///------------------------------------------------------------------------------------------------
 
-void EventSceneLogicManager::SelectRandomStoryEvent()
+void EventSceneLogicManager::SelectRandomStoryEvent(const bool debugDeterministic /* = false */)
 {
+    auto originalControlSeed = math::GetControlSeed();
     auto currentNodeSeed = DataRepository::GetInstance().GetCurrentStoryMapNodeSeed();
     math::SetControlSeed(currentNodeSeed);
     
@@ -898,6 +899,11 @@ void EventSceneLogicManager::SelectRandomStoryEvent()
             mCurrentEventIndex = (mCurrentEventIndex + 1) % mRegisteredStoryEvents.size();
         }
         DataRepository::GetInstance().SetCurrentEventIndex(mCurrentEventIndex);
+    }
+    
+    if (debugDeterministic)
+    {
+        math::SetControlSeed(originalControlSeed);
     }
 }
 

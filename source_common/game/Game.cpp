@@ -952,7 +952,7 @@ void Game::CreateDebugWidgets()
         static EventSceneLogicManager dummyEventSceneLogicManager;
         if (dummyEventSceneLogicManager.GetRegisteredEvents().empty())
         {
-            dummyEventSceneLogicManager.SelectRandomStoryEvent();
+            dummyEventSceneLogicManager.SelectRandomStoryEvent(true);
         }
         
         const auto& registeredEvents = dummyEventSceneLogicManager.GetRegisteredEvents();
