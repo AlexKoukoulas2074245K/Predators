@@ -1744,8 +1744,9 @@
 				DEVELOPMENT_TEAM = XS89APN396;
 				ENABLE_HARDENED_RUNTIME = YES;
 				EXCLUDED_SOURCE_FILE_NAMES = (
-					"*imgui*",
-					"*Test*",
+					"/Users/Code/Predators/source_test/*/*/*",
+					"/Users/Code/Predators/source_common/imgui/*/*/*",
+					"/Users/Code/Predators/source_test/*/*",
 				);
 				FRAMEWORK_SEARCH_PATHS = /Library/Developer/;
 				GCC_PREPROCESSOR_DEFINITIONS = "NDEBUG=1";
