@@ -2326,7 +2326,6 @@ void BattleSceneLogicManager::OnStoryBattleWon(const events::StoryBattleWonEvent
         auto rareItemSceneObject = mActiveScene->CreateSceneObject();
         rareItemSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + RARE_ITEM_SHADER);
         rareItemSceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + std::get<std::string>(rareItemDefinition.mProductTexturePathOrCardId));
-        rareItemSceneObject->mPosition = mPlayerBoardCardSceneObjectWrappers[game_constants::REMOTE_PLAYER_INDEX][0]->mSceneObject->mPosition;
         rareItemSceneObject->mPosition.z += RARE_ITEM_Z_OFFSET;
         rareItemSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 1.0f;
         rareItemSceneObject->mScale = RARE_ITEM_INIT_SCALE;
