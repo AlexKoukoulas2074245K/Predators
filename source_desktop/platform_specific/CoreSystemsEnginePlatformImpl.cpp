@@ -441,7 +441,11 @@ glm::vec2 CoreSystemsEngine::GetContextRenderableDimensions() const
 
 void CoreSystemsEngine::SpecialEventHandling(SDL_Event& event)
 {
+#if (!defined(NDEBUG)) || defined(IMGUI_IN_RELEASE)
     ImGui_ImplSDL2_ProcessEvent(&event);
+#else
+    (void)event;
+#endif
 }
 
 ///------------------------------------------------------------------------------------------------

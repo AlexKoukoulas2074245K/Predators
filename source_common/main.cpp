@@ -5,11 +5,11 @@
 ///  Created by Alex Koukoulas on 19/09/2023
 ///------------------------------------------------------------------------------------------------
 
-//#define TESTING
+#define TESTING
 
 ///------------------------------------------------------------------------------------------------
 
-#if defined(TESTING)
+#if defined(TESTING) && !defined(NDEBUG)
 #include <platform_utilities/AppleUtils.h>
 #include <gtest/gtest.h>
 

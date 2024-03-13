@@ -1697,13 +1697,13 @@
 				GCC_WARN_PEDANTIC = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				HEADER_SEARCH_PATHS = (
-					"/Users/Code/Predators/source_common/**",
+					/Users/Code/Predators/source_common,
 					"/Users/Code/Predators/source_desktop/**",
 					"/Users/Code/Predators/source_apple_utilities/**",
 					"/opt/homebrew/include/SDL2/**",
 					"/opt/homebrew/include/freetype2/**",
-					"/Users/Code/Predators/lib/json/**",
-					"/Users/Code/Predators/lib/glm/**",
+					/Users/Code/Predators/lib/json,
+					/Users/Code/Predators/lib/glm,
 					"/Users/Code/Predators/lib/googletest/**",
 				);
 				INFOPLIST_FILE = Predators/Info.plist;
@@ -1719,6 +1719,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.4;
 				MARKETING_VERSION = 1.0;
+				NEW_SETTING = "";
 				OTHER_LDFLAGS = (
 					/opt/homebrew/lib/libfreetype.dylib,
 					/opt/homebrew/lib/libgtest.a,
@@ -1742,20 +1743,22 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = XS89APN396;
 				ENABLE_HARDENED_RUNTIME = YES;
+				EXCLUDED_SOURCE_FILE_NAMES = (
+					"*imgui*",
+					"*Test*",
+				);
 				FRAMEWORK_SEARCH_PATHS = /Library/Developer/;
 				GCC_PREPROCESSOR_DEFINITIONS = "NDEBUG=1";
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				GCC_WARN_PEDANTIC = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				HEADER_SEARCH_PATHS = (
-					"/Users/Code/Predators/source_common/**",
+					/Users/Code/Predators/source_common,
 					"/Users/Code/Predators/source_desktop/**",
 					"/Users/Code/Predators/source_apple_utilities/**",
 					"/opt/homebrew/include/SDL2/**",
-					"/opt/homebrew/include/freetype2/**",
-					"/Users/Code/Predators/lib/json/**",
 					"/Users/Code/Predators/lib/glm/**",
-					"/Users/Code/Predators/lib/googletest/**",
+					/Users/Code/Predators/lib/json,
 				);
 				INFOPLIST_FILE = Predators/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Realm of Beasts";
@@ -1770,12 +1773,8 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.4;
 				MARKETING_VERSION = 1.0;
-				OTHER_LDFLAGS = (
-					/opt/homebrew/lib/libfreetype.dylib,
-					/opt/homebrew/lib/libgtest.a,
-					/usr/local/lib/libgtest.a,
-					/usr/local/lib/libfreetype.dylib,
-				);
+				NEW_SETTING = "";
+				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.alexkoukoulas2074245k.Predators;
 				PRODUCT_NAME = "Realm of Beasts";
 				SWIFT_EMIT_LOC_STRINGS = YES;

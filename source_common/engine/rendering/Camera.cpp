@@ -69,16 +69,16 @@ Camera::Camera(const float cameraLenseHeight)
 
 void Camera::RecalculateMatrices()
 {
-    float previousZoomFactor = mZoomFactor;
+    //float previousZoomFactor = mZoomFactor;
     const auto& windowDimensions = CoreSystemsEngine::GetInstance().GetContextRenderableDimensions();
     const auto& currentAspect = static_cast<float>(windowDimensions.x)/windowDimensions.y;
     const auto& currentToDefaultAspectRatio = (currentAspect/mTargetAspectRatio + 1.0f)/2.0f;
-    mZoomFactor = previousZoomFactor * currentToDefaultAspectRatio;
+    float zoomFactor = mZoomFactor * currentToDefaultAspectRatio;
     //logging::Log(logging::LogType::INFO, "Recalculating Matrices for %.3f, %.3f (AR %.6f)", windowDimensions.x, windowDimensions.y, windowDimensions.x/windowDimensions.y);
     
     float aspect = windowDimensions.x/windowDimensions.y;
     mView = glm::lookAt(mPosition, mPosition + DEFAULT_CAMERA_FRONT_VECTOR, DEFAULT_CAMERA_UP_VECTOR);
-    mProj = glm::ortho((-mCameraLenseWidth/(DEVICE_INVARIABLE_ASPECT/aspect))/2.0f/mZoomFactor, (mCameraLenseWidth/((DEVICE_INVARIABLE_ASPECT/aspect)))/2.0f/mZoomFactor, -mCameraLenseHeight/2.0f/mZoomFactor, mCameraLenseHeight/2.0f/mZoomFactor, DEFAULT_CAMERA_ZNEAR, DEFAULT_CAMERA_ZFAR);
+    mProj = glm::ortho((-mCameraLenseWidth/(DEVICE_INVARIABLE_ASPECT/aspect))/2.0f/zoomFactor, (mCameraLenseWidth/((DEVICE_INVARIABLE_ASPECT/aspect)))/2.0f/zoomFactor, -mCameraLenseHeight/2.0f/zoomFactor, mCameraLenseHeight/2.0f/zoomFactor, DEFAULT_CAMERA_ZNEAR, DEFAULT_CAMERA_ZFAR);
     
     mTargetAspectRatio = currentAspect;
 }
