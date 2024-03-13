@@ -95,7 +95,7 @@ static const float MUTATION_TEXT_OVERLAY_FADE_IN_OUT_DURATION_SECS = 0.35f;
 static const float MUTATION_TEXT_CONTINUE_BUTTON_FADE_IN_OUT_DURATION_SECS = 0.5f;
 
 static const int MIN_CONTAINER_ENTRIES_TO_ANIMATE = 4;
-static const int NO_MUTATIONS_MIN_CONTAINER_ENTRIES_TO_ANIMATE = 10;
+static const int NO_MUTATIONS_MIN_CONTAINER_ENTRIES_TO_ANIMATE = 7;
 
 static const std::vector<strutils::StringId> APPLICABLE_SCENE_NAMES =
 {
@@ -137,6 +137,9 @@ void InventorySceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     mArtifactsItemContainer = nullptr;
     mSelectedItemIndex = -1;
     mShowingMutationText = false;
+    mToolTipIndex = -1;
+    mToolTipPointeePosY = 0.0f;
+    mToolTipPointeePosX = 0.0f;
     
     mAnimatedButtons.clear();
     mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
@@ -275,27 +278,19 @@ void InventorySceneLogicManager::UpdateItemContainer(const float dtMillis, std::
     
     if (itemContainer)
     {
-        static int sToolTipIndices[2] = {-1, -1};
-        static float sToolTipPointeePosYCoords[2] = {0.0f, 0.0f};
-        static float sToolTipPointeePosXCoords[2] = {0.0f, 0.0f};
-        
-        int& sToolTipIndex = itemContainer == mArtifactsItemContainer ? sToolTipIndices[0] : sToolTipIndices[1];
-        float& sToolTipPointeePosY = itemContainer == mArtifactsItemContainer ? sToolTipPointeePosYCoords[0] : sToolTipPointeePosYCoords[1];
-        float& sToolTipPointeePosX = itemContainer == mArtifactsItemContainer ? sToolTipPointeePosXCoords[0] : sToolTipPointeePosXCoords[1];
-        
         const auto& itemContainerUpdateResult = itemContainer->Update(dtMillis);
         
         if (itemContainerUpdateResult.mInteractionType == InteractionType::INTERACTED_WITH_ELEMENTS)
         {
-            if (sToolTipIndex != itemContainerUpdateResult.mInteractedElementIndex)
+            if (mToolTipIndex != itemContainerUpdateResult.mInteractedElementIndex)
             {
-                sToolTipIndex = itemContainerUpdateResult.mInteractedElementIndex;
+                mToolTipIndex = itemContainerUpdateResult.mInteractedElementIndex;
                 auto interactedElementEntry = itemContainer->GetItems()[itemContainerUpdateResult.mInteractedElementIndex];
                 
                 DestroyItemTooltip();
                 
-                sToolTipPointeePosY = interactedElementEntry.mSceneObjects.front()->mPosition.y;
-                sToolTipPointeePosX = interactedElementEntry.mSceneObjects.front()->mPosition.x;
+                mToolTipPointeePosY = interactedElementEntry.mSceneObjects.front()->mPosition.y;
+                mToolTipPointeePosX = interactedElementEntry.mSceneObjects.front()->mPosition.x;
                 
                 auto productDescription = ProductRepository::GetInstance().GetProductDefinition(interactedElementEntry.mArtifactOrMutationName).mDescription;
                 CreateItemTooltip(interactedElementEntry.mSceneObjects.front()->mPosition, productDescription);
@@ -306,23 +301,23 @@ void InventorySceneLogicManager::UpdateItemContainer(const float dtMillis, std::
             DestroyItemTooltip();
         }
         
-        if (sToolTipIndex != -1)
+        if (mToolTipIndex != -1)
         {
-            auto interactedElementEntry = itemContainer->GetItems()[sToolTipIndex];
+            auto interactedElementEntry = itemContainer->GetItems()[mToolTipIndex];
             
             if (itemContainer == mArtifactsItemContainer)
             {
-                if (math::Abs(interactedElementEntry.mSceneObjects.front()->mPosition.y - sToolTipPointeePosY) > 0.01f)
+                if (math::Abs(interactedElementEntry.mSceneObjects.front()->mPosition.y - mToolTipPointeePosY) > 0.01f)
                 {
-                    sToolTipIndex = -1;
+                    mToolTipIndex = -1;
                     DestroyItemTooltip();
                 }
             }
             else
             {
-                if (math::Abs(interactedElementEntry.mSceneObjects.front()->mPosition.x - sToolTipPointeePosX) > 0.01f)
+                if (math::Abs(interactedElementEntry.mSceneObjects.front()->mPosition.x - mToolTipPointeePosX) > 0.01f)
                 {
-                    sToolTipIndex = -1;
+                    mToolTipIndex = -1;
                     DestroyItemTooltip();
                 }
             }

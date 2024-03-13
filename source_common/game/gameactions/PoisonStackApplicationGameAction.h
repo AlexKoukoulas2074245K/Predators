@@ -31,6 +31,7 @@ private:
     float mPendingDurationSecs;
     int mAmountOfArmorDamaged;
     int mAmountOfHealthDamaged;
+    bool mWaitingForArmorAndHealthReductionTriggers;
 };
 
 ///------------------------------------------------------------------------------------------------

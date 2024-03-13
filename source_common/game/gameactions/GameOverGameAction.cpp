@@ -91,6 +91,7 @@ void GameOverGameAction::VInitAnimation()
             events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(true, true, effects::board_modifier_masks::DOUBLE_NEXT_DINO_DAMAGE);
             events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(true, true, effects::board_modifier_masks::HEAL_NEXT_DINO_DAMAGE);
             events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(true, true, effects::board_modifier_masks::DOUBLE_POISON_ATTACKS);
+            events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(true, true, effects::board_modifier_masks::INSECT_VIRUS);
             
             events::EventSystem::GetInstance().DispatchEvent<events::TutorialTriggerEvent>(tutorials::BATTLE_VICTORY_TUTORIAL);
             mExplosionDelaySecs = EXPLOSION_DELAY_SECS;

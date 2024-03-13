@@ -56,6 +56,9 @@ private:
     std::vector<std::unique_ptr<AnimatedButton>> mAnimatedButtons;
     std::unique_ptr<SwipeableContainer<ItemEntry>> mArtifactsItemContainer;
     std::unique_ptr<CardTooltipController> mItemTooltipController;
+    int mToolTipIndex;
+    float mToolTipPointeePosY;
+    float mToolTipPointeePosX;
     int mSelectedItemIndex;
     bool mTransitioning;
     bool mShowingMutationText;

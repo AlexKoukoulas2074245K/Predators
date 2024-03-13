@@ -87,6 +87,7 @@ void PoisonStackApplicationGameAction::VSetNewGameState()
 void PoisonStackApplicationGameAction::VInitAnimation()
 {
     CoreSystemsEngine::GetInstance().GetSoundManager().PreloadSfx(POISON_SFX);
+    mWaitingForArmorAndHealthReductionTriggers = false;
     
     if (mAmountOfArmorDamaged > 0 || mAmountOfHealthDamaged > 0)
     {
@@ -104,8 +105,10 @@ void PoisonStackApplicationGameAction::VInitAnimation()
         
         if (mAmountOfHealthDamaged > 0)
         {
+            mWaitingForArmorAndHealthReductionTriggers = true;
             CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TimeDelayAnimation>(game_constants::PER_ARMOR_DROPPED_DELAY_ANIMATION_DURATION_SECS * mAmountOfArmorDamaged), [&]()
             {
+                mWaitingForArmorAndHealthReductionTriggers = false;
                 events::EventSystem::GetInstance().DispatchEvent<events::HealthChangeAnimationTriggerEvent>(mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
             });
         }
@@ -134,7 +137,7 @@ void PoisonStackApplicationGameAction::VInitAnimation()
 ActionAnimationUpdateResult PoisonStackApplicationGameAction::VUpdateAnimation(const float dtMillis)
 {
     mPendingDurationSecs -= dtMillis/1000.0f;
-    return mPendingDurationSecs <= 0.0f ? ActionAnimationUpdateResult::FINISHED : ActionAnimationUpdateResult::ONGOING;
+    return mPendingDurationSecs <= 0.0f && !mWaitingForArmorAndHealthReductionTriggers ? ActionAnimationUpdateResult::FINISHED : ActionAnimationUpdateResult::ONGOING;
 }
 
 ///------------------------------------------------------------------------------------------------

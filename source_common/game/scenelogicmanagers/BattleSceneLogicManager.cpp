@@ -2273,6 +2273,12 @@ void BattleSceneLogicManager::OnStoryBattleWon(const events::StoryBattleWonEvent
         battleCoinRewards *= 5;
     }
     
+    if (DataRepository::GetInstance().GetCurrentStoryMapNodeType() == StoryMap::NodeType::BOSS_ENCOUNTER)
+    {
+        battleCoinRewards *= 10;
+        healthReward = 0;
+    }
+    
     auto greedyGoblinCount = DataRepository::GetInstance().GetStoryArtifactCount(artifacts::GREEDY_GOBLIN);
     if (greedyGoblinCount > 0)
     {
