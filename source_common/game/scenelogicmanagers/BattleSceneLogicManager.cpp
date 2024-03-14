@@ -2276,7 +2276,7 @@ void BattleSceneLogicManager::OnStoryBattleWon(const events::StoryBattleWonEvent
 {
     auto healthReward = DataRepository::GetInstance().GetNextStoryOpponentDamage();
     auto battleCoinRewards = DataRepository::GetInstance().GetNextBattleTopPlayerHealth();
-    bool flawlessVictoryCase = mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth == DataRepository::GetInstance().GetStoryMaxHealth();
+    bool flawlessVictoryCase = mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth >= DataRepository::GetInstance().StoryCurrentHealth().GetValue();
     
     if (flawlessVictoryCase)
     {

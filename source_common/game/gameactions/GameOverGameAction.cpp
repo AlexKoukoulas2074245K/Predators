@@ -95,7 +95,7 @@ void GameOverGameAction::VInitAnimation()
             
             events::EventSystem::GetInstance().DispatchEvent<events::TutorialTriggerEvent>(tutorials::BATTLE_VICTORY_TUTORIAL);
             
-            if (mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth == DataRepository::GetInstance().GetStoryMaxHealth())
+            if (mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth >= DataRepository::GetInstance().StoryCurrentHealth().GetValue())
             {
                 events::EventSystem::GetInstance().DispatchEvent<events::FlawlessVictoryTriggerEvent>();
             }
