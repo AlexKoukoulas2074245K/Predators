@@ -73,25 +73,20 @@ void DinoDamageReversalGameAction::VSetNewGameState()
         mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.resize(largestHeldCardIndex + 1);
     }
     
-    // Apply stat override to Lowest damage card
-    if (mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides[mLowestDamageHeldCardIndex].count(CardStatType::DAMAGE) == 0)
+    // If lowest damage card has damage overrides, set the lowest damage to those instead
+    if (mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides[mLowestDamageHeldCardIndex].count(CardStatType::DAMAGE) != 0)
     {
-        mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides[mLowestDamageHeldCardIndex][CardStatType::DAMAGE] = highestDamage;
-    }
-    else
-    {
-        mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides[mLowestDamageHeldCardIndex][CardStatType::DAMAGE] += highestDamage;
+        lowestDamage = mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides[mLowestDamageHeldCardIndex][CardStatType::DAMAGE];
     }
     
-    // Apply stat override to Highest damage card
-    if (mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides[mHighestDamageHeldCardIndex].count(CardStatType::DAMAGE) == 0)
+    // // If highest damage card has damage overrides, set the highest damage to those instead
+    if (mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides[mHighestDamageHeldCardIndex].count(CardStatType::DAMAGE) != 0)
     {
-        mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides[mHighestDamageHeldCardIndex][CardStatType::DAMAGE] = lowestDamage;
+        highestDamage = mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides[mHighestDamageHeldCardIndex][CardStatType::DAMAGE];
     }
-    else
-    {
-        mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides[mHighestDamageHeldCardIndex][CardStatType::DAMAGE] += lowestDamage;
-    }
+    
+    mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides[mLowestDamageHeldCardIndex][CardStatType::DAMAGE] = highestDamage;
+    mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides[mHighestDamageHeldCardIndex][CardStatType::DAMAGE] = lowestDamage;
     
     // Skip animation for held cards for opponent
     if (mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX || !shouldAnimateCardBuffing)
