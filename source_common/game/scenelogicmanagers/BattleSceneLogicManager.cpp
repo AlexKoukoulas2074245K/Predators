@@ -45,6 +45,7 @@ static const strutils::StringId CARD_INSPECTION_SCENE = strutils::StringId("card
 static const strutils::StringId CARD_HISTORY_CONTAINER_NAME = strutils::StringId("card_history_container");
 static const strutils::StringId COINS_LOOT_INDICATOR_SCENE_OBJECT_NAME = strutils::StringId("coins_loot_indicator");
 static const strutils::StringId HEALTH_LOOT_INDICATOR_SCENE_OBJECT_NAME = strutils::StringId("health_loot_indicator");
+static const strutils::StringId FLAWLESS_VICTORY_INDICATOR_SCENE_OBJECT_NAME = strutils::StringId("flawless_victory_indicator");
 static const strutils::StringId HISTORY_TROLLEY_SCENE_OBJECT_NAME = strutils::StringId("history_trolley");
 static const strutils::StringId CARD_LOCATION_INDICATOR_SCENE_OBJECT_NAME = strutils::StringId("card_location_indicator");
 static const strutils::StringId CARD_HISTORY_CAPSULE_SCENE_OBJECT_NAME = strutils::StringId("card_history_capsule");
@@ -108,6 +109,7 @@ static const std::string METALLIC_TEXTURE_FILE_NAME = "metallic_texture.png";
 static const std::string HEALTH_CHANGE_TEXT_TOP_SCENE_OBJECT_NAME_PREFIX = "health_change_text_top_";
 static const std::string HEALTH_CHANGE_TEXT_BOT_SCENE_OBJECT_NAME_PREFIX = "health_change_text_bot_";
 static const std::string RARE_ITEM_SHADER = "rare_item.vs";
+static const std::string FIREWORKS_SFX = "sfx_fireworks";
 
 static const glm::vec3 BOARD_SIDE_EFFECT_TOP_POSITION = { 0.0f, 0.044f, 1.0f};
 static const glm::vec3 BOARD_SIDE_EFFECT_BOT_POSITION = { 0.0f, -0.044f, 1.0f};
@@ -1189,6 +1191,12 @@ void BattleSceneLogicManager::UpdateMiscSceneObjects(const float dtMillis)
     {
         animatedButton->Update(dtMillis);
     }
+    
+    auto flawlessVictoryIndicator = mActiveScene->FindSceneObject(FLAWLESS_VICTORY_INDICATOR_SCENE_OBJECT_NAME);
+    if (flawlessVictoryIndicator)
+    {
+        flawlessVictoryIndicator->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
+    }
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -1402,6 +1410,7 @@ void BattleSceneLogicManager::RegisterForEvents()
     eventSystem.RegisterForEvent<events::ArmorChangeChangeAnimationTriggerEvent>(this, &BattleSceneLogicManager::OnArmorChangeAnimationTrigger);
     eventSystem.RegisterForEvent<events::CardHistoryEntryAdditionEvent>(this, &BattleSceneLogicManager::OnCardHistoryEntryAddition);
     eventSystem.RegisterForEvent<events::StoryBattleWonEvent>(this, &BattleSceneLogicManager::OnStoryBattleWon);
+    eventSystem.RegisterForEvent<events::FlawlessVictoryTriggerEvent>(this, &BattleSceneLogicManager::OnFlawlessVictoryTriggered);
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -2267,6 +2276,12 @@ void BattleSceneLogicManager::OnStoryBattleWon(const events::StoryBattleWonEvent
 {
     auto healthReward = DataRepository::GetInstance().GetNextStoryOpponentDamage();
     auto battleCoinRewards = DataRepository::GetInstance().GetNextBattleTopPlayerHealth();
+    bool flawlessVictoryCase = mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth == DataRepository::GetInstance().GetStoryMaxHealth();
+    
+    if (flawlessVictoryCase)
+    {
+        battleCoinRewards *= 5;
+    }
     
     if (DataRepository::GetInstance().GetNextStoryOpponentName() == game_constants::EMERALD_DRAGON_NAME.GetString())
     {
@@ -2368,7 +2383,6 @@ void BattleSceneLogicManager::OnStoryBattleWon(const events::StoryBattleWonEvent
         
         events::EventSystem::GetInstance().DispatchEvent<events::HealthRefillRewardEvent>(eligibleHealthPointsAdded, mPlayerBoardCardSceneObjectWrappers[game_constants::REMOTE_PLAYER_INDEX][0]->mSceneObject->mPosition, true);
     }
-    
 
     // Set next scenes accordingly
     DataRepository::GetInstance().SetCurrentStoryMapNodeSeed(math::GetControlSeed());
@@ -2403,6 +2417,20 @@ void BattleSceneLogicManager::OnStoryBattleWon(const events::StoryBattleWonEvent
         DataRepository::GetInstance().SetCurrentBattleSubSceneType(BattleSubSceneType::WHEEL);
     }
     DataRepository::GetInstance().FlushStateToFile();
+}
+
+///------------------------------------------------------------------------------------------------
+
+void BattleSceneLogicManager::OnFlawlessVictoryTriggered(const events::FlawlessVictoryTriggerEvent&)
+{
+    CoreSystemsEngine::GetInstance().GetSoundManager().PreloadSfx(FIREWORKS_SFX);
+    CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(FIREWORKS_SFX);
+    
+    auto flawlessVictoryIndicatorSceneObject = mActiveScene->FindSceneObject(FLAWLESS_VICTORY_INDICATOR_SCENE_OBJECT_NAME);
+    flawlessVictoryIndicatorSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MIN_Y_UNIFORM_NAME] = -1.0f;
+    flawlessVictoryIndicatorSceneObject->mShaderFloatUniformValues[game_constants::CUTOFF_MAX_Y_UNIFORM_NAME] = 1.0f;
+    flawlessVictoryIndicatorSceneObject->mInvisible = false;
+    CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(flawlessVictoryIndicatorSceneObject, 1.0f, 0.5f), [=](){});
 }
 
 ///------------------------------------------------------------------------------------------------

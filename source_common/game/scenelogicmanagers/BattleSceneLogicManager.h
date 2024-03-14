@@ -95,6 +95,7 @@ private:
     void OnPoisonStackChangeChangeAnimationTrigger(const events::PoisonStackChangeChangeAnimationTriggerEvent&);
     void OnArmorChangeAnimationTrigger(const events::ArmorChangeChangeAnimationTriggerEvent&);
     void OnStoryBattleWon(const events::StoryBattleWonEvent&);
+    void OnFlawlessVictoryTriggered(const events::FlawlessVictoryTriggerEvent&);
     void OnCardHistoryEntryAddition(const events::CardHistoryEntryAdditionEvent&);
     void OnHistoryButtonPressed();
     void FakeSettingsButtonPressed();

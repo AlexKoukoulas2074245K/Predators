@@ -94,6 +94,12 @@ void GameOverGameAction::VInitAnimation()
             events::EventSystem::GetInstance().DispatchEvent<events::BoardSideCardEffectEndedEvent>(true, true, effects::board_modifier_masks::INSECT_VIRUS);
             
             events::EventSystem::GetInstance().DispatchEvent<events::TutorialTriggerEvent>(tutorials::BATTLE_VICTORY_TUTORIAL);
+            
+            if (mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth == DataRepository::GetInstance().GetStoryMaxHealth())
+            {
+                events::EventSystem::GetInstance().DispatchEvent<events::FlawlessVictoryTriggerEvent>();
+            }
+            
             mExplosionDelaySecs = EXPLOSION_DELAY_SECS;
             mAnimationState = AnimationState::EXPLOSIONS;
             mExplosionCounter = 0;

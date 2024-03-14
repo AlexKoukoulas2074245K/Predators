@@ -37,6 +37,16 @@
             "invisible": true
         },
         {
+            "name": "flawless_victory_indicator",
+            "font": "font",
+            "shader": "new_indicator.vs",
+            "text": "FLAWLESS VICTORY",
+            "scale": { "x": 0.0002, "y": 0.0002, "z": 0.0002 },
+            "position": { "x": -0.088, "y": 0.004, "z": 10.0 },
+            "alpha": 0.0,
+            "invisible": true
+        },
+        {
             "name": "replay_text",
             "font": "font",
             "text": "Replaying",
