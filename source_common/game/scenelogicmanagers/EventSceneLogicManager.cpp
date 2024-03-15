@@ -732,6 +732,11 @@ void EventSceneLogicManager::SelectRandomStoryEvent(const bool debugDeterministi
                 {
                     StoryRandomEventButtonData("Go to final Boss (Loose all Artifacts)", 2, 0.0f, [=]()
                     {
+                        DataRepository::GetInstance().SetStoryPlayerCardStatModifier(CardStatType::DAMAGE, 0);
+                        DataRepository::GetInstance().SetStoryPlayerCardStatModifier(CardStatType::WEIGHT, 0);
+                        
+                        auto blueSapphireCount = DataRepository::GetInstance().GetStoryArtifactCount(artifacts::BLUE_SAPPHIRE);
+                        DataRepository::GetInstance().SetNextBattleBotPlayerInitWeight(DataRepository::GetInstance().GetNextBattleBotPlayerInitWeight() - 2 * blueSapphireCount);
                         DataRepository::GetInstance().SetCurrentStoryArtifacts({});
                         DataRepository::GetInstance().SetCurrentStoryMapNodeCoord(DataRepository::GetInstance().GetPreBossMidMapNodeCoord());
                         DataRepository::GetInstance().FlushStateToFile();
@@ -896,7 +901,7 @@ void EventSceneLogicManager::SelectRandomStoryEvent(const bool debugDeterministi
         mCurrentEventIndex = eventIndexSelectionRandInt;
         while (!mRegisteredStoryEvents[mCurrentEventIndex].mApplicabilityFunction())
         {
-            mCurrentEventIndex = (mCurrentEventIndex + 1) % mRegisteredStoryEvents.size();
+            mCurrentEventIndex = math::ControlledRandomInt(0, static_cast<int>(mRegisteredStoryEvents.size()) - 1);
         }
         DataRepository::GetInstance().SetCurrentEventIndex(mCurrentEventIndex);
     }

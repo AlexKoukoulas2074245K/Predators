@@ -171,6 +171,7 @@ std::shared_ptr<scene::SceneObject> ParticleManager::CreateParticleEmitterAtPosi
         particleEmitterData.mCustomUpdateFunction = customUpdateFunction;
     }
     
+    particleSystemSo->mShaderVec3UniformValues[strutils::StringId("rotation_axis")] = glm::vec3(0.0f);
     if (IS_FLAG_SET(particle_flags::ROTATE_OVER_TIME) || IS_FLAG_SET(particle_flags::INITIALLY_ROTATED))
     {
         particleSystemSo->mShaderVec3UniformValues[strutils::StringId("rotation_axis")] = particleEmitterData.mRotationAxis;

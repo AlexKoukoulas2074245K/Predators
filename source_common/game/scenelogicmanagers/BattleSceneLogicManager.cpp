@@ -1195,7 +1195,7 @@ void BattleSceneLogicManager::UpdateMiscSceneObjects(const float dtMillis)
     auto flawlessVictoryIndicator = mActiveScene->FindSceneObject(FLAWLESS_VICTORY_INDICATOR_SCENE_OBJECT_NAME);
     if (flawlessVictoryIndicator)
     {
-        flawlessVictoryIndicator->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
+        flawlessVictoryIndicator->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = -time;
     }
 }
 

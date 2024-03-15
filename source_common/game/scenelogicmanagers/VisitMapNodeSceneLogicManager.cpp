@@ -430,7 +430,7 @@ void VisitMapNodeSceneLogicManager::InitializeNodeVisitData()
             // Populate local player stats
             DataRepository::GetInstance().SetNextBotPlayerDeck(DataRepository::GetInstance().GetCurrentStoryPlayerDeck());
             DataRepository::GetInstance().SetNextBattleBotPlayerHealth(DataRepository::GetInstance().StoryCurrentHealth().GetValue());
-            DataRepository::GetInstance().SetNextBattleBotPlayerWeightLimit(game_constants::BOT_PLAYER_DEFAULT_WEIGHT_LIMIT);
+            DataRepository::GetInstance().SetNextBattleBotPlayerWeightLimit(game_constants::BOT_PLAYER_DEFAULT_WEIGHT_LIMIT * 2);
             
             events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::BATTLE_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
         } break;
