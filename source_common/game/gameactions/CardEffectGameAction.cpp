@@ -627,7 +627,7 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
         // Demon Punch
         else if (effectComponent == effects::EFFECT_COMPONENT_DEMON_PUNCH)
         {
-            if (mBoardState->GetActivePlayerState().mPlayerCurrentWeightAmmo > 1)
+            if (mBoardState->GetActivePlayerState().mPlayerCurrentWeightAmmo > 0)
             {
                 int damage = mBoardState->GetActivePlayerState().mPlayerCurrentWeightAmmo;
                 mBoardState->GetActivePlayerState().mPlayerCurrentWeightAmmo = 0;

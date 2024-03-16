@@ -230,7 +230,7 @@ namespace game_constants
     inline const float INDIVIDUAL_CARD_BOARD_EFFECT_PULSE_ANIMATION_PULSE_DURATION_SECS = 1.0f;
     inline const float POISON_STACK_SHOW_HIDE_ANIMATION_DURATION_SECS = 1.0f;
     inline const float ARMOR_SHOW_HIDE_ANIMATION_DURATION_SECS = 1.0f;
-    inline const float RODENTS_RESPAWN_CHANCE = 0.4f;
+    inline const float RODENTS_RESPAWN_CHANCE = 0.5f;
     inline const float SCENE_SPEED_DILATION_ANIMATION_DURATION_SECS = 0.5f;
     inline const float PER_ARMOR_DROPPED_DELAY_ANIMATION_DURATION_SECS = 0.3f;
     inline const float RARE_ITEM_COLLECTION_ANIMATION_DURATION_SECS = 1.2f;
