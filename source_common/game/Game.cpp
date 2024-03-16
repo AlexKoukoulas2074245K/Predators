@@ -326,7 +326,7 @@ static void CreateImGuiCardVecEntry(const std::string& cardIdPrefix, std::string
                 overridesString << ", ";
             }
             
-            overridesString << i << ":{";
+            overridesString << (forBoardCards ? i : cardOverridesCopy.size() - 1 - i) << ":{";
             bool hasSeenFirstInnerEntry = false;
             for (const auto& statOverrideEntry: cardOverridesCopy[i])
             {
@@ -1042,7 +1042,7 @@ void Game::CreateDebugWidgets()
     ImGui::End();
     
     // Create action generator
-    ImGui::Begin("Action Generator", nullptr, GLOBAL_IMGUI_WINDOW_FLAGS);
+    ImGui::Begin("Action Generator & Board State", nullptr, GLOBAL_IMGUI_WINDOW_FLAGS);
     const auto& actions = GameActionFactory::GetRegisteredActions();
     
     static size_t currentIndex = 0;

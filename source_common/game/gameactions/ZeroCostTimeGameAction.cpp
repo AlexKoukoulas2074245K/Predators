@@ -60,7 +60,7 @@ void ZeroCostTimeGameAction::VSetNewGameState()
         
         events::EventSystem::GetInstance().DispatchEvent<events::ZeroCostTimeEvent>(false, mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
         
-        for (auto i = 0; i < mBoardState->GetActivePlayerState().mPlayerHeldCardStatOverrides.size(); ++i)
+        for (auto i = 0; i < mBoardState->GetActivePlayerState().mPlayerHeldCards.size(); ++i)
         {
             events::EventSystem::GetInstance().DispatchEvent<events::ForceSendCardBackToPositionEvent>(i, false, mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX);
         }

@@ -102,6 +102,12 @@ void CardEffectGameAction::VSetNewGameState()
         while ((heldCardIter = std::find_if(heldCardIter, activePlayerState.mPlayerHeldCards.end(), [=](const int heldCardId){ return heldCardId == cardId; })) != activePlayerState.mPlayerHeldCards.end())
         {
             heldCardIndicesToDestroy.push_back(static_cast<int>(std::distance(activePlayerState.mPlayerHeldCards.begin(), heldCardIter)));
+            
+            if (activePlayerState.mPlayerHeldCardStatOverrides.size() > heldCardIndicesToDestroy.back())
+            {
+                activePlayerState.mPlayerHeldCardStatOverrides.erase(activePlayerState.mPlayerHeldCardStatOverrides.begin() + heldCardIndicesToDestroy.back());
+            }
+            
             heldCardIter++;
         }
         
