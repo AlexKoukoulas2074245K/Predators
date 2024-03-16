@@ -2288,6 +2288,11 @@ void BattleSceneLogicManager::OnStoryBattleWon(const events::StoryBattleWonEvent
         battleCoinRewards *= 5;
     }
     
+    if (DataRepository::GetInstance().GetCurrentStoryMapNodeCoord() == game_constants::TUTORIAL_MAP_BOSS_COORD && DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::TUTORIAL_MAP)
+    {
+        battleCoinRewards *= 7;
+    }
+    
     if (DataRepository::GetInstance().GetCurrentStoryMapNodeType() == StoryMap::NodeType::BOSS_ENCOUNTER)
     {
         battleCoinRewards *= 10;
