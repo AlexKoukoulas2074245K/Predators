@@ -146,7 +146,8 @@ bool PlayerActionGenerationEngine::IsCardHighPriority(const CardData& cardData, 
     else if
     (
         cardData.IsSpell() &&
-        strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_FAMILY)
+        strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_FAMILY) &&
+        (math::RandomInt(0, 1) == 1 || mActionGenerationType != ActionGenerationType::OPTIMISED)
     ) return true;
     
     else if
@@ -226,7 +227,8 @@ bool PlayerActionGenerationEngine::IsCardHighPriority(const CardData& cardData, 
     else if
     (
         cardData.IsSpell() &&
-        strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_ENEMY_BOARD_DEBUFF)
+        strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_ENEMY_BOARD_DEBUFF) &&
+        (math::RandomInt(0, 1) == 1 || mActionGenerationType != ActionGenerationType::OPTIMISED)
     ) return true;
     
     else if
@@ -256,7 +258,8 @@ bool PlayerActionGenerationEngine::IsCardHighPriority(const CardData& cardData, 
     else if
     (
         cardData.IsSpell() &&
-        strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_DEMON_KILL)
+        strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_DEMON_KILL) &&
+        (math::RandomInt(0, 1) == 1 || mActionGenerationType != ActionGenerationType::OPTIMISED)
     ) return true;
     
     else if
@@ -280,13 +283,15 @@ bool PlayerActionGenerationEngine::IsCardHighPriority(const CardData& cardData, 
     else if
     (
         cardData.IsSpell() &&
-        strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_HOUND_SUMMONING)
+        strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_HOUND_SUMMONING) &&
+        (math::RandomInt(0, 1) == 1 || mActionGenerationType != ActionGenerationType::OPTIMISED)
     ) return true;
     
     else if
     (
         cardData.IsSpell() &&
-        strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_DEMON_PUNCH)
+        strutils::StringContains(cardData.mCardEffect, effects::EFFECT_COMPONENT_DEMON_PUNCH) &&
+        (math::RandomInt(0, 1) == 1 || mActionGenerationType != ActionGenerationType::OPTIMISED)
     ) return true;
     
     else if

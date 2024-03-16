@@ -114,6 +114,11 @@ StoryDeserializer::StoryDeserializer(DataRepository& dataRepository)
         dataRepository.SetStoryMaxHealth(storyJson["story_max_health"].get<int>());
     }
     
+    if (storyJson.count("story_starting_gold"))
+    {
+        dataRepository.SetStoryStartingGold(storyJson["story_starting_gold"].get<int>());
+    }
+    
     if (storyJson.count("story_seed"))
     {
         dataRepository.SetStoryMapGenerationSeed(storyJson["story_seed"].get<int>());

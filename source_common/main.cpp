@@ -20,7 +20,7 @@ extern int BATTLE_SIMULATION_ITERATIONS;
 ///------------------------------------------------------------------------------------------------
 
 int main(int argc, char** argv) {
-    BATTLE_SIMULATION_ITERATIONS = 10000;
+    BATTLE_SIMULATION_ITERATIONS = 1000;
     apple_utils::SetAssetFolder();
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

@@ -29,6 +29,7 @@ static const strutils::StringId VICTORY_INTRO_TEXT_TOP_NAME = strutils::StringId
 static const strutils::StringId VICTORY_INTRO_TEXT_MID_NAME = strutils::StringId("victory_intro_text_mid");
 static const strutils::StringId VICTORY_INTRO_TEXT_BOT_NAME = strutils::StringId("victory_intro_text_bot");
 static const strutils::StringId VICTORY_RESULTS_TEXT_TOP_NAME = strutils::StringId("victory_results_text_top");
+static const strutils::StringId VICTORY_RESULTS_TEXT_MID_NAME = strutils::StringId("victory_results_text_mid");
 static const strutils::StringId VICTORY_RESULTS_TEXT_BOT_NAME = strutils::StringId("victory_results_text_bot");
 
 static const glm::vec3 BUTTON_SCALE = {0.0004f, 0.0004f, 0.0004f};
@@ -37,8 +38,12 @@ static const glm::vec3 BACK_TO_MAIN_MENU_BUTTON_POSITION = {-0.142f, -0.083f, 23
 static const glm::vec3 VICTORY_INTRO_TEXT_TOP_POSITION = {-0.25f, 0.07f, 23.1f};
 static const glm::vec3 VICTORY_INTRO_TEXT_MID_POSITION = {-0.292f, 0.019f, 23.1f};
 static const glm::vec3 VICTORY_INTRO_TEXT_BOT_POSITION = {-0.302f, -0.031f, 23.1f};
-static const glm::vec3 VICTORY_RESULTS_TEXT_TOP_POSITION = {-0.123f, 0.07f, 23.1f};
-static const glm::vec3 VICTORY_RESULTS_TEXT_BOT_POSITION = {-0.191f, 0.019f, 23.1f};
+static const glm::vec3 VICTORY_RESULTS_TEXT_TOP_POSITION = {-0.123f, 0.109f, 23.1f};
+static const glm::vec3 VICTORY_RESULTS_TEXT_MID_POSITION = {-0.191f, 0.058f, 23.1f};
+static const glm::vec3 VICTORY_RESULTS_TEXT_BOT_POSITION = {-0.191f, 0.007f, 23.1f};
+static const glm::vec3 VICTORY_RESULTS_COINS_DIFFERENCE_POSITIVE_COLOR = {0.0f, 0.7f, 0.0f};
+static const glm::vec3 VICTORY_RESULTS_COINS_DIFFERENCE_NEGATIVE_COLOR = {0.8f, 0.0f, 0.0f};
+static const glm::vec3 VICTORY_RESULTS_COINS_DIFFERENCE_NEUTRAL_COLOR = {1.0f, 1.0f, 1.0f};
 
 static const float SUBSCENE_ITEM_FADE_IN_OUT_DURATION_SECS = 0.25f;
 static const float STAGGERED_ITEM_ALPHA_DELAY_SECS = 0.1f;
@@ -213,17 +218,42 @@ void VictorySceneLogicManager::InitSubScene(const SubSceneType subSceneType, std
             textVictoryResultsTopSceneObject->mPosition = VICTORY_RESULTS_TEXT_TOP_POSITION;
             textVictoryResultsTopSceneObject->mScale = BUTTON_SCALE;
             
-            scene::TextSceneObjectData textDataVictoryResultsBot;
-            textDataVictoryResultsBot.mFontName = game_constants::DEFAULT_FONT_NAME;
+            scene::TextSceneObjectData textDataVictoryResultsMid;
+            textDataVictoryResultsMid.mFontName = game_constants::DEFAULT_FONT_NAME;
             
             auto timePreformatted = strutils::GetHoursMinutesSecondsStringFromSeconds(DataRepository::GetInstance().GetCurrentStorySecondsPlayed());
             auto timeComponents = strutils::StringSplit(timePreformatted, ':');
-            textDataVictoryResultsBot.mText = "Time played: " + timeComponents[0] + "h " + timeComponents[1] + "m " + timeComponents[2] + "s";
+            textDataVictoryResultsMid.mText = "Time played: " + timeComponents[0] + "h " + timeComponents[1] + "m " + timeComponents[2] + "s";
             
-            auto textVictoryResultBotSceneObject = scene->CreateSceneObject(VICTORY_RESULTS_TEXT_BOT_NAME);
-            textVictoryResultBotSceneObject->mSceneObjectTypeData = std::move(textDataVictoryResultsBot);
-            textVictoryResultBotSceneObject->mPosition = VICTORY_RESULTS_TEXT_BOT_POSITION;
-            textVictoryResultBotSceneObject->mScale = BUTTON_SCALE;
+            auto textVictoryResultMidSceneObject = scene->CreateSceneObject(VICTORY_RESULTS_TEXT_MID_NAME);
+            textVictoryResultMidSceneObject->mSceneObjectTypeData = std::move(textDataVictoryResultsMid);
+            textVictoryResultMidSceneObject->mPosition = VICTORY_RESULTS_TEXT_MID_POSITION;
+            textVictoryResultMidSceneObject->mScale = BUTTON_SCALE;
+            
+            scene::TextSceneObjectData textDataVictoryResultsBot;
+            textDataVictoryResultsBot.mFontName = game_constants::DEFAULT_FONT_NAME;
+            textDataVictoryResultsBot.mText = "Gold Coin Difference: ";
+            
+            auto coinDifference = DataRepository::GetInstance().CurrencyCoins().GetValue() - DataRepository::GetInstance().GetStoryStartingGold();
+            auto coinDifferenceString = std::to_string(coinDifference);
+            
+            auto textVictoryResultsBotSceneObject = scene->CreateSceneObject(VICTORY_RESULTS_TEXT_BOT_NAME);
+            textVictoryResultsBotSceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + game_constants::BASIC_CUSTOM_COLOR_SHADER_FILE_NAME);
+            
+            textVictoryResultsBotSceneObject->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = VICTORY_RESULTS_COINS_DIFFERENCE_NEUTRAL_COLOR;
+            if (coinDifference != 0 && coinDifference > 0)
+            {
+                coinDifferenceString = "+" + coinDifferenceString;
+                textVictoryResultsBotSceneObject->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = VICTORY_RESULTS_COINS_DIFFERENCE_POSITIVE_COLOR;
+            }
+            else if (coinDifference != 0 && coinDifference < 0)
+            {
+                textVictoryResultsBotSceneObject->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = VICTORY_RESULTS_COINS_DIFFERENCE_NEGATIVE_COLOR;
+            }
+            textDataVictoryResultsBot.mText += coinDifferenceString;
+            textVictoryResultsBotSceneObject->mSceneObjectTypeData = std::move(textDataVictoryResultsBot);
+            textVictoryResultsBotSceneObject->mPosition = VICTORY_RESULTS_TEXT_BOT_POSITION;
+            textVictoryResultsBotSceneObject->mScale = BUTTON_SCALE;
             
             mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
             (

@@ -1244,6 +1244,7 @@ void MainMenuSceneLogicManager::GoToPreviousSubScene(std::shared_ptr<scene::Scen
 void MainMenuSceneLogicManager::StartNewStory()
 {
     DataRepository::GetInstance().SetIsCurrentlyPlayingStoryMode(true);
+    DataRepository::GetInstance().SetStoryStartingGold(DataRepository::GetInstance().CurrencyCoins().GetValue());
     events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_MAP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
     DataRepository::GetInstance().FlushStateToFile();
 }

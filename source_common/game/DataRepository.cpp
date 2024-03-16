@@ -74,6 +74,7 @@ void DataRepository::ResetStoryData()
     mSelectedStoryMapNodeData = nullptr;
     
     mStoryMaxHealth = game_constants::STORY_DEFAULT_MAX_HEALTH;
+    mStoryStartingGold = 0;
     mStoryMapGenerationSeed = 0;
     mCurrentStoryMapNodeSeed = 0;
     mCurrentEventScreenIndex = 0;
@@ -698,6 +699,21 @@ void DataRepository::SetStoryMapGenerationSeed(const int storyMapGenerationSeed)
 {
     mStoryMapGenerationSeed = storyMapGenerationSeed;
     mStoryDataSerializer->GetState()["story_seed"] = storyMapGenerationSeed;
+}
+
+///------------------------------------------------------------------------------------------------
+
+const long long& DataRepository::GetStoryStartingGold() const
+{
+    return mStoryStartingGold;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void DataRepository::SetStoryStartingGold(const long long storyStartingGold)
+{
+    mStoryStartingGold = storyStartingGold;
+    mStoryDataSerializer->GetState()["story_starting_gold"] = mStoryStartingGold;
 }
 
 ///------------------------------------------------------------------------------------------------

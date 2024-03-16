@@ -224,6 +224,9 @@ public:
     const int& GetStoryMapGenerationSeed() const;
     void SetStoryMapGenerationSeed(const int storyMapGenerationSeed);
     
+    const long long& GetStoryStartingGold() const;
+    void SetStoryStartingGold(const long long storyStartingGold);
+    
     const int& GetCurrentStoryMapNodeSeed() const;
     void SetCurrentStoryMapNodeSeed(const int currentStoryMapNodeSeed);
     
@@ -399,6 +402,7 @@ private:
     int mNextUnseenSpellCardId = 0;
     int mNextInspectedCardId = 0;
     int mGoldCartsIgnored = 0;
+    long long mStoryStartingGold = 0;
     bool mIsCurrentlyPlayingStoryMode = false;
     bool mCanSurfaceCloudDataScene = false;
     bool mAudioEnabled = true;
