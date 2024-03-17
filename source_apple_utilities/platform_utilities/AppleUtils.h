@@ -36,6 +36,7 @@ bool IsConnectedToTheInternet();
 std::string GetPersistentDataDirectoryPath();
 std::string GetDeviceId();
 std::string GetDeviceName();
+std::string GetAppVersion();
 void SetAssetFolder();
 bool HasLoadedProducts();
 void LoadStoreProducts(const std::vector<std::string>& productIdsToLoad);

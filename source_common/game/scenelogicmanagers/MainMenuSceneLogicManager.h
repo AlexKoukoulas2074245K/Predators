@@ -11,6 +11,7 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <game/scenelogicmanagers/ISceneLogicManager.h>
+#include <game/events/EventSystem.h>
 #include <game/SwipeableContainer.h>
 #include <memory>
 #include <unordered_set>
@@ -20,7 +21,7 @@
 
 class AnimatedButton;
 struct QuickPlayData;
-class MainMenuSceneLogicManager final: public ISceneLogicManager
+class MainMenuSceneLogicManager final: public ISceneLogicManager, public events::IListener
 {
 public:
     MainMenuSceneLogicManager();
@@ -63,7 +64,8 @@ private:
     bool IsDisconnected() const;
     void CreateMutationObject(std::shared_ptr<scene::Scene> scene);
     void SetMutationLevel(const int mutationLevel, std::shared_ptr<scene::Scene> scene);
-    
+    void OnWindowResize(const events::WindowResizeEvent& event);
+
 private:
     std::vector<std::unique_ptr<AnimatedButton>> mAnimatedButtons;
     std::unique_ptr<SwipeableContainer<CardFamilyEntry>> mCardFamilyContainerTop;

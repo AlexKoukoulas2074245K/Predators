@@ -1,0 +1,40 @@
+Version 1.2
+ 
+Features:
+- Doubled the maximum weight limit of player to 20!
+- Added Story Gold Difference indicator on Victory/
+  Defeat screens!
+- Slightly increased chance of Rodents to Dig at the
+  end of the turn!
+- Increased Gold Coin rewards from beating the Boss
+  at The Ominous Forest!
+- Fixed randomness logic for events!
+- Polished Flawless Victory animation!
+- Buffed (reduced) weight of Vampire Gnawers, Gnawer
+  Combo & Magic Carrot cards!
+- Add version text on main menu
+ 
+Bug Fixes:
+- Fixed extremely rare distorted rare item collection
+  animation!
+- Fixed bug & rare crash where Single Use Cards sometimes
+  could mess up held card stat modifiers!
+- The Eagle Flight event will now properly reset the
+  effects of Blood Diamond, Massive Meal &
+  Blue Sapphire artefacts!
+ 
+ 
+Version 1.1
+Features:
+- Added Flawless Victory mechanism where battles where
+  you loose no health reward you with a LOT more coins!
+- Added more coin rewards for defeating the story's
+  final boss!
+ 
+Bug Fixes:
+- Fixed Emerald Dragon event Artifact reward position!
+- Fixed rare crash involving poison application to
+  armored opponents!
+- Fixed rare crash involving accessing the inventory!
+- Fixed insect virus not properly fading off of
+  defeated opponents!

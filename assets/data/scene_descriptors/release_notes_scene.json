@@ -1,0 +1,17 @@
+{
+    "children_scenes":
+    [
+    ],
+    
+    "scene_objects":
+    [
+        {
+            "name": "release_notes_title",
+            "font": "font",
+            "text": "Release Notes",
+            "scale": { "x": 0.0005, "y": 0.0005, "z": 0.0005 },
+            "position": { "x": -0.124, "y": 0.213, "z": 23.1 },
+            "alpha": 0.0
+        }
+    ]
+}

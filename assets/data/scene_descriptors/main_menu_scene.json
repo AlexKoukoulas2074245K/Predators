@@ -20,6 +20,18 @@
             "scale": { "x": 0.0008, "y": 0.0008, "z": 0.0008 },
             "position": { "x": -0.235, "y": 0.203, "z": 0.1 },
             "alpha": 1.0
+        },
+        {
+            "name": "version",
+            "font": "font",
+            "text": "1.0",
+            "scale": { "x": 0.0003, "y": 0.0003, "z": 0.0003 },
+            "position": { "x": 0.0, "y": -0.223, "z": 0.1 },
+            "alpha": 1.0,
+            "snap_to_edge": "snap_to_right_edge",
+            "snap_to_edge_factor": 700.0,
+            "shader": "basic_custom_color.vs",
+            "color": { "r": 0.7, "g": 0.7, "b": 0.7}
         }
     ]
 }

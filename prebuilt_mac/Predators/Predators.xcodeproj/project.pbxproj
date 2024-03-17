@@ -83,6 +83,7 @@
 		852CA5BF9F18EE7D8BC07F41 /* CardPackRewardSceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0329997E00487B8402D75893 /* CardPackRewardSceneLogicManager.cpp */; };
 		8B1E14201860F88101ECDA69 /* CardPackRewardSceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 57036803010C5B02CAA45959 /* CardPackRewardSceneLogicManager.h */; };
 		8C096F9D043616750BC963F8 /* TextureLoader.h in Sources */ = {isa = PBXBuildFile; fileRef = 05D038A4FFCF3C5AA2E85A75 /* TextureLoader.h */; };
+		8C811FAF50862795ECDC3AB7 /* ReleaseNotesSceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 6ED52652639EA7DB94968957 /* ReleaseNotesSceneLogicManager.h */; };
 		8CCD6C766E4DFB1B5ECF1ACD /* HealNextDinoDamageGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5987BDAFA1997529B18A1239 /* HealNextDinoDamageGameAction.cpp */; };
 		8FEF85106FBA344AB3578CD7 /* PrivacyPolicySceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 562954112A205A0409E2625D /* PrivacyPolicySceneLogicManager.h */; };
 		901AABBE9D0E70F6FBC7021F /* HowToPlayACardTutorialGameAction.h in Sources */ = {isa = PBXBuildFile; fileRef = C995C5C83A4BB894CF003E09 /* HowToPlayACardTutorialGameAction.h */; };
@@ -238,6 +239,7 @@
 		DFC9D6A2B4A6F0AF0A0416C9 /* DataFileLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0106479588E4C78D4F938113 /* DataFileLoader.cpp */; };
 		E2240B574B476A510E0FEE8A /* AppleSoundUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = EFF6CA715340BD63F4562F60 /* AppleSoundUtils.mm */; };
 		E24F8BEB335EFB8866189742 /* BaseDataFileSerializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 903005ABB6F4A9CB6247ABDC /* BaseDataFileSerializer.cpp */; };
+		E3B0EE6407B1B8A271A7BAFE /* ReleaseNotesSceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D150A7AC2FF52BD47CE5C987 /* ReleaseNotesSceneLogicManager.cpp */; };
 		E7F3EF85172DB9E9D9AF8321 /* ImageSurfaceLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B645F5160C1B36C70F708518 /* ImageSurfaceLoader.cpp */; };
 		E88EC6BFF3E6479DEE4C7096 /* CardInspectionSceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = F2BCD29EF72262DDF246C0FD /* CardInspectionSceneLogicManager.h */; };
 		F27CBDD3EDFC07B17EFCD4FA /* SpellKillGameAction.h in Sources */ = {isa = PBXBuildFile; fileRef = 0961C179C02C1EEC84922D2F /* SpellKillGameAction.h */; };
@@ -336,6 +338,7 @@
 		6C924DB12412DDB3523F5262 /* MeteorDamageGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = MeteorDamageGameAction.h; sourceTree = "<group>"; };
 		6D3F63C77D9E3CBD37931ADE /* CoreSystemsEnginePlatformImpl.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = CoreSystemsEnginePlatformImpl.cpp; sourceTree = "<group>"; };
 		6E2183A368D71198F98D6738 /* TypeTraits.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = TypeTraits.h; sourceTree = "<group>"; };
+		6ED52652639EA7DB94968957 /* ReleaseNotesSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ReleaseNotesSceneLogicManager.h; path = ReleaseNotesSceneLogicManager.h; sourceTree = "<group>"; };
 		70EE9661089211DACFF22288 /* Camera.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = Camera.h; sourceTree = "<group>"; };
 		70F1FCAFCFC2229C3F093372 /* CloudKitUtils.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; path = CloudKitUtils.mm; sourceTree = "<group>"; };
 		71C6F5A357C7E63ABEB0D3CA /* GiftCodeClaimSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = GiftCodeClaimSceneLogicManager.h; sourceTree = "<group>"; };
@@ -571,6 +574,7 @@
 		CDA82AC01781CC5D7781923C /* PrivacyPolicySceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = PrivacyPolicySceneLogicManager.cpp; sourceTree = "<group>"; };
 		CF33F7C72612B80A9AB49895 /* InputStateManagerPlatformImpl.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = InputStateManagerPlatformImpl.cpp; sourceTree = "<group>"; };
 		D099CB93E6198C3BE5F73FDE /* IInputStateManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = IInputStateManager.h; sourceTree = "<group>"; };
+		D150A7AC2FF52BD47CE5C987 /* ReleaseNotesSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = ReleaseNotesSceneLogicManager.cpp; path = ReleaseNotesSceneLogicManager.cpp; sourceTree = "<group>"; };
 		D49ADB67B2E3809A798E1E0E /* ArtifactProductIds.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = ArtifactProductIds.h; sourceTree = "<group>"; };
 		D64C3227BB47CA8611283D51 /* wglew.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = wglew.h; sourceTree = "<group>"; };
 		D8216CC78F9B7DEB0BEC7678 /* AppleSoundUtils.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = AppleSoundUtils.h; sourceTree = "<group>"; };
@@ -1092,6 +1096,8 @@
 				D8E3DDD86A494D64EA3FA90E /* CreditsSceneLogicManager.h */,
 				86AD6FB974E690FCABC486CE /* StatsSceneLogicManager.cpp */,
 				A567CEC64C545508BF93FEC6 /* StatsSceneLogicManager.h */,
+				D150A7AC2FF52BD47CE5C987 /* ReleaseNotesSceneLogicManager.cpp */,
+				6ED52652639EA7DB94968957 /* ReleaseNotesSceneLogicManager.h */,
 			);
 			path = scenelogicmanagers;
 			sourceTree = "<group>";
@@ -1566,6 +1572,8 @@
 				1B4B77C8237783523BD26BBB /* DinoDamageReversalGameAction.h in Sources */,
 				6106FDC7C9089AA9708E823B /* SpellKillGameAction.cpp in Sources */,
 				F27CBDD3EDFC07B17EFCD4FA /* SpellKillGameAction.h in Sources */,
+				E3B0EE6407B1B8A271A7BAFE /* ReleaseNotesSceneLogicManager.cpp in Sources */,
+				8C811FAF50862795ECDC3AB7 /* ReleaseNotesSceneLogicManager.h in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

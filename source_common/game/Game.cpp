@@ -55,6 +55,7 @@
 #include <game/scenelogicmanagers/MainMenuSceneLogicManager.h>
 #include <game/scenelogicmanagers/PrivacyPolicySceneLogicManager.h>
 #include <game/scenelogicmanagers/PurchasingProductSceneLogicManager.h>
+#include <game/scenelogicmanagers/ReleaseNotesSceneLogicManager.h>
 #include <game/scenelogicmanagers/SettingsSceneLogicManager.h>
 #include <game/scenelogicmanagers/ShopSceneLogicManager.h>
 #include <game/scenelogicmanagers/StatsSceneLogicManager.h>
@@ -157,6 +158,7 @@ void Game::Init()
     mGameSceneTransitionManager->RegisterSceneLogicManager<MainMenuSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<PrivacyPolicySceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<PurchasingProductSceneLogicManager>();
+    mGameSceneTransitionManager->RegisterSceneLogicManager<ReleaseNotesSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<SettingsSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<ShopSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<StatsSceneLogicManager>();

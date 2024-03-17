@@ -17,7 +17,6 @@
 #include <fstream>
 #include <game/AnimatedButton.h>
 #include <game/Cards.h>
-#include <game/events/EventSystem.h>
 #include <game/GameSymbolicGlyphNames.h>
 #include <game/scenelogicmanagers/MainMenuSceneLogicManager.h>
 #include <game/DataRepository.h>
@@ -70,8 +69,10 @@ static const strutils::StringId MUTATION_SCENE_OBJECT_NAME = strutils::StringId(
 static const strutils::StringId PRIVACY_POLICY_SCENE = strutils::StringId("privacy_policy_scene");
 static const strutils::StringId STATS_SCENE = strutils::StringId("stats_scene");
 static const strutils::StringId CREDITS_SCENE = strutils::StringId("credits_scene");
+static const strutils::StringId RELEASE_NOTES_SCENE = strutils::StringId("release_notes_scene");
 static const strutils::StringId GIFT_CODE_CLAIM_SCENE = strutils::StringId("gift_code_claim_scene");
 static const strutils::StringId BOARD_SCENE_OBJECT_NAME = strutils::StringId("board");
+static const strutils::StringId GAME_VERSION_SCENE_OBJECT_NAME = strutils::StringId("version");
 static const strutils::StringId STORY_MODE_BUTTON_NAME = strutils::StringId("story_mode_button");
 static const strutils::StringId CARD_LIBRARY_BUTTON_NAME = strutils::StringId("card_library_button");
 static const strutils::StringId SHOP_BUTTON_NAME = strutils::StringId("shop_button");
@@ -86,6 +87,7 @@ static const strutils::StringId REPLAY_BATTLE_MODE_BUTTON_NAME = strutils::Strin
 static const strutils::StringId STATS_BUTTON_NAME = strutils::StringId("stats_button");
 static const strutils::StringId ENTER_GIFT_CODE_BUTTON_NAME = strutils::StringId("enter_gift_code_button");
 static const strutils::StringId PRIVACY_POLICY_BUTTON_NAME = strutils::StringId("privacy_policy_button");
+static const strutils::StringId RELEASE_NOTES_BUTTON_NAME = strutils::StringId("release_notes_button");
 static const strutils::StringId CREDITS_BUTTON_NAME = strutils::StringId("credits_button");
 static const strutils::StringId BACK_BUTTON_NAME = strutils::StringId("back_button");
 static const strutils::StringId MUTATION_PLUS_BUTTON_NAME = strutils::StringId("mutation_plus");
@@ -158,8 +160,9 @@ static const glm::vec3 MUTATION_MINUS_BUTTON_POSITION = {-0.106f, -0.083f, 0.1f}
 static const glm::vec3 QUIT_BUTTON_POSITION = {0.0f, -0.180f, 0.1f};
 static const glm::vec3 STATS_BUTTON_POSITION = {-0.076f, 0.105f, 0.1f};
 //static const glm::vec3 ENTER_GIFT_CODE_BUTTON_POSITION = {-0.135f, 0.045f, 0.1f};
-static const glm::vec3 PRIVACY_POLICY_BUTTON_POSITION = {-0.125f, 0.034f, 0.1f};
-static const glm::vec3 CREDITS_BUTTON_POSITION = {-0.052f, -0.045f, 0.1f};
+static const glm::vec3 PRIVACY_POLICY_BUTTON_POSITION = {-0.125f, 0.045f, 0.1f};
+static const glm::vec3 RELEASE_NOTES_BUTTON_POSITION = {-0.125f, -0.015f, 0.1f};
+static const glm::vec3 CREDITS_BUTTON_POSITION = {-0.052f, -0.075f, 0.1f};
 static const glm::vec3 POINT_LIGHT_POSITION = { -1.0f, 0.0f, -1.0f };
 static const glm::vec3 DIFFUSE_COLOR = { 1.0f, 1.0f, 1.0f };
 static const glm::vec3 SPEC_COLOR = { 1.0f, 1.0f, 1.0f };
@@ -217,6 +220,7 @@ static const std::unordered_set<strutils::StringId, strutils::StringIdHasher> ST
 {
     TITLE_SCENE_OBJECT_NAME,
     BOARD_SCENE_OBJECT_NAME,
+    GAME_VERSION_SCENE_OBJECT_NAME,
     MUTATION_SCENE_OBJECT_NAME
 };
 
@@ -368,6 +372,9 @@ void MainMenuSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
  
     CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(MAIN_MENU_THEME_MUSIC);
     
+    auto& eventSystem = events::EventSystem::GetInstance();
+    eventSystem.RegisterForEvent<events::WindowResizeEvent>(this, &MainMenuSceneLogicManager::OnWindowResize);
+    
     DataRepository::GetInstance().SetQuickPlayData(nullptr);
     DataRepository::GetInstance().SetIsCurrentlyPlayingStoryMode(false);
     
@@ -395,6 +402,14 @@ void MainMenuSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
     if (mutationFireSceneObject)
     {
         mutationFireSceneObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
+    }
+    
+    auto versionSceneObject = scene->FindSceneObject(GAME_VERSION_SCENE_OBJECT_NAME);
+    if (versionSceneObject)
+    {
+#if defined(MACOS) || defined(MOBILE_FLOW)
+        std::get<scene::TextSceneObjectData>(versionSceneObject->mSceneObjectTypeData).mText = "Game Version " + apple_utils::GetAppVersion();
+#endif
     }
     
     auto mutationSceneObject = scene->FindSceneObject(MUTATION_SCENE_OBJECT_NAME);
@@ -460,6 +475,7 @@ void MainMenuSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
 void MainMenuSceneLogicManager::VDestroyScene(std::shared_ptr<scene::Scene>)
 {
     CoreSystemsEngine::GetInstance().GetResourceLoadingService().UnloadAllDynamicallyCreatedTextures();
+    events::EventSystem::GetInstance().UnregisterAllEventsForListener(this);
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -1058,6 +1074,20 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
             
             mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
             (
+                RELEASE_NOTES_BUTTON_POSITION,
+                BUTTON_SCALE,
+                game_constants::DEFAULT_FONT_NAME,
+                "Release Notes",
+                RELEASE_NOTES_BUTTON_NAME,
+                [=]()
+                {
+                    events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(RELEASE_NOTES_SCENE, SceneChangeType::MODAL_SCENE, PreviousSceneDestructionType::RETAIN_PREVIOUS_SCENE);
+                },
+                *scene
+            ));
+            
+            mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>
+            (
                 CREDITS_BUTTON_POSITION,
                 BUTTON_SCALE,
                 game_constants::DEFAULT_FONT_NAME,
@@ -1152,6 +1182,7 @@ void MainMenuSceneLogicManager::TransitionToSubScene(const SubSceneType subScene
         CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(sceneObject, 0.0f, SUBSCENE_ITEM_FADE_IN_OUT_DURATION_SECS), [=]()
         {
             InitSubScene(subSceneType, scene);
+            OnWindowResize(events::WindowResizeEvent());
         });
     }
 }
@@ -1397,6 +1428,13 @@ void MainMenuSceneLogicManager::SetMutationLevel(const int mutationLevel, std::s
             mutationChangeSceneObject->mScale = MUTATION_CHANGE_TEXT_SCALE;
         }
     }
+}
+
+///------------------------------------------------------------------------------------------------
+
+void MainMenuSceneLogicManager::OnWindowResize(const events::WindowResizeEvent& event)
+{
+    CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::MAIN_MENU_SCENE)->RecalculatePositionOfEdgeSnappingSceneObjects();
 }
 
 ///------------------------------------------------------------------------------------------------

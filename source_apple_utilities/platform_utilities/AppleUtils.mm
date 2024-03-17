@@ -288,6 +288,14 @@ std::string GetDeviceName()
 
 ///-----------------------------------------------------------------------------------------------
 
+std::string GetAppVersion()
+{
+    NSString *version = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+    return std::string([version UTF8String]);
+}
+
+///-----------------------------------------------------------------------------------------------
+
 void SetAssetFolder()
 {
     NSString *launchPath=[NSBundle.mainBundle
@@ -404,7 +412,9 @@ void GetMessageBoxTextInput(std::function<void(const std::string&)> inputTextRec
 
 void RequestReview()
 {
+#if !defined(MACOS)
     [SKStoreReviewController requestReview];
+#endif
 }
 
 ///-----------------------------------------------------------------------------------------------
