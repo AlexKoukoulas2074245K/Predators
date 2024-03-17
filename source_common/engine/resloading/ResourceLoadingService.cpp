@@ -24,7 +24,7 @@
 #include <thread>
 
 //#define UNZIP_FLOW
-bool ARTIFICIAL_ASYNC_LOADING_DELAY = 0;
+bool ARTIFICIAL_ASYNC_LOADING_DELAY = false;
 
 ///------------------------------------------------------------------------------------------------
 
@@ -110,7 +110,7 @@ public:
                 
                 if (ARTIFICIAL_ASYNC_LOADING_DELAY)
                 {
-                    std::this_thread::sleep_for(50ms);
+                    std::this_thread::sleep_for(100ms);
                 }
                 
                 mResults.enqueue({resource, job.mLoader, job.mResourcePath, job.mTargetResourceId});

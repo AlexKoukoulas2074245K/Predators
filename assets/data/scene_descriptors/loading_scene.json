@@ -16,8 +16,27 @@
             "name": "loading_text",
             "font": "font",
             "scale": { "x": 0.0005, "y": 0.0005, "z": 0.0005 },
-            "position": { "x": -0.204, "y": 0.0, "z": 24.1 },
+            "position": { "x": 0.0, "y": 0.0, "z": 24.1 },
             "alpha": 1.0
+        },
+        {
+            "name": "loading_bar_container",
+            "texture": "loading_bar_container.png",
+            "scale": { "x": 0.5, "y": 0.5, "z": 0.5 },
+            "position": { "x": 0.0, "y": -0.083, "z": 24.2 },
+            "alpha": 1.0
+        },
+        {
+            "name": "loading_bar",
+            "texture": "loading_bar.png",
+            "shader": "loading_bar.vs",
+            "scale": { "x": 0.5, "y": 0.5, "z": 0.5 },
+            "position": { "x": 0.0, "y": -0.083, "z": 24.1 },
+            "alpha": 1.0,
+            "uniform_floats":
+            [
+                { "name": "glow_threshold", "value": 0.002 }
+            ]
         }
     ]
 }
