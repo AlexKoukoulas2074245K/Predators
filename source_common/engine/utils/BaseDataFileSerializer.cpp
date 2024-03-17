@@ -51,6 +51,7 @@ void BaseDataFileSerializer::FlushStateToFile()
 #if defined(MACOS) || defined(MOBILE_FLOW)
     mState["device_id"] = apple_utils::GetDeviceId();
     mState["device_name"] = apple_utils::GetDeviceName();
+    mState["app_version"] = apple_utils::GetAppVersion();
 #elif defined(WINDOWS)
 #endif
     
