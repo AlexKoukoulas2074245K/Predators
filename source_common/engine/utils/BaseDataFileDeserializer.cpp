@@ -32,6 +32,11 @@ bool ValidateChecksum(T& contentsContainer)
 {
     std::string checkSumString;
     
+    if (!contentsContainer.empty() && contentsContainer.back() == '\n')
+    {
+        contentsContainer.pop_back();
+    }
+    
     while (!contentsContainer.empty())
     {
         if (contentsContainer.back() == '&')
