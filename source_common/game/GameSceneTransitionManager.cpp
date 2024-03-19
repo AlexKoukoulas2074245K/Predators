@@ -90,7 +90,9 @@ void GameSceneTransitionManager::Update(const float dtMillis)
     }
     
     bool activeTutorialExists = sceneManager.FindScene(game_constants::TUTORIAL_SCENE) != nullptr;
-    if (activeScene->IsLoaded() && !activeTutorialExists)
+    bool activeUnlockedAchievementExists = sceneManager.FindScene(game_constants::ACHIEVEMENT_UNLOCKED_SCENE) != nullptr;
+    
+    if (activeScene->IsLoaded() && !activeTutorialExists && !activeUnlockedAchievementExists)
     {
         mActiveSceneStack.top().mActiveSceneLogicManager->VUpdate(dtMillis, activeScene);
     }

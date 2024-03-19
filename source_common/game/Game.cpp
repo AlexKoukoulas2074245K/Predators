@@ -24,6 +24,7 @@
 #include <engine/utils/OSMessageBox.h>
 #include <engine/utils/PlatformMacros.h>
 #include <fstream>
+#include <game/AchievementManager.h>
 #include <game/BoardState.h>
 #include <game/Game.h>
 #include <game/GameConstants.h>
@@ -139,6 +140,9 @@ void Game::Init()
     mTutorialManager = std::make_unique<TutorialManager>();
     mTutorialManager->LoadTutorialDefinitions();
     
+    mAchievementManager = std::make_unique<AchievementManager>();
+    mAchievementManager->LoadAchievementDefinitions();
+    
     mGameSceneTransitionManager = std::make_unique<GameSceneTransitionManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<BattleSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<BunnyHopSceneLogicManager>();
@@ -223,6 +227,7 @@ void Game::Update(const float dtMillis)
     }
 
     mTutorialManager->Update(dtMillis);
+    mAchievementManager->Update(dtMillis, mGameSceneTransitionManager->GetActiveSceneLogicManager()->VGetGuiObjectManager());
     mGameSceneTransitionManager->Update(dtMillis);
 }
 
@@ -589,6 +594,112 @@ void Game::CreateDebugWidgets()
     
     // Manipulating Persistent Data
     ImGui::Begin("Persistent Data", nullptr, GLOBAL_IMGUI_WINDOW_FLAGS);
+    
+    static std::string achievementName;
+    if (achievementName.empty())
+    {
+        achievementName.resize(30);
+    }
+    
+    ImGui::SeparatorText("Achievements");
+    
+    {
+        static size_t selectedAchievementNameIndex = 0;
+        static std::vector<std::string> achievementNames;
+        if (achievementNames.empty())
+        {
+            auto achievementDefinitions = mAchievementManager->GetAchievementDefinitions();
+            for (const auto& achievementDefinition: achievementDefinitions)
+            {
+                achievementNames.push_back(achievementDefinition.first.GetString());
+            }
+        }
+        
+        {
+            ImGui::Text("Achievement Name");
+            ImGui::SameLine();
+            ImGui::PushID("UnlockAchievement");
+            ImGui::SetNextItemWidth(200.0f);
+            if (ImGui::BeginCombo(" ", achievementNames.at(selectedAchievementNameIndex).c_str()))
+            {
+                for (size_t n = 0U; n < achievementNames.size(); n++)
+                {
+                    const bool isSelected = (selectedAchievementNameIndex == n);
+                    if (ImGui::Selectable(achievementNames.at(n).c_str(), isSelected))
+                    {
+                        selectedAchievementNameIndex = n;
+                    }
+                    if (isSelected)
+                    {
+                        ImGui::SetItemDefaultFocus();
+                    }
+                }
+                ImGui::EndCombo();
+            }
+            ImGui::PopID();
+            ImGui::SameLine();
+            if (ImGui::Button("Unlock Achievement"))
+            {
+                auto achievementNameId = strutils::StringId(achievementNames.at(selectedAchievementNameIndex));
+                auto unlnockedAchievements = DataRepository::GetInstance().GetUnlockedAchievements();
+                unlnockedAchievements.erase(std::remove(unlnockedAchievements.begin(), unlnockedAchievements.end(), achievementNameId), unlnockedAchievements.end());
+                DataRepository::GetInstance().SetUnlockedAchievements(unlnockedAchievements);
+                events::EventSystem::GetInstance().DispatchEvent<events::AchievementUnlockedTriggerEvent>(achievementNameId);
+            }
+        }
+    }
+    
+    {
+        static size_t selectedAchievementNameIndex = 0;
+        static std::vector<std::string> achievementNames;
+        if (achievementNames.empty())
+        {
+            auto achievementDefinitions = mAchievementManager->GetAchievementDefinitions();
+            for (const auto& achievementDefinition: achievementDefinitions)
+            {
+                achievementNames.push_back(achievementDefinition.first.GetString());
+            }
+        }
+        
+        {
+            ImGui::Text("Achievement Name");
+            ImGui::SameLine();
+            ImGui::PushID("ClearUnlockedAchievement");
+            ImGui::SetNextItemWidth(200.0f);
+            if (ImGui::BeginCombo(" ", achievementNames.at(selectedAchievementNameIndex).c_str()))
+            {
+                for (size_t n = 0U; n < achievementNames.size(); n++)
+                {
+                    const bool isSelected = (selectedAchievementNameIndex == n);
+                    if (ImGui::Selectable(achievementNames.at(n).c_str(), isSelected))
+                    {
+                        selectedAchievementNameIndex = n;
+                    }
+                    if (isSelected)
+                    {
+                        ImGui::SetItemDefaultFocus();
+                    }
+                }
+                ImGui::EndCombo();
+            }
+            ImGui::PopID();
+            ImGui::SameLine();
+            if (ImGui::Button("Reset Achievement"))
+            {
+                auto achievementNameId = strutils::StringId(achievementNames.at(selectedAchievementNameIndex));
+                auto unlnockedAchievements = DataRepository::GetInstance().GetUnlockedAchievements();
+                unlnockedAchievements.erase(std::remove(unlnockedAchievements.begin(), unlnockedAchievements.end(), achievementNameId), unlnockedAchievements.end());
+                DataRepository::GetInstance().SetUnlockedAchievements(unlnockedAchievements);
+                DataRepository::GetInstance().FlushStateToFile();
+            }
+        }
+    }
+    
+    if (ImGui::Button("Clear Unlocked Achievements"))
+    {
+        DataRepository::GetInstance().SetUnlockedAchievements({});
+        DataRepository::GetInstance().FlushStateToFile();
+    }
     
     static std::string tutorialName;
     if (tutorialName.empty())

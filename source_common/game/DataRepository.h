@@ -195,6 +195,10 @@ public:
     const std::vector<strutils::StringId>& GetSeenTutorials() const;
     void SetSeenTutorials(const std::vector<strutils::StringId>& seenTutorials);
     
+    bool HasUnlockedAchievement(const strutils::StringId& achievement) const;
+    const std::vector<strutils::StringId>& GetUnlockedAchievements() const;
+    void SetUnlockedAchievements(const std::vector<strutils::StringId>& unlockedAchievements);
+    
     const std::vector<int>& GetStoryDeletedCardIds() const;
     void SetStoryDeletedCardIds(const std::vector<int>& storyDeletedCardIds);
     
@@ -366,6 +370,7 @@ private:
     std::vector<int> mStoryMutationLevelVictories;
     std::vector<int> mStoryMutationLevelBestTimes;
     std::vector<strutils::StringId> mSeenTutorials;
+    std::vector<strutils::StringId> mUnlockedAchievements;
     std::vector<std::string> mSuccessfulTransactionIds;
     std::vector<std::string> mGiftCodesClaimed;
     std::vector<std::pair<int, int>> mCurrentShopBoughtProductCoordinates;

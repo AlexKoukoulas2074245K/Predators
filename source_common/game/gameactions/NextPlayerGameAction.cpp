@@ -12,6 +12,7 @@
 #include <engine/scene/Scene.h>
 #include <engine/utils/Logging.h>
 #include <engine/utils/PlatformMacros.h>
+#include <game/AchievementManager.h>
 #include <game/ArtifactProductIds.h>
 #include <game/events/EventSystem.h>
 #include <game/DataRepository.h>
@@ -51,6 +52,11 @@ void NextPlayerGameAction::VSetNewGameState()
     auto& targetPlayerState = mBoardState->GetPlayerStates()[mBoardState->GetTurnCounter() % mBoardState->GetPlayerCount()];
     targetPlayerState.mPlayerTotalWeightAmmo = math::Min(targetPlayerState.mPlayerWeightAmmoLimit, targetPlayerState.mPlayerTotalWeightAmmo + 1);
     targetPlayerState.mPlayerCurrentWeightAmmo = targetPlayerState.mPlayerTotalWeightAmmo;
+    
+    if (mBoardState->GetTurnCounter() == 1 && targetPlayerState.mPlayerCurrentWeightAmmo == 12)
+    {
+        events::EventSystem::GetInstance().DispatchEvent<events::AchievementUnlockedTriggerEvent>(achievements::REACH_12_STARTING_WEIGHT);
+    }
     
     // Potentially generate card attack/destruction/poison stacks for player whose turn was just ended
     if (previousPlayerIndex != -1)
@@ -96,6 +102,8 @@ void NextPlayerGameAction::VSetNewGameState()
     
     if (mBoardState->GetTurnCounter() != 0 || mBoardState->GetPlayerStates()[game_constants::REMOTE_PLAYER_INDEX].mHasHeroCard == false)
     {
+        mBoardState->GetActivePlayerState().mCardsDrawnThisTurn = 0;
+        
         mGameActionEngine->AddGameAction(POISON_STACK_APPLICATION_GAME_ACTION_NAME, {});
         mGameActionEngine->AddGameAction(POST_NEXT_PLAYER_GAME_ACTION_NAME);
         

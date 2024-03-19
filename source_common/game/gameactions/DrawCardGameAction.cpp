@@ -12,6 +12,7 @@
 #include <engine/scene/Scene.h>
 #include <engine/scene/SceneObject.h>
 #include <engine/utils/MathUtils.h>
+#include <game/AchievementManager.h>
 #include <game/Cards.h>
 #include <game/CardUtils.h>
 #include <game/events/EventSystem.h>
@@ -42,6 +43,10 @@ void DrawCardGameAction::VSetNewGameState()
     }
     
     activePlayerState.mPlayerHeldCards.push_back(activePlayerState.mPlayerDeckCards.at(randomCardIndex));
+    if (++activePlayerState.mCardsDrawnThisTurn == 10 && mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX)
+    {
+        events::EventSystem::GetInstance().DispatchEvent<events::AchievementUnlockedTriggerEvent>(achievements::DRAW_10_CARDS_IN_A_TURN);
+    }
 }
 
 ///------------------------------------------------------------------------------------------------

@@ -202,6 +202,7 @@
 		ABDC5333E2E95E5AB630A5E4 /* AppleSoundUtils.h in Sources */ = {isa = PBXBuildFile; fileRef = 7E513C82D2D95E4836EDE63C /* AppleSoundUtils.h */; };
 		AD7BB55992EC6177BB3DE6B1 /* RenderingUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 484A6A1B1B0D7ADC1BEEF99A /* RenderingUtils.cpp */; };
 		AE07C58021F06E44D072CA36 /* AnimatedButton.h in Sources */ = {isa = PBXBuildFile; fileRef = 6125D1CA10A2294EDC0D2DE5 /* AnimatedButton.h */; };
+		AE0A572DB7994795DEB5E90E /* AchievementManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 1468A4ED5BDDC57FE78CF6CD /* AchievementManager.h */; };
 		AE22507215A89C5059C9B6E4 /* ParticleManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E765BE8BAD6EAAC5948DFB99 /* ParticleManager.cpp */; };
 		B008ED038AA9CC065666EC1D /* BattleSerializer.h in Sources */ = {isa = PBXBuildFile; fileRef = 880718DEC1DCC187AAD01069 /* BattleSerializer.h */; };
 		B137E60FE5C69D7B0CC2A050 /* CardLibrarySceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A0365F73CFA0169F1E1060B0 /* CardLibrarySceneLogicManager.cpp */; };
@@ -218,6 +219,7 @@
 		BE61AB91666D512DCBABF147 /* GoldenCardPlayedEffectGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 28CE98C2AE21D8079AF2E907 /* GoldenCardPlayedEffectGameAction.cpp */; };
 		BF4CEDCB9F4DDCD1D778AA1F /* CardTooltipController.h in Sources */ = {isa = PBXBuildFile; fileRef = B25A5742A2E334B615B7DF40 /* CardTooltipController.h */; };
 		BF89E63AA07D3B4A4CA06BEB /* CardSelectionRewardSceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 19748D85CAC57E2F35EE9666 /* CardSelectionRewardSceneLogicManager.cpp */; };
+		C0CBFCB4A8AA20A0B7E765ED /* AchievementManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B97ACA47AA48A2A4A52F09B /* AchievementManager.cpp */; };
 		C9843ECC6AE93D7BC4521A3F /* BattleInitialSetupAndAnimationGameAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7BFAE370D9B90D60A2FE3A83 /* BattleInitialSetupAndAnimationGameAction.cpp */; };
 		C9C1F6656CCB2FCBCBCBE68E /* CardTooltipController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4EFECE16CCB0ADBC363A29A2 /* CardTooltipController.cpp */; };
 		CB369EDB3723CEDB16D2A2FE /* BaseDataFileSerializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 289376069695D28346FCC23A /* BaseDataFileSerializer.cpp */; };
@@ -302,6 +304,7 @@
 		0B062A7E99DAE588F6ABB076 /* ValueWithDelayedDisplay.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = ValueWithDelayedDisplay.h; sourceTree = "<group>"; };
 		0BF5D202DB385FB6CA3DD5E1 /* CardInspectionSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = CardInspectionSceneLogicManager.cpp; sourceTree = "<group>"; };
 		0E1B2BEA8DF5B2F760F845C0 /* Dummy.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = Dummy.cpp; sourceTree = "<group>"; };
+		1468A4ED5BDDC57FE78CF6CD /* AchievementManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = AchievementManager.h; path = AchievementManager.h; sourceTree = "<group>"; };
 		18B3950AA83508FC6734E727 /* CardSelectionRewardSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = CardSelectionRewardSceneLogicManager.h; sourceTree = "<group>"; };
 		18CDC4CDBECFB5581A49E860 /* StoryMap.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = StoryMap.h; sourceTree = "<group>"; };
 		19748D85CAC57E2F35EE9666 /* CardSelectionRewardSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = CardSelectionRewardSceneLogicManager.cpp; sourceTree = "<group>"; };
@@ -384,6 +387,7 @@
 		768D33D1BE87D452631F7F3B /* CardPlayedParticleEffectGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = CardPlayedParticleEffectGameAction.h; sourceTree = "<group>"; };
 		78D3D7811D0E6320DDDA9D6F /* CloudDataConfirmationSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = CloudDataConfirmationSceneLogicManager.cpp; sourceTree = "<group>"; };
 		7AACE80E9655088BE13935FF /* PlatformMacros.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = PlatformMacros.h; sourceTree = "<group>"; };
+		7B97ACA47AA48A2A4A52F09B /* AchievementManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = AchievementManager.cpp; path = AchievementManager.cpp; sourceTree = "<group>"; };
 		7BFAE370D9B90D60A2FE3A83 /* BattleInitialSetupAndAnimationGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = BattleInitialSetupAndAnimationGameAction.cpp; sourceTree = "<group>"; };
 		7D782BE86F16B964E1CC36E3 /* PredatorsReachability.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = PredatorsReachability.m; sourceTree = "<group>"; };
 		7DF82FD88833EA367D25F51D /* ProductRepository.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = ProductRepository.cpp; sourceTree = "<group>"; };
@@ -738,6 +742,8 @@
 				865490E6655E8F0D886DC694 /* TutorialManager.cpp */,
 				9CD16C8E6720141685BD7319 /* GameSymbolicGlyphNames.h */,
 				B136C0B71525B7B1264232ED /* TutorialManager.h */,
+				7B97ACA47AA48A2A4A52F09B /* AchievementManager.cpp */,
+				1468A4ED5BDDC57FE78CF6CD /* AchievementManager.h */,
 			);
 			path = game;
 			sourceTree = "<group>";
@@ -1473,6 +1479,8 @@
 				2971BB082137F26FCB6CFB89 /* SpellKillGameAction.h in Sources */,
 				F462FD1608DEE1101B47B282 /* ReleaseNotesSceneLogicManager.cpp in Sources */,
 				407B9E88E7519A88785DE4B1 /* ReleaseNotesSceneLogicManager.h in Sources */,
+				C0CBFCB4A8AA20A0B7E765ED /* AchievementManager.cpp in Sources */,
+				AE0A572DB7994795DEB5E90E /* AchievementManager.h in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

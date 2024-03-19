@@ -6,6 +6,7 @@
 ///------------------------------------------------------------------------------------------------
 
 #include <gtest/gtest.h>
+#include <engine/utils/MathUtils.h>
 #include <engine/utils/StringUtils.h>
 
 TEST(StringIsIntTests, TestCharactersAreNotInts)

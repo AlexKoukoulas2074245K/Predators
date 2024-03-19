@@ -149,6 +149,7 @@ namespace game_constants
     inline const strutils::StringId LOADING_SCENE = strutils::StringId("loading_scene");
     inline const strutils::StringId CARD_PACK_REWARD_SCENE = strutils::StringId("card_pack_reward_scene");
     inline const strutils::StringId TUTORIAL_SCENE = strutils::StringId("tutorial_scene");
+    inline const strutils::StringId ACHIEVEMENT_UNLOCKED_SCENE = strutils::StringId("achievement_unlocked_scene");
     inline const strutils::StringId CARD_SELECTION_REWARD_SCENE_NAME = strutils::StringId("card_selection_reward_scene");
 
     // General Game Constants

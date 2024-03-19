@@ -5,6 +5,7 @@
 ///  Created by Alex Koukoulas on 28/10/2023                                                       
 ///------------------------------------------------------------------------------------------------
 
+#include <game/AchievementManager.h>
 #include <game/Cards.h>
 #include <game/CardUtils.h>
 #include <game/gameactions/GameOverGameAction.h>
@@ -98,6 +99,26 @@ void GameOverGameAction::VInitAnimation()
             if (mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mPlayerHealth >= DataRepository::GetInstance().StoryCurrentHealth().GetValue())
             {
                 events::EventSystem::GetInstance().DispatchEvent<events::FlawlessVictoryTriggerEvent>();
+            }
+            
+            if (DataRepository::GetInstance().GetNextStoryOpponentName() == game_constants::EMERALD_DRAGON_NAME.GetString() && mBoardState->GetTurnCounter() == 1)
+            {
+                events::EventSystem::GetInstance().DispatchEvent<events::AchievementUnlockedTriggerEvent>(achievements::ONE_SHOT_EMERALD_DRAGON);
+            }
+            
+            if (DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::NORMAL_MAP && DataRepository::GetInstance().GetCurrentStoryMapNodeCoord() == game_constants::STORY_MAP_BOSS_COORD)
+            {
+                events::EventSystem::GetInstance().DispatchEvent<events::AchievementUnlockedTriggerEvent>(achievements::DEFEAT_FINAL_BOSS_FIRST_TIME);
+                
+                if (mBoardState->GetPlayerStates()[game_constants::LOCAL_PLAYER_INDEX].mHasResurrectionActive)
+                {
+                    events::EventSystem::GetInstance().DispatchEvent<events::AchievementUnlockedTriggerEvent>(achievements::DEFEAT_FINAL_BOSS_WITH_UNUSED_RESURRECTION);
+                }
+                
+                if (DataRepository::GetInstance().GetCurrentStoryMutationLevel() == game_constants::MAX_MUTATION_LEVEL)
+                {
+                    events::EventSystem::GetInstance().DispatchEvent<events::AchievementUnlockedTriggerEvent>(achievements::DEFEAT_FINAL_BOSS_10_MUTATIONS);
+                }
             }
             
             mExplosionDelaySecs = EXPLOSION_DELAY_SECS;

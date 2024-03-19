@@ -5,6 +5,7 @@
 ///  Created by Alex Koukoulas on 28/12/2023                                                       
 ///------------------------------------------------------------------------------------------------
 
+#include <game/AchievementManager.h>
 #include <game/AnimatedButton.h>
 #include <game/AnimatedStatContainer.h>
 #include <game/ArtifactProductIds.h>
@@ -274,10 +275,10 @@ void GuiObjectManager::StopRewardAnimation()
     auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
     animationManager.StopAllAnimations();
     
-    auto sceneToStopParticleEMitters = mScene->GetName() == game_constants::BATTLE_SCENE ? CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::WHEEL_OF_FORTUNE_SCENE) : mScene;
-    sceneToStopParticleEMitters->RemoveSceneObject(GENERIC_PARTICLE_EMITTER_SCENE_OBJECT_NAME);
-    sceneToStopParticleEMitters->RemoveSceneObject(COINS_REWARD_PARTICLE_EMITTER_SCENE_OBJECT_NAME);
-    sceneToStopParticleEMitters->RemoveSceneObject(HEALTH_REWARD_PARTICLE_EMITTER_SCENE_OBJECT_NAME);
+    auto sceneToStopParticleEmitters = mScene->GetName() == game_constants::BATTLE_SCENE && CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::WHEEL_OF_FORTUNE_SCENE) ? CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::WHEEL_OF_FORTUNE_SCENE) : mScene;
+    sceneToStopParticleEmitters->RemoveSceneObject(GENERIC_PARTICLE_EMITTER_SCENE_OBJECT_NAME);
+    sceneToStopParticleEmitters->RemoveSceneObject(COINS_REWARD_PARTICLE_EMITTER_SCENE_OBJECT_NAME);
+    sceneToStopParticleEmitters->RemoveSceneObject(HEALTH_REWARD_PARTICLE_EMITTER_SCENE_OBJECT_NAME);
     
     mScene->RemoveSceneObject(GENERIC_PARTICLE_EMITTER_SCENE_OBJECT_NAME);
     mScene->RemoveSceneObject(COINS_REWARD_PARTICLE_EMITTER_SCENE_OBJECT_NAME);
@@ -419,6 +420,7 @@ void GuiObjectManager::AnimateStatParticlesFlyingToGui(const glm::vec3& originPo
             }
         }
     });
+    particleEmitterSceneObject->mDeferredRendering = true;
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -658,6 +660,14 @@ void GuiObjectManager::OnRareItemCollected(const events::RareItemCollectedEvent&
                     auto particleEmitterSceneObject = CoreSystemsEngine::GetInstance().GetParticleManager().CreateParticleEmitterAtPosition(particleDefinition, GENERIC_RARE_ITEM_PARTICLE_ORIGIN_POSITION, *sceneToSpawnParticlesIn, GENERIC_PARTICLE_EMITTER_SCENE_OBJECT_NAME, [=](float dtMillis, scene::ParticleEmitterObjectData& particleEmitterData){});
                 }
             }
+            
+            animationManager.StartAnimation(std::make_unique<rendering::TimeDelayAnimation>(STAT_GAIN_ANIMATION_DURATION_SECS), [=]()
+            {
+                if (DataRepository::GetInstance().GetStoryArtifactCount(event.mRareItemProductId) == 3)
+                {
+                    events::EventSystem::GetInstance().DispatchEvent<events::AchievementUnlockedTriggerEvent>(achievements::STACK_ARTIFACT_THRICE);
+                }
+            });
         });
         
         // And its alpha
@@ -672,6 +682,7 @@ void GuiObjectManager::OnRareItemCollected(const events::RareItemCollectedEvent&
     
     // Handle data updates for rare item
     DataRepository::GetInstance().AddStoryArtifact(event.mRareItemProductId);
+    
     if (event.mRareItemProductId == artifacts::BLOOD_DIAMOND)
     {
         auto existingDamageModifierIter = DataRepository::GetInstance().GetStoryPlayerCardStatModifiers().find(CardStatType::DAMAGE);

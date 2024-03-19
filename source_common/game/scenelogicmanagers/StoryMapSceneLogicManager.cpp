@@ -679,7 +679,8 @@ void StoryMapSceneLogicManager::VCreateDebugWidgets()
 {
     static size_t mapCoordIndex = 0;
     static std::vector<std::string> mapCoords;
-    if (mapCoords.empty() || mapCoords.size() != mStoryMap->GetMapData().size())
+    
+    if (mapCoords.empty() || mapCoords.size() != mStoryMap->GetMapData().size() - 1)
     {
         mapCoords.clear();
         for (const auto& mapData: mStoryMap->GetMapData())
@@ -687,6 +688,7 @@ void StoryMapSceneLogicManager::VCreateDebugWidgets()
             mapCoords.push_back(mapData.first.ToString());
         }
         mapCoords.pop_back();
+        mapCoordIndex = 0;
     }
     
     ImGui::Begin("Map Manipulation", nullptr, GLOBAL_IMGUI_WINDOW_FLAGS);

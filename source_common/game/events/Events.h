@@ -361,6 +361,19 @@ class BlockInteractionWithHeldCardsEvent final
 
 ///------------------------------------------------------------------------------------------------
 
+class AchievementUnlockedTriggerEvent final
+{
+public:
+    AchievementUnlockedTriggerEvent(const strutils::StringId& achievementName)
+        : mAchievementName(achievementName)
+    {
+    }
+    
+    strutils::StringId mAchievementName;
+};
+
+///------------------------------------------------------------------------------------------------
+
 class TutorialTriggerEvent final
 {
 public:

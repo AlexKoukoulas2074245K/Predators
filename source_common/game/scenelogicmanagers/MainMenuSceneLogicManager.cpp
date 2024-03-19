@@ -15,6 +15,7 @@
 #include <engine/scene/SceneManager.h>
 #include <engine/sound/SoundManager.h>
 #include <fstream>
+#include <game/AchievementManager.h>
 #include <game/AnimatedButton.h>
 #include <game/Cards.h>
 #include <game/GameSymbolicGlyphNames.h>
@@ -114,9 +115,9 @@ static const strutils::StringId START_NEW_STORY_BUTTON_SCENE_OBJECT_NAME = strut
 static const strutils::StringId STORY_HEALTH_REFILL_PRODUCT_NAME = strutils::StringId("story_health_refill");
 static const strutils::StringId NORMAL_PACK_PRODUCT_NAME = strutils::StringId("normal_card_pack");
 static const strutils::StringId GOLDEN_PACK_PRODUCT_NAME = strutils::StringId("golden_card_pack");
-static const strutils::StringId COINS_S_PRODUCT_NAME = strutils::StringId("coins_small");
-static const strutils::StringId COINS_M_PRODUCT_NAME = strutils::StringId("coins_medium");
-static const strutils::StringId COINS_L_PRODUCT_NAME = strutils::StringId("coins_large");
+static const strutils::StringId COINS_S_PRODUCT_NAME = strutils::StringId("coins_ss");
+static const strutils::StringId COINS_M_PRODUCT_NAME = strutils::StringId("coins_mm");
+static const strutils::StringId COINS_L_PRODUCT_NAME = strutils::StringId("coins_ll");
 static const strutils::StringId POINT_LIGHT_POSITION_UNIFORM_NAME = strutils::StringId("point_light_position");
 static const strutils::StringId DIFFUSE_COLOR_UNIFORM_NAME = strutils::StringId("mat_diffuse");
 static const strutils::StringId AMBIENT_COLOR_UNIFORM_NAME = strutils::StringId("mat_ambient");
@@ -369,7 +370,6 @@ void MainMenuSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scene)
     cloudkit_utils::QueryPlayerProgress([=](cloudkit_utils::QueryResultData resultData){ OnCloudQueryCompleted(resultData); });
     apple_utils::LoadStoreProducts({ iap_product_ids::STORY_HEALTH_REFILL, iap_product_ids::COINS_S, iap_product_ids::COINS_M, iap_product_ids::COINS_L });
 #endif
- 
     CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(MAIN_MENU_THEME_MUSIC);
     
     auto& eventSystem = events::EventSystem::GetInstance();
@@ -468,6 +468,8 @@ void MainMenuSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
     {
         unlockedShopLibrarySceneObject->mShaderFloatUniformValues[game_constants::TIME_UNIFORM_NAME] = time;
     }
+    
+    CheckForCardCompletion();
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -1435,6 +1437,25 @@ void MainMenuSceneLogicManager::SetMutationLevel(const int mutationLevel, std::s
 void MainMenuSceneLogicManager::OnWindowResize(const events::WindowResizeEvent& event)
 {
     CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::MAIN_MENU_SCENE)->RecalculatePositionOfEdgeSnappingSceneObjects();
+}
+
+///------------------------------------------------------------------------------------------------
+
+void MainMenuSceneLogicManager::CheckForCardCompletion()
+{
+    auto totalCardPoolSize = DataRepository::GetInstance().GetUnlockedCardIds().size() + CardDataRepository::GetInstance().GetCardPackLockedCardRewardsPool().size();
+    auto percentageCollection = static_cast<int>((DataRepository::GetInstance().GetUnlockedCardIds().size() * 100.0f)/static_cast<float>(totalCardPoolSize));
+    
+    if (percentageCollection == 100)
+    {
+        events::EventSystem::GetInstance().DispatchEvent<events::AchievementUnlockedTriggerEvent>(achievements::NORMAL_COLLECTOR);
+    }
+    
+    auto goldenPercentageCollection = static_cast<int>((DataRepository::GetInstance().GetGoldenCardIdMap().size() * 100.0f)/static_cast<float>(totalCardPoolSize));
+    if (goldenPercentageCollection == 100)
+    {
+        events::EventSystem::GetInstance().DispatchEvent<events::AchievementUnlockedTriggerEvent>(achievements::GOLDEN_COLLECTOR);
+    }
 }
 
 ///------------------------------------------------------------------------------------------------

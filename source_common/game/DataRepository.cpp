@@ -540,6 +540,33 @@ void DataRepository::SetSeenTutorials(const std::vector<strutils::StringId>& see
 
 ///------------------------------------------------------------------------------------------------
 
+bool DataRepository::HasUnlockedAchievement(const strutils::StringId& achievement) const
+{
+    return std::find(mUnlockedAchievements.cbegin(), mUnlockedAchievements.cend(), achievement) != mUnlockedAchievements.cend();
+}
+
+///------------------------------------------------------------------------------------------------
+
+const std::vector<strutils::StringId>& DataRepository::GetUnlockedAchievements() const
+{
+    return mUnlockedAchievements;
+}
+
+///------------------------------------------------------------------------------------------------
+
+void DataRepository::SetUnlockedAchievements(const std::vector<strutils::StringId>& unlockedAchievements)
+{
+    mUnlockedAchievements = unlockedAchievements;
+    mPersistentDataSerializer->GetState()["unlocked_achievements"].clear();
+    
+    for (const auto& achievement: mUnlockedAchievements)
+    {
+        mPersistentDataSerializer->GetState()["unlocked_achievements"].push_back(achievement.GetString());
+    }
+}
+
+///------------------------------------------------------------------------------------------------
+
 const std::vector<int>& DataRepository::GetStoryDeletedCardIds() const
 {
     return mStoryDeletedCards;

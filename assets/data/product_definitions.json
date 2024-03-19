@@ -96,19 +96,19 @@
             "description": "Delete a card from$your story deck for"
         },
         {
-            "name": "coins_small",
+            "name": "coins_ss",
             "price": 1000,
             "texture_path": "shop_items/coins_small.png",
             "description": " $Get an extra 1000<coin>!"
         },
         {
-            "name": "coins_medium",
+            "name": "coins_mm",
             "price": 5500,
             "texture_path": "shop_items/coins_medium.png",
             "description": " $Get an extra 5500<coin>!"
         },
         {
-            "name": "coins_large",
+            "name": "coins_ll",
             "price": 11500,
             "texture_path": "shop_items/coins_large.png",
             "description": " $Get an extra 11500<coin>!"

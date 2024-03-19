@@ -65,7 +65,8 @@ private:
     void CreateMutationObject(std::shared_ptr<scene::Scene> scene);
     void SetMutationLevel(const int mutationLevel, std::shared_ptr<scene::Scene> scene);
     void OnWindowResize(const events::WindowResizeEvent& event);
-
+    void CheckForCardCompletion();
+    
 private:
     std::vector<std::unique_ptr<AnimatedButton>> mAnimatedButtons;
     std::unique_ptr<SwipeableContainer<CardFamilyEntry>> mCardFamilyContainerTop;

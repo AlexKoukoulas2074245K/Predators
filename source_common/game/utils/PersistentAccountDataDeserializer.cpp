@@ -59,7 +59,7 @@ PersistentAccountDataDeserializer::PersistentAccountDataDeserializer(DataReposit
     {
         dataRepository.SetSeenOpponentSpellCardIds(persistentDataJson["seen_opponent_spell_card_ids"].get<std::vector<int>>());
     }
-    
+
     if (persistentDataJson.count("seen_tutorials"))
     {
         std::vector<strutils::StringId> seenTutorials;
@@ -68,12 +68,36 @@ PersistentAccountDataDeserializer::PersistentAccountDataDeserializer(DataReposit
         {
             for (auto entryIter = persistentDataJson["seen_tutorials"].begin(); entryIter != persistentDataJson["seen_tutorials"].end(); ++entryIter)
             {
-                seenTutorials.push_back(strutils::StringId(entryIter.value()));
+                auto tutorial = strutils::StringId(entryIter.value());
+                if (std::find(seenTutorials.cbegin(), seenTutorials.cend(), tutorial) == seenTutorials.cend())
+                {
+                    seenTutorials.push_back(tutorial);
+                }
             }
         }
         
         dataRepository.SetSeenTutorials(seenTutorials);
     }
+    
+    if (persistentDataJson.count("unlocked_achievements"))
+    {
+        std::vector<strutils::StringId> unlockedAchievements;
+        
+        if (!persistentDataJson["unlocked_achievements"].is_null())
+        {
+            for (auto entryIter = persistentDataJson["unlocked_achievements"].begin(); entryIter != persistentDataJson["unlocked_achievements"].end(); ++entryIter)
+            {
+                auto achievement = strutils::StringId(entryIter.value());
+                if (std::find(unlockedAchievements.cbegin(), unlockedAchievements.cend(), achievement) == unlockedAchievements.cend())
+                {
+                    unlockedAchievements.push_back(achievement);
+                }
+            }
+        }
+        
+        dataRepository.SetUnlockedAchievements(unlockedAchievements);
+    }
+    
     
     if (persistentDataJson.count("successful_transaction_ids"))
     {

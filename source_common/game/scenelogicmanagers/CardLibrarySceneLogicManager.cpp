@@ -12,6 +12,7 @@
 #include <engine/utils/Logging.h>
 #include <engine/utils/PlatformMacros.h>
 #include <engine/scene/SceneManager.h>
+#include <game/AchievementManager.h>
 #include <game/AnimatedButton.h>
 #include <game/Cards.h>
 #include <game/CardTooltipController.h>
@@ -243,6 +244,11 @@ void CardLibrarySceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scen
         normalCardCollectionTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
         normalCardCollectionTextSceneObject->mInvisible = true;
         
+        if (percentageCollection == 100)
+        {
+            events::EventSystem::GetInstance().DispatchEvent<events::AchievementUnlockedTriggerEvent>(achievements::NORMAL_COLLECTOR);
+        }
+        
         // Golden Card Collection Text
         auto goldenPercentageCollection = static_cast<int>((DataRepository::GetInstance().GetGoldenCardIdMap().size() * 100.0f)/static_cast<float>(totalCardPoolSize));
         scene::TextSceneObjectData goldenCardCollectionTextData;
@@ -257,6 +263,11 @@ void CardLibrarySceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> scen
         goldenCardCollectionTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
         goldenCardCollectionTextSceneObject->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = GOLDEN_CARDS_COLLECTED_TEXT_COLOR;
         goldenCardCollectionTextSceneObject->mInvisible = true;
+        
+        if (goldenPercentageCollection == 100)
+        {
+            events::EventSystem::GetInstance().DispatchEvent<events::AchievementUnlockedTriggerEvent>(achievements::GOLDEN_COLLECTOR);
+        }
     }
     
     mAnimatedButtons.clear();

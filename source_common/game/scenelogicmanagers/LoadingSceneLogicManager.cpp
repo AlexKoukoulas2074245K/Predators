@@ -102,6 +102,9 @@ std::shared_ptr<GuiObjectManager> LoadingSceneLogicManager::VGetGuiObjectManager
 
 void LoadingSceneLogicManager::SetLoadingProgress(const int progressPercent)
 {
+    auto loadingBarSceneObject = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(game_constants::LOADING_SCENE)->FindSceneObject(LOADING_BAR_SCENE_OBJECT_NAME);
+    loadingBarSceneObject->mShaderFloatUniformValues[LOADING_PROGRESS_UNIFORM_NAME] = progressPercent/100.0f;
+    
     auto loadingScene = CoreSystemsEngine::GetInstance().GetSceneManager().FindScene(LOADING_SCENE_NAME);
     auto loadingProgressSceneObject = loadingScene->FindSceneObject(LOADING_PROGRESS_TEXT_SCENE_OBJECT_NAME);
     std::get<scene::TextSceneObjectData>(loadingProgressSceneObject->mSceneObjectTypeData).mText = mLoadingProgressPrefixText + std::to_string(progressPercent) + "%";

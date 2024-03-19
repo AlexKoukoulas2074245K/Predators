@@ -5,6 +5,7 @@
 ///  Created by Alex Koukoulas on 27/10/2023
 ///------------------------------------------------------------------------------------------------
 
+#include <game/AchievementManager.h>
 #include <game/ArtifactProductIds.h>
 #include <game/Cards.h>
 #include <game/CardUtils.h>
@@ -316,7 +317,25 @@ void CardAttackGameAction::VInitAnimation()
 
 ActionAnimationUpdateResult CardAttackGameAction::VUpdateAnimation(const float)
 {
-    return mPendingAnimations == 0 ? ActionAnimationUpdateResult::FINISHED : ActionAnimationUpdateResult::ONGOING;
+    if (mPendingAnimations == 0)
+    {
+        if (std::stoi(mExtraActionParams.at(PLAYER_INDEX_PARAM)) == game_constants::LOCAL_PLAYER_INDEX)
+        {
+            if (mPendingDamage >= 10)
+            {
+                events::EventSystem::GetInstance().DispatchEvent<events::AchievementUnlockedTriggerEvent>(achievements::DEAL_10_DAMAGE);
+            }
+            
+            if (mPendingDamage >= 20)
+            {
+                events::EventSystem::GetInstance().DispatchEvent<events::AchievementUnlockedTriggerEvent>(achievements::DEAL_20_DAMAGE);
+            }   
+        }
+        
+        return ActionAnimationUpdateResult::FINISHED;
+    }
+    
+    return ActionAnimationUpdateResult::ONGOING;
 }
 
 ///------------------------------------------------------------------------------------------------

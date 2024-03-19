@@ -5,6 +5,7 @@
 ///  Created by Alex Koukoulas on 21/02/2024
 ///------------------------------------------------------------------------------------------------
 
+#include <game/AchievementManager.h>
 #include <game/Cards.h>
 #include <game/CardUtils.h>
 #include <game/events/EventSystem.h>
@@ -164,7 +165,25 @@ void DemonPunchGameAction::VInitAnimation()
 
 ActionAnimationUpdateResult DemonPunchGameAction::VUpdateAnimation(const float)
 {
-    return mAnimationState == ActionState::FINISHED ? ActionAnimationUpdateResult::FINISHED : ActionAnimationUpdateResult::ONGOING;
+    if (mAnimationState == ActionState::FINISHED)
+    {
+        if (mBoardState->GetActivePlayerIndex() == game_constants::LOCAL_PLAYER_INDEX)
+        {
+            if (mPendingDamage >= 10)
+            {
+                events::EventSystem::GetInstance().DispatchEvent<events::AchievementUnlockedTriggerEvent>(achievements::DEAL_10_DAMAGE);
+            }
+            
+            if (mPendingDamage >= 20)
+            {
+                events::EventSystem::GetInstance().DispatchEvent<events::AchievementUnlockedTriggerEvent>(achievements::DEAL_20_DAMAGE);
+            }
+        }
+        
+        return ActionAnimationUpdateResult::FINISHED;
+    }
+    
+    return ActionAnimationUpdateResult::ONGOING;
 }
 
 ///------------------------------------------------------------------------------------------------
