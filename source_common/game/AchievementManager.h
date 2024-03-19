@@ -47,11 +47,11 @@ struct AchievementDefinition
     {
     }
     
-    const strutils::StringId mAchievementName;
-    const std::string mAchievementTitle;
-    const std::string mAchievementDescription;
-    const std::string mAchievementPortraitTextureFileName;
-    const long long mAchievementBountyReward;
+    strutils::StringId mAchievementName;
+    std::string mAchievementTitle;
+    std::string mAchievementDescription;
+    std::string mAchievementPortraitTextureFileName;
+    long long mAchievementBountyReward;
 };
 
 ///------------------------------------------------------------------------------------------------
@@ -63,7 +63,7 @@ class AchievementManager final : public events::IListener
 {
     friend class Game;
 public:
-    AchievementManager();
+    static AchievementManager& GetInstance();
     ~AchievementManager();
     AchievementManager(const AchievementManager&) = delete;
     AchievementManager(AchievementManager&&) = delete;
@@ -82,6 +82,9 @@ private:
     void DestroyAchievement();
     void UpdateActiveAchievement(const float dtMillis, std::shared_ptr<GuiObjectManager> activeGuiObjectManager);
     void OnAchievementUnlockedTrigger(const events::AchievementUnlockedTriggerEvent&);
+    
+private:
+    AchievementManager();
     
 private:
     std::vector<events::AchievementUnlockedTriggerEvent> mActiveAchievements;

@@ -38,6 +38,7 @@
 #include <game/gameactions/GameActionFactory.h>
 #include <game/GuiObjectManager.h>
 #include <game/ProductRepository.h>
+#include <game/scenelogicmanagers/AchievementsSceneLogicManager.h>
 #include <game/scenelogicmanagers/BattleSceneLogicManager.h>
 #include <game/scenelogicmanagers/BunnyHopSceneLogicManager.h>
 #include <game/scenelogicmanagers/CardInspectionSceneLogicManager.h>
@@ -140,10 +141,10 @@ void Game::Init()
     mTutorialManager = std::make_unique<TutorialManager>();
     mTutorialManager->LoadTutorialDefinitions();
     
-    mAchievementManager = std::make_unique<AchievementManager>();
-    mAchievementManager->LoadAchievementDefinitions();
+    AchievementManager::GetInstance().LoadAchievementDefinitions();
     
     mGameSceneTransitionManager = std::make_unique<GameSceneTransitionManager>();
+    mGameSceneTransitionManager->RegisterSceneLogicManager<AchievementsSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<BattleSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<BunnyHopSceneLogicManager>();
     mGameSceneTransitionManager->RegisterSceneLogicManager<CardInspectionSceneLogicManager>();
@@ -227,7 +228,7 @@ void Game::Update(const float dtMillis)
     }
 
     mTutorialManager->Update(dtMillis);
-    mAchievementManager->Update(dtMillis, mGameSceneTransitionManager->GetActiveSceneLogicManager()->VGetGuiObjectManager());
+    AchievementManager::GetInstance().Update(dtMillis, mGameSceneTransitionManager->GetActiveSceneLogicManager()->VGetGuiObjectManager());
     mGameSceneTransitionManager->Update(dtMillis);
 }
 
@@ -608,7 +609,7 @@ void Game::CreateDebugWidgets()
         static std::vector<std::string> achievementNames;
         if (achievementNames.empty())
         {
-            auto achievementDefinitions = mAchievementManager->GetAchievementDefinitions();
+            auto achievementDefinitions = AchievementManager::GetInstance().GetAchievementDefinitions();
             for (const auto& achievementDefinition: achievementDefinitions)
             {
                 achievementNames.push_back(achievementDefinition.first.GetString());
@@ -654,7 +655,7 @@ void Game::CreateDebugWidgets()
         static std::vector<std::string> achievementNames;
         if (achievementNames.empty())
         {
-            auto achievementDefinitions = mAchievementManager->GetAchievementDefinitions();
+            auto achievementDefinitions = AchievementManager::GetInstance().GetAchievementDefinitions();
             for (const auto& achievementDefinition: achievementDefinitions)
             {
                 achievementNames.push_back(achievementDefinition.first.GetString());

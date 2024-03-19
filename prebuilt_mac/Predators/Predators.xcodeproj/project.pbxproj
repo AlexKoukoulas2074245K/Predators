@@ -53,6 +53,7 @@
 		52E04351601B4B0D40066C6A /* GiftingUtils.h in Sources */ = {isa = PBXBuildFile; fileRef = 54B9F7B7FC4B3D5056E01F2F /* GiftingUtils.h */; };
 		532521F009DF925259026C23 /* SerializationDefinitions.h in Sources */ = {isa = PBXBuildFile; fileRef = F05BCACB9D0D7193765BB311 /* SerializationDefinitions.h */; };
 		53D57AF62077A4EDE50A19A6 /* GiftCodeClaimSceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 71C6F5A357C7E63ABEB0D3CA /* GiftCodeClaimSceneLogicManager.h */; };
+		551AE1D6B56E033A67FED9D3 /* AchievementsSceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E88D4C7A50A99D68C5A732DD /* AchievementsSceneLogicManager.cpp */; };
 		55B88F03ED55A2709BD2B704 /* SceneObjectUtils.h in Sources */ = {isa = PBXBuildFile; fileRef = FB0E9FCA60AD270C9B09FA51 /* SceneObjectUtils.h */; };
 		56FE158897FF886F6757E9DC /* PurchasingProductSceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 015DEBE74E403FDB72EDA711 /* PurchasingProductSceneLogicManager.h */; };
 		590BC49901179FB522AD2223 /* OSMessageBox.h in Sources */ = {isa = PBXBuildFile; fileRef = EEC2E35013E2E8B9B7A912C6 /* OSMessageBox.h */; };
@@ -209,6 +210,7 @@
 		B93B8EF4DD15C349B51AED67 /* ZeroCostTimeGameAction.h in Sources */ = {isa = PBXBuildFile; fileRef = BFE780D4DDD5228CD5379906 /* ZeroCostTimeGameAction.h */; };
 		BA2C1928AE63ABB11CDC9B7B /* PurchasingProductSceneLogicManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 47EB8F34B93CBDF0240A8C13 /* PurchasingProductSceneLogicManager.cpp */; };
 		BAF5F4354FD02063FDFD9DEC /* HealNextDinoDamageGameAction.h in Sources */ = {isa = PBXBuildFile; fileRef = AC5001F27481566AA578E367 /* HealNextDinoDamageGameAction.h */; };
+		BC1346C77F8F2A2103E0D8ED /* AchievementsSceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = AA1F4E9229B39AE88058A080 /* AchievementsSceneLogicManager.h */; };
 		BC81826A579566F5CA5790E9 /* BaseDataFileDeserializer.h in Sources */ = {isa = PBXBuildFile; fileRef = 8D6E209DDF4F577F8C87C6A0 /* BaseDataFileDeserializer.h */; };
 		BCB1A1D784200411F54016FB /* ProductRepository.h in Sources */ = {isa = PBXBuildFile; fileRef = B9F3932EFA60BBA205F7A350 /* ProductRepository.h */; };
 		BCD6118974D34F121488B8E0 /* FirstGameLockSceneLogicManager.h in Sources */ = {isa = PBXBuildFile; fileRef = 5418D5ABF4D49FCF1AB825B4 /* FirstGameLockSceneLogicManager.h */; };
@@ -557,6 +559,7 @@
 		A52E063F202819C4F240F542 /* InsectMegaSwarmGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = InsectMegaSwarmGameAction.cpp; sourceTree = "<group>"; };
 		A567CEC64C545508BF93FEC6 /* StatsSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = StatsSceneLogicManager.h; sourceTree = "<group>"; };
 		A72D11039C8A9248FD700909 /* UnseenSpellSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = UnseenSpellSceneLogicManager.h; sourceTree = "<group>"; };
+		AA1F4E9229B39AE88058A080 /* AchievementsSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = AchievementsSceneLogicManager.h; path = AchievementsSceneLogicManager.h; sourceTree = "<group>"; };
 		AB4F4B243BF9EE66291B3910 /* ShaderResource.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = ShaderResource.cpp; sourceTree = "<group>"; };
 		AC5001F27481566AA578E367 /* HealNextDinoDamageGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = HealNextDinoDamageGameAction.h; sourceTree = "<group>"; };
 		AD86196C948CE14DCBBE5446 /* IResourceLoader.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = IResourceLoader.h; sourceTree = "<group>"; };
@@ -590,6 +593,7 @@
 		E0599E67CDFA7350C55C73A5 /* IRenderer.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = IRenderer.h; sourceTree = "<group>"; };
 		E0D05FD28DC001514531A214 /* TextureLoader.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = TextureLoader.cpp; sourceTree = "<group>"; };
 		E20949AA76405DC09B2C07EC /* Date.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = Date.h; sourceTree = "<group>"; };
+		E88D4C7A50A99D68C5A732DD /* AchievementsSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = AchievementsSceneLogicManager.cpp; path = AchievementsSceneLogicManager.cpp; sourceTree = "<group>"; };
 		E9824F6D620FAB012DF0BC78 /* AnimationManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = AnimationManager.cpp; sourceTree = "<group>"; };
 		EA3B9899242A079FE63DCD1E /* Camera.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = Camera.cpp; sourceTree = "<group>"; };
 		EA4BE6D43FAFFC7BB605FA13 /* InventorySceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = InventorySceneLogicManager.h; sourceTree = "<group>"; };
@@ -1104,6 +1108,8 @@
 				A567CEC64C545508BF93FEC6 /* StatsSceneLogicManager.h */,
 				D150A7AC2FF52BD47CE5C987 /* ReleaseNotesSceneLogicManager.cpp */,
 				6ED52652639EA7DB94968957 /* ReleaseNotesSceneLogicManager.h */,
+				E88D4C7A50A99D68C5A732DD /* AchievementsSceneLogicManager.cpp */,
+				AA1F4E9229B39AE88058A080 /* AchievementsSceneLogicManager.h */,
 			);
 			path = scenelogicmanagers;
 			sourceTree = "<group>";
@@ -1582,6 +1588,8 @@
 				8C811FAF50862795ECDC3AB7 /* ReleaseNotesSceneLogicManager.h in Sources */,
 				4AAFCD555D44CE99DFB3CB69 /* AchievementManager.cpp in Sources */,
 				D8F7A2ECC572009340D7F199 /* AchievementManager.h in Sources */,
+				551AE1D6B56E033A67FED9D3 /* AchievementsSceneLogicManager.cpp in Sources */,
+				BC1346C77F8F2A2103E0D8ED /* AchievementsSceneLogicManager.h in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

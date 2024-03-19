@@ -4,77 +4,77 @@
         {
             "name": "one_shot_emerald_dragon",
             "title": "Dragon Slayer",
-            "description": "Battle the Emerald Dragon$and defeat her in one turn!",
+            "description": "Battle the Emerald$Dragon and defeat$her in one turn!",
             "texture": "achievements/dragon_slayer.png",
             "bounty": 1000
         },
         {
             "name": "stack_artifact_thrice",
             "title": "Artifact Obsession",
-            "description": "Collect the same Artifact$3 times in a single Story!",
+            "description": "Collect the same$Artifact 3 times in a$single Story!",
             "texture": "achievements/artifact_stacking.png",
             "bounty": 500
         },
         {
             "name": "deal_10_damage",
             "title": "Trainee's Dagger",
-            "description": "Deal 10<damage> with the Attack$or Effect of a single Card!",
+            "description": "Deal 10<damage> with the$Attack or Effect$of a single Card!",
             "texture": "achievements/damage_10.png",
             "bounty": 50
         },
         {
             "name": "deal_20_damage",
             "title": "Knight's Sword",
-            "description": "Deal 20<damage> with the Attack$or Effect of a single Card!",
+            "description": "Deal 20<damage> with the$Attack or Effect$of a single Card!",
             "texture": "achievements/damage_20.png",
             "bounty": 500
         },
         {
             "name": "reach_12_starting_weight",
             "title": "Weight Collector",
-            "description": "Begin a Battle starting$with at least 12<weight> crystals!",
+            "description": "Begin a Battle$starting with at$least 12<weight> crystals!",
             "texture": "achievements/start_with_10_crystals.png",
             "bounty": 300
         },
         {
             "name": "draw_10_cards_in_a_turn",
             "title": "Endless Draw",
-            "description": "Draw at least 10 Cards in$one turn!",
+            "description": "Draw at least 10$Cards in one turn!",
             "texture": "achievements/draw_10_cards.png",
             "bounty": 400
         },
         {
             "name": "defeat_final_boss_with_unused_resurrection",
             "title": "No Angel Needed",
-            "description": "Defeat the boss at$The Valley of Death without$using a Guardian Angel$artifact collected earlier$in this Story!",
+            "description": "Defeat the final boss$without using a$collected Guardian$Angel artifact!",
             "texture": "achievements/guardian_angel_not_needed.png",
             "bounty": 300
         },
         {
             "name": "normal_collector",
             "title": "The Beginning?",
-            "description": "Collect ALL Normal Cards!",
+            "description": "Collect ALL Normal$Cards!",
             "texture": "achievements/normal_collector.png",
             "bounty": 3000
         },
         {
             "name": "golden_collector",
             "title": "The End?",
-            "description": "Collect ALL Golden Cards!",
+            "description": "Collect ALL Golden$Cards!",
             "texture": "achievements/golden_collector.png",
             "bounty": 10000
         },
         {
             "name": "defeat_final_boss_10_mutations",
             "title": "The Liberator",
-            "description": "Defeat the boss at$The Valley of Death while$having 10 Mutations!",
+            "description": "Defeat the boss at$The Valley of Death$while having 10$Mutations!",
             "texture": "achievements/final_boss_max_mutations_victory.png",
             "bounty": 10000
         },
         {
             "name": "defeat_final_boss_first_time",
             "title": "Demon Vanquisher",
-            "description": "Defeat the boss at$The Valley of Death for the$first time!",
+            "description": "Defeat the boss at$The Valley of Death$for the first time!",
             "texture": "achievements/final_boss_first_time_victory.png",
             "bounty": 500
         }

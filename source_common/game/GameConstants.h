@@ -142,6 +142,7 @@ namespace game_constants
     inline const strutils::StringId DISCONNECTED_SCENE = strutils::StringId("disconnected_scene");
     inline const strutils::StringId SETTINGS_SCENE = strutils::StringId("settings_scene");
     inline const strutils::StringId CARD_LIBRARY_SCENE = strutils::StringId("card_library_scene");
+    inline const strutils::StringId ACHIEVEMENTS_SCENE = strutils::StringId("achievements_scene");
     inline const strutils::StringId INVENTORY_SCENE = strutils::StringId("inventory_scene");
     inline const strutils::StringId WHEEL_OF_FORTUNE_SCENE = strutils::StringId("wheel_of_fortune_scene");
     inline const strutils::StringId CLOUD_DATA_CONFIRMATION_SCENE = strutils::StringId("cloud_data_confirmation_scene");

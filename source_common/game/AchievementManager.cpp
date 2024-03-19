@@ -41,13 +41,11 @@ static const strutils::StringId ACHIEVEMENT_DESCRIPTION_TEXT_SCENE_OBJECT_NAMES[
     strutils::StringId("achievement_unlocked_description_text_0"),
     strutils::StringId("achievement_unlocked_description_text_1"),
     strutils::StringId("achievement_unlocked_description_text_2"),
-    strutils::StringId("achievement_unlocked_description_text_3"),
-    strutils::StringId("achievement_unlocked_description_text_4"),
+    strutils::StringId("achievement_unlocked_description_text_3")
 };
 
 static const std::string ACHIEVEMENT_BASE_TEXTURE_FILE_NAME = "achievement_unlocked.png";
 static const std::string ACHIEVEMENT_FRAME_TEXTURE_FILE_NAME = "achievement_frame.png";
-static const std::string ACHIEVEMENT_OVERLAY_TEXTURE_FILE_NAME = "overlay.png";
 static const std::string ACHIEVEMENT_PORTRAIT_SHADER_FILE_NAME = "achievement_portrait.vs";
 static const std::string FIREWORKS_SFX = "sfx_fireworks";
 static const std::string VICTORY_SFX = "sfx_victory";
@@ -55,7 +53,7 @@ static const std::string VICTORY_SFX = "sfx_victory";
 static const glm::vec3 ACHIEVEMENT_BASE_INIT_POSITION = {-0.016f, 0.4f, 23.5f};
 static const glm::vec3 ACHIEVEMENT_BASE_END_POSITION = {-0.016f, 0.115f, 23.5f};
 static const glm::vec3 ACHIEVEMENT_TEXT_SCALE = {0.0003f, 0.0003f, 0.0003f};
-static const glm::vec3 ACHIEVEMENT_DESCRIPTION_TEXT_SCALE = {0.00025f, 0.00025f, 0.00025f};
+static const glm::vec3 ACHIEVEMENT_DESCRIPTION_TEXT_SCALE = {0.0003f, 0.0003f, 0.0003f};
 static const glm::vec3 ACHIEVEMENT_BASE_SCALE = {0.6f, 0.5f, 0.4f};
 static const glm::vec3 ACHIEVEMENT_FRAME_SCALE = {0.1f, 0.1f, 0.1f};
 static const glm::vec3 ACHIEVEMENT_PORTRAIT_SCALE = {0.08f, 0.08f, 0.08f};
@@ -68,14 +66,21 @@ static const glm::vec3 ACHIEVEMENT_TITLE_TEXT_OFFSET = {-0.118f, 0.094f, 0.1f};
 static const glm::vec3 ACHIEVEMENT_UNLOCKED_TITLE_OFFSET = {-0.232f, 0.055f, 0.1f};
 static const glm::vec3 ACHIEVEMENT_TEXT_OFFSETS[] =
 {
-    {  0.0f, 0.06, 0.1f },
-    {  0.0f, 0.035f, 0.1f },
-    {  0.0f, 0.01f, 0.1f },
-    {  0.0f, -0.015f, 0.1f },
-    {  0.0f, -0.04f, 0.1f },
+    {  0.0f, 0.055, 0.1f },
+    {  0.0f, 0.021f, 0.1f },
+    {  0.0f, -0.013f, 0.1f },
+    {  0.0f, -0.047f, 0.1f }
 };
 
 static const float ACHIEVEMENT_SWIPE_IN_OUT_DURATION_SECS = 1.0f;
+
+///------------------------------------------------------------------------------------------------
+
+AchievementManager& AchievementManager::GetInstance()
+{
+    static AchievementManager instance;
+    return instance;
+}
 
 ///------------------------------------------------------------------------------------------------
 
