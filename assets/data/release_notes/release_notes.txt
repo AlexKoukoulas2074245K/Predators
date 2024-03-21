@@ -1,6 +1,7 @@
 Version 1.2
  
 Features:
+- Added Achievements!
 - Doubled the maximum weight limit of player to 20!
 - Added Story Gold Difference indicator on Victory/
   Defeat screens!

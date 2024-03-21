@@ -306,8 +306,8 @@
 		0B062A7E99DAE588F6ABB076 /* ValueWithDelayedDisplay.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = ValueWithDelayedDisplay.h; sourceTree = "<group>"; };
 		0BF5D202DB385FB6CA3DD5E1 /* CardInspectionSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = CardInspectionSceneLogicManager.cpp; sourceTree = "<group>"; };
 		0E1B2BEA8DF5B2F760F845C0 /* Dummy.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = Dummy.cpp; sourceTree = "<group>"; };
-		1193462CE40E203F1AAF3EAA /* AchievementsSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = AchievementsSceneLogicManager.h; path = AchievementsSceneLogicManager.h; sourceTree = "<group>"; };
-		1468A4ED5BDDC57FE78CF6CD /* AchievementManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = AchievementManager.h; path = AchievementManager.h; sourceTree = "<group>"; };
+		1193462CE40E203F1AAF3EAA /* AchievementsSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = AchievementsSceneLogicManager.h; sourceTree = "<group>"; };
+		1468A4ED5BDDC57FE78CF6CD /* AchievementManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = AchievementManager.h; sourceTree = "<group>"; };
 		18B3950AA83508FC6734E727 /* CardSelectionRewardSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = CardSelectionRewardSceneLogicManager.h; sourceTree = "<group>"; };
 		18CDC4CDBECFB5581A49E860 /* StoryMap.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = StoryMap.h; sourceTree = "<group>"; };
 		19748D85CAC57E2F35EE9666 /* CardSelectionRewardSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = CardSelectionRewardSceneLogicManager.cpp; sourceTree = "<group>"; };
@@ -330,7 +330,7 @@
 		2DE9DAA33D8DF5A132EA2AE4 /* DefeatSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = DefeatSceneLogicManager.h; sourceTree = "<group>"; };
 		2E2096EBA8286FA7558EC84B /* FirstGameLockSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = FirstGameLockSceneLogicManager.h; sourceTree = "<group>"; };
 		2EFEAA42540EE199342FF02C /* StoryDeserializer.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = StoryDeserializer.h; sourceTree = "<group>"; };
-		32536895D94B7B80DB57B34C /* ReleaseNotesSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ReleaseNotesSceneLogicManager.h; path = ReleaseNotesSceneLogicManager.h; sourceTree = "<group>"; };
+		32536895D94B7B80DB57B34C /* ReleaseNotesSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = ReleaseNotesSceneLogicManager.h; sourceTree = "<group>"; };
 		344CBBF97D2153B6F31D21E5 /* BattleSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = BattleSceneLogicManager.cpp; sourceTree = "<group>"; };
 		35B913CBC29BA48AF1623AD8 /* CloudKitUtils.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = CloudKitUtils.h; sourceTree = "<group>"; };
 		36BA43D12A116F9CEDEEC5BB /* AnimationManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = AnimationManager.h; sourceTree = "<group>"; };
@@ -390,7 +390,7 @@
 		768D33D1BE87D452631F7F3B /* CardPlayedParticleEffectGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = CardPlayedParticleEffectGameAction.h; sourceTree = "<group>"; };
 		78D3D7811D0E6320DDDA9D6F /* CloudDataConfirmationSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = CloudDataConfirmationSceneLogicManager.cpp; sourceTree = "<group>"; };
 		7AACE80E9655088BE13935FF /* PlatformMacros.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = PlatformMacros.h; sourceTree = "<group>"; };
-		7B97ACA47AA48A2A4A52F09B /* AchievementManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = AchievementManager.cpp; path = AchievementManager.cpp; sourceTree = "<group>"; };
+		7B97ACA47AA48A2A4A52F09B /* AchievementManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = AchievementManager.cpp; sourceTree = "<group>"; };
 		7BFAE370D9B90D60A2FE3A83 /* BattleInitialSetupAndAnimationGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = BattleInitialSetupAndAnimationGameAction.cpp; sourceTree = "<group>"; };
 		7D782BE86F16B964E1CC36E3 /* PredatorsReachability.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = PredatorsReachability.m; sourceTree = "<group>"; };
 		7DF82FD88833EA367D25F51D /* ProductRepository.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = ProductRepository.cpp; sourceTree = "<group>"; };
@@ -536,10 +536,10 @@
 		BA9758B343E8E7A0B318918C /* MeteorCardSacrificeGameAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = MeteorCardSacrificeGameAction.h; sourceTree = "<group>"; };
 		BCCBF20231475F822A781120 /* GameSceneTransitionManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = GameSceneTransitionManager.h; sourceTree = "<group>"; };
 		BDB3DBBDFD5F04CBE969820C /* CloudDataConfirmationSceneLogicManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = CloudDataConfirmationSceneLogicManager.h; sourceTree = "<group>"; };
-		BEB7A88D1627443AE67EED84 /* ReleaseNotesSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = ReleaseNotesSceneLogicManager.cpp; path = ReleaseNotesSceneLogicManager.cpp; sourceTree = "<group>"; };
+		BEB7A88D1627443AE67EED84 /* ReleaseNotesSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = ReleaseNotesSceneLogicManager.cpp; sourceTree = "<group>"; };
 		BEB95046F3803B1D1A01C7E8 /* DemonNameGenerator.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = DemonNameGenerator.cpp; sourceTree = "<group>"; };
 		BFEE31CB1C81B110DF5D5525 /* ImageSurfaceResource.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = ImageSurfaceResource.h; sourceTree = "<group>"; };
-		C022741D5EA22D009F2A8B0D /* AchievementsSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = AchievementsSceneLogicManager.cpp; path = AchievementsSceneLogicManager.cpp; sourceTree = "<group>"; };
+		C022741D5EA22D009F2A8B0D /* AchievementsSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = AchievementsSceneLogicManager.cpp; sourceTree = "<group>"; };
 		C100923712073548F2E0F97B /* CardHistoryEntryAdditionGameAction.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = CardHistoryEntryAdditionGameAction.cpp; sourceTree = "<group>"; };
 		C16A1AADA07DA3267641EB14 /* VisitMapNodeSceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = VisitMapNodeSceneLogicManager.cpp; sourceTree = "<group>"; };
 		C1EE7DB5748D9F470F44737E /* VictorySceneLogicManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = VictorySceneLogicManager.cpp; sourceTree = "<group>"; };
@@ -1585,6 +1585,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
 				MACOSX_DEPLOYMENT_TARGET = 12.4;
+				MARKETING_VERSION = 1.2;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -1638,6 +1639,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
 				MACOSX_DEPLOYMENT_TARGET = 12.4;
+				MARKETING_VERSION = 1.2;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -1653,7 +1655,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_ENTITLEMENTS = PredatorsIOS/PredatorsIOS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 9.1.2;
 				DEVELOPMENT_TEAM = XS89APN396;
 				FRAMEWORK_SEARCH_PATHS = "/Users/Code/SDL-ios-frameworks";
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1680,7 +1682,7 @@
 					"@executable_path/Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = "";
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.alexkoukoulas2074245k.Predators;
 				PRODUCT_NAME = "Realm of Beasts";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -1700,7 +1702,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_ENTITLEMENTS = PredatorsIOS/PredatorsIOS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 9.1.2;
 				DEVELOPMENT_TEAM = XS89APN396;
 				FRAMEWORK_SEARCH_PATHS = "/Users/Code/SDL-ios-frameworks";
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1727,7 +1729,7 @@
 					"@executable_path/Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = "";
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.alexkoukoulas2074245k.Predators;
 				PRODUCT_NAME = "Realm of Beasts";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";

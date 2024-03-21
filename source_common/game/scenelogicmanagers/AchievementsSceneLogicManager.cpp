@@ -221,7 +221,7 @@ void AchievementsSceneLogicManager::UpdateAchievementContainer(const float dtMil
     
     if (mAchievementsContainer)
     {
-        //const auto& unlockedAchievements = DataRepository::GetInstance().GetUnlockedAchievements();
+        const auto& unlockedAchievements = DataRepository::GetInstance().GetUnlockedAchievements();
         const auto& achievementContainerUpdateResult = mAchievementsContainer->Update(dtMillis);
         
         if (achievementContainerUpdateResult.mInteractionType == InteractionType::INTERACTED_WITH_ELEMENTS)
@@ -238,10 +238,10 @@ void AchievementsSceneLogicManager::UpdateAchievementContainer(const float dtMil
                 
                 auto achievementDescription = AchievementManager::GetInstance().GetAchievementDefinitions().at(interactedElementEntry.mAchievementName).mAchievementDescription;
                 
-                //if (std::find(unlockedAchievements.cbegin(), unlockedAchievements.cend(), interactedElementEntry.mAchievementName) != unlockedAchievements.cend())
-                //{
+                if (std::find(unlockedAchievements.cbegin(), unlockedAchievements.cend(), interactedElementEntry.mAchievementName) != unlockedAchievements.cend())
+                {
                     CreateAchievementTooltip(interactedElementEntry.mSceneObjects.front()->mPosition, achievementDescription);
-                //}
+                }
             }
         }
         else if (achievementContainerUpdateResult.mInteractionType == InteractionType::INTERACTED_WITH_CONTAINER_AREA)
