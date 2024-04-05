@@ -1,5 +1,11 @@
+Version 1.3
+Bug Fixes:
+- Fixed music state out of sync when accepting
+  cloud changes!
+- Properly aligned wheel of fortune title text
+  
+  
 Version 1.2
- 
 Features:
 - Added Achievements!
 - Doubled the maximum weight limit of player to 20!

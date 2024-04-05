@@ -11,6 +11,7 @@
 #include <engine/utils/Logging.h>
 #include <engine/utils/PlatformMacros.h>
 #include <engine/scene/SceneManager.h>
+#include <engine/scene/SceneObjectUtils.h>
 #include <game/AnimatedButton.h>
 #include <game/ArtifactProductIds.h>
 #include <game/DataRepository.h>
@@ -198,7 +199,6 @@ void WheelOfFortuneSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> s
         {
             std::get<scene::TextSceneObjectData>(titleSceneObject->mSceneObjectTypeData).mText = "Boss Wheel";
             titleSceneObject->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = FINAL_BOSS_TITLE_COLOR;
-            titleSceneObject->mPosition.x += 0.04f;
             
             if (DataRepository::GetInstance().DoesCurrentStoryHaveMutation(game_constants::MUTATION_FINAL_BOSS_REVIVES))
             {
@@ -238,6 +238,10 @@ void WheelOfFortuneSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> s
             }
         } break;
     }
+    
+    auto boundingRect = scene_object_utils::GetSceneObjectBoundingRect(*titleSceneObject);
+    auto textLength = boundingRect.topRight.x - boundingRect.bottomLeft.x;
+    titleSceneObject->mPosition.x -= textLength/2.0f;
     
     mFinalBossFlow = DataRepository::GetInstance().GetCurrentStoryMapType() == StoryMapType::NORMAL_MAP && DataRepository::GetInstance().GetCurrentStoryMapNodeCoord() == game_constants::STORY_MAP_BOSS_COORD;
     

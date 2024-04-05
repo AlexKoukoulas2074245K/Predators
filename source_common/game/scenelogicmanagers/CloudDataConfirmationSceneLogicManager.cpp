@@ -12,6 +12,7 @@
 #include <engine/utils/PlatformMacros.h>
 #include <engine/scene/SceneManager.h>
 #include <engine/scene/SceneObjectUtils.h>
+#include <engine/sound/SoundManager.h>
 #include <fstream>
 #include <game/AnimatedButton.h>
 #include <game/Cards.h>
@@ -220,6 +221,7 @@ void CloudDataConfirmationSceneLogicManager::OnUseCloudDataButtonPressed()
     checkAndReplacePersistentDataFile("last_battle");
     
     DataRepository::GetInstance().ReloadProgressionDataFromFile();
+    CoreSystemsEngine::GetInstance().GetSoundManager().SetAudioEnabled(DataRepository::GetInstance().IsAudioEnabled());
     DataRepository::GetInstance().FlushStateToFile();
 #endif
 }

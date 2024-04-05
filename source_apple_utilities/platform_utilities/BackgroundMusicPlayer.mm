@@ -33,16 +33,17 @@ static const float DISABLED_AUDIO_MUSIC_VOLUME = 0.0f;
 
 - (void) playMusicWith:(NSString*) soundResPath unloopedMusic:(BOOL) unloopedMusic
 {
+    NSString* sandboxFilePath = [NSBundle.mainBundle pathForResource:soundResPath ofType:@"flac"];
+    
     if (!_audioEnabled)
     {
+        _nextMusicUnlooped = unloopedMusic;
+        _nextQueuedMusicPath = soundResPath;
         return;
     }
     
-    NSString* sandboxFilePath = [NSBundle.mainBundle pathForResource:soundResPath ofType:@"flac"];
-    
     if (sandboxFilePath != nil)
     {
-        _nextMusicUnlooped = unloopedMusic;
         if (_musicPlayer == nil)
         {
             dispatch_queue_t backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
@@ -156,6 +157,13 @@ static const float DISABLED_AUDIO_MUSIC_VOLUME = 0.0f;
         else
         {
             [_musicPlayer pause];
+        }
+    }
+    else if (audioEnabled)
+    {
+        if ([_nextQueuedMusicPath length] > 0)
+        {
+            [self playMusicWith:_nextQueuedMusicPath unloopedMusic:_nextMusicUnlooped];
         }
     }
 }
