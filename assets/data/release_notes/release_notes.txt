@@ -1,4 +1,7 @@
 Version 1.3
+Features:
+- Added push notifications!
+ 
 Bug Fixes:
 - Fixed music state out of sync when accepting
   cloud changes!
