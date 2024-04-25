@@ -730,6 +730,7 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                     [=](){
                         DataRepository::GetInstance().SetIsCurrentlyPlayingStoryMode(true);
                         DataRepository::GetInstance().SetCurrentShopBehaviorType(ShopBehaviorType::STORY_SHOP);
+                        events::EventSystem::GetInstance().DispatchEvent<events::SendPlayMessageEvent>();
                         events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(STORY_MAP_SCENE_TYPE_TO_SCENE_NAME.at(DataRepository::GetInstance().GetCurrentStoryMapSceneType()), SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE); },
                     *scene
                 ));
@@ -1294,6 +1295,7 @@ void MainMenuSceneLogicManager::StartNewStory()
 {
     DataRepository::GetInstance().SetIsCurrentlyPlayingStoryMode(true);
     DataRepository::GetInstance().SetStoryStartingGold(DataRepository::GetInstance().CurrencyCoins().GetValue());
+    events::EventSystem::GetInstance().DispatchEvent<events::SendPlayMessageEvent>();
     events::EventSystem::GetInstance().DispatchEvent<events::SceneChangeEvent>(game_constants::STORY_MAP_SCENE, SceneChangeType::CONCRETE_SCENE_ASYNC_LOADING, PreviousSceneDestructionType::DESTROY_PREVIOUS_SCENE);
     DataRepository::GetInstance().FlushStateToFile();
 }

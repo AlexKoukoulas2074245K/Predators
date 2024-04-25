@@ -53,6 +53,12 @@ class TriggerRequestReviewEvent final
 
 ///------------------------------------------------------------------------------------------------
 
+class SendPlayMessageEvent final
+{
+};
+
+///------------------------------------------------------------------------------------------------
+
 class ProductPurchaseEndedEvent final
 {
 public:

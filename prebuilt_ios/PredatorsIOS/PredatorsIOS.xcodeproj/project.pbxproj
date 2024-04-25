@@ -165,11 +165,11 @@
 		9206EC3D2ACDCD9100198337 /* assets in Resources */ = {isa = PBXBuildFile; fileRef = 9206EC3C2ACDCD9100198337 /* assets */; };
 		920C541A2B8120CE006F6743 /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 920C540B2B8120CE006F6743 /* OpenAL.framework */; };
 		9233DADB2B5E866900C55555 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9233DACC2B5E866900C55555 /* CloudKit.framework */; };
-		925592C62BA09F3E001D7B97 /* SDL2_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 925592C42BA09F3E001D7B97 /* SDL2_image.framework */; };
 		925592C72BA09F3E001D7B97 /* SDL2_image.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 925592C42BA09F3E001D7B97 /* SDL2_image.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		925592C82BA09F3E001D7B97 /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 925592C52BA09F3E001D7B97 /* SDL2.framework */; };
-		925592C92BA09F3E001D7B97 /* SDL2.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 925592C52BA09F3E001D7B97 /* SDL2.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		925FD880298AD7D50058E747 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 925FD87F298AD7D50058E747 /* AudioToolbox.framework */; };
+		92678D5E2BC6975F0077C215 /* SDL2_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 925592C42BA09F3E001D7B97 /* SDL2_image.framework */; };
+		92678D622BC6CA6A0077C215 /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92678D612BC6CA6A0077C215 /* SDL2.framework */; };
+		92678D632BC6CA6A0077C215 /* SDL2.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 92678D612BC6CA6A0077C215 /* SDL2.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		92C7FC462B06794C008568C6 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92C7FC372B06794C008568C6 /* UIKit.framework */; };
 		92C851692969A7CB0021923F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 92C851682969A7CB0021923F /* Assets.xcassets */; };
 		92C8516C2969A7CB0021923F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 92C8516A2969A7CB0021923F /* LaunchScreen.storyboard */; };
@@ -289,7 +289,7 @@
 			dstSubfolderSpec = 10;
 			files = (
 				925592C72BA09F3E001D7B97 /* SDL2_image.framework in Embed Frameworks */,
-				925592C92BA09F3E001D7B97 /* SDL2.framework in Embed Frameworks */,
+				92678D632BC6CA6A0077C215 /* SDL2.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -481,9 +481,10 @@
 		9233DAB82B5E85EA00C55555 /* PredatorsIOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PredatorsIOS.entitlements; sourceTree = "<group>"; };
 		9233DACC2B5E866900C55555 /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
 		925592C42BA09F3E001D7B97 /* SDL2_image.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_image.framework; path = "../../../SDL-ios-frameworks/SDL2_image.framework"; sourceTree = "<group>"; };
-		925592C52BA09F3E001D7B97 /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = "../../../SDL-ios-frameworks/SDL2.framework"; sourceTree = "<group>"; };
 		925FD87F298AD7D50058E747 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		9263BC422BA0E7D9009647C0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		92678D112BC693A60077C215 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
+		92678D612BC6CA6A0077C215 /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = "../../../SDL-ios-frameworks/SDL2.framework"; sourceTree = "<group>"; };
 		9285241629A9095A007EA0D9 /* GameController.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameController.framework; path = System/Library/Frameworks/GameController.framework; sourceTree = SDKROOT; };
 		92C7FC372B06794C008568C6 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		92C851562969A7CA0021923F /* Realm of Beasts.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Realm of Beasts.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -602,7 +603,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				925592C82BA09F3E001D7B97 /* SDL2.framework in Frameworks */,
+				92678D622BC6CA6A0077C215 /* SDL2.framework in Frameworks */,
+				92678D5E2BC6975F0077C215 /* SDL2_image.framework in Frameworks */,
 				9233DADB2B5E866900C55555 /* CloudKit.framework in Frameworks */,
 				925FD880298AD7D50058E747 /* AudioToolbox.framework in Frameworks */,
 				92C7FC462B06794C008568C6 /* UIKit.framework in Frameworks */,
@@ -610,7 +612,6 @@
 				92043B0E2A0947A4007CC7DE /* AVFAudio.framework in Frameworks */,
 				920C541A2B8120CE006F6743 /* OpenAL.framework in Frameworks */,
 				92E96A6B29803597004A3120 /* OpenGLES.framework in Frameworks */,
-				925592C62BA09F3E001D7B97 /* SDL2_image.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1009,8 +1010,9 @@
 		92C851B42969A95A0021923F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				92678D612BC6CA6A0077C215 /* SDL2.framework */,
+				92678D112BC693A60077C215 /* UserNotifications.framework */,
 				925592C42BA09F3E001D7B97 /* SDL2_image.framework */,
-				925592C52BA09F3E001D7B97 /* SDL2.framework */,
 				920C540B2B8120CE006F6743 /* OpenAL.framework */,
 				92CA974C2B653BBF00B53B01 /* StoreKit.framework */,
 				9233DACC2B5E866900C55555 /* CloudKit.framework */,
@@ -1585,7 +1587,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
 				MACOSX_DEPLOYMENT_TARGET = 12.4;
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = 1.4;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -1639,7 +1641,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
 				MACOSX_DEPLOYMENT_TARGET = 12.4;
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = 1.4;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -1655,7 +1657,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_ENTITLEMENTS = PredatorsIOS/PredatorsIOS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 9.1.3;
+				CURRENT_PROJECT_VERSION = 9.1.4;
 				DEVELOPMENT_TEAM = XS89APN396;
 				FRAMEWORK_SEARCH_PATHS = "/Users/Code/SDL-ios-frameworks";
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1682,7 +1684,7 @@
 					"@executable_path/Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = "";
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = 1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.alexkoukoulas2074245k.Predators;
 				PRODUCT_NAME = "Realm of Beasts";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -1690,6 +1692,7 @@
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SYSTEM_HEADER_SEARCH_PATHS = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -1702,7 +1705,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_ENTITLEMENTS = PredatorsIOS/PredatorsIOS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 9.1.3;
+				CURRENT_PROJECT_VERSION = 9.1.4;
 				DEVELOPMENT_TEAM = XS89APN396;
 				FRAMEWORK_SEARCH_PATHS = "/Users/Code/SDL-ios-frameworks";
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1729,7 +1732,7 @@
 					"@executable_path/Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = "";
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = 1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.alexkoukoulas2074245k.Predators;
 				PRODUCT_NAME = "Realm of Beasts";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -1737,6 +1740,7 @@
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SYSTEM_HEADER_SEARCH_PATHS = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;

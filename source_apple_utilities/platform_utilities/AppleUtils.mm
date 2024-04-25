@@ -12,9 +12,16 @@
 #include <engine/utils/PlatformMacros.h>
 #include <engine/utils/StringUtils.h>
 #include <codecvt>
+#include <fstream>
 #include <chrono>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <unistd.h>
 #import <StoreKit/StoreKit.h>
 #import <StoreKit/SKStoreReviewController.h>
+#import <UserNotifications/UserNotifications.h>
+#import <UserNotifications/UNUserNotificationCenter.h>
 #if __has_include(<UIKit/UIKit.h>)
 #import <UIKit/UIKit.h>
 #endif
@@ -415,6 +422,55 @@ void RequestReview()
 #if !defined(MACOS)
     [SKStoreReviewController requestReview];
 #endif
+}
+
+///-----------------------------------------------------------------------------------------------
+
+void SendPlayMessage(nlohmann::json& json)
+{
+    auto filePathToLastToken = GetPersistentDataDirectoryPath() + "last_notifications_token.txt";
+    std::ifstream tokenFile(filePathToLastToken);
+    
+    if (tokenFile.is_open())
+    {
+        json["token"] = std::string((std::istreambuf_iterator<char>(tokenFile)), std::istreambuf_iterator<char>());
+    }
+    
+    auto jsonStringToSend = json.dump(4);
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        int client_socket;
+        struct sockaddr_in server_addr;
+        
+        // Create socket
+        if ((client_socket = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+        {
+            NSLog(@"Error: Socket creation failed");
+            return;
+        }
+        
+        // Specify server address
+        server_addr.sin_family = AF_INET;
+        server_addr.sin_port = htons(8080); // Use the same port as the server
+        server_addr.sin_addr.s_addr = inet_addr("178.16.131.241");
+        
+        // Connect to server
+        if (connect(client_socket, (struct sockaddr *)&server_addr, sizeof(server_addr)) == -1)
+        {
+            NSLog(@"Error: Connection failed");
+            return;
+        }
+        
+        // Dummy JSON string
+        if (send(client_socket, jsonStringToSend.c_str(), jsonStringToSend.size(), 0) == -1)
+        {
+            NSLog(@"Error: Send failed");
+            return;
+        }
+        
+        // Close socket
+        close(client_socket);
+    });
 }
 
 ///-----------------------------------------------------------------------------------------------

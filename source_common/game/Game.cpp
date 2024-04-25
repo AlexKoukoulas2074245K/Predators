@@ -18,6 +18,7 @@
 #include <engine/scene/SceneObject.h>
 #include <engine/sound/SoundManager.h>
 #include <engine/utils/BaseDataFileDeserializer.h>
+#include <engine/utils/Date.h>
 #include <engine/utils/Logging.h>
 #include <engine/utils/FileUtils.h>
 #include <engine/utils/MathUtils.h>
@@ -134,6 +135,33 @@ void Game::Init()
     {
 #if defined(MACOS) || defined(MOBILE_FLOW)
         apple_utils::RequestReview();
+#endif
+    });
+    
+    mSendPlayMessageEventListener = eventSystem.RegisterForEvent<events::SendPlayMessageEvent>([=](const events::SendPlayMessageEvent&)
+    {
+#if defined(MACOS) || defined(MOBILE_FLOW)
+        nlohmann::json playMessageJson;
+        
+        using namespace date;
+        std::stringstream dateNow;
+        dateNow << std::chrono::system_clock::now();
+        
+        playMessageJson["datetime"] = dateNow.str();
+        playMessageJson["gold"] = DataRepository::GetInstance().CurrencyCoins().GetValue();
+        playMessageJson["mutation_level"] = DataRepository::GetInstance().GetCurrentStoryMutationLevel();
+        
+#if defined(MACOS)
+        playMessageJson["platform"] = "MacOS";
+#endif
+        
+#if defined(MOBILE_FLOW)
+        playMessageJson["platform"] = "iOS";
+#endif
+        playMessageJson["game_version"] = apple_utils::GetAppVersion();
+        playMessageJson["normal_map"] = DataRepository::GetInstance().GetCurrentStoryMapType() != StoryMapType::TUTORIAL_MAP ? "true" : "false";
+        playMessageJson["story_coords"] = std::to_string(DataRepository::GetInstance().GetCurrentStoryMapNodeCoord().x) + "," + std::to_string(DataRepository::GetInstance().GetCurrentStoryMapNodeCoord().y);
+        apple_utils::SendPlayMessage(playMessageJson);
 #endif
     });
                                                                                          

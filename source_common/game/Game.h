@@ -36,6 +36,7 @@ private:
     std::unique_ptr<events::IListener> mSceneChangeEventListener;
     std::unique_ptr<events::IListener> mPopModalSceneEventListener;
     std::unique_ptr<events::IListener> mRequestReviewEventListener;
+    std::unique_ptr<events::IListener> mSendPlayMessageEventListener;
 };
 
 ///------------------------------------------------------------------------------------------------

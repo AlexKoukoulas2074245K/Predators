@@ -42,7 +42,6 @@ void ImageSurfaceLoader::VInitialize()
     const auto sdlImageInitFlags = IMG_INIT_PNG;
     if (!imgVersionConsistency || IMG_Init(sdlImageInitFlags) != sdlImageInitFlags)
     {
-        ospopups::ShowMessageBox(ospopups::MessageBoxType::ERROR, "SDL_image", "SDL_image was not initialized properly");
     }
     
     logging::Log(logging::LogType::INFO, "Successfully initialized SDL_image version %d.%d.%d", imgCompiledVersion.major, imgCompiledVersion.minor, imgCompiledVersion.patch);
