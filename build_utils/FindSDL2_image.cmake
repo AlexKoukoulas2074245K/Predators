@@ -39,6 +39,7 @@
 if(NOT SDL2_IMAGE_INCLUDE_DIR AND SDL2IMAGE_INCLUDE_DIR)
   set(SDL2_IMAGE_INCLUDE_DIR ${SDL2IMAGE_INCLUDE_DIR} CACHE PATH "directory cache entry initialized from old variable name")
 endif()
+
 find_path(SDL2_IMAGE_INCLUDE_DIR SDL_image.h
   HINTS
     ENV SDL2IMAGEDIR

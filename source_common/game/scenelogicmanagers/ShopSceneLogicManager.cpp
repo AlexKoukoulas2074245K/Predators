@@ -857,6 +857,9 @@ void ShopSceneLogicManager::CreateProducts()
 #if defined(MACOS) || defined(MOBILE_FLOW)
             const auto& permaShopPriceString = apple_utils::GetProductPrice(product->mProductName.GetString());
             const bool shouldBeMarkedAsComingSoon = (IsProductCoins(shelfIndex, shelfItemIndex) || product->mProductName == STORY_HEALTH_REFILL_PRODUCT_NAME) && permaShopPriceString.empty();
+#else 
+            const bool shouldBeMarkedAsComingSoon = true;
+            std::string permaShopPriceString = "";
 #endif
             
             // Card Pack Product
@@ -1585,7 +1588,7 @@ void ShopSceneLogicManager::UpdateProductPriceTags()
                 dynamicProductPrice *= 2;
             }
             
-            if (dynamicProductPrice > 0)
+            if (dynamicProductPrice > 0 && product->mSceneObjects.size() > 2)
             {
                 product->mSceneObjects[2]->mShaderVec3UniformValues[game_constants::CUSTOM_COLOR_UNIFORM_NAME] = dynamicProductPrice > DataRepository::GetInstance().CurrencyCoins().GetValue() ? COIN_RED_VALUE_TEXT_COLOR : COIN_NORMAL_VALUE_TEXT_COLOR;
             }
@@ -1628,7 +1631,7 @@ bool ShopSceneLogicManager::IsDisconnected() const
 #if defined(MACOS) || defined(MOBILE_FLOW)
     return !apple_utils::IsConnectedToTheInternet();
 #else
-    return !window_utils::IsConnectedToTheInternet();
+    return !windows_utils::IsConnectedToTheInternet();
 #endif
 }
 

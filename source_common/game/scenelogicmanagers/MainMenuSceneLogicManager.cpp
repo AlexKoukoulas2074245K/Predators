@@ -411,6 +411,8 @@ void MainMenuSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sc
     {
 #if defined(MACOS) || defined(MOBILE_FLOW)
         std::get<scene::TextSceneObjectData>(versionSceneObject->mSceneObjectTypeData).mText = "Game Version " + apple_utils::GetAppVersion();
+#else
+        std::get<scene::TextSceneObjectData>(versionSceneObject->mSceneObjectTypeData).mText = "Game Version 1.0";
 #endif
     }
     
@@ -866,8 +868,15 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                 MIN_DECK_ENTRIES_TO_SCROLL
             );
             
-            for (const auto& cardFamilyEntry: game_constants::CARD_FAMILY_NAMES_TO_TEXTURES)
+            for (int i = 0; i < AVAILABLE_STORY_DECKS_COUNT; ++i)
             {
+                auto cardFamilyName = strutils::StringId(strutils::StringToLower(STORY_DECK_NAMES[i]));
+                if (cardFamilyName == strutils::StringId("gnawers"))
+                {
+                    cardFamilyName = strutils::StringId("rodents");
+                }
+
+                const auto& cardFamilyEntryTexture = game_constants::CARD_FAMILY_NAMES_TO_TEXTURES.at(cardFamilyName);
                 {
                     auto cardFamilyEntrySceneObject = scene->CreateSceneObject();
                     cardFamilyEntrySceneObject->mShaderResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_SHADERS_ROOT + DECK_ENTRY_SHADER);
@@ -876,10 +885,10 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
                     cardFamilyEntrySceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = DECK_ENTRY_ALPHA;
                     cardFamilyEntrySceneObject->mEffectTextureResourceIds[0] = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + DECK_ENTRY_MASK_TEXTURE_FILE_NAME);
                     cardFamilyEntrySceneObject->mScale = glm::vec3(STORY_DECK_SELECTION_ENTRY_SCALE);
-                    cardFamilyEntrySceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + cardFamilyEntry.second);
+                    cardFamilyEntrySceneObject->mTextureResourceId = CoreSystemsEngine::GetInstance().GetResourceLoadingService().LoadResource(resources::ResourceLoadingService::RES_TEXTURES_ROOT + cardFamilyEntryTexture);
                     
                     CardFamilyEntry cardEntry;
-                    cardEntry.mCardFamilyName = cardFamilyEntry.first;
+                    cardEntry.mCardFamilyName = cardFamilyName;
                     cardEntry.mSceneObjects.emplace_back(cardFamilyEntrySceneObject);
                     mCardFamilyContainerBot->AddItem(std::move(cardEntry), EntryAdditionStrategy::ADD_ON_THE_BACK);
                 }
@@ -1345,7 +1354,7 @@ bool MainMenuSceneLogicManager::IsDisconnected() const
 #if defined(MACOS) || defined(MOBILE_FLOW)
     return !apple_utils::IsConnectedToTheInternet();
 #else
-    return !window_utils::IsConnectedToTheInternet();
+    return !windows_utils::IsConnectedToTheInternet();
 #endif
 }
 
