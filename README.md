@@ -35,6 +35,7 @@ Download the game for your respective platform from https://apps.apple.com/us/ap
 6) Open the Predators.sln file with visual studio
 7) Compile and run the default Startup Project which should automatically be "Predators".
 8) (optional) The imgui debug widgets can be locked/unlocked by pressing the mouse wheel in case they need to be moved around.
+9) (optional) The unit tests can also be run by making the Predators_test the startup project for the solution.
 
 ## Code Structure Details
 Due to the project being cross-platform, I've split the code is split into the following directories:
