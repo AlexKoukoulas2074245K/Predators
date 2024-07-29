@@ -33,7 +33,17 @@ Download the game for your respective platform from https://apps.apple.com/us/ap
 4) Generate the project files: Run `make_project.bat`
 5) The generated project will reside inside the build directory
 6) Open the Predators.sln file with visual studio
-7) Compile and run with.
+7) Compile and run the default Startup Project which should automatically be "Predators".
+8) (optional) The imgui debug widgets can be locked/unlocked by pressing the mouse wheel in case they need to be moved around.
+
+## Code Structure Details
+Due to the project being cross-platform, I've split the code is split into the following directories:
+* source_common: All game and engine platform agnostic code lives here.
+* source_test: All gtest suites live here aimed at unit testing different aspects of the project.
+* source_desktop: All desktop common code (think keyboard input, desktop specific rendering, etc) lives here.
+* source_ios: All ios specific code (think touch input, mobile rendering, etc) lives here.
+* source_windows_utilities: All Windows-specific utilities (e.g. Internet connection tests via the Win API) live here.
+* source_apple_utilities: All bridge code that interfaces with Apple's Objective C APIs live here (think Cloudkit, StoreKit, etc).
 
 ## Known issues/Tasks in Progress
 Sound support is unfortunately not yet implemented for Windows as of yet. I'm planning to integrate OpenAL for the windows version in the future.
