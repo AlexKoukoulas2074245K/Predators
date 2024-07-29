@@ -1,6 +1,9 @@
+ ![loading](https://github.com/user-attachments/assets/aaae2560-9014-4371-a13d-f7c983f47126)
+ 
 # Realm of Beasts (a.k.a Project Predators)
 Realm of beasts is a rogue-lite Deck Building game taking inspiration from Hearthstone & Slay the Spire. It is already released for all Apple systems and can also be played unofficially on Windows (without Store/Cloud support as of yet, see Running the Game below).
-[https://youtu.be/AosWRDqO3H0](https://www.youtube.com/watch?v=wgY9K8_8jrU)
+
+Trailer: [https://youtu.be/AosWRDqO3H0](https://www.youtube.com/watch?v=wgY9K8_8jrU)
 
 The game has a dedicated page detailing the latest released cards and a few FAQs:
 https://www.realmofbeasts.com/
