@@ -65,7 +65,7 @@ struct TutorialDefinition
 
 ///------------------------------------------------------------------------------------------------
 
-namespace scene { class SceneObject; }
+namespace scene { struct SceneObject; }
 class AnimatedButton;
 class TutorialManager final : public events::IListener
 {

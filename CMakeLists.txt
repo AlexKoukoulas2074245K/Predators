@@ -71,6 +71,7 @@ add_subdirectory(source_test)
 # Enable highest warning levels + treated as errors
 if(WIN32)
   target_compile_options(${PROJECT_NAME} PRIVATE "/MP")
+  target_compile_options(${PROJECT_NAME}_lib PRIVATE "/MP")
   target_compile_options(${PROJECT_NAME}_platform PRIVATE "/MP")
   target_compile_options(${PROJECT_NAME} PRIVATE /W4)
   target_compile_options(${PROJECT_NAME}_platform PRIVATE /W4)

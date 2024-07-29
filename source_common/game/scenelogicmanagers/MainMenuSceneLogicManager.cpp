@@ -846,14 +846,14 @@ void MainMenuSceneLogicManager::InitSubScene(const SubSceneType subSceneType, st
             
             for (int i = 0; i < AVAILABLE_STORY_DECKS_COUNT; ++i)
             {
-                scene::TextSceneObjectData textDataDeckSelectionPrompt;
-                textDataDeckSelectionPrompt.mFontName = game_constants::DEFAULT_FONT_NAME;
-                textDataDeckSelectionPrompt.mText = STORY_DECK_NAMES[i];
-                auto deckSelectionTextSceneObject = scene->CreateSceneObject(STORY_DECK_SCENE_OBJECT_NAMES[i]);
-                deckSelectionTextSceneObject->mSceneObjectTypeData = std::move(textDataDeckSelectionPrompt);
-                deckSelectionTextSceneObject->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
-                deckSelectionTextSceneObject->mPosition = STORY_DECK_NAME_POSITIONS[i];
-                deckSelectionTextSceneObject->mScale = STORY_DECK_NAME_SCALES;
+                scene::TextSceneObjectData textDataDeckSelectionPromptInner;
+                textDataDeckSelectionPromptInner.mFontName = game_constants::DEFAULT_FONT_NAME;
+                textDataDeckSelectionPromptInner.mText = STORY_DECK_NAMES[i];
+                auto deckSelectionTextSceneObjectInner= scene->CreateSceneObject(STORY_DECK_SCENE_OBJECT_NAMES[i]);
+                deckSelectionTextSceneObjectInner->mSceneObjectTypeData = std::move(textDataDeckSelectionPromptInner);
+                deckSelectionTextSceneObjectInner->mShaderFloatUniformValues[game_constants::CUSTOM_ALPHA_UNIFORM_NAME] = 0.0f;
+                deckSelectionTextSceneObjectInner->mPosition = STORY_DECK_NAME_POSITIONS[i];
+                deckSelectionTextSceneObjectInner->mScale = STORY_DECK_NAME_SCALES;
             }
             
             mCardFamilyContainerBot = std::make_unique<SwipeableContainer<CardFamilyEntry>>

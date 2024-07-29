@@ -44,7 +44,7 @@ void SoundManager::Initialize()
 
 void SoundManager::Update(const float dtMillis)
 {
-    PLATFORM_CALL(UpdateAudio(dtMillis));
+    PLATFORM_CALL(UpdateAudio(/*dtMillis*/));
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -58,14 +58,14 @@ void SoundManager::Vibrate()
 
 void SoundManager::PreloadSfx(const std::string& sfxResPath)
 {
-    PLATFORM_CALL(PreloadSfx(sfxResPath));
+    PLATFORM_CALL(PreloadSfx(/*sfxResPath*/));
 }
 
 ///------------------------------------------------------------------------------------------------
 
 void SoundManager::PlaySound(const std::string& soundResPath, const bool loopedSfxOrUnloopedMusic /* = false */, const float gain /* = 1.0f */, const float pitch /* = 1.0f */)
 {
-    PLATFORM_CALL(PlaySound(soundResPath, loopedSfxOrUnloopedMusic, gain, pitch));
+    PLATFORM_CALL(PlaySound(/*soundResPath, loopedSfxOrUnloopedMusic, gain, pitch*/));
 }
 
 ///------------------------------------------------------------------------------------------------
@@ -100,7 +100,7 @@ void SoundManager::PauseAudio()
 
 void SoundManager::SetAudioEnabled(const bool enabled)
 {
-    PLATFORM_CALL(SetAudioEnabled(enabled));
+    PLATFORM_CALL(SetAudioEnabled(/*enabled*/));
 }
 
 ///------------------------------------------------------------------------------------------------

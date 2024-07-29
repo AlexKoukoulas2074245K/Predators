@@ -1516,7 +1516,7 @@ void BattleSceneLogicManager::OnImmediateCardDestructionWithReposition(const eve
     {
         DestroyCardHighlighterAtIndex(event.mCardIndex);
         
-        for (int i = 0; i < cards.size(); ++i)
+        for (int i = 0; i < static_cast<int>(cards.size()); ++i)
         {
             auto cardHighlighterName = strutils::StringId(CARD_HIGHLIGHTER_SCENE_OBJECT_NAME_PREFIX + std::to_string(i));
             auto existingCardHighlighter = battleScene->FindSceneObject(cardHighlighterName);
@@ -1584,7 +1584,7 @@ void BattleSceneLogicManager::OnSingleUseHeldCardCopyDestructionWithReposition(c
     }
     
     // Animate rest of the cards to position.
-    for (int i = 0; i < cardSoWrappers.size(); ++i)
+    for (int i = 0; i < static_cast<int>(cardSoWrappers.size()); ++i)
     {
         auto& currentCardSoWrapper = cardSoWrappers.at(i);
         
@@ -1687,7 +1687,7 @@ void BattleSceneLogicManager::OnZeroCostTimeEvent(const events::ZeroCostTimeEven
     auto& playerState = mBoardState->GetPlayerStates()[(event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)];
     auto& heldSceneObjectWrappers = mPlayerHeldCardSceneObjectWrappers[(event.mForRemotePlayer ? game_constants::REMOTE_PLAYER_INDEX : game_constants::LOCAL_PLAYER_INDEX)];
     
-    for (auto i = 0; i < heldSceneObjectWrappers.size(); ++i)
+    for (auto i = 0; i < static_cast<int>(heldSceneObjectWrappers.size()); ++i)
     {
         auto& cardSceneObjectWrapper = heldSceneObjectWrappers[i];
         auto previousScale = cardSceneObjectWrapper->mSceneObject->mScale;
@@ -1730,7 +1730,7 @@ void BattleSceneLogicManager::OnCardSummoning(const events::CardSummoningEvent& 
         animationManager.StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(currentCardSoWrapper->mSceneObject, originalCardPosition, currentCardSoWrapper->mSceneObject->mScale, CARD_SELECTION_ANIMATION_DURATION, animation_flags::NONE, 0.0f, math::LinearFunction, math::TweeningMode::EASE_OUT), [=](){});
     }
     
-    for (int i = 0; i < event.mCardSoWrappers.size(); ++i)
+    for (int i = 0; i < static_cast<int>(event.mCardSoWrappers.size()); ++i)
     {
         playerBoardCardSoWrappers.push_back(event.mCardSoWrappers[i]);
     }

@@ -193,7 +193,7 @@ void StatsSceneLogicManager::CreateMutationVictoriesAndBestTimesScreen(std::shar
     const auto& victoryCounts = DataRepository::GetInstance().GetAllMutationLevelVictoryCounts();
     const auto& bestTimes = DataRepository::GetInstance().GetAllMutationLevelBestTimes();
     
-    for (int i = 0; i < victoryCounts.size(); ++i)
+    for (int i = 0; i < static_cast<int>(victoryCounts.size()); ++i)
     {
         if (victoryCounts[i] == 0)
         {

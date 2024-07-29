@@ -131,10 +131,10 @@ void PrivacyPolicySceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> sc
     std::stringstream textLineBuilder;
     for (const auto& line: privacyPolicySplitByNewline)
     {
-        for (auto i = 0; i < line.size(); i += PRIVACY_POLICY_LINE_CHAR_LIMIT)
+        for (auto i = 0; i < static_cast<int>(line.size()); i += PRIVACY_POLICY_LINE_CHAR_LIMIT)
         {
             auto lineString = line.substr(i, PRIVACY_POLICY_LINE_CHAR_LIMIT);
-            while (i + PRIVACY_POLICY_LINE_CHAR_LIMIT < line.size())
+            while (i + PRIVACY_POLICY_LINE_CHAR_LIMIT < static_cast<int>(line.size()))
             {
                 lineString += line[i + PRIVACY_POLICY_LINE_CHAR_LIMIT];
                 i++;

@@ -42,8 +42,8 @@ private:
     InputStateManagerPlatformImpl() = default;
     
 private:
-    glm::vec2 mPointingPos;
-    glm::ivec2 mCurrentWheelDelta;
+    glm::vec2 mPointingPos = {};
+    glm::ivec2 mCurrentWheelDelta = {};
     uint8_t mCurrentFrameButtonState = 0U;
     uint8_t mPreviousFrameButtonState = 0U;
 };

@@ -210,7 +210,7 @@ void AchievementsSceneLogicManager::UpdateAchievementContainer(const float dtMil
     static float time = 0.0f;
     time += dtMillis * 0.001f;
     
-    for (auto i = 0; i < mAchievementsContainer->GetItems().size(); ++i)
+    for (auto i = 0; i < static_cast<int>(mAchievementsContainer->GetItems().size()); ++i)
     {
         for (auto& sceneObject: mAchievementsContainer->GetItems()[i].mSceneObjects)
         {

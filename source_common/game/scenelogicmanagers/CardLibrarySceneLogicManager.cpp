@@ -397,7 +397,7 @@ void CardLibrarySceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr
         DataRepository::GetInstance().SetSeenTutorials(seenTutorials);
     }
     
-    for (auto i = 0; i < mCardContainer->GetItems().size(); ++i)
+    for (auto i = 0; i < static_cast<int>(mCardContainer->GetItems().size()); ++i)
     {
         for (auto& sceneObject: mCardContainer->GetItems()[i].mSceneObjects)
         {
@@ -971,7 +971,7 @@ void CardLibrarySceneLogicManager::DeleteCard()
     auto& storyCurrencyCoins = DataRepository::GetInstance().CurrencyCoins();
     storyCurrencyCoins.SetValue(storyCurrencyCoins.GetValue() - CARD_DELETION_SERVICE_PRICE);
     
-    mCoinAnimationValue = storyCurrencyCoins.GetDisplayedValue();
+    mCoinAnimationValue = static_cast<float>(storyCurrencyCoins.GetDisplayedValue());
     mAnimatingCoinValue = true;
     
     CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(mCoinAnimationValue, static_cast<float>(storyCurrencyCoins.GetValue()), ANIMATED_COIN_VALUE_DURATION_SECS), [=](){ mAnimatingCoinValue = false; });

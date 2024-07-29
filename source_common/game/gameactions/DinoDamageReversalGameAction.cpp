@@ -38,7 +38,7 @@ void DinoDamageReversalGameAction::VSetNewGameState()
     auto& activePlayerState = mBoardState->GetActivePlayerState();
     std::vector<int> applicableHeldCardIndices;
     
-    for (auto i = 0; i < activePlayerState.mPlayerHeldCards.size(); ++i)
+    for (auto i = 0; i < static_cast<int>(activePlayerState.mPlayerHeldCards.size()); ++i)
     {
         const auto& cardData = CardDataRepository::GetInstance().GetCardData(activePlayerState.mPlayerHeldCards[i], mBoardState->GetActivePlayerIndex());
         if (cardData.mCardFamily == game_constants::DINOSAURS_FAMILY_NAME && !cardData.IsSpell())
@@ -140,7 +140,7 @@ void DinoDamageReversalGameAction::VInitAnimation()
     
     for (size_t i = 0U; i < heldCards.size(); ++i)
     {
-        if (i != mLowestDamageHeldCardIndex && i != mHighestDamageHeldCardIndex)
+        if (static_cast<int>(i) != mLowestDamageHeldCardIndex && static_cast<int>(i) != mHighestDamageHeldCardIndex)
         {
             continue;
         }

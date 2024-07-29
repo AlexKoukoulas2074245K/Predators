@@ -1504,7 +1504,7 @@ void ShopSceneLogicManager::ChangeAndAnimateCoinValueReduction(long long coinVal
     auto& storyCurrencyCoins = DataRepository::GetInstance().CurrencyCoins();
     storyCurrencyCoins.SetValue(storyCurrencyCoins.GetValue() - coinValueReduction);
     
-    mCoinAnimationValue = storyCurrencyCoins.GetDisplayedValue();
+    mCoinAnimationValue = static_cast<float>(storyCurrencyCoins.GetDisplayedValue());
     mAnimatingCoinValue = true;
     
     if (mSceneState != SceneState::BUYING_PERMA_SHOP_PRODUCT)

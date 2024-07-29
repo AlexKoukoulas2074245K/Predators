@@ -657,7 +657,7 @@ void GuiObjectManager::OnRareItemCollected(const events::RareItemCollectedEvent&
                 if (sceneToSpawnParticlesIn)
                 {
                     mScene->RemoveSceneObject(GENERIC_PARTICLE_EMITTER_SCENE_OBJECT_NAME);
-                    auto particleEmitterSceneObject = CoreSystemsEngine::GetInstance().GetParticleManager().CreateParticleEmitterAtPosition(particleDefinition, GENERIC_RARE_ITEM_PARTICLE_ORIGIN_POSITION, *sceneToSpawnParticlesIn, GENERIC_PARTICLE_EMITTER_SCENE_OBJECT_NAME, [=](float dtMillis, scene::ParticleEmitterObjectData& particleEmitterData){});
+                    auto particleEmitterSceneObject = CoreSystemsEngine::GetInstance().GetParticleManager().CreateParticleEmitterAtPosition(particleDefinition, GENERIC_RARE_ITEM_PARTICLE_ORIGIN_POSITION, *sceneToSpawnParticlesIn, GENERIC_PARTICLE_EMITTER_SCENE_OBJECT_NAME, [=](float, scene::ParticleEmitterObjectData&){});
                 }
             }
             

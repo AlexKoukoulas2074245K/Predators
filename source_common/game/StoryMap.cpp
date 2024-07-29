@@ -594,9 +594,9 @@ void StoryMap::CreateMapSceneObjects()
                     const auto& registeredStats = respectiveMap.at(mapNodeEntry.first.mCol);
                     const auto& selectedStatOffset = SAME_ENCOUNTER_COLUMN_STAT_OFFSETS[math::ControlledRandomInt() % POSSIBLE_STAT_OFFSETS_COUNT];
                     
-                    nodeOpponentDamage = math::Max(1, registeredStats.mDamage + selectedStatOffset.r);
-                    nodeOpponentHealth = math::Max(1, registeredStats.mHealth + selectedStatOffset.g);
-                    nodeOpponentWeight = math::Max(1, registeredStats.mWeight + selectedStatOffset.b);
+                    nodeOpponentDamage = static_cast<float>(math::Max(1, registeredStats.mDamage + selectedStatOffset.r));
+                    nodeOpponentHealth = static_cast<float>(math::Max(1, registeredStats.mHealth + selectedStatOffset.g));
+                    nodeOpponentWeight = static_cast<float>(math::Max(1, registeredStats.mWeight + selectedStatOffset.b));
                 }
                 else
                 {

@@ -258,7 +258,7 @@ public:
         }
         else if (!mBlockedUpdate && ((scrollDelta.x != 0 && mContainerType == ContainerType::HORIZONTAL_LINE)|| (scrollDelta.y != 0 && mContainerType == ContainerType::VERTICAL_MATRIX)))
         {
-            mSwipeVelocityDelta = mContainerType == ContainerType::HORIZONTAL_LINE ? -scrollDelta.x : -scrollDelta.y;
+            mSwipeVelocityDelta = mContainerType == ContainerType::HORIZONTAL_LINE ? static_cast<float>(- scrollDelta.x) : static_cast<float>(- scrollDelta.y);
             mSwipeVelocityDelta *= WHEEL_SWIPE_VELOCITY_MAGNITUDE;
         }
         else if (!mBlockedUpdate && inputStateManager.VButtonPressed(input::Button::MAIN_BUTTON) && mItems.size() >= mMinItemsToAnimate)

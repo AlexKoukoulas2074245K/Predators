@@ -22,9 +22,8 @@
     #endif
     #define GL_CALL(func) do { func; auto err = glGetError(); if (err != GL_NO_ERROR) { printf("GLError: %d\n", err); assert(false); } } while (0)
     #define GL_NO_CHECK_CALL(func) func
-#else
-    #define GLEW_STATIC
-    #include <engine/rendering/glew/glew.h>
+#else    
+    #include <engine/rendering/glew/glew.h>    
     #define GL_CALL(func) do { func; auto err = glGetError(); if (err != GL_NO_ERROR) { printf("GLError: %d\n", err); assert(false); } } while (0)
     #define GL_NO_CHECK_CALL(func) func
 #endif

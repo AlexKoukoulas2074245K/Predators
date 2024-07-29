@@ -163,7 +163,7 @@ void MeteorDamageGameAction::VInitAnimation()
 
 ///------------------------------------------------------------------------------------------------
 
-ActionAnimationUpdateResult MeteorDamageGameAction::VUpdateAnimation(const float dtMillis)
+ActionAnimationUpdateResult MeteorDamageGameAction::VUpdateAnimation(const float)
 {
     if (mFinished)
     {

@@ -137,7 +137,7 @@ void WheelOfFortuneSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> s
             rareItemsCount = math::Min(REWARD_COUNT, rareItemsCount);
             
             std::unordered_set<strutils::StringId, strutils::StringIdHasher> rareItemSelection;
-            while (rareItemSelection.size() < rareItemsCount && rareItemSelection.size() < rareItemProductNames.size())
+            while (static_cast<int>(rareItemSelection.size()) < rareItemsCount && rareItemSelection.size() < rareItemProductNames.size())
             {
                 rareItemSelection.insert(rareItemProductNames[math::ControlledRandomInt() % rareItemProductNames.size()]);
             }

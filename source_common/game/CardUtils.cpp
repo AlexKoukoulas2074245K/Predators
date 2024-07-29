@@ -454,7 +454,7 @@ std::shared_ptr<CardSoWrapper> CreateCardSoWrapper
 
 ///------------------------------------------------------------------------------------------------
 
-void PlayCardPlaySfx(const CardData* cardData)
+void PlayCardPlaySfx(const CardData*)
 {
     CoreSystemsEngine::GetInstance().GetSoundManager().PlaySound(CARD_PLAY_SFX);
 }
@@ -528,7 +528,7 @@ void ExportCardData(const strutils::StringId& expansionId, std::shared_ptr<scene
     }
 #endif
     
-    for (auto i = 0; i < cardIdsToExport.size(); ++i)
+    for (auto i = 0; i < static_cast<int>(cardIdsToExport.size()); ++i)
     {
         const auto& cardData = CardDataRepository::GetInstance().GetCardData(cardIdsToExport[i], false);
         auto cardEffectTooltip = cardData.mCardEffectTooltip;

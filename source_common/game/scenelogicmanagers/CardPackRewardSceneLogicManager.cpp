@@ -440,7 +440,7 @@ void CardPackRewardSceneLogicManager::PreparePackVertexVelocities(std::shared_pt
     {
         mCardPackVertexVelocities.resize(meshData.mVertices.size());
         
-        for (int i = 0; i < meshData.mVertices.size(); ++i)
+        for (int i = 0; i < static_cast<int>(meshData.mVertices.size()); ++i)
         {
             auto randomVelocityOffset = glm::vec3(math::RandomFloat(-PACK_EXPLOSION_NOISE_MAG, PACK_EXPLOSION_NOISE_MAG), math::RandomFloat(-PACK_EXPLOSION_NOISE_MAG, PACK_EXPLOSION_NOISE_MAG), 0.0f);
             if (math::Abs(meshData.mNormals[i].z) > 0.8)
@@ -469,7 +469,7 @@ void CardPackRewardSceneLogicManager::UpdatePackVertices(const float dtMillis, s
     
     cardPackMesh.ApplyDirectTransformToData([=](resources::MeshResource::MeshData& meshData)
     {
-        for (int i = 0; i < meshData.mVertices.size(); ++i)
+        for (int i = 0; i < static_cast<int>(meshData.mVertices.size()); ++i)
         {
             float oldZ = meshData.mVertices[i].z;
             mCardPackVertexVelocities[i] += PACK_VERTEX_GRAVITY * dtMillis;
@@ -511,7 +511,7 @@ void CardPackRewardSceneLogicManager::CardPackShakeStep(std::shared_ptr<scene::S
         });
         
         // Fade in card rewards
-        for (auto i = 0; i < mCardRewards.size(); ++i)
+        for (auto i = 0; i < static_cast<int>(mCardRewards.size()); ++i)
         {
             mCardRewards[i]->mSceneObject->mInvisible = false;
             CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenPositionScaleAnimation>(mCardRewards[i]->mSceneObject, mCardRewards[i]->mSceneObject->mPosition, CARD_REWARD_DEFAULT_SCALE, CARD_REWARD_SURFACE_DELAY_SECS, animation_flags::NONE, CARD_REWARD_SURFACE_DELAY_SECS + i * CARD_REWARD_SURFACE_DELAY_SECS, math::ElasticFunction, math::TweeningMode::EASE_IN), [=](){});

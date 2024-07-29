@@ -103,7 +103,7 @@ void CardEffectGameAction::VSetNewGameState()
         {
             heldCardIndicesToDestroy.push_back(static_cast<int>(std::distance(activePlayerState.mPlayerHeldCards.begin(), heldCardIter)));
             
-            if (activePlayerState.mPlayerHeldCardStatOverrides.size() > heldCardIndicesToDestroy.back())
+            if (static_cast<int>(activePlayerState.mPlayerHeldCardStatOverrides.size()) > heldCardIndicesToDestroy.back())
             {
                 activePlayerState.mPlayerHeldCardStatOverrides.erase(activePlayerState.mPlayerHeldCardStatOverrides.begin() + heldCardIndicesToDestroy.back());
             }
@@ -122,15 +122,15 @@ void CardEffectGameAction::VSetNewGameState()
                 { CardDestructionGameAction::IS_TRAP_TRIGGER_PARAM, "false"}
             });
             
-            for (auto heldCardIter = activePlayerState.mPlayerHeldCards.begin(); heldCardIter != activePlayerState.mPlayerHeldCards.end();)
+            for (auto heldCardIterInner = activePlayerState.mPlayerHeldCards.begin(); heldCardIterInner != activePlayerState.mPlayerHeldCards.end();)
             {
-                if (*heldCardIter == cardId)
+                if (*heldCardIterInner == cardId)
                 {
-                    heldCardIter = activePlayerState.mPlayerHeldCards.erase(heldCardIter);
+                    heldCardIterInner = activePlayerState.mPlayerHeldCards.erase(heldCardIterInner);
                 }
                 else
                 {
-                    heldCardIter++;
+                    heldCardIterInner++;
                 }
             }
             
@@ -433,7 +433,7 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
             // Filter out spell cards and find lowest attack card
             int selectedCardIndex = -1;
             int minDamageFound = 20;
-            for (int i = 0; i < heldCards.size(); ++i)
+            for (int i = 0; i < static_cast<int>(heldCards.size()); ++i)
             {
                 const auto& cardData = CardDataRepository::GetInstance().GetCardData(heldCards[i], mBoardState->GetActivePlayerIndex());
                 if (!cardData.IsSpell() && cardData.mCardDamage < minDamageFound)
@@ -449,11 +449,11 @@ void CardEffectGameAction::HandleCardEffect(const std::string& effect)
                 auto& activePlayerState = mBoardState->GetActivePlayerState();
                 auto& playerHeldCardStatOverrides = activePlayerState.mPlayerHeldCardStatOverrides;
                 
-                if (playerHeldCardStatOverrides.size() > selectedCardIndex && playerHeldCardStatOverrides[selectedCardIndex].count(CardStatType::DAMAGE))
+                if (static_cast<int>(playerHeldCardStatOverrides.size()) > selectedCardIndex && playerHeldCardStatOverrides[selectedCardIndex].count(CardStatType::DAMAGE))
                 {
                     playerHeldCardStatOverrides[selectedCardIndex][CardStatType::DAMAGE] *= 3;
                 }
-                else if (playerHeldCardStatOverrides.size() <= selectedCardIndex)
+                else if (static_cast<int>(playerHeldCardStatOverrides.size()) <= selectedCardIndex)
                 {
                     playerHeldCardStatOverrides.resize(selectedCardIndex + 1);
                     playerHeldCardStatOverrides[selectedCardIndex][CardStatType::DAMAGE] = CardDataRepository::GetInstance().GetCardData(heldCards[selectedCardIndex], mBoardState->GetActivePlayerIndex()).mCardDamage * 3;

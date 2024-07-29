@@ -69,10 +69,10 @@ bool GameRuleEngine::CanCardBePlayed(const CardData* cardData, const size_t card
     if (strutils::StringContains(cardData->mCardEffect, effects::EFFECT_COMPONENT_SWAP_MIN_MAX_DAMAGE))
     {
         auto applicableCards = 0;
-        for (auto i = 0; i < activePlayerState.mPlayerHeldCards.size(); ++i)
+        for (auto i = 0; i < static_cast<int>(activePlayerState.mPlayerHeldCards.size()); ++i)
         {
-            const auto& cardData = CardDataRepository::GetInstance().GetCardData(activePlayerState.mPlayerHeldCards[i], mBoardState->GetActivePlayerIndex());
-            if (cardData.mCardFamily == game_constants::DINOSAURS_FAMILY_NAME && !cardData.IsSpell())
+            const auto& cardDataInner = CardDataRepository::GetInstance().GetCardData(activePlayerState.mPlayerHeldCards[i], mBoardState->GetActivePlayerIndex());
+            if (cardDataInner.mCardFamily == game_constants::DINOSAURS_FAMILY_NAME && !cardDataInner.IsSpell())
             {
                 applicableCards++;
             }

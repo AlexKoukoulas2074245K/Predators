@@ -137,8 +137,8 @@ void GiftCodeClaimSceneLogicManager::VInitScene(std::shared_ptr<scene::Scene> sc
     if (claimResult != GiftCodeClaimedResultType::SUCCESS)
     {
         auto boundingRectBotText = scene_object_utils::GetSceneObjectBoundingRect(*textClaimResultBotSceneObject);
-        auto textLength = boundingRectBotText.topRight.x - boundingRectBotText.bottomLeft.x;
-        textClaimResultBotSceneObject->mPosition.x -= textLength/2.0f;
+        auto textLengthInner = boundingRectBotText.topRight.x - boundingRectBotText.bottomLeft.x;
+        textClaimResultBotSceneObject->mPosition.x -= textLengthInner /2.0f;
     }
     
     mAnimatedButtons.emplace_back(std::make_unique<AnimatedButton>

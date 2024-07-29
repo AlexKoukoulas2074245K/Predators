@@ -315,13 +315,13 @@ void AchievementManager::CreateAchievement()
         CoreSystemsEngine::GetInstance().GetAnimationManager().StopAnimation(ACHIEVEMENT_FRAME_LIGHT_RAY_ANIMATION);
         CoreSystemsEngine::GetInstance().GetAnimationManager().StopAnimation(ACHIEVEMENT_PORTRAIT_LIGHT_RAY_ANIMATION);
         
-        auto achievementFrameSceneObject = unlockedAchievementScene->FindSceneObject(ACHIEVEMENT_UNLOCKED_ACHIEVEMENT_FRAME_SCENE_OBJECT_NAME);
+        auto achievementFrameSceneObjectInner = unlockedAchievementScene->FindSceneObject(ACHIEVEMENT_UNLOCKED_ACHIEVEMENT_FRAME_SCENE_OBJECT_NAME);
         auto achievementPortraitSceneObject = unlockedAchievementScene->FindSceneObject(ACHIEVEMENT_UNLOCKED_PORTRAIT_SCENE_OBJECT_NAME);
         
-        achievementFrameSceneObject->mShaderFloatUniformValues[game_constants::LIGHT_POS_X_UNIFORM_NAME] = game_constants::GOLDEN_CARD_LIGHT_POS_MIN_MAX_X.s;
+        achievementFrameSceneObjectInner->mShaderFloatUniformValues[game_constants::LIGHT_POS_X_UNIFORM_NAME] = game_constants::GOLDEN_CARD_LIGHT_POS_MIN_MAX_X.s;
         achievementPortraitSceneObject->mShaderFloatUniformValues[game_constants::LIGHT_POS_X_UNIFORM_NAME] = game_constants::GOLDEN_CARD_LIGHT_POS_MIN_MAX_X.s;
         
-        CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(achievementFrameSceneObject->mShaderFloatUniformValues[game_constants::LIGHT_POS_X_UNIFORM_NAME], game_constants::GOLDEN_CARD_LIGHT_POS_MIN_MAX_X.t, 1.0f), [](){}, ACHIEVEMENT_FRAME_LIGHT_RAY_ANIMATION);
+        CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(achievementFrameSceneObjectInner->mShaderFloatUniformValues[game_constants::LIGHT_POS_X_UNIFORM_NAME], game_constants::GOLDEN_CARD_LIGHT_POS_MIN_MAX_X.t, 1.0f), [](){}, ACHIEVEMENT_FRAME_LIGHT_RAY_ANIMATION);
         CoreSystemsEngine::GetInstance().GetAnimationManager().StartAnimation(std::make_unique<rendering::TweenValueAnimation>(achievementPortraitSceneObject->mShaderFloatUniformValues[game_constants::LIGHT_POS_X_UNIFORM_NAME], game_constants::GOLDEN_CARD_LIGHT_POS_MIN_MAX_X.t, 1.0f), [](){}, ACHIEVEMENT_PORTRAIT_LIGHT_RAY_ANIMATION);
         
         events::EventSystem::GetInstance().DispatchEvent<events::CoinRewardEvent>(static_cast<int>(achievementDefinition.mAchievementBountyReward), goldCoinSourcePosition);

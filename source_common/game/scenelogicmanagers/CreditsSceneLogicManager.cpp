@@ -161,7 +161,7 @@ void CreditsSceneLogicManager::VUpdate(const float dtMillis, std::shared_ptr<sce
         return;
     }
     
-    for (int i = 0; i < mTextSceneObjects.size(); ++i)
+    for (int i = 0; i < static_cast<int>(mTextSceneObjects.size()); ++i)
     {
         auto& sceneObject = mTextSceneObjects[i];
         sceneObject->mPosition.y += dtMillis * TEXT_SPEED;

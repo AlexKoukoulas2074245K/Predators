@@ -56,7 +56,7 @@ struct AchievementDefinition
 
 ///------------------------------------------------------------------------------------------------
 
-namespace scene { class SceneObject; }
+namespace scene { struct SceneObject; }
 class AnimatedButton;
 class GuiObjectManager;
 class AchievementManager final : public events::IListener

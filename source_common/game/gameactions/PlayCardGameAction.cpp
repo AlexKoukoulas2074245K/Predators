@@ -226,10 +226,10 @@ void PlayCardGameAction::VSetNewGameState()
         bool shouldSendEndGameTutorialTrigger = true;
         if (!activePlayerState.mPlayerHeldCards.empty())
         {
-            for (int i = 0; i < activePlayerState.mPlayerHeldCards.size(); ++i)
+            for (int i = 0; i < static_cast<int>(activePlayerState.mPlayerHeldCards.size()); ++i)
             {
-                const auto& cardData = CardDataRepository::GetInstance().GetCardData(activePlayerState.mPlayerHeldCards[i], game_constants::LOCAL_PLAYER_INDEX);
-                if (mGameRuleEngine && mGameRuleEngine->CanCardBePlayed(&cardData, i, game_constants::LOCAL_PLAYER_INDEX))
+                const auto& cardDataInner = CardDataRepository::GetInstance().GetCardData(activePlayerState.mPlayerHeldCards[i], game_constants::LOCAL_PLAYER_INDEX);
+                if (mGameRuleEngine && mGameRuleEngine->CanCardBePlayed(&cardDataInner, i, game_constants::LOCAL_PLAYER_INDEX))
                 {
                     shouldSendEndGameTutorialTrigger = false;
                     break;
@@ -268,7 +268,7 @@ void PlayCardGameAction::VInitAnimation()
         auto& animationManager = CoreSystemsEngine::GetInstance().GetAnimationManager();
         
         // Other cards make space for this card to be played
-        for (auto i = 0; i < mBattleSceneLogicManager->GetHeldCardSoWrappers()[mBoardState->GetActivePlayerIndex()].size(); ++i)
+        for (auto i = 0; i < static_cast<int>(mBattleSceneLogicManager->GetHeldCardSoWrappers()[mBoardState->GetActivePlayerIndex()].size()); ++i)
         {
             if (mBoardState->GetActivePlayerIndex() == game_constants::REMOTE_PLAYER_INDEX)
             {

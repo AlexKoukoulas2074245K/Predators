@@ -88,15 +88,15 @@ void MeteorCardSacrificeGameAction::VSetNewGameState()
         { CardDestructionGameAction::IS_TRAP_TRIGGER_PARAM, "false"}
     });
     
-    for (auto heldCardIter = activePlayerState.mPlayerHeldCards.begin(); heldCardIter != activePlayerState.mPlayerHeldCards.end();)
+    for (auto heldCardIterInner = activePlayerState.mPlayerHeldCards.begin(); heldCardIterInner != activePlayerState.mPlayerHeldCards.end();)
     {
-        if (*heldCardIter == selectedCardIdToSacrifice)
+        if (*heldCardIterInner == selectedCardIdToSacrifice)
         {
-            heldCardIter = activePlayerState.mPlayerHeldCards.erase(heldCardIter);
+            heldCardIterInner = activePlayerState.mPlayerHeldCards.erase(heldCardIterInner);
         }
         else
         {
-            heldCardIter++;
+            heldCardIterInner++;
         }
     }
     

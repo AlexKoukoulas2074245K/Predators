@@ -268,7 +268,7 @@ void InventorySceneLogicManager::UpdateItemContainer(const float dtMillis, std::
     static float time = 0.0f;
     time += dtMillis * 0.001f;
     
-    for (auto i = 0; i < itemContainer->GetItems().size(); ++i)
+    for (auto i = 0; i < static_cast<int>(itemContainer->GetItems().size()); ++i)
     {
         for (auto& sceneObject: itemContainer->GetItems()[i].mSceneObjects)
         {
@@ -624,8 +624,8 @@ void InventorySceneLogicManager::UpdateMutationInteraction(const float dtMillis,
                 
                 for (auto i = 0; i < DataRepository::GetInstance().GetCurrentStoryMutationLevel(); ++i)
                 {
-                    auto mutationTextOverlaySceneObject = mScene->FindSceneObject(strutils::StringId(MUTATION_TEXT_NAME_PREFIX + std::to_string(i)));
-                    animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(mutationTextOverlaySceneObject, 0.0f, MUTATION_TEXT_CONTINUE_BUTTON_FADE_IN_OUT_DURATION_SECS), [](){});
+                    auto mutationTextOverlaySceneObjectInner = mScene->FindSceneObject(strutils::StringId(MUTATION_TEXT_NAME_PREFIX + std::to_string(i)));
+                    animationManager.StartAnimation(std::make_unique<rendering::TweenAlphaAnimation>(mutationTextOverlaySceneObjectInner, 0.0f, MUTATION_TEXT_CONTINUE_BUTTON_FADE_IN_OUT_DURATION_SECS), [](){});
                 }
             },
             *scene

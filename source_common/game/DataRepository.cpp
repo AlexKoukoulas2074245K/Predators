@@ -614,7 +614,7 @@ const int& DataRepository::GetMutationLevelVictories(const int mutationLevel) co
 void DataRepository::SetAllMutationLevelVictoryCounts(const std::vector<int>& mutationLevelVictoryCounts)
 {
     // Done this way for backwards compatibility safety (older game file with less mutations)
-    for (auto i = 0; i < mutationLevelVictoryCounts.size(); ++i)
+    for (auto i = 0; i < static_cast<int>(mutationLevelVictoryCounts.size()); ++i)
     {
         mStoryMutationLevelVictories[i] = mutationLevelVictoryCounts[i];
     }
@@ -651,7 +651,7 @@ const int& DataRepository::GetMutationLevelBestTime(const int mutationLevel) con
 void DataRepository::SetAllMutationLevelBestTimes(const std::vector<int>& mutationLevelBestTimes)
 {
     // Done this way for backwards compatibility safety (older game file with less mutations)
-    for (auto i = 0; i < mutationLevelBestTimes.size(); ++i)
+    for (auto i = 0; i < static_cast<int>(mutationLevelBestTimes.size()); ++i)
     {
         mStoryMutationLevelBestTimes[i] = mutationLevelBestTimes[i];
     }

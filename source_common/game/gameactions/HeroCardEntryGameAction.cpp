@@ -163,14 +163,14 @@ void HeroCardEntryGameAction::VInitAnimation()
         auto topHealthContainerBase = scene->FindSceneObject(TOP_PLAYER_HEALTH_CONTAINER_BASE);
         auto topHealthContainerValue = scene->FindSceneObject(TOP_PLAYER_HEALTH_CONTAINER_VALUE);
         
-        auto heroCardSoWrapper = mBattleSceneLogicManager->GetBoardCardSoWrappers()[game_constants::REMOTE_PLAYER_INDEX].at(0);
-        topHealthContainerBase->mPosition = heroCardSoWrapper->mSceneObject->mPosition + HEALTH_BASE_OFFSET;
+        auto heroCardSoWrapperInner = mBattleSceneLogicManager->GetBoardCardSoWrappers()[game_constants::REMOTE_PLAYER_INDEX].at(0);
+        topHealthContainerBase->mPosition = heroCardSoWrapperInner->mSceneObject->mPosition + HEALTH_BASE_OFFSET;
         topHealthContainerValue->mPosition = topHealthContainerBase->mPosition + HEALTH_VALUE_TEXT_OFFSET;
         
         auto boundingRect = scene_object_utils::GetSceneObjectBoundingRect(*topHealthContainerValue);
         topHealthContainerValue->mPosition.x -= (boundingRect.topRight.x - boundingRect.bottomLeft.x)/2.0f;
         
-        heroCardSoWrapper->mSceneObject->mShaderBoolUniformValues[game_constants::IS_HELD_CARD_UNIFORM_NAME] = false;
+        heroCardSoWrapperInner->mSceneObject->mShaderBoolUniformValues[game_constants::IS_HELD_CARD_UNIFORM_NAME] = false;
         mAnimationState = AnimationState::INITIALIZE_HEALTH_CRYSTAL_ANIMATION;
     });
     

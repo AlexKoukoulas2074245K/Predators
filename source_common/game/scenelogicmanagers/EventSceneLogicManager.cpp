@@ -889,7 +889,7 @@ void EventSceneLogicManager::SelectRandomStoryEvent(const bool debugDeterministi
         );
     }
     
-    for (auto i = 0; i < mRegisteredStoryEvents.size(); ++i)
+    for (auto i = 0; i < static_cast<int>(mRegisteredStoryEvents.size()); ++i)
     {
         logging::Log(logging::LogType::INFO, "Event %d %s applicable=%s", i, mRegisteredStoryEvents[i].mEventName.GetString().c_str(), mRegisteredStoryEvents[i].mApplicabilityFunction() ? "true" : "false");
     }
